@@ -1,0 +1,7 @@
+#!/usr/bin/env php
+<?php
+
+require dirname(__DIR__) . '/src/autoload.php';
+
+$sh = new \Psy\Shell;
+$sh->run();
