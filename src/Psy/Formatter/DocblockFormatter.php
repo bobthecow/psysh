@@ -2,23 +2,20 @@
 
 namespace Psy\Formatter;
 
+use Psy\Formatter\Formatter;
 use Psy\Util\Docblock;
 
-class DocblockFormatter
+class DocblockFormatter implements Formatter
 {
     private static $vectorParamTemplates = array(
         'type' => 'info',
         'var'  => 'strong',
     );
 
-	public static function format(Docblock $docblock)
-	{
-        return self::formatDocblock($docblock);
-	}
-
-    private static function formatDocblock(Docblock $docblock)
+    public static function format(\Reflector $reflector)
     {
-        $chunks = array();
+        $docblock = new Docblock($reflector);
+        $chunks   = array();
 
         if (!empty($docblock->desc)) {
             $chunks[] = '<comment>Description:</comment>';

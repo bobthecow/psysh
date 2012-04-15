@@ -1,34 +1,34 @@
 <?php
 
-namespace Psy\Util\Signature;
+namespace Psy\Formatter\Signature;
 
-use Psy\Util\Signature\Signature;
+use Psy\Formatter\Signature\SignatureFormatter;
 
 /**
  * Class signature representation.
  */
-class ClassSignature extends Signature
+class ClassSignatureFormatter extends SignatureFormatter
 {
     /**
      * {@inheritdoc}
      */
-    public function prettyPrint()
+    public static function format(\Reflector $reflector)
     {
         $chunks = array();
 
-        if ($modifiers = $this->printModifiers()) {
+        if ($modifiers = self::formatModifiers($reflector)) {
             $chunks[] = $modifiers;
         }
 
-        $chunks[] = $this->reflector->isInterface() ? 'interface' : 'class';
-        $chunks[] = sprintf('<info>%s</info>', $this->printName());
+        $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
+        $chunks[] = sprintf('<info>%s</info>', self::formatName($reflector));
 
-        if ($parent = $this->reflector->getParentClass()) {
+        if ($parent = $reflector->getParentClass()) {
             $chunks[] = 'extends';
             $chunks[] = sprintf('<info>%s</info>', $parent->getName());
         }
 
-        $interfaces = $this->reflector->getInterfaceNames();
+        $interfaces = $reflector->getInterfaceNames();
         if (!empty($interfaces)) {
             $chunks[] = 'implements';
             $chunks[] = implode(', ', array_map(function($name) {

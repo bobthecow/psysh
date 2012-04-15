@@ -8,7 +8,7 @@ use Psy\Formatter\DocblockFormatter;
 use Psy\Shell;
 use Psy\ShellAware;
 use Psy\Util\Docblock;
-use Psy\Util\Documentor;
+use Psy\Util\Mirror;
 use Psy\Util\Inspector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,6 +46,8 @@ abstract class ReflectingCommand extends Command implements ShellAware
 
     protected function getInstance($valueName)
     {
+        throw new \RuntimeException('deprecated');
+
         $valueName = trim($valueName);
         $matches   = array();
         switch (true) {
@@ -72,7 +74,7 @@ abstract class ReflectingCommand extends Command implements ShellAware
      *
      * @return array (class or instance name, member name, kind)
      */
-    protected function getTarget($valueName)
+    protected function getTarget($valueName, $classOnly = false)
     {
         $valueName = trim($valueName);
         $matches   = array();
@@ -83,27 +85,41 @@ abstract class ReflectingCommand extends Command implements ShellAware
             case preg_match(self::INSTANCE, $valueName, $matches):
                 return array($this->resolveInstance($matches[1]), null, 0);
 
-            case preg_match(self::CLASS_MEMBER, $valueName, $matches):
-                return array($matches[1], $matches[2], Documentor::CONSTANT | Documentor::METHOD);
+            case (!$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches)):
+                return array($matches[1], $matches[2], Mirror::CONSTANT | Mirror::METHOD);
 
-            case preg_match(self::CLASS_STATIC, $valueName, $matches):
-                return array($matches[1], $matches[2], Documentor::STATIC_PROPERTY | Documentor::PROPERTY);
+            case (!$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches)):
+                return array($matches[1], $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
 
-            case preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
+            case (!$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches)):
                 if ($matches[2] == '->') {
-                    $kind = Documentor::METHOD | Documentor::PROPERTY;
+                    $kind = Mirror::METHOD | Mirror::PROPERTY;
                 } else {
-                    $kind = Documentor::CONSTANT | Documentor::METHOD;
+                    $kind = Mirror::CONSTANT | Mirror::METHOD;
                 }
 
                 return array($this->resolveInstance($matches[1]), $matches[3], $kind);
 
-            case preg_match(self::INSTANCE_STATIC, $valueName, $matches):
+            case (!$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches)):
                 return array($this->resolveInstance($matches[1]), $matches[2], Inspector::STATIC_PROPERTY);
 
             default:
                 throw new RuntimeException('Unknown target: '.$valueName);
         }
+    }
+
+    /**
+     * Get a Reflector and documentation for a function, class or instance, constant, method or property.
+     *
+     * @param string $valueName Function, class, variable, constant, method or property name.
+     *
+     * @return array (value, Reflector)
+     */
+    protected function getTargetAndReflector($valueName, $classOnly = false)
+    {
+        list ($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
+
+        return array($value, Mirror::get($value, $member, $kind));
     }
 
     /**

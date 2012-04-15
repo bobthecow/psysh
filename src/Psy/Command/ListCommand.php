@@ -3,11 +3,13 @@
 namespace Psy\Command;
 
 use Psy\Command\ReflectingCommand;
-use Psy\Util\Documentor;
 use Psy\Formatter\ObjectFormatter;
+use Psy\Formatter\Signature\SignatureFormatter;
+use Psy\Reflection\ReflectionInstanceProperty;
+use Psy\Util\Documentor;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCommand extends ReflectingCommand
@@ -49,7 +51,14 @@ EOF
         $verbose  = $input->getOption('verbose');
 
         if ($value = $input->getArgument('value')) {
-            $this->listTarget($output, $value, $this->getInstance($value), $showLong, $showAll);
+            list($value, $reflector)  = $this->getTargetAndReflector($value, true);
+            list($constants, $methods, $properties) = $this->listTarget($reflector, $value, $showAll);
+
+            if ($showLong) {
+                $this->printTargetLong($output, $reflector, $constants, $methods, $properties);
+            } else {
+                $this->printTarget($output, $reflector, $constants, $methods, $properties);
+            }
         } else {
             $vars = $this->listScopeVars($showAll, $verbose);
             if ($showLong) {
@@ -60,22 +69,47 @@ EOF
         }
     }
 
-    private function listTarget(OutputInterface $output, $name, $instance, $showLong, $showAll)
-    {
-        if ($instance instanceof \Reflector) {
-            $reflector = $instance;
-        } else {
-            $name = substr($name, 1);
-            if (is_object($instance)) {
-                $reflector = Inspector::getReflectionClass($instance);
-            } else {
-                $output->writeln(sprintf('%s  (%s)', self::printVarName($name), self::printType($instance)));
+    private function printTarget(OutputInterface $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
+        if (!empty($constants)) {
+            $output->writeln(sprintf('<strong>Constants</strong>: %s', implode(', ', array_keys($constants))));
+        }
 
-                return;
+        $formattedMethods = array_map($this->getVisibilityFormatter(), $methods);
+        if (!empty($methods)) {
+            $output->writeln(sprintf('<strong>Methods</strong>: %s', implode(', ', $formattedMethods)));
+        }
+
+        $formattedProperties = array_map($this->getPropertyVisibilityFormatter(), $properties);
+        if (!empty($properties)) {
+            $output->writeln(sprintf('<strong>Properties</strong>: %s', implode(', ', $formattedProperties)));
+        }
+    }
+
+    private function printTargetLong(OutputInterface $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
+        $pad = max(array_map('strlen', array_merge(array_keys($constants), array_keys($methods), array_keys($properties))));
+
+        if (!empty($constants)) {
+            $output->writeln('<strong>Constants:</strong>');
+            foreach ($constants as $name => $value) {
+                $output->writeln(sprintf("  <comment>%-${pad}s</comment>  %s", $name, var_export($value, true)));
             }
         }
 
-        $output->writeln('<error>Not yet implemented</error>');
+        $vis = $this->getVisibilityFormatter();
+        if (!empty($methods)) {
+            $output->writeln('<strong>Methods:</strong>');
+            foreach ($methods as $name => $value) {
+                $output->writeln(sprintf("  %s  %s", $vis($value, $pad), SignatureFormatter::format($value)));
+            }
+        }
+
+        $vis = $this->getPropertyVisibilityFormatter();
+        if (!empty($properties)) {
+            $output->writeln('<strong>Properties:</strong>');
+            foreach ($properties as $name => $value) {
+                $output->writeln(sprintf("  %s  %s", $vis($value, $pad), SignatureFormatter::format($value)));
+            }
+        }
     }
 
     private function printScopeVars(OutputInterface $output, array $vars)
@@ -99,6 +133,44 @@ EOF
             }
             $output->writeln('  '.implode(' ', $var));
         }
+    }
+
+    private function listTarget(\ReflectionClass $reflector, $value, $showAll)
+    {
+        $constants  = $reflector->getConstants();
+
+        $methods    = array();
+        foreach ($reflector->getMethods() as $method) {
+            if ($showAll || $method->isPublic()) {
+                $methods[$method->getName()] = $method;
+            }
+        }
+
+        $properties = array();
+        foreach ($reflector->getProperties() as $name => $property) {
+            if ($showAll || $property->isPublic()) {
+                $properties[$property->getName()] = $property;
+            }
+        }
+
+        // hacketyhack
+        if ($showAll) {
+            $hack = json_decode(json_encode($value), true);
+            if (is_array($hack)) {
+                $allProperties = array_keys($hack);
+                foreach ($allProperties as $name) {
+                    if (!isset($properties[$name])) {
+                        $properties[$name] = new ReflectionInstanceProperty($value, $name);
+                    }
+                }
+            }
+        }
+
+        ksort($constants);
+        ksort($methods);
+        ksort($properties);
+
+        return array($constants, $methods, $properties);
     }
 
     private function listScopeVars($showAll, $verbose = false)
@@ -134,6 +206,36 @@ EOF
         }
 
         return $ret;
+    }
+
+    private function getVisibilityFormatter()
+    {
+        return function($el, $pad = 0) {
+            switch (true) {
+                case $el->isPrivate():
+                    return sprintf("<urgent>%-${pad}s</urgent>", $el->getName());
+                case $el->isProtected():
+                    return sprintf("<comment>%-${pad}s</comment>", $el->getName());
+                default:
+                    return sprintf("%-${pad}s", $el->getName());
+            }
+        };
+    }
+
+    private function getPropertyVisibilityFormatter()
+    {
+        return function($el, $pad = 0) {
+            switch (true) {
+                case $el instanceof ReflectionInstanceProperty:
+                    return sprintf("<info>\$%-${pad}s</info>", $el->getName());
+                case $el->isPrivate():
+                    return sprintf("<urgent>\$%-${pad}s</urgent>", $el->getName());
+                case $el->isProtected():
+                    return sprintf("<comment>\$%-${pad}s</comment>", $el->getName());
+                default:
+                    return sprintf("\$%-${pad}s", $el->getName());
+            }
+        };
     }
 
     public static function printVarName($name, $max = 0)

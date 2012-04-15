@@ -1,24 +1,24 @@
 <?php
 
-namespace Psy\Util\Signature;
+namespace Psy\Formatter\Signature;
 
-use Psy\Util\Signature\Signature;
+use Psy\Formatter\Signature\SignatureFormatter;
 
 /**
  * Property signature representation.
  */
-class FunctionSignature extends Signature
+class FunctionSignatureFormatter extends SignatureFormatter
 {
     /**
      * {@inheritdoc}
      */
-    public function prettyPrint()
+    public static function format(\Reflector $reflector)
     {
         return sprintf(
             '<info>function</info> %s<strong>%s</strong>(%s)',
-            $this->printReturnsReference(),
-            $this->printName(),
-            implode(', ', $this->printParams())
+            self::formatReturnsReference($reflector),
+            self::formatName($reflector),
+            implode(', ', self::formatParams($reflector))
         );
     }
 
@@ -27,9 +27,9 @@ class FunctionSignature extends Signature
      *
      * @return string
      */
-    protected function printReturnsReference()
+    protected static function formatReturnsReference(\Reflector $reflector)
     {
-        if ($this->reflector->returnsReference()) {
+        if ($reflector->returnsReference()) {
             return '&';
         }
     }
@@ -39,7 +39,7 @@ class FunctionSignature extends Signature
      *
      * @return string
      */
-    protected function printParams()
+    protected static function formatParams(\Reflector $reflector)
     {
         return array_map(function($param) {
             if ($param->isArray()) {
@@ -69,6 +69,6 @@ class FunctionSignature extends Signature
                 $param->getName(),
                 $default
             );
-        }, $this->reflector->getParameters());
+        }, $reflector->getParameters());
     }
 }

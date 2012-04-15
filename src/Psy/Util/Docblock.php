@@ -27,6 +27,8 @@ class Docblock
         'return'     => array('type', 'desc'),
     );
 
+    protected $reflector;
+
     /**
      * The description of the symbol
      *
@@ -60,11 +62,10 @@ class Docblock
      *
      * @param String $comment The text of the docblock
      */
-    public function __construct($comment = null)
+    public function __construct(\Reflector $reflector)
     {
-        if ($comment) {
-            $this->setComment($comment);
-        }
+        $this->reflector = $reflector;
+        $this->setComment($reflector->getDocComment());
     }
 
     /**
@@ -72,7 +73,7 @@ class Docblock
      *
      * @param String $comment The docblock
      */
-    public function setComment($comment)
+    protected function setComment($comment)
     {
         $this->desc    = '';
         $this->tags    = array();

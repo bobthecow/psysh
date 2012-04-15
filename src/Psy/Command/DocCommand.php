@@ -4,11 +4,12 @@ namespace Psy\Command;
 
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\DocblockFormatter;
+use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Shell;
 use Psy\ShellAware;
 use Psy\Util\Docblock;
-use Psy\Util\Documentor;
 use Psy\Util\Inspector;
+use Psy\Util\Mirror;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -52,29 +53,13 @@ EOL
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        list($signature, $doc) = $this->getDocumentation($input->getArgument('value'));
+        list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
-        $output->writeln($signature->prettyPrint());
-        $pretty = DocblockFormatter::format($doc);
+        $output->writeln(SignatureFormatter::format($reflector));
+        $pretty = DocblockFormatter::format($reflector);
         if (!empty($pretty)) {
             $output->writeln('');
             $output->writeln($pretty);
         }
-    }
-
-    /**
-     * Get a code signature and documentation for a function, class or instance, constant, method or property.
-     *
-     * @see Psy\Util\Documentor::get
-     *
-     * @param string $valueName Function, class, variable, constant, method or property name.
-     *
-     * @return array (Signature, Docblock)
-     */
-    protected function getDocumentation($valueName)
-    {
-        list ($value, $member, $kind) = $this->getTarget($valueName);
-
-        return Documentor::get($value, $member, $kind);
     }
 }

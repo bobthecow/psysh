@@ -4,11 +4,6 @@ namespace Psy\Util;
 
 use Psy\Exception\RuntimeException;
 use Psy\Util\Docblock;
-use Psy\Util\Signature\ClassSignature;
-use Psy\Util\Signature\ConstantSignature;
-use Psy\Util\Signature\FunctionSignature;
-use Psy\Util\Signature\MethodSignature;
-use Psy\Util\Signature\PropertySignature;
 
 /**
  * A general purpose value inspector.
@@ -88,7 +83,7 @@ class Inspector
         return new \ReflectionClass($value);
     }
 
-    private static function getVisibility(\ReflectionProperty $prop)
+    private static function getVisibility($prop)
     {
         if ($prop->isProtected()) {
             return self::IS_PROTECTED;

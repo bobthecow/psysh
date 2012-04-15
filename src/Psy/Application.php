@@ -33,8 +33,8 @@ class Application extends BaseApplication
         $commands = array(
             new Command\HelpCommand,
             new Command\ListCommand,
-            // new Command\InspectCommand,
             new Command\DocCommand,
+            new Command\ShowCommand,
             // new Command\ShowInputCommand,
             // new Command\ClearInputCommand,
             new Command\WtfCommand,
