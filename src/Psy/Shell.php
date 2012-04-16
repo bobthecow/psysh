@@ -30,6 +30,9 @@ class Shell
     private $codeBuffer;
     private $scopeVariables;
     private $exceptions;
+    private $parentPid;
+    private $forkHistoryFileName;
+    private $forkHistoryFile;
 
     /**
      * Create a new Psy shell.
@@ -45,9 +48,21 @@ class Shell
         $this->scopeVariables = array();
     }
 
+    public function __destruct()
+    {
+        // last one out, turn off the lights
+        if ($this->config->usePcntl()) {
+            if (posix_getpid() == $this->parentPid) {
+                fclose($this->forkHistoryFile);
+                unlink($this->forkHistoryFileName);
+            }
+        }
+    }
+
     public function run()
     {
         $this->exceptions = array();
+        $this->forkHistory = array();
         $this->resetCodeBuffer();
 
         $this->application->setAutoExit(false);
@@ -56,6 +71,13 @@ class Shell
         if ($this->config->useReadline()) {
             readline_read_history($this->config->getHistoryFile());
             readline_completion_function(array($this, 'autocomplete'));
+        }
+
+        if ($this->config->usePcntl()) {
+            $this->parentPid = posix_getpid();
+            $this->forkHistoryFileName = $this->config->getForkHistoryFile($this->parentPid);
+            $this->forkHistoryFile = fopen($this->forkHistoryFileName, 'x+');
+            $this->callsUntilFork = 0;
         }
 
         $this->output->writeln($this->getHeader());
@@ -109,22 +131,65 @@ class Shell
     public function fork()
     {
         if ($this->config->usePcntl()) {
-            if (pcntl_fork()) {
-                // wait for the child
-                pcntl_wait($status);
+            if (--$this->callsUntilFork <= 0) {
+                $this->callsUntilFork = $this->config->getForkEveryN();
+                if (pcntl_fork()) {
+                    // wait for the child
+                    pcntl_wait($status);
 
-                // did it exit?
-                if (!pcntl_wifexited($status)) {
-                    $this->writeException(new RuntimeException('<error>ABNORMAL EXIT</error>'));
-                    die;
-                }
+                    // did it exit?
+                    if (!pcntl_wifexited($status)) {
+                        $this->writeException(new RuntimeException('<error>ABNORMAL EXIT</error>'));
+                        die;
+                    }
 
-                // did it succeed?
-                if (!pcntl_wexitstatus($status)) {
-                    exit;
+                    // did it succeed?
+                    if (!pcntl_wexitstatus($status)) {
+                        exit;
+                    }
+
+                    // try to recover?
+                    $this->recoverFromFatalError();
+                } else {
+                    $this->clearForkHistory();
                 }
+            } else {
+                $this->writeForkHistory();
             }
         }
+    }
+
+    private function recoverFromFatalError()
+    {
+        $lines = trim(file_get_contents($this->forkHistoryFileName));
+        if (empty($lines)) {
+            return;
+        }
+
+        $lines = explode(PHP_EOL, $lines);
+        $count = count($lines);
+        $this->output->writeln(<<<EOD
+
+<error>PsySH has detected (and prevented) a fatal error.</error>
+
+You have done $count things since your last save point:
+
+EOD
+        );
+        $this->output->writelnnos($lines);
+        $this->output->writeln('');
+
+        $dialog = $this->application->getHelperSet()->get('dialog');
+        if ($dialog->askConfirmation($this->output, '<question>Should we try to replay these commands?</question>', false)) {
+            $this->output->writeln('Got it. Replaying.');
+            $this->addInput($lines);
+        } else {
+            $this->output->writeln('Got it. Try not to do that again, eh?');
+        }
+
+        // clear out the history and fork immediately.
+        $this->clearForkHistory();
+        $this->callsUntilFork = 0;
     }
 
     public function doLoop()
@@ -245,6 +310,7 @@ class Shell
     {
         if ($this->hasValidCode()) {
             $code = $this->code;
+            $this->forkHistory[] = implode(PHP_EOL, $this->codeBuffer);
             $this->resetCodeBuffer();
 
             return $code;
@@ -364,5 +430,17 @@ class Shell
         if ($firstChar == '$') {
             return $this->getScopeVariableNames();
         }
+    }
+
+    private function writeForkHistory()
+    {
+        ftruncate($this->forkHistoryFile, 0);
+        fwrite($this->forkHistoryFile, implode(PHP_EOL, $this->forkHistory));
+    }
+
+    private function clearForkHistory()
+    {
+        ftruncate($this->forkHistoryFile, 0);
+        $this->forkHistory = array();
     }
 }

@@ -13,6 +13,7 @@ class Configuration
     private $historyFile;
     private $useReadline;
     private $usePcntl;
+    private $forkEveryN = 5;
     private $newCommands = array();
 
     public function __construct(array $config = array())
@@ -22,6 +23,7 @@ class Configuration
         $this->configFile  = isset($config['configFile']) ? $config['configFile'] : $this->baseDir . '/.psyshrc.php';
 
         unset($config['baseDir'], $config['configFile']);
+
 
         // go go gadget, config!
         $this->loadConfig($config);
@@ -41,7 +43,7 @@ class Configuration
 
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'application', 'cleaner') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -82,6 +84,11 @@ class Configuration
         return $this->historyFile ?: $this->baseDir . '/.psysh_history';
     }
 
+    public function getForkHistoryFile($parentPid)
+    {
+        return $this->baseDir . '/.psysh_fork_history_' . $parentPid;
+    }
+
     public function hasReadline()
     {
         return $this->hasReadline;
@@ -110,6 +117,16 @@ class Configuration
     public function usePcntl()
     {
         return isset($this->usePcntl) ? $this->usePcntl : $this->hasPcntl;
+    }
+
+    public function getForkEveryN()
+    {
+        return $this->forkEveryN;
+    }
+
+    public function setForkEveryN($forkEveryN)
+    {
+        $this->forkEveryN = (int) $forkEveryN;
     }
 
     public function setApplication(BaseApplication $application)
