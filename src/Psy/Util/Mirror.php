@@ -3,6 +3,7 @@
 namespace Psy\Util;
 
 use Psy\Exception\RuntimeException;
+use Psy\Reflection\ReflectionConstant;
 
 /**
  * Utility class for getting Reflectors.
@@ -78,7 +79,7 @@ class Mirror
 
     public static function getConstant(\ReflectionClass $class, $member)
     {
-        return $class->getConstant($member);
+        return new ReflectionConstant($class, $member);
     }
 
     public static function getMethod(\ReflectionClass $class, $member)

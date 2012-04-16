@@ -5,6 +5,7 @@ namespace Psy\Command;
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\ObjectFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionInstanceProperty;
 use Psy\Util\Documentor;
 use Symfony\Component\Console\Input\InputArgument;
@@ -91,7 +92,7 @@ EOF
         if (!empty($constants)) {
             $output->writeln('<strong>Constants:</strong>');
             foreach ($constants as $name => $value) {
-                $output->writeln(sprintf("  <comment>%-${pad}s</comment>  %s", $name, var_export($value, true)));
+                $output->writeln(sprintf("  <comment>%-${pad}s</comment>  %s", $name, SignatureFormatter::format($value)));
             }
         }
 
@@ -107,7 +108,7 @@ EOF
         if (!empty($properties)) {
             $output->writeln('<strong>Properties:</strong>');
             foreach ($properties as $name => $value) {
-                $output->writeln(sprintf("  %s  %s", $vis($value, $pad), SignatureFormatter::format($value)));
+                $output->writeln(sprintf("  %s  %s", $vis($value, $pad - 1), SignatureFormatter::format($value)));
             }
         }
     }
@@ -137,7 +138,10 @@ EOF
 
     private function listTarget(\ReflectionClass $reflector, $value, $showAll)
     {
-        $constants  = $reflector->getConstants();
+        $constants  = array();
+        foreach ($reflector->getConstants() as $name => $v) {
+            $constants[$name] = new ReflectionConstant($reflector, $name);
+        }
 
         $methods    = array();
         foreach ($reflector->getMethods() as $method) {

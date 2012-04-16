@@ -8,6 +8,7 @@ use Psy\Formatter\Signature\ConstantSignatureFormatter;
 use Psy\Formatter\Signature\FunctionSignatureFormatter;
 use Psy\Formatter\Signature\MethodSignatureFormatter;
 use Psy\Formatter\Signature\PropertySignatureFormatter;
+use Psy\Reflection\ReflectionConstant;
 
 /**
  * An abstract representation of a function, class or property signature.
@@ -32,7 +33,7 @@ class SignatureFormatter implements Formatter
             case $reflector instanceof \ReflectionClass:
                 return ClassSignatureFormatter::format($reflector);
 
-            case $reflector instanceof \ReflectionConstant:
+            case $reflector instanceof ReflectionConstant:
                 return ConstantSignatureFormatter::format($reflector);
 
             case $reflector instanceof \ReflectionMethod:
