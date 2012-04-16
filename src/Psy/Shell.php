@@ -9,6 +9,7 @@ use Psy\Exception\Exception as PsyException;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\ObjectFormatter;
 use Psy\ShellAware;
+use Psy\Util\LessPipe;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -25,6 +26,7 @@ class Shell
     private $application;
     private $cleaner;
     private $output;
+    private $pager;
     private $inputBuffer;
     private $code;
     private $codeBuffer;
@@ -45,6 +47,7 @@ class Shell
         $this->application    = $this->config->getApplication();
         $this->cleaner        = $this->config->getCodeCleaner();
         $this->output         = $this->config->getOutput();
+        $this->pager          = new LessPipe($this->output);
         $this->scopeVariables = array();
     }
 
@@ -76,7 +79,7 @@ class Shell
         if ($this->config->usePcntl()) {
             $this->parentPid = posix_getpid();
             $this->forkHistoryFileName = $this->config->getForkHistoryFile($this->parentPid);
-            $this->forkHistoryFile = fopen($this->forkHistoryFileName, 'x+');
+            $this->forkHistoryFile = fopen($this->forkHistoryFileName, 'w+');
             $this->callsUntilFork = 0;
         }
 
@@ -161,13 +164,12 @@ class Shell
 
     private function recoverFromFatalError()
     {
-        $lines = trim(file_get_contents($this->forkHistoryFileName));
-        if (empty($lines)) {
+        $lines = $this->readForkHistory();
+        $count = count($lines);
+        if ($count == 0) {
             return;
         }
 
-        $lines = explode(PHP_EOL, $lines);
-        $count = count($lines);
         $this->output->writeln(<<<EOD
 
 <error>PsySH has detected (and prevented) a fatal error.</error>
@@ -442,5 +444,12 @@ EOD
     {
         ftruncate($this->forkHistoryFile, 0);
         $this->forkHistory = array();
+    }
+
+    private function readForkHistory()
+    {
+        $content = trim(file_get_contents($this->forkHistoryFileName));
+
+        return empty($content) ? array() : explode(PHP_EOL, $content);
     }
 }

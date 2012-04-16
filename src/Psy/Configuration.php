@@ -9,9 +9,13 @@ use Symfony\Component\Console\Application as BaseApplication;
 
 class Configuration
 {
+    private $baseDir;
+    private $tempDir;
     private $configFile;
     private $historyFile;
+    private $hasReadline;
     private $useReadline;
+    private $hasPcntl;
     private $usePcntl;
     private $forkEveryN = 5;
     private $newCommands = array();
@@ -48,7 +52,7 @@ class Configuration
 
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner', 'tmpDir') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -79,6 +83,16 @@ class Configuration
         }
     }
 
+    public function setTempDir($dir)
+    {
+        $this->tempDir = $dir;
+    }
+
+    public function getTempDir()
+    {
+        return $this->tempDir ?: sys_get_temp_dir().'/phpsh/';
+    }
+
     public function setHistoryFile($file)
     {
         $this->historyFile = (string) $historyFile;
@@ -86,12 +100,17 @@ class Configuration
 
     public function getHistoryFile()
     {
-        return $this->historyFile ?: $this->baseDir . '/history';
+        return $this->historyFile ?: $this->baseDir.'/history';
     }
 
     public function getForkHistoryFile($parentPid)
     {
-        return $this->baseDir . '/fork_history_' . $parentPid;
+        $tempDir = $this->getTempDir();
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir);
+        }
+
+        return tempnam($tempDir, 'fork_'.$parentPid.'_');
     }
 
     public function hasReadline()
