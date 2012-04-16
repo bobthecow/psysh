@@ -7,26 +7,28 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class Output extends ConsoleOutput
 {
+    const NUMBER_LINES = 128;
+
     public function __construct() {
         parent::__construct();
 
         $this->initFormatters();
     }
 
-    public function writelnnos(array $messages, $type = 0, $formatter = null)
+    public function write($messages, $newline = false, $type = 0)
     {
-        $pad = strlen((string) count($messages));
-        $template = "<aside>%-{$pad}s</aside>: ";
-        if ($formatter !== null) {
-            $template .= sprintf('<%s>%%s</%s>', $formatter, $formatter);
-        } else {
-            $template .= '%s';
+        $messages = (array) $messages;
+
+        if ($type & self::NUMBER_LINES) {
+            $pad = strlen((string) count($messages));
+            $template = $this->isDecorated() ? "<aside>%-{$pad}s</aside>: %s" : "%-{$pad}s: %s";
+
+            foreach ($messages as $i => $line) {
+                $messages[$i] = sprintf($template, $i, $line);
+            }
         }
 
-        foreach ($messages as $i => $line) {
-            $messages[$i] = sprintf($template, $i, $line);
-        }
-        $this->writeln($messages, $type);
+        return parent::write($messages, $newline, $type & ~self::NUMBER_LINES);
     }
 
     private function initFormatters()

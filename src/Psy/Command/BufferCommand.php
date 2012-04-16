@@ -2,6 +2,7 @@
 
 namespace Psy\Command;
 
+use Psy\Output;
 use Psy\Command\ShellAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,11 +30,20 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $buf = $this->shell->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $output->writelnnos($this->shell->getCodeBuffer(), 0, 'urgent');
             $this->shell->resetCodeBuffer();
+            $output->writeln($this->formatLines($buf, 'urgent'), Output::NUMBER_LINES);
         } else {
-            $output->writelnnos($this->shell->getCodeBuffer(), 0, 'return');
+            $output->writeln($this->formatLines($buf), Output::NUMBER_LINES);
         }
+    }
+
+    protected function formatLines($lines, $type = 'return')
+    {
+        $template = sprintf('<%s>%%s</%s>', $type, $type);
+        return array_map(function($line) use ($template) {
+            return sprintf($template, $line);
+        }, $lines);
     }
 }

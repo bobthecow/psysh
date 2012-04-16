@@ -176,7 +176,7 @@ You have done $count things since your last save point:
 
 EOD
         );
-        $this->output->writelnnos($lines);
+        $this->output->writeln($lines, Output::NUMBER_LINES);
         $this->output->writeln('');
 
         $dialog = $this->application->getHelperSet()->get('dialog');

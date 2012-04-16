@@ -3,6 +3,7 @@
 namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
+use Psy\Output;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,7 +28,7 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writelnnos($this->getBacktrace(new \Exception, null, $input->getOption('include-psy')));
+        $output->writeln($this->getBacktrace(new \Exception, null, $input->getOption('include-psy')), Output::NUMBER_LINES);
     }
 
     private function getBacktrace(\Exception $e, $count = null, $includePsy = true)

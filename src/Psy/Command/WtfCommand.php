@@ -3,6 +3,7 @@
 namespace Psy\Command;
 
 use Psy\Command\TraceCommand;
+use Psy\Output;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -55,7 +56,7 @@ EOF
         }
 
         $count = $input->getOption('verbose') ? PHP_INT_MAX : (strlen($incredulity) + 1);
-        $output->writelnnos($this->getBacktrace($this->getLastException(), $count));
+        $output->writeln($this->getBacktrace($this->getLastException(), $count), Output::NUMBER_LINES);
     }
 
     protected function getLastException()
