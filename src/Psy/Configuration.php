@@ -19,8 +19,13 @@ class Configuration
     public function __construct(array $config = array())
     {
         // base configuration
-        $this->baseDir     = isset($config['baseDir'])    ? $config['baseDir']    : getenv('HOME');
-        $this->configFile  = isset($config['configFile']) ? $config['configFile'] : $this->baseDir . '/.psyshrc.php';
+        $this->baseDir     = isset($config['baseDir'])    ? $config['baseDir']    : getenv('HOME').'/.psysh';
+        $this->configFile  = isset($config['configFile']) ? $config['configFile'] : $this->baseDir . '/rc.php';
+
+        // make sure there's a baseDir
+        if (!is_dir($this->baseDir)) {
+            mkdir($this->baseDir, 0777, true);
+        }
 
         unset($config['baseDir'], $config['configFile']);
 
@@ -81,12 +86,12 @@ class Configuration
 
     public function getHistoryFile()
     {
-        return $this->historyFile ?: $this->baseDir . '/.psysh_history';
+        return $this->historyFile ?: $this->baseDir . '/history';
     }
 
     public function getForkHistoryFile($parentPid)
     {
-        return $this->baseDir . '/.psysh_fork_history_' . $parentPid;
+        return $this->baseDir . '/fork_history_' . $parentPid;
     }
 
     public function hasReadline()
