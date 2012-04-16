@@ -16,8 +16,8 @@ class HistoryCommand extends ShellAwareCommand
             ->setAliases(array('hist'))
             ->setDefinition(array(
                 new InputOption('show',        's', InputOption::VALUE_REQUIRED, 'Show the given range of lines'),
-                new InputOption('head',        'H', InputOption::VALUE_OPTIONAL, 'Display the first N items.'),
-                new InputOption('tail',        'T', InputOption::VALUE_OPTIONAL, 'Display the last N items.'),
+                new InputOption('head',        'H', InputOption::VALUE_REQUIRED, 'Display the first N items.'),
+                new InputOption('tail',        'T', InputOption::VALUE_REQUIRED, 'Display the last N items.'),
 
                 new InputOption('grep',        'G', InputOption::VALUE_REQUIRED, 'Show lines matching the given pattern (string or regex).'),
                 new InputOption('insensitive', 'i', InputOption::VALUE_NONE,     'Case insensitive search (requires --grep).'),
@@ -31,51 +31,6 @@ class HistoryCommand extends ShellAwareCommand
             ->setDescription('Show the Psy shell history.')
             ->setHelp('Show, search or save the Psy shell history.')
         ;
-    }
-
-    protected function extractRange($range)
-    {
-        if (preg_match('/^\d+$/', $range)) {
-            return array($range, $range + 1);
-        }
-
-        $matches = array();
-        if ($range !== '..' && preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
-            $start = $matches[1] ? intval($matches[1]) : 0;
-            $end   = $matches[2] ? intval($matches[2]) + 1 : PHP_INT_MAX;
-
-            return array($start, $end);
-        }
-
-        throw new \InvalidArgumentException('Unexpected range: '.$range);
-    }
-
-    protected function getHistorySlice($show, $head, $tail)
-    {
-        $history = readline_list_history();
-
-        if ($show) {
-            list($start, $end) = $this->extractRange($show);
-            $length = $end - $start;
-        } elseif ($head) {
-            if (!preg_match('/^\d+$/', $head)) {
-                throw new \InvalidArgumentException('Please specificy an integer argument for --head.');
-            }
-
-            $start  = 0;
-            $length = intval($head);
-        } elseif ($tail) {
-            if (!preg_match('/^\d+$/', $tail)) {
-                throw new \InvalidArgumentException('Please specificy an integer argument for --tail.');
-            }
-
-            $start  = count($history) - $tail;
-            $length = intval($tail) + 1;
-        } else {
-            return $history;
-        }
-
-        return array_slice($history, $start, $length, true);
     }
 
     /**
@@ -138,6 +93,51 @@ class HistoryCommand extends ShellAwareCommand
                 $output->writelnnos($highlighted ?: $history);
             }
         }
+    }
+
+    protected function extractRange($range)
+    {
+        if (preg_match('/^\d+$/', $range)) {
+            return array($range, $range + 1);
+        }
+
+        $matches = array();
+        if ($range !== '..' && preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
+            $start = $matches[1] ? intval($matches[1]) : 0;
+            $end   = $matches[2] ? intval($matches[2]) + 1 : PHP_INT_MAX;
+
+            return array($start, $end);
+        }
+
+        throw new \InvalidArgumentException('Unexpected range: '.$range);
+    }
+
+    protected function getHistorySlice($show, $head, $tail)
+    {
+        $history = readline_list_history();
+
+        if ($show) {
+            list($start, $end) = $this->extractRange($show);
+            $length = $end - $start;
+        } elseif ($head) {
+            if (!preg_match('/^\d+$/', $head)) {
+                throw new \InvalidArgumentException('Please specificy an integer argument for --head.');
+            }
+
+            $start  = 0;
+            $length = intval($head);
+        } elseif ($tail) {
+            if (!preg_match('/^\d+$/', $tail)) {
+                throw new \InvalidArgumentException('Please specificy an integer argument for --tail.');
+            }
+
+            $start  = count($history) - $tail;
+            $length = intval($tail) + 1;
+        } else {
+            return $history;
+        }
+
+        return array_slice($history, $start, $length, true);
     }
 
     protected function validateOnlyOne(InputInterface $input, array $options)
