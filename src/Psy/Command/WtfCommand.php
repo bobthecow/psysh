@@ -2,16 +2,14 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
+use Psy\Command\TraceCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WtfCommand extends ShellAwareCommand
+class WtfCommand extends TraceCommand
 {
-    private $specialVars = array('_', 'this');
-
     protected function configure()
     {
         $this
@@ -24,7 +22,7 @@ class WtfCommand extends ShellAwareCommand
             ))
             ->setDescription('Show the backtrace of the most recent exception.')
             ->setHelp(<<<EOF
-Show's a few lines of the backtrace of the most recent exception.
+Shows a few lines of the backtrace of the most recent exception.
 
 If you want to see more lines, add more question marks or exclamation marks:
 
@@ -57,36 +55,14 @@ EOF
         }
 
         $count = $input->getOption('verbose') ? PHP_INT_MAX : (strlen($incredulity) + 1);
-        $output->writelnnos($this->getBacktrace($count));
+        $output->writelnnos($this->getBacktrace($this->getLastException(), $count));
     }
 
-    private function getBacktrace($count)
+    protected function getLastException()
     {
         $e = $this->shell->getLastException();
         if (!$e) {
             throw new \InvalidArgumentException('No most-recent exception');
         }
-
-        $lines = array();
-
-        $trace = $e->getTrace();
-        array_unshift($trace, array(
-            'function' => '',
-            'file'     => $e->getFile() != null ? $e->getFile() : 'n/a',
-            'line'     => $e->getLine() != null ? $e->getLine() : 'n/a',
-            'args'     => array(),
-        ));
-
-        for ($i = 0, $count = min($count, count($trace)); $i < $count; $i++) {
-            $class    = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
-            $type     = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
-            $function = $trace[$i]['function'];
-            $file     = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
-            $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
-
-            $lines[] = sprintf(' %s%s%s() at <info>%s:%s</info>', $class, $type, $function, $file, $line);
-        }
-
-        return $lines;
     }
 }

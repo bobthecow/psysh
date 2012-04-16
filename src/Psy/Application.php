@@ -35,11 +35,11 @@ class Application extends BaseApplication
             new Command\ListCommand,
             new Command\DocCommand,
             new Command\ShowCommand,
-            // new Command\ShowInputCommand,
-            // new Command\ClearInputCommand,
             new Command\WtfCommand,
-            new Command\PsyVersionCommand,
+            new Command\TraceCommand,
+            new Command\BufferCommand,
             new Command\ExitCommand,
+            // new Command\PsyVersionCommand,
         );
 
         if (function_exists('readline')) {
