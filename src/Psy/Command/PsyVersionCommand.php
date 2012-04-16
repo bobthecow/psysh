@@ -8,15 +8,8 @@ use Psy\ShellAware;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class PsyVersionCommand extends Command implements ShellAware
+class PsyVersionCommand extends ShellAwareCommand
 {
-    private $shell;
-
-    public function setShell(Shell $shell)
-    {
-        $this->shell = $shell;
-    }
-
     protected function configure()
     {
         $this

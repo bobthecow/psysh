@@ -2,32 +2,13 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
-use Psy\Shell;
-use Psy\ShellAware;
+use Psy\Command\ShellAwareCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class HistoryCommand extends Command implements ShellAware
+class HistoryCommand extends ShellAwareCommand
 {
-    /**
-     * Shell instance (for ShellAware interface)
-     *
-     * @type Psy\Shell
-     */
-    private $shell;
-
-    /**
-     * ShellAware interface.
-     *
-     * @param Psy\Shell $shell
-     */
-    public function setShell(Shell $shell)
-    {
-        $this->shell = $shell;
-    }
-
     protected function configure()
     {
         $this

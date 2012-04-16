@@ -2,11 +2,9 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
+use Psy\Command\ShellAwareCommand;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\DocblockFormatter;
-use Psy\Shell;
-use Psy\ShellAware;
 use Psy\Util\Docblock;
 use Psy\Util\Mirror;
 use Psy\Util\Inspector;
@@ -18,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * An abstract command with helpers for inspecting the current shell scope.
  */
-abstract class ReflectingCommand extends Command implements ShellAware
+abstract class ReflectingCommand extends ShellAwareCommand
 {
     const CLASS_OR_FUNC     = '/^[\\\\\w]+$/';
     const INSTANCE          = '/^\$(\w+)$/';
@@ -26,23 +24,6 @@ abstract class ReflectingCommand extends Command implements ShellAware
     const CLASS_STATIC      = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER   = '/^\$(\w+)(::|->)(\w+)$/';
     const INSTANCE_STATIC   = '/^\$(\w+)::\$(\w+)$/';
-
-    /**
-     * Shell instance (for ShellAware interface)
-     *
-     * @type Psy\Shell
-     */
-    private $shell;
-
-    /**
-     * ShellAware interface.
-     *
-     * @param Psy\Shell $shell
-     */
-    public function setShell(Shell $shell)
-    {
-        $this->shell = $shell;
-    }
 
     protected function getInstance($valueName)
     {

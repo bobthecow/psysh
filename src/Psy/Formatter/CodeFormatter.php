@@ -3,6 +3,7 @@
 namespace Psy\Formatter;
 
 use Psy\Formatter\Formatter;
+use Psy\Exception\RuntimeException;
 
 class CodeFormatter implements Formatter
 {
@@ -18,7 +19,7 @@ class CodeFormatter implements Formatter
 
             return implode(PHP_EOL, $code);
         } else {
-            throw new \RuntimeException('Code not found.');
+            throw new RuntimeException('Source code unavailable.');
         }
     }
 }

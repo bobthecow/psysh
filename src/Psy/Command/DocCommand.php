@@ -5,14 +5,8 @@ namespace Psy\Command;
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
-use Psy\Shell;
-use Psy\ShellAware;
-use Psy\Util\Docblock;
-use Psy\Util\Inspector;
-use Psy\Util\Mirror;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**

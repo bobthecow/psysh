@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCommand extends ReflectingCommand
 {
-    private static $specialVars = array('_', 'this');
+    private static $specialVars = array('_');
 
     protected function configure()
     {

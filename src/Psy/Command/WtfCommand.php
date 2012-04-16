@@ -3,39 +3,20 @@
 namespace Psy\Command;
 
 use Psy\Command\Command;
-use Psy\Shell;
-use Psy\ShellAware;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WtfCommand extends Command implements ShellAware
+class WtfCommand extends ShellAwareCommand
 {
     private $specialVars = array('_', 'this');
-
-    /**
-     * Shell instance (for ShellAware interface)
-     *
-     * @type Psy\Shell
-     */
-    private $shell;
-
-    /**
-     * ShellAware interface.
-     *
-     * @param Psy\Shell $shell
-     */
-    public function setShell(Shell $shell)
-    {
-        $this->shell = $shell;
-    }
 
     protected function configure()
     {
         $this
             ->setName('wtf')
-            ->setAliases(array('wtf?', 'last-exception'))
+            ->setAliases(array('last-exception', 'wtf?'))
             ->setDefinition(array(
                 new InputArgument('incredulity', InputArgument::OPTIONAL, 'Number of lines to show'),
 
