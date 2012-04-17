@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
@@ -9,8 +18,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Show the current stack trace.
+ */
 class TraceCommand extends ShellAwareCommand
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this
@@ -26,6 +41,9 @@ EOF
         ;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->page($this->getBacktrace(new \Exception, null, $input->getOption('include-psy')), ShellOutput::NUMBER_LINES);

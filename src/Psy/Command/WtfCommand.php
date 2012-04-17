@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Command;
 
 use Psy\Command\TraceCommand;
@@ -9,8 +18,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Show the last exception.
+ */
 class WtfCommand extends TraceCommand
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this
@@ -48,6 +63,9 @@ EOF
         return $options;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $incredulity = $input->getArgument('incredulity');

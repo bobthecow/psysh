@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
@@ -95,11 +104,23 @@ abstract class ReflectingCommand extends ShellAwareCommand
         return $value;
     }
 
+    /**
+     * Get a variable from the current shell scope.
+     *
+     * @param string $name
+     *
+     * @return mixed
+     */
     protected function getScopeVariable($name)
     {
         return $this->shell->getScopeVariable($name);
     }
 
+    /**
+     * Get all scope variables from the current shell scope.
+     *
+     * @return array
+     */
     protected function getScopeVariables()
     {
         return $this->shell->getScopeVariables();

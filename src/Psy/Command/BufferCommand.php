@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Command;
 
 use Psy\Output\ShellOutput;
@@ -10,6 +19,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class BufferCommand extends ShellAwareCommand
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this
@@ -28,6 +40,9 @@ EOF
         ;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $buf = $this->shell->getCodeBuffer();
@@ -39,6 +54,14 @@ EOF
         }
     }
 
+    /**
+     * A helper method for wrapping buffer lines in `<urgent>` and `<return>` formatter strings.
+     *
+     * @param array $lines
+     * @param string $type (default: 'return')
+     *
+     * @return array Formatted strings
+     */
     protected function formatLines($lines, $type = 'return')
     {
         $template = sprintf('<%s>%%s</%s>', $type, $type);

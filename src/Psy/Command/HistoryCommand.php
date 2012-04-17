@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
@@ -8,8 +17,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * PsySH history command.
+ *
+ * Shows, searches and replays readline hsitory. Not too shabby.
+ */
 class HistoryCommand extends ShellAwareCommand
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this
@@ -93,7 +110,7 @@ class HistoryCommand extends ShellAwareCommand
         }
     }
 
-    protected function extractRange($range)
+    private function extractRange($range)
     {
         if (preg_match('/^\d+$/', $range)) {
             return array($range, $range + 1);
@@ -110,7 +127,7 @@ class HistoryCommand extends ShellAwareCommand
         throw new \InvalidArgumentException('Unexpected range: '.$range);
     }
 
-    protected function getHistorySlice($show, $head, $tail)
+    private function getHistorySlice($show, $head, $tail)
     {
         $history = readline_list_history();
 
@@ -138,7 +155,7 @@ class HistoryCommand extends ShellAwareCommand
         return array_slice($history, $start, $length, true);
     }
 
-    protected function validateOnlyOne(InputInterface $input, array $options)
+    private function validateOnlyOne(InputInterface $input, array $options)
     {
         $count = 0;
         foreach ($options as $opt) {

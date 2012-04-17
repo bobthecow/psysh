@@ -1,15 +1,25 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Command;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
 
-class Command extends BaseCommand
+/**
+ * The PsySH base command.
+ */
+abstract class Command extends BaseCommand
 {
     /**
-     * Returns a text representation of the command.
-     *
-     * @return string A string representing the command
+     * {@inheritdoc}
      */
     public function asText()
     {
@@ -39,11 +49,17 @@ class Command extends BaseCommand
         return implode("\n", $messages);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     private function getArguments()
     {
         return $this->getNativeDefinition()->getArguments();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     private function getOptions()
     {
         $hidden = $this->getHiddenOptions();
@@ -55,26 +71,6 @@ class Command extends BaseCommand
     protected function getHiddenOptions()
     {
         return array('help', 'verbose');
-    }
-
-    private function getMaxWidth()
-    {
-        $max = 0;
-
-        foreach ($this->getOptions() as $option) {
-            $nameLength = strlen($option->getName()) + 2;
-            if ($option->getShortcut()) {
-                $nameLength += strlen($option->getShortcut()) + 3;
-            }
-
-            $max = max($max, $nameLength);
-        }
-
-        foreach ($this->getArguments() as $argument) {
-            $max = max($max, strlen($argument->getName()));
-        }
-
-        return ++$max;
     }
 
     private function aliasesAsText()
@@ -141,6 +137,26 @@ class Command extends BaseCommand
         }
 
         return implode(PHP_EOL, $messages);
+    }
+
+    private function getMaxWidth()
+    {
+        $max = 0;
+
+        foreach ($this->getOptions() as $option) {
+            $nameLength = strlen($option->getName()) + 2;
+            if ($option->getShortcut()) {
+                $nameLength += strlen($option->getShortcut()) + 3;
+            }
+
+            $max = max($max, $nameLength);
+        }
+
+        foreach ($this->getArguments() as $argument) {
+            $max = max($max, strlen($argument->getName()));
+        }
+
+        return ++$max;
     }
 
     private function formatDefaultValue($default)
