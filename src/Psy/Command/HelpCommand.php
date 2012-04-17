@@ -3,6 +3,7 @@
 namespace Psy\Command;
 
 use Psy\Command\Command;
+use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -36,11 +37,11 @@ class HelpCommand extends Command
     {
         if ($this->command !== null) {
             // help for an individual command
-            $output->writeln($this->command->asText());
+            $output->page($this->command->asText());
             $this->command = null;
         } elseif ($name = $input->getArgument('command_name')) {
             // help for an individual command
-            $output->writeln($this->getApplication()->get($name)->asText());
+            $output->page($this->getApplication()->get($name)->asText());
         } else {
             // list available commands
             $commands = $this->getApplication()->all();
@@ -65,7 +66,7 @@ class HelpCommand extends Command
                 $messages[] = sprintf("  <info>%-${width}s</info> %s%s", $name, $command->getDescription(), $aliases);
             }
 
-            $output->writeln(implode(PHP_EOL, $messages));
+            $output->page($messages);
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
-use Psy\Output;
+use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -88,8 +88,8 @@ class HistoryCommand extends ShellAwareCommand
             $output->writeln(sprintf('Replaying %d line%s of history', $count, ($count != 1) ? 's' : ''));
             $this->shell->addInput($history);
         } else {
-            $type = $input->getOption('no-numbers') ? 0 : Output::NUMBER_LINES;
-            $output->writeln($highlighted ?: $history, $type);
+            $type = $input->getOption('no-numbers') ? 0 : ShellOutput::NUMBER_LINES;
+            $output->page($highlighted ?: $history, $type);
         }
     }
 

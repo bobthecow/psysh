@@ -2,7 +2,7 @@
 
 namespace Psy\Command;
 
-use Psy\Output;
+use Psy\Output\ShellOutput;
 use Psy\Command\ShellAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,9 +33,9 @@ EOF
         $buf = $this->shell->getCodeBuffer();
         if ($input->getOption('clear')) {
             $this->shell->resetCodeBuffer();
-            $output->writeln($this->formatLines($buf, 'urgent'), Output::NUMBER_LINES);
+            $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
         } else {
-            $output->writeln($this->formatLines($buf), Output::NUMBER_LINES);
+            $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);
         }
     }
 

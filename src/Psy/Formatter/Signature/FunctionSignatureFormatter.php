@@ -41,7 +41,8 @@ class FunctionSignatureFormatter extends SignatureFormatter
      */
     protected static function formatParams(\Reflector $reflector)
     {
-        return array_map(function($param) {
+        $params = array();
+        foreach ($reflector->getParameters() as $param) {
             if ($param->isArray()) {
                 $hint = '<info>array</info> ';
             } elseif ($class = $param->getClass()) {
@@ -62,13 +63,15 @@ class FunctionSignatureFormatter extends SignatureFormatter
                 $default = '';
             }
 
-            return sprintf(
+            $params[] = sprintf(
                 '%s%s<strong>$%s</strong>%s',
                 $param->isPassedByReference() ? '&' : '',
                 $hint,
                 $param->getName(),
                 $default
             );
-        }, $reflector->getParameters());
+        }
+
+        return $params;
     }
 }

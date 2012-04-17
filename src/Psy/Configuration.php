@@ -4,7 +4,10 @@ namespace Psy;
 
 use Psy\Application;
 use Psy\CodeCleaner;
-use Psy\Output;
+use Psy\Output\ShellOutput;
+use Psy\Output\OutputPager;
+use Psy\Output\ProcOutputPager;
+use Psy\Output\PassthruPager;
 use Symfony\Component\Console\Application as BaseApplication;
 
 class Configuration
@@ -52,7 +55,7 @@ class Configuration
 
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner', 'tmpDir') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner', 'pager', 'tmpDir') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -182,7 +185,7 @@ class Configuration
         return $this->cleaner;
     }
 
-    public function setOutput(Output $output)
+    public function setOutput(ShellOutput $output)
     {
         $this->output = $output;
     }
@@ -190,10 +193,31 @@ class Configuration
     public function getOutput()
     {
         if (!isset($this->output)) {
-            $this->output = new Output;
+            $this->output = new ShellOutput(ShellOutput::VERBOSITY_NORMAL, null, null, $this->getPager());
         }
 
         return $this->output;
+    }
+
+    public function setPager($pager)
+    {
+        if ($pager && !is_string($pager) && !$pager instanceof OutputPager) {
+            throw new \InvalidArgumentException('Unexpected pager instance.');
+        }
+
+        $this->pager = $pager;
+    }
+
+    public function getPager()
+    {
+        if (!isset($this->pager) && $this->usePcntl()) {
+            // check for the presence of less...
+            if ($less = exec('which less')) {
+                $this->pager = $less.' -R -S -F -X';
+            }
+        }
+
+        return $this->pager;
     }
 
     public function addCommands(array $commands)

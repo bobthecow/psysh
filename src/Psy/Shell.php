@@ -8,8 +8,9 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\ObjectFormatter;
+use Psy\Output\OutputPager;
+use Psy\Output\ShellOutput;
 use Psy\ShellAware;
-use Psy\Util\LessPipe;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -47,7 +48,7 @@ class Shell
         $this->application    = $this->config->getApplication();
         $this->cleaner        = $this->config->getCodeCleaner();
         $this->output         = $this->config->getOutput();
-        $this->pager          = new LessPipe($this->output);
+        $this->pager          = $this->config->getPager();
         $this->scopeVariables = array();
     }
 
@@ -178,7 +179,7 @@ You have done $count things since your last save point:
 
 EOD
         );
-        $this->output->writeln($lines, Output::NUMBER_LINES);
+        $this->output->writeln($lines, ShellOutput::NUMBER_LINES);
         $this->output->writeln('');
 
         $dialog = $this->application->getHelperSet()->get('dialog');
@@ -197,7 +198,7 @@ EOD
     public function doLoop()
     {
         // reset output verbosity (in case it was altered by a subcommand)
-        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
 
         $input = $this->readline();
 
@@ -247,7 +248,7 @@ EOD
     public function getScopeVariable($name)
     {
         if (!array_key_exists($name, $this->scopeVariables)) {
-            throw new \InvalidArgumentException('Unknown variable: '.$name);
+            throw new \InvalidArgumentException('Unknown variable: $'.$name);
         }
 
         return $this->scopeVariables[$name];
@@ -297,8 +298,8 @@ EOD
 
     public function resetCodeBuffer()
     {
-        $this->codeBuffer  = array();
-        $this->code        = false;
+        $this->codeBuffer = array();
+        $this->code       = false;
     }
 
     public function addInput($input)
@@ -322,7 +323,7 @@ EOD
     public function writeStdout($out)
     {
         if (!empty($out)) {
-            $this->output->writeln($out, OutputInterface::OUTPUT_RAW);
+            $this->output->writeln($out, ShellOutput::OUTPUT_RAW);
         }
     }
 
@@ -332,7 +333,7 @@ EOD
         if (strpos($returnString, '</return>') === false) {
             $this->output->writeln(sprintf("%s<return>%s</return>", self::RETVAL, $returnString));
         } else {
-            $this->output->writeln(sprintf("%s%s", self::RETVAL, $returnString), OutputInterface::OUTPUT_RAW);
+            $this->output->writeln(sprintf("%s%s", self::RETVAL, $returnString), ShellOutput::OUTPUT_RAW);
         }
     }
 

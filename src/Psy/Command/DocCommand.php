@@ -5,6 +5,7 @@ namespace Psy\Command;
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
+use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,11 +50,13 @@ EOL
     {
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
-        $output->writeln(SignatureFormatter::format($reflector));
-        $pretty = DocblockFormatter::format($reflector);
-        if (!empty($pretty)) {
-            $output->writeln('');
-            $output->writeln($pretty);
-        }
+        $output->page(function($output) use ($reflector) {
+            $output->writeln(SignatureFormatter::format($reflector));
+            $pretty = DocblockFormatter::format($reflector);
+            if (!empty($pretty)) {
+                $output->writeln('');
+                $output->writeln($pretty);
+            }
+        });
     }
 }

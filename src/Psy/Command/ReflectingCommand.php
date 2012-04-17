@@ -4,14 +4,8 @@ namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
 use Psy\Exception\RuntimeException;
-use Psy\Formatter\DocblockFormatter;
-use Psy\Util\Docblock;
 use Psy\Util\Mirror;
 use Psy\Util\Inspector;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * An abstract command with helpers for inspecting the current shell scope.
@@ -24,27 +18,6 @@ abstract class ReflectingCommand extends ShellAwareCommand
     const CLASS_STATIC      = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER   = '/^\$(\w+)(::|->)(\w+)$/';
     const INSTANCE_STATIC   = '/^\$(\w+)::\$(\w+)$/';
-
-    protected function getInstance($valueName)
-    {
-        throw new \RuntimeException('deprecated');
-
-        $valueName = trim($valueName);
-        $matches   = array();
-        switch (true) {
-            case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
-                return Inspector::getReflectionClass($matches[0]);
-            case preg_match(self::INSTANCE, $valueName, $matches):
-                $value = $this->resolveInstance($matches[1]);
-                if (is_object($value)) {
-                    return Inspector::getReflectionClass($value);
-                } else {
-                    return $value;
-                }
-            default:
-                throw new \InvalidArgumentException('Unknown target: '.$valueName);
-        }
-    }
 
     /**
      * Get the target for a value.

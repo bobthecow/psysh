@@ -7,6 +7,7 @@ use Psy\Formatter\ObjectFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionInstanceProperty;
+use Psy\Output\ShellOutput;
 use Psy\Util\Documentor;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -70,7 +71,7 @@ EOF
         }
     }
 
-    private function printTarget(OutputInterface $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
+    private function printTarget(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
         if (!empty($constants)) {
             $output->writeln(sprintf('<strong>Constants</strong>: %s', implode(', ', array_keys($constants))));
         }
@@ -86,54 +87,60 @@ EOF
         }
     }
 
-    private function printTargetLong(OutputInterface $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
-        $pad = max(array_map('strlen', array_merge(array_keys($constants), array_keys($methods), array_keys($properties))));
+    private function printTargetLong(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
 
-        if (!empty($constants)) {
-            $output->writeln('<strong>Constants:</strong>');
-            foreach ($constants as $name => $value) {
-                $output->writeln(sprintf("  <comment>%-${pad}s</comment>  %s", $name, SignatureFormatter::format($value)));
-            }
-        }
+        $methodVis   = $this->getVisibilityFormatter();
+        $propertyVis = $this->getPropertyVisibilityFormatter();
 
-        $vis = $this->getVisibilityFormatter();
-        if (!empty($methods)) {
-            $output->writeln('<strong>Methods:</strong>');
-            foreach ($methods as $name => $value) {
-                $output->writeln(sprintf("  %s  %s", $vis($value, $pad), SignatureFormatter::format($value)));
-            }
-        }
+        $output->page(function($output) use ($constants, $methods, $properties, $methodVis, $propertyVis) {
+            $pad = max(array_map('strlen', array_merge(array_keys($constants), array_keys($methods), array_keys($properties))));
 
-        $vis = $this->getPropertyVisibilityFormatter();
-        if (!empty($properties)) {
-            $output->writeln('<strong>Properties:</strong>');
-            foreach ($properties as $name => $value) {
-                $output->writeln(sprintf("  %s  %s", $vis($value, $pad - 1), SignatureFormatter::format($value)));
+            if (!empty($constants)) {
+                $output->writeln('<strong>Constants:</strong>');
+                foreach ($constants as $name => $value) {
+                    $output->writeln(sprintf("  <comment>%-${pad}s</comment>  %s", $name, SignatureFormatter::format($value)));
+                }
             }
-        }
+
+            if (!empty($methods)) {
+                $output->writeln('<strong>Methods:</strong>');
+                foreach ($methods as $name => $value) {
+                    $output->writeln(sprintf("  %s  %s", $methodVis($value, $pad), SignatureFormatter::format($value)));
+                }
+            }
+
+            if (!empty($properties)) {
+                $output->writeln('<strong>Properties:</strong>');
+                foreach ($properties as $name => $value) {
+                    $output->writeln(sprintf("  %s  %s", $propertyVis($value, $pad - 1), SignatureFormatter::format($value)));
+                }
+            }
+        });
     }
 
-    private function printScopeVars(OutputInterface $output, array $vars)
+    private function printScopeVars(ShellOutput $output, array $vars)
     {
         $formatted = array_map(array(__CLASS__, 'printVarName'), array_keys($vars));
         $output->writeln(sprintf('<strong>Local variables</strong>: %s', implode(', ', $formatted)));
     }
 
-    private function printScopeVarsLong(OutputInterface $output, array $vars) {
-        $hashes = array();
-        $output->writeln('<strong>Local variables:</strong>');
-        foreach ($vars as $name => $var) {
-            if (isset($var[2])) {
-                if (isset($hashes[$var[2]])) {
-                    $var[] = sprintf('-> <return>$%s</return>', $hashes[$var[2]]);
-                } else {
-                    $hashes[$var[2]] = $name;
-                }
+    private function printScopeVarsLong(ShellOutput $output, array $vars) {
+        $output->page(function($output) use($vars) {
+            $hashes = array();
+            $output->writeln('<strong>Local variables:</strong>');
+            foreach ($vars as $name => $var) {
+                if (isset($var[2])) {
+                    if (isset($hashes[$var[2]])) {
+                        $var[] = sprintf('-> <return>$%s</return>', $hashes[$var[2]]);
+                    } else {
+                        $hashes[$var[2]] = $name;
+                    }
 
-                unset($var[2]);
+                    unset($var[2]);
+                }
+                $output->writeln('  '.implode(' ', $var));
             }
-            $output->writeln('  '.implode(' ', $var));
-        }
+        });
     }
 
     private function listTarget(\ReflectionClass $reflector, $value, $showAll)

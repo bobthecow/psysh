@@ -5,8 +5,7 @@ namespace Psy\Command;
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
-use Psy\Shell;
-use Psy\ShellAware;
+use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,7 +40,9 @@ EOL
     {
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
-        $output->writeln(SignatureFormatter::format($reflector));
-        $output->writeln(CodeFormatter::format($reflector), OutputInterface::OUTPUT_RAW);
+        $output->page(function(ShellOutput $output) use ($reflector) {
+            $output->writeln(SignatureFormatter::format($reflector));
+            $output->writeln(CodeFormatter::format($reflector), ShellOutput::OUTPUT_RAW);
+        });
     }
 }
