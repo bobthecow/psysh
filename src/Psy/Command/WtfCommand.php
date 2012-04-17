@@ -83,5 +83,7 @@ EOF
         if (!$e) {
             throw new \InvalidArgumentException('No most-recent exception');
         }
+
+        return $e;
     }
 }
