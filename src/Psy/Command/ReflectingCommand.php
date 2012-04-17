@@ -14,7 +14,6 @@ namespace Psy\Command;
 use Psy\Command\ShellAwareCommand;
 use Psy\Exception\RuntimeException;
 use Psy\Util\Mirror;
-use Psy\Util\Inspector;
 
 /**
  * An abstract command with helpers for inspecting the current shell scope.
@@ -64,7 +63,7 @@ abstract class ReflectingCommand extends ShellAwareCommand
                 return array($this->resolveInstance($matches[1]), $matches[3], $kind);
 
             case (!$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches)):
-                return array($this->resolveInstance($matches[1]), $matches[2], Inspector::STATIC_PROPERTY);
+                return array($this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY);
 
             default:
                 throw new RuntimeException('Unknown target: '.$valueName);

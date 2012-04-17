@@ -77,7 +77,7 @@ class Mirror
     {
         if (!is_object($value)) {
             if (!is_string($value)) {
-                throw new \InvalidArgumentException('Inspector expects an object or class');
+                throw new \InvalidArgumentException('Mirror expects an object or class');
             } elseif (!class_exists($value) && !interface_exists($value)) {
                 throw new \InvalidArgumentException('Unknown class: '.$value);
             }
