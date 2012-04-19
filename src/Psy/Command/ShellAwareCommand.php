@@ -15,7 +15,7 @@ use Psy\Command\Command;
 use Psy\Shell;
 use Psy\ShellAware;
 
-class ShellAwareCommand extends Command implements ShellAware
+abstract class ShellAwareCommand extends Command implements ShellAware
 {
     /**
      * Shell instance (for ShellAware interface)

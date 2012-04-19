@@ -76,12 +76,13 @@ class HistoryCommand extends ShellAwareCommand
                 $pattern .= 'i';
             }
 
-            $ret = array();
-            $matches = array();
+            $matches     = array();
             $highlighted = array();
             foreach ($history as $i => $line) {
                 if (preg_match($pattern, $line, $matches) xor $invert) {
-                    $highlighted[$i] = str_replace($matches[0], sprintf('<strong>%s</strong>', $matches[0]), $history[$i]);
+                    if (!$invert) {
+                        $highlighted[$i] = str_replace($matches[0], sprintf('<strong>%s</strong>', $matches[0]), $history[$i]);
+                    }
                 } else {
                     unset($history[$i]);
                 }
