@@ -329,6 +329,18 @@ EOD
         }
     }
 
+    public function setNamespace($namespace)
+    {
+        $this->cleaner->setNamespace($namespace);
+    }
+
+    public function getNamespace()
+    {
+        if ($namespace = $this->cleaner->getNamespace()) {
+            return implode('\\', $namespace);
+        }
+    }
+
     public function writeStdout($out)
     {
         if (!empty($out)) {

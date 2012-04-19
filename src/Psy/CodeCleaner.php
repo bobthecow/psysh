@@ -21,6 +21,9 @@ use PHPParser_Node_Stmt_Return as ReturnStatement;
 use PHPParser_Node_Expr_Variable as Variable;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
+use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
+use PHPParser_Node_Name as Name;
+use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
 
 // TODO: make namespaces kinda work
 // TODO: catch as many fatal errors as possible
@@ -29,6 +32,7 @@ use PHPParser_PrettyPrinter_Zend as Printer;
 class CodeCleaner
 {
     private $parser;
+    private $namespace = array();
 
     public function __construct(Parser $parser = null, Printer $printer = null)
     {
@@ -42,6 +46,20 @@ class CodeCleaner
 
         $this->parser  = $parser;
         $this->printer = $printer;
+    }
+
+    public function setNamespace($namespace)
+    {
+        if (!is_array($namespace)) {
+            $namespace = preg_split('/\\\\\\\\?/', ltrim($namespace, " \t\n\r\0\x0B\\"));
+        }
+
+        $this->namespace = $namespace;
+    }
+
+    public function getNamespace()
+    {
+        return $this->namespace;
     }
 
     public function clean(array $codeLines)
@@ -70,6 +88,10 @@ class CodeCleaner
         $last = end($stmts);
         if ($last instanceof Expression) {
             $stmts[count($stmts) - 1] = new ReturnStatement($last, $last->getLine());
+        }
+
+        if (!empty($this->namespace)) {
+            $stmts = array(new NamespaceStatement(new Name($this->namespace), $stmts));
         }
 
         return $this->printer->prettyPrint($stmts);
@@ -103,8 +125,14 @@ class CodeCleaner
             // if function name is an expression, give it a pass for now.
             // see TODO about fixing possible fatal errors.
             if (!$name instanceof Expression) {
-                $name = implode('\\', $name->parts);
-                if (!function_exists($name)) {
+                $shortName = implode('\\', $name->parts);
+                if ($name instanceof FullyQualifiedName) {
+                    $fullName = $shortName;
+                } else {
+                    $fullName = implode('\\', array_merge($this->namespace, $name->parts));
+                }
+
+                if (!function_exists($shortName) && !function_exists($fullName)) {
                     $message = sprintf('Call to undefined function %s()', $name);
                     throw new FatalErrorException($message, 0, 1, null, $stmt->getLine());
                 }
