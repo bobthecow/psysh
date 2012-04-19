@@ -19,7 +19,11 @@ class CodeFormatter implements Formatter
     public static function format(\Reflector $reflector)
     {
         if ($fileName = $reflector->getFileName()) {
-            $file = file_get_contents($fileName);
+            if (!is_file($fileName)) {
+                throw new RuntimeException('Source code unavailable.');
+            }
+
+            $file  = file_get_contents($fileName);
             $lines = preg_split('/\r?\n/', $file);
 
             $start = $reflector->getStartLine() - 1;
