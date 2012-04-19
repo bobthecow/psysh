@@ -42,16 +42,16 @@ abstract class ReflectingCommand extends ShellAwareCommand
         $matches   = array();
         switch (true) {
             case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
-                return array($matches[0], null, 0);
+                return array($this->resolveName($matches[0], true), null, 0);
 
             case preg_match(self::INSTANCE, $valueName, $matches):
                 return array($this->resolveInstance($matches[1]), null, 0);
 
             case (!$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches)):
-                return array($matches[1], $matches[2], Mirror::CONSTANT | Mirror::METHOD);
+                return array($this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD);
 
             case (!$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches)):
-                return array($matches[1], $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
+                return array($this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
 
             case (!$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches)):
                 if ($matches[2] == '->') {
@@ -68,6 +68,23 @@ abstract class ReflectingCommand extends ShellAwareCommand
             default:
                 throw new RuntimeException('Unknown target: '.$valueName);
         }
+    }
+
+    protected function resolveName($name, $includeFunctions = false)
+    {
+        if (substr($name, 0, 1) === '\\') {
+            return $name;
+        }
+
+        if ($namespace = $this->shell->getNamespace()) {
+            $fullName = $namespace.'\\'.$name;
+
+            if (class_exists($fullName) || interface_exists($fullName) || ($includeFunctions && function_exists($fullName))) {
+                return $fullName;
+            }
+        }
+
+        return $name;
     }
 
     /**
