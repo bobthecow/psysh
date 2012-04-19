@@ -79,7 +79,7 @@ class Mirror
             if (!is_string($value)) {
                 throw new \InvalidArgumentException('Mirror expects an object or class');
             } elseif (!class_exists($value) && !interface_exists($value)) {
-                throw new \InvalidArgumentException('Unknown class: '.$value);
+                throw new \InvalidArgumentException('Unknown class or function: '.$value);
             }
         }
 
