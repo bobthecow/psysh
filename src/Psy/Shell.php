@@ -17,6 +17,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\ObjectFormatter;
+use Psy\Formatter\ArrayFormatter;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\ShellAware;
@@ -379,8 +380,10 @@ EOD
             return 'null';
         } elseif (is_object($val)) {
             return ObjectFormatter::format($val);
+        } elseif (is_array($val)) {
+            return ArrayFormatter::format($val);
         } else {
-            return var_export($val, true);
+            return json_encode($val);
         }
     }
 

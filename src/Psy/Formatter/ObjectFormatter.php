@@ -41,7 +41,7 @@ class ObjectFormatter
         }
 
         $template = sprintf('{%s%s%%s%s   }', PHP_EOL, str_repeat(' ', 7), PHP_EOL);
-        $glue     = sprintf(',%s%s', PHP_EOL, str_repeat(' ', 3));
+        $glue     = sprintf(',%s%s', PHP_EOL, str_repeat(' ', 7));
 
         return sprintf($template, implode($glue, $formatted));
     }
@@ -50,7 +50,7 @@ class ObjectFormatter
     {
         $props = array();
         foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
-            $props[$prop->getName()] = $prop->getValue();
+            $props[$prop->getName()] = $prop->getValue($obj);
         }
 
         foreach (array_keys(json_decode(json_encode($obj), true)) as $prop) {
@@ -62,9 +62,12 @@ class ObjectFormatter
         return $props;
     }
 
-    private static function formatVal($val) {
+    private static function formatVal($val)
+    {
         if (is_object($val)) {
             return self::formatRef($val);
+        } elseif (is_array($val)) {
+            return sprintf('Array(%d)', count($val));
         } else {
             return json_encode($val);
         }

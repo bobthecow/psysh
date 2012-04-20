@@ -11,11 +11,11 @@ class Inspector
      * Export all public, private and protected properties of $var.
      *
      * @param mixed $var
-     * @param int $depth Maximum depth to export, or -1 for infinite (default: -1)
+     * @param int $depth Maximum depth to export, or -1 for infinite. **danger, will robison** (default: -1)
      *
      * @return mixed
      */
-    public static function export($var, $depth = -1)
+    public static function export($var, $depth = 5)
     {
         if ($depth == 0) {
             if (is_object($var)) {
