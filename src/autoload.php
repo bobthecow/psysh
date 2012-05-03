@@ -9,7 +9,9 @@
  * file that was distributed with this source code.
  */
 
-require dirname(__DIR__).'/vendor/symfony-components/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+if (!class_exists('Symfony\Component\ClassLoader\UniversalClassLoader')) {
+    require dirname(__DIR__).'/vendor/symfony-components/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+}
 
 $loader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
 $loader->register();
