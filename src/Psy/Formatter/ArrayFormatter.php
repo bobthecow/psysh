@@ -11,10 +11,12 @@
 
 namespace Psy\Formatter;
 
+use Psy\Formatter\RecursiveFormatter;
+
 /**
  * A pretty-printer for arrays..
  */
-class ArrayFormatter
+class ArrayFormatter extends RecursiveFormatter
 {
     public static function format(array $array)
     {
@@ -32,16 +34,5 @@ class ArrayFormatter
     public static function formatRef(array $array)
     {
         return sprintf('Array(%d)', count($array));
-    }
-
-    public static function formatValue($value)
-    {
-        if (is_object($value)) {
-            return ObjectFormatter::formatRef($value);
-        } elseif (is_array($value)) {
-            return self::formatRef($value);
-        } else {
-            return json_encode($value);
-        }
     }
 }

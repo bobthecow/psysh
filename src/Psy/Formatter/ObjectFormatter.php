@@ -11,10 +11,12 @@
 
 namespace Psy\Formatter;
 
+use Psy\Formatter\RecursiveFormatter;
+
 /**
  * A pretty-printer for object references..
  */
-class ObjectFormatter
+class ObjectFormatter extends RecursiveFormatter
 {
     public static function format($obj)
     {
@@ -37,7 +39,7 @@ class ObjectFormatter
 
         $formatted = array();
         foreach ($props as $name => $val) {
-            $formatted[] = sprintf('%s: %s', $name, self::formatVal($val));
+            $formatted[] = sprintf('%s: %s', $name, self::formatValue($val));
         }
 
         $template = sprintf('{%s%s%%s%s   }', PHP_EOL, str_repeat(' ', 7), PHP_EOL);
@@ -60,16 +62,5 @@ class ObjectFormatter
         }
 
         return $props;
-    }
-
-    private static function formatVal($val)
-    {
-        if (is_object($val)) {
-            return self::formatRef($val);
-        } elseif (is_array($val)) {
-            return sprintf('Array(%d)', count($val));
-        } else {
-            return json_encode($val);
-        }
     }
 }
