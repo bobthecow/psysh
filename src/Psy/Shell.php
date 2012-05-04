@@ -78,43 +78,37 @@ class Shell
         $this->loop->run($this);
     }
 
-    public function throwErrorException($errno, $errstr, $errfile, $errline)
+    public function getInput()
     {
-        throw new ErrorException($errstr, $errno, $errno, $errfile, $errline);
-    }
+        do {
+            // reset output verbosity (in case it was altered by a subcommand)
+            $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
 
-    public function doLoop()
-    {
-        // reset output verbosity (in case it was altered by a subcommand)
-        $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
+            $input = $this->readline();
 
-        $input = $this->readline();
+            // handle Ctrl+D
+            if ($input === false) {
+                $this->output->writeln('');
+                throw new BreakException('Ctrl+D');
+            }
 
-        // handle Ctrl+D
-        if ($input === false) {
-            $this->output->writeln('');
-            throw new BreakException('Ctrl+D');
-        }
+            // handle empty input
+            if (!trim($input)) {
+                continue;
+            }
 
-        // handle empty input
-        if (!trim($input)) {
-            return false;
-        }
+            if ($this->config->useReadline()) {
+                readline_add_history($input);
+                readline_write_history($this->config->getHistoryFile());
+            }
 
-        if ($this->config->useReadline()) {
-            readline_add_history($input);
-            readline_write_history($this->config->getHistoryFile());
-        }
+            if ($this->hasCommand($input)) {
+                $this->runCommand($input);
+                continue;
+            }
 
-        if ($this->hasCommand($input)) {
-            $this->runCommand($input);
-
-            return false;
-        }
-
-        $this->addCode($input);
-
-        return $this->hasValidCode();
+            $this->addCode($input);
+        } while (!$this->hasValidCode());
     }
 
     public function beforeLoop()

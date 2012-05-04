@@ -29,7 +29,7 @@ class Loop
 
                 try {
                     // read a line, see if we should eval
-                    while (!$__psysh__->doLoop());
+                    $__psysh__->getInput();
 
                     // evaluate the current code buffer
                     ob_start();
