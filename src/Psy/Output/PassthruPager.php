@@ -12,8 +12,8 @@
 namespace Psy\Output;
 
 use Psy\Output\OutputPager;
-use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class PassthruPager extends StreamOutput implements OutputPager
 {

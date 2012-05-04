@@ -43,9 +43,6 @@ class Shell
     private $codeBuffer;
     private $scopeVariables;
     private $exceptions;
-    private $parentPid;
-    private $forkHistoryFileName;
-    private $forkHistoryFile;
 
     /**
      * Create a new Psy shell.
@@ -59,24 +56,13 @@ class Shell
         $this->cleaner        = $this->config->getCodeCleaner();
         $this->output         = $this->config->getOutput();
         $this->pager          = $this->config->getPager();
+        $this->loop           = $this->config->getLoop();
         $this->scopeVariables = array();
-    }
-
-    public function __destruct()
-    {
-        // last one out, turn off the lights
-        if ($this->config->usePcntl()) {
-            if (posix_getpid() == $this->parentPid) {
-                fclose($this->forkHistoryFile);
-                unlink($this->forkHistoryFileName);
-            }
-        }
     }
 
     public function run()
     {
         $this->exceptions = array();
-        $this->forkHistory = array();
         $this->resetCodeBuffer();
 
         $this->application->setAutoExit(false);
@@ -87,122 +73,14 @@ class Shell
             readline_completion_function(array($this, 'autocomplete'));
         }
 
-        if ($this->config->usePcntl()) {
-            $this->parentPid = posix_getpid();
-            $this->forkHistoryFileName = $this->config->getForkHistoryFile($this->parentPid);
-            $this->forkHistoryFile = fopen($this->forkHistoryFileName, 'w+');
-            $this->callsUntilFork = 0;
-        }
-
         $this->output->writeln($this->getHeader());
 
-        $loop = function($__psysh__) {
-            extract($__psysh__->getScopeVariables());
-
-            do {
-                $__psysh__->fork();
-
-                // a bit of housekeeping
-                unset($__psysh_out__, $__psysh_e__);
-                $__psysh__->setScopeVariables(get_defined_vars());
-
-                try {
-                    // read a line, see if we should eval
-                    while (!$__psysh__->doLoop());
-
-                    // evaluate the current code buffer
-                    ob_start();
-
-                    set_error_handler(array($__psysh__, 'throwErrorException'));
-                    $_ = eval($__psysh__->flushCode());
-                    restore_error_handler();
-
-                    $__psysh_out__ = ob_get_contents();
-                    ob_end_clean();
-
-                    $__psysh__->writeStdout($__psysh_out__);
-                    $__psysh__->writeReturnValue($_);
-                } catch (BreakException $__psysh_e__) {
-                    restore_error_handler();
-                    $__psysh__->writeException($__psysh_e__);
-                    return;
-                } catch (\Exception $__psysh_e__) {
-                    restore_error_handler();
-                    $__psysh__->writeException($__psysh_e__);
-                }
-            } while (true);
-
-        };
-
-        $loop($this);
+        $this->loop->run($this);
     }
 
     public function throwErrorException($errno, $errstr, $errfile, $errline)
     {
         throw new ErrorException($errstr, $errno, $errno, $errfile, $errline);
-    }
-
-    public function fork()
-    {
-        if ($this->config->usePcntl()) {
-            if (--$this->callsUntilFork <= 0) {
-                $this->callsUntilFork = $this->config->getForkEveryN();
-                if (pcntl_fork()) {
-                    // wait for the child
-                    pcntl_wait($status);
-
-                    // did it exit?
-                    if (!pcntl_wifexited($status)) {
-                        $this->writeException(new RuntimeException('<error>ABNORMAL EXIT</error>'));
-                        die;
-                    }
-
-                    // did it succeed?
-                    if (!pcntl_wexitstatus($status)) {
-                        exit;
-                    }
-
-                    // try to recover?
-                    $this->recoverFromFatalError();
-                } else {
-                    $this->clearForkHistory();
-                }
-            } else {
-                $this->writeForkHistory();
-            }
-        }
-    }
-
-    private function recoverFromFatalError()
-    {
-        $lines = $this->readForkHistory();
-        $count = count($lines);
-        if ($count == 0) {
-            return;
-        }
-
-        $this->output->writeln(<<<EOD
-
-<error>PsySH has detected (and prevented) a fatal error.</error>
-
-You have done $count things since your last save point:
-
-EOD
-        );
-        $this->output->writeln($lines, ShellOutput::NUMBER_LINES);
-        $this->output->writeln('');
-
-        $dialog = $this->application->getHelperSet()->get('dialog');
-        if ($dialog->askConfirmation($this->output, '<question>Should we try to replay these commands?</question>', false)) {
-            $this->output->writeln('Got it. Replaying.');
-            $this->addInput($lines);
-        } else {
-            $this->output->writeln('Got it. Try not to do that again, eh?');
-        }
-
-        // clear out the history and fork immediately.
-        $this->clearForkHistory();
-        $this->callsUntilFork = 0;
     }
 
     public function doLoop()
@@ -237,6 +115,11 @@ EOD
         $this->addCode($input);
 
         return $this->hasValidCode();
+    }
+
+    public function beforeLoop()
+    {
+        $this->loop->beforeLoop();
     }
 
     public function setScopeVariables(array $vars)
@@ -323,7 +206,6 @@ EOD
     {
         if ($this->hasValidCode()) {
             $code = $this->code;
-            $this->forkHistory[] = implode(PHP_EOL, $this->codeBuffer);
             $this->resetCodeBuffer();
 
             return $code;
@@ -457,24 +339,5 @@ EOD
         if ($firstChar == '$') {
             return $this->getScopeVariableNames();
         }
-    }
-
-    private function writeForkHistory()
-    {
-        ftruncate($this->forkHistoryFile, 0);
-        fwrite($this->forkHistoryFile, implode(PHP_EOL, $this->forkHistory));
-    }
-
-    private function clearForkHistory()
-    {
-        ftruncate($this->forkHistoryFile, 0);
-        $this->forkHistory = array();
-    }
-
-    private function readForkHistory()
-    {
-        $content = trim(file_get_contents($this->forkHistoryFileName));
-
-        return empty($content) ? array() : explode(PHP_EOL, $content);
     }
 }

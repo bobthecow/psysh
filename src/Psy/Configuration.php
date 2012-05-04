@@ -13,6 +13,8 @@ namespace Psy;
 
 use Psy\Application;
 use Psy\CodeCleaner;
+use Psy\Loop\Loop;
+use Psy\Loop\ForkingLoop;
 use Psy\Output\ShellOutput;
 use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
@@ -31,6 +33,13 @@ class Configuration
     private $usePcntl;
     private $forkEveryN = 5;
     private $newCommands = array();
+
+    // services
+    private $output;
+    private $application;
+    private $cleaner;
+    private $pager;
+    private $loop;
 
     public function __construct(array $config = array())
     {
@@ -64,7 +73,7 @@ class Configuration
 
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner', 'pager', 'tmpDir') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner', 'pager', 'loop', 'tmpDir') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -79,7 +88,8 @@ class Configuration
         }
     }
 
-    public function loadConfigFile($file) {
+    public function loadConfigFile($file)
+    {
         $__psysh_config_file__ = $file;
         $load = function($config) use ($__psysh_config_file__) {
             return require $__psysh_config_file__;
@@ -123,6 +133,26 @@ class Configuration
         }
 
         return tempnam($tempDir, 'fork_'.$parentPid.'_');
+    }
+
+    public function getTempFile($type, $parentPid)
+    {
+        $tempDir = $this->getTempDir();
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir);
+        }
+
+        return tempnam($tempDir, $type.'_'.$parentPid.'_');
+    }
+
+    public function getPipe($type, $parentPid)
+    {
+        $tempDir = $this->getTempDir();
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir);
+        }
+
+        return sprintf('%s/%s_%s', $tempDir, $type, $parentPid);
     }
 
     public function hasReadline()
@@ -227,6 +257,24 @@ class Configuration
         }
 
         return $this->pager;
+    }
+
+    public function setLoop(Loop $loop)
+    {
+        $this->loop = $loop;
+    }
+
+    public function getLoop()
+    {
+        if (!isset($this->loop)) {
+            if ($this->usePcntl()) {
+                $this->loop = new ForkingLoop($this);
+            } else {
+                $this->loop = new Loop($this);
+            }
+        }
+
+        return $this->loop;
     }
 
     public function addCommands(array $commands)
