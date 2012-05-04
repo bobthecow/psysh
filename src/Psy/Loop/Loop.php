@@ -4,6 +4,7 @@ namespace Psy\Loop;
 
 use Psy\Configuration;
 use Psy\Shell;
+use Psy\Exception\BreakException;
 
 class Loop
 {
@@ -33,7 +34,7 @@ class Loop
                     // evaluate the current code buffer
                     ob_start();
 
-                    set_error_handler(array($__psysh__, 'throwErrorException'));
+                    set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
                     $_ = eval($__psysh__->flushCode());
                     restore_error_handler();
 

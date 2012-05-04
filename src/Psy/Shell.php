@@ -250,7 +250,20 @@ class Shell
             $message = sprintf('%s with message \'%s\'', get_class($e), $message);
         }
 
-        $this->output->writeln(sprintf('<error>%s</error>', $message));
+        $severity = 'error';
+        if ($e instanceof \ErrorException) {
+            switch ($e->getSeverity()) {
+                case E_WARNING:
+                case E_CORE_WARNING:
+                case E_COMPILE_WARNING:
+                case E_USER_WARNING:
+                case E_STRICT:
+                    $severity = 'warning';
+                    break;
+            }
+        }
+
+        $this->output->writeln(sprintf('<%s>%s</%s>', $severity, $message, $severity));
 
         $this->resetCodeBuffer();
     }
