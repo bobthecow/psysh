@@ -42,12 +42,17 @@ abstract class ListingCommand extends ShellAwareCommand
             }
         }
 
+
+
         $invert = $input->getOption('invert');
         if ($pattern = $input->getOption('grep')) {
-            if (strlen($pattern) < 3 || substr($pattern, 0, 1) != substr($pattern, -1)) {
-                $pattern = '/'.preg_quote($pattern, '/').'/';
+            if (preg_match('/^([^\w\s\\\\]).*([^\w\s\\\\])([imsADUXu]*)$/', $pattern, $matches) && $matches[1] == $matches[2]) {
+                if (strpos($matches[3], 'i') === false) {
+                    $pattern .= 'i';
+                }
+            } else {
+                $pattern = '/'.preg_quote($pattern, '/').'/i';
             }
-            $pattern .= 'i';
 
             $matches     = array();
             $highlighted = array();
