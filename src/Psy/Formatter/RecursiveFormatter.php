@@ -15,13 +15,19 @@ use Psy\Formatter\ArrayFormatter;
 use Psy\Formatter\ObjectFormatter;
 
 /**
- * A pretty-printer for object references..
+ * A pretty-printer for recursive objects references..
  */
 abstract class RecursiveFormatter
 {
-    abstract public static function format($obj);
+    public static function format($obj)
+    {
+        throw new \InvalidArgumentException('format should be implemented by extending classes.');
+    }
 
-    abstract public static function formatRef($obj);
+    public static function formatRef($obj)
+    {
+        throw new \InvalidArgumentException('formatRef should be implemented by extending classes.');
+    }
 
     public static function formatValue($val)
     {
