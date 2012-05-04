@@ -54,7 +54,15 @@ abstract class Command extends BaseCommand
      */
     private function getArguments()
     {
-        return $this->getNativeDefinition()->getArguments();
+        $hidden = $this->getHiddenArguments();
+        return array_filter($this->getNativeDefinition()->getArguments(), function($argument) use ($hidden) {
+            return !in_array($argument->getName(), $hidden);
+        });
+    }
+
+    protected function getHiddenArguments()
+    {
+        return array('command');
     }
 
     /**
@@ -70,7 +78,7 @@ abstract class Command extends BaseCommand
 
     protected function getHiddenOptions()
     {
-        return array('help', 'verbose');
+        return array('verbose');
     }
 
     private function aliasesAsText()
@@ -84,7 +92,7 @@ abstract class Command extends BaseCommand
         $messages = array();
 
         $arguments = $this->getArguments();
-        if ($arguments) {
+        if (!empty($arguments)) {
             $messages[] = '<comment>Arguments:</comment>';
             foreach ($arguments as $argument) {
                 if (null !== $argument->getDefault() && (!is_array($argument->getDefault()) || count($argument->getDefault()))) {
