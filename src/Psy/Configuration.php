@@ -234,8 +234,11 @@ class Configuration
     public function getPager()
     {
         if (!isset($this->pager) && $this->usePcntl()) {
+            // use the default pager (5.4+)
+            if ($pager = ini_get('cli.pager')) {
+                $this->pager = $pager;
             // check for the presence of less...
-            if ($less = exec('which less')) {
+            } elseif ($less = exec('which less')) {
                 $this->pager = $less.' -R -S -F -X';
             }
         }
