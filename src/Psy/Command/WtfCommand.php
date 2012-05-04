@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Show the last exception.
+ * Show the last uncaught exception.
  */
 class WtfCommand extends TraceCommand
 {
@@ -55,6 +55,11 @@ EOF
         ;
     }
 
+    /**
+     * --verbose is not hidden for this option :)
+     *
+     * @return array
+     */
     protected function getHiddenOptions()
     {
         $options = parent::getHiddenOptions();
@@ -77,6 +82,11 @@ EOF
         $output->page($this->getBacktrace($this->getLastException(), $count), ShellOutput::NUMBER_LINES);
     }
 
+    /**
+     * Grab the last uncaught exception from the shell.
+     *
+     * @return \Exception
+     */
     protected function getLastException()
     {
         $e = $this->shell->getLastException();

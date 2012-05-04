@@ -15,6 +15,11 @@ use Psy\Command\Command;
 use Psy\Shell;
 use Psy\ShellAware;
 
+/**
+ * An interface for shell-aware Commands.
+ *
+ * The Psy Shell is automatically injected into all shell-aware commands.
+ */
 abstract class ShellAwareCommand extends Command implements ShellAware
 {
     /**

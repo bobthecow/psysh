@@ -44,6 +44,13 @@ EOF
         ;
     }
 
+    /**
+     * Get defined functions, exclude user functions.
+     *
+     * @param InputInterface $input
+     *
+     * @return array
+     */
     protected function listThings(InputInterface $input)
     {
         $funcs = get_defined_functions();

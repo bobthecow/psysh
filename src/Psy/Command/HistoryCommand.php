@@ -111,6 +111,13 @@ class HistoryCommand extends ShellAwareCommand
         }
     }
 
+    /**
+     * Extract a range from a string.
+     *
+     * @param string $range
+     *
+     * @return array [ start, end ]
+     */
     private function extractRange($range)
     {
         if (preg_match('/^\d+$/', $range)) {
@@ -128,6 +135,15 @@ class HistoryCommand extends ShellAwareCommand
         throw new \InvalidArgumentException('Unexpected range: '.$range);
     }
 
+    /**
+     * Retrieve a slice of the readline history.
+     *
+     * @param string $show
+     * @param string $head
+     * @param string $tail
+     *
+     * @return array A slilce of history.
+     */
     private function getHistorySlice($show, $head, $tail)
     {
         $history = readline_list_history();
@@ -156,6 +172,12 @@ class HistoryCommand extends ShellAwareCommand
         return array_slice($history, $start, $length, true);
     }
 
+    /**
+     * Validate that only one of the given $options is set.
+     *
+     * @param InputInterface $input
+     * @param array $options
+     */
     private function validateOnlyOne(InputInterface $input, array $options)
     {
         $count = 0;

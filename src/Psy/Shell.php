@@ -28,6 +28,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * The Psy Shell application
+ *
+ * Usage:
+ *
+ *     $shell = new Shell;
+ *     $shell->run();
+ *
+ * @author Justin Hileman <justin@justinhileman.info>
+ */
 class Shell extends Application
 {
     const VERSION = 'v0.0.1-dev';
@@ -109,10 +119,6 @@ class Shell extends Application
      * @param OutputInterface $output An Output instance
      *
      * @return integer 0 if everything went fine, or an error code
-     *
-     * @throws \Exception When doRun returns Exception
-     *
-     * @api
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
@@ -151,6 +157,12 @@ class Shell extends Application
         $this->loop->run($this);
     }
 
+    /**
+     * Read user input.
+     *
+     * This will continue fetching user input until the code buffer contains
+     * valid code.
+     */
     public function getInput()
     {
         do {
@@ -184,27 +196,54 @@ class Shell extends Application
         } while (!$this->hasValidCode());
     }
 
+    /**
+     * Pass the beforeLoop callback through to the Loop instance.
+     *
+     * @see Loop::beforeLoop
+     */
     public function beforeLoop()
     {
         $this->loop->beforeLoop();
     }
 
+    /**
+     * Set the variables currently in scope.
+     *
+     * @param array $vars
+     */
     public function setScopeVariables(array $vars)
     {
         unset($vars['__psysh__']);
         $this->scopeVariables = $vars;
     }
 
+    /**
+     * Return the set of variables currently in scope.
+     *
+     * @return array Associative array of scope variables.
+     */
     public function getScopeVariables()
     {
         return $this->scopeVariables;
     }
 
+    /**
+     * Get the set of variable names currently in scope.
+     *
+     * @return array Array of variable names.
+     */
     public function getScopeVariableNames()
     {
         return array_keys($this->getScopeVariables());
     }
 
+    /**
+     * Get a scope variable value by name.
+     *
+     * @param string $name
+     *
+     * @return mixed
+     */
     public function getScopeVariable($name)
     {
         if (!array_key_exists($name, $this->scopeVariables)) {
@@ -214,44 +253,89 @@ class Shell extends Application
         return $this->scopeVariables[$name];
     }
 
+    /**
+     * Get all exceptions caught by this shell instance.
+     *
+     * @return array
+     */
     public function getExceptions()
     {
         return $this->exceptions;
     }
 
+    /**
+     * Get the last exception caught by this shell instance.
+     *
+     * @return Exception|null
+     */
     public function getLastException()
     {
         return end($this->exceptions);
     }
 
+    /**
+     * Check whether this shell's code buffer contains code.
+     *
+     * @return bool True if the code buffer contains code.
+     */
     protected function hasCode()
     {
         return !empty($this->codeBuffer);
     }
 
+    /**
+     * Check whether the code in this shell's code buffer is valid.
+     *
+     * If the code is valid, the code buffer should be flushed and evaluated.
+     *
+     * @return bool True if the code buffer content is valid.
+     */
     protected function hasValidCode()
     {
         return $this->code !== false;
     }
 
+    /**
+     * Add code to the code buffer.
+     *
+     * @param string $code
+     */
     public function addCode($code)
     {
         $this->codeBuffer[] = $code;
         $this->code         = $this->cleaner->clean($this->codeBuffer);
     }
 
+    /**
+     * Get the current code buffer.
+     *
+     * This is useful for commands which manipulate the buffer.
+     *
+     * @return array
+     */
     public function getCodeBuffer()
     {
         return $this->codeBuffer;
     }
 
+    /**
+     * Run a Psy shell command given the user input.
+     *
+     * @throws InvalidArgumentException if the input is not a valid command.
+     *
+     * @param string $input User input string
+     */
     protected function runCommand($input)
     {
         $command = $this->getCommand($input);
+
+        if (empty($command)) {
+            throw new \InvalidArgumentException('Command not found: '.$input);
+        }
+
         if ($command instanceof ShellAware) {
             $command->setShell($this);
         }
-
 
         $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
 
@@ -265,12 +349,25 @@ class Shell extends Application
         $command->run($input, $this->output);
     }
 
+    /**
+     * Reset the current code buffer.
+     *
+     * This should be run after evaluating user input, catching exceptions, or
+     * on demand by commands such as BufferCommand.
+     */
     public function resetCodeBuffer()
     {
         $this->codeBuffer = array();
         $this->code       = false;
     }
 
+    /**
+     * Inject input into the input buffer.
+     *
+     * This is useful for commands which want to replay history.
+     *
+     * @param string|array $input
+     */
     public function addInput($input)
     {
         foreach ((array) $input as $line) {
@@ -278,6 +375,14 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Flush the current (valid) code buffer.
+     *
+     * If the code buffer is valid, resets the code buffer and returns the
+     * current code.
+     *
+     * @return string PHP code buffer contents.
+     */
     public function flushCode()
     {
         if ($this->hasValidCode()) {
@@ -288,11 +393,27 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Set the current evaluation scope namespace.
+     *
+     * This is passed through to the code cleaner.
+     *
+     * @see CodeCleaner::setNamespace
+     *
+     * @param string $namespace
+     */
     public function setNamespace($namespace)
     {
         $this->cleaner->setNamespace($namespace);
     }
 
+    /**
+     * Get the current evaluation scope namespace.
+     *
+     * @see CodeCleaner::getNamespace
+     *
+     * @return string Current code namespace.
+     */
     public function getNamespace()
     {
         if ($namespace = $this->cleaner->getNamespace()) {
@@ -300,6 +421,13 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Write a string to stdout.
+     *
+     * This is used by the shell loop for rendering output from evaluated code.
+     *
+     * @param string $out
+     */
     public function writeStdout($out)
     {
         if (!empty($out)) {
@@ -307,6 +435,16 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Write a return value to stdout.
+     *
+     * The return value is formatted or pretty-printed, and rendered in a
+     * visibly distinct manner (in this case, as cyan).
+     *
+     * @see self::formatValue
+     *
+     * @param mixed $ret
+     */
     public function writeReturnValue($ret)
     {
         $returnString = $this->formatValue($ret);
@@ -317,11 +455,27 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Write a caught Exception to stdout.
+     *
+     * @see self::renderException
+     *
+     * @param \Exception $e
+     */
     public function writeException(\Exception $e)
     {
         $this->renderException($e, $this->output);
     }
 
+    /**
+     * Renders a caught Exception.
+     *
+     * Exceptions are formatted according to severity. ErrorExceptions which were
+     * warnings or Strict errors aren't rendered as harshly as real errors.
+     *
+     * @param Exception       $e      An exception instance
+     * @param OutputInterface $output An OutputInterface instance
+     */
     public function renderException($e, $output)
     {
         $this->exceptions[] = $e;
@@ -349,12 +503,24 @@ class Shell extends Application
         $this->resetCodeBuffer();
     }
 
+    /**
+     * Format a value for display.
+     *
+     * If it's an object, the formatting is delegated to ObjectFormatter. If it's
+     * an array, ArrayFormatter will do the job. If it's anything else, it is
+     * JSON encoded for display.
+     *
+     * @see ObjectFormatter::format
+     * @see ArrayFormatter::format
+     * @see json_encode
+     *
+     * @param mixed $val
+     *
+     * @return string Formatted value
+     */
     protected function formatValue($val)
     {
-        // uppercase null is ugly.
-        if ($val === null) {
-            return 'null';
-        } elseif (is_object($val)) {
+        if (is_object($val)) {
             return ObjectFormatter::format($val);
         } elseif (is_array($val)) {
             return ArrayFormatter::format($val);
@@ -363,29 +529,59 @@ class Shell extends Application
         }
     }
 
-    protected function getCommand($command)
+    /**
+     * Get a command (if one exists) for the current input string.
+     *
+     * @param string $input
+     *
+     * @return null|Command
+     */
+    protected function getCommand($input)
     {
-        $matches = array();
-        if (preg_match('/^\s*([^\s]+)(?:\s|$)/', $command, $matches)) {
-            return $this->get($matches[1]);
+        $input = new StringInput($input);
+        if ($name = $input->getFirstArgument()) {
+            return $this->get($name);
         }
     }
 
-    protected function hasCommand($command)
+    /**
+     * Check whether a command is set for the current input string.
+     *
+     * @param string $input
+     *
+     * @return bool True if the shell has a command for the given input.
+     */
+    protected function hasCommand($input)
     {
-        $matches = array();
-        if (preg_match('/^\s*([^\s]+)(?:\s|$)/', $command, $matches)) {
-            return $this->has($matches[1]);
+        $input = new StringInput($input);
+        if ($name = $input->getFirstArgument()) {
+            return $this->has($name);
         }
 
         return false;
     }
 
+    /**
+     * Get the current input prompt.
+     *
+     * @return string
+     */
     protected function getPrompt()
     {
         return $this->hasCode() ? self::BUFF_PROMPT : self::PROMPT;
     }
 
+    /**
+     * Read a line of user input.
+     *
+     * This will return a line from the input buffer (if any exist). Otherwise,
+     * it will ask the user for input.
+     *
+     * If readline is enabled, this delegates to readline. Otherwise, it's an
+     * ugly `fgets` call.
+     *
+     * @return string One line of user input.
+     */
     protected function readline()
     {
         if (!empty($this->inputBuffer)) {
@@ -404,6 +600,11 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Get the shell output header.
+     *
+     * @return string
+     */
     protected function getHeader()
     {
         return sprintf(
@@ -414,11 +615,25 @@ class Shell extends Application
         );
     }
 
+    /**
+     * Get the current version of PsySH.
+     *
+     * @return string
+     */
     public function getVersion()
     {
         return sprintf("PsySH %s (PHP %s — %s)", self::VERSION, phpversion(), php_sapi_name());
     }
 
+    /**
+     * Autocomplete variable names.
+     *
+     * This is used by `readline` for tab completion.
+     *
+     * @param string $text
+     *
+     * @return mixed Array possible completions for the given input, if any.
+     */
     protected function autocomplete($text)
     {
         $info = readline_info();

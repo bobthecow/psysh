@@ -1,18 +1,30 @@
 <?php
 
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\Loop;
 
 use Psy\Configuration;
 use Psy\Shell;
 use Psy\Exception\BreakException;
 
+/**
+ * The Psy shell loop.
+ *
+ * Maintains
+ */
 class Loop
 {
-    private $config;
-
     public function __construct(Configuration $config)
     {
-        $this->config = $config;
+        // don't need this
     }
 
     public function run(Shell $shell)
@@ -57,6 +69,12 @@ class Loop
         return $loop($shell);
     }
 
+    /**
+     * A beforeLoop callback.
+     *
+     * This is executed at the start of each loop iteration. In the default
+     * (non-forking) loop implementation, this is a no-op.
+     */
     public function beforeLoop()
     {
         // noop

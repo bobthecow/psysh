@@ -11,29 +11,35 @@
 
 namespace Psy;
 
-use Psy\Exception\FatalErrorException;
-use Psy\Exception\ParseErrorException;
-use Psy\Exception\RuntimeException;
 use PHPParser_Lexer as Lexer;
 use PHPParser_Node_Expr as Expression;
 use PHPParser_Node_Expr_FuncCall as FuncCall;
-use PHPParser_Node_Stmt_Return as ReturnStatement;
 use PHPParser_Node_Expr_Variable as Variable;
-use PHPParser_Parser as Parser;
-use PHPParser_PrettyPrinter_Zend as Printer;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
+use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
+use PHPParser_Node_Stmt_Return as ReturnStatement;
+use PHPParser_Parser as Parser;
+use PHPParser_PrettyPrinter_Zend as Printer;
+use Psy\Exception\FatalErrorException;
+use Psy\Exception\ParseErrorException;
+use Psy\Exception\RuntimeException;
 
-// TODO: make namespaces kinda work
-// TODO: catch as many fatal errors as possible
-//  * "PHP Fatal error:  Function name must be a string" (e.g. `$foo()` when there's no $foo in scope)
-
+/**
+ * A service to clean up user input, detect parse errors before they happen,
+ * and generally work around issues with the PHP code evaluation experience.
+ */
 class CodeCleaner
 {
     private $parser;
     private $namespace = array();
 
+    /**
+     * CodeCleaner constructor.
+     *
+     * @param Parser  $parser  A PHPParser Parser instance. One will be created if not explicitly supplied.
+     * @param Printer $printer A PHPParser Printer instance. One will be created if not explicitly supplied.
+     */
     public function __construct(Parser $parser = null, Printer $printer = null)
     {
         if ($parser === null) {
@@ -48,6 +54,14 @@ class CodeCleaner
         $this->printer = $printer;
     }
 
+    /**
+     * Set the current namespace for cleaned code.
+     *
+     * This is useful for multiline evaluation. Subsequent code will be "converted"
+     * to be in this namespace.
+     *
+     * @param string|array $namespace
+     */
     public function setNamespace($namespace)
     {
         if (!is_array($namespace)) {
@@ -57,11 +71,28 @@ class CodeCleaner
         $this->namespace = $namespace;
     }
 
+    /**
+     * Get the current namespace.
+     *
+     * @return array
+     */
     public function getNamespace()
     {
         return $this->namespace;
     }
 
+    /**
+     * Clean the given array of code.
+     *
+     * Parses and validates input, and adds code to the current namespace, if
+     * applicable.
+     *
+     * @throws ParseErrorException if the code is invalid PHP, and cannot be coerced into valid PHP.
+     *
+     * @param array $codeLines
+     *
+     * @return string|false Cleaned PHP code, False if the input is incomplete.
+     */
     public function clean(array $codeLines)
     {
         $code = "<?php " . implode(PHP_EOL, $codeLines);
@@ -97,11 +128,28 @@ class CodeCleaner
         return $this->printer->prettyPrint($stmts);
     }
 
+    /**
+     * Lex and parse a block of code.
+     *
+     * @see Parser::parse
+     *
+     * @param string $code
+     *
+     * @return array A set of statements
+     */
     protected function parse($code)
     {
         return $this->parser->parse(new Lexer($code));
     }
 
+    /**
+     * Recursively walk the given statements and validate them.
+     *
+     * @see self::validateFunctionCalls
+     * @see self::validateLeavePsyshAlone
+     *
+     * @param mixed $stmts
+     */
     protected function validateStatements($stmts)
     {
         if (!is_array($stmts) || $stmts instanceof \Traversable) {
@@ -118,12 +166,23 @@ class CodeCleaner
         }
     }
 
+    /**
+     * Validate that function calls will succeed.
+     *
+     * This method throws a FatalErrorException rather than letting PHP run
+     * headfirst into a real fatal error and die.
+     *
+     * @todo Detect and prevent more possible errors (e.g., undefined vars when $stmt->name is a Variable)
+     *
+     * @throws FatalErrorException if the function name is a string (not an expression) and is not defined.
+     *
+     * @param mixed $stmt
+     */
     protected function validateFunctionCalls($stmt)
     {
         if ($stmt instanceof FuncCall) {
             $name = $stmt->name;
             // if function name is an expression, give it a pass for now.
-            // see TODO about fixing possible fatal errors.
             if (!$name instanceof Expression) {
                 $shortName = implode('\\', $name->parts);
                 if ($name instanceof FullyQualifiedName) {
@@ -140,6 +199,13 @@ class CodeCleaner
         }
     }
 
+    /**
+     * Validate that the user input does not reference the `$__psysh__` variable.
+     *
+     * @throws RuntimeException if the user is messing with $__psysh__.
+     *
+     * @param mixed $stmt PHPParser statement
+     */
     protected function validateLeavePsyshAlone($stmt)
     {
         if ($stmt instanceof Variable && $stmt->name === "__psysh__") {

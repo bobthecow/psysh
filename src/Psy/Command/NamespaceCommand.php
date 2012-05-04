@@ -18,6 +18,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Manipulate the current namespace.
+ *
+ * List, set or clear the current namespace. This namespace is injected into any
+ * user input to create namespaced classes or functions.
+ */
 class NamespaceCommand extends ShellAwareCommand
 {
     /**

@@ -30,7 +30,9 @@ class BreakException extends \Exception implements Exception
     }
 
     /**
-     * {@inheritdoc}
+     * Return a raw (unformatted) version of the error message.
+     *
+     * @return string
      */
     public function getRawMessage()
     {

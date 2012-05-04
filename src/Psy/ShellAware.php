@@ -13,7 +13,18 @@ namespace Psy;
 
 use Psy\Shell;
 
+/**
+ * ShellAware interface.
+ *
+ * Any command implementing the ShellAware interface will get a backreference
+ * to the Shell once they're added.
+ */
 interface ShellAware
 {
+    /**
+     * Set the Shell backreference.
+     *
+     * @param Shell $shell
+     */
     public function setShell(Shell $shell);
 }

@@ -20,7 +20,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
 /**
  * Parse PHP code and show the abstract syntax tree.
  */
@@ -65,11 +64,23 @@ EOL
         });
     }
 
+    /**
+     * Lex and parse a string of code into statements.
+     *
+     * @param string $code
+     *
+     * @return array Statements
+     */
     private function parse($code)
     {
         return $this->getParser()->parse(new Lexer($code));
     }
 
+    /**
+     * Get (or create) the Parser instance.
+     *
+     * @return Parser
+     */
     private function getParser()
     {
         if (!isset($this->parser)) {
@@ -79,6 +90,11 @@ EOL
         return $this->parser;
     }
 
+    /**
+     * Get a recursive formatting tree walker function.
+     *
+     * @return \Closure
+     */
     private function getWalker()
     {
         $walker = function(ShellOutput $output, $tree, $depth = 0) use (&$walker) {

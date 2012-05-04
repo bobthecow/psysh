@@ -70,6 +70,14 @@ abstract class ReflectingCommand extends ShellAwareCommand
         }
     }
 
+    /**
+     * Resolve a class or function name (with the current shell namespace).
+     *
+     * @param string $name
+     * @param bool   $includeFunctions (default: false)
+     *
+     * @return string
+     */
     protected function resolveName($name, $includeFunctions = false)
     {
         if (substr($name, 0, 1) === '\\') {

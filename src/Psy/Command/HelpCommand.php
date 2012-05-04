@@ -42,6 +42,11 @@ class HelpCommand extends Command
         ;
     }
 
+    /**
+     * Helper for setting a subcommand to retrieve help for.
+     *
+     * @param Command $command
+     */
     public function setCommand($command)
     {
         $this->command = $command;

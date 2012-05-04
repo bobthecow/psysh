@@ -17,6 +17,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Interact with the current code buffer.
+ *
+ * Shows and clears the buffer for the current multi-line expression.
+ */
 class BufferCommand extends ShellAwareCommand
 {
     /**
@@ -65,6 +70,7 @@ EOF
     protected function formatLines($lines, $type = 'return')
     {
         $template = sprintf('<%s>%%s</%s>', $type, $type);
+
         return array_map(function($line) use ($template) {
             return sprintf($template, $line);
         }, $lines);

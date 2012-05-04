@@ -13,10 +13,23 @@ namespace Psy\Exception;
 
 use Psy\Exception\Exception;
 
+/**
+ * A custom error Exception for Psy with a formatted $message.
+ */
 class ErrorException extends \ErrorException implements Exception
 {
     private $rawMessage;
 
+    /**
+     * Construct a Psy ErrorException.
+     *
+     * @param string    $message  (default: "")
+     * @param int       $code     (default: 0)
+     * @param int       $severity (default: 1)
+     * @param string    $filename (default: null)
+     * @param int       $lineno   (default: null)
+     * @param Exception $previous (default: null)
+     */
     public function __construct($message = "", $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
         $this->rawMessage = $message;
@@ -46,11 +59,30 @@ class ErrorException extends \ErrorException implements Exception
         parent::__construct($message, $code, $severity, $filename, $lineno, $previous);
     }
 
+    /**
+     * Get the raw (unformatted) message for this error.
+     *
+     * @return string
+     */
     public function getRawMessage()
     {
         return $this->rawMessage;
     }
 
+    /**
+     * Helper for throwing an ErrorException.
+     *
+     * This allows us to:
+     *
+     *     set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+     *
+     * @param int    $errno   Error type
+     * @param string $errstr  Message
+     * @param string $errfile Filename
+     * @param int    $errline Line number
+     *
+     * @return void
+     */
     public static function throwException($errno, $errstr, $errfile, $errline)
     {
         throw new ErrorException($errstr, 0, $errno, $errfile, $errline);

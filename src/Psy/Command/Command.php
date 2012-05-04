@@ -55,11 +55,15 @@ abstract class Command extends BaseCommand
     private function getArguments()
     {
         $hidden = $this->getHiddenArguments();
+
         return array_filter($this->getNativeDefinition()->getArguments(), function($argument) use ($hidden) {
             return !in_array($argument->getName(), $hidden);
         });
     }
 
+    /**
+     * These arguments will be excluded from help output.
+     */
     protected function getHiddenArguments()
     {
         return array('command');
@@ -71,21 +75,31 @@ abstract class Command extends BaseCommand
     private function getOptions()
     {
         $hidden = $this->getHiddenOptions();
+
         return array_filter($this->getNativeDefinition()->getOptions(), function($option) use ($hidden) {
             return !in_array($option->getName(), $hidden);
         });
     }
 
+    /**
+     * These options will be excluded from help output.
+     */
     protected function getHiddenOptions()
     {
         return array('verbose');
     }
 
+    /**
+     * Format command aliases as text..
+     */
     private function aliasesAsText()
     {
         return '<comment>Aliases:</comment> <info>'.implode(', ', $this->getAliases()).'</info>'.PHP_EOL;
     }
 
+    /**
+     * Format command arguments as text.
+     */
     private function argumentsAsText()
     {
         $max = $this->getMaxWidth();
@@ -112,6 +126,9 @@ abstract class Command extends BaseCommand
         return implode(PHP_EOL, $messages);
     }
 
+    /**
+     * Format options as text.
+     */
     private function optionsAsText()
     {
         $max = $this->getMaxWidth();
@@ -147,6 +164,9 @@ abstract class Command extends BaseCommand
         return implode(PHP_EOL, $messages);
     }
 
+    /**
+     * Calculate the maximum padding width for a set of lines.
+     */
     private function getMaxWidth()
     {
         $max = 0;
@@ -167,6 +187,9 @@ abstract class Command extends BaseCommand
         return ++$max;
     }
 
+    /**
+     * Format an option default as text.
+     */
     private function formatDefaultValue($default)
     {
         if (is_array($default) && $default === array_values($default)) {

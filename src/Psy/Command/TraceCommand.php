@@ -49,6 +49,18 @@ EOF
         $output->page($this->getBacktrace(new \Exception, null, $input->getOption('include-psy')), ShellOutput::NUMBER_LINES);
     }
 
+    /**
+     * Get a backtrace for an exception.
+     *
+     * Optionally limit the number of rows to include with $count, and exclude
+     * Psy from the trace.
+     *
+     * @param \Exception $e
+     * @param int        $count      (default: PHP_INT_MAX)
+     * @param bool       $includePsy (default: true)
+     *
+     * @return array Formatted stacktrace lines.
+     */
     protected function getBacktrace(\Exception $e, $count = null, $includePsy = true)
     {
         if ($count === null) {

@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * List available local variables, object properties, etc.
+ * Abstract 'list' command.
  */
 abstract class ListingCommand extends ShellAwareCommand
 {
@@ -79,7 +79,16 @@ abstract class ListingCommand extends ShellAwareCommand
         }
     }
 
-    protected function outputLong(OutputInterface $output, array $things, array $signatures, $highlighted, $pad)
+    /**
+     * Output a list of signatures as 'long'.
+     *
+     * @param OutputInterface $output
+     * @param array           $things
+     * @param array           $signatures
+     * @param array           $highlighted
+     * @param string          $pad
+     */
+    protected function outputLong(OutputInterface $output, array $things, array $signatures, array $highlighted, $pad)
     {
         $output->page(function($output) use ($things, $signatures, $highlighted, $pad) {
             foreach ($things as $i => $thing) {
@@ -88,6 +97,13 @@ abstract class ListingCommand extends ShellAwareCommand
         });
     }
 
+    /**
+     * Get signatures for each thing.
+     *
+     * @param array $things
+     *
+     * @return array Array of formatted signatures.
+     */
     protected function getSignatures(array $things)
     {
         return array_map(function($thing) {
@@ -95,5 +111,12 @@ abstract class ListingCommand extends ShellAwareCommand
         }, $things);
     }
 
+    /**
+     * Abstract listThings function.
+     *
+     * @param InputInterface $input
+     *
+     * @return array Array of things.
+     */
     abstract protected function listThings(InputInterface $input);
 }
