@@ -96,7 +96,7 @@ class Shell extends Application
         );
 
         if (function_exists('readline')) {
-            $commands[] = new Command\HistoryCommand();
+            $commands[] = new Command\HistoryCommand;
         }
 
         return $commands;
@@ -252,8 +252,17 @@ class Shell extends Application
             $command->setShell($this);
         }
 
-        $input = str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;"));
-        $command->run(new StringInput($input), $this->output);
+
+        $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
+
+        if ($input->hasParameterOption(array('--help', '-h'))) {
+            $helpCommand = $this->get('help');
+            $helpCommand->setCommand($command);
+
+            return $helpCommand->run($input, $this->output);
+        }
+
+        $command->run($input, $this->output);
     }
 
     public function resetCodeBuffer()
