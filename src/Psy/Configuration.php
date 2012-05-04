@@ -11,7 +11,7 @@
 
 namespace Psy;
 
-use Psy\Application;
+use Psy\Shell;
 use Psy\CodeCleaner;
 use Psy\Loop\Loop;
 use Psy\Loop\ForkingLoop;
@@ -19,7 +19,6 @@ use Psy\Output\ShellOutput;
 use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
 use Psy\Output\PassthruPager;
-use Symfony\Component\Console\Application as BaseApplication;
 
 class Configuration
 {
@@ -36,7 +35,7 @@ class Configuration
 
     // services
     private $output;
-    private $application;
+    private $shell;
     private $cleaner;
     private $pager;
     private $loop;
@@ -73,7 +72,7 @@ class Configuration
 
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'application', 'cleaner', 'pager', 'loop', 'tmpDir') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'forkEveryN', 'cleaner', 'pager', 'loop', 'tmpDir') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -195,21 +194,6 @@ class Configuration
         $this->forkEveryN = (int) $forkEveryN;
     }
 
-    public function setApplication(BaseApplication $application)
-    {
-        $this->application = $application;
-    }
-
-    public function getApplication()
-    {
-        if (!isset($this->application)) {
-            $this->application = new Application;
-        }
-        $this->doAddCommands();
-
-        return $this->application;
-    }
-
     public function setCodeCleaner(CodeCleaner $cleaner)
     {
         $this->cleaner = $cleaner;
@@ -280,7 +264,7 @@ class Configuration
     public function addCommands(array $commands)
     {
         $this->newCommands = array_merge($this->newCommands, $commands);
-        if (isset($this->application)) {
+        if (isset($this->shell)) {
             $this->doAddCommands();
         }
     }
@@ -288,8 +272,14 @@ class Configuration
     private function doAddCommands()
     {
         if (!empty($this->newCommands)) {
-            $this->application->addCommands($this->newCommands);
+            $this->shell->addCommands($this->newCommands);
             $this->newCommands = array();
         }
+    }
+
+    public function setShell(Shell $shell)
+    {
+        $this->shell = $shell;
+        $this->doAddCommands();
     }
 }

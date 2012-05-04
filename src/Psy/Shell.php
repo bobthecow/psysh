@@ -16,15 +16,19 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\RuntimeException;
-use Psy\Formatter\ObjectFormatter;
 use Psy\Formatter\ArrayFormatter;
-use Psy\Output\OutputPager;
+use Psy\Formatter\ObjectFormatter;
 use Psy\Output\ShellOutput;
 use Psy\ShellAware;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Shell
+class Shell extends Application
 {
     const VERSION = 'v0.0.1-dev';
 
@@ -34,10 +38,8 @@ class Shell
     const RETVAL      = '=> ';
 
     private $config;
-    private $application;
     private $cleaner;
     private $output;
-    private $pager;
     private $inputBuffer;
     private $code;
     private $codeBuffer;
@@ -52,21 +54,92 @@ class Shell
     public function __construct(Configuration $config = null)
     {
         $this->config         = $config ?: new Configuration;
-        $this->application    = $this->config->getApplication();
         $this->cleaner        = $this->config->getCodeCleaner();
-        $this->output         = $this->config->getOutput();
-        $this->pager          = $this->config->getPager();
         $this->loop           = $this->config->getLoop();
         $this->scopeVariables = array();
+
+        parent::__construct('PsySH', self::VERSION);
+
+        $this->config->setShell($this);
     }
 
-    public function run()
+    /**
+     * Gets the default input definition.
+     *
+     * @return InputDefinition An InputDefinition instance
+     */
+    protected function getDefaultInputDefinition()
     {
+        return new InputDefinition(array(
+            new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
+            new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Display this help message.'),
+        ));
+    }
+
+    /**
+     * Gets the default commands that should always be available.
+     *
+     * @return array An array of default Command instances
+     */
+    protected function getDefaultCommands()
+    {
+        $commands = array(
+            new Command\HelpCommand,
+            new Command\ListCommand,
+            new Command\DocCommand,
+            new Command\ShowCommand,
+            new Command\WtfCommand,
+            new Command\TraceCommand,
+            new Command\BufferCommand,
+            new Command\ExitCommand,
+            // new Command\PsyVersionCommand,
+        );
+
+        if (function_exists('readline')) {
+            $commands[] = new Command\HistoryCommand();
+        }
+
+        return $commands;
+    }
+
+    /**
+     * Runs the current application.
+     *
+     * @param InputInterface  $input  An Input instance
+     * @param OutputInterface $output An Output instance
+     *
+     * @return integer 0 if everything went fine, or an error code
+     *
+     * @throws \Exception When doRun returns Exception
+     *
+     * @api
+     */
+    public function run(InputInterface $input = null, OutputInterface $output = null)
+    {
+        if ($output === null) {
+            $output = $this->config->getOutput();
+        }
+
+        return parent::run($input, $output);
+    }
+
+    /**
+     * Runs the current application.
+     *
+     * @param InputInterface  $input  An Input instance
+     * @param OutputInterface $output An Output instance
+     *
+     * @return integer 0 if everything went fine, or an error code
+     */
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $this->output = $output;
+
         $this->exceptions = array();
         $this->resetCodeBuffer();
 
-        $this->application->setAutoExit(false);
-        $this->application->setCatchExceptions(true);
+        $this->setAutoExit(false);
+        $this->setCatchExceptions(true);
 
         if ($this->config->useReadline()) {
             readline_read_history($this->config->getHistoryFile());
@@ -237,6 +310,11 @@ class Shell
 
     public function writeException(\Exception $e)
     {
+        $this->renderException($e, $this->output);
+    }
+
+    public function renderException($e, $output)
+    {
         $this->exceptions[] = $e;
 
         $message = $e->getMessage();
@@ -280,7 +358,7 @@ class Shell
     {
         $matches = array();
         if (preg_match('/^\s*([^\s]+)(?:\s|$)/', $command, $matches)) {
-            return $this->application->get($matches[1]);
+            return $this->get($matches[1]);
         }
     }
 
@@ -288,7 +366,7 @@ class Shell
     {
         $matches = array();
         if (preg_match('/^\s*([^\s]+)(?:\s|$)/', $command, $matches)) {
-            return $this->application->has($matches[1]);
+            return $this->has($matches[1]);
         }
 
         return false;
