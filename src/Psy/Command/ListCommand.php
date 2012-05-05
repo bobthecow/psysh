@@ -15,7 +15,6 @@ use Psy\Command\ReflectingCommand;
 use Psy\Formatter\ObjectFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
-use Psy\Reflection\ReflectionInstanceProperty;
 use Psy\Output\ShellOutput;
 use Psy\Util\Documentor;
 use Symfony\Component\Console\Input\InputArgument;
@@ -242,8 +241,6 @@ EOF
     {
         return function($el, $pad = 0) {
             switch (true) {
-                case $el instanceof ReflectionInstanceProperty:
-                    return sprintf("<info>\$%-${pad}s</info>", $el->getName());
                 case $el->isPrivate():
                     return sprintf("<urgent>\$%-${pad}s</urgent>", $el->getName());
                 case $el->isProtected():
