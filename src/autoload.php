@@ -19,7 +19,6 @@ $loader->register();
 $loader->registerNamespaces(array(
     'Psy'     => __DIR__,
     'Symfony' => dirname(__DIR__).'/vendor/symfony-components',
-//    'Doctrine' => dirname(__DIR__).'/vendor/doctrine-common/lib',
 ));
 
 $loader->registerPrefixes(array(

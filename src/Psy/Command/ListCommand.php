@@ -16,7 +16,6 @@ use Psy\Formatter\ObjectFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Output\ShellOutput;
-use Psy\Util\Documentor;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

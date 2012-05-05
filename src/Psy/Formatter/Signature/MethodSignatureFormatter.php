@@ -11,7 +11,7 @@
 
 namespace Psy\Formatter\Signature;
 
-use Psy\Formatter\Signature\FunctionSignature;
+use Psy\Formatter\Signature\FunctionSignatureFormatter;
 
 /**
  * Class method signature representation.
