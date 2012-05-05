@@ -39,6 +39,7 @@ class SignatureFormatter implements Formatter
             case $reflector instanceof \ReflectionFunction:
                 return FunctionSignatureFormatter::format($reflector);
 
+            // this case also covers \ReflectionObject:
             case $reflector instanceof \ReflectionClass:
                 return ClassSignatureFormatter::format($reflector);
 

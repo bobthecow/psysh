@@ -20,7 +20,7 @@ class ObjectFormatter extends RecursiveFormatter
 {
     public static function format($obj)
     {
-        $class = new \ReflectionClass($obj);
+        $class = new \ReflectionObject($obj);
         $props = self::getProperties($obj, $class);
 
         return sprintf('%s %s', self::formatRef($obj), self::formatProperties($props));
@@ -53,12 +53,6 @@ class ObjectFormatter extends RecursiveFormatter
         $props = array();
         foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
             $props[$prop->getName()] = $prop->getValue($obj);
-        }
-
-        foreach (array_keys(json_decode(json_encode($obj), true)) as $prop) {
-            if (!isset($props[$prop])) {
-                $props[$prop] = $obj->$prop;
-            }
         }
 
         return $props;

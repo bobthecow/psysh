@@ -75,12 +75,14 @@ class Mirror
 
     public static function getClass($value)
     {
-        if (!is_object($value)) {
-            if (!is_string($value)) {
-                throw new \InvalidArgumentException('Mirror expects an object or class');
-            } elseif (!class_exists($value) && !interface_exists($value)) {
-                throw new \InvalidArgumentException('Unknown class or function: '.$value);
-            }
+        if (is_object($value)) {
+            return new \ReflectionObject($value);
+        }
+
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException('Mirror expects an object or class');
+        } elseif (!class_exists($value) && !interface_exists($value)) {
+            throw new \InvalidArgumentException('Unknown class or function: '.$value);
         }
 
         return new \ReflectionClass($value);

@@ -43,8 +43,8 @@ class Inspector
             return $return;
         } elseif (is_object($var)) {
             $return = new \StdClass;
-            $class  = new \ReflectionClass($var);
-            $return->{'__CLASS__'} = get_class($var);
+            $class  = new \ReflectionObject($var);
+            $return->__CLASS__ = get_class($var);
 
             foreach ($class->getProperties() as $prop) {
                 $name = $prop->getName();

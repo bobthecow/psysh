@@ -182,19 +182,6 @@ EOF
             }
         }
 
-        // hacketyhack
-        if ($showAll) {
-            $hack = json_decode(json_encode($value), true);
-            if (is_array($hack)) {
-                $allProperties = array_keys($hack);
-                foreach ($allProperties as $name) {
-                    if (!isset($properties[$name])) {
-                        $properties[$name] = new ReflectionInstanceProperty($value, $name);
-                    }
-                }
-            }
-        }
-
         ksort($constants);
         ksort($methods);
         ksort($properties);
