@@ -15,7 +15,7 @@ use Psy\Exception\RuntimeException;
 use Psy\Reflection\ReflectionConstant;
 
 /**
- * Utility class for getting Reflectors.
+ * A utility class for getting Reflectors.
  */
 class Mirror
 {
@@ -44,7 +44,7 @@ class Mirror
     public static function get($value, $member = null, $filter = 15)
     {
         if ($member === null && is_string($value) && function_exists($value)) {
-            return self::getFunction($value);
+            return new \ReflectionFunction($value);
         }
 
         $class = self::getClass($value);
@@ -52,13 +52,13 @@ class Mirror
         if ($member === null) {
             return $class;
         } elseif ($filter & self::CONSTANT && $class->hasConstant($member)) {
-            return self::getConstant($class, $member);
+            return new ReflectionConstant($class, $member);
         } elseif ($filter & self::METHOD && $class->hasMethod($member)) {
-            return self::getMethod($class, $member);
+            return $class->getMethod($member);
         } elseif ($filter & self::PROPERTY && $class->hasProperty($member)) {
-            return self::getProperty($class, $member);
+            return $class->getProperty($member);
         } elseif ($filter & self::STATIC_PROPERTY && $class->hasProperty($member) && $class->getProperty($member)->isStatic()) {
-            return self::getProperty($class, $member);
+            return $class->getProperty($member);
         } else {
             throw new RuntimeException(sprintf(
                 'Unknown member %s on class %s',
@@ -68,12 +68,16 @@ class Mirror
         }
     }
 
-    public static function getFunction($value)
-    {
-        return new \ReflectionFunction($value);
-    }
-
-    public static function getClass($value)
+    /**
+     * Get a ReflectionClass (or ReflectionObject) if possible.
+     *
+     * @throws \InvalidArgumentException if $value is not a class name or instance.
+     *
+     * @param mixed $value
+     *
+     * @return \ReflectionClass
+     */
+    private static function getClass($value)
     {
         if (is_object($value)) {
             return new \ReflectionObject($value);
@@ -86,20 +90,5 @@ class Mirror
         }
 
         return new \ReflectionClass($value);
-    }
-
-    public static function getConstant(\ReflectionClass $class, $member)
-    {
-        return new ReflectionConstant($class, $member);
-    }
-
-    public static function getMethod(\ReflectionClass $class, $member)
-    {
-        return $class->getMethod($member);
-    }
-
-    public static function getProperty(\ReflectionClass $class, $member)
-    {
-        return $class->getProperty($member);
     }
 }
