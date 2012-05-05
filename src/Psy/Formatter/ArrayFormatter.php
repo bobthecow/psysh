@@ -25,7 +25,7 @@ class ArrayFormatter extends RecursiveFormatter
      *
      * @return string
      */
-    public static function format(array $array)
+    public static function format($array)
     {
         if (empty($array)) {
             return '[]';
@@ -45,7 +45,7 @@ class ArrayFormatter extends RecursiveFormatter
      *
      * @return string
      */
-    public static function formatRef(array $array)
+    public static function formatRef($array)
     {
         return sprintf('Array(%d)', count($array));
     }
