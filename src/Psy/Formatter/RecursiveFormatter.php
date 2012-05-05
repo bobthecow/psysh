@@ -15,20 +15,41 @@ use Psy\Formatter\ArrayFormatter;
 use Psy\Formatter\ObjectFormatter;
 
 /**
- * A pretty-printer for recursive objects references..
+ * A pretty-printer for recursive objects and arrays references..
  */
 abstract class RecursiveFormatter
 {
+    /**
+     * Recursively format an object or array.
+     *
+     * @param mixed $obj
+     *
+     * @return string
+     */
     public static function format($obj)
     {
         throw new \InvalidArgumentException('format should be implemented by extending classes.');
     }
 
+    /**
+     * Format a reference to an object or array.
+     *
+     * @param mixed $obj
+     *
+     * @return string
+     */
     public static function formatRef($obj)
     {
         throw new \InvalidArgumentException('formatRef should be implemented by extending classes.');
     }
 
+    /**
+     * Helper function for formatting properties recursively.
+     *
+     * @param mixed $val Object, array or primitive value.
+     *
+     * @return string
+     */
     public static function formatValue($val)
     {
         if (is_object($val)) {

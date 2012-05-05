@@ -14,8 +14,18 @@ namespace Psy\Formatter;
 use Psy\Formatter\Formatter;
 use Psy\Exception\RuntimeException;
 
+/**
+ * A pretty-printer for code.
+ */
 class CodeFormatter implements Formatter
 {
+    /**
+     * Format the code represented by $reflector.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string formatted code
+     */
     public static function format(\Reflector $reflector)
     {
         if ($fileName = $reflector->getFileName()) {

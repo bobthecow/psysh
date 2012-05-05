@@ -14,7 +14,7 @@ namespace Psy\Formatter\Signature;
 use Psy\Formatter\Signature\SignatureFormatter;
 
 /**
- * Property signature representation.
+ * Function signature representation.
  */
 class FunctionSignatureFormatter extends SignatureFormatter
 {
@@ -34,6 +34,8 @@ class FunctionSignatureFormatter extends SignatureFormatter
     /**
      * Print an `&` if this function returns by reference.
      *
+     * @param \Reflector $reflector
+     *
      * @return string
      */
     protected static function formatReturnsReference(\Reflector $reflector)
@@ -45,6 +47,8 @@ class FunctionSignatureFormatter extends SignatureFormatter
 
     /**
      * Print the function params.
+     *
+     * @param \Reflector $reflector
      *
      * @return string
      */

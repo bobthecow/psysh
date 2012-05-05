@@ -14,6 +14,9 @@ namespace Psy\Formatter;
 use Psy\Formatter\Formatter;
 use Psy\Util\Docblock;
 
+/**
+ * A pretty-printer for docblocks.
+ */
 class DocblockFormatter implements Formatter
 {
     private static $vectorParamTemplates = array(
@@ -21,6 +24,13 @@ class DocblockFormatter implements Formatter
         'var'  => 'strong',
     );
 
+    /**
+     * Format a docblock.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string Formatted docblock
+     */
     public static function format(\Reflector $reflector)
     {
         $docblock = new Docblock($reflector);
@@ -52,6 +62,16 @@ class DocblockFormatter implements Formatter
         return rtrim(implode("\n", $chunks));
     }
 
+    /**
+     * Format a docblock vector, for example, `@throws`, `@param`, or `@return`.
+     *
+     * @see DocBlock::$vectors
+     *
+     * @param array $vector
+     * @param array $lines
+     *
+     * @return string
+     */
     private static function formatVector(array $vector, array $lines)
     {
         $template = array(' ');
@@ -74,6 +94,14 @@ class DocblockFormatter implements Formatter
         }, $lines));
     }
 
+    /**
+     * Format docblock tags.
+     *
+     * @param array $skip Tags to exclude
+     * @param array $tags
+     *
+     * @return string formatted tags
+     */
     private static function formatTags(array $skip, array $tags)
     {
         $chunks = array();
@@ -93,6 +121,14 @@ class DocblockFormatter implements Formatter
         return implode("\n", $chunks);
     }
 
+    /**
+     * Get a docblock vector template.
+     *
+     * @param string $type Vector type
+     * @param int    $max  Pad width
+     *
+     * @return string
+     */
     private static function getVectorParamTemplate($type, $max)
     {
         if (!isset(self::$vectorParamTemplates[$type])) {
@@ -102,11 +138,26 @@ class DocblockFormatter implements Formatter
         return sprintf('<%s>%%-%ds</%s>', self::$vectorParamTemplates[$type], $max, self::$vectorParamTemplates[$type]);
     }
 
+    /**
+     * Indent a string.
+     *
+     * @param string $text
+     * @param string $indent (default: '  ')
+     *
+     * @return string
+     */
     private static function indent($text, $indent = '  ')
     {
         return $indent . str_replace("\n", "\n".$indent, $text);
     }
 
+    /**
+     * Convert underscored or whitespace separated words into sentence case.
+     *
+     * @param string $text
+     *
+     * @return string
+     */
     private static function inflect($text)
     {
         $words = trim(preg_replace('/[\s_-]+/', ' ', preg_replace('/([a-z])([A-Z])/', '$1 $2', $text)));

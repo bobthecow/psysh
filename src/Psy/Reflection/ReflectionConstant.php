@@ -11,6 +11,11 @@
 
 namespace Psy\Reflection;
 
+/**
+ * Somehow the standard reflection library doesn't include constants.
+ *
+ * ReflectionConstant corrects that omission.
+ */
 class ReflectionConstant implements \Reflector
 {
     private $class;

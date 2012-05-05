@@ -15,6 +15,14 @@ use Psy\Output\OutputPager;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
+/**
+ * ProcOutputPager class.
+ *
+ * A ProcOutputPager instance wraps a regular StreamOutput's stream. Rather
+ * than writing directly to the stream, it shells out to a pager process and
+ * gives that process the stream as stdout. This means regular *nix commands
+ * like `less` and `more` can be used to page large amounts of output.
+ */
 class ProcOutputPager extends StreamOutput implements OutputPager
 {
     private $proc;
@@ -22,6 +30,14 @@ class ProcOutputPager extends StreamOutput implements OutputPager
     private $stream;
     private $cmd;
 
+    /**
+     * Constructor
+     *
+     * @param StreamOutput $output
+     * @param string       $cmd    Pager process command (default: 'less -R -S -F -X')
+     *
+     * @return void
+     */
     public function __construct(StreamOutput $output, $cmd = 'less -R -S -F -X')
     {
         $this->stream = $output->getStream();
@@ -49,6 +65,9 @@ class ProcOutputPager extends StreamOutput implements OutputPager
         fflush($pipe);
     }
 
+    /**
+     * Close the current pager process.
+     */
     public function close()
     {
         if (isset($this->pipe)) {
@@ -65,6 +84,11 @@ class ProcOutputPager extends StreamOutput implements OutputPager
         unset($this->pipe, $this->proc);
     }
 
+    /**
+     * Get a pipe for paging output.
+     *
+     * If no active pager process exists, fork one and return its input pipe.
+     */
     private function getPipe()
     {
         if (!isset($this->pipe) || !isset($this->proc)) {

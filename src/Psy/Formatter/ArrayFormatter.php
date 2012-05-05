@@ -18,6 +18,13 @@ use Psy\Formatter\RecursiveFormatter;
  */
 class ArrayFormatter extends RecursiveFormatter
 {
+    /**
+     * Format the array.
+     *
+     * @param array $array
+     *
+     * @return string
+     */
     public static function format(array $array)
     {
         if (empty($array)) {
@@ -31,6 +38,13 @@ class ArrayFormatter extends RecursiveFormatter
         return sprintf($template, implode($glue, $formatted));
     }
 
+    /**
+     * Format a reference to the array.
+     *
+     * @param array $array
+     *
+     * @return string
+     */
     public static function formatRef(array $array)
     {
         return sprintf('Array(%d)', count($array));

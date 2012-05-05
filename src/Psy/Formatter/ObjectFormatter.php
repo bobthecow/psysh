@@ -18,6 +18,13 @@ use Psy\Formatter\RecursiveFormatter;
  */
 class ObjectFormatter extends RecursiveFormatter
 {
+    /**
+     * Format the object.
+     *
+     * @param object $obj
+     *
+     * @return string
+     */
     public static function format($obj)
     {
         $class = new \ReflectionObject($obj);
@@ -26,11 +33,25 @@ class ObjectFormatter extends RecursiveFormatter
         return sprintf('%s %s', self::formatRef($obj), self::formatProperties($props));
     }
 
+    /**
+     * Format a reference to the object.
+     *
+     * @param object $obj
+     *
+     * @return string
+     */
     public static function formatRef($obj)
     {
         return sprintf('<%s #%s>', get_class($obj), spl_object_hash($obj));
     }
 
+    /**
+     * Format object properties.
+     *
+     * @param array $props
+     *
+     * @return string
+     */
     private static function formatProperties($props)
     {
         if (empty($props)) {
@@ -48,6 +69,14 @@ class ObjectFormatter extends RecursiveFormatter
         return sprintf($template, implode($glue, $formatted));
     }
 
+    /**
+     * Get an array of object properties.
+     *
+     * @param object           $obj
+     * @param \ReflectionClass $class
+     *
+     * @return array
+     */
     private static function getProperties($obj, \ReflectionClass $class)
     {
         $props = array();

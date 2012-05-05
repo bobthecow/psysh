@@ -60,7 +60,9 @@ class SignatureFormatter implements Formatter
     /**
      * Print the signature name.
      *
-     * @return string
+     * @param \Reflector $reflector
+     *
+     * @return string Formatted name.
      */
     public static function formatName(\Reflector $reflector)
     {
@@ -71,6 +73,10 @@ class SignatureFormatter implements Formatter
      * Print the method, property or class modifiers.
      *
      * Techinically this should be a trait. Can't wait for 5.4 :)
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string Formatted modifiers.
      */
     protected static function formatModifiers(\Reflector $reflector)
     {

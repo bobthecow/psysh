@@ -13,7 +13,14 @@ namespace Psy\Output;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * An output pager is much the same as a regular OutputInterface, but allows
+ * the stream to be flushed to a pager periodically.
+ */
 interface OutputPager extends OutputInterface
 {
+    /**
+     * Close the current pager process.
+     */
     function close();
 }

@@ -17,8 +17,18 @@ use Psy\Formatter\Signature\ConstantSignatureFormatter;
 use Psy\Formatter\Signature\MethodSignatureFormatter;
 use Psy\Formatter\Signature\PropertySignatureFormatter;
 
+/**
+ * The autographer class creates signatures.
+ */
 class Autographer
 {
+    /**
+     * Get a Signature Formatter instance for the given Reflector.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return Psy\Formatter\Signature\SignatureFormatter
+     */
     public static function get(\Reflector $reflector)
     {
         switch (true) {

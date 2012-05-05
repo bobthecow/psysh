@@ -15,13 +15,25 @@ use Psy\Output\OutputPager;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
+/**
+ * A passthrough pager is a no-op. It simply wraps a StreamOutput's stream and
+ * does nothing when the pager is closed.
+ */
 class PassthruPager extends StreamOutput implements OutputPager
 {
+    /**
+     * Constructor.
+     *
+     * @param StreamOutput $output
+     */
     public function __construct(StreamOutput $output)
     {
         parent::__construct($output->getStream());
     }
 
+    /**
+     * Close the current pager process.
+     */
     public function close()
     {
         // nothing to do here
