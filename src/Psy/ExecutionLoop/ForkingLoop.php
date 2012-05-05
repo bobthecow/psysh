@@ -9,12 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\Loop;
+namespace Psy\ExecutionLoop;
 
 use Psy\Configuration;
-use Psy\Loop\Loop;
+use Psy\ExecutionLoop\Loop;
 use Psy\Shell;
 
+/**
+ * A forking version of the Psy shell execution loop.
+ *
+ * This version is preferred, as it won't die prematurely if user input includes
+ * a fatal error, such as redeclaring a class or function.
+ */
 class ForkingLoop extends Loop
 {
     private $parentPid;
@@ -22,6 +28,11 @@ class ForkingLoop extends Loop
     private $savegameFile;
     private $savegame;
 
+    /**
+     * Constructor.
+     *
+     * @param Configuration $config
+     */
     public function __construct(Configuration $config)
     {
         parent::__construct($config);
@@ -30,6 +41,11 @@ class ForkingLoop extends Loop
         $this->savegameFile = $config->getTempFile('savegame', $this->parentPid);
     }
 
+    /**
+     * Run the exection loop.
+     *
+     * @param Shell $shell
+     */
     public function run(Shell $shell)
     {
         if (!posix_mkfifo($this->returnFile, 0600)) {
@@ -38,6 +54,8 @@ class ForkingLoop extends Loop
         }
 
         if (pcntl_fork()) {
+            // This is the main thread.
+            // Open the return pipe and wait for a child process to exit.
             $returnPipe = fopen($this->returnFile, 'r');
             $content = array();
             while ($line = fread($returnPipe, 1024)) {
@@ -49,11 +67,16 @@ class ForkingLoop extends Loop
             return unserialize($content);
         }
 
+        // This is the child process.
+        // Fork a monitor process (which will be responsible for restarting from
+        // a savegame in the event of fail).
         $this->createMonitor();
 
-        $return = parent::run($shell);
+        parent::run($shell);
 
-        // send the return value back to the main thread
+        $return = $shell->getScopeVariables();
+
+        // Send the return value back to the main thread
         $returnPipe = fopen($this->returnFile, 'w');
         fwrite($returnPipe, serialize($return));
         fclose($returnPipe);
@@ -61,11 +84,21 @@ class ForkingLoop extends Loop
         exit;
     }
 
+    /**
+     * Create a savegame at the start of each loop iteration.
+     */
     public function beforeLoop()
     {
         $this->createSavegame();
     }
 
+    /**
+     * Create a monitor process.
+     *
+     * This process sits above the worker process and waits for it to exit. If
+     * the worker did not exit cleanly — for example, if a PHP fatal error was
+     * encountered — the monitor will resume the latest savegame.
+     */
     private function createMonitor()
     {
         $pid = pcntl_fork();
@@ -90,6 +123,13 @@ class ForkingLoop extends Loop
         }
     }
 
+    /**
+     * Create a savegame fork.
+     *
+     * The savegame contains the current execution state, and can be resumed in
+     * the event that the worker dies unexpectedly (for example, by encountering
+     * a PHP fatal error).
+     */
     private function createSavegame()
     {
         if (isset($this->savegame)) {
@@ -103,9 +143,6 @@ class ForkingLoop extends Loop
             $this->savegame = $pid;
             file_put_contents($this->savegameFile, $this->savegame);
         } else {
-            global $depth;
-            $depth++;
-
             // Stop and wait until savegame is needed.
             posix_kill(posix_getpid(), SIGSTOP);
 

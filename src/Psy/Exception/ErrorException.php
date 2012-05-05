@@ -34,7 +34,7 @@ class ErrorException extends \ErrorException implements Exception
     {
         $this->rawMessage = $message;
 
-        if (!empty($filename) && strpos($filename, 'Psy/Loop') !== false) {
+        if (!empty($filename) && strpos($filename, 'Psy/ExecutionLoop') !== false) {
             $filename = null;
         }
 

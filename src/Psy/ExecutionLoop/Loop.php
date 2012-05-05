@@ -9,24 +9,32 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\Loop;
+namespace Psy\ExecutionLoop;
 
 use Psy\Configuration;
 use Psy\Shell;
 use Psy\Exception\BreakException;
 
 /**
- * The Psy shell loop.
- *
- * Maintains
+ * The Psy shell execution loop.
  */
 class Loop
 {
+    /**
+     * The non-forking loop doesn't have much use for Configuration :)
+     *
+     * @param Configuration $config
+     */
     public function __construct(Configuration $config)
     {
         // don't need this
     }
 
+    /**
+     * Run the exection loop.
+     *
+     * @param Shell $shell
+     */
     public function run(Shell $shell)
     {
         $loop = function($__psysh__) {
@@ -66,7 +74,7 @@ class Loop
             } while (true);
         };
 
-        return $loop($shell);
+        $loop($shell);
     }
 
     /**
@@ -77,6 +85,6 @@ class Loop
      */
     public function beforeLoop()
     {
-        // noop
+        // no-op
     }
 }

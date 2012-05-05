@@ -13,8 +13,8 @@ namespace Psy;
 
 use Psy\Shell;
 use Psy\CodeCleaner;
-use Psy\Loop\Loop;
-use Psy\Loop\ForkingLoop;
+use Psy\ExecutionLoop\Loop;
+use Psy\ExecutionLoop\ForkingLoop;
 use Psy\Output\ShellOutput;
 use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
