@@ -90,7 +90,7 @@ class DocblockFormatter implements Formatter
         $template = implode(' ', $template);
 
         return implode("\n", array_map(function($line) use ($template) {
-            return vsprintf($template, $line);
+            return rtrim(vsprintf($template, $line));
         }, $lines));
     }
 

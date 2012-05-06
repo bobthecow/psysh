@@ -26,7 +26,7 @@ class ConstantSignatureFormatter extends SignatureFormatter
         return sprintf(
             '<info>const</info> <strong>%s</strong> = <return>%s</return>',
             self::formatName($reflector),
-            $reflector->getValue()
+            json_encode($reflector->getValue())
         );
     }
 }

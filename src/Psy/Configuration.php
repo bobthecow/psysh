@@ -93,7 +93,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'cleaner', 'pager', 'loop', 'tmpDir') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -123,7 +123,10 @@ class Configuration
     {
         $__psysh_config_file__ = $file;
         $load = function($config) use ($__psysh_config_file__) {
-            return require $__psysh_config_file__;
+            $result = require $__psysh_config_file__;
+            if ($result !== 1) {
+                return $result;
+            }
         };
         $result = $load($this);
 
@@ -198,7 +201,7 @@ class Configuration
     {
         $tempDir = $this->getTempDir();
         if (!is_dir($tempDir)) {
-            mkdir($tempDir);
+            mkdir($tempDir, 0777, true);
         }
 
         return tempnam($tempDir, $type.'_'.$pid.'_');
@@ -218,7 +221,7 @@ class Configuration
     {
         $tempDir = $this->getTempDir();
         if (!is_dir($tempDir)) {
-            mkdir($tempDir);
+            mkdir($tempDir, 0777, true);
         }
 
         return sprintf('%s/%s_%s', $tempDir, $type, $pid);

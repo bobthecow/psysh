@@ -96,20 +96,28 @@ class Shell extends Application
         $commands = array(
             new Command\HelpCommand,
             new Command\ListCommand,
+            new Command\ListClassesCommand,
+            new Command\ListFunctionsCommand,
             new Command\DocCommand,
             new Command\ShowCommand,
             new Command\WtfCommand,
             new Command\TraceCommand,
             new Command\BufferCommand,
-            new Command\ExitCommand,
             // new Command\PsyVersionCommand,
         );
 
-        if (function_exists('readline')) {
+        if ($this->config->useReadline()) {
             $commands[] = new Command\HistoryCommand;
         }
 
+        $commands[] = new Command\ExitCommand;
+
         return $commands;
+    }
+
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
     }
 
     /**
@@ -139,7 +147,7 @@ class Shell extends Application
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        $this->output = $output;
+        $this->setOutput($output);
 
         $this->exceptions = array();
         $this->resetCodeBuffer();
@@ -278,7 +286,7 @@ class Shell extends Application
      *
      * @return bool True if the code buffer contains code.
      */
-    protected function hasCode()
+    public function hasCode()
     {
         return !empty($this->codeBuffer);
     }
@@ -447,12 +455,7 @@ class Shell extends Application
      */
     public function writeReturnValue($ret)
     {
-        $returnString = $this->formatValue($ret);
-        if (strpos($returnString, '</return>') === false) {
-            $this->output->writeln(sprintf("%s<return>%s</return>", self::RETVAL, $returnString));
-        } else {
-            $this->output->writeln(sprintf("%s%s", self::RETVAL, $returnString), ShellOutput::OUTPUT_RAW);
-        }
+        $this->output->writeln(sprintf("%s<return>%s</return>", self::RETVAL, $this->formatValue($ret)));
     }
 
     /**
@@ -498,7 +501,7 @@ class Shell extends Application
             }
         }
 
-        $this->output->writeln(sprintf('<%s>%s</%s>', $severity, $message, $severity));
+        $output->writeln(sprintf('<%s>%s</%s>', $severity, $message, $severity));
 
         $this->resetCodeBuffer();
     }

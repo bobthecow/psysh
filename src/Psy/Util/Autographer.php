@@ -11,11 +11,12 @@
 
 namespace Psy\Util;
 
-use Psy\Formatter\Signature\FunctionSignatureFormatter;
 use Psy\Formatter\Signature\ClassSignatureFormatter;
 use Psy\Formatter\Signature\ConstantSignatureFormatter;
+use Psy\Formatter\Signature\FunctionSignatureFormatter;
 use Psy\Formatter\Signature\MethodSignatureFormatter;
 use Psy\Formatter\Signature\PropertySignatureFormatter;
+use Psy\Reflection\ReflectionConstant;
 
 /**
  * The autographer class creates signatures.
@@ -38,7 +39,7 @@ class Autographer
             case $reflector instanceof \ReflectionClass:
                 return new ClassSignatureFormatter($reflector);
 
-            case $reflector instanceof \ReflectionConstant:
+            case $reflector instanceof ReflectionConstant:
                 return new ConstantSignatureFormatter($reflector);
 
             case $reflector instanceof \ReflectionMethod:

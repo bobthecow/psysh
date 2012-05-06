@@ -22,8 +22,12 @@ class ReflectionConstant implements \Reflector
     private $name;
     private $value;
 
-    public function __construct(\ReflectionClass $class, $name)
+    public function __construct($class, $name)
     {
+        if (! $class instanceof \ReflectionClass) {
+            $class = new \ReflectionClass($class);
+        }
+
         $this->class = $class;
         $this->name  = $name;
 
@@ -58,7 +62,7 @@ class ReflectionConstant implements \Reflector
 
     public function getStartLine()
     {
-        throw new \Exception('Not yet implemented because it\'s unclear what I should do here :)');
+        throw new \RuntimeException('Not yet implemented because it\'s unclear what I should do here :)');
     }
 
     public function getEndLine()
@@ -68,12 +72,12 @@ class ReflectionConstant implements \Reflector
 
     public function getDocComment()
     {
-        return null;
+        return false;
     }
 
     public static function export()
     {
-        throw new \Exception('Not yet implemented because it\'s unclear what I should do here :)');
+        throw new \RuntimeException('Not yet implemented because it\'s unclear what I should do here :)');
     }
 
     public function __toString()
