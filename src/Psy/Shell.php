@@ -402,20 +402,6 @@ class Shell extends Application
     }
 
     /**
-     * Set the current evaluation scope namespace.
-     *
-     * This is passed through to the code cleaner.
-     *
-     * @see CodeCleaner::setNamespace
-     *
-     * @param string $namespace
-     */
-    public function setNamespace($namespace)
-    {
-        $this->cleaner->setNamespace($namespace);
-    }
-
-    /**
      * Get the current evaluation scope namespace.
      *
      * @see CodeCleaner::getNamespace

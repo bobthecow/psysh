@@ -123,16 +123,6 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell->flushCode();
     }
 
-    public function testNamespace()
-    {
-        $shell = new Shell;
-        $this->assertEmpty($shell->getNamespace());
-        $shell->setNamespace('\\Foo\\Bar\\Baz');
-        $this->assertEquals('Foo\\Bar\\Baz', $shell->getNamespace());
-        $shell->setNamespace(null);
-        $this->assertEmpty($shell->getNamespace());
-    }
-
     public function testWriteStdout()
     {
         $output = $this->getOutput();

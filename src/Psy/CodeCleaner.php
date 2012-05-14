@@ -12,15 +12,14 @@
 namespace Psy;
 
 use PHPParser_Lexer as Lexer;
-use PHPParser_Node_Expr as Expression;
-use PHPParser_Node_Expr_FuncCall as FuncCall;
-use PHPParser_Node_Expr_Variable as Variable;
 use PHPParser_Node_Name as Name;
-use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
-use PHPParser_Node_Stmt_Return as ReturnStatement;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
+use Psy\CodeCleaner\ImplicitReturnPass;
+use Psy\CodeCleaner\LeavePsyshAlonePass;
+use Psy\CodeCleaner\NamespacePass;
+use Psy\CodeCleaner\ValidClassNamePass;
+use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\Exception\FatalErrorException;
 use Psy\Exception\ParseErrorException;
 use Psy\Exception\RuntimeException;
@@ -32,7 +31,9 @@ use Psy\Exception\RuntimeException;
 class CodeCleaner
 {
     private $parser;
-    private $namespace = array();
+    private $printer;
+    private $passes;
+    private $namespace;
 
     /**
      * CodeCleaner constructor.
@@ -52,40 +53,23 @@ class CodeCleaner
 
         $this->parser  = $parser;
         $this->printer = $printer;
+
+        $this->passes = $this->getDefaultPasses();
     }
 
-    /**
-     * Set the current namespace for cleaned code.
-     *
-     * This is useful for multiline evaluation. Subsequent code will be "converted"
-     * to be in this namespace.
-     *
-     * @param string|array $namespace
-     */
-    public function setNamespace($namespace)
+    private function getDefaultPasses()
     {
-        if (!is_array($namespace)) {
-            $namespace = preg_split('/\\\\\\\\?/', ltrim($namespace, " \t\n\r\0\x0B\\"));
-        }
-
-        $this->namespace = $namespace;
-    }
-
-    /**
-     * Get the current namespace.
-     *
-     * @return array
-     */
-    public function getNamespace()
-    {
-        return $this->namespace;
+        return array(
+            new LeavePsyshAlonePass,
+            new ImplicitReturnPass,
+            new NamespacePass($this), // must run after the implicit return pass
+            new ValidFunctionNamePass,
+            new ValidClassNamePass,
+        );
     }
 
     /**
      * Clean the given array of code.
-     *
-     * Parses and validates input, and adds code to the current namespace, if
-     * applicable.
      *
      * @throws ParseErrorException if the code is invalid PHP, and cannot be coerced into valid PHP.
      *
@@ -95,37 +79,27 @@ class CodeCleaner
      */
     public function clean(array $codeLines)
     {
-        $code = "<?php " . implode(PHP_EOL, $codeLines);
-
-        try {
-            $stmts = $this->parse($code);
-        } catch (\PHPParser_Error $e) {
-            if ($e->getRawMessage() !== "Unexpected token EOF") {
-                throw ParseErrorException::fromParseError($e);
-            }
-
-            try {
-                // Unexpected EOF, try again with an implicit semicolon
-                $stmts = $this->parse($code.';');
-            } catch (\PHPParser_Error $e) {
-                return false;
-            }
+        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines));
+        if ($stmts === false) {
+            return false;
         }
 
         // Catch fatal errors before they happen
-        $this->validateStatements($stmts);
-
-        // Add an implicit return if the last statement was an expression...
-        $last = end($stmts);
-        if ($last instanceof Expression) {
-            $stmts[count($stmts) - 1] = new ReturnStatement($last, $last->getLine());
-        }
-
-        if (!empty($this->namespace)) {
-            $stmts = array(new NamespaceStatement(new Name($this->namespace), $stmts));
+        foreach ($this->passes as $pass) {
+            $pass->process($stmts);
         }
 
         return $this->printer->prettyPrint($stmts);
+    }
+
+    public function setNamespace(array $namespace = null)
+    {
+        $this->namespace = $namespace;
+    }
+
+    public function getNamespace()
+    {
+        return $this->namespace;
     }
 
     /**
@@ -139,77 +113,19 @@ class CodeCleaner
      */
     protected function parse($code)
     {
-        return $this->parser->parse(new Lexer($code));
-    }
-
-    /**
-     * Recursively walk the given statements and validate them.
-     *
-     * @see self::validateFunctionCalls
-     * @see self::validateLeavePsyshAlone
-     *
-     * @param mixed $stmts
-     */
-    protected function validateStatements($stmts)
-    {
-        if (!is_array($stmts) || $stmts instanceof \Traversable) {
-            throw new \InvalidArgumentException('Unable to validate non-traversable sets.');
-        }
-
-        foreach ($stmts as $stmt) {
-            $this->validateFunctionCalls($stmt);
-            $this->validateLeavePsyshAlone($stmt);
-
-            if (is_object($stmt) && $stmt instanceof \Traversable) {
-                $this->validateStatements(iterator_to_array($stmt));
+        try {
+            return $this->parser->parse(new Lexer($code));
+        } catch (\PHPParser_Error $e) {
+            if ($e->getRawMessage() !== "Unexpected token EOF") {
+                throw ParseErrorException::fromParseError($e);
             }
-        }
-    }
 
-    /**
-     * Validate that function calls will succeed.
-     *
-     * This method throws a FatalErrorException rather than letting PHP run
-     * headfirst into a real fatal error and die.
-     *
-     * @todo Detect and prevent more possible errors (e.g., undefined vars when $stmt->name is a Variable)
-     *
-     * @throws FatalErrorException if the function name is a string (not an expression) and is not defined.
-     *
-     * @param mixed $stmt
-     */
-    protected function validateFunctionCalls($stmt)
-    {
-        if ($stmt instanceof FuncCall) {
-            $name = $stmt->name;
-            // if function name is an expression, give it a pass for now.
-            if (!$name instanceof Expression) {
-                $shortName = implode('\\', $name->parts);
-                if ($name instanceof FullyQualifiedName) {
-                    $fullName = $shortName;
-                } else {
-                    $fullName = implode('\\', array_merge($this->namespace, $name->parts));
-                }
-
-                if (!function_exists($shortName) && !function_exists($fullName)) {
-                    $message = sprintf('Call to undefined function %s()', $name);
-                    throw new FatalErrorException($message, 0, 1, null, $stmt->getLine());
-                }
+            try {
+                // Unexpected EOF, try again with an implicit semicolon
+                return $this->parser->parse(new Lexer($code.';'));
+            } catch (\PHPParser_Error $e) {
+                return false;
             }
-        }
-    }
-
-    /**
-     * Validate that the user input does not reference the `$__psysh__` variable.
-     *
-     * @throws RuntimeException if the user is messing with $__psysh__.
-     *
-     * @param mixed $stmt PHPParser statement
-     */
-    protected function validateLeavePsyshAlone($stmt)
-    {
-        if ($stmt instanceof Variable && $stmt->name === "__psysh__") {
-            throw new RuntimeException('Don\'t mess with $__psysh__. Bad things will happen.');
         }
     }
 }
