@@ -12,6 +12,8 @@
 namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
+use Psy\Exception\ErrorException;
+use Psy\Exception\RuntimeException;
 use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Util\Mirror;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,8 +44,6 @@ abstract class ListingCommand extends ShellAwareCommand
             }
         }
 
-
-
         $invert = $input->getOption('invert');
         if ($pattern = $input->getOption('grep')) {
             if (preg_match('/^([^\w\s\\\\]).*([^\w\s\\\\])([imsADUXu]*)$/', $pattern, $matches) && $matches[1] == $matches[2]) {
@@ -53,6 +53,8 @@ abstract class ListingCommand extends ShellAwareCommand
             } else {
                 $pattern = '/'.preg_quote($pattern, '/').'/i';
             }
+
+            $this->validateRegex($pattern);
 
             $matches     = array();
             $highlighted = array();
@@ -109,6 +111,17 @@ abstract class ListingCommand extends ShellAwareCommand
         return array_map(function($thing) {
             return SignatureFormatter::format(Mirror::get($thing));
         }, $things);
+    }
+
+    private function validateRegex($pattern)
+    {
+        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+        try {
+            preg_match($pattern, '');
+        } catch (ErrorException $e) {
+            throw new RuntimeException(str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));
+        }
+        restore_error_handler();
     }
 
     /**
