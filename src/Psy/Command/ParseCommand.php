@@ -18,6 +18,7 @@ use Psy\Output\ShellOutput;
 use Psy\Util\Inspector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -36,6 +37,7 @@ class ParseCommand extends Command
             ->setName('parse')
             ->setDefinition(array(
                 new InputArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
+                new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
             ))
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
             ->setHelp(<<<EOL
@@ -58,8 +60,9 @@ EOL
 
         $walker = $this->getWalker();
         $nodes  = $this->parse($code);
-        $output->page(function(ShellOutput $output) use (&$walker, $nodes) {
-            $out = Inspector::export($nodes);
+        $depth  = $input->getOption('depth');
+        $output->page(function(ShellOutput $output) use (&$walker, $nodes, $depth) {
+            $out = Inspector::export($nodes, $depth);
             $walker($output, $out);
         });
     }
