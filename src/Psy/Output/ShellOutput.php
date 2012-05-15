@@ -17,6 +17,9 @@ use Psy\Output\ProcOutputPager;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+/**
+ * A ConsoleOutput subclass specifically for Psy Shell output.
+ */
 class ShellOutput extends ConsoleOutput
 {
     const NUMBER_LINES = 128;
@@ -24,6 +27,14 @@ class ShellOutput extends ConsoleOutput
     private $paging = 0;
     private $pager;
 
+    /**
+     * Construct a ShellOutput instance.
+     *
+     * @param mixed                    $verbosity (default: self::VERBOSITY_NORMAL)
+     * @param boolean                  $decorated (default: null)
+     * @param OutputFormatterInterface $formatter (default: null)
+     * @param null|string|OutputPager  $pager     (default: null)
+     */
     public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null)
     {
         parent::__construct($verbosity, $decorated, $formatter);
@@ -41,6 +52,19 @@ class ShellOutput extends ConsoleOutput
         }
     }
 
+    /**
+     * Page multiple lines of output.
+     *
+     * The output pager is started
+     *
+     * If $messages is callable, it will be called, passing this output instance
+     * for rendering. Otherwise, all passed $messages are paged to output.
+     *
+     * Upon completion, the output pager is flushed.
+     *
+     * @param string|array|Closure $messages A string, array of strings or a callback.
+     * @param int                  $type     (default: 0)
+     */
     public function page($messages, $type = 0)
     {
         if (is_string($messages)) {
@@ -63,6 +87,18 @@ class ShellOutput extends ConsoleOutput
         $this->closePager();
     }
 
+    /**
+     * Writes a message to the output.
+     *
+     * Optionally, pass `$type | self::NUMBER_LINES` as the $type parameter to
+     * number the lines of output.
+     *
+     * @throws \InvalidArgumentException When unknown output type is given
+     *
+     * @param string|array $messages The message as an array of lines or a single string
+     * @param Boolean      $newline  Whether to add a newline or not
+     * @param integer      $type     The type of output
+     */
     public function write($messages, $newline = false, $type = 0)
     {
         if ($this->getVerbosity() == self::VERBOSITY_QUIET) {
@@ -83,9 +119,17 @@ class ShellOutput extends ConsoleOutput
         // clean this up for super.
         $type = $type & ~self::NUMBER_LINES;
 
-        return parent::write($messages, $newline, $type);
+        parent::write($messages, $newline, $type);
     }
 
+    /**
+     * Writes a message to the output.
+     *
+     * Handles paged output, or writes directly to the output stream.
+     *
+     * @param string  $message A message to write to the output
+     * @param Boolean $newline Whether to add a newline or not
+     */
     public function doWrite($message, $newline)
     {
         if ($this->paging > 0) {
@@ -95,6 +139,9 @@ class ShellOutput extends ConsoleOutput
         }
     }
 
+    /**
+     * Flush and close the output pager.
+     */
     private function closePager()
     {
         if ($this->paging <= 0) {
@@ -102,6 +149,9 @@ class ShellOutput extends ConsoleOutput
         }
     }
 
+    /**
+     * Initialize output formatter styles.
+     */
     private function initFormatters()
     {
         $formatter = $this->getFormatter();

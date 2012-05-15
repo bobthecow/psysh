@@ -43,8 +43,7 @@ class ParseCommand extends Command
             ->setHelp(<<<EOL
 Parse PHP code and show the abstract syntax tree.
 EOL
-            )
-        ;
+            );
     }
 
     /**

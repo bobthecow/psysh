@@ -25,7 +25,7 @@ class LeavePsyshAlonePass extends CodeCleanerPass
      *
      * @throws RuntimeException if the user is messing with $__psysh__.
      *
-     * @param mixed $stmt PHPParser statement
+     * @param mixed &$stmt PHPParser statement
      */
     protected function processStatement(&$stmt)
     {

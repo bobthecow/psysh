@@ -34,8 +34,7 @@ class PsyVersionCommand extends ShellAwareCommand
             ->setHelp(<<<EOF
 Show PsySH version.
 EOF
-            )
-        ;
+            );
     }
 
     /**

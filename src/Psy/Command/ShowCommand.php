@@ -38,8 +38,7 @@ class ShowCommand extends ReflectingCommand
             ->setHelp(<<<EOL
 Show the code for an object, class, constant, method or property.
 EOL
-            )
-        ;
+            );
     }
 
     /**

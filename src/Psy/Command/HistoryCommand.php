@@ -47,8 +47,7 @@ class HistoryCommand extends ShellAwareCommand
                 new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay'),
             ))
             ->setDescription('Show the Psy shell history.')
-            ->setHelp('Show, search or save the Psy shell history.')
-        ;
+            ->setHelp('Show, search or save the Psy shell history.');
     }
 
     /**
@@ -176,7 +175,7 @@ class HistoryCommand extends ShellAwareCommand
      * Validate that only one of the given $options is set.
      *
      * @param InputInterface $input
-     * @param array $options
+     * @param array          $options
      */
     private function validateOnlyOne(InputInterface $input, array $options)
     {

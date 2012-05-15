@@ -33,7 +33,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @throws FatalErrorException if a class is redefined.
      * @throws FatalErrorException if the class name is a string (not an expression) and is not defined.
      *
-     * @param mixed $stmt
+     * @param mixed &$stmt
      */
     protected function processStatement(&$stmt)
     {

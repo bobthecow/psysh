@@ -40,8 +40,7 @@ class ListFunctionsCommand extends ListingCommand
             ->setHelp(<<<EOF
 List or search defined functions.
 EOF
-            )
-        ;
+            );
     }
 
     /**

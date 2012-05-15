@@ -55,8 +55,7 @@ e.g.
 <return>>>> ls \$foo</return>
 <return>>>> ls -al ReflectionClass</return>
 EOF
-            )
-        ;
+            );
     }
 
     /**
@@ -87,7 +86,17 @@ EOF
         }
     }
 
-    private function printTarget(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
+    /**
+     * Print a formatted version of the reflector target to $output.
+     *
+     * @param ShellOutput $output
+     * @param \Reflector  $reflector
+     * @param array       $constants
+     * @param array       $methods
+     * @param array       $properties
+     */
+    private function printTarget(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties)
+    {
         if (!empty($constants)) {
             $output->writeln(sprintf('<strong>Constants</strong>: %s', implode(', ', array_keys($constants))));
         }
@@ -103,7 +112,17 @@ EOF
         }
     }
 
-    private function printTargetLong(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties) {
+    /**
+     * Print a _long_ formatted version of the reflector target to $output.
+     *
+     * @param ShellOutput $output
+     * @param \Reflector  $reflector
+     * @param array       $constants
+     * @param array       $methods
+     * @param array       $properties
+     */
+    private function printTargetLong(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties)
+    {
 
         $methodVis   = $this->getVisibilityFormatter();
         $propertyVis = $this->getPropertyVisibilityFormatter();
@@ -134,13 +153,26 @@ EOF
         });
     }
 
+    /**
+     * Print a formatted version of local variables to $output.
+     *
+     * @param ShellOutput $output
+     * @param array       $vars
+     */
     private function printScopeVars(ShellOutput $output, array $vars)
     {
         $formatted = array_map(array(__CLASS__, 'printVarName'), array_keys($vars));
         $output->writeln(sprintf('<strong>Local variables</strong>: %s', implode(', ', $formatted)));
     }
 
-    private function printScopeVarsLong(ShellOutput $output, array $vars) {
+    /**
+     * Print a _long_ formatted version of local variables to $output.
+     *
+     * @param ShellOutput $output
+     * @param array       $vars
+     */
+    private function printScopeVarsLong(ShellOutput $output, array $vars)
+    {
         $output->page(function($output) use($vars) {
             $hashes = array();
             $output->writeln('<strong>Local variables:</strong>');
@@ -159,6 +191,15 @@ EOF
         });
     }
 
+    /**
+     * Get constants, methods and properties for the $reflector target.
+     *
+     * @param \ReflectionClass $reflector
+     * @param mixed            $value
+     * @param mixed            $showAll
+     *
+     * @return array Array of arrays of strings: constants, methods, properties
+     */
     private function listTarget(\ReflectionClass $reflector, $value, $showAll)
     {
         $constants  = array();
@@ -187,6 +228,14 @@ EOF
         return array($constants, $methods, $properties);
     }
 
+    /**
+     * List scope variables
+     *
+     * @param bool $showAll
+     * @param bool $verbose (default: false)
+     *
+     * @return array A list of scope variables.
+     */
     private function listScopeVars($showAll, $verbose = false)
     {
         $scopeVars = $this->getScopeVariables();
@@ -222,6 +271,11 @@ EOF
         return $ret;
     }
 
+    /**
+     * Get a visibility formatter callback.
+     *
+     * @return Closure
+     */
     private function getVisibilityFormatter()
     {
         return function($el, $pad = 0) {
@@ -236,6 +290,11 @@ EOF
         };
     }
 
+    /**
+     * Get a property visibility formatter callback.
+     *
+     * @return Closure
+     */
     private function getPropertyVisibilityFormatter()
     {
         return function($el, $pad = 0) {
@@ -250,11 +309,27 @@ EOF
         };
     }
 
+    /**
+     * Format a variable name for output.
+     *
+     * @param string $name
+     * @param int    $max  Padding (default: 0)
+     *
+     * @return string
+     */
     public static function printVarName($name, $max = 0)
     {
         return sprintf(in_array($name, self::$specialVars) ? "<urgent>\$%-${max}s</urgent>" : "\$%-${max}s", $name);
     }
 
+    /**
+     * Get a string representation of a variable type.
+     *
+     * @param mixed $var
+     * @param bool  $verbose (default: false)
+     *
+     * @return string
+     */
     private static function getType($var, $verbose = false)
     {
         if (is_object($var)) {
@@ -264,6 +339,15 @@ EOF
         }
     }
 
+    /**
+     * Format a string representation of a variable type for output.
+     *
+     * @param mixed $var
+     * @param int   $max     Padding (default: 0)
+     * @param bool  $verbose (default: false)
+     *
+     * @return string
+     */
     private static function printType($var, $max = 0, $verbose = false)
     {
         $val = self::getType($var, $verbose);
@@ -280,6 +364,13 @@ EOF
         return sprintf('<%s>%s</%s>%s', $format, $val, $format, str_repeat(' ', max(0, $max - strlen($val))));
     }
 
+    /**
+     * Get a string representation of an object (hash)
+     *
+     * @param mixed $var
+     *
+     * @return string
+     */
     private static function getHash($var)
     {
         if (is_object($var)) {
@@ -287,6 +378,13 @@ EOF
         }
     }
 
+    /**
+     * Format an object hash for output.
+     *
+     * @param mixed $var
+     *
+     * @return string
+     */
     private static function formatHash($var)
     {
         if (is_object($var)) {

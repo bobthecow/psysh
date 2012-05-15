@@ -21,6 +21,7 @@ use Psy\CodeCleaner\CodeCleanerPassInterface;
  */
 abstract class CodeCleanerPass implements CodeCleanerPassInterface
 {
+
     /**
      * Process the syntax tree.
      *

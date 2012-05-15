@@ -115,6 +115,11 @@ class Shell extends Application
         return $commands;
     }
 
+    /**
+     * Set the Shell output.
+     *
+     * @param OutputInterface $output
+     */
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
@@ -332,6 +337,8 @@ class Shell extends Application
      * @throws InvalidArgumentException if the input is not a valid command.
      *
      * @param string $input User input string
+     *
+     * @return mixed Who knows?
      */
     protected function runCommand($input)
     {
@@ -354,7 +361,7 @@ class Shell extends Application
             return $helpCommand->run($input, $this->output);
         }
 
-        $command->run($input, $this->output);
+        return $command->run($input, $this->output);
     }
 
     /**

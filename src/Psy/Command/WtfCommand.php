@@ -51,8 +51,7 @@ To see the entire backtrace, pass the -v/--verbose flag:
 e.g.
 <return>>>> wtf -v</return>
 EOF
-            )
-        ;
+            );
     }
 
     /**

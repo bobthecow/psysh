@@ -98,7 +98,7 @@ class DocblockFormatter implements Formatter
      * Format docblock tags.
      *
      * @param array $skip Tags to exclude
-     * @param array $tags
+     * @param array $tags Tags to format
      *
      * @return string formatted tags
      */
@@ -141,7 +141,7 @@ class DocblockFormatter implements Formatter
     /**
      * Indent a string.
      *
-     * @param string $text
+     * @param string $text   String to indent
      * @param string $indent (default: '  ')
      *
      * @return string

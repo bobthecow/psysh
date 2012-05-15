@@ -41,8 +41,7 @@ Show the contents of the code buffer for the current multi-line expression.
 
 Optionally, clear the buffer by passing the <info>--clear</info> option.
 EOF
-            )
-        ;
+            );
     }
 
     /**
@@ -62,8 +61,8 @@ EOF
     /**
      * A helper method for wrapping buffer lines in `<urgent>` and `<return>` formatter strings.
      *
-     * @param array $lines
-     * @param string $type (default: 'return')
+     * @param array  $lines
+     * @param string $type  (default: 'return')
      *
      * @return array Formatted strings
      */

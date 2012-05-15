@@ -63,6 +63,8 @@ abstract class Command extends BaseCommand
 
     /**
      * These arguments will be excluded from help output.
+     *
+     * @return array
      */
     protected function getHiddenArguments()
     {
@@ -83,6 +85,8 @@ abstract class Command extends BaseCommand
 
     /**
      * These options will be excluded from help output.
+     *
+     * @return array
      */
     protected function getHiddenOptions()
     {
@@ -91,6 +95,8 @@ abstract class Command extends BaseCommand
 
     /**
      * Format command aliases as text..
+     *
+     * @return string
      */
     private function aliasesAsText()
     {
@@ -99,6 +105,8 @@ abstract class Command extends BaseCommand
 
     /**
      * Format command arguments as text.
+     *
+     * @return string
      */
     private function argumentsAsText()
     {
@@ -128,6 +136,8 @@ abstract class Command extends BaseCommand
 
     /**
      * Format options as text.
+     *
+     * @return string
      */
     private function optionsAsText()
     {
@@ -166,6 +176,8 @@ abstract class Command extends BaseCommand
 
     /**
      * Calculate the maximum padding width for a set of lines.
+     *
+     * @return int
      */
     private function getMaxWidth()
     {
@@ -189,6 +201,10 @@ abstract class Command extends BaseCommand
 
     /**
      * Format an option default as text.
+     *
+     * @param mixed $default
+     *
+     * @return string
      */
     private function formatDefaultValue($default)
     {

@@ -40,8 +40,7 @@ End the current session and return to caller.
 e.g.
 <return>>>> exit</return>
 EOL
-            )
-        ;
+            );
     }
 
     /**

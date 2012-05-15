@@ -26,7 +26,8 @@ require_once __DIR__.'/autoload.php';
  *
  * @return array Scope variables from the debugger session.
  */
-function debugger(array $vars = array()) {
+function debugger(array $vars = array())
+{
     echo "\n\n";
 
     $sh = new \Psy\Shell;

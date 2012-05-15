@@ -69,7 +69,7 @@ class Docblock
     /**
      * Docblock constructor.
      *
-     * @param String $comment The text of the docblock
+     * @param \Reflector $reflector
      */
     public function __construct(\Reflector $reflector)
     {
@@ -125,7 +125,7 @@ class Docblock
     /**
      * Parse the comment into the component parts and set the state of the object.
      *
-     * @param  String $comment The docblock
+     * @param String $comment The docblock
      */
     protected function parseComment($comment)
     {
@@ -149,7 +149,7 @@ class Docblock
             if (self::isTagged($line)) {
                 $b++;
                 $blocks[] = array();
-            } else if($b == -1) {
+            } elseif ($b == -1) {
                 $b = 0;
                 $blocks[] = array();
             }
@@ -193,7 +193,7 @@ class Docblock
     /**
      * Whether or not a docblock contains a given @tag.
      *
-     * @param  String $tag The name of the @tag to check for
+     * @param String $tag The name of the @tag to check for
      *
      * @return bool
      */
@@ -205,7 +205,7 @@ class Docblock
     /**
      * The value of a tag
      *
-     * @param  String $tag
+     * @param String $tag
      *
      * @return Array
      */
@@ -217,8 +217,8 @@ class Docblock
     /**
      * The value of a tag (concatenated for multiple values)
      *
-     * @param  String $tag
-     * @param  string $sep The seperator for concatenating
+     * @param String $tag The tag to retrieve
+     * @param string $sep The seperator for concatenating
      *
      * @return String
      */
@@ -229,7 +229,9 @@ class Docblock
 
     /**
      * The value of a tag (merged recursively)
-     * @param  String $tag
+     *
+     * @param String $tag
+     *
      * @return Array
      */
     public function tagMerge($tag)
@@ -240,7 +242,7 @@ class Docblock
     /**
      * Whether or not a string begins with a @tag
      *
-     * @param  String $str
+     * @param String $str
      *
      * @return bool
      */
@@ -252,7 +254,7 @@ class Docblock
     /**
      * The tag at the beginning of a string
      *
-     * @param  String $str
+     * @param String $str
      *
      * @return String|null
      */

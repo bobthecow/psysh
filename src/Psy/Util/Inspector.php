@@ -19,8 +19,8 @@ class Inspector
     /**
      * Export all public, private and protected properties of $var.
      *
-     * @param mixed $var
-     * @param int $depth Maximum depth to export, or -1 for infinite. **danger, will robison** (default: -1)
+     * @param mixed $var   Variable to export.
+     * @param int   $depth Maximum depth to export, or -1 for infinite. **danger, will robison** (default: -1)
      *
      * @return mixed
      */

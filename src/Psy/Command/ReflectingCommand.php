@@ -32,7 +32,8 @@ abstract class ReflectingCommand extends ShellAwareCommand
      *
      * @throws \InvalidArgumentException when the value specified can't be resolved.
      *
-     * @param string $valueName Function, class, variable, constant, method or property name.
+     * @param string  $valueName Function, class, variable, constant, method or property name.
+     * @param boolean $classOnly True if the name should only refer to a class, function or instance
      *
      * @return array (class or instance name, member name, kind)
      */
@@ -98,7 +99,8 @@ abstract class ReflectingCommand extends ShellAwareCommand
     /**
      * Get a Reflector and documentation for a function, class or instance, constant, method or property.
      *
-     * @param string $valueName Function, class, variable, constant, method or property name.
+     * @param string  $valueName Function, class, variable, constant, method or property name.
+     * @param boolean $classOnly True if the name should only refer to a class, function or instance
      *
      * @return array (value, Reflector)
      */
@@ -114,7 +116,7 @@ abstract class ReflectingCommand extends ShellAwareCommand
      *
      * @throws \InvalidArgumentException when the requested variable does not exist in the current scope.
      *
-     * @param string $value
+     * @param string $name
      *
      * @return mixed Variable instance.
      */

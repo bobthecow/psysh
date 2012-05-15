@@ -34,9 +34,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     }
 
     /**
-     * @param mixed $stmt PHPParser statement
-     *
-     * @return void
+     * @param mixed &$stmt PHPParser statement
      */
     protected function processStatement(&$stmt)
     {

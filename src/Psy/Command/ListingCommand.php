@@ -113,6 +113,13 @@ abstract class ListingCommand extends ShellAwareCommand
         }, $things);
     }
 
+    /**
+     * Validate that $pattern is a valid regular expression.
+     *
+     * @param string $pattern
+     *
+     * @return boolean
+     */
     private function validateRegex($pattern)
     {
         set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));

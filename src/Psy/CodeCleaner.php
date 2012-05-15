@@ -57,6 +57,11 @@ class CodeCleaner
         $this->passes = $this->getDefaultPasses();
     }
 
+    /**
+     * Get default CodeCleaner passes.
+     *
+     * @return array
+     */
     private function getDefaultPasses()
     {
         return array(
@@ -92,11 +97,23 @@ class CodeCleaner
         return $this->printer->prettyPrint($stmts);
     }
 
+    /**
+     * Set the current local namespace.
+     *
+     * @param null|array $namespace (default: null)
+     *
+     * @return null|array
+     */
     public function setNamespace(array $namespace = null)
     {
         $this->namespace = $namespace;
     }
 
+    /**
+     * Get the current local namespace.
+     *
+     * @return null|array
+     */
     public function getNamespace()
     {
         return $this->namespace;

@@ -39,10 +39,12 @@ class ListClassesCommand extends ListingCommand
             ->setHelp(<<<EOF
 List or search defined classes.
 EOF
-            )
-        ;
+            );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function listThings(InputInterface $input)
     {
         return get_declared_classes();

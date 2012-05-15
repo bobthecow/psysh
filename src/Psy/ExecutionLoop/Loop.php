@@ -66,6 +66,7 @@ class Loop
                 } catch (BreakException $__psysh_e__) {
                     restore_error_handler();
                     $__psysh__->writeException($__psysh_e__);
+
                     return;
                 } catch (\Exception $__psysh_e__) {
                     restore_error_handler();

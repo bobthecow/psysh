@@ -48,8 +48,7 @@ e.g.
 <return>>>> \$d = new \Psy\Command\DocCommand</return>
 <return>>>> doc \$d->shell</return>
 EOL
-            )
-        ;
+            );
     }
 
     /**
