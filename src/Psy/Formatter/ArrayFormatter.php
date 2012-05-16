@@ -32,6 +32,13 @@ class ArrayFormatter extends RecursiveFormatter
         }
 
         $formatted = array_map(array(__CLASS__, 'formatValue'), $array);
+
+        $keys = array_keys($array);
+        if (! is_int(reset($keys))) {
+            $pad = max(array_map('strlen', $keys)) + 2;
+            array_walk($formatted, array(__CLASS__, 'formatKeys'), $pad);
+        }
+
         $template  = sprintf('[%s%s%%s%s   ]', PHP_EOL, str_repeat(' ', 7), PHP_EOL);
         $glue      = sprintf(',%s%s', PHP_EOL, str_repeat(' ', 7));
 
@@ -48,5 +55,10 @@ class ArrayFormatter extends RecursiveFormatter
     public static function formatRef($array)
     {
         return sprintf('Array(%d)', count($array));
+    }
+
+    public static function formatKeys(&$value, $key, $pad = 0)
+    {
+        $value = sprintf("%-${pad}s => %s", json_encode($key), $value);
     }
 }
