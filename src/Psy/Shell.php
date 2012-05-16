@@ -184,10 +184,20 @@ class Shell extends Application
 
             $input = $this->readline();
 
-            // handle Ctrl+D
+            /*
+             * Handle Ctrl+D. It behaves differently in different cases:
+             *
+             *   1) In an expression, like a function or "if" block, clear the input buffer
+             *   2) At top-level session, behave like the exit command
+             */
             if ($input === false) {
                 $this->output->writeln('');
-                throw new BreakException('Ctrl+D');
+
+                if ($this->hasCode()) {
+                    $this->resetCodeBuffer();
+                } else {
+                    throw new BreakException('Ctrl+D');
+                }
             }
 
             // handle empty input
