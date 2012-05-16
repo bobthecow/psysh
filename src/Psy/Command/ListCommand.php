@@ -15,6 +15,7 @@ use Psy\Command\ReflectingCommand;
 use Psy\Formatter\ObjectFormatter;
 use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
+use Psy\Exception\RuntimeException;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,18 +38,25 @@ class ListCommand extends ReflectingCommand
             ->setName('ls')
             ->setAliases(array('list', 'dir'))
             ->setDefinition(array(
-                new InputArgument('value', InputArgument::OPTIONAL, 'The instance or class to list.', null),
+                new InputArgument('value', InputArgument::OPTIONAL, 'A class or instance to list.', null),
 
-                new InputOption('all',     'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
-                new InputOption('long',    'l', InputOption::VALUE_NONE, 'List in long format: includes class names and method signatures.'),
-                new InputOption('verbose', 'v', InputOption::VALUE_NONE, 'Include object and method signatures.'),
+                new InputOption('locals',     '',  InputOption::VALUE_NONE, 'Display local variables.'),
+                new InputOption('globals',    'g', InputOption::VALUE_NONE, 'Display global variables.'),
+
+                new InputOption('constants',  'c', InputOption::VALUE_NONE, 'Display constants.'),
+                new InputOption('properties', 'p', InputOption::VALUE_NONE, 'Display properties (public properties by default).'),
+                new InputOption('methods',    'm', InputOption::VALUE_NONE, 'Display methods (public methods by default).'),
+
+                new InputOption('all',        'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
+                new InputOption('long',       'l', InputOption::VALUE_NONE, 'List in long format: includes class names and method signatures.'),
+                new InputOption('verbose',    'v', InputOption::VALUE_NONE, 'Include object and method signatures.'),
             ))
-            ->setDescription('List local, instance or class variables.')
+            ->setDescription('List local, instance or class variables, methods and constants.')
             ->setHelp(<<<EOF
 List all variables currently defined in the local scope.
 
-If a value is passed, list properties and methods of that value. If a class name
-is passed instead, list constants and methods available on that class.
+If a value is passed, list properties, constants and methods of that value. If a
+class name is passed instead, list constants and methods available on that class.
 
 e.g.
 <return>>>> ls</return>
@@ -63,27 +71,72 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $showLong = $input->getOption('long');
+        $this->validateInput($input);
+
         $showAll  = $input->getOption('all');
+        $showLong = $input->getOption('long');
         $verbose  = $input->getOption('verbose');
 
         if ($value = $input->getArgument('value')) {
+            $showConstants  = $input->getOption('constants');
+            $showProperties = $input->getOption('properties');
+            $showMethods    = $input->getOption('methods');
+
+            // if none is specified, list all.
+            if (!$showConstants && !$showProperties && !$showMethods) {
+                $showConstants = $showProperties = $showMethods = true;
+            }
+
             list($value, $reflector)  = $this->getTargetAndReflector($value, true);
             list($constants, $methods, $properties) = $this->listTarget($reflector, $value, $showAll);
 
-            if ($showLong) {
-                $this->printTargetLong($output, $reflector, $constants, $methods, $properties);
-            } else {
-                $this->printTarget($output, $reflector, $constants, $methods, $properties);
-            }
+            $method = $showLong ? 'printTargetLong' : 'printTarget';
+            $this->$method(
+                $output,
+                $reflector,
+                $showConstants  ? $constants  : array(),
+                $showMethods    ? $methods    : array(),
+                $showProperties ? $properties : array()
+            );
         } else {
-            $vars = $this->listScopeVars($showAll, $verbose);
-            if ($showLong) {
-                $this->printScopeVarsLong($output, $vars);
-            } else {
-                $this->printScopeVars($output, $vars);
+            $showLocals  = $input->getOption('locals');
+            $showGlobals = $input->getOption('globals');
+
+            $method = $showLong ? 'printScopeVarsLong' : 'printScopeVars';
+
+            if ($showGlobals) {
+                $this->$method($output, $this->listGlobalVars($verbose), 'Global');
+            }
+
+            if ($showLocals || !$showGlobals) {
+                $this->$method($output, $this->listScopeVars($showAll, $verbose));
             }
         }
+    }
+
+    /**
+     * Validate that input options make sense.
+     *
+     * @throws RuntimeException if options are inconsistent.
+     *
+     * @param InputInterface $input
+     */
+    private function validateInput(InputInterface $input)
+    {
+        if ($input->getArgument('value')) {
+            foreach (array('locals', 'globals') as $option) {
+                if ($input->getOption($option)) {
+                    throw new RuntimeException('--' . $option . ' does not make sense with a specified object.');
+                }
+            }
+        } else {
+            foreach (array('constants', 'properties', 'methods') as $option) {
+                if ($input->getOption($option)) {
+                    throw new RuntimeException('--' . $option . ' does not make sense without a specified object.');
+                }
+            }
+        }
+
     }
 
     /**
@@ -101,13 +154,13 @@ EOF
             $output->writeln(sprintf('<strong>Constants</strong>: %s', implode(', ', array_keys($constants))));
         }
 
-        $formattedMethods = array_map($this->getVisibilityFormatter(), $methods);
         if (!empty($methods)) {
+            $formattedMethods = array_map($this->getVisibilityFormatter(), $methods);
             $output->writeln(sprintf('<strong>Methods</strong>: %s', implode(', ', $formattedMethods)));
         }
 
-        $formattedProperties = array_map($this->getPropertyVisibilityFormatter(), $properties);
         if (!empty($properties)) {
+            $formattedProperties = array_map($this->getVisibilityFormatter('$'), $properties);
             $output->writeln(sprintf('<strong>Properties</strong>: %s', implode(', ', $formattedProperties)));
         }
     }
@@ -123,12 +176,14 @@ EOF
      */
     private function printTargetLong(ShellOutput $output, \Reflector $reflector, array $constants, array $methods, array $properties)
     {
-
         $methodVis   = $this->getVisibilityFormatter();
-        $propertyVis = $this->getPropertyVisibilityFormatter();
+        $propertyVis = $this->getVisibilityFormatter('$');
 
         $output->page(function($output) use ($constants, $methods, $properties, $methodVis, $propertyVis) {
-            $pad = max(array_map('strlen', array_merge(array_keys($constants), array_keys($methods), array_keys($properties))));
+            $pad = empty($properties) ? 0 : (max(array_map('strlen', array_keys($properties))) + 1);
+            if (!empty($methods) || !empty($constants)) {
+                $pad = max($pad, max(array_map('strlen', array_merge(array_keys($constants), array_keys($methods)))));
+            }
 
             if (!empty($constants)) {
                 $output->writeln('<strong>Constants:</strong>');
@@ -159,10 +214,10 @@ EOF
      * @param ShellOutput $output
      * @param array       $vars
      */
-    private function printScopeVars(ShellOutput $output, array $vars)
+    private function printScopeVars(ShellOutput $output, array $vars, $scope = 'Local')
     {
         $formatted = array_map(array(__CLASS__, 'printVarName'), array_keys($vars));
-        $output->writeln(sprintf('<strong>Local variables</strong>: %s', implode(', ', $formatted)));
+        $output->writeln(sprintf('<strong>%s variables</strong>: %s', $scope, implode(', ', $formatted)));
     }
 
     /**
@@ -171,11 +226,11 @@ EOF
      * @param ShellOutput $output
      * @param array       $vars
      */
-    private function printScopeVarsLong(ShellOutput $output, array $vars)
+    private function printScopeVarsLong(ShellOutput $output, array $vars, $scope = 'Local')
     {
-        $output->page(function($output) use($vars) {
+        $output->page(function($output) use($vars, $scope) {
             $hashes = array();
-            $output->writeln('<strong>Local variables:</strong>');
+            $output->writeln('<strong>' . $scope . ' variables:</strong>');
             foreach ($vars as $name => $var) {
                 if (isset($var[2])) {
                     if (isset($hashes[$var[2]])) {
@@ -249,17 +304,9 @@ EOF
             }
         });
 
-        $names = array_keys($scopeVars);
-
         $ret = array();
 
-        $maxName  = 0;
-        $maxType = 0;
-        foreach ($scopeVars as $name => $var) {
-            $maxName = max($maxName, strlen($name));
-            $maxType = max($maxType, strlen(self::getType($var, $verbose)));
-        }
-
+        list($maxName, $maxType) = $this->getMaxVarLengths($scopeVars, $verbose);
         foreach ($scopeVars as $name => $var) {
             if (!$showAll && in_array($name, self::$specialVars)) {
                 continue;
@@ -272,39 +319,64 @@ EOF
     }
 
     /**
-     * Get a visibility formatter callback.
+     * List global variables
      *
-     * @return Closure
+     * @param bool $verbose (default: false)
+     *
+     * @return array A list of global variables.
      */
-    private function getVisibilityFormatter()
+    private function listGlobalVars($verbose = false)
     {
-        return function($el, $pad = 0) {
-            switch (true) {
-                case $el->isPrivate():
-                    return sprintf("<urgent>%-${pad}s</urgent>", $el->getName());
-                case $el->isProtected():
-                    return sprintf("<comment>%-${pad}s</comment>", $el->getName());
-                default:
-                    return sprintf("%-${pad}s", $el->getName());
-            }
-        };
+        global $GLOBALS;
+
+        $scopeVars = $GLOBALS;
+        ksort($scopeVars);
+
+        $ret = array();
+
+        list($maxName, $maxType) = $this->getMaxVarLengths($scopeVars, $verbose);
+        foreach ($scopeVars as $name => $var) {
+            $ret[$name] = array(self::printVarName($name, $maxName, true), self::printType($var, $maxType, $verbose), self::getHash($var));
+        }
+
+        return $ret;
     }
 
     /**
-     * Get a property visibility formatter callback.
+     * Get the longest variable name and type name.
+     *
+     * @param array   $scopeVars
+     * @param boolean $verbose
+     *
+     * @return array(int, int)
+     */
+    private function getMaxVarLengths($scopeVars, $verbose)
+    {
+        $maxName  = 0;
+        $maxType = 0;
+        foreach ($scopeVars as $name => $var) {
+            $maxName = max($maxName, strlen($name) + 1);
+            $maxType = max($maxType, strlen(self::getType($var, $verbose)));
+        }
+    }
+
+    /**
+     * Get a visibility formatter callback.
+     *
+     * @param string $prefix (default: '')
      *
      * @return Closure
      */
-    private function getPropertyVisibilityFormatter()
+    private function getVisibilityFormatter($prefix = '')
     {
-        return function($el, $pad = 0) {
+        return function($el, $pad = 0) use ($prefix) {
             switch (true) {
                 case $el->isPrivate():
-                    return sprintf("<urgent>\$%-${pad}s</urgent>", $el->getName());
+                    return sprintf("<urgent>%s%-${pad}s</urgent>", $prefix, $el->getName());
                 case $el->isProtected():
-                    return sprintf("<comment>\$%-${pad}s</comment>", $el->getName());
+                    return sprintf("<comment>%s%-${pad}s</comment>", $prefix, $el->getName());
                 default:
-                    return sprintf("\$%-${pad}s", $el->getName());
+                    return sprintf("%s%-${pad}s", $prefix, $el->getName());
             }
         };
     }
@@ -312,14 +384,15 @@ EOF
     /**
      * Format a variable name for output.
      *
-     * @param string $name
-     * @param int    $max  Padding (default: 0)
+     * @param string  $name
+     * @param int     $max  Padding (default: 0)
+     * @param boolean $isGlobal
      *
      * @return string
      */
-    public static function printVarName($name, $max = 0)
+    public static function printVarName($name, $max = 0, $isGlobal = false)
     {
-        return sprintf(in_array($name, self::$specialVars) ? "<urgent>\$%-${max}s</urgent>" : "\$%-${max}s", $name);
+        return sprintf(($isGlobal || in_array($name, self::$specialVars)) ? "<urgent>\$%-${max}s</urgent>" : "\$%-${max}s", $name);
     }
 
     /**
@@ -375,20 +448,6 @@ EOF
     {
         if (is_object($var)) {
             return spl_object_hash($var);
-        }
-    }
-
-    /**
-     * Format an object hash for output.
-     *
-     * @param mixed $var
-     *
-     * @return string
-     */
-    private static function formatHash($var)
-    {
-        if (is_object($var)) {
-            return sprintf('[<aside>%s</aside>]', spl_object_hash($var));
         }
     }
 }
