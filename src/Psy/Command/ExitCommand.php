@@ -48,6 +48,6 @@ EOL
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        throw new BreakException('<strong>Goodbye.</strong>');
+        throw new BreakException('Goodbye.');
     }
 }
