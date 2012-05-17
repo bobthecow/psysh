@@ -13,7 +13,7 @@ namespace Psy\Command;
 
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\DocblockFormatter;
-use Psy\Formatter\Signature\SignatureFormatter;
+use Psy\Formatter\SignatureFormatter;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

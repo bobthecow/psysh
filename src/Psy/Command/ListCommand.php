@@ -13,9 +13,9 @@ namespace Psy\Command;
 
 use Psy\Command\ReflectingCommand;
 use Psy\Formatter\ObjectFormatter;
-use Psy\Formatter\Signature\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Exception\RuntimeException;
+use Psy\Formatter\SignatureFormatter;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

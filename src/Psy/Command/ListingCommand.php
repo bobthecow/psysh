@@ -14,7 +14,7 @@ namespace Psy\Command;
 use Psy\Command\ShellAwareCommand;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
-use Psy\Formatter\Signature\SignatureFormatter;
+use Psy\Formatter\SignatureFormatter;
 use Psy\Util\Mirror;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
