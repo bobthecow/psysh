@@ -74,6 +74,30 @@ class Shell extends Application
     }
 
     /**
+     * Invoke a PsySH shell from the current context.
+     *
+     * For example:
+     *
+     *    foreach ($items as $item) {
+     *        \Psy\Shell::debug(get_defined_vars());
+     *    }
+     *
+     * @param array $vars Scope variables from the calling context (default: array())
+     *
+     * @return array Scope variables from the debugger session.
+     */
+    public static function debug(array $vars = array())
+    {
+        echo PHP_EOL;
+
+        $sh = new \Psy\Shell;
+        $sh->setScopeVariables($vars);
+        $sh->run();
+
+        return $sh->getScopeVariables();
+    }
+
+    /**
      * Gets the default input definition.
      *
      * @return InputDefinition An InputDefinition instance
