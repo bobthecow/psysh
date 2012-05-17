@@ -1,0 +1,28 @@
+{
+    "name": "psy/psysh",
+    "description": "An interactive shell for modern PHP.",
+    "version": "0.1.0-dev",
+    "keywords": ["console", "interactive", "shell", "repl"],
+    "homepage": "http://github.com/bobthecow/psysh",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Justin Hileman",
+            "email": "justin@justinhileman.info",
+            "homepage": "http://justinhileman.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "symfony/class-loader": "*",
+        "symfony/console": "dev-master",
+        "nikic/php-parser": "0.9.1"
+    },
+    "autoload": {
+        "psr-0": {
+            "Psy": "src/"
+        }
+    },
+    "bin": ["bin/psysh"]
+}

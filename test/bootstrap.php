@@ -10,7 +10,7 @@
  */
 
 if (!class_exists('Symfony\Component\ClassLoader\UniversalClassLoader')) {
-    require dirname(__DIR__).'/vendor/symfony-components/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+    require dirname(__DIR__).'/vendor/symfony/class-loader/Symfony/Component/ClassLoader/UniversalClassLoader.php';
 }
 
 $loader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
@@ -19,9 +19,9 @@ $loader->register();
 $loader->registerNamespaces(array(
     'Psy\Test' => __DIR__,
     'Psy'      => dirname(__DIR__).'/src',
-    'Symfony'  => dirname(__DIR__).'/vendor/symfony-components',
+    'Symfony'  => dirname(__DIR__).'/vendor/symfony/console',
 ));
 
 $loader->registerPrefixes(array(
-    'PHPParser_' => dirname(__DIR__).'/vendor/php-parser/lib',
+    'PHPParser_' => dirname(__DIR__).'/vendor/nikic/php-parser/lib',
 ));

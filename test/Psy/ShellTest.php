@@ -156,8 +156,8 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getReturnValues()
     {
         return array(
-            array('{{return value}}', "=> \"{{return value}}\"\n"),
-            array(1, "=> 1\n"),
+            array('{{return value}}', "=> <return>\"{{return value}}\"</return>\n"),
+            array(1, "=> <return>1</return>\n"),
         );
     }
 
