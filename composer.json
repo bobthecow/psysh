@@ -15,9 +15,11 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "symfony/class-loader": "*",
         "symfony/console": "dev-master",
         "nikic/php-parser": "0.9.1"
+    },
+    "suggest": {
+        "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)"
     },
     "autoload": {
         "psr-0": {
