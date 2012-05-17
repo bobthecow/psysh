@@ -9,19 +9,8 @@
  * file that was distributed with this source code.
  */
 
-if (!class_exists('Symfony\Component\ClassLoader\UniversalClassLoader')) {
-    require dirname(__DIR__).'/vendor/symfony/class-loader/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
+    throw new RuntimeException('Install dependencies to run test suite.');
 }
 
-$loader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
-$loader->register();
-
-$loader->registerNamespaces(array(
-    'Psy\Test' => __DIR__,
-    'Psy'      => dirname(__DIR__).'/src',
-    'Symfony'  => dirname(__DIR__).'/vendor/symfony/console',
-));
-
-$loader->registerPrefixes(array(
-    'PHPParser_' => dirname(__DIR__).'/vendor/nikic/php-parser/lib',
-));
+require_once dirname(__DIR__).'/vendor/autoload.php';

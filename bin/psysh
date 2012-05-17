@@ -10,7 +10,13 @@
  * file that was distributed with this source code.
  */
 
-require dirname(__DIR__) . '/src/autoload.php';
+if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
+    throw new RuntimeException('Missing PsySH dependencies in ' . dirname(__DIR__).'/vendor/' . '.');
+}
 
-$sh = new \Psy\Shell;
-$sh->run();
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+call_user_func(function() {
+    $sh = new \Psy\Shell;
+    $sh->run();
+});
