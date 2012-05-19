@@ -20,6 +20,7 @@ class ArrayFormatterTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('[]', ArrayFormatter::format(array()));
 		$this->assertEquals('[1]', self::strip(ArrayFormatter::format(array(1))));
 		$this->assertEquals('[2,"string"]', self::strip(ArrayFormatter::format(array(2, "string"))));
+		$this->assertEquals('["a"=>1,"b"=>2]', self::strip(ArrayFormatter::format(array('a' => 1, 'b' => 2))));
 	}
 
 	public function testFormatRef()
