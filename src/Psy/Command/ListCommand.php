@@ -385,7 +385,7 @@ EOF
      * Format a variable name for output.
      *
      * @param string  $name
-     * @param int     $max  Padding (default: 0)
+     * @param int     $max      Padding (default: 0)
      * @param boolean $isGlobal
      *
      * @return string

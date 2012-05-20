@@ -12,7 +12,6 @@
 namespace Psy;
 
 use PHPParser_Lexer as Lexer;
-use PHPParser_Node_Name as Name;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
 use Psy\CodeCleaner\ImplicitReturnPass;
@@ -20,9 +19,7 @@ use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
-use Psy\Exception\FatalErrorException;
 use Psy\Exception\ParseErrorException;
-use Psy\Exception\RuntimeException;
 
 /**
  * A service to clean up user input, detect parse errors before they happen,

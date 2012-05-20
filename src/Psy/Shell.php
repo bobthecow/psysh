@@ -15,7 +15,6 @@ use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
-use Psy\Exception\RuntimeException;
 use Psy\Formatter\ArrayFormatter;
 use Psy\Formatter\ObjectFormatter;
 use Psy\Output\ShellOutput;

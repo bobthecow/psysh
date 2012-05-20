@@ -18,7 +18,6 @@ use Psy\ExecutionLoop\ForkingLoop;
 use Psy\Output\ShellOutput;
 use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
-use Psy\Output\PassthruPager;
 
 /**
  * The Psy Shell configuration.
