@@ -11,7 +11,6 @@
 
 namespace Psy\Test;
 
-use Psy\Configuration;
 use Psy\Shell;
 use Psy\Exception\ParseErrorException;
 use Symfony\Component\Console\Output\StreamOutput;
