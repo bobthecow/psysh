@@ -28,6 +28,7 @@ class Configuration
     private $tempDir;
     private $configFile;
     private $historyFile;
+    private $manualDbFile;
     private $hasReadline;
     private $useReadline;
     private $hasPcntl;
@@ -40,6 +41,7 @@ class Configuration
     private $cleaner;
     private $pager;
     private $loop;
+    private $manualDb;
 
     /**
      * Construct a Configuration instance.
@@ -92,7 +94,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir') as $option) {
+        foreach (array('useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir', 'manualDbFile') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -459,5 +461,27 @@ class Configuration
     {
         $this->shell = $shell;
         $this->doAddCommands();
+    }
+
+    public function setManualDbFile($filename)
+    {
+        $this->manualDbFile = (string) $filename;
+    }
+
+    public function getManualDb()
+    {
+        if (!isset($this->manualDb)) {
+            $dbFile = $this->getManualDbFile();
+            if (is_file($dbFile)) {
+                $this->manualDb = new \PDO('sqlite:'.$dbFile);
+            }
+        }
+
+        return $this->manualDb;
+    }
+
+    public function getManualDbFile()
+    {
+        return $this->manualDbFile ?: $this->baseDir.'/php_manual.sqlite';
     }
 }

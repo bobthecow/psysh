@@ -655,6 +655,16 @@ class Shell extends Application
     }
 
     /**
+     * Get a PHP manual database instance.
+     *
+     * @return PDO|null
+     */
+    public function getManualDb()
+    {
+        return $this->config->getManualDb();
+    }
+
+    /**
      * Autocomplete variable names.
      *
      * This is used by `readline` for tab completion.

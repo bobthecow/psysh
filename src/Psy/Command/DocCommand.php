@@ -57,13 +57,35 @@ EOL
     {
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
-        $output->page(function($output) use ($reflector) {
+        $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
+        $output->page(function($output) use ($reflector, $doc) {
             $output->writeln(SignatureFormatter::format($reflector));
-            $pretty = DocblockFormatter::format($reflector);
-            if (!empty($pretty)) {
+            if (!empty($doc)) {
                 $output->writeln('');
-                $output->writeln($pretty);
+                $output->writeln($doc);
             }
         });
+    }
+
+    private function getManualDoc($reflector)
+    {
+        switch (get_class($reflector)) {
+            case 'ReflectionFunction':
+                $id = $reflector->name;
+                break;
+
+            case 'ReflectionMethod':
+                $id = $reflector->class . '::' . $reflector->name;
+                break;
+
+            default:
+                return false;
+        }
+
+        if ($db = $this->shell->getManualDb()) {
+            return $db
+                ->query(sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)))
+                ->fetchColumn(0);
+        }
     }
 }
