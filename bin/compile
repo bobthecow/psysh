@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * This file is part of PsySH
+ *
+ * (c) 2012 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
+    throw new RuntimeException('Missing PsySH dev dependencies in ' . dirname(__DIR__).'/vendor/' . ', install with `composer.phar install --dev`.');
+}
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+if (!class_exists('Symfony\Component\Finder\Finder')) {
+    throw new RuntimeException('Missing PsySH dev dependencies, install with `composer.phar install --dev`.');
+}
+
+use Psy\Compiler;
+
+error_reporting(-1);
+ini_set('display_errors', 1);
+
+$compiler = new Compiler();
+$compiler->compile();
