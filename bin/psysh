@@ -11,7 +11,7 @@
  */
 
 if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
-    throw new RuntimeException('Missing PsySH dependencies in ' . dirname(__DIR__).'/vendor/' . '.');
+    throw new RuntimeException('Missing PsySH dependencies in ' . dirname(__DIR__).'/vendor/' . ', install with `composer.phar install`.');
 }
 
 require dirname(__DIR__) . '/vendor/autoload.php';
