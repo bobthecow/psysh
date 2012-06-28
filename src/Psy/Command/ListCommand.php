@@ -88,6 +88,10 @@ EOF
             }
 
             list($value, $reflector)  = $this->getTargetAndReflector($value, true);
+            if (!$reflector instanceof \ReflectionClass) {
+                throw new RuntimeException('List command expects an object or class');
+            }
+
             list($constants, $methods, $properties) = $this->listTarget($reflector, $value, $showAll);
 
             $method = $showLong ? 'printTargetLong' : 'printTarget';
