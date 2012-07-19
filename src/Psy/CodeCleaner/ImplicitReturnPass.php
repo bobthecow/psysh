@@ -26,7 +26,10 @@ class ImplicitReturnPass implements CodeCleanerPassInterface
     {
         $last = end($stmts);
         if ($last instanceof Expression) {
-            $stmts[count($stmts) - 1] = new ReturnStatement($last, $last->getLine());
+            $stmts[count($stmts) - 1] = new ReturnStatement($last, array(
+                'startLine' => $last->getLine(),
+                'endLine'   => $last->getLine(),
+            ));
         }
     }
 }

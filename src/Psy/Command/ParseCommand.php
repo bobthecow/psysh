@@ -75,7 +75,7 @@ EOL
      */
     private function parse($code)
     {
-        return $this->getParser()->parse(new Lexer($code));
+        return $this->getParser()->parse($code);
     }
 
     /**
@@ -86,7 +86,7 @@ EOL
     private function getParser()
     {
         if (!isset($this->parser)) {
-            $this->parser = new Parser;
+            $this->parser = new Parser(new Lexer);
         }
 
         return $this->parser;

@@ -41,7 +41,7 @@ class CodeCleaner
     public function __construct(Parser $parser = null, Printer $printer = null)
     {
         if ($parser === null) {
-            $parser = new Parser;
+            $parser = new Parser(new Lexer);
         }
 
         if ($printer === null) {
@@ -128,7 +128,7 @@ class CodeCleaner
     protected function parse($code)
     {
         try {
-            return $this->parser->parse(new Lexer($code));
+            return $this->parser->parse($code);
         } catch (\PHPParser_Error $e) {
             if ($e->getRawMessage() !== "Unexpected token EOF") {
                 throw ParseErrorException::fromParseError($e);
@@ -136,7 +136,7 @@ class CodeCleaner
 
             try {
                 // Unexpected EOF, try again with an implicit semicolon
-                return $this->parser->parse(new Lexer($code.';'));
+                return $this->parser->parse($code.';');
             } catch (\PHPParser_Error $e) {
                 return false;
             }
