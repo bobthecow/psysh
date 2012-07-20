@@ -25,12 +25,34 @@ class NamespacePassTest extends \PHPUnit_Framework_TestCase
         $this->pass->process($stmts);
         $this->assertNull($this->cleaner->getNamespace());
 
-        $stmts = array(new NamespaceStatement(new Name('Psysh')));
+        // A non-block namespace statement should set the current namespace.
+        $stmts = array(new NamespaceStatement(new Name('Alpha')));
         $this->pass->process($stmts);
-        $this->assertEquals(array('Psysh'), $this->cleaner->getNamespace());
+        $this->assertEquals(array('Alpha'), $this->cleaner->getNamespace());
 
-        $stmts = array(new NamespaceStatement(new Name('MonkeyMonkeyMonkey')));
+        // A new non-block namespace statement should override the current namespace.
+        $stmts = array(new NamespaceStatement(new Name('Beta')));
         $this->pass->process($stmts);
-        $this->assertEquals(array('MonkeyMonkeyMonkey'), $this->cleaner->getNamespace());
+        $this->assertEquals(array('Beta'), $this->cleaner->getNamespace());
+
+        // Any block namespace statement resets the namespace to null afterward.
+        $stmts = array(
+            new NamespaceStatement(new Name('Gamma'), array(new FuncCall('array_merge'))),
+        );
+        $this->pass->process($stmts);
+        $this->assertNull($this->cleaner->getNamespace());
+
+        // Reset it before the next one.
+        $stmts = array(new NamespaceStatement(new Name('Delta')));
+        $this->pass->process($stmts);
+        $this->assertEquals(array('Delta'), $this->cleaner->getNamespace());
+
+        // Another block namespace test...
+        $stmts = array(
+            new FuncCall('array_merge'),
+            new NamespaceStatement(new Name('Epsilon')),
+        );
+        $this->pass->process($stmts);
+        $this->assertNull($this->cleaner->getNamespace());
     }
 }
