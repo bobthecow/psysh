@@ -83,6 +83,8 @@ class DocblockTest extends \PHPUnit_Framework_TestCase
                  * It spans lines, too!
                  *
                  * @tagname plus a description
+                 *
+                 * @return
                  */',
                 "This is a docblock!\n\nIt spans lines, too!",
                 array(
