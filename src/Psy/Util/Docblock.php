@@ -215,31 +215,6 @@ class Docblock
     }
 
     /**
-     * The value of a tag (concatenated for multiple values)
-     *
-     * @param String $tag The tag to retrieve
-     * @param string $sep The seperator for concatenating
-     *
-     * @return String
-     */
-    public function tagImplode($tag, $sep = ' ')
-    {
-        return $this->hasTag($tag) ? implode($sep, $this->tags[$tag]) : null;
-    }
-
-    /**
-     * The value of a tag (merged recursively)
-     *
-     * @param String $tag
-     *
-     * @return Array
-     */
-    public function tagMerge($tag)
-    {
-        return $this->hasTag($tag) ? array_merge_recursive($this->tags[$tag]) : null;
-    }
-
-    /**
      * Whether or not a string begins with a @tag
      *
      * @param String $str
