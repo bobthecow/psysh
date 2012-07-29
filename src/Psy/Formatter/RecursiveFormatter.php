@@ -11,6 +11,7 @@
 
 namespace Psy\Formatter;
 
+use Psy\Exception\FatalErrorException;
 use Psy\Formatter\ArrayFormatter;
 use Psy\Formatter\ObjectFormatter;
 
@@ -28,7 +29,7 @@ abstract class RecursiveFormatter
      */
     public static function format($obj)
     {
-        throw new \InvalidArgumentException('format should be implemented by extending classes.');
+        throw new FatalErrorException('format should be implemented by extending classes.');
     }
 
     /**
@@ -40,7 +41,7 @@ abstract class RecursiveFormatter
      */
     public static function formatRef($obj)
     {
-        throw new \InvalidArgumentException('formatRef should be implemented by extending classes.');
+        throw new FatalErrorException('formatRef should be implemented by extending classes.');
     }
 
     /**
