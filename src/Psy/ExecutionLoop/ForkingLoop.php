@@ -64,7 +64,9 @@ class ForkingLoop extends Loop
             $content = implode('', $content);
             fclose($returnPipe);
 
-            return unserialize($content);
+            $shell->setScopeVariables(unserialize($content));
+
+            return;
         }
 
         // This is the child process.

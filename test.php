@@ -12,7 +12,10 @@ class Foo
         $b = new StdClass;
         $b->name = 'bee';
 
-        \Psy\Shell::debug(get_defined_vars());
+        extract(\Psy\Shell::debug(get_defined_vars()));
+
+        var_dump($a);
+        var_dump($b);
 
         echo "\nend\n";
     }

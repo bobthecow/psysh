@@ -79,9 +79,17 @@ class Shell extends Application
      *
      * For example:
      *
-     *    foreach ($items as $item) {
-     *        \Psy\Shell::debug(get_defined_vars());
-     *    }
+     *     foreach ($items as $item) {
+     *         \Psy\Shell::debug(get_defined_vars());
+     *     }
+     *
+     * If you would like your shell interaction to affect the state of the
+     * current context, you can export() the values returned from this call:
+     *
+     *     foreach ($items as $item) {
+     *         export(\Psy\Shell::debug(get_defined_vars()));
+     *         var_dump($item); // will be whatever you set $item to in PsySH
+     *     }
      *
      * @param array $vars Scope variables from the calling context (default: array())
      *
