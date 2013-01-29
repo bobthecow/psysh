@@ -64,6 +64,7 @@ class Compiler
         }
 
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/autoload.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_real.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_namespaces.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_classmap.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/ClassLoader.php'));
@@ -160,7 +161,12 @@ class Compiler
 
 Phar::mapPhar('psysh.phar');
 
-require 'phar://psysh.phar/bin/psysh';
+// Allow running phar directly, or including.
+if ('cli' === php_sapi_name() && basename(__FILE__) === basename($_SERVER['argv'][0])) {
+    require 'phar://psysh.phar/bin/psysh';
+} else {
+    require 'phar://psysh.phar/vendor/autoload.php';
+}
 
 __HALT_COMPILER();
 EOS;
