@@ -75,6 +75,22 @@ class Loop
             } while (true);
         };
 
+        // bind the closure to $this from the shell scope variables...
+        if (version_compare(PHP_VERSION, '5.4', '>=')) {
+            $that = null;
+            try {
+                $that = $shell->getScopeVariable('this');
+            } catch (\InvalidArgumentException $e) {
+                // well, it was worth a shot
+            }
+
+            if (is_object($that)) {
+                $loop = $loop->bindTo($that, get_class($that));
+            } else {
+                $loop = $loop->bindTo(null);
+            }
+        }
+
         $loop($shell);
     }
 
