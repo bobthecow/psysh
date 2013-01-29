@@ -16,7 +16,51 @@ if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-call_user_func(function() {
-    $sh = new \Psy\Shell;
-    $sh->run();
-});
+use Psy\Shell;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
+
+$input = new ArgvInput;
+$shell = new Shell;
+
+
+// Handle --help
+
+if ($input->hasParameterOption(array('--help', '-h'))) {
+    $version = $shell->getVersion();
+    $name    = reset($_SERVER['argv']);
+    echo <<<EOL
+$version
+
+Usage:
+  $name [--version] [--help] [files...]
+
+Options:
+  --help     -h Display this help message.
+  --version  -v Display the PsySH version.
+
+EOL;
+    exit(0);
+}
+
+
+// Handle --version
+
+if ($input->hasParameterOption(array('--version', '-v'))) {
+    echo $shell->getVersion() . PHP_EOL;
+    exit(0);
+}
+
+
+// Pass additional arguments to Shell as 'includes'
+
+$input->bind(new InputDefinition(array(
+    new InputArgument('include', InputArgument::IS_ARRAY)
+)));
+
+$shell->setIncludes($input->getArgument('include'));
+
+
+// And go!
+$shell->run();
