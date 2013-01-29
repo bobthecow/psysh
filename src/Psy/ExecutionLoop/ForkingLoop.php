@@ -78,7 +78,7 @@ class ForkingLoop extends Loop
 
         // Send the return value back to the main thread
         $returnPipe = fopen($this->returnFile, 'w');
-        fwrite($returnPipe, serialize($return));
+        fwrite($returnPipe, $this->serializeReturn($return));
         fclose($returnPipe);
 
         exit;
@@ -151,6 +151,31 @@ class ForkingLoop extends Loop
             $this->createMonitor();
             $this->createSavegame();
         }
+    }
 
+    /**
+     * Serialize all serializable return values.
+     *
+     * A naïve serialization will run into issues if there is a Closure or
+     * SimpleXMLElement (among other things) in scope when exiting the execution
+     * loop. We'll just ignore these unserializable classes, and serialize what
+     * we can.
+     *
+     * @param  array  $return
+     * @return string
+     */
+    private function serializeReturn(array $return)
+    {
+        $serializable = array();
+        foreach ($return as $key => $value) {
+            try {
+                serialize($value);
+                $serializable[$key] = $value;
+            } catch (\Exception $e) {
+                // we'll just ignore this one...
+            }
+        }
+
+        return serialize($serializable);
     }
 }
