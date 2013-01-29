@@ -14,8 +14,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "symfony/console": "dev-master",
-        "nikic/php-parser": "0.9.2"
+        "symfony/console": "2.1.*",
+        "nikic/php-parser": ">0.9.2,<=0.9.3"
     },
     "require-dev": {
         "symfony/finder": "2.1.*"
