@@ -22,8 +22,6 @@ use Psy\Exception\FatalErrorException;
  *
  * This pass throws a FatalErrorException rather than letting PHP run
  * headfirst into a real fatal error and die.
- *
- * @todo Detect and prevent more possible errors (e.g., undefined function when $stmt->name is a Variable)
  */
 class ValidFunctionNamePass extends NamespaceAwarePass
 {
