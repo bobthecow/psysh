@@ -16,6 +16,7 @@ use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
+use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
@@ -67,6 +68,7 @@ class CodeCleaner
             new NamespacePass($this), // must run after the implicit return pass
             new ValidFunctionNamePass,
             new ValidClassNamePass,
+            new MagicConstantsPass,
         );
     }
 
