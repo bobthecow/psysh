@@ -24,6 +24,7 @@ use Psy\Output\ProcOutputPager;
  */
 class Configuration
 {
+    private $defaultIncludes;
     private $baseDir;
     private $tempDir;
     private $configFile;
@@ -94,7 +95,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (array('useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir', 'manualDbFile') as $option) {
+        foreach (array('defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir', 'manualDbFile') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -138,6 +139,26 @@ class Configuration
                 throw new \InvalidArgumentException('PsySH configuration must return an array of options');
             }
         }
+    }
+
+    /**
+     * Set files to be included by default at the start of each shell session.
+     *
+     * @param array $includes
+     */
+    public function setDefaultIncludes(array $includes = array())
+    {
+        $this->defaultIncludes = $includes;
+    }
+
+    /**
+     * Get files to be included by default at the start of each shell session.
+     *
+     * @return array
+     */
+    public function getDefaultIncludes()
+    {
+        return $this->defaultIncludes ?: array();
     }
 
     /**

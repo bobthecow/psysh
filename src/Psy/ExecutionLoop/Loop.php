@@ -38,6 +38,11 @@ class Loop
     public function run(Shell $shell)
     {
         $loop = function($__psysh__) {
+            foreach($__psysh__->getIncludes() as $__psysh_include__) {
+                include $__psysh_include__;
+            }
+            unset($__psysh_include__);
+
             extract($__psysh__->getScopeVariables());
 
             do {

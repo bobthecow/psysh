@@ -53,6 +53,7 @@ class Shell extends Application
     private $code;
     private $codeBuffer;
     private $scopeVariables;
+    private $includes;
     private $exceptions;
 
     /**
@@ -66,6 +67,7 @@ class Shell extends Application
         $this->cleaner        = $this->config->getCodeCleaner();
         $this->loop           = $this->config->getLoop();
         $this->scopeVariables = array();
+        $this->includes       = $this->config->getDefaultIncludes();
 
         parent::__construct('PsySH', self::VERSION);
 
@@ -297,6 +299,26 @@ class Shell extends Application
         }
 
         return $this->scopeVariables[$name];
+    }
+
+    /**
+     * Add includes, to be parsed and executed before running the interactive shell.
+     *
+     * @param array $includes
+     */
+    public function setIncludes(array $includes = array())
+    {
+        $this->includes = $includes;
+    }
+
+    /**
+     * Get PHP files to be parsed and executed before running the interactive shell.
+     *
+     * @return array
+     */
+    public function getIncludes()
+    {
+        return $this->includes;
     }
 
     /**

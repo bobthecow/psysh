@@ -56,6 +56,14 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell->getScopeVariable('baz');
     }
 
+    public function testIncludes()
+    {
+        $shell = new Shell;
+        $this->assertEmpty($shell->getIncludes());
+        $shell->setIncludes(array('foo', 'bar', 'baz'));
+        $this->assertEquals(array('foo', 'bar', 'baz'), $shell->getIncludes());
+    }
+
     public function testRenderingExceptions()
     {
         $shell  = new Shell;
