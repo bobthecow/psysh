@@ -15,6 +15,22 @@ use Psy\Formatter\RecursiveFormatter;
 
 class RecursiveFormatterTest extends \PHPUnit_Framework_TestCase
 {
+    public function testFormattingFallsBackToJson()
+    {
+        $stub = new RecursiveFormatterStub;
+        $this->assertEquals('1',    $stub->formatValue(1));
+        $this->assertEquals('"1"',  $stub->formatValue("1"));
+        $this->assertEquals('null', $stub->formatValue(null));
+    }
+
+    public function testResourcesAreFormatted()
+    {
+        $handle = tmpfile();
+        $stub = new RecursiveFormatterStub;
+        $this->assertStringMatchesFormat('<Resource id #%d>', $stub->formatValue($handle));
+        fclose($handle);
+    }
+
     /**
      * @expectedException \Psy\Exception\FatalErrorException
      */

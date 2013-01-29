@@ -57,6 +57,8 @@ abstract class RecursiveFormatter
             return ObjectFormatter::formatRef($val);
         } elseif (is_array($val)) {
             return ArrayFormatter::formatRef($val);
+        } elseif (is_resource($val)) {
+            return sprintf('<%s>', print_r($val, true));
         } else {
             return json_encode($val);
         }
