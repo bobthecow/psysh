@@ -46,7 +46,7 @@ class MagicConstantsPass implements CodeCleanerPassInterface
                 $this->replace($stmts, $key, new FunctionCall(new Name('getcwd'), array(), $stmt->getAttributes()));
             } elseif ($stmt instanceof FileConstant) {
                 // TODO: should be an empty string instead?
-                $this->replace($stmts, $key, new StringNode('psysh shell code', $stmt->getAttributes()));
+                $this->replace($stmts, $key, new StringNode('', $stmt->getAttributes()));
             }
 
             if (is_array($stmt) || (is_object($stmt) && $stmt instanceof \Traversable)) {

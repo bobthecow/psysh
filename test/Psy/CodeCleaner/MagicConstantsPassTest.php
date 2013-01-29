@@ -27,6 +27,6 @@ class MagicConstantsPassTest extends \PHPUnit_Framework_TestCase
 
         $stmts = array(new FileConstant);
         $this->pass->process($stmts);
-        $this->assertEquals(array(new StringNode('psysh shell code')), $stmts);
+        $this->assertEquals(array(new StringNode('')), $stmts);
      }
 }
