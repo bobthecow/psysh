@@ -65,7 +65,7 @@ class ValidClassNamePass extends NamespaceAwarePass
 
     protected function validateClassStatement($stmt)
     {
-        $this->ensureCanCreate($stmt);
+        $this->ensureCanDefine($stmt);
         if (isset($stmt->extends)) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->extends), $stmt);
         }
@@ -74,13 +74,13 @@ class ValidClassNamePass extends NamespaceAwarePass
 
     protected function validateInterfaceStatement($stmt)
     {
-        $this->ensureCanCreate($stmt);
+        $this->ensureCanDefine($stmt);
         $this->ensureInterfacesExist($stmt->extends, $stmt);
     }
 
     protected function validateTraitStatement($stmt)
     {
-        $this->ensureCanCreate($stmt);
+        $this->ensureCanDefine($stmt);
     }
 
     protected function validateNewStatement($stmt)
@@ -91,7 +91,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         }
     }
 
-    protected function ensureCanCreate($stmt)
+    protected function ensureCanDefine($stmt)
     {
         $name = $this->getFullyQualifiedName($stmt->name);
 
