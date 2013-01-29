@@ -6,6 +6,8 @@ use PHPParser_Node_Expr_New as NewExpression;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
 use PHPParser_Node_Stmt_Class as ClassStatement;
+use PHPParser_Node_Stmt_Interface as InterfaceStatement;
+use PHPParser_Node_Stmt_Trait as TraitStatement;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use Psy\CodeCleaner\ValidClassNamePass;
 
@@ -31,16 +33,55 @@ class ValidClassNamePassTest extends \PHPUnit_Framework_TestCase
     {
         // class declarations
         return array(
+            // core class
             array(array(
                 new ClassStatement('StdClass'),
             )),
+
+            // capitalization
             array(array(
                 new ClassStatement('stdClass'),
             )),
+
+            // collisions with interfaces and traits
+            array(array(
+                new InterfaceStatement('stdClass'),
+            )),
+            array(array(
+                new TraitStatement('stdClass'),
+            )),
+
+            // collisions inside the same code snippet
             array(array(
                 new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
                 new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
             )),
+            array(array(
+                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+            )),
+            array(array(
+                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+            )),
+            array(array(
+                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+            )),
+            array(array(
+                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+            )),
+            array(array(
+                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+            )),
+            array(array(
+                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
+            )),
+
+            // namespaced collisions
             array(array(
                 new NamespaceStatement(new Name('Psy\Test\CodeCleaner'), array(
                     new ClassStatement('ValidClassNamePassTest'),
@@ -52,6 +93,38 @@ class ValidClassNamePassTest extends \PHPUnit_Framework_TestCase
                 )),
                 new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
                     new ClassStatement('Beta'),
+                )),
+            )),
+
+            // extends and implements
+            array(array(
+                new ClassStatement('ValidClassNamePassTest', array(
+                    'extends' => new Name('NotAClass'),
+                )),
+            )),
+            array(array(
+                new ClassStatement('ValidClassNamePassTest', array(
+                    'extends' => new Name('ArrayAccess'),
+                )),
+            )),
+            array(array(
+                new ClassStatement('ValidClassNamePassTest', array(
+                    'implements' => array(new Name('StdClass')),
+                )),
+            )),
+            array(array(
+                new ClassStatement('ValidClassNamePassTest', array(
+                    'implements' => array(new Name('ArrayAccess'), new Name('StdClass')),
+                )),
+            )),
+            array(array(
+                new InterfaceStatement('ValidClassNamePassTest', array(
+                    'extends' => array(new Name('StdClass')),
+                )),
+            )),
+            array(array(
+                new InterfaceStatement('ValidClassNamePassTest', array(
+                    'extends' => array(new Name('ArrayAccess'), new Name('StdClass')),
                 )),
             )),
 
