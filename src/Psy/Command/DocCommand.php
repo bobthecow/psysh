@@ -30,7 +30,7 @@ class DocCommand extends ReflectingCommand
     {
         $this
             ->setName('doc')
-            ->setAliases(array('rtfm'))
+            ->setAliases(array('rtfm', 'man'))
             ->setDefinition(array(
                 new InputArgument('value', InputArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
             ))
