@@ -1,0 +1,69 @@
+# PsySH
+
+<!-- [![Build Status](https://secure.travis-ci.org/bobthecow/psysh.png?branch=dev)](http://travis-ci.org/bobthecow/psysh) -->
+
+
+## PsySH configuration
+
+While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.psysh/rc.php`:
+
+```php
+<?php
+
+return array(
+    // In PHP 5.4+, PsySH will default to your `cli.pager` ini setting. If this
+    // is not set, it falls back to `less`. It is recommended that you set up
+    // `cli.pager` in your `php.ini` with your preferred output pager.
+    // 
+    // If you are running PHP 5.3, or if you want to use a different pager only
+    // for Psy shell sessions, you can override it here.
+    'pager' => 'more',
+
+    // By default, PsySH will use a 'forking' execution loop if pcntl is
+    // installed. This is by far the best way to use it, but you can override
+    // the default by explicitly enabling or disabling this functionality here.
+    'usePcntl' => false,
+
+    // PsySH uses readline if you have it installed, because interactive input
+    // is pretty awful without it. But you can explicitly disable it if you hate
+    // yourself or something.
+    'useReadline' => false,
+
+    // "Default includes" will be included once at the beginning of every PsySH
+    // session. This is a good place to add autoloaders for your favorite
+    // libraries.
+    'defaultIncludes' => array(
+        __DIR__.'/include/bootstrap.php',
+    ),
+
+    // While PsySH ships with a bunch of great commands, it's possible to add
+    // your own for even more awesome. Any Psy command added here will be
+    // available in your Psy shell sessions.
+    'commands' => array(
+        // The `parse` command is a command used in the development of PsySH.
+        // Given a string of PHP code, it pretty-prints the
+        // [PHP Parser](https://github.com/nikic/PHP-Parser) parse tree. It
+        // prolly won't be super useful for most of you, but it's there if you
+        // want to play :)
+        new \Psy\Command\ParseCommand,
+    ),
+);
+```
+
+## Downloading the manual
+
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.psysh`:
+
+ * **[English](#/manual/en/php_manual.sqlite)**
+ * [Brazilian Portuguese](#/manual/pt_BR/php_manual.sqlite)
+ * [Chinese (Simplified)](#/manual/zh/php_manual.sqlite)
+ * [French](#/manual/fr/php_manual.sqlite)
+ * [German](#/manual/de/php_manual.sqlite)
+ * [Italian](#/manual/it/php_manual.sqlite)
+ * [Japanese](#/manual/ja/php_manual.sqlite)
+ * [Polish](#/manual/pl/php_manual.sqlite)
+ * [Romanian](#/manual/ro/php_manual.sqlite)
+ * [Russian](#/manual/ru/php_manual.sqlite)
+ * [Persian](#/manual/fa/php_manual.sqlite)
+ * [Spanish](#/manual/es/php_manual.sqlite)
+ * [Turkish](#/manual/tr/php_manual.sqlite)
