@@ -38,8 +38,7 @@ class DocCommand extends ReflectingCommand
             ->setHelp(<<<EOL
 Read the documentation for an object, class, constant, method or property.
 
-It's awesome for well-documented code, not quite as awesome for native functions
-and poorly documented code.
+It's awesome for well-documented code, not quite as awesome for poorly documented code.
 
 e.g.
 <return>>>> doc \Psy\Command\DocCommand</return>
