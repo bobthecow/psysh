@@ -41,6 +41,7 @@ Read the documentation for an object, class, constant, method or property.
 It's awesome for well-documented code, not quite as awesome for poorly documented code.
 
 e.g.
+<return>>>> doc preg_replace</return>
 <return>>>> doc \Psy\Command\DocCommand</return>
 <return>>>> doc \Psy\Command\DocCommand::getDocumentation</return>
 <return>>>> \$d = new \Psy\Command\DocCommand</return>
