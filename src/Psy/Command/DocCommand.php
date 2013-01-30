@@ -60,7 +60,12 @@ EOL
         $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
         $output->page(function($output) use ($reflector, $doc) {
             $output->writeln(SignatureFormatter::format($reflector));
-            if (!empty($doc)) {
+            if (empty($doc) && !$this->shell->getManualDb()) {
+                $output->writeln('');
+                $output->writeln('<warning>PHP manual not found</warning>');
+                $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
+                $output->writeln('    https://github.com/bobthecow/psysh#downloading-the-manual');
+            } else {
                 $output->writeln('');
                 $output->writeln($doc);
             }
