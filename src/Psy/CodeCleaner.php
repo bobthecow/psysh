@@ -20,6 +20,7 @@ use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
+use Psy\CodeCleaner\ValidConstantPass;
 use Psy\Exception\ParseErrorException;
 
 /**
@@ -68,6 +69,7 @@ class CodeCleaner
             new NamespacePass($this), // must run after the implicit return pass
             new ValidFunctionNamePass,
             new ValidClassNamePass,
+            new ValidConstantPass,
             new MagicConstantsPass,
         );
     }
