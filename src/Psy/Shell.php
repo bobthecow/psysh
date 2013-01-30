@@ -139,7 +139,7 @@ class Shell extends Application
             // new Command\PsyVersionCommand,
         );
 
-        if ($this->config->useReadline()) {
+        if ($this->config->useReadline() && function_exists('readline_list_history')) {
             $commands[] = new Command\HistoryCommand;
         }
 
