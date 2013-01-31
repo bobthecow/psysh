@@ -139,8 +139,16 @@ class Shell extends Application
             // new Command\PsyVersionCommand,
         );
 
-        if ($this->config->useReadline() && function_exists('readline_list_history')) {
-            $commands[] = new Command\HistoryCommand;
+        if ($this->config->useReadline()) {
+            // "readline" doesn't always mean "readline".
+            // add fallback history support for PHP with libedit instead.
+            if (Command\HistoryCommand::isSupported()) {
+                $commands[] = new Command\HistoryCommand;
+            } elseif (Command\LibeditHistoryCommand::isSupported()) {
+                $hist = new Command\LibeditHistoryCommand;
+                $hist->setHistoryFile($this->config->getHistoryFile());
+                $commands[] = $hist;
+            }
         }
 
         $commands[] = new Command\ExitCommand;

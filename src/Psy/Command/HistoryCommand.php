@@ -20,10 +20,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * PsySH history command.
  *
- * Shows, searches and replays readline hsitory. Not too shabby.
+ * Shows, searches and replays readline history. Not too shabby.
  */
 class HistoryCommand extends ShellAwareCommand
 {
+    /**
+     * Check whether this history command is supported by the current PHP.
+     *
+     * @return boolean True if this history command is supported.
+     */
+    public static function isSupported()
+    {
+        return function_exists('readline_list_history');
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -135,6 +145,16 @@ class HistoryCommand extends ShellAwareCommand
     }
 
     /**
+     * Get the readline history as strings.
+     *
+     * @return array Array of readline history strings.
+     */
+    protected function getHistory()
+    {
+        return readline_list_history();
+    }
+
+    /**
      * Retrieve a slice of the readline history.
      *
      * @param string $show
@@ -145,7 +165,7 @@ class HistoryCommand extends ShellAwareCommand
      */
     private function getHistorySlice($show, $head, $tail)
     {
-        $history = readline_list_history();
+        $history = $this->getHistory();
 
         if ($show) {
             list($start, $end) = $this->extractRange($show);
