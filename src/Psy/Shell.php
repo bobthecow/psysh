@@ -591,6 +591,8 @@ class Shell extends Application
             return ObjectFormatter::format($val);
         } elseif (is_array($val)) {
             return ArrayFormatter::format($val);
+        } elseif (is_resource($val)) {
+            return sprintf('<%s>', print_r($val, true));
         } else {
             return json_encode($val);
         }
