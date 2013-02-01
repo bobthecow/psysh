@@ -11,13 +11,14 @@
 
 namespace Psy;
 
-use Psy\Shell;
 use Psy\CodeCleaner;
-use Psy\ExecutionLoop\Loop;
 use Psy\ExecutionLoop\ForkingLoop;
-use Psy\Output\ShellOutput;
+use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
+use Psy\Output\ShellOutput;
+use Psy\Readline;
+use Psy\Shell;
 
 /**
  * The Psy Shell configuration.
@@ -283,6 +284,47 @@ class Configuration
     }
 
     /**
+     * Set the Psy Readline service.
+     *
+     * @param Readline $readline
+     */
+    public function setReadline(Readline $readline)
+    {
+        $this->readline = $readline;
+    }
+
+    /**
+     * Get the Psy Readline service.
+     *
+     * By default, this service uses (in order of preference):
+     *
+     *  * GNU Readline
+     *  * Libedit
+     *  * A transient array-based readline emulation.
+     *
+     * @return Readline
+     */
+    public function getReadline()
+    {
+        if (!isset($this->readline)) {
+            if ($this->useReadline()) {
+                $historyFile = $this->getHistoryFile();
+                if (Readline\Readline::isSupported()) {
+                    $this->readline = new Readline\Readline($historyFile);
+                } elseif (Readline\Libedit::isSupported()) {
+                    $this->readline = new Readline\Libedit($historyFile);
+                }
+            }
+
+            if (!isset($this->readline)) {
+                $this->readline = new Readline\Transient;
+            }
+        }
+
+        return $this->readline;
+    }
+
+    /**
      * Check whether this PHP instance has Pcntl available.
      *
      * @return bool True if Pcntl is available.
@@ -484,11 +526,34 @@ class Configuration
         $this->doAddCommands();
     }
 
+    /**
+     * Set the PHP manual database file.
+     *
+     * This file should be an SQLite database generated from the phpdoc source
+     * with the `bin/build_manual` script.
+     *
+     * @param string $filename
+     */
     public function setManualDbFile($filename)
     {
         $this->manualDbFile = (string) $filename;
     }
 
+    /**
+     * Get the current PHP manual database file.
+     *
+     * @return string Default: '~/.psysh/php_manual.sqlite'
+     */
+    public function getManualDbFile()
+    {
+        return $this->manualDbFile ?: $this->baseDir.'/php_manual.sqlite';
+    }
+
+    /**
+     * Get a PHP manual database connection.
+     *
+     * @return PDO
+     */
     public function getManualDb()
     {
         if (!isset($this->manualDb)) {
@@ -501,8 +566,4 @@ class Configuration
         return $this->manualDb;
     }
 
-    public function getManualDbFile()
-    {
-        return $this->manualDbFile ?: $this->baseDir.'/php_manual.sqlite';
-    }
 }

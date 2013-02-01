@@ -13,6 +13,7 @@ namespace Psy\Command;
 
 use Psy\Command\ShellAwareCommand;
 use Psy\Output\ShellOutput;
+use Psy\Readline;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,14 +25,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HistoryCommand extends ShellAwareCommand
 {
-    /**
-     * Check whether this history command is supported by the current PHP.
-     *
-     * @return boolean True if this history command is supported.
-     */
-    public static function isSupported()
+    public function setReadline(Readline $readline)
     {
-        return function_exists('readline_list_history');
+        $this->readline = $readline;
     }
 
     /**
@@ -145,16 +141,6 @@ class HistoryCommand extends ShellAwareCommand
     }
 
     /**
-     * Get the readline history as strings.
-     *
-     * @return array Array of readline history strings.
-     */
-    protected function getHistory()
-    {
-        return readline_list_history();
-    }
-
-    /**
      * Retrieve a slice of the readline history.
      *
      * @param string $show
@@ -165,7 +151,7 @@ class HistoryCommand extends ShellAwareCommand
      */
     private function getHistorySlice($show, $head, $tail)
     {
-        $history = $this->getHistory();
+        $history = $this->readline->listHistory();
 
         if ($show) {
             list($start, $end) = $this->extractRange($show);

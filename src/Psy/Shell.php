@@ -18,6 +18,7 @@ use Psy\Exception\Exception as PsyException;
 use Psy\Formatter\ArrayFormatter;
 use Psy\Formatter\ObjectFormatter;
 use Psy\Output\ShellOutput;
+use Psy\Readline;
 use Psy\ShellAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;
@@ -49,6 +50,7 @@ class Shell extends Application
     private $config;
     private $cleaner;
     private $output;
+    private $readline;
     private $inputBuffer;
     private $code;
     private $codeBuffer;
@@ -68,6 +70,7 @@ class Shell extends Application
         $this->loop           = $this->config->getLoop();
         $this->scopeVariables = array();
         $this->includes       = $this->config->getDefaultIncludes();
+        $this->readline       = $this->config->getReadline();
 
         parent::__construct('PsySH', self::VERSION);
 
@@ -126,7 +129,10 @@ class Shell extends Application
      */
     protected function getDefaultCommands()
     {
-        $commands = array(
+        $hist = new Command\HistoryCommand;
+        $hist->setReadline($this->readline);
+
+        return array(
             new Command\HelpCommand,
             new Command\ListCommand,
             new Command\ListClassesCommand,
@@ -137,23 +143,9 @@ class Shell extends Application
             new Command\TraceCommand,
             new Command\BufferCommand,
             // new Command\PsyVersionCommand,
+            $hist,
+            new Command\ExitCommand,
         );
-
-        if ($this->config->useReadline()) {
-            // "readline" doesn't always mean "readline".
-            // add fallback history support for PHP with libedit instead.
-            if (Command\HistoryCommand::isSupported()) {
-                $commands[] = new Command\HistoryCommand;
-            } elseif (Command\LibeditHistoryCommand::isSupported()) {
-                $hist = new Command\LibeditHistoryCommand;
-                $hist->setHistoryFile($this->config->getHistoryFile());
-                $commands[] = $hist;
-            }
-        }
-
-        $commands[] = new Command\ExitCommand;
-
-        return $commands;
     }
 
     /**
@@ -201,10 +193,11 @@ class Shell extends Application
         $this->setAutoExit(false);
         $this->setCatchExceptions(true);
 
-        if ($this->config->useReadline()) {
-            readline_read_history($this->config->getHistoryFile());
-            readline_completion_function(array($this, 'autocomplete'));
-        }
+        $this->readline->readHistory();
+
+        // if ($this->config->useReadline()) {
+        //     readline_completion_function(array($this, 'autocomplete'));
+        // }
 
         $this->output->writeln($this->getHeader());
 
@@ -246,10 +239,7 @@ class Shell extends Application
                 continue;
             }
 
-            if ($this->config->useReadline()) {
-                readline_add_history($input);
-                readline_write_history($this->config->getHistoryFile());
-            }
+            $this->readline->addHistory($input);
 
             if ($this->hasCommand($input)) {
                 $this->runCommand($input);
@@ -660,13 +650,7 @@ class Shell extends Application
             return $line;
         }
 
-        if ($this->config->useReadline()) {
-            return readline($this->getPrompt());
-        } else {
-            $this->output->write($this->getPrompt());
-
-            return rtrim(fgets(STDIN, 1024));
-        }
+        return $this->readline->readline($this->getPrompt());
     }
 
     /**
