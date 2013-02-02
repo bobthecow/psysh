@@ -19,7 +19,7 @@ use Psy\Formatter\ArrayFormatter;
 use Psy\Formatter\ObjectFormatter;
 use Psy\Output\ShellOutput;
 use Psy\Readline;
-use Psy\ShellAware;
+use Psy\Command\ShellAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;

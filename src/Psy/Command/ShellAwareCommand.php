@@ -13,7 +13,7 @@ namespace Psy\Command;
 
 use Psy\Command\Command;
 use Psy\Shell;
-use Psy\ShellAware;
+use Psy\Command\ShellAware;
 
 /**
  * An interface for shell-aware Commands.

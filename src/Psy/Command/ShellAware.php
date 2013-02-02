@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy;
+namespace Psy\Command;
 
 use Psy\Shell;
 
