@@ -142,6 +142,7 @@ class Shell extends Application
             new Command\WtfCommand,
             new Command\TraceCommand,
             new Command\BufferCommand,
+            new Command\ClearCommand,
             // new Command\PsyVersionCommand,
             $hist,
             new Command\ExitCommand,
