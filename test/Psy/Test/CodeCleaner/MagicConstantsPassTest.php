@@ -10,7 +10,7 @@ use PHPParser_Node_Scalar_FileConst as FileConstant;
 use PHPParser_Node_Expr_FuncCall as FunctionCall;
 use PHPParser_Node_Scalar_String as StringNode;
 
-class MagicConstantsPassTest extends \PHPUnit_Framework_TestCase
+class MagicConstantsPassTest extends CodeCleanerTestCase
 {
     private $pass;
 
@@ -19,14 +19,22 @@ class MagicConstantsPassTest extends \PHPUnit_Framework_TestCase
         $this->pass = new MagicConstantsPass;
     }
 
-    public function testProcess()
+    /**
+     * @dataProvider magicConstants
+     */
+    public function testProcess($from, $to)
     {
-        $stmts = array(new DirConstant);
+        $stmts = $this->parse($from);
         $this->pass->process($stmts);
-        $this->assertEquals(array(new FunctionCall(new Name('getcwd'))), $stmts);
+        $this->assertEquals($to, $this->prettyPrint($stmts));
+     }
 
-        $stmts = array(new FileConstant);
-        $this->pass->process($stmts);
-        $this->assertEquals(array(new StringNode('')), $stmts);
+     public function magicConstants()
+     {
+        return array(
+            array('__DIR__;', 'getcwd();'),
+            array('__FILE__;', "'';"),
+            array('___FILE___;', "___FILE___;"),
+        );
      }
 }
