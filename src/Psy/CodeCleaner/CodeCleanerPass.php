@@ -55,10 +55,12 @@ abstract class CodeCleanerPass implements CodeCleanerPassInterface
      */
     protected function processStatements(&$stmts)
     {
-        foreach ($stmts as $stmt) {
-            $this->processStatement($stmt);
-
-            if (is_array($stmt) || (is_object($stmt) && $stmt instanceof \Traversable)) {
+        foreach ($stmts as $key => $stmt) {
+            if ($this->processStatement($stmt) === false) {
+                // Per the processStatement call, unset this bad boy
+                $this->removeStatement($stmts, $key);
+            } elseif (is_array($stmt) || (is_object($stmt) && $stmt instanceof \Traversable)) {
+                // Otherwise continue processing
                 $this->processStatements($stmt);
             }
         }
@@ -79,4 +81,14 @@ abstract class CodeCleanerPass implements CodeCleanerPassInterface
      * @param mixed &$stmt
      */
     abstract protected function processStatement(&$stmt);
+
+    private function removeStatement(&$stmts, $key)
+    {
+        if (is_object($stmts)) {
+            unset($stmts->$key);
+        } elseif (is_array($stmts)) {
+            unset($stmts[$key]);
+        }
+    }
+
 }
