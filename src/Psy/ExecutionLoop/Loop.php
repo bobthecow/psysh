@@ -38,10 +38,18 @@ class Loop
     public function run(Shell $shell)
     {
         $loop = function($__psysh__) {
-            foreach($__psysh__->getIncludes() as $__psysh_include__) {
-                include $__psysh_include__;
+            // Load user-defined includes
+            set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+            try {
+                foreach($__psysh__->getIncludes() as $__psysh_include__) {
+                    include $__psysh_include__;
+                }
+            } catch (\Exception $__psysh_e__) {
+                $__psysh__->writeException($__psysh_e__);
             }
-            unset($__psysh_include__);
+            restore_error_handler();
+            unset($__psysh_include__, $__psysh_e__);
+
 
             extract($__psysh__->getScopeVariables());
 
