@@ -18,6 +18,7 @@ use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
+use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\CodeCleaner\ValidConstantPass;
@@ -66,7 +67,8 @@ class CodeCleaner
         return array(
             new LeavePsyshAlonePass,
             new ImplicitReturnPass,
-            new NamespacePass($this), // must run after the implicit return pass
+            new UseStatementPass,      // must run before namespace and validation passes
+            new NamespacePass($this),  // must run after the implicit return pass
             new ValidFunctionNamePass,
             new ValidClassNamePass,
             new ValidConstantPass,
