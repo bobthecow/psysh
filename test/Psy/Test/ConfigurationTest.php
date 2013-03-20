@@ -94,7 +94,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfigFile()
     {
-        $config = new Configuration(array('configFile' => __DIR__.'/../fixtures/rc.php'));
+        $config = new Configuration(array('configFile' => __DIR__.'/../../fixtures/rc.php'));
 
         $tempDir = realpath(sys_get_temp_dir()).'/phpsh_test/withconfig/temp';
         $this->assertStringStartsWith($tempDir, realpath($config->getTempFile('foo', 123)));
