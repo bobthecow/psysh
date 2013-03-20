@@ -2,19 +2,10 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PHPParser_Node_Expr_New as NewExpression;
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
-use PHPParser_Node_Stmt_Class as ClassStatement;
-use PHPParser_Node_Stmt_Interface as InterfaceStatement;
-use PHPParser_Node_Stmt_Trait as TraitStatement;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use Psy\CodeCleaner\ValidClassNamePass;
 
-class ValidClassNamePassTest extends \PHPUnit_Framework_TestCase
+class ValidClassNamePassTest extends CodeCleanerTestCase
 {
-    private $pass;
-
     public function setUp()
     {
         $this->pass = new ValidClassNamePass;
@@ -24,8 +15,9 @@ class ValidClassNamePassTest extends \PHPUnit_Framework_TestCase
      * @dataProvider getInvalid
      * @expectedException \Psy\Exception\FatalErrorException
      */
-    public function testProcessInvalid($stmts)
+    public function testProcessInvalid($code)
     {
+        $stmts = $this->parse($code);
         $this->pass->process($stmts);
     }
 
@@ -34,171 +26,125 @@ class ValidClassNamePassTest extends \PHPUnit_Framework_TestCase
         // class declarations
         return array(
             // core class
-            array(array(
-                new ClassStatement('StdClass'),
-            )),
-
+            array('class StdClass {}'),
             // capitalization
-            array(array(
-                new ClassStatement('stdClass'),
-            )),
+            array('class stdClass {}'),
 
             // collisions with interfaces and traits
-            array(array(
-                new InterfaceStatement('stdClass'),
-            )),
-            array(array(
-                new TraitStatement('stdClass'),
-            )),
+            array('interface stdClass {}'),
+            array('trait stdClass {}'),
 
             // collisions inside the same code snippet
-            array(array(
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
-            array(array(
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
-            array(array(
-                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
-            array(array(
-                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
-            array(array(
-                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new TraitStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
-            array(array(
-                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
-            array(array(
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-                new InterfaceStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Alpha'),
-            )),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
+            array("
+                trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
+            array("
+                trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
+            array("
+                interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
+            array("
+                interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+                interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
+            "),
 
             // namespaced collisions
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner'), array(
-                    new ClassStatement('ValidClassNamePassTest'),
-                )),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Beta'),
-                )),
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Beta'),
-                )),
-            )),
+            array("
+                namespace Psy\\Test\\CodeCleaner {
+                    class ValidClassNamePassTest {}
+                }
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    class Beta {}
+                }
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    class Beta {}
+                }
+            "),
 
             // extends and implements
-            array(array(
-                new ClassStatement('ValidClassNamePassTest', array(
-                    'extends' => new Name('NotAClass'),
-                )),
-            )),
-            array(array(
-                new ClassStatement('ValidClassNamePassTest', array(
-                    'extends' => new Name('ArrayAccess'),
-                )),
-            )),
-            array(array(
-                new ClassStatement('ValidClassNamePassTest', array(
-                    'implements' => array(new Name('StdClass')),
-                )),
-            )),
-            array(array(
-                new ClassStatement('ValidClassNamePassTest', array(
-                    'implements' => array(new Name('ArrayAccess'), new Name('StdClass')),
-                )),
-            )),
-            array(array(
-                new InterfaceStatement('ValidClassNamePassTest', array(
-                    'extends' => array(new Name('StdClass')),
-                )),
-            )),
-            array(array(
-                new InterfaceStatement('ValidClassNamePassTest', array(
-                    'extends' => array(new Name('ArrayAccess'), new Name('StdClass')),
-                )),
-            )),
+            array('class ValidClassNamePassTest extends NotAClass {}'),
+            array('class ValidClassNamePassTest extends ArrayAccess {}'),
+            array('class ValidClassNamePassTest implements StdClass {}'),
+            array('class ValidClassNamePassTest implements ArrayAccess, StdClass {}'),
+            array('interface ValidClassNamePassTest extends StdClass {}'),
+            array('interface ValidClassNamePassTest extends ArrayAccess, StdClass {}'),
 
             // class instantiations
-            array(array(
-                new NewExpression(new Name('Psy_Test_CodeCleaner_ValidClassNamePass_Gamma')),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new NewExpression(new Name('Psy_Test_CodeCleaner_ValidClassNamePass_Delta')),
-                )),
-            )),
+            array('new Psy_Test_CodeCleaner_ValidClassNamePass_Gamma();'),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    new Psy_Test_CodeCleaner_ValidClassNamePass_Delta();
+                }
+            "),
         );
     }
 
-   /**
-    * @dataProvider getValid
-    */
-   public function testProcessValid($stmts)
-   {
-       $this->pass->process($stmts);
-   }
+    /**
+     * @dataProvider getValid
+     */
+    public function testProcessValid($code)
+    {
+        $stmts = $this->parse($code);
+        $this->pass->process($stmts);
+    }
 
-   public function getValid()
-   {
+    public function getValid()
+    {
         return array(
             // class declarations
-            array(array(
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Epsilon'),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Zeta'),
-                )),
-            )),
-            array(array(
-                new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Eta'),
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Psy_Test_CodeCleaner_ValidClassNamePass_Eta'),
-                )),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('StdClass'),
-                )),
-            )),
+            array('class Psy_Test_CodeCleaner_ValidClassNamePass_Epsilon {}'),
+            array('namespace Psy\Test\CodeCleaner\ValidClassNamePass; class Zeta {}'),
+            array("
+                namespace { class Psy_Test_CodeCleaner_ValidClassNamePass_Eta {}; }
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    class Psy_Test_CodeCleaner_ValidClassNamePass_Eta {}
+                }
+            "),
+            array('namespace Psy\Test\CodeCleaner\ValidClassNamePass { class StdClass {} }'),
 
             // class instantiations
-            array(array(
-                new NewExpression(new Name('StdClass')),
-            )),
-            array(array(
-                new NewExpression(new Name('stdClass')),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Theta'),
-                )),
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new NewExpression(new Name('Theta')),
-                )),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Iota'),
-                    new NewExpression(new Name('Iota')),
-                )),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidClassNamePass'), array(
-                    new ClassStatement('Kappa'),
-                )),
-                new NewExpression(new FullyQualifiedName('Psy\Test\CodeCleaner\ValidClassNamePass\Kappa')),
-            )),
-       );
-   }
+            array('new StdClass();'),
+            array('new stdClass();'),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    class Theta {}
+                }
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    new Theta();
+                }
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    class Iota {}
+                    new Iota();
+                }
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
+                    class Kappa {}
+                }
+                namespace {
+                    new \\Psy\\Test\\CodeCleaner\\ValidClassNamePass\\Kappa();
+                }
+            "),
+        );
+    }
 }

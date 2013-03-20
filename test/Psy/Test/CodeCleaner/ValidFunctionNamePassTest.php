@@ -2,16 +2,10 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Stmt_Function as FunctionStatement;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use Psy\CodeCleaner\ValidFunctionNamePass;
 
-class ValidFunctionNamePassTest extends \PHPUnit_Framework_TestCase
+class ValidFunctionNamePassTest extends CodeCleanerTestCase
 {
-    private $pass;
-
     public function setUp()
     {
         $this->pass = new ValidFunctionNamePass;
@@ -21,8 +15,9 @@ class ValidFunctionNamePassTest extends \PHPUnit_Framework_TestCase
      * @dataProvider getInvalidFunctions
      * @expectedException \Psy\Exception\FatalErrorException
      */
-    public function testProcessInvalidFunctionCallsAndDeclarations($stmts)
+    public function testProcessInvalidFunctionCallsAndDeclarations($code)
     {
+        $stmts = $this->parse($code);
         $this->pass->process($stmts);
     }
 
@@ -30,80 +25,90 @@ class ValidFunctionNamePassTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             // function declarations
-            array(array(
-                new FunctionStatement('array_merge'),
-            )),
-            array(array(
-                new FunctionStatement('Array_Merge'),
-            )),
-            array(array(
-                new FunctionStatement('psy_test_codecleaner_validfunctionnamepass_alpha'),
-                new FunctionStatement('psy_test_codecleaner_validfunctionnamepass_alpha'),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionStatement('beta'),
-                )),
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionStatement('beta'),
-                )),
-            )),
+            array('function array_merge() {}'),
+            array('function Array_Merge() {}'),
+            array("
+                function psy_test_codecleaner_validfunctionnamepass_alpha() {}
+                function psy_test_codecleaner_validfunctionnamepass_alpha() {}
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function beta() {}
+                }
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function beta() {}
+                }
+            "),
+
 
             // function calls
-            array(array(
-                new FunctionCall(new Name('psy_test_codecleaner_validfunctionnamepass_gamma')),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionCall(new Name('delta')),
-                )),
-            )),
+            array('psy_test_codecleaner_validfunctionnamepass_gamma()'),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    delta();
+                }
+            "),
         );
     }
 
     /**
      * @dataProvider getValidFunctions
      */
-    public function testProcessValidFunctionCallsAndDeclarations($stmts)
+    public function testProcessValidFunctionCallsAndDeclarations($code)
     {
+        $stmts = $this->parse($code);
         $this->pass->process($stmts);
     }
 
     public function getValidFunctions()
     {
         return array(
-            array(array(
-                new FunctionStatement('psy_test_codecleaner_validfunctionnamepass_epsilon'),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionStatement('zeta'),
-                )),
-            )),
-            array(array(
-                new FunctionStatement('psy_test_codecleaner_validfunctionnamepass_eta'),
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionStatement('psy_test_codecleaner_validfunctionnamepass_eta'),
-                )),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionStatement('array_merge'),
-                )),
-            )),
+            array('function psy_test_codecleaner_validfunctionnamepass_epsilon() {}'),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function zeta() {}
+                }
+            "),
+            array("
+                namespace {
+                    function psy_test_codecleaner_validfunctionnamepass_eta() {}
+                }
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function psy_test_codecleaner_validfunctionnamepass_eta() {}
+                }
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function psy_test_codecleaner_validfunctionnamepass_eta() {}
+                }
+                namespace {
+                    function psy_test_codecleaner_validfunctionnamepass_eta() {}
+                }
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function array_merge() {}
+                }
+            "),
 
             // function calls
-            array(array(
-                new FunctionCall(new Name('array_merge')),
-            )),
-            array(array(
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionStatement('theta'),
-                )),
-                new NamespaceStatement(new Name('Psy\Test\CodeCleaner\ValidFunctionNamePass'), array(
-                    new FunctionCall(new Name('theta')),
-                )),
-            )),
-       );
+            array('array_merge();'),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function theta() {}
+                }
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    theta();
+                }
+            "),
+            array("
+                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
+                    function theta() {}
+                }
+                namespace {
+                    Psy\\Test\\CodeCleaner\\ValidFunctionNamePass\\theta();
+                }
+            "),
+        );
     }
 }

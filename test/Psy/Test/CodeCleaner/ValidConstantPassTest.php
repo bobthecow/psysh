@@ -2,18 +2,10 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PHPParser_Node_Expr_ConstFetch as ConstantFetch;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Scalar_String as StringNode;
-use PHPParser_Node_Stmt_Function as FunctionStatement;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use Psy\CodeCleaner\ValidConstantPass;
 
-class ValidConstantPassTest extends \PHPUnit_Framework_TestCase
+class ValidConstantPassTest extends CodeCleanerTestCase
 {
-    private $pass;
-
     public function setUp()
     {
         $this->pass = new ValidConstantPass;
@@ -23,34 +15,32 @@ class ValidConstantPassTest extends \PHPUnit_Framework_TestCase
      * @dataProvider getInvalidReferences
      * @expectedException \Psy\Exception\FatalErrorException
      */
-    public function testProcessInvalidConstantReferences($stmts)
+    public function testProcessInvalidConstantReferences($code)
     {
+        $stmts = $this->parse($code);
         $this->pass->process($stmts);
     }
 
     public function getInvalidReferences()
     {
         return array(
-            array(array(
-                new ConstantFetch(new Name('Foo\BAR')),
-            )),
+            array('Foo\BAR;'),
         );
     }
 
     /**
      * @dataProvider getValidReferences
      */
-    public function testProcessValidConstantReferences($stmts)
+    public function testProcessValidConstantReferences($code)
     {
+        $stmts = $this->parse($code);
         $this->pass->process($stmts);
     }
 
     public function getValidReferences()
     {
         return array(
-            array(array(
-                new ConstantFetch(new Name('PHP_EOL')),
-            )),
+            array('PHP_EOL;')
        );
     }
 }

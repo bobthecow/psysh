@@ -6,8 +6,6 @@ use Psy\CodeCleaner\LeavePsyshAlonePass;
 
 class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 {
-    private $pass;
-
     public function setUp()
     {
         $this->pass = new LeavePsyshAlonePass;

@@ -9,6 +9,7 @@ use Psy\Exception\ParseErrorException;
 
 class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
 {
+    protected $pass;
     private $parser;
     private $printer;
 
@@ -34,6 +35,13 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     protected function prettyPrint(array $stmts)
     {
         return $this->getPrinter()->prettyPrint($stmts);
+    }
+
+    protected function assertProcessesAs($from, $to)
+    {
+        $stmts = $this->parse($from);
+        $this->pass->process($stmts);
+        $this->assertEquals($to, $this->prettyPrint($stmts));
     }
 
     private function getParser()
