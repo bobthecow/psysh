@@ -21,16 +21,12 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 
-$input = new ArgvInput;
-$shell = new Shell;
-
-
-// Handle --help
-
-if ($input->hasParameterOption(array('--help', '-h'))) {
-    $version = $shell->getVersion();
-    $name    = reset($_SERVER['argv']);
-    echo <<<EOL
+call_user_func(function(ArgvInput $input, Shell $shell) {
+    // Handle --help
+    if ($input->hasParameterOption(array('--help', '-h'))) {
+        $version = $shell->getVersion();
+        $name    = reset($_SERVER['argv']);
+        echo <<<EOL
 $version
 
 Usage:
@@ -41,26 +37,24 @@ Options:
   --version  -v Display the PsySH version.
 
 EOL;
-    exit(0);
-}
+        exit(0);
+    }
 
 
-// Handle --version
-
-if ($input->hasParameterOption(array('--version', '-v'))) {
-    echo $shell->getVersion() . PHP_EOL;
-    exit(0);
-}
-
-
-// Pass additional arguments to Shell as 'includes'
-
-$input->bind(new InputDefinition(array(
-    new InputArgument('include', InputArgument::IS_ARRAY)
-)));
-
-$shell->setIncludes($input->getArgument('include'));
+    // Handle --version
+    if ($input->hasParameterOption(array('--version', '-v'))) {
+        echo $shell->getVersion() . PHP_EOL;
+        exit(0);
+    }
 
 
-// And go!
-$shell->run();
+    // Pass additional arguments to Shell as 'includes'
+    $input->bind(new InputDefinition(array(
+        new InputArgument('include', InputArgument::IS_ARRAY)
+    )));
+    $shell->setIncludes($input->getArgument('include'));
+
+
+    // And go!
+    $shell->run();
+}, new ArgvInput, new Shell);
