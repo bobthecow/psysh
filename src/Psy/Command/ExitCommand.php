@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Exit PsySH.
+ * Exit the Psy Shell.
  *
  * Just what it says on the tin.
  */

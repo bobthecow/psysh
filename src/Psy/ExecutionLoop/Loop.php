@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -16,7 +16,7 @@ use Psy\Shell;
 use Psy\Exception\BreakException;
 
 /**
- * The Psy shell execution loop.
+ * The Psy Shell execution loop.
  */
 class Loop
 {

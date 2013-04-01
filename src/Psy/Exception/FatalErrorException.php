@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *

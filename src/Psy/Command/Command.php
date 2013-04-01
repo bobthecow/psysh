@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -14,7 +14,7 @@ namespace Psy\Command;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 
 /**
- * The PsySH base command.
+ * The Psy Shell base command.
  */
 abstract class Command extends BaseCommand
 {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -16,7 +16,7 @@ use Psy\ExecutionLoop\Loop;
 use Psy\Shell;
 
 /**
- * A forking version of the Psy shell execution loop.
+ * A forking version of the Psy Shell execution loop.
  *
  * This version is preferred, as it won't die prematurely if user input includes
  * a fatal error, such as redeclaring a class or function.

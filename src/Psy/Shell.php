@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -59,7 +59,7 @@ class Shell extends Application
     private $exceptions;
 
     /**
-     * Create a new Psy shell.
+     * Create a new Psy Shell.
      *
      * @param Configuration $config (default: null)
      */
@@ -72,13 +72,13 @@ class Shell extends Application
         $this->includes       = $this->config->getDefaultIncludes();
         $this->readline       = $this->config->getReadline();
 
-        parent::__construct('PsySH', self::VERSION);
+        parent::__construct('Psy Shell', self::VERSION);
 
         $this->config->setShell($this);
     }
 
     /**
-     * Invoke a PsySH shell from the current context.
+     * Invoke a Psy Shell from the current context.
      *
      * For example:
      *
@@ -91,7 +91,7 @@ class Shell extends Application
      *
      *     foreach ($items as $item) {
      *         export(\Psy\Shell::debug(get_defined_vars()));
-     *         var_dump($item); // will be whatever you set $item to in PsySH
+     *         var_dump($item); // will be whatever you set $item to in Psy Shell
      *     }
      *
      * @param array $vars Scope variables from the calling context (default: array())
@@ -394,7 +394,7 @@ class Shell extends Application
     }
 
     /**
-     * Run a Psy shell command given the user input.
+     * Run a Psy Shell command given the user input.
      *
      * @throws InvalidArgumentException if the input is not a valid command.
      *
@@ -661,22 +661,17 @@ class Shell extends Application
      */
     protected function getHeader()
     {
-        return sprintf(
-            "<aside>PsySH %s (PHP %s — %s) by Justin Hileman</aside>",
-            self::VERSION,
-            phpversion(),
-            php_sapi_name()
-        );
+        return sprintf("<aside>%s by Justin Hileman</aside>", $this->getVersion());
     }
 
     /**
-     * Get the current version of PsySH.
+     * Get the current version of Psy Shell.
      *
      * @return string
      */
     public function getVersion()
     {
-        return sprintf("PsySH %s (PHP %s — %s)", self::VERSION, phpversion(), php_sapi_name());
+        return sprintf("Psy Shell %s (PHP %s — %s)", self::VERSION, phpversion(), php_sapi_name());
     }
 
     /**

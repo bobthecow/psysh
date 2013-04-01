@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Clear PsySH.
+ * Clear the Psy Shell.
  *
  * Just what it says on the tin.
  */
@@ -30,9 +30,9 @@ class ClearCommand extends Command
         $this
             ->setName('clear')
             ->setDefinition(array())
-            ->setDescription('Clear the Psy shell screen.')
+            ->setDescription('Clear the Psy Shell screen.')
             ->setHelp(<<<EOL
-Clear the Psy shell screen.
+Clear the Psy Shell screen.
 EOL
             );
     }

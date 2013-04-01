@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -14,7 +14,7 @@ namespace Psy\Exception;
 use Psy\Exception\Exception;
 
 /**
- * A break exception, used for halting the PsySH shell.
+ * A break exception, used for halting the Psy Shell.
  */
 class BreakException extends \Exception implements Exception
 {

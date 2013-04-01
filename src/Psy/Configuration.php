@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -137,7 +137,7 @@ class Configuration
             if (is_array($result)) {
                 $this->loadConfig($result);
             } else {
-                throw new \InvalidArgumentException('PsySH configuration must return an array of options');
+                throw new \InvalidArgumentException('Psy Shell configuration must return an array of options');
             }
         }
     }
@@ -284,7 +284,7 @@ class Configuration
     }
 
     /**
-     * Set the Psy Readline service.
+     * Set the Psy Shell readline service.
      *
      * @param Readline $readline
      */
@@ -294,7 +294,7 @@ class Configuration
     }
 
     /**
-     * Get the Psy Readline service.
+     * Get the Psy Shell readline service.
      *
      * By default, this service uses (in order of preference):
      *

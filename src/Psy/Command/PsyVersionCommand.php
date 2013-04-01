@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * A dumb little command for printing out the current PsySH version.
+ * A dumb little command for printing out the current Psy Shell version.
  */
 class PsyVersionCommand extends ShellAwareCommand
 {
@@ -28,9 +28,9 @@ class PsyVersionCommand extends ShellAwareCommand
         $this
             ->setName('version')
             ->setDefinition(array())
-            ->setDescription('Show PsySH version.')
+            ->setDescription('Show Psy Shell version.')
             ->setHelp(<<<EOF
-Show PsySH version.
+Show Psy Shell version.
 EOF
             );
     }

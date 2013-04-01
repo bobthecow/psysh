@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell
  *
  * (c) 2013 Justin Hileman
  *
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * PsySH history command.
+ * Psy Shell history command.
  *
  * Shows, searches and replays readline history. Not too shabby.
  */
@@ -52,8 +52,8 @@ class HistoryCommand extends ShellAwareCommand
                 new InputOption('save',        '',  InputOption::VALUE_REQUIRED, 'Save history to a file.'),
                 new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay'),
             ))
-            ->setDescription('Show the Psy shell history.')
-            ->setHelp('Show, search or save the Psy shell history.');
+            ->setDescription('Show the Psy Shell history.')
+            ->setHelp('Show, search or save the Psy Shell history.');
     }
 
     /**
