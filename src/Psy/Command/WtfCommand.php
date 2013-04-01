@@ -11,8 +11,10 @@
 
 namespace Psy\Command;
 
+use Psy\Command\ShellAware;
 use Psy\Command\TraceCommand;
 use Psy\Output\ShellOutput;
+use Psy\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,8 +23,25 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Show the last uncaught exception.
  */
-class WtfCommand extends TraceCommand
+class WtfCommand extends TraceCommand implements ShellAware
 {
+    /**
+     * Shell instance (for ShellAware interface)
+     *
+     * @type Psy\Shell
+     */
+    protected $shell;
+
+    /**
+     * ShellAware interface.
+     *
+     * @param Psy\Shell $shell
+     */
+    public function setShell(Shell $shell)
+    {
+        $this->shell = $shell;
+    }
+
     /**
      * {@inheritdoc}
      */

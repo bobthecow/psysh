@@ -11,7 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Command\ShellAwareCommand;
+use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Show the current stack trace.
  */
-class TraceCommand extends ShellAwareCommand
+class TraceCommand extends Command
 {
     /**
      * {@inheritdoc}
