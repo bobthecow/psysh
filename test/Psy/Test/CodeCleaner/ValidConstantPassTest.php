@@ -41,6 +41,6 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     {
         return array(
             array('PHP_EOL;')
-       );
+        );
     }
 }

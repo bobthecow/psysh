@@ -22,5 +22,5 @@ interface OutputPager extends OutputInterface
     /**
      * Close the current pager process.
      */
-    function close();
+    public function close();
 }

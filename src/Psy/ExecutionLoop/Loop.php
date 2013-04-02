@@ -41,7 +41,7 @@ class Loop
             // Load user-defined includes
             set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
             try {
-                foreach($__psysh__->getIncludes() as $__psysh_include__) {
+                foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                     include $__psysh_include__;
                 }
             } catch (\Exception $__psysh_e__) {

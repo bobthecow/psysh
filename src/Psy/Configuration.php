@@ -442,11 +442,10 @@ class Configuration
     public function getPager()
     {
         if (!isset($this->pager) && $this->usePcntl()) {
-            // use the default pager (5.4+)
-            if ($pager = ini_get('cli.pager')) {
+
+            if ($pager = ini_get('cli.pager')) {    // use the default pager (5.4+)
                 $this->pager = $pager;
-            // check for the presence of less...
-            } elseif ($less = exec('which less')) {
+            } elseif ($less = exec('which less')) { // check for the presence of less...
                 $this->pager = $less.' -R -S -F -X';
             }
         }
@@ -565,5 +564,4 @@ class Configuration
 
         return $this->manualDb;
     }
-
 }

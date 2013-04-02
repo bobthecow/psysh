@@ -38,5 +38,4 @@ abstract class ShellAwareCommand extends Command implements ShellAware
     {
         $this->shell = $shell;
     }
-
 }

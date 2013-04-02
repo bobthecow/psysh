@@ -42,5 +42,4 @@ class TransientTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->readline->readHistory());
         $this->assertTrue($this->readline->writeHistory());
     }
-
 }

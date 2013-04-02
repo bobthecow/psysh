@@ -12,6 +12,7 @@
 namespace Psy\Test\Formatter;
 
 use Psy\Formatter\RecursiveFormatter;
+use Psy\Test\Formatter\RecursiveFormatterStub;
 
 class RecursiveFormatterTest extends \PHPUnit_Framework_TestCase
 {
@@ -48,9 +49,4 @@ class RecursiveFormatterTest extends \PHPUnit_Framework_TestCase
         $stub = new RecursiveFormatterStub;
         $stub->formatRef('nothing');
     }
-}
-
-class RecursiveFormatterStub extends RecursiveFormatter
-{
-
 }
