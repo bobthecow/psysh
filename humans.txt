@@ -1,0 +1,10 @@
+/* ME */
+
+  Psy Shell is a project by Justin Hileman.
+  It makes your PHP happier.
+  You can find it at https://github.com/bobthecow/psysh
+
+/* SITE */
+
+  This site is powered by Nanoc, Git and Sublime Text.
+  You should try 'em all.

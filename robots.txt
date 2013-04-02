@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Disallow: /humans.txt   # no robots allowed.
