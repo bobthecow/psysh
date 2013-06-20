@@ -25,7 +25,7 @@ class CodeFormatterTest extends \PHPUnit_Framework_TestCase
 EOS;
 
         $this->assertEquals(
-            $expected,
+            preg_replace("/\n/", PHP_EOL, $expected),
             CodeFormatter::format(new \ReflectionMethod($this, 'ignoreThisMethod'))
         );
     }

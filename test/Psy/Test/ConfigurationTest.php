@@ -58,14 +58,14 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function directories()
     {
-        $base = realpath(sys_get_temp_dir()).'/phpsh_test';
+        $base = realpath(sys_get_temp_dir()).DIRECTORY_SEPARATOR.'phpsh_test';
 
         return array(
             array(null, null),
-            array($base.'/base/1', null),
-            array($base.'/base/1', $base.'/temp/1'),
+            array($this->joinPath($base, 'base', '1'), null),
+            array($this->joinPath($base, 'base', '1'), $this->joinPath($base, 'temp', '1')),
             array(null, $base),
-            array($base.'/base/2', $base.'/temp/2'),
+            array($this->joinPath($base, 'base', '2'), $this->joinPath($base, 'temp', '2')),
         );
     }
 
@@ -96,12 +96,17 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         $config = new Configuration(array('configFile' => __DIR__.'/../../fixtures/rc.php'));
 
-        $tempDir = realpath(sys_get_temp_dir()).'/phpsh_test/withconfig/temp';
+        $tempDir = $this->joinPath(realpath(sys_get_temp_dir()), 'phpsh_test', 'withconfig', 'temp');
         $this->assertStringStartsWith($tempDir, realpath($config->getTempFile('foo', 123)));
         $this->assertStringStartsWith($tempDir, realpath(dirname($config->getPipe('pipe', 123))));
         $this->assertStringStartsWith($tempDir, realpath($config->getTempDir()));
 
         $this->assertEquals(function_exists('readline'), $config->useReadline());
         $this->assertFalse($config->usePcntl());
+    }
+
+    private function joinPath()
+    {
+        return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
 }
