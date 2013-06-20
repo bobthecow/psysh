@@ -280,7 +280,7 @@ class Configuration
      */
     public function useReadline()
     {
-        return isset($this->useReadline) ? $this->useReadline : $this->hasReadline;
+        return isset($this->useReadline) ? ($this->hasReadline && $this->useReadline) : $this->hasReadline;
     }
 
     /**
@@ -354,7 +354,7 @@ class Configuration
      */
     public function usePcntl()
     {
-        return isset($this->usePcntl) ? $this->usePcntl : $this->hasPcntl;
+        return isset($this->usePcntl) ? ($this->hasPcntl && $this->usePcntl) : $this->hasPcntl;
     }
 
     /**

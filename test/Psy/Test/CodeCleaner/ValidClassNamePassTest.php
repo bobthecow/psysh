@@ -3,6 +3,7 @@
 namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ValidClassNamePass;
+use Psy\Exception\Exception;
 
 class ValidClassNamePassTest extends CodeCleanerTestCase
 {
@@ -13,12 +14,20 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider getInvalid
-     * @expectedException \Psy\Exception\FatalErrorException
      */
-    public function testProcessInvalid($code)
+    public function testProcessInvalid($code, $php54 = false)
     {
-        $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        try {
+            $stmts = $this->parse($code);
+            $this->pass->process($stmts);
+            $this->fail();
+        } catch (Exception $e) {
+            if ($php54 && version_compare(PHP_VERSION, '5.4', '<')) {
+                $this->assertInstanceOf('Psy\Exception\ParseErrorException', $e);
+            } else {
+                $this->assertInstanceOf('Psy\Exception\FatalErrorException', $e);
+            }
+        }
     }
 
     public function getInvalid()
@@ -32,7 +41,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
             // collisions with interfaces and traits
             array('interface stdClass {}'),
-            array('trait stdClass {}'),
+            array('trait stdClass {}', true),
 
             // collisions inside the same code snippet
             array("
@@ -42,19 +51,19 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             array("
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
+            ", true),
             array("
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
+            ", true),
             array("
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
+            ", true),
             array("
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
+            ", true),
             array("
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}

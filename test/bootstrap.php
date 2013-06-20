@@ -14,4 +14,4 @@ if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
 }
 
 $loader = require_once(dirname(__DIR__).'/vendor/autoload.php');
-$loader->add('Psy\\Test', __DIR__);
+$loader->add('Psy\\Test\\', __DIR__);
