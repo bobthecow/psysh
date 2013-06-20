@@ -142,7 +142,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
-        $this->assertEquals("{{stdout}}\n", $streamContents);
+        $this->assertEquals('{{stdout}}'.PHP_EOL, $streamContents);
     }
 
     /**
@@ -163,8 +163,8 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getReturnValues()
     {
         return array(
-            array('{{return value}}', "=> <return>\"{{return value}}\"</return>\n"),
-            array(1, "=> <return>1</return>\n"),
+            array('{{return value}}', '=> <return>"{{return value}}"</return>'.PHP_EOL),
+            array(1, '=> <return>1</return>'.PHP_EOL),
         );
     }
 
@@ -186,7 +186,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getRenderedExceptions()
     {
         return array(
-            array(new \Exception('{{message}}'), "Exception with message '{{message}}'\n"),
+            array(new \Exception('{{message}}'), "Exception with message '{{message}}'".PHP_EOL),
         );
     }
 
