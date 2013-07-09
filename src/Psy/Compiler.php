@@ -160,7 +160,7 @@ class Compiler
 Phar::mapPhar('psysh.phar');
 
 // Allow running phar directly, or including.
-if ('cli' === php_sapi_name() && basename(__FILE__) === basename($_SERVER['argv'][0])) {
+if ('cli' === php_sapi_name() && in_array(basename(__FILE__), array(basename($_SERVER['argv'][0]), basename(realpath($_SERVER['argv'][0]))))) {
     require 'phar://psysh.phar/bin/psysh';
 } else {
     require 'phar://psysh.phar/vendor/autoload.php';
