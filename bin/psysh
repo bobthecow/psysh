@@ -10,14 +10,14 @@
  * file that was distributed with this source code.
  */
 
-if (is_file($file = __DIR__ . '/../vendor/autoload.php')) {
-    require($file);
-} elseif (is_file($file = __DIR__ . '/../../../../vendor/autoload.php')) {
-    require($file);
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    require(__DIR__ . '/../vendor/autoload.php');
+} elseif (is_file(__DIR__ . '/../../../../vendor/autoload.php')) {
+    require(__DIR__ . '/../vendor/autoload.php');
 } else {
     die(
         'You must set up the Psy Shell dependencies, run the following commands:' . PHP_EOL .
-        'curl -s http://getcomposer.org/installer | php' . PHP_EOL . 
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
         'php composer.phar install' . PHP_EOL
     );
 }
