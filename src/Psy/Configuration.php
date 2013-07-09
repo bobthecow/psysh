@@ -313,6 +313,8 @@ class Configuration
                     $this->readline = new Readline\Readline($historyFile);
                 } elseif (Readline\Libedit::isSupported()) {
                     $this->readline = new Readline\Libedit($historyFile);
+                } elseif (Readline\LibeditTransient::isSupported()) {
+                    $this->readline = new Readline\LibeditTransient($historyFile);
                 }
             }
 
