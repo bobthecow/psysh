@@ -8,7 +8,7 @@ class Libedit extends Readline
 {
     public static function isSupported()
     {
-        return `which unvis` !== null;
+        return function_exists('readline') && (`which unvis` !== null);
     }
 
     public function listHistory()
