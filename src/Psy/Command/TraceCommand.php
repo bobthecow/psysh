@@ -30,7 +30,8 @@ class TraceCommand extends Command
         $this
             ->setName('trace')
             ->setDefinition(array(
-                new InputOption('include-psy', 'p', InputOption::VALUE_NONE, 'Include Psy in the call stack.'),
+                new InputOption('include-psy', 'p', InputOption::VALUE_NONE,     'Include Psy in the call stack.'),
+                new InputOption('num',         'n', InputOption::VALUE_REQUIRED, 'Only include NUM lines.'),
             ))
             ->setDescription('Show the current call stack.')
             ->setHelp(<<<EOF
@@ -44,7 +45,7 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->page($this->getBacktrace(new \Exception, null, $input->getOption('include-psy')), ShellOutput::NUMBER_LINES);
+        $output->page($this->getBacktrace(new \Exception, $input->getOption('num'), $input->getOption('include-psy')), ShellOutput::NUMBER_LINES);
     }
 
     /**
