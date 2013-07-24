@@ -52,18 +52,18 @@ return array(
 
 ## Downloading the manual
 
-The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.psysh`:
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.psysh/`:
 
- * **[English](#/manual/en/php_manual.sqlite)**
- * [Brazilian Portuguese](#/manual/pt_BR/php_manual.sqlite)
- * [Chinese (Simplified)](#/manual/zh/php_manual.sqlite)
- * [French](#/manual/fr/php_manual.sqlite)
- * [German](#/manual/de/php_manual.sqlite)
- * [Italian](#/manual/it/php_manual.sqlite)
- * [Japanese](#/manual/ja/php_manual.sqlite)
- * [Polish](#/manual/pl/php_manual.sqlite)
- * [Romanian](#/manual/ro/php_manual.sqlite)
- * [Russian](#/manual/ru/php_manual.sqlite)
- * [Persian](#/manual/fa/php_manual.sqlite)
- * [Spanish](#/manual/es/php_manual.sqlite)
- * [Turkish](#/manual/tr/php_manual.sqlite)
+ * **[English](http://psysh.org/manual/en/php_manual.sqlite)**
+ * [Brazilian Portuguese](http://psysh.org/manual/pt_BR/php_manual.sqlite)
+ * [Chinese (Simplified)](http://psysh.org/manual/zh/php_manual.sqlite)
+ * [French](http://psysh.org/manual/fr/php_manual.sqlite)
+ * [German](http://psysh.org/manual/de/php_manual.sqlite)
+ * [Italian](http://psysh.org/manual/it/php_manual.sqlite)
+ * [Japanese](http://psysh.org/manual/ja/php_manual.sqlite)
+ * [Polish](http://psysh.org/manual/pl/php_manual.sqlite)
+ * [Romanian](http://psysh.org/manual/ro/php_manual.sqlite)
+ * [Russian](http://psysh.org/manual/ru/php_manual.sqlite)
+ * [Persian](http://psysh.org/manual/fa/php_manual.sqlite)
+ * [Spanish](http://psysh.org/manual/es/php_manual.sqlite)
+ * [Turkish](http://psysh.org/manual/tr/php_manual.sqlite)
