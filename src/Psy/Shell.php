@@ -87,10 +87,10 @@ class Shell extends Application
      *     }
      *
      * If you would like your shell interaction to affect the state of the
-     * current context, you can export() the values returned from this call:
+     * current context, you can extract() the values returned from this call:
      *
      *     foreach ($items as $item) {
-     *         export(\Psy\Shell::debug(get_defined_vars()));
+     *         extract(\Psy\Shell::debug(get_defined_vars()));
      *         var_dump($item); // will be whatever you set $item to in Psy Shell
      *     }
      *
