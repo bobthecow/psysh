@@ -182,7 +182,7 @@ class Configuration
      */
     public function getTempDir()
     {
-        return $this->tempDir ?: sys_get_temp_dir().'/phpsh/';
+        return $this->tempDir ?: sys_get_temp_dir().'/psysh/';
     }
 
     /**
