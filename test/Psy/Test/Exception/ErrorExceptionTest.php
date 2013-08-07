@@ -99,6 +99,9 @@ class ErrorExceptionTest extends \PHPUnit_Framework_TestCase
         $e = new ErrorException('{{message}}', 0, 1, '/fake/path/to/Psy/ExecutionLoop/Loop.php');
         $this->assertEmpty($e->getFile());
 
+        $e = new ErrorException('{{message}}', 0, 1, 'c:\fake\path\to\Psy\ExecutionLoop\Loop.php');
+        $this->assertEmpty($e->getFile());
+
         $e = new ErrorException('{{message}}', 0, 1, '/fake/path/to/Psy/File.php');
         $this->assertNotEmpty($e->getFile());
     }

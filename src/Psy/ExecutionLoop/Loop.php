@@ -78,11 +78,17 @@ class Loop
                     $__psysh__->writeReturnValue($_);
                 } catch (BreakException $__psysh_e__) {
                     restore_error_handler();
+                    if (ob_get_level() > 0) {
+                        ob_end_clean();
+                    }
                     $__psysh__->writeException($__psysh_e__);
 
                     return;
                 } catch (\Exception $__psysh_e__) {
                     restore_error_handler();
+                    if (ob_get_level() > 0) {
+                        ob_end_clean();
+                    }
                     $__psysh__->writeException($__psysh_e__);
                 }
             } while (true);
