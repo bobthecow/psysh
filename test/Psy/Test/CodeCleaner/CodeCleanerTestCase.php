@@ -19,7 +19,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
         try {
             return $this->getParser()->parse($code);
         } catch (\PHPParser_Error $e) {
-            if ($e->getRawMessage() !== "Unexpected token EOF") {
+            if (!$this->parseErrorIsEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
 
@@ -60,5 +60,12 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
         }
 
         return $this->printer;
+    }
+
+    private function parseErrorIsEOF(\PHPParser_Error $e)
+    {
+        $msg = $e->getRawMessage();
+
+        return ($msg === "Unexpected token EOF") || (strpos($msg, "Syntax error, unexpected EOF") !== false);
     }
 }
