@@ -107,6 +107,62 @@
 
       <a name="usage"></a>
       <h2>Usage</h2>
+
+      <h3>PsySH as a REPL</h3>
+
+      <p>
+        PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've 
+        <a href="#install">downloaded the phar file</a>, running it directly (./psysh) will drop you into an interactive prompt, 
+        like so:
+      </p>
+
+      <blockquote>
+        psysh/bin$ ./psysh<br />
+        Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman<br />
+        >>> 
+      </blockquote> 
+
+      <p>
+        From here, you can start entering PHP code and see the result interactively:
+      </p>
+
+      <pre>
+        >>> function timesFive($x) {
+        ... $result = $x * 5;
+        ... return $result;
+        ... }
+        => null
+        >>> timesFive(10);
+        => 50
+        >>> 
+      </pre>
+
+      <h3>PsySH as a Debugger</h3>
+
+      <p>
+        In addition to working as a REPL, PsySH can be used as a debugger, much like javascript's <code>debugger</code> statement.
+        To use this functionality, drop the psysh phar file into your project, include it:
+      </p>
+
+      <blockquote>
+        &lt;?php
+        require('psysh');
+      </blockquote>
+
+      <p>
+        Then, drop this line into your script where you'd like to have a breakpoint:
+      </p>
+
+      <blockquote>
+        \Psy\Shell::debug(get_defined_vars());
+      </blockquote>
+
+      <p>
+        When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is
+        loaded and available for you to inspect and experiment with, saving you from the pain of endless <code>var_dump()</code> and 
+        <code>die()</code> iterations.
+      </p>
+
     </div>
 
     <script src="http://code.jquery.com/jquery.js"></script>
