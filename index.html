@@ -43,19 +43,19 @@
         from <a href="https://github.com/bobthecow/psysh">the GitHub repository</a>:
       </p>
 
-      <blockquote>
-        git clone https://github.com/bobthecow/psysh.git<br />
-        cd psysh<br />
+      <pre>
+        git clone https://github.com/bobthecow/psysh.git
+        cd psysh
         ./bin/psysh
-      </blockquote>
+      </pre>
 
       <p>But by far the easiest way to use it is to download the precompiled phar:</p>
 
-      <blockquote>
-        wget psysh.org/psysh<br />
-        chmod +x psysh<br />
+      <pre>
+        wget psysh.org/psysh
+        chmod +x psysh
         ./psysh
-      </blockquote>
+      </pre>
 
       <a name="configure"></a>
       <h2>Configuration</h2>
@@ -116,11 +116,11 @@
         like so:
       </p>
 
-      <blockquote>
-        psysh/bin$ ./psysh<br />
-        Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman<br />
+      <pre>
+        ~/psysh/bin$ ./psysh
+        Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman
         >>> 
-      </blockquote> 
+      </pre> 
 
       <p>
         From here, you can start entering PHP code and see the result interactively:
@@ -144,18 +144,18 @@
         To use this functionality, drop the psysh phar file into your project, include it:
       </p>
 
-      <blockquote>
+      <pre>
         &lt;?php
         require('psysh');
-      </blockquote>
+      </pre>
 
       <p>
         Then, drop this line into your script where you'd like to have a breakpoint:
       </p>
 
-      <blockquote>
+      <pre>
         \Psy\Shell::debug(get_defined_vars());
-      </blockquote>
+      </pre>
 
       <p>
         When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is
