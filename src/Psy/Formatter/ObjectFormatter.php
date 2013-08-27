@@ -79,10 +79,29 @@ class ObjectFormatter extends RecursiveFormatter
      */
     private static function getProperties($obj, \ReflectionClass $class)
     {
+        $deprecated = false;
+        $oldHandler = set_error_handler(function($errno, $errstr) use (&$deprecated) {
+            if (in_array($errno, array(E_DEPRECATED, E_USER_DEPRECATED))) {
+                $deprecated = true;
+            } else {
+                // not a deprecation error, let someone else handle this
+                return false;
+            }
+        });
+
         $props = array();
         foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
-            $props[$prop->getName()] = $prop->getValue($obj);
+            $deprecated = false;
+            $val = $prop->getValue($obj);
+
+            // TODO: maybe get the deprecated values anyway, but print them in
+            // a different color to indicate that they're deprecated? orange?
+            if (!$deprecated) {
+                $props[$prop->getName()] = $val;
+            }
         }
+
+        set_error_handler($oldHandler);
 
         return $props;
     }
