@@ -14,6 +14,7 @@ namespace Psy;
 use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
+use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\MagicConstantsPass;
@@ -65,6 +66,7 @@ class CodeCleaner
     private function getDefaultPasses()
     {
         return array(
+            new AssignThisVariablePass,
             new LeavePsyshAlonePass,
             new ImplicitReturnPass,
             new UseStatementPass,      // must run before namespace and validation passes
