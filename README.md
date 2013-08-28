@@ -1,6 +1,6 @@
 # PsySH
 
-<!-- [![Build Status](https://secure.travis-ci.org/bobthecow/psysh.png?branch=dev)](http://travis-ci.org/bobthecow/psysh) -->
+[![Build Status](https://travis-ci.org/bobthecow/psysh.png?branch=master)](https://travis-ci.org/bobthecow/psysh)
 
 Check out the [Interactive Debugging in PHP talk from OSCON](https://presentate.com/bobthecow/talks/php-for-pirates) on Presentate.
 
