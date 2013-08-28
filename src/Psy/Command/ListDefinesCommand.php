@@ -33,8 +33,8 @@ class ListDefinesCommand extends ListingCommand
                 new InputOption('user',     'u', InputOption::VALUE_NONE,     'List all user-defined constants.'),
                 new InputOption('category', 'C', InputOption::VALUE_REQUIRED, 'List all defined constants from a specific category.'),
 
-                new InputOption('grep',   'G', InputOption::VALUE_REQUIRED, 'Show constants matching the given pattern (string or regex).'),
-                new InputOption('invert', 'v', InputOption::VALUE_NONE,     'Inverted search (requires --grep).'),
+                new InputOption('grep',     'G', InputOption::VALUE_REQUIRED, 'Show constants matching the given pattern (string or regex).'),
+                new InputOption('invert',   'v', InputOption::VALUE_NONE,     'Inverted search (requires --grep).'),
             ))
             ->setDescription('List or search named constants.')
             ->setHelp(<<<EOF
@@ -57,7 +57,7 @@ EOF
             $consts = get_defined_constants(true);
             return isset($consts['user']) ? array_keys($consts['user']) : array();
 
-        } elseif ( $category = $input->getOption('category') ) {
+        } elseif ($category = $input->getOption('category')) {
             $consts = get_defined_constants(true);
             return isset($consts[$category]) ? array_keys($consts[$category]) : array();
         } else {
