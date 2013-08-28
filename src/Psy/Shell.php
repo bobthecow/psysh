@@ -135,6 +135,7 @@ class Shell extends Application
             new Command\HelpCommand,
             new Command\ListCommand,
             new Command\ListClassesCommand,
+            new Command\ListDefinesCommand,
             new Command\ListFunctionsCommand,
             new Command\DocCommand,
             new Command\ShowCommand,
