@@ -1,178 +1,148 @@
-<!DOCTYPE HTML>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PsySH</title>
-    <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAXVBMVEX%2F%2F%2F7%2B%2Fv3u7u7X19f8%2FPzLy8vV1dXb29v19fXo6OjAwMD9%2Ffz5%2BfmdnZ2kpKSSkpKmpqaLi4vHx8evr6%2BysrKgoKDd3d3k5OT29vb39%2Ff%2B%2Fv76%2Bvry8vLw8PDq6urNCGWzAAAAtUlEQVR4Xu3S1wrDMAxAUct7ZO%2FV%2Fv9nNiBIHgqNBQmFkPt%2BkIzM7tQTABDBMEh5KWBSau2oQNOGOCpgSVLXNR2QigJ5ngshEKRpCgAHa6ygqnZg7clgmpqmMYYjyLJMiPd5AFsB518gsqIo8D3%2FBUopay2Ctm277nUEvO%2F76wAAlGXpvdouPc%2FsJxhHGsAJSu2AHQYjIHbOccMpQGsTBWADDj9VVCEE3CcaLIuhgRBwn9v09AHS8gwfehlVVgAAAABJRU5ErkJggg%3D%3D" type="image/png" />
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="/assets/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
-  </head>
-  <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="#">PsySH</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li><a href="#">Home</a></li>
-              <li><a href="#install">Installation</a></li>
-              <li><a href="#configure">Configuration</a></li>
-              <li><a href="#usage">Usage</a></li>
-            </ul>
-          </div>  <!-- nav-collapse -->
-        </div>
-      </div>
-    </div> <!-- navbar -->
+---
+layout: default
+title:  PsySH
+---
+<h1>PsySH</h1>
+<p>
+  PsySH is a runtime developer console and debugger for PHP. Unlike
+  <a href="http://php.net/manual/en/features.commandline.interactive.php"><code>php -a</code></a>, PsySH is a
+  <abbr title="Read-Eval-Print Loop">REPL</abbr>, does automatic semicolon insertion, and is really hard to crash.
+  In addition to working as a REPL, PsySH can be used as a debugger, much like javascript's <code>debugger</code> statement,
+  saving you from the pain of endless <code>var_dump()</code> and <code>die()</code> iterations.
+</p>
 
-    <div class="container">
-      <h1>PsySH</h1>
-      <p>
-        PsySH is a runtime developer console and debugger for PHP. Unlike 
-        <a href="http://php.net/manual/en/features.commandline.interactive.php"><code>php -a</code></a>, PsySH is a 
-        <abbr title="Read-Eval-Print Loop">REPL</abbr>, does automatic semicolon insertion, and is really hard to crash.
-        In addition to working as a REPL, PsySH can be used as a debugger, much like javascript's <code>debugger</code> statement,
-        saving you from the pain of endless <code>var_dump()</code> and <code>die()</code> iterations.
-      </p>
-      
-      <p>
-        For an overview of the state of PHP debugging and why PsySH might be for you, see the slides from 
-        <a href="https://presentate.com/bobthecow/talks/php-for-pirates">Interactive Debugging in PHP</a> at OSCON 2013.
-      </p>
+<p>
+  For an overview of the state of PHP debugging and why PsySH might be for you, see the slides from
+  <a href="https://presentate.com/bobthecow/talks/php-for-pirates">Interactive Debugging in PHP</a> at OSCON 2013.
+</p>
 
-      <p><a href="https://github.com/bobthecow/psysh" class="btn btn-primary">Get PsySH</a></p>
+<p><a href="https://github.com/bobthecow/psysh" class="btn btn-primary">Get PsySH</a></p>
 
-      <section id="install">
-        <h2>Installation</h2>
+<section id="install">
+  <h2>Installation</h2>
 
-        <p>
-          PsySH <a href="https://packagist.org/packages/psy/psysh">is available via Composer</a>, or you can use it directly 
-          from <a href="https://github.com/bobthecow/psysh">the GitHub repository</a>:
-        </p>
+  <p>
+    PsySH <a href="https://packagist.org/packages/psy/psysh">is available via Composer</a>, or you can use it directly
+    from <a href="https://github.com/bobthecow/psysh">the GitHub repository</a>:
+  </p>
 
-        <pre>
-          git clone https://github.com/bobthecow/psysh.git
-          cd psysh
-          ./bin/psysh
-        </pre>
+  <pre>
+    git clone https://github.com/bobthecow/psysh.git
+    cd psysh
+    ./bin/psysh
+  </pre>
 
-        <p>But by far the easiest way to use it is to download the precompiled phar:</p>
+  <p>But by far the easiest way to use it is to download the precompiled phar:</p>
 
-        <pre>
-          wget psysh.org/psysh
-          chmod +x psysh
-          ./psysh
-        </pre>
-      </section>
+  <pre>
+    wget psysh.org/psysh
+    chmod +x psysh
+    ./psysh
+  </pre>
+</section>
 
-      <section id="configure">
-        <h2>Configuration</h2>
+<section id="configure">
+  <h2>Configuration</h2>
 
-        <p>While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.psysh/rc.php`:</p>
+  <p>While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.psysh/rc.php`:</p>
 
-        <pre>
-        &lt;?php
+  <pre>
+  &lt;?php
 
-        return array(
-            // In PHP 5.4+, PsySH will default to your `cli.pager` ini setting. If this
-            // is not set, it falls back to `less`. It is recommended that you set up
-            // `cli.pager` in your `php.ini` with your preferred output pager.
-            // 
-            // If you are running PHP 5.3, or if you want to use a different pager only
-            // for Psy shell sessions, you can override it here.
-            'pager' => 'more',
+  return array(
+      // In PHP 5.4+, PsySH will default to your `cli.pager` ini setting. If this
+      // is not set, it falls back to `less`. It is recommended that you set up
+      // `cli.pager` in your `php.ini` with your preferred output pager.
+      //
+      // If you are running PHP 5.3, or if you want to use a different pager only
+      // for Psy shell sessions, you can override it here.
+      'pager' => 'more',
 
-            // By default, PsySH will use a 'forking' execution loop if pcntl is
-            // installed. This is by far the best way to use it, but you can override
-            // the default by explicitly enabling or disabling this functionality here.
-            'usePcntl' => false,
+      // By default, PsySH will use a 'forking' execution loop if pcntl is
+      // installed. This is by far the best way to use it, but you can override
+      // the default by explicitly enabling or disabling this functionality here.
+      'usePcntl' => false,
 
-            // PsySH uses readline if you have it installed, because interactive input
-            // is pretty awful without it. But you can explicitly disable it if you hate
-            // yourself or something.
-            'useReadline' => false,
+      // PsySH uses readline if you have it installed, because interactive input
+      // is pretty awful without it. But you can explicitly disable it if you hate
+      // yourself or something.
+      'useReadline' => false,
 
-            // "Default includes" will be included once at the beginning of every PsySH
-            // session. This is a good place to add autoloaders for your favorite
-            // libraries.
-            'defaultIncludes' => array(
-                __DIR__.'/include/bootstrap.php',
-            ),
+      // "Default includes" will be included once at the beginning of every PsySH
+      // session. This is a good place to add autoloaders for your favorite
+      // libraries.
+      'defaultIncludes' => array(
+          __DIR__.'/include/bootstrap.php',
+      ),
 
-            // While PsySH ships with a bunch of great commands, it's possible to add
-            // your own for even more awesome. Any Psy command added here will be
-            // available in your Psy shell sessions.
-            'commands' => array(
-                // The `parse` command is a command used in the development of PsySH.
-                // Given a string of PHP code, it pretty-prints the
-                // [PHP Parser](https://github.com/nikic/PHP-Parser) parse tree. It
-                // prolly won't be super useful for most of you, but it's there if you
-                // want to play :)
-                new \Psy\Command\ParseCommand,
-            ),
-        );
-        </pre>
-      </section>
+      // While PsySH ships with a bunch of great commands, it's possible to add
+      // your own for even more awesome. Any Psy command added here will be
+      // available in your Psy shell sessions.
+      'commands' => array(
+          // The `parse` command is a command used in the development of PsySH.
+          // Given a string of PHP code, it pretty-prints the
+          // [PHP Parser](https://github.com/nikic/PHP-Parser) parse tree. It
+          // prolly won't be super useful for most of you, but it's there if you
+          // want to play :)
+          new \Psy\Command\ParseCommand,
+      ),
+  );
+  </pre>
+</section>
 
-      <section id="usage">
-        <h2>Usage</h2>
+<section id="usage">
+  <h2>Usage</h2>
 
-        <h3>PsySH as a REPL</h3>
+  <h3>PsySH as a REPL</h3>
 
-        <p>
-          PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've 
-          <a href="#install">downloaded the phar file</a>, running it directly (./psysh) will drop you into an interactive prompt, 
-          like so:
-        </p>
+  <p>
+    PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've
+    <a href="#install">downloaded the phar file</a>, running it directly (./psysh) will drop you into an interactive prompt,
+    like so:
+  </p>
 
-        <pre>
-          ~/psysh/bin$ ./psysh
-          Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman
-          >>> 
-        </pre> 
+  <pre>
+    ~/psysh/bin$ ./psysh
+    Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman
+    >>>
+  </pre>
 
-        <p>
-          From here, you can start entering PHP code and see the result interactively:
-        </p>
+  <p>
+    From here, you can start entering PHP code and see the result interactively:
+  </p>
 
-        <pre>
-          >>> function timesFive($x) {
-          ... $result = $x * 5;
-          ... return $result;
-          ... }
-          => null
-          >>> timesFive(10);
-          => 50
-          >>> 
-        </pre>
+  <pre>
+    >>> function timesFive($x) {
+    ... $result = $x * 5;
+    ... return $result;
+    ... }
+    => null
+    >>> timesFive(10);
+    => 50
+    >>>
+  </pre>
 
-        <h3>PsySH as a Debugger</h3>
+  <h3>PsySH as a Debugger</h3>
 
-        <p>
-          To use this functionality, drop the psysh phar file into your project, include it:
-        </p>
+  <p>
+    To use this functionality, drop the psysh phar file into your project, include it:
+  </p>
 
-        <pre>
-          &lt;?php
-          require('psysh');
-        </pre>
+  <pre>
+    &lt;?php
+    require('psysh');
+  </pre>
 
-        <p>
-          Then, drop this line into your script where you'd like to have a breakpoint:
-        </p>
+  <p>
+    Then, drop this line into your script where you'd like to have a breakpoint:
+  </p>
 
-        <pre>
-          \Psy\Shell::debug(get_defined_vars());
-        </pre>
+  <pre>
+    \Psy\Shell::debug(get_defined_vars());
+  </pre>
 
-        <p>
-          When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is
-          loaded and available for you to inspect and experiment with.
-        </p>
-      </section>
-    </div>
-
-    <script src="/assets/js/jquery.min.js"></script>
-    <script src="/assets/js/bootstrap.min.js"></script>
-  </body>
-</html>
+  <p>
+    When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is
+    loaded and available for you to inspect and experiment with.
+  </p>
+</section>
