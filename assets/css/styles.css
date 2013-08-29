@@ -1,0 +1,12 @@
+.section-head {
+  display: block;
+  clear: both;
+  padding-top: 60px;
+}
+
+#footer {
+	border-top: 1px solid #ddd;
+	padding: 40px 0;
+	margin-top: 60px;
+	background-color: #f3f3f3;
+}
