@@ -9,21 +9,21 @@
     <link href="/assets/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
   </head>
   <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="#">PsySH</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li><a href="#">Home</a></li>
-              <li><a href="#install">Installation</a></li>
-              <li><a href="#configure">Configuration</a></li>
-              <li><a href="#usage">Usage</a></li>
-            </ul>
-          </div>  <!-- nav-collapse -->
+    <header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">PsySH</a>
         </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+          <ul class="nav navbar-nav">
+            <li><a href="#">Home</a></li>
+            <li><a href="#install">Installation</a></li>
+            <li><a href="#configure">Configuration</a></li>
+            <li><a href="#usage">Usage</a></li>
+          </ul>
+        </nav>
       </div>
-    </div> <!-- navbar -->
+    </header>
 
     <div class="container">
       {{ content }}
