@@ -2,4 +2,4 @@ name:     PsySH
 safe:     true
 lsi:      false
 pygments: true
-# markdown: redcarpet
+markdown: redcarpet
