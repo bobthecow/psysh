@@ -245,7 +245,7 @@ EOF
      */
     private function printScopeVarsLong(ShellOutput $output, array $vars, $scope = 'Local')
     {
-        $output->page(function($output) use($vars, $scope) {
+        $output->page(function($output) use ($vars, $scope) {
             $hashes = array();
             $output->writeln('<strong>' . $scope . ' variables:</strong>');
             foreach ($vars as $name => $var) {

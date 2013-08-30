@@ -98,6 +98,7 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
         if ($depth > 0) {
             $formatted = $this->manager->present($value, $depth - 1);
             $this->setDepth($depth);
+
             return $formatted;
         } else {
             return $this->manager->presentRef($value);

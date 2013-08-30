@@ -34,7 +34,7 @@ class ClosurePresenter extends AbstractPresenter
      * Present the Closure.
      *
      * @param \Closure $value
-     * @param int     $depth (default:null)
+     * @param int      $depth (default:null)
      *
      * @return string
      */
@@ -74,7 +74,7 @@ class ClosurePresenter extends AbstractPresenter
 
             if (version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant()) {
                 $ret .= $param->getDefaultValueConstantName();
-            } elseif($param->isDefaultValueAvailable()) {
+            } elseif ($param->isDefaultValueAvailable()) {
                 $ret .= json_encode($param->getDefaultValue());
             } else {
                 $ret .= '?';

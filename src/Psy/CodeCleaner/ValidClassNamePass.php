@@ -116,7 +116,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that no class, interface or trait name collides with a new definition.
      *
-     * @param  Statement $stmt
+     * @param Statement $stmt
      */
     protected function ensureCanDefine(Statement $stmt)
     {
@@ -144,8 +144,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that a referenced class exists.
      *
-     * @param  string    $name
-     * @param  Statement $stmt
+     * @param string    $name
+     * @param Statement $stmt
      */
     protected function ensureClassExists($name, $stmt)
     {
@@ -157,8 +157,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that a referenced interface exists.
      *
-     * @param  string    $name
-     * @param  Statement $stmt
+     * @param string    $name
+     * @param Statement $stmt
      */
     protected function ensureInterfacesExist($interfaces, $stmt)
     {
@@ -173,7 +173,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Get a symbol type key for storing in the scope name cache.
      *
-     * @param  Statement $stmt [description]
+     * @param Statement $stmt [description]
      *
      * @return string
      */
@@ -191,7 +191,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Check whether a class exists, or has been defined in the current code snippet.
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return boolean
      */
@@ -203,7 +203,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Check whether an interface exists, or has been defined in the current code snippet.
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return boolean
      */
@@ -215,7 +215,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Check whether a trait exists, or has been defined in the current code snippet.
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return boolean
      */
@@ -227,7 +227,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Find a symbol in the current code snippet scope.
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return string
      */
@@ -241,8 +241,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Error creation factory
      *
-     * @param  string    $msg
-     * @param  Statement $stmt
+     * @param string    $msg
+     * @param Statement $stmt
      *
      * @return FatalErrorException
      */

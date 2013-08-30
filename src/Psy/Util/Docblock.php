@@ -132,7 +132,6 @@ class Docblock
         // Strip the opening and closing tags of the docblock
         $comment = substr($comment, 3, -2);
 
-
         // Split into arrays of lines
         $comment = array_filter(preg_split('/\r?\n\r?/', $comment));
 

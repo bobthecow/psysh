@@ -40,7 +40,6 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
                 }
             "),
 
-
             // function calls
             array('psy_test_codecleaner_validfunctionnamepass_gamma()'),
             array("

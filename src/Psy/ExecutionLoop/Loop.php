@@ -50,7 +50,6 @@ class Loop
             restore_error_handler();
             unset($__psysh_include__, $__psysh_e__);
 
-
             extract($__psysh__->getScopeVariables());
 
             do {

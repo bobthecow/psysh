@@ -11,8 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\PresenterManager;
-
 /**
  * Presenter classes are able to pretty-print values for display. Think
  * `var_dump`, but with sane and beautiful output.

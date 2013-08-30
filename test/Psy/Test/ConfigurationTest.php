@@ -69,7 +69,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-
     public function testLoadConfig()
     {
         $config  = new Configuration;

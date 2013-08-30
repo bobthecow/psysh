@@ -42,7 +42,6 @@ class DocblockFormatter implements Formatter
             $chunks[] = '';
         }
 
-
         if (!empty($docblock->tags)) {
             foreach ($docblock::$vectors as $name => $vector) {
                 if (isset($docblock->tags[$name])) {
