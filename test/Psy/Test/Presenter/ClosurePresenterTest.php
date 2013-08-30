@@ -38,7 +38,7 @@ class ClosurePresenterTest extends \PHPUnit_Framework_TestCase
 
     public function presentData()
     {
-        $eol = version_compare(PHP_VERSION, '5.4.3', '>=') ? 'PHP_EOL' : '"\n';
+        $eol = version_compare(PHP_VERSION, '5.4.3', '>=') ? 'PHP_EOL' : '"\n"';
 
         return array(
             array(function() {},                  'function() { ... }'                 ),
