@@ -1,3 +1,37 @@
+.navbar-inverse {
+    box-shadow: 0 1px 0 #333;
+}
+
+#hero h1 {
+    margin-top: 1em;
+    margin-bottom: 40px;
+    color: #eee;
+}
+
+#hero .jumbotron {
+    background-color: #222;
+    color: #ccc;
+}
+
+#hero code {
+    color: #ddd;
+    background-color: #000;
+}
+
+#hero .call-to-action {
+    margin-top: 40px;
+}
+
+/*
+#hero a:link, #hero a:visited {
+    font-weight: bold;
+}
+
+#hero a:hover, #hero a:active {
+    color: #c0d8ed;
+}
+*/
+
 .section-head {
   display: block;
   clear: both;
@@ -5,8 +39,8 @@
 }
 
 #footer {
-	border-top: 1px solid #ddd;
-	padding: 40px 0;
-	margin-top: 60px;
-	background-color: #f3f3f3;
+    border-top: 1px solid #ddd;
+    padding: 40px 0;
+    margin-top: 60px;
+    background-color: #f3f3f3;
 }

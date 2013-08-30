@@ -6,12 +6,11 @@
     <title>{{ page.title }}</title>
     <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAXVBMVEX%2F%2F%2F7%2B%2Fv3u7u7X19f8%2FPzLy8vV1dXb29v19fXo6OjAwMD9%2Ffz5%2BfmdnZ2kpKSSkpKmpqaLi4vHx8evr6%2BysrKgoKDd3d3k5OT29vb39%2Ff%2B%2Fv76%2Bvry8vLw8PDq6urNCGWzAAAAtUlEQVR4Xu3S1wrDMAxAUct7ZO%2FV%2Fv9nNiBIHgqNBQmFkPt%2BkIzM7tQTABDBMEh5KWBSau2oQNOGOCpgSVLXNR2QigJ5ngshEKRpCgAHa6ygqnZg7clgmpqmMYYjyLJMiPd5AFsB518gsqIo8D3%2FBUopay2Ctm277nUEvO%2F76wAAlGXpvdouPc%2FsJxhHGsAJSu2AHQYjIHbOccMpQGsTBWADDj9VVCEE3CcaLIuhgRBwn9v09AHS8gwfehlVVgAAAABJRU5ErkJggg%3D%3D" type="image/png" />
     <link href="/assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="/assets/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
     <link href="/assets/css/syntax.css" rel="stylesheet" media="screen">
     <link href="/assets/css/styles.css" rel="stylesheet" media="screen">
   </head>
   <body>
-    <header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+    <header class="navbar navbar-inverse navbar-fixed-top hidden-xs" role="banner">
       <div class="container">
         <div class="navbar-header">
           <a href="/" class="navbar-brand">PsySH</a>
@@ -24,6 +23,20 @@
             <li><a href="#usage">Usage</a></li>
           </ul>
         </nav>
+      </div>
+    </header>
+
+    <header id="hero">
+      <div class="jumbotron">
+        <div class="container">
+          <h1>PsySH</h1>
+
+          <p>PsySH is a runtime developer console and debugger for PHP. Unlike <a href="http://php.net/manual/en/features.commandline.interactive.php"><code>php -a</code></a>, PsySH is a <abbr title="Read-Eval-Print Loop">REPL</abbr>, does automatic semicolon insertion, and is really hard to crash. In addition to working as a REPL, PsySH can be used as a debugger, much like javascript's <code>debugger</code> statement, saving you from the pain of endless <code>var_dump()</code> and <code>die()</code> iterations.</p>
+
+          <p>For an overview of the state of PHP debugging and why PsySH might be for you, see the slides from <a href="https://presentate.com/bobthecow/talks/php-for-pirates">Interactive Debugging in PHP</a> at OSCON 2013.</p>
+
+          <p class="call-to-action"><a href="https://github.com/bobthecow/psysh" class="btn btn-primary btn-lg">Get PsySH</a></p>
+        </div>
       </div>
     </header>
 
