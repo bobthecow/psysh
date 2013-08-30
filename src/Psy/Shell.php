@@ -11,15 +11,14 @@
 
 namespace Psy;
 
+use Psy\Command\ShellAware;
 use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
-use Psy\Formatter\ArrayFormatter;
-use Psy\Formatter\ObjectFormatter;
 use Psy\Output\ShellOutput;
+use Psy\Presenter\PresenterManagerAware;
 use Psy\Readline;
-use Psy\Command\ShellAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -414,6 +413,10 @@ class Shell extends Application
             $command->setShell($this);
         }
 
+        if ($command instanceof PresenterManagerAware) {
+            $command->setPresenterManager($this->config->getPresenterManager());
+        }
+
         $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
 
         if ($input->hasParameterOption(array('--help', '-h'))) {
@@ -504,13 +507,20 @@ class Shell extends Application
      * The return value is formatted or pretty-printed, and rendered in a
      * visibly distinct manner (in this case, as cyan).
      *
-     * @see self::formatValue
+     * @see self::presentValue
      *
      * @param mixed $ret
      */
     public function writeReturnValue($ret)
     {
-        $this->output->writeln(sprintf("%s<return>%s</return>", self::RETVAL, $this->formatValue($ret)));
+        $ret    = $this->presentValue($ret);
+        $indent = str_repeat(' ', strlen(self::RETVAL));
+
+        $this->output->writeln(sprintf(
+            '%s<return>%s</return>',
+            self::RETVAL,
+            str_replace(PHP_EOL, PHP_EOL . $indent, $ret)
+        ));
     }
 
     /**
@@ -564,29 +574,15 @@ class Shell extends Application
     /**
      * Format a value for display.
      *
-     * If it's an object, the formatting is delegated to ObjectFormatter. If it's
-     * an array, ArrayFormatter will do the job. If it's anything else, it is
-     * JSON encoded for display.
-     *
-     * @see ObjectFormatter::format
-     * @see ArrayFormatter::format
-     * @see json_encode
+     * @see PresenterManager::present
      *
      * @param mixed $val
      *
      * @return string Formatted value
      */
-    protected function formatValue($val)
+    protected function presentValue($val)
     {
-        if (is_object($val)) {
-            return ObjectFormatter::format($val);
-        } elseif (is_array($val)) {
-            return ArrayFormatter::format($val);
-        } elseif (is_resource($val)) {
-            return sprintf('<%s>', print_r($val, true));
-        } else {
-            return json_encode($val);
-        }
+        return $this->config->getPresenterManager()->present($val);
     }
 
     /**

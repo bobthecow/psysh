@@ -12,11 +12,12 @@
 namespace Psy\Command;
 
 use Psy\Command\ReflectingCommand;
-use Psy\Formatter\ObjectFormatter;
-use Psy\Reflection\ReflectionConstant;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Output\ShellOutput;
+use Psy\Presenter\PresenterManager;
+use Psy\Presenter\PresenterManagerAware;
+use Psy\Reflection\ReflectionConstant;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,9 +26,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * List available local variables, object properties, etc.
  */
-class ListCommand extends ReflectingCommand
+class ListCommand extends ReflectingCommand implements PresenterManagerAware
 {
     private static $specialVars = array('_');
+
+    protected $presenterManager;
+
+    /**
+     * PresenterManagerAware interface.
+     *
+     * @param PresenterManager $manager
+     */
+    public function setPresenterManager(PresenterManager $manager)
+    {
+        $this->presenterManager = $manager;
+    }
 
     /**
      * {@inheritdoc}
@@ -316,7 +329,7 @@ EOF
                 continue;
             }
 
-            $ret[$name] = array(self::printVarName($name, $maxName), self::printType($var, $maxType, $verbose), self::getHash($var));
+            $ret[$name] = array(self::printVarName($name, $maxName), $this->printType($var, $maxType, $verbose), self::getHash($var));
         }
 
         return $ret;
@@ -340,7 +353,7 @@ EOF
 
         list($maxName, $maxType) = $this->getMaxVarLengths($scopeVars, $verbose);
         foreach ($scopeVars as $name => $var) {
-            $ret[$name] = array(self::printVarName($name, $maxName, true), self::printType($var, $maxType, $verbose), self::getHash($var));
+            $ret[$name] = array(self::printVarName($name, $maxName, true), $this->printType($var, $maxType, $verbose), self::getHash($var));
         }
 
         return $ret;
@@ -360,7 +373,7 @@ EOF
         $maxType = 0;
         foreach ($scopeVars as $name => $var) {
             $maxName = max($maxName, strlen($name) + 1);
-            $maxType = max($maxType, strlen(self::getType($var, $verbose)));
+            $maxType = max($maxType, strlen($this->getType($var, $verbose)));
         }
     }
 
@@ -407,10 +420,14 @@ EOF
      *
      * @return string
      */
-    private static function getType($var, $verbose = false)
+    private function getType($var, $verbose = false)
     {
         if (is_object($var)) {
-            return $verbose ? ObjectFormatter::formatRef($var) : get_class($var);
+            if ($verbose) {
+                return $this->presenterManager->presentRef($var);
+            } else {
+                return get_class($var);
+            }
         } else {
             return strtolower(gettype($var));
         }
@@ -425,9 +442,9 @@ EOF
      *
      * @return string
      */
-    private static function printType($var, $max = 0, $verbose = false)
+    private function printType($var, $max = 0, $verbose = false)
     {
-        $val = self::getType($var, $verbose);
+        $val = $this->getType($var, $verbose);
         if (is_object($var)) {
             if (!$verbose) {
                 $val = sprintf('<%s>', $val);

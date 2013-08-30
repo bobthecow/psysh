@@ -17,6 +17,7 @@ use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
 use Psy\Output\ShellOutput;
+use Psy\Presenter\PresenterManager;
 use Psy\Readline;
 use Psy\Shell;
 
@@ -44,6 +45,7 @@ class Configuration
     private $pager;
     private $loop;
     private $manualDb;
+    private $presenters;
 
     /**
      * Construct a Configuration instance.
@@ -96,7 +98,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (array('defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir', 'manualDbFile') as $option) {
+        foreach (array('defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir', 'manualDbFile', 'presenters') as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -565,5 +567,42 @@ class Configuration
         }
 
         return $this->manualDb;
+    }
+
+    /**
+     * Add an array of Presenters.
+     *
+     * @param array $presenters
+     */
+    public function addPresenters(array $presenters)
+    {
+        $this->setPresenters($presenters);
+    }
+
+    /**
+     * @see self::addPresenters()
+     *
+     * @param array $presenters (default: array())
+     */
+    protected function setPresenters(array $presenters = array())
+    {
+        $manager = $this->getPresenterManager();
+        foreach ($presenters as $presenter) {
+            $manager->addPresenter($presenter);
+        }
+    }
+
+    /**
+     * Get the PresenterManager service.
+     *
+     * @return PresenterManager
+     */
+    public function getPresenterManager()
+    {
+        if (!isset($this->presenters)) {
+            $this->presenters = new PresenterManager;
+        }
+
+        return $this->presenters;
     }
 }
