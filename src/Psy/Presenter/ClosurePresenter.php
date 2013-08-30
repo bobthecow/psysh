@@ -72,7 +72,7 @@ class ClosurePresenter extends AbstractPresenter
         if ($param->isOptional()) {
             $ret .= ' = ';
 
-            if ($param->isDefaultValueConstant()) {
+            if (version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant()) {
                 $ret .= $param->getDefaultValueConstantName();
             } elseif($param->isDefaultValueAvailable()) {
                 $ret .= json_encode($param->getDefaultValue());
