@@ -93,7 +93,7 @@ abstract class Enumerator
     private function setFilter(InputInterface $input)
     {
         if ($pattern = $input->getOption('grep')) {
-            if (strlen($pattern) < 3 || substr($pattern, 0, 1) != substr($pattern, -1)) {
+            if (substr($pattern, 0, 1) !== '/' || substr($pattern, -1) !== '/' || strlen($pattern) < 3) {
                 $pattern = '/'.preg_quote($pattern, '/').'/';
             }
 

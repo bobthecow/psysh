@@ -74,12 +74,15 @@ class HistoryCommand extends ShellAwareCommand
         $invert      = $input->getOption('invert');
         $insensitive = $input->getOption('insensitive');
         if ($pattern = $input->getOption('grep')) {
-            if (strlen($pattern) < 3 || substr($pattern, 0, 1) != substr($pattern, -1)) {
+            if (substr($pattern, 0, 1) !== '/' || substr($pattern, -1) !== '/' || strlen($pattern) < 3) {
                 $pattern = '/'.preg_quote($pattern, '/').'/';
             }
+
             if ($insensitive) {
                 $pattern .= 'i';
             }
+
+            $this->validateRegex($pattern);
 
             $matches     = array();
             $highlighted = array();
@@ -175,6 +178,24 @@ class HistoryCommand extends ShellAwareCommand
         }
 
         return array_slice($history, $start, $length, true);
+    }
+
+    /**
+     * Validate that $pattern is a valid regular expression.
+     *
+     * @param string $pattern
+     *
+     * @return boolean
+     */
+    private function validateRegex($pattern)
+    {
+        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+        try {
+            preg_match($pattern, '');
+        } catch (ErrorException $e) {
+            throw new RuntimeException(str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));
+        }
+        restore_error_handler();
     }
 
     /**
