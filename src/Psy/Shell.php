@@ -134,9 +134,6 @@ class Shell extends Application
         return array(
             new Command\HelpCommand,
             new Command\ListCommand,
-            new Command\ListClassesCommand,
-            new Command\ListDefinesCommand,
-            new Command\ListFunctionsCommand,
             new Command\DocCommand,
             new Command\ShowCommand,
             new Command\WtfCommand,

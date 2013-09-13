@@ -195,12 +195,24 @@ class SignatureFormatter implements Formatter
     {
         $params = array();
         foreach ($reflector->getParameters() as $param) {
-            if ($param->isArray()) {
-                $hint = '<info>array</info> ';
-            } elseif ($class = $param->getClass()) {
-                $hint = sprintf('<info>%s</info> ', $class->getName());
-            } else {
-                $hint = '';
+            $hint = '';
+            try {
+                if ($param->isArray()) {
+                    $hint = '<info>array</info> ';
+                } elseif ($class = $param->getClass()) {
+                    $hint = sprintf('<info>%s</info> ', $class->getName());
+                }
+            } catch (\Exception $e) {
+                // sometimes we just don't know...
+                // bad class names, or autoloaded classes that haven't been loaded yet, or whathaveyou.
+                // come to think of it, the only time I've seen this is with the intl extension.
+
+                // Hax: we'll try to extract it :P
+                $chunks = explode('$'.$param->getName(), (string) $param);
+                $chunks = explode(' ', trim($chunks[0]));
+                $guess  = end($chunks);
+
+                $hint = sprintf('<urgent>%s</urgent> ', $guess);
             }
 
             if ($param->isOptional()) {
