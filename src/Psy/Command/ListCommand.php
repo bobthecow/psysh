@@ -20,7 +20,7 @@ use Psy\Command\ListCommand\GlobalVariableEnumerator;
 use Psy\Command\ListCommand\InterfaceEnumerator;
 use Psy\Command\ListCommand\MethodEnumerator;
 use Psy\Command\ListCommand\PropertyEnumerator;
-// use Psy\Command\ListCommand\TraitEnumerator;
+use Psy\Command\ListCommand\TraitEnumerator;
 use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Command\ReflectingCommand;
 use Psy\Exception\RuntimeException;
@@ -66,7 +66,7 @@ class ListCommand extends ReflectingCommand implements PresenterManagerAware
                 new InputOption('functions',   'f', InputOption::VALUE_NONE,     'Display defined functions.'),
                 new InputOption('classes',     'k', InputOption::VALUE_NONE,     'Display declared classes.'),
                 new InputOption('interfaces',  'I', InputOption::VALUE_NONE,     'Display declared interfaces.'),
-                // new InputOption('traits',      't', InputOption::VALUE_NONE,     'Display declared traits.'),
+                new InputOption('traits',      't', InputOption::VALUE_NONE,     'Display declared traits.'),
 
                 new InputOption('properties',  'p', InputOption::VALUE_NONE,     'Display class or object properties (public properties by default).'),
                 new InputOption('methods',     'm', InputOption::VALUE_NONE,     'Display class or object methods (public methods by default).'),
@@ -134,9 +134,9 @@ EOF
                 new FunctionEnumerator($mgr),
                 new GlobalVariableEnumerator($mgr),
                 new InterfaceEnumerator($mgr),
-                new MethodEnumerator($mgr),
                 new PropertyEnumerator($mgr),
-                // new TraitEnumerator($mgr),
+                new MethodEnumerator($mgr),
+                new TraitEnumerator($mgr),
                 new VariableEnumerator($mgr, $this->shell),
             );
         }
@@ -248,8 +248,7 @@ EOF
                 }
             }
 
-            // TODO: add traits here, once implemented
-            foreach (array('globals', 'vars', 'constants', 'functions', 'classes', 'interfaces') as $option) {
+            foreach (array('globals', 'vars', 'constants', 'functions', 'classes', 'interfaces', 'traits') as $option) {
                 if ($input->getOption($option)) {
                     return;
                 }
@@ -261,23 +260,22 @@ EOF
         } else {
 
             // if a target is passed, classes, functions, etc don't make sense
-            // TODO: add traits here, once implemented
-            foreach (array('classes', 'functions', 'interfaces', 'vars', 'globals') as $option) {
+            foreach (array('vars', 'globals', 'functions', 'classes', 'interfaces', 'traits') as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--' . $option . ' does not make sense with a specified target.');
                 }
             }
 
-            foreach (array('constants', 'methods', 'properties') as $option) {
+            foreach (array('constants', 'properties', 'methods') as $option) {
                 if ($input->getOption($option)) {
                     return;
                 }
             }
 
-            // default to --constants --methods --properties if no other options are passed
+            // default to --constants --properties --methods if no other options are passed
             $input->setOption('constants',  true);
-            $input->setOption('methods',    true);
             $input->setOption('properties', true);
+            $input->setOption('methods',    true);
         }
     }
 }
