@@ -90,20 +90,10 @@ class DocblockFormatter implements Formatter
         $template = implode(' ', $template);
 
         return implode("\n", array_map(function($line) use ($template) {
-            return rtrim(vsprintf($template, self::escapeLine($line)));
-        }, $lines));
-    }
+            $escaped = array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $line);
 
-    /**
-     * Escape each element of a docblock vector line.
-     *
-     * @param $line
-     *
-     * @return array
-     */
-    private static function escapeLine(array $line)
-    {
-        return array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $line);
+            return rtrim(vsprintf($template, $escaped));
+        }, $lines));
     }
 
     /**
