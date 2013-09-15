@@ -21,9 +21,14 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 abstract class Enumerator
 {
+    // Output styles
     const IS_PUBLIC    = 'public';
     const IS_PROTECTED = 'protected';
     const IS_PRIVATE   = 'private';
+    const IS_GLOBAL    = 'global';
+    const IS_CONSTANT  = 'const';
+    const IS_CLASS     = 'class';
+    const IS_FUNCTION  = 'function';
 
     private $presenterManager;
 
@@ -65,9 +70,9 @@ abstract class Enumerator
      *     [
      *         'Constants' => [
      *             'FOO' => [
-     *                 'name'       => 'FOO',
-     *                 'visibility' => 'public',
-     *                 'value'      => '123',
+     *                 'name'  => 'FOO',
+     *                 'style' => 'public',
+     *                 'value' => '123',
      *             ],
      *         ],
      *     ]
@@ -82,7 +87,7 @@ abstract class Enumerator
 
     protected function presentRef($value)
     {
-        return $this->presenterManager->presentRef($value);
+        return $this->presenterManager->presentRef($value, true);
     }
 
     protected function showItem($name)

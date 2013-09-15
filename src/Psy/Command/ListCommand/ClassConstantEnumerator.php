@@ -42,9 +42,10 @@ class ClassConstantEnumerator extends Enumerator
             return;
         }
 
-        return array(
-            'Constants' => $constants,
-        );
+        $ret = array();
+        $ret[$this->getKindLabel($reflector)] = $constants;
+
+        return $ret;
     }
 
     /**
@@ -82,13 +83,31 @@ class ClassConstantEnumerator extends Enumerator
         foreach ($constants as $name => $constant) {
             if ($this->showItem($name)) {
                 $ret[$name] = array(
-                    'name'       => $name,
-                    'visibility' => self::IS_PUBLIC,
-                    'value'      => $this->presentSignature($constant),
+                    'name'  => $name,
+                    'style' => self::IS_CONSTANT,
+                    'value' => $this->presentRef($constant->getValue()),
                 );
             }
         }
 
         return $ret;
+    }
+
+    /**
+     * Get a label for the particular kind of "class" represented.
+     *
+     * @param \ReflectionClass $reflector
+     *
+     * @return string
+     */
+    protected function getKindLabel(\ReflectionClass $reflector)
+    {
+        if ($reflector->isInterface()) {
+            return 'Interface Constants';
+        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Constants';
+        } else {
+            return 'Class Constants';
+        }
     }
 }

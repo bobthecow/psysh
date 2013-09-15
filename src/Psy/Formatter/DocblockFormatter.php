@@ -13,6 +13,7 @@ namespace Psy\Formatter;
 
 use Psy\Formatter\Formatter;
 use Psy\Util\Docblock;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * A pretty-printer for docblocks.
@@ -38,7 +39,7 @@ class DocblockFormatter implements Formatter
 
         if (!empty($docblock->desc)) {
             $chunks[] = '<comment>Description:</comment>';
-            $chunks[] = self::indent($docblock->desc, '  ');
+            $chunks[] = self::indent(OutputFormatter::escape($docblock->desc), '  ');
             $chunks[] = '';
         }
 
@@ -89,8 +90,20 @@ class DocblockFormatter implements Formatter
         $template = implode(' ', $template);
 
         return implode("\n", array_map(function($line) use ($template) {
-            return rtrim(vsprintf($template, $line));
+            return rtrim(vsprintf($template, self::escapeLine($line)));
         }, $lines));
+    }
+
+    /**
+     * Escape each element of a docblock vector line.
+     *
+     * @param $line
+     *
+     * @return array
+     */
+    private static function escapeLine(array $line)
+    {
+        return array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $line);
     }
 
     /**
@@ -111,7 +124,7 @@ class DocblockFormatter implements Formatter
             }
 
             foreach ($values as $value) {
-                $chunks[] = sprintf('<comment>%s%s</comment> %s', self::inflect($name), empty($value) ? '' : ':', $value);
+                $chunks[] = sprintf('<comment>%s%s</comment> %s', self::inflect($name), empty($value) ? '' : ':', OutputFormatter::escape($value));
             }
 
             $chunks[] = '';

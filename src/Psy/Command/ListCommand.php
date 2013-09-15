@@ -27,6 +27,7 @@ use Psy\Exception\RuntimeException;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -171,39 +172,14 @@ EOF
         if ($result === null) return;
 
         foreach ($result as $label => $items) {
+            $output->writeln('');
             $output->writeln(sprintf('<strong>%s:</strong>', $label));
 
             $pad = max(array_map('strlen', array_keys($items)));
             foreach ($items as $item) {
-                $visibility = $this->visibilityStyle($item['visibility']);
-                $output->writeln(sprintf("  <%s>%-${pad}s</%s>  %s", $visibility, $item['name'], $visibility, $item['value']));
+                $itemPad = $pad + (2 * strlen($item['style'])) + 5;
+                $output->writeln(sprintf("  %-${itemPad}s  %s", $this->formatItemName($item), $item['value']));
             }
-        }
-    }
-
-    /**
-     * Get output style for a given visibility.
-     *
-     * @throws RuntimeException If visibility is unknown.
-     *
-     * @param string $visibility
-     *
-     * @return string
-     */
-    private function visibilityStyle($visibility)
-    {
-        switch ($visibility) {
-            case Enumerator::IS_PRIVATE:
-                return 'urgent';
-
-            case Enumerator::IS_PROTECTED:
-                return 'comment';
-
-            case Enumerator::IS_PUBLIC:
-                return 'info';
-
-            default:
-                throw new RuntimeException(sprintf('Unknown visibility: "%s"', $visibility));
         }
     }
 
@@ -216,9 +192,7 @@ EOF
      */
     private function formatItemName($item)
     {
-        $visibility = $this->visibilityStyle($item['visibility']);
-
-        return sprintf('<%s>%s</%s>', $visibility, $item['name'], $visibility);
+        return sprintf('<%s>%s</%s>', $item['style'], OutputFormatter::escape($item['name']), $item['style']);
     }
 
     /**

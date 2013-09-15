@@ -11,13 +11,17 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\AbstractPresenter;
+use Psy\Presenter\Presenter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * A resource Presenter.
  */
-class ResourcePresenter extends AbstractPresenter
+class ResourcePresenter implements Presenter
 {
+    const FMT       = '%s%s resource #%s>';
+    const COLOR_FMT = '<resource>%s%s <strong>resource #%s</strong>></resource>';
+
     /**
      * Resource presenter can present resources.
      *
@@ -31,6 +35,27 @@ class ResourcePresenter extends AbstractPresenter
     }
 
     /**
+     * Present a reference to the value.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function presentRef($value, $color = false)
+    {
+        $type = get_resource_type($value);
+        if ($type === 'stream') {
+            $meta = stream_get_meta_data($value);
+            $type = sprintf('%s stream', $meta['stream_type']);
+        }
+
+        $id = str_replace('Resource id #', '', (string) $value);
+        $format = $color ? self::COLOR_FMT : self::FMT;
+
+        return sprintf($format, OutputFormatter::escape('<'), $type, $id);
+    }
+
+    /**
      * Present the resource.
      *
      * @param resource $value
@@ -40,14 +65,6 @@ class ResourcePresenter extends AbstractPresenter
      */
     public function present($value, $depth = null)
     {
-        $type = get_resource_type($value);
-        if ($type === 'stream') {
-            $meta = stream_get_meta_data($value);
-            $type = sprintf('%s stream', $meta['stream_type']);
-        }
-
-        $id = str_replace('Resource id #', '', (string) $value);
-
-        return sprintf('<%s resource #%s>', $type, $id);
+        return $this->presentRef($value, false);
     }
 }

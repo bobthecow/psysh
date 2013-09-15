@@ -52,7 +52,7 @@ class DocblockFormatterTest extends \PHPUnit_Framework_TestCase
 <comment>Return:</comment>
   <info>string </info> A string of no consequence.
 
-<comment>Author:</comment> Justin Hileman <justin@justinhileman.info>
+<comment>Author:</comment> Justin Hileman \<justin@justinhileman.info>
 EOS;
 
         $this->assertEquals(

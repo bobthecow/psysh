@@ -16,6 +16,7 @@ use PHPParser_Parser as Parser;
 use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Psy\Util\Inspector;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -111,7 +112,8 @@ EOL
                 $output->writeln('[');
                 foreach ($tree as $key => $node) {
                     if ($isAssoc) {
-                        $output->write($indent.sprintf('  <comment>%s</comment>: ', $key));
+                        var_dump($key);
+                        $output->write($indent.sprintf('  <comment>%s</comment>: ', OutputFormatter::escape($key)));
                     } else {
                         $output->write($indent);
                     }
@@ -122,7 +124,7 @@ EOL
                 $props = array_keys(json_decode(json_encode($tree), true));
 
                 if (in_array('__CLASS__', $props)) {
-                    $output->write(sprintf('  <<strong>%s</strong>> ', $tree->{'__CLASS__'}));
+                    $output->write(sprintf('  %s<strong>%s</strong>> ', OutputFormatter::escape('<'), $tree->{'__CLASS__'}));
                     unset($props['__CLASS__']);
                 }
 
@@ -136,12 +138,12 @@ EOL
                     if ($prop === '__CLASS__') {
                         continue;
                     }
-                    $output->write($indent.sprintf('  <info>%s</info>: ', $prop));
+                    $output->write($indent.sprintf('  <info>%s</info>: ', OutputFormatter::escape($prop)));
                     $walker($output, $tree->$prop, $depth + 1);
                 }
                 $output->writeln($indent.'}');
             } else {
-                $output->writeln(sprintf('<return>%s</return>', json_encode($tree, true)));
+                $output->writeln(sprintf('<return>%s</return>', OutputFormatter::escape(json_encode($tree, true))));
             }
         };
 

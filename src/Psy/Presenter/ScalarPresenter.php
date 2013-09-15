@@ -11,12 +11,14 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\AbstractPresenter;
+use Psy\Presenter\Presenter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+
 
 /**
  * A scalar (and null) Presenter.
  */
-class ScalarPresenter extends AbstractPresenter
+class ScalarPresenter implements Presenter
 {
     /**
      * Scalar presenter can present scalars and null.
@@ -34,6 +36,22 @@ class ScalarPresenter extends AbstractPresenter
     }
 
     /**
+     * Present a reference to the value.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function presentRef($value, $color = false)
+    {
+        if ($color && $typeStyle = $this->getTypeStyle($value)) {
+            return sprintf('<%s>%s</%s>', $typeStyle, $this->present($value), $typeStyle);
+        } else {
+            return $this->present($value);
+        }
+    }
+
+    /**
      * Present the scalar value.
      *
      * @param mixed $value
@@ -43,6 +61,24 @@ class ScalarPresenter extends AbstractPresenter
      */
     public function present($value, $depth = null)
     {
-        return json_encode($value);
+        return OutputFormatter::escape(json_encode($value));
+    }
+
+    /**
+     * Get the output style for a value of a given type.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private function getTypeStyle($value)
+    {
+        if (is_int($value) || is_float($value)) {
+            return 'number';
+        } elseif (is_string($value)) {
+            return 'string';
+        } elseif (is_bool($value) || is_null($value)) {
+            return 'bool';
+        }
     }
 }

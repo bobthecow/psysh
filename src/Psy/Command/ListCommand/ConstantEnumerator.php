@@ -92,9 +92,9 @@ class ConstantEnumerator extends Enumerator
         foreach ($names as $name) {
             if ($this->showItem($name)) {
                 $ret[$name] = array(
-                    'name'       => $name,
-                    'visibility' => self::IS_PUBLIC,
-                    'value'      => $this->presentRef($constants[$name]), // TODO: format this?
+                    'name'  => $name,
+                    'style' => self::IS_CONSTANT,
+                    'value' => $this->presentRef($constants[$name]),
                 );
             }
         }

@@ -37,15 +37,16 @@ class PropertyEnumerator extends Enumerator
 
         $showAll = $input->getOption('all');
 
-        $properties = $this->prepareProperties($this->getProperties($showAll, $reflector));
+        $properties = $this->prepareProperties($this->getProperties($showAll, $reflector), $target);
 
         if (empty($properties)) {
             return;
         }
 
-        return array(
-            'Properties' => $properties,
-        );
+        $ret = array();
+        $ret[$this->getKindLabel($reflector)] = $properties;
+
+        return $ret;
     }
 
     /**
@@ -78,30 +79,80 @@ class PropertyEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareProperties(array $properties)
+    protected function prepareProperties(array $properties, $target = null)
     {
         // My kingdom for a generator.
         $ret = array();
 
         foreach ($properties as $name => $property) {
             if ($this->showItem($name)) {
-                if ($property->isPublic()) {
-                    $visibility = self::IS_PUBLIC;
-                } elseif ($property->isProtected()) {
-                    $visibility = self::IS_PROTECTED;
-                } else {
-                    $visibility = self::IS_PRIVATE;
-                }
-
                 $fname = '$' . $name;
                 $ret[$fname] = array(
-                    'name'       => $fname,
-                    'visibility' => $visibility,
-                    'value'      => $this->presentSignature($property), // TODO: add types to property signatures
+                    'name'  => $fname,
+                    'style' => $this->getVisibilityStyle($property),
+                    'value' => $this->presentValue($property, $target),
                 );
             }
         }
 
         return $ret;
+    }
+
+    /**
+     * Get a label for the particular kind of "class" represented.
+     *
+     * @param \ReflectionClass $reflector
+     *
+     * @return string
+     */
+    protected function getKindLabel(\ReflectionClass $reflector)
+    {
+        if ($reflector->isInterface()) {
+            return 'Interface Properties';
+        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Properties';
+        } else {
+            return 'Class Properties';
+        }
+    }
+
+    /**
+     * Get output style for the given property's visibility.
+     *
+     * @param \ReflectionProperty $property
+     *
+     * @return string
+     */
+    private function getVisibilityStyle(\ReflectionProperty $property)
+    {
+        if ($property->isPublic()) {
+            return self::IS_PUBLIC;
+        } elseif ($property->isProtected()) {
+            return self::IS_PROTECTED;
+        } else {
+            return self::IS_PRIVATE;
+        }
+    }
+
+    /**
+     * Present the $target's current value for a reflection property.
+     *
+     * @param \ReflectionProperty $property
+     * @param mixed               $target
+     *
+     * @return string
+     */
+    protected function presentValue(\ReflectionProperty $property, $target)
+    {
+        if (!is_object($target)) {
+            // TODO: figure out if there's a way to return defaults when target
+            // is a class/interface/trait rather than an object.
+            return '';
+        }
+
+        $property->setAccessible(true);
+        $value = $property->getValue($target);
+
+        return $this->presentRef($value);
     }
 }

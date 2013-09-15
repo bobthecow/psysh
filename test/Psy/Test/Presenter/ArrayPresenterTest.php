@@ -72,7 +72,7 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
         $expected = <<<EOS
 [
     1,
-    <stdClass #$hash> {},
+    \<stdClass #$hash> {},
     "a"
 ]
 EOS;

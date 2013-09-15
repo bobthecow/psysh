@@ -12,12 +12,16 @@
 namespace Psy\Presenter;
 
 use Psy\Presenter\RecursivePresenter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * An object Presenter.
  */
 class ObjectPresenter extends RecursivePresenter
 {
+    const FMT       = '%s%s #%s>';
+    const COLOR_FMT = '<object>%s<class>%s</class> <strong>#%s</strong>></object>';
+
     /**
      * ObjectPresenter can present objects.
      *
@@ -37,9 +41,11 @@ class ObjectPresenter extends RecursivePresenter
      *
      * @return string
      */
-    public function presentRef($value)
+    public function presentRef($value, $color = false)
     {
-        return sprintf('<%s #%s>', get_class($value), spl_object_hash($value));
+        $format = $color ? self::COLOR_FMT : self::FMT;
+
+        return sprintf($format, OutputFormatter::escape('<'), get_class($value), spl_object_hash($value));
     }
 
     /**

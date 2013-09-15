@@ -43,9 +43,10 @@ class MethodEnumerator extends Enumerator
             return;
         }
 
-        return array(
-            'Methods' => $methods,
-        );
+        $ret = array();
+        $ret[$this->getKindLabel($reflector)] = $methods;
+
+        return $ret;
     }
 
     /**
@@ -85,22 +86,50 @@ class MethodEnumerator extends Enumerator
 
         foreach ($methods as $name => $method) {
             if ($this->showItem($name)) {
-                if ($method->isPublic()) {
-                    $visibility = self::IS_PUBLIC;
-                } elseif ($method->isProtected()) {
-                    $visibility = self::IS_PROTECTED;
-                } else {
-                    $visibility = self::IS_PRIVATE;
-                }
-
                 $ret[$name] = array(
-                    'name'       => $name,
-                    'visibility' => $visibility,
-                    'value'      => $this->presentSignature($method),
+                    'name'  => $name,
+                    'style' => $this->getVisibilityStyle($method),
+                    'value' => $this->presentSignature($method),
                 );
             }
         }
 
         return $ret;
+    }
+
+    /**
+     * Get a label for the particular kind of "class" represented.
+     *
+     * @param \ReflectionClass $reflector
+     *
+     * @return string
+     */
+    protected function getKindLabel(\ReflectionClass $reflector)
+    {
+        if ($reflector->isInterface()) {
+            return 'Interface Methods';
+        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Methods';
+        } else {
+            return 'Class Methods';
+        }
+    }
+
+    /**
+     * Get output style for the given method's visibility.
+     *
+     * @param \ReflectionMethod $method
+     *
+     * @return string
+     */
+    private function getVisibilityStyle(\ReflectionMethod $method)
+    {
+        if ($method->isPublic()) {
+            return self::IS_PUBLIC;
+        } elseif ($method->isProtected()) {
+            return self::IS_PROTECTED;
+        } else {
+            return self::IS_PRIVATE;
+        }
     }
 }

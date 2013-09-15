@@ -50,11 +50,11 @@ class ObjectPresenterTest extends \PHPUnit_Framework_TestCase
         $childHash = spl_object_hash($obj->child);
 
         $expected = <<<EOS
-<stdClass #$hash> {
+\<stdClass #$hash> {
     name: "std",
     type: "class",
     tags: Array(2),
-    child: <stdClass #$childHash>
+    child: \<stdClass #$childHash>
 }
 EOS;
 
@@ -74,14 +74,14 @@ EOS;
         $childHash = spl_object_hash($obj->child);
 
         $expected = <<<EOS
-<stdClass #$hash> {
+\<stdClass #$hash> {
     name: "std",
     type: "class",
     tags: [
         "stuff",
         "junk"
     ],
-    child: <stdClass #$childHash> {
+    child: \<stdClass #$childHash> {
         name: "std, jr"
     }
 }
@@ -96,7 +96,7 @@ EOS;
 
         $formatted = $this->presenter->presentRef($obj);
 
-        $this->assertStringMatchesFormat('<stdClass #%s>', $formatted);
+        $this->assertStringMatchesFormat('\<stdClass #%s>', $formatted);
         $this->assertContains(spl_object_hash($obj), $formatted);
     }
 }

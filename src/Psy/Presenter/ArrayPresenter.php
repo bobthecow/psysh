@@ -12,6 +12,7 @@
 namespace Psy\Presenter;
 
 use Psy\Presenter\RecursivePresenter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * An array Presenter.
@@ -37,10 +38,12 @@ class ArrayPresenter extends RecursivePresenter
      *
      * @return string
      */
-    public function presentRef($value)
+    public function presentRef($value, $color = false)
     {
         if (empty($value)) {
             return '[]';
+        } elseif ($color) {
+            return sprintf('Array(<number>%d</number>)', count($value));
         } else {
             return sprintf('Array(%d)', count($value));
         }
@@ -111,7 +114,7 @@ class ArrayPresenter extends RecursivePresenter
     {
         $value = sprintf(
             "%-${pad}s => %s",
-            json_encode($key),
+            OutputFormatter::escape(json_encode($key)),
             $this->indentValue($value)
         );
     }

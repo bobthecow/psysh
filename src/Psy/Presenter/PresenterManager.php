@@ -98,10 +98,10 @@ class PresenterManager implements Presenter, \IteratorAggregate
      *
      * @return string
      */
-    public function presentRef($value)
+    public function presentRef($value, $color = false)
     {
         if ($presenter = $this->getPresenter($value)) {
-            return $presenter->presentRef($value);
+            return $presenter->presentRef($value, $color);
         }
 
         throw new \InvalidArgumentException(sprintf('Unable to present %s', $value));

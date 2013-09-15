@@ -81,9 +81,9 @@ class GlobalVariableEnumerator extends Enumerator
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
                 $ret[$fname] = array(
-                    'name'       => $fname,
-                    'visibility' => self::IS_PROTECTED,
-                    'value'      => $this->presentRef($value), // TODO: add types to variable signatures
+                    'name'  => $fname,
+                    'style' => self::IS_GLOBAL,
+                    'value' => $this->presentRef($value),
                 );
             }
         }

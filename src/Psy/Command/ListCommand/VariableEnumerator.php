@@ -115,9 +115,9 @@ class VariableEnumerator extends Enumerator
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
                 $ret[$fname] = array(
-                    'name'       => $fname,
-                    'visibility' => in_array($name, self::$specialVars) ? self::IS_PRIVATE : self::IS_PUBLIC,
-                    'value'      => $this->presentRef($val), // TODO: add types to variable signatures
+                    'name'  => $fname,
+                    'style' => in_array($name, self::$specialVars) ? self::IS_PRIVATE : self::IS_PUBLIC,
+                    'value' => $this->presentRef($val), // TODO: add types to variable signatures
                 );
             }
         }

@@ -13,6 +13,7 @@ namespace Psy\Formatter;
 
 use Psy\Formatter\Formatter;
 use Psy\Exception\RuntimeException;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * A pretty-printer for code.
@@ -40,6 +41,8 @@ class CodeFormatter implements Formatter
             $end   = $reflector->getEndLine() - $start;
             $code  = array_slice($lines, $start, $end);
 
+            // no need to escape this bad boy, since (for now) it's being output raw.
+            // return OutputFormatter::escape(implode(PHP_EOL, $code));
             return implode(PHP_EOL, $code);
         } else {
             throw new RuntimeException('Source code unavailable.');

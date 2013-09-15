@@ -101,9 +101,9 @@ class FunctionEnumerator extends Enumerator
         foreach ($functions as $name) {
             if ($this->showItem($name)) {
                 $ret[$name] = array(
-                    'name'       => $name,
-                    'visibility' => self::IS_PUBLIC,
-                    'value'      => $this->presentSignature($name),
+                    'name'  => $name,
+                    'style' => self::IS_FUNCTION,
+                    'value' => $this->presentSignature($name),
                 );
             }
         }

@@ -11,13 +11,28 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\AbstractPresenter;
+use Psy\Presenter\Presenter;
 
 /**
  * A Closure Presenter.
  */
-class ClosurePresenter extends AbstractPresenter
+class ClosurePresenter implements Presenter, PresenterManagerAware
 {
+    const COLOR_FMT = '<keyword>function</keyword>(%s) { <comment>...</comment> }';
+    const FMT       = 'function(%s) { ... }';
+
+    protected $manager;
+
+    /**
+     * PresenterManagerAware interface.
+     *
+     * @param PresenterManager $manager
+     */
+    public function setPresenterManager(PresenterManager $manager)
+    {
+        $this->manager = $manager;
+    }
+
     /**
      * ClosurePresenter can present closures.
      *
@@ -31,6 +46,20 @@ class ClosurePresenter extends AbstractPresenter
     }
 
     /**
+     * Present a reference to the value.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function presentRef($value, $color = false)
+    {
+        $format = $color ? self::COLOR_FMT : self::FMT;
+
+        return sprintf($format, $this->formatParams($value, $color));
+    }
+
+    /**
      * Present the Closure.
      *
      * @param \Closure $value
@@ -40,7 +69,7 @@ class ClosurePresenter extends AbstractPresenter
      */
     public function present($value, $depth = null)
     {
-        return sprintf('function(%s) { ... }', $this->formatParams($value));
+        return $this->presentRef($value, false);
     }
 
     /**
@@ -50,12 +79,25 @@ class ClosurePresenter extends AbstractPresenter
      *
      * @return string
      */
-    protected function formatParams(\Closure $value)
+    protected function formatParams(\Closure $value, $color = false)
     {
         $r = new \ReflectionFunction($value);
-        $params = array_map(array($this, 'formatParam'), $r->getParameters());
+        $method = $color ? 'formatParamColor' : 'formatParam';
+        $params = array_map(array($this, $method), $r->getParameters());
 
         return implode(', ', $params);
+    }
+
+    /**
+     * PHP's "map" implementation leaves much to be desired.
+     *
+     * @param \ReflectionParameter $param
+     *
+     * @return string
+     */
+    protected function formatParamColor(\ReflectionParameter $param)
+    {
+        return $this->formatParam($param, true);
     }
 
     /**
@@ -65,19 +107,31 @@ class ClosurePresenter extends AbstractPresenter
      *
      * @return string
      */
-    protected function formatParam(\ReflectionParameter $param)
+    protected function formatParam(\ReflectionParameter $param, $color = false)
     {
         $ret = '$' . $param->name;
+        if ($color) {
+            $ret = '<strong>' . $ret . '</strong>';
+        }
 
         if ($param->isOptional()) {
             $ret .= ' = ';
 
             if (version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant()) {
-                $ret .= $param->getDefaultValueConstantName();
+                $name = $param->getDefaultValueConstantName();
+                if ($color) {
+                    $ret .= '<const>'.$name.'</const>';
+                } else {
+                    $ret .= $name;
+                }
             } elseif ($param->isDefaultValueAvailable()) {
-                $ret .= json_encode($param->getDefaultValue());
+                $ret .= $this->manager->presentRef($param->getDefaultValue(), $color);
             } else {
-                $ret .= '?';
+                if ($color) {
+                    $ret .= '<urgent>?</urgent>';
+                } else {
+                    $ret .= '?';
+                }
             }
         }
 

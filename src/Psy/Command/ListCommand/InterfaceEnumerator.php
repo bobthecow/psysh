@@ -69,9 +69,9 @@ class InterfaceEnumerator extends Enumerator
         foreach ($interfaces as $name) {
             if ($this->showItem($name)) {
                 $ret[$name] = array(
-                    'name'       => $name,
-                    'visibility' => self::IS_PUBLIC,
-                    'value'      => $this->presentSignature($name),
+                    'name'  => $name,
+                    'style' => self::IS_CLASS,
+                    'value' => $this->presentSignature($name),
                 );
             }
         }

@@ -33,7 +33,7 @@ interface Presenter
      *
      * @return string
      */
-    public function presentRef($value);
+    public function presentRef($value, $color = false);
 
     /**
      * Present a full representation of the value.
