@@ -86,15 +86,22 @@ class ListCommand extends ReflectingCommand implements PresenterManagerAware
             ))
             ->setDescription('List local, instance or class variables, methods and constants.')
             ->setHelp(<<<EOF
-List all variables currently defined in the local scope.
+List variables, constants, classes, interfaces, traits, functions, methods,
+and properties.
 
-If a target is passed, list properties, constants and methods of that target. If a
-class name is passed instead, list constants and methods available on that class.
+Called without options, this will return a list of variables currently in scope.
+
+If a target object is provided, list properties, constants and methods of that
+target. If a class, interface or trait name is passed instead, list constants
+and methods on that class.
 
 e.g.
 <return>>>> ls</return>
 <return>>>> ls \$foo</return>
+<return>>>> ls -k --grep mongo -i</return>
 <return>>>> ls -al ReflectionClass</return>
+<return>>>> ls --constants --category date</return>
+<return>>>> ls -l --functions --grep /^array_.*/</return>
 EOF
             );
     }
