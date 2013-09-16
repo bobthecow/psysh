@@ -77,9 +77,9 @@ abstract class Enumerator
      *         ],
      *     ]
      *
-     * @param  InputInterface $input
-     * @param  Reflector      $reflector
-     * @param  mixed          $target
+     * @param InputInterface $input
+     * @param Reflector      $reflector
+     * @param mixed          $target
      *
      * @return array
      */

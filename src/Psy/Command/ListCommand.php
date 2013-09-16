@@ -24,7 +24,6 @@ use Psy\Command\ListCommand\TraitEnumerator;
 use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Command\ReflectingCommand;
 use Psy\Exception\RuntimeException;
-use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -153,8 +152,8 @@ EOF
     /**
      * Write the list items to $output.
      *
-     * @param  OutputInterface $output
-     * @param  null|array      $result List of enumerated items.
+     * @param OutputInterface $output
+     * @param null|array      $result List of enumerated items.
      */
     protected function write(OutputInterface $output, array $result = null)
     {
@@ -171,8 +170,8 @@ EOF
      *
      * Items are listed one per line, and include the item signature.
      *
-     * @param  OutputInterface $output
-     * @param  null|array      $result List of enumerated items.
+     * @param OutputInterface $output
+     * @param null|array      $result List of enumerated items.
      */
     protected function writeLong(OutputInterface $output, array $result = null)
     {
