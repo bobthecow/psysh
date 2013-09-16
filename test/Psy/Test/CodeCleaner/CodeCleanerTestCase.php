@@ -3,15 +3,27 @@
 namespace Psy\Test\CodeCleaner;
 
 use PHPParser_Lexer as Lexer;
+use PHPParser_NodeTraverser as NodeTraverser;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
+use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Exception\ParseErrorException;
 
 class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
 {
     protected $pass;
+    protected $traverser;
     private $parser;
     private $printer;
+
+    protected function setPass(CodeCleanerPass $pass)
+    {
+        $this->pass = $pass;
+        if (!isset($this->traverser)) {
+            $this->traverser = new NodeTraverser;
+        }
+        $this->traverser->addVisitor($this->pass);
+    }
 
     protected function parse($code, $prefix = '<?php ')
     {
@@ -32,6 +44,11 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
+    protected function traverse(array $stmts)
+    {
+        return $this->traverser->traverse($stmts);
+    }
+
     protected function prettyPrint(array $stmts)
     {
         return $this->getPrinter()->prettyPrint($stmts);
@@ -40,7 +57,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     protected function assertProcessesAs($from, $to)
     {
         $stmts = $this->parse($from);
-        $this->pass->process($stmts);
+        $stmts = $this->traverse($stmts);
         $this->assertEquals($to, $this->prettyPrint($stmts));
     }
 

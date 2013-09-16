@@ -8,7 +8,7 @@ class UseStatementPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new UseStatementPass;
+        $this->setPass(new UseStatementPass);
     }
 
     /**

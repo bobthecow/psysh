@@ -11,9 +11,11 @@
 
 namespace Psy\CodeCleaner;
 
-use Psy\Exception\FatalErrorException;
+use PHPParser_Node as Node;
 use PHPParser_Node_Expr_Assign as Assign;
 use PHPParser_Node_Expr_Variable as Variable;
+use Psy\CodeCleaner\CodeCleanerPass;
+use Psy\Exception\FatalErrorException;
 
 /**
  * Validate that the user input does not assign the `$this` variable.
@@ -27,11 +29,11 @@ class AssignThisVariablePass extends CodeCleanerPass
      *
      * @throws RuntimeException if the user assign the `$this` variable.
      *
-     * @param mixed &$stmt PHPParser statement
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function enterNode(Node $node)
     {
-        if ($stmt instanceof Assign && $stmt->var instanceof Variable && $stmt->var->name === 'this') {
+        if ($node instanceof Assign && $node->var instanceof Variable && $node->var->name === 'this') {
             throw new FatalErrorException('Cannot re-assign $this');
         }
     }

@@ -14,6 +14,7 @@ namespace Psy;
 use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
+use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\ImplicitReturnPass;
@@ -34,16 +35,17 @@ class CodeCleaner
 {
     private $parser;
     private $printer;
-    private $passes;
+    private $traverser;
     private $namespace;
 
     /**
      * CodeCleaner constructor.
      *
-     * @param Parser  $parser  A PHPParser Parser instance. One will be created if not explicitly supplied.
-     * @param Printer $printer A PHPParser Printer instance. One will be created if not explicitly supplied.
+     * @param Parser        $parser    A PHPParser Parser instance. One will be created if not explicitly supplied.
+     * @param Printer       $printer   A PHPParser Printer instance. One will be created if not explicitly supplied.
+     * @param NodeTraverser $traverser A PHPParser NodeTraverser instance. One will be created if not explicitly supplied.
      */
-    public function __construct(Parser $parser = null, Printer $printer = null)
+    public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
         if ($parser === null) {
             $parser = new Parser(new Lexer);
@@ -53,10 +55,17 @@ class CodeCleaner
             $printer = new Printer;
         }
 
-        $this->parser  = $parser;
-        $this->printer = $printer;
+        if ($traverser === null) {
+            $traverser = new NodeTraverser;
+        }
 
-        $this->passes = $this->getDefaultPasses();
+        $this->parser    = $parser;
+        $this->printer   = $printer;
+        $this->traverser = $traverser;
+
+        foreach ($this->getDefaultPasses() as $pass) {
+            $this->traverser->addVisitor($pass);
+        }
     }
 
     /**
@@ -97,9 +106,7 @@ class CodeCleaner
         }
 
         // Catch fatal errors before they happen
-        foreach ($this->passes as $pass) {
-            $pass->process($stmts);
-        }
+        $stmts = $this->traverser->traverse($stmts);
 
         return $this->printer->prettyPrint($stmts);
     }

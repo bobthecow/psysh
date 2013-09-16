@@ -8,7 +8,7 @@ class ValidConstantPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new ValidConstantPass;
+        $this->setPass(new ValidConstantPass);
     }
 
     /**
@@ -18,7 +18,7 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     public function testProcessInvalidConstantReferences($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverse($stmts);
     }
 
     public function getInvalidReferences()
@@ -34,7 +34,7 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     public function testProcessValidConstantReferences($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverse($stmts);
     }
 
     public function getValidReferences()

@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PHPParser_Node as Node;
 use PHPParser_Node_Expr_FuncCall as FunctionCall;
 use PHPParser_Node_Expr_MethodCall as MethodCall;
 use PHPParser_Node_Expr_StaticCall as StaticCall;
@@ -30,19 +31,19 @@ class CallTimePassByReferencePass extends CodeCleanerPass
      *
      * @throws RuntimeException if the user used call-time pass-by-reference in PHP >= 5.4.0
      *
-     * @param mixed &$stmt PHPParser statement
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function enterNode(Node $node)
     {
         if (version_compare(PHP_VERSION, '5.4', '<')) {
             return;
         }
 
-        if (!$stmt instanceof FunctionCall && !$stmt instanceof MethodCall && !$stmt instanceof StaticCall) {
+        if (!$node instanceof FunctionCall && !$node instanceof MethodCall && !$node instanceof StaticCall) {
             return;
         }
 
-        foreach ($stmt->args as $arg) {
+        foreach ($node->args as $arg) {
             if ($arg->byRef) {
                 throw new FatalErrorException('Call-time pass-by-reference has been removed');
             }

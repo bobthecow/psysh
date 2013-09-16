@@ -12,7 +12,7 @@ class NamespacePassTest extends CodeCleanerTestCase
     public function setUp()
     {
         $this->cleaner = new CodeCleaner;
-        $this->pass = new NamespacePass($this->cleaner);
+        $this->setPass(new NamespacePass($this->cleaner));
     }
 
     public function testProcess()
@@ -35,6 +35,6 @@ class NamespacePassTest extends CodeCleanerTestCase
     private function process($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverse($stmts);
     }
 }

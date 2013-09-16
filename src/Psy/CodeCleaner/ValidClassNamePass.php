@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PHPParser_Node as Node;
 use PHPParser_Node_Expr as Expression;
 use PHPParser_Node_Expr_New as NewExpression;
 use PHPParser_Node_Stmt as Statement;
@@ -48,20 +49,18 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @throws FatalErrorException if an interface extends something that is not an interface.
      * @throws FatalErrorException if a class, interface or trait redefines an existing class, interface or trait name.
      *
-     * @param mixed &$stmt
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function leaveNode(Node $node)
     {
-        parent::processStatement($stmt);
-
-        if ($stmt instanceof ClassStatement) {
-            $this->validateClassStatement($stmt);
-        } elseif ($stmt instanceof InterfaceStatement) {
-            $this->validateInterfaceStatement($stmt);
-        } elseif ($stmt instanceof TraitStatement) {
-            $this->validateTraitStatement($stmt);
-        } elseif ($stmt instanceof NewExpression) {
-            $this->validateNewExpression($stmt);
+        if ($node instanceof ClassStatement) {
+            $this->validateClassStatement($node);
+        } elseif ($node instanceof InterfaceStatement) {
+            $this->validateInterfaceStatement($node);
+        } elseif ($node instanceof TraitStatement) {
+            $this->validateTraitStatement($node);
+        } elseif ($node instanceof NewExpression) {
+            $this->validateNewExpression($node);
         }
     }
 
@@ -138,7 +137,7 @@ class ValidClassNamePass extends NamespaceAwarePass
 
         // Store creation for the rest of this code snippet so we can find local
         // issue too
-        $this->currentScope[$name] = $this->getScopeType($stmt);
+        $this->currentScope[strtolower($name)] = $this->getScopeType($stmt);
     }
 
     /**
@@ -233,6 +232,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function findInScope($name)
     {
+        $name = strtolower($name);
         if (isset($this->currentScope[$name])) {
             return $this->currentScope[$name];
         }

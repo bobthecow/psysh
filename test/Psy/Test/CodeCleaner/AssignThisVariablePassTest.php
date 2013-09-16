@@ -2,13 +2,16 @@
 
 namespace Psy\Test\CodeCleaner;
 
+use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\AssignThisVariablePass;
 
 class AssignThisVariablePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new AssignThisVariablePass();
+        $this->pass      = new AssignThisVariablePass;
+        $this->traverser = new NodeTraverser;
+        $this->traverser->addVisitor($this->pass);
     }
 
     /**
@@ -18,7 +21,7 @@ class AssignThisVariablePassTest extends CodeCleanerTestCase
     public function testProcessStatementFails($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverser->traverse($stmts);
     }
 
     public function invalidStatements()
@@ -35,7 +38,7 @@ class AssignThisVariablePassTest extends CodeCleanerTestCase
     public function testProcessStatementPasses($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverser->traverse($stmts);
     }
 
     public function validStatements()

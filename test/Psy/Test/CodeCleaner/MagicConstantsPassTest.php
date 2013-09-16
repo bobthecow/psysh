@@ -8,7 +8,7 @@ class MagicConstantsPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new MagicConstantsPass;
+        $this->setPass(new MagicConstantsPass);
     }
 
     /**

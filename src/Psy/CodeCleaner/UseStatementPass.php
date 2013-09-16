@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PHPParser_Node as Node;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use PHPParser_Node_Stmt_Use as UseStatement;
@@ -34,29 +35,32 @@ class UseStatementPass extends NamespaceAwarePass
      * a use statement, remember the alias for later. Otherwise, apply
      * remembered aliases to the code.
      *
-     * @param mixed &$stmt
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function leaveNode(Node $node)
     {
-        parent::processStatement($stmt);
-
-        if ($stmt instanceof UseStatement) {
-            foreach ($stmt->uses as $use) {
+        if ($node instanceof UseStatement) {
+            // Store a reference to every "use" statement, because we'll need
+            // them in a bit.
+            foreach ($node->uses as $use) {
                 $this->aliases[strtolower($use->alias)] = $use->name;
             }
 
             return false;
-        } elseif ($stmt instanceof NamespaceStatement) {
-            $this->aliases = array(); // start fresh.
-        } elseif ($stmt instanceof \Traversable) {
-            foreach ($stmt as $name => $subNode) {
+        } elseif ($node instanceof NamespaceStatement) {
+            // start fresh, since this is a new namespace.
+            $this->aliases = array();
+        } elseif ($node instanceof \Traversable) {
+            foreach ($node as $name => $subNode) {
                 if ($subNode instanceof Name) {
                     // Implicitly thunk all aliases.
                     if ($replacement = $this->findAlias($subNode)) {
-                        $stmt->$name = $replacement;
+                        $node->$name = $replacement;
                     }
                 }
             }
+
+            return $node;
         }
     }
 

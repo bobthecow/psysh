@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PHPParser_Node as Node;
 use PHPParser_Node_Expr_ConstFetch as ConstantFetch;
 use Psy\CodeCleaner\NamespaceAwarePass;
 use Psy\Exception\FatalErrorException;
@@ -36,15 +37,14 @@ class ValidConstantPass extends NamespaceAwarePass
      *
      * @throws FatalErrorException if a constant reference is not defined.
      *
-     * @param mixed &$stmt
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function leaveNode(Node $node)
     {
-        parent::processStatement($stmt);
-        if ($stmt instanceof ConstantFetch && count($stmt->name->parts) > 1) {
-            $name = $this->getFullyQualifiedName($stmt->name);
+        if ($node instanceof ConstantFetch && count($node->name->parts) > 1) {
+            $name = $this->getFullyQualifiedName($node->name);
             if (!defined($name)) {
-                throw new FatalErrorException(sprintf('Undefined constant %s', $name), 0, 1, null, $stmt->getLine());
+                throw new FatalErrorException(sprintf('Undefined constant %s', $name), 0, 1, null, $node->getLine());
             }
         }
     }

@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PHPParser_Node as Node;
 use PHPParser_Node_Expr as Expression;
 use PHPParser_Node_Expr_FuncCall as FunctionCall;
 use PHPParser_Node_Stmt_Function as FunctionStatement;
@@ -31,34 +32,32 @@ class ValidFunctionNamePass extends NamespaceAwarePass
      * @throws FatalErrorException if a function is redefined.
      * @throws FatalErrorException if the function name is a string (not an expression) and is not defined.
      *
-     * @param mixed &$stmt
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function leaveNode(Node $node)
     {
-        parent::processStatement($stmt);
+        if ($node instanceof FunctionStatement) {
+            $name = $this->getFullyQualifiedName($node->name);
 
-        if ($stmt instanceof FunctionStatement) {
-            $name = $this->getFullyQualifiedName($stmt->name);
-
-            if (function_exists($name) || isset($this->currentScope[$name])) {
-                throw new FatalErrorException(sprintf('Cannot redeclare %s()', $name), 0, 1, null, $stmt->getLine());
+            if (function_exists($name) || isset($this->currentScope[strtolower($name)])) {
+                throw new FatalErrorException(sprintf('Cannot redeclare %s()', $name), 0, 1, null, $node->getLine());
             }
 
-            $this->currentScope[$name] = true;
-        } elseif ($stmt instanceof FunctionCall) {
+            $this->currentScope[strtolower($name)] = true;
+        } elseif ($node instanceof FunctionCall) {
             // if function name is an expression, give it a pass for now.
-            $name = $stmt->name;
+            $name = $node->name;
             if (!$name instanceof Expression) {
                 $shortName = implode('\\', $name->parts);
                 $fullName  = $this->getFullyQualifiedName($name);
 
                 if (
-                    !isset($this->currentScope[$fullName]) &&
+                    !isset($this->currentScope[strtolower($fullName)]) &&
                     !function_exists($shortName) &&
                     !function_exists($fullName)
                 ) {
                     $message = sprintf('Call to undefined function %s()', $name);
-                    throw new FatalErrorException($message, 0, 1, null, $stmt->getLine());
+                    throw new FatalErrorException($message, 0, 1, null, $node->getLine());
                 }
             }
         }

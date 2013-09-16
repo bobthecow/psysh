@@ -65,7 +65,7 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 new \ReflectionClass('Psy\CodeCleaner\CodeCleanerPass'),
-                'abstract class Psy\CodeCleaner\CodeCleanerPass implements Psy\CodeCleaner\CodeCleanerPassInterface'
+                'abstract class Psy\CodeCleaner\CodeCleanerPass extends PHPParser_NodeVisitorAbstract implements PHPParser_NodeVisitor'
             ),
         );
     }

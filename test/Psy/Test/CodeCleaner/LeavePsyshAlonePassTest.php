@@ -8,22 +8,13 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new LeavePsyshAlonePass;
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidProcessArgumentsThrowsException()
-    {
-        $string = 'Some random string.';
-        $this->pass->process($string);
+        $this->setPass(new LeavePsyshAlonePass);
     }
 
     public function testPassesInlineHtmlThroughJustFine()
     {
         $inline = $this->parse('not php at all!', '');
-        $this->pass->process($inline);
+        $this->traverse($inline);
     }
 
     /**
@@ -32,7 +23,7 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
     public function testProcessStatementPasses($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverse($stmts);
     }
 
     public function validStatements()
@@ -54,7 +45,7 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
     public function testProcessStatementFails($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverse($stmts);
     }
 
     public function invalidStatements()

@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PHPParser_Node as Node;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
@@ -25,21 +26,27 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     protected $currentScope;
 
     /**
+     * TODO: should this be final? Extending classes should be sure to either
+     * use afterTraverse or call parent::beforeTraverse() when overloading.
+     *
      * Reset the namespace and the current scope before beginning analysis.
      */
-    protected function beginProcess()
+    public function beforeTraverse(array $nodes)
     {
         $this->namespace    = array();
         $this->currentScope = array();
     }
 
     /**
-     * @param mixed &$stmt PHPParser statement
+     * TODO: should this be final? Extending classes should be sure to either use
+     * leaveNode or call parent::enterNode() when overloading.
+     *
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function enterNode(Node $node)
     {
-        if ($stmt instanceof NamespaceStatement) {
-            $this->namespace = isset($stmt->name) ? $stmt->name->parts : array();
+        if ($node instanceof NamespaceStatement) {
+            $this->namespace = isset($node->name) ? $node->name->parts : array();
         }
     }
 

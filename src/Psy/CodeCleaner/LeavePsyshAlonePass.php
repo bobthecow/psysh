@@ -11,8 +11,9 @@
 
 namespace Psy\CodeCleaner;
 
-use Psy\CodeCleaner\CodeCleanerPass;
+use PHPParser_Node as Node;
 use PHPParser_Node_Expr_Variable as Variable;
+use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Exception\RuntimeException;
 
 /**
@@ -25,11 +26,11 @@ class LeavePsyshAlonePass extends CodeCleanerPass
      *
      * @throws RuntimeException if the user is messing with $__psysh__.
      *
-     * @param mixed &$stmt PHPParser statement
+     * @param Node $node
      */
-    protected function processStatement(&$stmt)
+    public function enterNode(Node $node)
     {
-        if ($stmt instanceof Variable && $stmt->name === "__psysh__") {
+        if ($node instanceof Variable && $node->name === "__psysh__") {
             throw new RuntimeException('Don\'t mess with $__psysh__. Bad things will happen.');
         }
     }

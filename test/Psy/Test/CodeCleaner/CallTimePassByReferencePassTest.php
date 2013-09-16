@@ -2,13 +2,16 @@
 
 namespace Psy\Test\CodeCleaner;
 
+use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 
 class CallTimePassByReferencePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new CallTimePassByReferencePass();
+        $this->pass      = new CallTimePassByReferencePass;
+        $this->traverser = new NodeTraverser;
+        $this->traverser->addVisitor($this->pass);
     }
 
     /**
@@ -22,7 +25,7 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
         }
 
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverser->traverse($stmts);
     }
 
     public function invalidStatements()
@@ -41,7 +44,7 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
     public function testProcessStatementPasses($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverser->traverse($stmts);
     }
 
     public function validStatements()

@@ -14,6 +14,7 @@ namespace Psy\CodeCleaner;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use Psy\CodeCleaner;
+use Psy\CodeCleaner\CodeCleanerPass;
 
 /**
  * Provide implicit namespaces for subsequent execution.
@@ -26,7 +27,7 @@ use Psy\CodeCleaner;
  * namespace is replaced by another namespace. To reset to the top level
  * namespace, enter `namespace {}`. This is a bit ugly, but it does the trick :)
  */
-class NamespacePass implements CodeCleanerPassInterface
+class NamespacePass extends CodeCleanerPass
 {
     private $namespace = null;
     private $cleaner;
@@ -45,22 +46,24 @@ class NamespacePass implements CodeCleanerPassInterface
      * Otherwise, apply remembered namespaces to the code until a new namespace
      * is encountered.
      *
-     * @param mixed &$stmts
+     * @param array $nodes
      */
-    public function process(&$stmts)
+    public function beforeTraverse(array $nodes)
     {
-        $first = reset($stmts);
-        if (count($stmts) === 1 && $first instanceof NamespaceStatement && empty($first->stmts)) {
+        $first = reset($nodes);
+        if (count($nodes) === 1 && $first instanceof NamespaceStatement && empty($first->stmts)) {
             $this->setNamespace($first->name);
         } else {
-            foreach ($stmts as $key => $stmt) {
-                if ($stmt instanceof NamespaceStatement) {
+            foreach ($nodes as $key => $node) {
+                if ($node instanceof NamespaceStatement) {
                     $this->setNamespace(null);
                 } elseif ($this->namespace !== null) {
-                    $stmts[$key] = new NamespaceStatement($this->namespace, array($stmt));
+                    $nodes[$key] = new NamespaceStatement($this->namespace, array($node));
                 }
             }
         }
+
+        return $nodes;
     }
 
     /**

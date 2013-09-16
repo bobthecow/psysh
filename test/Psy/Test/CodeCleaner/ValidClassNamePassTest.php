@@ -9,7 +9,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass = new ValidClassNamePass;
+        $this->setPass(new ValidClassNamePass);
     }
 
     /**
@@ -19,7 +19,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
     {
         try {
             $stmts = $this->parse($code);
-            $this->pass->process($stmts);
+            $this->traverse($stmts);
             $this->fail();
         } catch (Exception $e) {
             if ($php54 && version_compare(PHP_VERSION, '5.4', '<')) {
@@ -112,7 +112,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
     public function testProcessValid($code)
     {
         $stmts = $this->parse($code);
-        $this->pass->process($stmts);
+        $this->traverse($stmts);
     }
 
     public function getValid()
