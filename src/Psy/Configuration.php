@@ -57,8 +57,8 @@ class Configuration
     public function __construct(array $config = array())
     {
         // base configuration
-        $this->baseDir     = isset($config['baseDir'])    ? $config['baseDir']    : getenv('HOME').'/.psysh';
-        $this->configFile  = isset($config['configFile']) ? $config['configFile'] : $this->baseDir . '/rc.php';
+        $this->baseDir    = isset($config['baseDir'])    ? $config['baseDir']    : $this->getHomeDir() . '/.psysh';
+        $this->configFile = isset($config['configFile']) ? $config['configFile'] : $this->baseDir . '/rc.php';
 
         // make sure there's a baseDir
         if (!is_dir($this->baseDir)) {
@@ -71,6 +71,16 @@ class Configuration
         // go go gadget, config!
         $this->loadConfig($config);
         $this->init();
+    }
+
+    /**
+     * Helper function to get the proper home directory.
+     *
+     * @return string
+     */
+    private function getHomeDir()
+    {
+        return getenv('HOME') ?: (getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH'));
     }
 
     /**
