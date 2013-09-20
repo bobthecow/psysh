@@ -144,7 +144,7 @@ EOF
                 new PropertyEnumerator($mgr),
                 new MethodEnumerator($mgr),
                 new TraitEnumerator($mgr),
-                new VariableEnumerator($mgr, $this->shell),
+                new VariableEnumerator($mgr, $this->context),
             );
         }
     }

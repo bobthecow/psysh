@@ -44,19 +44,16 @@ class Loop
                 foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                     include $__psysh_include__;
                 }
-            } catch (\Exception $__psysh_e__) {
-                $__psysh__->writeException($__psysh_e__);
+            } catch (\Exception $_e) {
+                $__psysh__->writeException($_e);
             }
             restore_error_handler();
-            unset($__psysh_include__, $__psysh_e__);
+            unset($__psysh_include__);
 
             extract($__psysh__->getScopeVariables());
 
             do {
                 $__psysh__->beforeLoop();
-
-                // a bit of housekeeping
-                unset($__psysh_out__, $__psysh_e__);
                 $__psysh__->setScopeVariables(get_defined_vars());
 
                 try {
@@ -75,21 +72,24 @@ class Loop
 
                     $__psysh__->writeStdout($__psysh_out__);
                     $__psysh__->writeReturnValue($_);
-                } catch (BreakException $__psysh_e__) {
+                } catch (BreakException $_e) {
                     restore_error_handler();
                     if (ob_get_level() > 0) {
                         ob_end_clean();
                     }
-                    $__psysh__->writeException($__psysh_e__);
+                    $__psysh__->writeException($_e);
 
                     return;
-                } catch (\Exception $__psysh_e__) {
+                } catch (\Exception $_e) {
                     restore_error_handler();
                     if (ob_get_level() > 0) {
                         ob_end_clean();
                     }
-                    $__psysh__->writeException($__psysh_e__);
+                    $__psysh__->writeException($_e);
                 }
+
+                // a bit of housekeeping
+                unset($__psysh_out__);
             } while (true);
         };
 

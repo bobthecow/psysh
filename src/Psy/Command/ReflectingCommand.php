@@ -11,14 +11,16 @@
 
 namespace Psy\Command;
 
+use Psy\Context;
+use Psy\ContextAware;
 use Psy\Command\ShellAwareCommand;
 use Psy\Exception\RuntimeException;
 use Psy\Util\Mirror;
 
 /**
- * An abstract command with helpers for inspecting the current shell scope.
+ * An abstract command with helpers for inspecting the current context.
  */
-abstract class ReflectingCommand extends ShellAwareCommand
+abstract class ReflectingCommand extends ShellAwareCommand implements ContextAware
 {
     const CLASS_OR_FUNC     = '/^[\\\\\w]+$/';
     const INSTANCE          = '/^\$(\w+)$/';
@@ -26,6 +28,23 @@ abstract class ReflectingCommand extends ShellAwareCommand
     const CLASS_STATIC      = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER   = '/^\$(\w+)(::|->)(\w+)$/';
     const INSTANCE_STATIC   = '/^\$(\w+)::\$(\w+)$/';
+
+    /**
+     * Context instance (for ContextAware interface)
+     *
+     * @type Psy\Context
+     */
+    protected $context;
+
+    /**
+     * ContextAware interface.
+     *
+     * @param Psy\Context $context
+     */
+    public function setContext(Context $context)
+    {
+        $this->context = $context;
+    }
 
     /**
      * Get the target for a value.
@@ -139,7 +158,7 @@ abstract class ReflectingCommand extends ShellAwareCommand
      */
     protected function getScopeVariable($name)
     {
-        return $this->shell->getScopeVariable($name);
+        return $this->context->get($name);
     }
 
     /**
@@ -149,6 +168,6 @@ abstract class ReflectingCommand extends ShellAwareCommand
      */
     protected function getScopeVariables()
     {
-        return $this->shell->getScopeVariables();
+        return $this->context->getAll();
     }
 }

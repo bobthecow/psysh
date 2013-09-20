@@ -13,6 +13,8 @@ namespace Psy;
 
 use Psy\Command\ShellAware;
 use Psy\Configuration;
+use Psy\Context;
+use Psy\ContextAware;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
@@ -53,9 +55,8 @@ class Shell extends Application
     private $inputBuffer;
     private $code;
     private $codeBuffer;
-    private $scopeVariables;
+    private $context;
     private $includes;
-    private $exceptions;
 
     /**
      * Create a new Psy Shell.
@@ -67,7 +68,7 @@ class Shell extends Application
         $this->config         = $config ?: new Configuration;
         $this->cleaner        = $this->config->getCodeCleaner();
         $this->loop           = $this->config->getLoop();
-        $this->scopeVariables = array();
+        $this->context        = new Context;
         $this->includes       = $this->config->getDefaultIncludes();
         $this->readline       = $this->config->getReadline();
 
@@ -185,7 +186,6 @@ class Shell extends Application
     {
         $this->setOutput($output);
 
-        $this->exceptions = array();
         $this->resetCodeBuffer();
 
         $this->setAutoExit(false);
@@ -265,8 +265,7 @@ class Shell extends Application
      */
     public function setScopeVariables(array $vars)
     {
-        unset($vars['__psysh__']);
-        $this->scopeVariables = $vars;
+        $this->context->setAll($vars);
     }
 
     /**
@@ -276,7 +275,7 @@ class Shell extends Application
      */
     public function getScopeVariables()
     {
-        return $this->scopeVariables;
+        return $this->context->getAll();
     }
 
     /**
@@ -286,7 +285,7 @@ class Shell extends Application
      */
     public function getScopeVariableNames()
     {
-        return array_keys($this->getScopeVariables());
+        return array_keys($this->context->getAll());
     }
 
     /**
@@ -298,11 +297,7 @@ class Shell extends Application
      */
     public function getScopeVariable($name)
     {
-        if (!array_key_exists($name, $this->scopeVariables)) {
-            throw new \InvalidArgumentException('Unknown variable: $'.$name);
-        }
-
-        return $this->scopeVariables[$name];
+        return $this->context->get($name);
     }
 
     /**
@@ -323,26 +318,6 @@ class Shell extends Application
     public function getIncludes()
     {
         return $this->includes;
-    }
-
-    /**
-     * Get all exceptions caught by this shell instance.
-     *
-     * @return array
-     */
-    public function getExceptions()
-    {
-        return $this->exceptions;
-    }
-
-    /**
-     * Get the last exception caught by this shell instance.
-     *
-     * @return Exception|null
-     */
-    public function getLastException()
-    {
-        return end($this->exceptions);
     }
 
     /**
@@ -409,6 +384,10 @@ class Shell extends Application
 
         if ($command instanceof ShellAware) {
             $command->setShell($this);
+        }
+
+        if ($command instanceof ContextAware) {
+            $command->setContext($this->context);
         }
 
         if ($command instanceof PresenterManagerAware) {
@@ -511,6 +490,7 @@ class Shell extends Application
      */
     public function writeReturnValue($ret)
     {
+        $this->context->setReturnValue($ret);
         $ret    = $this->presentValue($ret);
         $indent = str_repeat(' ', strlen(self::RETVAL));
 
@@ -539,12 +519,14 @@ class Shell extends Application
      * Exceptions are formatted according to severity. ErrorExceptions which were
      * warnings or Strict errors aren't rendered as harshly as real errors.
      *
+     * Stores $e as the last Exception in the Shell Context.
+     *
      * @param Exception       $e      An exception instance
      * @param OutputInterface $output An OutputInterface instance
      */
     public function renderException($e, $output)
     {
-        $this->exceptions[] = $e;
+        $this->context->setLastException($e);
 
         $message = $e->getMessage();
         if (!$e instanceof PsyException) {

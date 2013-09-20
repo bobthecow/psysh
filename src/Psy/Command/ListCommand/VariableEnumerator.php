@@ -13,7 +13,7 @@ namespace Psy\Command\ListCommand;
 
 use Psy\Command\ListCommand\Enumerator;
 use Psy\Presenter\PresenterManager;
-use Psy\Shell;
+use Psy\Context;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -21,21 +21,21 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class VariableEnumerator extends Enumerator
 {
-    private static $specialVars = array('_');
-    private $shell;
+    private static $specialVars = array('_', '_e');
+    private $context;
 
     /**
      * Variable Enumerator constructor.
      *
      * Unlike most other enumerators, the Variable Enumerator needs access to
-     * the currrent scope variables, so we need to pass it a Shell instance.
+     * the current scope variables, so we need to pass it a Context instance.
      *
      * @param PresenterManager $presenterManager
-     * @param Shell            $shell
+     * @param Context          $context
      */
-    public function __construct(PresenterManager $presenterManager, Shell $shell)
+    public function __construct(PresenterManager $presenterManager, Context $context)
     {
-        $this->shell = $shell;
+        $this->context = $context;
         parent::__construct($presenterManager);
     }
 
@@ -75,9 +75,13 @@ class VariableEnumerator extends Enumerator
      */
     protected function getVariables($showAll)
     {
-        $scopeVars = $this->shell->getScopeVariables();
+        $scopeVars = $this->context->getAll();
         uksort($scopeVars, function($a, $b) {
-            if ($a == '_') {
+            if ($a == '_e') {
+                return 1;
+            } elseif ($b == '_e') {
+                return -1;
+            } elseif ($a == '_') {
                 return 1;
             } elseif ($b == '_') {
                 return -1;

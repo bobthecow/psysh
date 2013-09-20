@@ -28,22 +28,25 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testScopeVariables()
     {
-        $one   = 'banana';
-        $two   = 123;
-        $three = new \StdClass;
+        $one       = 'banana';
+        $two       = 123;
+        $three     = new \StdClass;
         $__psysh__ = 'ignore this';
+        $_         = 'ignore this';
+        $_e        = 'ignore this';
 
         $shell = new Shell;
-        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__'));
+        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
-        $this->assertEquals(array('one', 'two', 'three'), $shell->getScopeVariableNames());
+        $this->assertEquals(array('one', 'two', 'three', '_'), $shell->getScopeVariableNames());
         $this->assertEquals('banana', $shell->getScopeVariable('one'));
         $this->assertEquals(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));
+        $this->assertNull($shell->getScopeVariable('_'));
 
         $shell->setScopeVariables(array());
-        $this->assertEmpty($shell->getScopeVariableNames());
+        $this->assertEquals(array('_'), $shell->getScopeVariableNames());
     }
 
     /**
@@ -77,8 +80,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
         $shell->renderException($e, $output);
 
-        $this->assertEquals(1, count($shell->getExceptions()));
-        $this->assertSame($e, $shell->getLastException());
+        $this->assertSame($e, $shell->getScopeVariable('_e'));
         $this->assertFalse($shell->hasCode());
         $this->assertEmpty($shell->getCodeBuffer());
 

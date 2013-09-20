@@ -11,10 +11,10 @@
 
 namespace Psy\Command;
 
-use Psy\Command\ShellAware;
 use Psy\Command\TraceCommand;
+use Psy\Context;
+use Psy\ContextAware;
 use Psy\Output\ShellOutput;
-use Psy\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,23 +23,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Show the last uncaught exception.
  */
-class WtfCommand extends TraceCommand implements ShellAware
+class WtfCommand extends TraceCommand implements ContextAware
 {
     /**
-     * Shell instance (for ShellAware interface)
+     * Context instance (for ContextAware interface)
      *
-     * @type Psy\Shell
+     * @type Psy\Context
      */
-    protected $shell;
+    protected $context;
 
     /**
-     * ShellAware interface.
+     * ContextAware interface.
      *
-     * @param Psy\Shell $shell
+     * @param Psy\Context $context
      */
-    public function setShell(Shell $shell)
+    public function setContext(Context $context)
     {
-        $this->shell = $shell;
+        $this->context = $context;
     }
 
     /**
@@ -97,21 +97,6 @@ EOF
         }
 
         $count = $input->getOption('verbose') ? PHP_INT_MAX : (strlen($incredulity) + 1);
-        $output->page($this->getBacktrace($this->getLastException(), $count), ShellOutput::NUMBER_LINES);
-    }
-
-    /**
-     * Grab the last uncaught exception from the shell.
-     *
-     * @return \Exception
-     */
-    protected function getLastException()
-    {
-        $e = $this->shell->getLastException();
-        if (!$e) {
-            throw new \InvalidArgumentException('No most-recent exception');
-        }
-
-        return $e;
+        $output->page($this->getBacktrace($this->context->getLastException(), $count), ShellOutput::NUMBER_LINES);
     }
 }
