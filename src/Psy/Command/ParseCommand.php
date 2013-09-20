@@ -112,7 +112,6 @@ EOL
                 $output->writeln('[');
                 foreach ($tree as $key => $node) {
                     if ($isAssoc) {
-                        var_dump($key);
                         $output->write($indent.sprintf('  <comment>%s</comment>: ', OutputFormatter::escape($key)));
                     } else {
                         $output->write($indent);
