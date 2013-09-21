@@ -13,14 +13,14 @@ namespace Psy\Command;
 
 use Psy\Context;
 use Psy\ContextAware;
-use Psy\Command\ShellAwareCommand;
+use Psy\Command\Command;
 use Psy\Exception\RuntimeException;
 use Psy\Util\Mirror;
 
 /**
  * An abstract command with helpers for inspecting the current context.
  */
-abstract class ReflectingCommand extends ShellAwareCommand implements ContextAware
+abstract class ReflectingCommand extends Command implements ContextAware
 {
     const CLASS_OR_FUNC     = '/^[\\\\\w]+$/';
     const INSTANCE          = '/^\$(\w+)$/';
@@ -104,7 +104,7 @@ abstract class ReflectingCommand extends ShellAwareCommand implements ContextAwa
             return $name;
         }
 
-        if ($namespace = $this->shell->getNamespace()) {
+        if ($namespace = $this->command->getNamespace()) {
             $fullName = $namespace.'\\'.$name;
 
             if (class_exists($fullName) || interface_exists($fullName) || ($includeFunctions && function_exists($fullName))) {

@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * A dumb little command for printing out the current Psy Shell version.
  */
-class PsyVersionCommand extends ShellAwareCommand
+class PsyVersionCommand extends Command
 {
     /**
      * {@inheritdoc}
@@ -40,6 +40,6 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln($this->shell->getVersion());
+        $output->writeln($this->application->getVersion());
     }
 }

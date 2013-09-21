@@ -11,7 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Command\ShellAwareCommand;
+use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Psy\Readline;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Shows, searches and replays readline history. Not too shabby.
  */
-class HistoryCommand extends ShellAwareCommand
+class HistoryCommand extends Command
 {
     public function setReadline(Readline $readline)
     {
@@ -112,7 +112,7 @@ class HistoryCommand extends ShellAwareCommand
 
             $count = count($history);
             $output->writeln(sprintf('Replaying %d line%s of history', $count, ($count != 1) ? 's' : ''));
-            $this->shell->addInput($history);
+            $this->application->addInput($history);
         } else {
             $type = $input->getOption('no-numbers') ? 0 : ShellOutput::NUMBER_LINES;
             $output->page($highlighted ?: $history, $type);

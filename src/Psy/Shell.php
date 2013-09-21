@@ -11,7 +11,6 @@
 
 namespace Psy;
 
-use Psy\Command\ShellAware;
 use Psy\Configuration;
 use Psy\Context;
 use Psy\ContextAware;
@@ -380,10 +379,6 @@ class Shell extends Application
 
         if (empty($command)) {
             throw new \InvalidArgumentException('Command not found: '.$input);
-        }
-
-        if ($command instanceof ShellAware) {
-            $command->setShell($this);
         }
 
         if ($command instanceof ContextAware) {

@@ -12,7 +12,7 @@
 namespace Psy\Command;
 
 use Psy\Output\ShellOutput;
-use Psy\Command\ShellAwareCommand;
+use Psy\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Shows and clears the buffer for the current multi-line expression.
  */
-class BufferCommand extends ShellAwareCommand
+class BufferCommand extends Command
 {
     /**
      * {@inheritdoc}
@@ -49,9 +49,9 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $buf = $this->shell->getCodeBuffer();
+        $buf = $this->application->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $this->shell->resetCodeBuffer();
+            $this->application->resetCodeBuffer();
             $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
         } else {
             $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);

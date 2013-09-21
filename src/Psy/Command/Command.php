@@ -11,6 +11,8 @@
 
 namespace Psy\Command;
 
+use Psy\Shell;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 
 /**
@@ -18,6 +20,22 @@ use Symfony\Component\Console\Command\Command as BaseCommand;
  */
 abstract class Command extends BaseCommand
 {
+    /**
+     * Sets the application instance for this command.
+     *
+     * @param Application $application An Application instance
+     *
+     * @api
+     */
+    public function setApplication(Application $application = null)
+    {
+        if ($application !== null && !$application instanceof Shell) {
+            throw new \InvalidArgumentException('PsySH Commands require an instance of Psy\Shell.');
+        }
+
+        return parent::setApplication($application);
+    }
+
     /**
      * {@inheritdoc}
      */
