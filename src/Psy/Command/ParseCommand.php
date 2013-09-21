@@ -76,7 +76,18 @@ EOL
      */
     private function parse($code)
     {
-        return $this->getParser()->parse($code);
+        $parser = $this->getParser();
+
+        try {
+            return $parser->parse($code);
+        } catch (\PHPParser_Error $e) {
+            if (strpos($e->getMessage(), 'unexpected EOF') === false) {
+                throw $e;
+            }
+
+            // If we got an unexpected EOF, let's try it again with a semicolon.
+            return $parser->parse($code . ';');
+        }
     }
 
     /**
