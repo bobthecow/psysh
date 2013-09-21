@@ -18,7 +18,11 @@ use Psy\Output\OutputPager;
 use Psy\Output\ProcOutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
-use Psy\Readline;
+use Psy\Readline\Readline;
+use Psy\Readline\Libedit;
+use Psy\Readline\LibeditTransient;
+use Psy\Readline\GNUReadline;
+use Psy\Readline\Transient;
 use Psy\Shell;
 
 /**
@@ -321,17 +325,17 @@ class Configuration
         if (!isset($this->readline)) {
             if ($this->useReadline()) {
                 $historyFile = $this->getHistoryFile();
-                if (Readline\Readline::isSupported()) {
-                    $this->readline = new Readline\Readline($historyFile);
-                } elseif (Readline\Libedit::isSupported()) {
-                    $this->readline = new Readline\Libedit($historyFile);
-                } elseif (Readline\LibeditTransient::isSupported()) {
-                    $this->readline = new Readline\LibeditTransient($historyFile);
+                if (GNUReadline::isSupported()) {
+                    $this->readline = new GNUReadline($historyFile);
+                } elseif (Libedit::isSupported()) {
+                    $this->readline = new Libedit($historyFile);
+                } elseif (LibeditTransient::isSupported()) {
+                    $this->readline = new LibeditTransient($historyFile);
                 }
             }
 
             if (!isset($this->readline)) {
-                $this->readline = new Readline\Transient;
+                $this->readline = new Transient;
             }
         }
 

@@ -2,9 +2,9 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline as ReadlineInterface;
+use Psy\Readline\Readline;
 
-class Transient implements ReadlineInterface
+class Transient implements Readline
 {
     private $history;
 

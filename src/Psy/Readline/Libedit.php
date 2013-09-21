@@ -2,9 +2,9 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline\Readline;
+use Psy\Readline\GNUReadline;
 
-class Libedit extends Readline
+class Libedit extends GNUReadline
 {
     public static function isSupported()
     {

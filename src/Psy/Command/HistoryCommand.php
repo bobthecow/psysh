@@ -13,7 +13,7 @@ namespace Psy\Command;
 
 use Psy\Command\Command;
 use Psy\Output\ShellOutput;
-use Psy\Readline;
+use Psy\Readline\Readline;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,6 +25,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HistoryCommand extends Command
 {
+    /**
+     * Set the Shell's Readline service.
+     *
+     * @param Readline $readline
+     */
     public function setReadline(Readline $readline)
     {
         $this->readline = $readline;
