@@ -51,6 +51,7 @@ class HistoryCommand extends Command
 
                 new InputOption('save',        '',  InputOption::VALUE_REQUIRED, 'Save history to a file.'),
                 new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay'),
+                new InputOption('clear',       '',  InputOption::VALUE_NONE,     'Clear the history.')
             ))
             ->setDescription('Show the Psy Shell history.')
             ->setHelp('Show, search or save the Psy Shell history.');
@@ -62,7 +63,7 @@ class HistoryCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->validateOnlyOne($input, array('show', 'head', 'tail'));
-        $this->validateOnlyOne($input, array('save', 'replay'));
+        $this->validateOnlyOne($input, array('save', 'replay', 'clear'));
 
         $history = $this->getHistorySlice(
             $input->getOption('show'),
@@ -113,6 +114,9 @@ class HistoryCommand extends Command
             $count = count($history);
             $output->writeln(sprintf('Replaying %d line%s of history', $count, ($count != 1) ? 's' : ''));
             $this->application->addInput($history);
+        } elseif ($input->getOption('clear')) {
+            $this->clearHistory();
+            $output->writeln('<info>History cleared.</info>');
         } else {
             $type = $input->getOption('no-numbers') ? 0 : ShellOutput::NUMBER_LINES;
             $output->page($highlighted ?: $history, $type);
@@ -216,5 +220,13 @@ class HistoryCommand extends Command
         if ($count > 1) {
             throw new \InvalidArgumentException('Please specify only one of --'.implode(', --', $options));
         }
+    }
+
+    /**
+     * Clear the readline history.
+     */
+    private function clearHistory()
+    {
+        $this->readline->clearHistory();
     }
 }
