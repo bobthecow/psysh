@@ -27,6 +27,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Command\Command as BaseCommand;
 
 /**
  * The Psy Shell application
@@ -106,6 +107,30 @@ class Shell extends Application
         $sh->run();
 
         return $sh->getScopeVariables();
+    }
+
+    /**
+     * Adds a command object.
+     *
+     * {@inheritDoc}
+     *
+     * @param BaseCommand $command A Symfony Console Command object
+     *
+     * @return BaseCommand The registered command
+     */
+    public function add(BaseCommand $command)
+    {
+        if ($ret = parent::add($command)) {
+            if ($ret instanceof ContextAware) {
+                $ret->setContext($this->context);
+            }
+
+            if ($ret instanceof PresenterManagerAware) {
+                $ret->setPresenterManager($this->config->getPresenterManager());
+            }
+        }
+
+        return $ret;
     }
 
     /**
@@ -379,14 +404,6 @@ class Shell extends Application
 
         if (empty($command)) {
             throw new \InvalidArgumentException('Command not found: '.$input);
-        }
-
-        if ($command instanceof ContextAware) {
-            $command->setContext($this->context);
-        }
-
-        if ($command instanceof PresenterManagerAware) {
-            $command->setPresenterManager($this->config->getPresenterManager());
         }
 
         $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
