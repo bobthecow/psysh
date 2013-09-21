@@ -21,13 +21,14 @@ use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
 use Psy\Readline;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command as BaseCommand;
 
 /**
  * The Psy Shell application
@@ -558,7 +559,7 @@ class Shell extends Application
             }
         }
 
-        $output->writeln(sprintf('<%s>%s</%s>', $severity, $message, $severity));
+        $output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
 
         $this->resetCodeBuffer();
     }
@@ -634,7 +635,7 @@ class Shell extends Application
     {
         if (!empty($this->inputBuffer)) {
             $line = array_shift($this->inputBuffer);
-            $this->output->writeln(sprintf('<aside>%s %s</aside>', self::REPLAY, $line));
+            $this->output->writeln(sprintf('<aside>%s %s</aside>', self::REPLAY, OutputFormatter::escape($line)));
 
             return $line;
         }
