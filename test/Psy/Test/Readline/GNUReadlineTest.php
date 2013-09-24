@@ -11,9 +11,9 @@
 
 namespace Psy\Test\Readline;
 
-use Psy\Readline\Readline;
+use Psy\Readline\GNUReadline;
 
-class ReadlineTest extends \PHPUnit_Framework_TestCase
+class GNUReadlineTest extends \PHPUnit_Framework_TestCase
 {
     private $historyFile;
     private $readline;
@@ -21,12 +21,12 @@ class ReadlineTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         if (!function_exists('readline_list_history')) {
-            $this->markTestSkipped('Readline not enabled');
+            $this->markTestSkipped('GNUReadline not enabled');
         }
 
         readline_clear_history();
         $this->historyFile = tempnam(sys_get_temp_dir().'/psysh/test/', 'history');
-        $this->readline    = new Readline($this->historyFile);
+        $this->readline    = new GNUReadline($this->historyFile);
     }
 
     public function testHistory()
