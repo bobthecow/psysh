@@ -96,7 +96,7 @@ EOF
             throw new \InvalidArgumentException('Incredulity must include only "?" and "!".');
         }
 
-        $count = $input->getOption('verbose') ? PHP_INT_MAX : (strlen($incredulity) + 1);
+        $count = $input->getOption('verbose') ? PHP_INT_MAX : pow(2, max(0, (strlen($incredulity) - 1)));
         $output->page($this->getBacktrace($this->context->getLastException(), $count), ShellOutput::NUMBER_LINES);
     }
 }
