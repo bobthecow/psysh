@@ -17,6 +17,7 @@ use PHPParser_PrettyPrinter_Zend as Printer;
 use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
+use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\MagicConstantsPass;
@@ -77,6 +78,7 @@ class CodeCleaner
     {
         return array(
             new AssignThisVariablePass,
+            new FunctionReturnInWriteContextPass,
             new CallTimePassByReferencePass,
             new LeavePsyshAlonePass,
             new ImplicitReturnPass,
