@@ -102,7 +102,7 @@ class CodeCleaner
      */
     public function clean(array $codeLines)
     {
-        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines));
+        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines) . PHP_EOL);
         if ($stmts === false) {
             return false;
         }
