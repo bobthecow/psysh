@@ -97,6 +97,6 @@ EOF
         }
 
         $count = $input->getOption('verbose') ? PHP_INT_MAX : pow(2, max(0, (strlen($incredulity) - 1)));
-        $output->page($this->getBacktrace($this->context->getLastException(), $count), ShellOutput::NUMBER_LINES);
+        $output->page($this->getBacktrace($this->context->getLastException(), $count), ShellOutput::NUMBER_LINES | ShellOutput::OUTPUT_RAW);
     }
 }
