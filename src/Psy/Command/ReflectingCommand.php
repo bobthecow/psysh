@@ -104,7 +104,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
             return $name;
         }
 
-        if ($namespace = $this->command->getNamespace()) {
+        if ($namespace = $this->getApplication()->getNamespace()) {
             $fullName = $namespace.'\\'.$name;
 
             if (class_exists($fullName) || interface_exists($fullName) || ($includeFunctions && function_exists($fullName))) {
