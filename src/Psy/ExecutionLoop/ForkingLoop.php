@@ -52,6 +52,13 @@ class ForkingLoop extends Loop
             fclose($up);
 
             // Wait for a return value from the loop process.
+            $read   = array($down);
+            $write  = null;
+            $except = null;
+            if (stream_select($read, $write, $except, null) === false) {
+                throw new \RuntimeException('Error waiting for execution loop.');
+            }
+
             $content = stream_get_contents($down);
             fclose($down);
 
