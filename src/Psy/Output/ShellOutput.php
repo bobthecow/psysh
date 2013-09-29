@@ -111,13 +111,18 @@ class ShellOutput extends ConsoleOutput
             $pad = strlen((string) count($messages));
             $template = $this->isDecorated() ? "<aside>%-{$pad}s</aside>: %s" : "%-{$pad}s: %s";
 
+            if ($type & self::OUTPUT_RAW) {
+                $messages = array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $messages);
+            }
+
             foreach ($messages as $i => $line) {
                 $messages[$i] = sprintf($template, $i, $line);
             }
+
+            // clean this up for super.
+            $type = $type & ~self::NUMBER_LINES & ~self::OUTPUT_RAW;
         }
 
-        // clean this up for super.
-        $type = $type & ~self::NUMBER_LINES;
 
         parent::write($messages, $newline, $type);
     }

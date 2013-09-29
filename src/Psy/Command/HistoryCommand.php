@@ -17,6 +17,7 @@ use Psy\Readline\Readline;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * Psy Shell history command.
@@ -95,7 +96,11 @@ class HistoryCommand extends Command
             foreach ($history as $i => $line) {
                 if (preg_match($pattern, $line, $matches) xor $invert) {
                     if (!$invert) {
-                        $highlighted[$i] = str_replace($matches[0], sprintf('<strong>%s</strong>', $matches[0]), $history[$i]);
+                        $chunks = explode($matches[0], $history[$i]);
+                        $chunks = array_map(array(__CLASS__, 'escape'), $chunks);
+                        $glue   = sprintf('<urgent>%s</urgent>', self::escape($matches[0]));
+
+                        $highlighted[$i] = implode($glue, $chunks);
                     }
                 } else {
                     unset($history[$i]);
@@ -124,6 +129,10 @@ class HistoryCommand extends Command
             $output->writeln('<info>History cleared.</info>');
         } else {
             $type = $input->getOption('no-numbers') ? 0 : ShellOutput::NUMBER_LINES;
+            if (!$highlighted) {
+                $type = $type | ShellOutput::OUTPUT_RAW;
+            }
+
             $output->page($highlighted ?: $history, $type);
         }
     }
@@ -233,5 +242,10 @@ class HistoryCommand extends Command
     private function clearHistory()
     {
         $this->readline->clearHistory();
+    }
+
+    public static function escape($string)
+    {
+        return OutputFormatter::escape($string);
     }
 }
