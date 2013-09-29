@@ -23,9 +23,7 @@ use Psy\Shell;
  */
 class ForkingLoop extends Loop
 {
-    private $parentPid;
     private $returnFile;
-    private $savegameFile;
     private $savegame;
 
     /**
@@ -36,9 +34,7 @@ class ForkingLoop extends Loop
     public function __construct(Configuration $config)
     {
         parent::__construct($config);
-        $this->parentPid    = posix_getpid();
-        $this->returnFile   = $config->getPipe('return', $this->parentPid);
-        $this->savegameFile = $config->getTempFile('savegame', $this->parentPid);
+        $this->returnFile = $config->getPipe('return', posix_getpid());
     }
 
     /**
@@ -70,10 +66,11 @@ class ForkingLoop extends Loop
         }
 
         // This is the child process.
-        // Fork a monitor process (which will be responsible for restarting from
-        // a savegame in the event of fail).
-        $this->createMonitor();
+        if (function_exists('setproctitle')) {
+            setproctitle('psysh (loop)');
+        }
 
+        // Let's do some processing.
         parent::run($shell);
 
         $return = $shell->getScopeVariables();
@@ -95,37 +92,6 @@ class ForkingLoop extends Loop
     }
 
     /**
-     * Create a monitor process.
-     *
-     * This process sits above the worker process and waits for it to exit. If
-     * the worker did not exit cleanly — for example, if a PHP fatal error was
-     * encountered — the monitor will resume the latest savegame.
-     */
-    private function createMonitor()
-    {
-        $pid = pcntl_fork();
-        if ($pid) {
-            pcntl_waitpid($pid, $status);
-            if (!pcntl_wexitstatus($status)) {
-                // if the worker exited successfully, kill the monitor.
-                posix_kill(posix_getpid(), SIGKILL);
-            }
-
-            // Otherwise, find a savegame to restore.
-            $savegamePid = trim(file_get_contents($this->savegameFile));
-
-            if (empty($savegamePid)) {
-                echo "Savegame not found.\n";
-                die;
-            }
-
-            // Restart the savegame and kill the monitor.
-            posix_kill($savegamePid, SIGCONT);
-            posix_kill(posix_getpid(), SIGKILL);
-        }
-    }
-
-    /**
      * Create a savegame fork.
      *
      * The savegame contains the current execution state, and can be resumed in
@@ -134,23 +100,29 @@ class ForkingLoop extends Loop
      */
     private function createSavegame()
     {
-        if (isset($this->savegame)) {
+        $pid = posix_getpid();
+
+        // if there's an old savegame hanging around, let's kill it.
+        if (isset($this->savegame) && $this->savegame !== $pid) {
             posix_kill($this->savegame, SIGKILL);
         }
 
-        $pid = pcntl_fork();
+        // the current process will become the savegame
+        $this->savegame = $pid;
 
-        if ($pid) {
-            // Save the savegame PID for later
-            $this->savegame = $pid;
-            file_put_contents($this->savegameFile, $this->savegame);
-        } else {
-            // Stop and wait until savegame is needed.
-            posix_kill(posix_getpid(), SIGSTOP);
+        $childPid = pcntl_fork();
+        if ($childPid < 0) {
+            throw new \RuntimeException('Unable to create savegame fork.');
+        } elseif ($childPid > 0) {
+            // we're the savegame now... let's wait and see what happens
+            pcntl_waitpid($childPid, $status);
 
-            // Savegame has been resumed
-            // We'll need a new monitor and savegame
-            $this->createMonitor();
+            // worker exited cleanly, let's bail
+            if (!pcntl_wexitstatus($status)) {
+                posix_kill(posix_getpid(), SIGKILL);
+            }
+
+            // worker didn't exit cleanly, we'll need to have another go
             $this->createSavegame();
         }
     }
