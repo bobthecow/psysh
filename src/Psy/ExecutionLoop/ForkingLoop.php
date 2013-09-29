@@ -11,7 +11,6 @@
 
 namespace Psy\ExecutionLoop;
 
-use Psy\Configuration;
 use Psy\ExecutionLoop\Loop;
 use Psy\Shell;
 
@@ -23,62 +22,58 @@ use Psy\Shell;
  */
 class ForkingLoop extends Loop
 {
-    private $returnFile;
     private $savegame;
 
     /**
-     * Constructor.
-     *
-     * @param Configuration $config
-     */
-    public function __construct(Configuration $config)
-    {
-        parent::__construct($config);
-        $this->returnFile = $config->getPipe('return', posix_getpid());
-    }
-
-    /**
      * Run the exection loop.
+     *
+     * Forks into a master and a loop process. The loop process will handle the
+     * evaluation of all instructions, then return its state via a socket upon
+     * completion.
      *
      * @param Shell $shell
      */
     public function run(Shell $shell)
     {
-        if (!posix_mkfifo($this->returnFile, 0600)) {
-            echo 'Unable to open pipe: '.$this->returnFile."\n";
-            die;
+        $pipes = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        if (!$pipes) {
+            throw new \RuntimeException('Unable to create socket pair.');
+        } else {
+            list($up, $down) = $pipes;
         }
 
-        if (pcntl_fork()) {
-            // This is the main thread.
-            // Open the return pipe and wait for a child process to exit.
-            $returnPipe = fopen($this->returnFile, 'r');
-            $content = array();
-            while ($line = fread($returnPipe, 1024)) {
-                $content[] = $line;
-            }
-            $content = implode('', $content);
-            fclose($returnPipe);
+        $pid = pcntl_fork();
+        if ($pid < 0) {
+            throw new \RuntimeException('Unable to start execution loop.');
+        } elseif ($pid > 0) {
+            // This is the main thread. We'll just wait for a while.
+
+            // We won't be needing this one.
+            fclose($up);
+
+            // Wait for a return value from the loop process.
+            $content = stream_get_contents($down);
+            fclose($down);
 
             $shell->setScopeVariables(unserialize($content));
 
             return;
         }
 
-        // This is the child process.
+        // This is the child process. It's going to do all the work.
         if (function_exists('setproctitle')) {
             setproctitle('psysh (loop)');
         }
 
+        // We won't be needing this one.
+        fclose($down);
+
         // Let's do some processing.
         parent::run($shell);
 
-        $return = $shell->getScopeVariables();
-
-        // Send the return value back to the main thread
-        $returnPipe = fopen($this->returnFile, 'w');
-        fwrite($returnPipe, $this->serializeReturn($return));
-        fclose($returnPipe);
+        // Send the scope variables back up to the main thread
+        fwrite($up, $this->serializeReturn($shell->getScopeVariables()));
+        fclose($up);
 
         exit;
     }
