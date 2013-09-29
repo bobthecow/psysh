@@ -284,6 +284,16 @@ class Shell extends Application
     }
 
     /**
+     * Pass the afterLoop callback through to the Loop instance.
+     *
+     * @see Loop::afterLoop
+     */
+    public function afterLoop()
+    {
+        $this->loop->afterLoop();
+    }
+
+    /**
      * Set the variables currently in scope.
      *
      * @param array $vars

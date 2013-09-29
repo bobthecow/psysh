@@ -48,21 +48,9 @@ class CodeCleaner
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
-        if ($parser === null) {
-            $parser = new Parser(new Lexer);
-        }
-
-        if ($printer === null) {
-            $printer = new Printer;
-        }
-
-        if ($traverser === null) {
-            $traverser = new NodeTraverser;
-        }
-
-        $this->parser    = $parser;
-        $this->printer   = $printer;
-        $this->traverser = $traverser;
+        $this->parser    = $parser    ?: new Parser(new Lexer);
+        $this->printer   = $printer   ?: new Printer;
+        $this->traverser = $traverser ?: new NodeTraverser;
 
         foreach ($this->getDefaultPasses() as $pass) {
             $this->traverser->addVisitor($pass);

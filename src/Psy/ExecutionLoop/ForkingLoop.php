@@ -35,17 +35,17 @@ class ForkingLoop extends Loop
      */
     public function run(Shell $shell)
     {
-        $pipes = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
-        if (!$pipes) {
+        list($up, $down) = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+
+        if (!$up) {
             throw new \RuntimeException('Unable to create socket pair.');
-        } else {
-            list($up, $down) = $pipes;
         }
 
         $pid = pcntl_fork();
         if ($pid < 0) {
             throw new \RuntimeException('Unable to start execution loop.');
         } elseif ($pid > 0) {
+
             // This is the main thread. We'll just wait for a while.
 
             // We won't be needing this one.
@@ -87,6 +87,18 @@ class ForkingLoop extends Loop
     }
 
     /**
+     * Clean up old savegames at the end of each loop iteration.
+     */
+    public function afterLoop()
+    {
+        // if there's an old savegame hanging around, let's kill it.
+        if (isset($this->savegame)) {
+            posix_kill($this->savegame, SIGKILL);
+            pcntl_signal_dispatch();
+        }
+    }
+
+    /**
      * Create a savegame fork.
      *
      * The savegame contains the current execution state, and can be resumed in
@@ -95,22 +107,15 @@ class ForkingLoop extends Loop
      */
     private function createSavegame()
     {
-        $pid = posix_getpid();
-
-        // if there's an old savegame hanging around, let's kill it.
-        if (isset($this->savegame) && $this->savegame !== $pid) {
-            posix_kill($this->savegame, SIGKILL);
-        }
-
         // the current process will become the savegame
-        $this->savegame = $pid;
+        $this->savegame = posix_getpid();
 
-        $childPid = pcntl_fork();
-        if ($childPid < 0) {
+        $pid = pcntl_fork();
+        if ($pid < 0) {
             throw new \RuntimeException('Unable to create savegame fork.');
-        } elseif ($childPid > 0) {
+        } elseif ($pid > 0) {
             // we're the savegame now... let's wait and see what happens
-            pcntl_waitpid($childPid, $status);
+            pcntl_waitpid($pid, $status);
 
             // worker exited cleanly, let's bail
             if (!pcntl_wexitstatus($status)) {
@@ -130,7 +135,8 @@ class ForkingLoop extends Loop
      * loop. We'll just ignore these unserializable classes, and serialize what
      * we can.
      *
-     * @param  array  $return
+     * @param array $return
+     *
      * @return string
      */
     private function serializeReturn(array $return)

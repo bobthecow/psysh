@@ -90,6 +90,7 @@ class Loop
 
                 // a bit of housekeeping
                 unset($__psysh_out__);
+                $__psysh__->afterLoop();
             } while (true);
         };
 
@@ -119,6 +120,17 @@ class Loop
      * (non-forking) loop implementation, this is a no-op.
      */
     public function beforeLoop()
+    {
+        // no-op
+    }
+
+    /**
+     * A afterLoop callback.
+     *
+     * This is executed at the end of each loop iteration. In the default
+     * (non-forking) loop implementation, this is a no-op.
+     */
+    public function afterLoop()
     {
         // no-op
     }
