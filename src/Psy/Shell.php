@@ -65,6 +65,7 @@ class Shell extends Application
     private $outputWantsNewline = false;
     private $completion;
     private $tabCompletionMatchers = array();
+    private $listeners;
 
     /**
      * Create a new Psy Shell.
@@ -73,13 +74,14 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
-        $this->config   = $config ?: new Configuration();
-        $this->cleaner  = $this->config->getCodeCleaner();
-        $this->loop     = $this->config->getLoop();
-        $this->context  = new Context();
-        $this->includes = array();
-        $this->readline = $this->config->getReadline();
+        $this->config      = $config ?: new Configuration();
+        $this->cleaner     = $this->config->getCodeCleaner();
+        $this->loop        = $this->config->getLoop();
+        $this->context     = new Context();
+        $this->includes    = array();
+        $this->readline    = $this->config->getReadline();
         $this->inputBuffer = array();
+        $this->listeners   = $this->getDefaultListeners();
 
         parent::__construct('Psy Shell', self::VERSION);
 
@@ -207,6 +209,20 @@ class Shell extends Application
         }
 
         return $this->tabCompletionMatchers;
+    }
+
+    /**
+     * Gets the default command loop listeners.
+     *
+     * @return array An array of Listener instances
+     */
+    protected function getDefaultListeners()
+    {
+        return array_filter(array(
+            new Listener\Reloader(),
+        ), function ($listener) {
+            return $listener->enabled();
+        });
     }
 
     /**
@@ -346,7 +362,7 @@ class Shell extends Application
      */
     public function beforeLoop()
     {
-        $this->loop->beforeLoop();
+        $this->loop->beforeLoop($this);
     }
 
     /**
@@ -356,7 +372,21 @@ class Shell extends Application
      */
     public function afterLoop()
     {
-        $this->loop->afterLoop();
+        $this->loop->afterLoop($this);
+    }
+
+    /**
+     * Pass next command to listeners.
+     *
+     * @see Loop::run
+     */
+    public function onExecute($command)
+    {
+        foreach ($this->listeners as $listener) {
+            $listener->onExecute($this, $command);
+        }
+
+        return $command;
     }
 
     /**
