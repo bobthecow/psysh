@@ -88,21 +88,25 @@ class ForkingLoop extends Loop
     /**
      * Create a savegame at the start of each loop iteration.
      */
-    public function beforeLoop()
+    public function beforeLoop(Shell $shell)
     {
         $this->createSavegame();
+
+        parent::beforeLoop($shell);
     }
 
     /**
      * Clean up old savegames at the end of each loop iteration.
      */
-    public function afterLoop()
+    public function afterLoop(Shell $shell)
     {
         // if there's an old savegame hanging around, let's kill it.
         if (isset($this->savegame)) {
             posix_kill($this->savegame, SIGKILL);
             pcntl_signal_dispatch();
         }
+
+        parent::afterLoop($shell);
     }
 
     /**

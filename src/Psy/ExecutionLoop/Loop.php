@@ -75,7 +75,7 @@ class Loop
                     );
 
                     set_error_handler(array($__psysh__, 'handleError'));
-                    $_ = eval($__psysh__->flushCode() ?: Loop::NOOP_INPUT);
+                    $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: Loop::NOOP_INPUT));
                     restore_error_handler();
 
                     ob_end_flush();
@@ -134,9 +134,11 @@ class Loop
      * This is executed at the start of each loop iteration. In the default
      * (non-forking) loop implementation, this is a no-op.
      */
-    public function beforeLoop()
+    public function beforeLoop(Shell $shell)
     {
-        // no-op
+        foreach ($shell->listeners as $listener) {
+            $listener->onAfterLoop($shell);
+        }
     }
 
     /**
@@ -145,9 +147,11 @@ class Loop
      * This is executed at the end of each loop iteration. In the default
      * (non-forking) loop implementation, this is a no-op.
      */
-    public function afterLoop()
+    public function afterLoop(Shell $shell)
     {
-        // no-op
+        foreach ($shell->listeners as $listener) {
+            $listener->onAfterLoop($shell);
+        }
     }
 
     /**
