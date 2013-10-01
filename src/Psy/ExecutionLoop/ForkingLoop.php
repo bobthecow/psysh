@@ -62,7 +62,9 @@ class ForkingLoop extends Loop
             $content = stream_get_contents($down);
             fclose($down);
 
-            $shell->setScopeVariables(unserialize($content));
+            if ($content) {
+                $shell->setScopeVariables(unserialize($content));
+            }
 
             return;
         }
