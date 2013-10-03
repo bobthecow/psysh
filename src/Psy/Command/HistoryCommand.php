@@ -123,7 +123,7 @@ class HistoryCommand extends Command
 
             $count = count($history);
             $output->writeln(sprintf('Replaying %d line%s of history', $count, ($count != 1) ? 's' : ''));
-            $this->application->addInput($history);
+            $this->getApplication()->addInput($history);
         } elseif ($input->getOption('clear')) {
             $this->clearHistory();
             $output->writeln('<info>History cleared.</info>');

@@ -49,9 +49,9 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $buf = $this->application->getCodeBuffer();
+        $buf = $this->getApplication()->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $this->application->resetCodeBuffer();
+            $this->getApplication()->resetCodeBuffer();
             $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
         } else {
             $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);
