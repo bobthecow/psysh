@@ -60,7 +60,7 @@ EOL
         $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
         $output->page(function($output) use ($reflector, $doc) {
             $output->writeln(SignatureFormatter::format($reflector));
-            if (empty($doc) && !$this->shell->getManualDb()) {
+            if (empty($doc) && !$this->getApplication()->getManualDb()) {
                 $output->writeln('');
                 $output->writeln('<warning>PHP manual not found</warning>');
                 $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
@@ -87,7 +87,7 @@ EOL
                 return false;
         }
 
-        if ($db = $this->shell->getManualDb()) {
+        if ($db = $this->getApplication()->getManualDb()) {
             return $db
                 ->query(sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)))
                 ->fetchColumn(0);

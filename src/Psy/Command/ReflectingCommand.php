@@ -32,14 +32,14 @@ abstract class ReflectingCommand extends Command implements ContextAware
     /**
      * Context instance (for ContextAware interface)
      *
-     * @type Psy\Context
+     * @type Context
      */
     protected $context;
 
     /**
      * ContextAware interface.
      *
-     * @param Psy\Context $context
+     * @param Context $context
      */
     public function setContext(Context $context)
     {
