@@ -58,6 +58,7 @@ class Shell extends Application
     private $codeBuffer;
     private $context;
     private $includes;
+    private $loop;
 
     /**
      * Create a new Psy Shell.
