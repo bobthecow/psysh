@@ -42,10 +42,10 @@ It's awesome for well-documented code, not quite as awesome for poorly documente
 
 e.g.
 <return>>>> doc preg_replace</return>
-<return>>>> doc \Psy\Command\DocCommand</return>
-<return>>>> doc \Psy\Command\DocCommand::getDocumentation</return>
-<return>>>> \$d = new \Psy\Command\DocCommand</return>
-<return>>>> doc \$d->shell</return>
+<return>>>> doc Psy\Shell</return>
+<return>>>> doc Psy\Shell::debug</return>
+<return>>>> \$s = new Psy\Shell</return>
+<return>>>> doc \$s->run</return>
 EOL
             );
     }
