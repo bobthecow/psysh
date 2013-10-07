@@ -12,6 +12,7 @@
 namespace Psy\Presenter;
 
 use Psy\Presenter\Presenter;
+use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
@@ -60,7 +61,7 @@ class ScalarPresenter implements Presenter
      */
     public function present($value, $depth = null)
     {
-        return OutputFormatter::escape(json_encode($value,JSON_UNESCAPED_UNICODE));
+        return OutputFormatter::escape(Json::encode($value));
     }
 
     /**

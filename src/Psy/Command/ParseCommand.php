@@ -16,6 +16,7 @@ use PHPParser_Parser as Parser;
 use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Psy\Util\Inspector;
+use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -153,7 +154,7 @@ EOL
                 }
                 $output->writeln($indent.'}');
             } else {
-                $output->writeln(sprintf('<return>%s</return>', OutputFormatter::escape(json_encode($tree, true))));
+                $output->writeln(sprintf('<return>%s</return>', OutputFormatter::escape(Json::encode($tree))));
             }
         };
 

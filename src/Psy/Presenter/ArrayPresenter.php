@@ -12,6 +12,7 @@
 namespace Psy\Presenter;
 
 use Psy\Presenter\RecursivePresenter;
+use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
@@ -66,7 +67,7 @@ class ArrayPresenter extends RecursivePresenter
         $formatted = array_map(array($this, 'presentSubValue'), $value);
 
         if ($this->shouldShowKeys($value)) {
-            $pad = max(array_map('strlen', array_map('json_encode', array_keys($value))));
+            $pad = max(array_map('strlen', array_map(array('Psy\Util\Json', 'encode'), array_keys($value))));
             array_walk($formatted, array($this, 'formatKeyAndValue'), $pad);
         } else {
             $formatted = array_map(array($this, 'indentValue'), $formatted);
@@ -101,6 +102,7 @@ class ArrayPresenter extends RecursivePresenter
 
         return false;
     }
+
     /**
      * Format a key => value pair.
      *
@@ -114,7 +116,7 @@ class ArrayPresenter extends RecursivePresenter
     {
         $value = sprintf(
             "%-${pad}s => %s",
-            OutputFormatter::escape(json_encode($key,JSON_UNESCAPED_UNICODE)),
+            OutputFormatter::escape(Json::encode($key)),
             $this->indentValue($value)
         );
     }

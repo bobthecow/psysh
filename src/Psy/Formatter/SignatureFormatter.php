@@ -12,6 +12,7 @@
 namespace Psy\Formatter;
 
 use Psy\Formatter\Formatter;
+use Psy\Util\Json;
 use Psy\Reflection\ReflectionConstant;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
@@ -136,7 +137,7 @@ class SignatureFormatter implements Formatter
             '<keyword>const</keyword> <const>%s</const> = <%s>%s</%s>',
             self::formatName($reflector),
             $style,
-            OutputFormatter::escape(json_encode($value)),
+            OutputFormatter::escape(Json::encode($value)),
             $style
         );
     }
