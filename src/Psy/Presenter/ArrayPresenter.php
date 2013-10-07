@@ -114,7 +114,7 @@ class ArrayPresenter extends RecursivePresenter
     {
         $value = sprintf(
             "%-${pad}s => %s",
-            OutputFormatter::escape(json_encode($key)),
+            OutputFormatter::escape(json_encode($key,JSON_UNESCAPED_UNICODE)),
             $this->indentValue($value)
         );
     }

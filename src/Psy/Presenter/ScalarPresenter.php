@@ -60,7 +60,7 @@ class ScalarPresenter implements Presenter
      */
     public function present($value, $depth = null)
     {
-        return OutputFormatter::escape(json_encode($value));
+        return OutputFormatter::escape(json_encode($value,JSON_UNESCAPED_UNICODE));
     }
 
     /**
