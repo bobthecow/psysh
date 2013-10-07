@@ -31,9 +31,9 @@ class Docblock
      * @type Array
      */
     public static $vectors = array(
-        'throws'     => array('type', 'desc'),
-        'param'      => array('type', 'var', 'desc'),
-        'return'     => array('type', 'desc'),
+        'throws' => array('type', 'desc'),
+        'param'  => array('type', 'var', 'desc'),
+        'return' => array('type', 'desc'),
     );
 
     protected $reflector;

@@ -29,11 +29,12 @@ use Psy\Exception\FatalErrorException;
 class FunctionReturnInWriteContextPass extends CodeCleanerPass
 {
     const EXCEPTION_MESSAGE = "Can't use function return value in write context";
-    private $isPHP_5_5;
+
+    private $isPhp55;
 
     public function __construct()
     {
-        $this->isPHP_5_5 = version_compare(PHP_VERSION, '5.5', '>=');
+        $this->isPhp55 = version_compare(PHP_VERSION, '5.5', '>=');
     }
 
     /**
@@ -61,13 +62,13 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                     continue;
                 }
 
-                if ($this->isPHP_5_5) {
+                if ($this->isPhp55) {
                     throw new FatalErrorException('Cannot use isset() on the result of a function call (you can use "null !== func()" instead)');
                 } else {
                     throw new FatalErrorException(self::EXCEPTION_MESSAGE);
                 }
             }
-        } elseif ($node instanceof EmptyNode && !$this->isPHP_5_5 && $this->isCallNode($node->expr)) {
+        } elseif ($node instanceof EmptyNode && !$this->isPhp55 && $this->isCallNode($node->expr)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE);
         } elseif ($node instanceof AssignNode && $this->isCallNode($node->var)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE);

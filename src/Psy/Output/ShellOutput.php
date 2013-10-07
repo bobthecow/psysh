@@ -123,7 +123,6 @@ class ShellOutput extends ConsoleOutput
             $type = $type & ~self::NUMBER_LINES & ~self::OUTPUT_RAW;
         }
 
-
         parent::write($messages, $newline, $type);
     }
 

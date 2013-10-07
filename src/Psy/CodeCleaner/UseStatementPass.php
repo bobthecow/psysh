@@ -64,6 +64,13 @@ class UseStatementPass extends NamespaceAwarePass
         }
     }
 
+    /**
+     * Find class/namespace aliases.
+     *
+     * @param Name $name
+     *
+     * @return Name
+     */
     private function findAlias(Name $name)
     {
         $that = strtolower($name);

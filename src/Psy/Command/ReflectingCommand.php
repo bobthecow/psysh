@@ -22,12 +22,12 @@ use Psy\Util\Mirror;
  */
 abstract class ReflectingCommand extends Command implements ContextAware
 {
-    const CLASS_OR_FUNC     = '/^[\\\\\w]+$/';
-    const INSTANCE          = '/^\$(\w+)$/';
-    const CLASS_MEMBER      = '/^([\\\\\w]+)::(\w+)$/';
-    const CLASS_STATIC      = '/^([\\\\\w]+)::\$(\w+)$/';
-    const INSTANCE_MEMBER   = '/^\$(\w+)(::|->)(\w+)$/';
-    const INSTANCE_STATIC   = '/^\$(\w+)::\$(\w+)$/';
+    const CLASS_OR_FUNC   = '/^[\\\\\w]+$/';
+    const INSTANCE        = '/^\$(\w+)$/';
+    const CLASS_MEMBER    = '/^([\\\\\w]+)::(\w+)$/';
+    const CLASS_STATIC    = '/^([\\\\\w]+)::\$(\w+)$/';
+    const INSTANCE_MEMBER = '/^\$(\w+)(::|->)(\w+)$/';
+    const INSTANCE_STATIC = '/^\$(\w+)::\$(\w+)$/';
 
     /**
      * Context instance (for ContextAware interface)

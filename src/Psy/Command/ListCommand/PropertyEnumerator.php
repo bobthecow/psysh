@@ -35,8 +35,7 @@ class PropertyEnumerator extends Enumerator
             return;
         }
 
-        $showAll = $input->getOption('all');
-
+        $showAll    = $input->getOption('all');
         $properties = $this->prepareProperties($this->getProperties($showAll, $reflector), $target);
 
         if (empty($properties)) {

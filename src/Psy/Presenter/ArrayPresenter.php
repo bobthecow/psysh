@@ -73,12 +73,10 @@ class ArrayPresenter extends RecursivePresenter
             $formatted = array_map(array($this, 'indentValue'), $formatted);
         }
 
-        $template  = sprintf('[%s%s%%s%s]', PHP_EOL, self::INDENT, PHP_EOL);
-        $glue      = sprintf(',%s%s', PHP_EOL, self::INDENT);
+        $template = sprintf('[%s%s%%s%s]', PHP_EOL, self::INDENT, PHP_EOL);
+        $glue     = sprintf(',%s%s', PHP_EOL, self::INDENT);
 
-        $res = sprintf($template, implode($glue, $formatted));
-
-        return $res;
+        return sprintf($template, implode($glue, $formatted));
     }
 
     /**

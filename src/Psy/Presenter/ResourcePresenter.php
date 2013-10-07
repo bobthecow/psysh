@@ -49,7 +49,7 @@ class ResourcePresenter implements Presenter
             $type = sprintf('%s stream', $meta['stream_type']);
         }
 
-        $id = str_replace('Resource id #', '', (string) $value);
+        $id     = str_replace('Resource id #', '', (string) $value);
         $format = $color ? self::COLOR_FMT : self::FMT;
 
         return sprintf($format, OutputFormatter::escape('<'), $type, $id);

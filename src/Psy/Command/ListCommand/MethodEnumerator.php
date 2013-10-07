@@ -36,7 +36,6 @@ class MethodEnumerator extends Enumerator
         }
 
         $showAll = $input->getOption('all');
-
         $methods = $this->prepareMethods($this->getMethods($showAll, $reflector));
 
         if (empty($methods)) {
