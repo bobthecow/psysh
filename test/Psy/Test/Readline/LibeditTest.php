@@ -24,7 +24,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Libedit not enabled');
         }
 
-        if (`which unvis` === null) {
+        if (`which unvis 2>/dev/null` === null) {
             $this->markTestSkipped('Missing unvis library');
         }
 

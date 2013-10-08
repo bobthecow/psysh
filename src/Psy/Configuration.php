@@ -463,7 +463,7 @@ class Configuration
 
             if ($pager = ini_get('cli.pager')) {    // use the default pager (5.4+)
                 $this->pager = $pager;
-            } elseif ($less = exec('which less')) { // check for the presence of less...
+            } elseif ($less = exec('which less 2>/dev/null')) { // check for the presence of less...
                 $this->pager = $less.' -R -S -F -X';
             }
         }
