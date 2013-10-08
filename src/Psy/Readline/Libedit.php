@@ -33,7 +33,7 @@ class Libedit extends GNUReadline
      */
     public static function isSupported()
     {
-        return function_exists('readline') && (`which unvis` !== null);
+        return function_exists('readline') && (`which unvis 2>/dev/null` !== null);
     }
 
     /**
