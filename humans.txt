@@ -6,5 +6,5 @@
 
 /* SITE */
 
-  This site is powered by Nanoc, Git and Sublime Text.
+  This site is powered by Jekyll, Git, GitHub Pages and Sublime Text.
   You should try 'em all.
