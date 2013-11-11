@@ -16,12 +16,13 @@ use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
 use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\AssignThisVariablePass;
-use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
+use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
+use Psy\CodeCleaner\StaticConstructorPass;
 use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
@@ -72,6 +73,7 @@ class CodeCleaner
             new ImplicitReturnPass,
             new UseStatementPass,      // must run before namespace and validation passes
             new NamespacePass($this),  // must run after the implicit return pass
+            new StaticConstructorPass,
             new ValidFunctionNamePass,
             new ValidClassNamePass,
             new ValidConstantPass,
