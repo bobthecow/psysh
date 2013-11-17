@@ -63,7 +63,7 @@ class ObjectPresenter extends RecursivePresenter
         }
 
         $class = new \ReflectionObject($value);
-        $props = self::getProperties($value, $class);
+        $props = $this->getProperties($value, $class);
 
         return sprintf('%s %s', $this->presentRef($value), $this->formatProperties($props));
     }
