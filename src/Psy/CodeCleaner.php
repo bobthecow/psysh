@@ -19,6 +19,7 @@ use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\ImplicitReturnPass;
+use Psy\CodeCleaner\InstanceOfPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
@@ -69,6 +70,7 @@ class CodeCleaner
             new AssignThisVariablePass,
             new FunctionReturnInWriteContextPass,
             new CallTimePassByReferencePass,
+            new InstanceOfPass,
             new LeavePsyshAlonePass,
             new ImplicitReturnPass,
             new UseStatementPass,      // must run before namespace and validation passes
