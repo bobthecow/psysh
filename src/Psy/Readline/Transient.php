@@ -33,21 +33,35 @@ class Transient implements Readline
     /**
      * Transient Readline constructor.
      */
-    public function __construct($historyFile = null)
+    public function __construct($historyFile = null, $historySize=0, $eraseDups=false)
     {
         // don't do anything with the history file...
         $this->history = array();
+        $this->historySize = $historySize;
+        $this->eraseDups = $eraseDups;
     }
 
     /**
-     * Transient Readline is always supported.
-     *
      * {@inheritDoc}
      */
     public function addHistory($line)
     {
+        if ($this->eraseDups) {
+            if(false !== $key = array_search($line, $this->history)) {
+                unset($this->history[$key]);
+            }
+        }
+
         $this->history[] = $line;
 
+        if ($this->historySize > 0) {
+            $histsize = count($this->history);
+            if ($histsize > $this->historySize) {
+                $this->history = array_slice($this->history, $histsize - $this->historySize);
+            }
+        }
+
+        $this->history = array_values($this->history);
         return true;
     }
 

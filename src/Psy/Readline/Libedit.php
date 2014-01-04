@@ -12,6 +12,7 @@
 namespace Psy\Readline;
 
 use Psy\Readline\GNUReadline;
+use Psy\Util\String;
 
 /**
  * A Libedit-based Readline implementation.
@@ -25,6 +26,7 @@ use Psy\Readline\GNUReadline;
  */
 class Libedit extends GNUReadline
 {
+
     /**
      * If `unvis` is available, we can emulate GNU Readline by manually reading
      * and parsing the history file. Without it, we're pretty much outta luck.
@@ -33,7 +35,7 @@ class Libedit extends GNUReadline
      */
     public static function isSupported()
     {
-        return function_exists('readline') && (`which unvis 2>/dev/null` !== null);
+        return function_exists('readline');
     }
 
     /**
@@ -41,15 +43,42 @@ class Libedit extends GNUReadline
      */
     public function listHistory()
     {
-        $history = array();
-        $file = escapeshellarg($this->historyFile);
-        exec("unvis $file", $history);
-
-        // shift the history signature, ensure it's valid
-        if (array_shift($history) !== '_HiStOrY_V2_') {
+        $history = file_get_contents($this->historyFile);
+        if (!$history) {
             return array();
         }
 
-        return $history;
+        $history = preg_split('/(?:\r\n)|\r|\n/', $history, null, PREG_SPLIT_NO_EMPTY);
+        // shift the history signature, ensure it's valid
+        if ('_HiStOrY_V2_' !== array_shift($history)) {
+            return array();
+        }
+
+        return array_map(array('\Psy\Util\String', 'unvis'), $history);
+        //$history = array_map(array($this, 'parseHistoryLine'), $history);
+        //return array_filter($history);
     }
+
+    /**
+     * From GNUReadline (readline/histfile.c & readline/histexpand.c):
+     * lines starting with "\0" are comments or timestamps;
+     * if "\0" is found in an entry,
+     * everything from it until the next line is a comment.
+     *
+     * @fixme I haven't find out if this is used by libedit or not...
+     */ 
+    protected function parseHistoryLine($line)
+    {
+        // comment or timestamps
+        if ("\0" === $line[0]) {
+            return false;
+        }
+        // if "\0" is found in an entry, then
+        // everything from it until the end of line is a comment.
+        if (false !== $pos = strpos($line, "\0")) {
+            $line = substr($line, 0, $pos);
+        }
+        return String::unvis($line);
+    }
+    
 }

@@ -30,6 +30,11 @@ use Psy\Shell;
  */
 class Configuration
 {
+    private static $AVAILABLE_OPTIONS = array(
+        'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
+        'loop', 'tempDir', 'manualDbFile', 'presenters',
+        'historySize', 'eraseDuplicates'
+    );
     private $defaultIncludes;
     private $baseDir;
     private $tempDir;
@@ -112,7 +117,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (array('defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager', 'loop', 'tempDir', 'manualDbFile', 'presenters') as $option) {
+        foreach (self::$AVAILABLE_OPTIONS as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.ucfirst($option);
                 $this->$method($options[$option]);
@@ -225,6 +230,46 @@ class Configuration
     }
 
     /**
+     * Set the readline max history size
+     *
+     * @param int $value
+     */
+    public function setHistorySize($value)
+    {
+        $this->historySize = (int) $value;
+    }
+
+    /**
+     * Get the readline max history size
+     *
+     * @return int
+     */
+    public function getHistorySize()
+    {
+        return $this->historySize;
+    }
+
+    /**
+     * Sets whether readline erases old duplicate history entries.
+     *
+     * @param bool $value
+     */
+    public function setEraseDuplicates($value)
+    {
+        $this->eraseDuplicates = (bool) $value;
+    }
+    
+    /**
+     * Get whether readline erases old duplicate history entries.
+     *
+     * @return bool
+     */
+    public function getEraseDuplicates()
+    {
+        return $this->eraseDuplicates;
+    }
+
+    /**
      * Get a temporary file of type $type for process $pid.
      *
      * The file will be created inside the current temporary directory.
@@ -325,17 +370,17 @@ class Configuration
         if (!isset($this->readline)) {
             if ($this->useReadline()) {
                 $historyFile = $this->getHistoryFile();
+                $historySize = $this->getHistorySize();
+                $eraseDups = $this->getEraseDuplicates();
                 if (GNUReadline::isSupported()) {
-                    $this->readline = new GNUReadline($historyFile);
+                    $this->readline = new GNUReadline($historyFile, $historySize, $eraseDups);
                 } elseif (Libedit::isSupported()) {
-                    $this->readline = new Libedit($historyFile);
-                } elseif (LibeditTransient::isSupported()) {
-                    $this->readline = new LibeditTransient($historyFile);
+                    $this->readline = new Libedit($historyFile, $historySize, $eraseDups);
                 }
             }
 
             if (!isset($this->readline)) {
-                $this->readline = new Transient;
+                $this->readline = new Transient(null, $historySize, $eraseDups);
             }
         }
 

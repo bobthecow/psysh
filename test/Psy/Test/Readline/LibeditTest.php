@@ -16,7 +16,6 @@ use Psy\Readline\Libedit;
 class LibeditTest extends \PHPUnit_Framework_TestCase
 {
     private $historyFile;
-    private $readline;
 
     public function setUp()
     {
@@ -24,25 +23,69 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Libedit not enabled');
         }
 
-        if (`which unvis 2>/dev/null` === null) {
-            $this->markTestSkipped('Missing unvis library');
-        }
+        //FIXME: this causes a segfault with PHP 5.5.7 & libedit v3.1
+        //readline_clear_history();
 
-        readline_clear_history();
-        $this->historyFile = tempnam(sys_get_temp_dir().'/psysh/test/', 'history');
-        $this->readline    = new Libedit($this->historyFile);
+        $this->historyFile = tempnam(sys_get_temp_dir(), 'psysh_test_history');
+        file_put_contents($this->historyFile, "_HiStOrY_V2_\n");
+    }
+
+    public function tearDown()
+    {
+        if(is_file($this->historyFile)) {
+            unlink($this->historyFile);
+        }
     }
 
     public function testHistory()
     {
-        $this->assertEmpty($this->readline->listHistory());
-        $this->readline->addHistory('foo');
-        $this->assertEquals(array('foo'), $this->readline->listHistory());
-        $this->readline->addHistory('bar');
-        $this->assertEquals(array('foo', 'bar'), $this->readline->listHistory());
-        $this->readline->addHistory('baz');
-        $this->assertEquals(array('foo', 'bar', 'baz'), $this->readline->listHistory());
-        $this->readline->clearHistory();
-        $this->assertEmpty($this->readline->listHistory());
+        $readline = new Libedit($this->historyFile);
+        $this->assertEmpty($readline->listHistory());
+        $readline->addHistory('foo');
+        $this->assertEquals(array('foo'), $readline->listHistory());
+        $readline->addHistory('bar');
+        $this->assertEquals(array('foo', 'bar'), $readline->listHistory());
+        $readline->addHistory('baz');
+        $this->assertEquals(array('foo', 'bar', 'baz'), $readline->listHistory());
+        $readline->clearHistory();
+        $this->assertEmpty($readline->listHistory());
     }
+
+    /**
+     * @depends testHistory
+     */ 
+    public function testHistorySize()
+    {
+        $readline = new Libedit($this->historyFile, 2);
+        $this->assertEmpty($readline->listHistory());
+        $readline->addHistory('foo');
+        $readline->addHistory('bar');
+        $this->assertEquals(array('foo', 'bar'), $readline->listHistory());
+        $readline->addHistory('baz');
+        $this->assertEquals(array('bar', 'baz'), $readline->listHistory());
+        $readline->addHistory('w00t');
+        $this->assertEquals(array('baz', 'w00t'), $readline->listHistory());
+        $readline->clearHistory();
+        $this->assertEmpty($readline->listHistory());
+    }
+
+    /**
+     * @depends testHistory
+     */ 
+    public function testHistoryEraseDups()
+    {
+        $readline = new Libedit($this->historyFile, 0, true);
+        $this->assertEmpty($readline->listHistory());
+        $readline->addHistory('foo');
+        $readline->addHistory('bar');
+        $readline->addHistory('foo');
+        $this->assertEquals(array('bar', 'foo'), $readline->listHistory());
+        $readline->addHistory('baz');
+        $readline->addHistory('w00t');
+        $readline->addHistory('baz');
+        $this->assertEquals(array('bar', 'foo', 'w00t', 'baz'), $readline->listHistory());
+        $readline->clearHistory();
+        $this->assertEmpty($readline->listHistory());
+    }
+    
 }

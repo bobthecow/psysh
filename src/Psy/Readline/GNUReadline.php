@@ -23,6 +23,8 @@ use Psy\Readline\Readline;
 class GNUReadline implements Readline
 {
     protected $historyFile;
+    protected $historySize;
+    protected $eraseDups;
 
     /**
      * GNU Readline is supported iff `readline_list_history` is defined. PHP
@@ -39,9 +41,11 @@ class GNUReadline implements Readline
     /**
      * GNU Readline constructor.
      */
-    public function __construct($historyFile = null)
+    public function __construct($historyFile = null, $historySize=0, $eraseDups=false)
     {
         $this->historyFile = $historyFile;
+        $this->historySize = $historySize;
+        $this->eraseDups = $eraseDups;
     }
 
     /**
@@ -107,6 +111,35 @@ class GNUReadline implements Readline
      */
     public function writeHistory()
     {
+        // We have to write history first, since it is used
+        // by Libedit to list history
+        $r = readline_write_history($this->historyFile);
+        if (!$r || !$this->eraseDups && !$this->historySize > 0) {
+            return $r;
+        }
+
+        $hist = $this->listHistory();
+        if (!$hist) return true;
+
+        if ($this->eraseDups) {
+            // flip-flip technique: removes duplicates, latest entries win.
+            $hist = array_flip(array_flip($hist));
+            // sort on keys to get the order back
+            ksort($hist);
+        }
+
+        if ($this->historySize > 0) {
+            $histsize = count($hist);
+            if ($histsize > $this->historySize) {
+                $hist = array_slice($hist, $histsize - $this->historySize);
+            }
+        }
+
+        readline_clear_history();
+        foreach ($hist as $line){
+            readline_add_history($line);
+        }
+
         return readline_write_history($this->historyFile);
     }
 }
