@@ -28,6 +28,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Missing unvis library');
         }
 
+        readline_clear_history();
         $this->historyFile = tempnam(sys_get_temp_dir().'/psysh/test/', 'history');
         $this->readline    = new Libedit($this->historyFile);
     }
