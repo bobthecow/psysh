@@ -27,7 +27,9 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         //readline_clear_history();
 
         $this->historyFile = tempnam(sys_get_temp_dir(), 'psysh_test_history');
-        file_put_contents($this->historyFile, "_HiStOrY_V2_\n");
+        if (false === file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
+            $this->fail('Unable to write history file: '.$this->historyFile);
+        }
     }
 
     public function tearDown()
@@ -86,6 +88,41 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('bar', 'foo', 'w00t', 'baz'), $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
+    }
+    
+    public function testListHistory()
+    {
+        $readline = new Libedit($this->historyFile);
+        file_put_contents(
+            $this->historyFile,
+            "This is an entry\n\0This is a comment\nThis is an entry\0With a comment\n",
+            FILE_APPEND
+        );
+        $this->assertEquals(array(
+            'This is an entry',
+            'This is an entry'
+        ), $readline->listHistory());
+        $readline->clearHistory();
+    }
+
+    /**
+     * Libedit being a BSD library,
+     * it doesn't support non-unix line separators.
+     */
+    public function testLinebreaksSupport()
+    {
+        $readline = new Libedit($this->historyFile);
+        file_put_contents(
+            $this->historyFile,
+            "foo\rbar\nbaz\r\nw00t",
+            FILE_APPEND
+        );
+        $this->assertEquals(array(
+            "foo\rbar",
+            "baz\r",
+            "w00t"
+        ), $readline->listHistory());
+        $readline->clearHistory();
     }
     
 }

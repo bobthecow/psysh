@@ -20,9 +20,6 @@ use Psy\Util\String;
  * This is largely the same as the Readline implementation, but it emulates
  * support for `readline_list_history` since PHP decided it was a good idea to
  * ship a fake Readline implementation that is missing history support.
- *
- * Note that this implementation relies on the `unvis` binary to parse the
- * Libedit history file. Without that, PsySH will fall back to LibeditTransient.
  */
 class Libedit extends GNUReadline
 {
@@ -48,15 +45,18 @@ class Libedit extends GNUReadline
             return array();
         }
 
-        $history = preg_split('/(?:\r\n)|\r|\n/', $history, null, PREG_SPLIT_NO_EMPTY);
+        // libedit doesn't seem to support non-unix line separators. 
+        $history = explode("\n", $history);
+
         // shift the history signature, ensure it's valid
         if ('_HiStOrY_V2_' !== array_shift($history)) {
             return array();
         }
 
-        return array_map(array('\Psy\Util\String', 'unvis'), $history);
-        //$history = array_map(array($this, 'parseHistoryLine'), $history);
-        //return array_filter($history);
+        // decode the line
+        $history = array_map(array($this, 'parseHistoryLine'), $history);
+        // filter empty lines & comments 
+        return array_values(array_filter($history));
     }
 
     /**
@@ -65,20 +65,23 @@ class Libedit extends GNUReadline
      * if "\0" is found in an entry,
      * everything from it until the next line is a comment.
      *
-     * @fixme I haven't find out if this is used by libedit or not...
+     * @param string $line The history line to parse.
+     *
+     * @return string | null
      */ 
     protected function parseHistoryLine($line)
     {
-        // comment or timestamps
-        if ("\0" === $line[0]) {
-            return false;
-        }
+        if (!$line) return;
+
+        // comment or timestamp
+        if ("\0" === $line[0]) return;
         // if "\0" is found in an entry, then
         // everything from it until the end of line is a comment.
         if (false !== $pos = strpos($line, "\0")) {
             $line = substr($line, 0, $pos);
         }
-        return String::unvis($line);
+
+        return $line ? String::unvis($line) : null;
     }
     
 }
