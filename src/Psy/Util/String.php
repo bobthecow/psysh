@@ -12,7 +12,7 @@
 namespace Psy\Util;
 
 /**
- * A static class to wrap JSON encoding/decoding with PsySH's default options.
+ * String utility methods.
  * @author ju1ius
  */
 class String
