@@ -146,7 +146,7 @@ class Configuration
     public function loadConfigFile($file)
     {
         $__psysh_config_file__ = $file;
-        $load = function($config) use ($__psysh_config_file__) {
+        $load = function ($config) use ($__psysh_config_file__) {
             $result = require $__psysh_config_file__;
             if ($result !== 1) {
                 return $result;
@@ -368,10 +368,12 @@ class Configuration
     public function getReadline()
     {
         if (!isset($this->readline)) {
+
+            $historyFile = $this->getHistoryFile();
+            $historySize = $this->getHistorySize();
+            $eraseDups = $this->getEraseDuplicates();
+
             if ($this->useReadline()) {
-                $historyFile = $this->getHistoryFile();
-                $historySize = $this->getHistorySize();
-                $eraseDups = $this->getEraseDuplicates();
                 if (GNUReadline::isSupported()) {
                     $this->readline = new GNUReadline($historyFile, $historySize, $eraseDups);
                 } elseif (Libedit::isSupported()) {

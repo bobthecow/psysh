@@ -19,6 +19,8 @@ use Psy\Readline\Readline;
 class Transient implements Readline
 {
     private $history;
+    private $historySize;
+    private $eraseDups;
 
     /**
      * Transient Readline is always supported.
@@ -33,7 +35,7 @@ class Transient implements Readline
     /**
      * Transient Readline constructor.
      */
-    public function __construct($historyFile = null, $historySize=0, $eraseDups=false)
+    public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
     {
         // don't do anything with the history file...
         $this->history = array();
@@ -47,7 +49,7 @@ class Transient implements Readline
     public function addHistory($line)
     {
         if ($this->eraseDups) {
-            if(false !== $key = array_search($line, $this->history)) {
+            if (($key = array_search($line, $this->history)) !== false) {
                 unset($this->history[$key]);
             }
         }

@@ -41,7 +41,7 @@ class GNUReadline implements Readline
     /**
      * GNU Readline constructor.
      */
-    public function __construct($historyFile = null, $historySize=0, $eraseDups=false)
+    public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
     {
         $this->historyFile = $historyFile;
         $this->historySize = $historySize;
@@ -113,13 +113,15 @@ class GNUReadline implements Readline
     {
         // We have to write history first, since it is used
         // by Libedit to list history
-        $r = readline_write_history($this->historyFile);
-        if (!$r || !$this->eraseDups && !$this->historySize > 0) {
-            return $r;
+        $res = readline_write_history($this->historyFile);
+        if (!$res || !$this->eraseDups && !$this->historySize > 0) {
+            return $res;
         }
 
         $hist = $this->listHistory();
-        if (!$hist) return true;
+		if (!$hist) {
+			return true;
+		}
 
         if ($this->eraseDups) {
             // flip-flip technique: removes duplicates, latest entries win.
@@ -136,7 +138,7 @@ class GNUReadline implements Readline
         }
 
         readline_clear_history();
-        foreach ($hist as $line){
+        foreach ($hist as $line) {
             readline_add_history($line);
         }
 

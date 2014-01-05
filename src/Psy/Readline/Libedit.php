@@ -32,7 +32,7 @@ class Libedit extends GNUReadline
      */
     public static function isSupported()
     {
-        return function_exists('readline');
+        return function_exists('readline') && !function_exists('readline_list_history');
     }
 
     /**
@@ -45,17 +45,17 @@ class Libedit extends GNUReadline
             return array();
         }
 
-        // libedit doesn't seem to support non-unix line separators. 
+        // libedit doesn't seem to support non-unix line separators.
         $history = explode("\n", $history);
 
         // shift the history signature, ensure it's valid
-        if ('_HiStOrY_V2_' !== array_shift($history)) {
+        if (array_shift($history) !== '_HiStOrY_V2_') {
             return array();
         }
 
         // decode the line
         $history = array_map(array($this, 'parseHistoryLine'), $history);
-        // filter empty lines & comments 
+        // filter empty lines & comments
         return array_values(array_filter($history));
     }
 
@@ -68,20 +68,19 @@ class Libedit extends GNUReadline
      * @param string $line The history line to parse.
      *
      * @return string | null
-     */ 
+     */
     protected function parseHistoryLine($line)
     {
-        if (!$line) return;
-
-        // comment or timestamp
-        if ("\0" === $line[0]) return;
+        // empty line, comment or timestamp
+        if (!$line || $line[0] === "\0") {
+            return;
+        }
         // if "\0" is found in an entry, then
         // everything from it until the end of line is a comment.
-        if (false !== $pos = strpos($line, "\0")) {
+        if (($pos = strpos($line, "\0")) !== false) {
             $line = substr($line, 0, $pos);
         }
 
         return $line ? String::unvis($line) : null;
     }
-    
 }
