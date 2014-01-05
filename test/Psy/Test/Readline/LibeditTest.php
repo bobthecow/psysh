@@ -34,7 +34,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        if(is_file($this->historyFile)) {
+        if (is_file($this->historyFile)) {
             unlink($this->historyFile);
         }
     }
@@ -55,7 +55,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testHistory
-     */ 
+     */
     public function testHistorySize()
     {
         $readline = new Libedit($this->historyFile, 2);
@@ -73,7 +73,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testHistory
-     */ 
+     */
     public function testHistoryEraseDups()
     {
         $readline = new Libedit($this->historyFile, 0, true);
@@ -89,7 +89,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }
-    
+
     public function testListHistory()
     {
         $readline = new Libedit($this->historyFile);
@@ -124,5 +124,5 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         ), $readline->listHistory());
         $readline->clearHistory();
     }
-    
+
 }

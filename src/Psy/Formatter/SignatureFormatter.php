@@ -77,7 +77,7 @@ class SignatureFormatter implements Formatter
      */
     private static function formatModifiers(\Reflector $reflector)
     {
-        return implode(' ', array_map(function($modifier) {
+        return implode(' ', array_map(function ($modifier) {
             return sprintf('<keyword>%s</keyword>', $modifier);
         }, \Reflection::getModifierNames($reflector->getModifiers())));
     }
@@ -113,7 +113,7 @@ class SignatureFormatter implements Formatter
         $interfaces = $reflector->getInterfaceNames();
         if (!empty($interfaces)) {
             $chunks[] = 'implements';
-            $chunks[] = implode(', ', array_map(function($name) {
+            $chunks[] = implode(', ', array_map(function ($name) {
                 return sprintf('<class>%s</class>', $name);
             }, $interfaces));
         }

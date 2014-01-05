@@ -20,7 +20,6 @@ use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
 use Psy\Readline\Readline;
 use Psy\Readline\Libedit;
-use Psy\Readline\LibeditTransient;
 use Psy\Readline\GNUReadline;
 use Psy\Readline\Transient;
 use Psy\Shell;
@@ -258,7 +257,7 @@ class Configuration
     {
         $this->eraseDuplicates = (bool) $value;
     }
-    
+
     /**
      * Get whether readline erases old duplicate history entries.
      *

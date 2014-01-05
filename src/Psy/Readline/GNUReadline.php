@@ -119,9 +119,9 @@ class GNUReadline implements Readline
         }
 
         $hist = $this->listHistory();
-		if (!$hist) {
-			return true;
-		}
+        if (!$hist) {
+            return true;
+        }
 
         if ($this->eraseDups) {
             // flip-flip technique: removes duplicates, latest entries win.

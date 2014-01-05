@@ -31,7 +31,7 @@ class TransientTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testHistory
-     */ 
+     */
     public function testHistorySize()
     {
         $readline = new Transient(null, 2);
@@ -49,7 +49,7 @@ class TransientTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testHistory
-     */ 
+     */
     public function testHistoryEraseDups()
     {
         $readline = new Transient(null, 0, true);

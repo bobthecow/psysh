@@ -46,7 +46,7 @@ class GNUReadlineTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testHistory
-     */ 
+     */
     public function testHistorySize()
     {
         $readline = new GNUReadline($this->historyFile, 2);
@@ -64,7 +64,7 @@ class GNUReadlineTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testHistory
-     */ 
+     */
     public function testHistoryEraseDups()
     {
         $readline = new GNUReadline($this->historyFile, 0, true);

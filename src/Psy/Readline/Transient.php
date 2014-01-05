@@ -64,6 +64,7 @@ class Transient implements Readline
         }
 
         $this->history = array_values($this->history);
+
         return true;
     }
 
