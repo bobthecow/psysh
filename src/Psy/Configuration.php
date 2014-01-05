@@ -39,8 +39,8 @@ class Configuration
     private $tempDir;
     private $configFile;
     private $historyFile;
-	private $historySize;
-	private $eraseDuplicates;
+    private $historySize;
+    private $eraseDuplicates;
     private $manualDbFile;
     private $hasReadline;
     private $useReadline;
