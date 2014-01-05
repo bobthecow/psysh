@@ -24,7 +24,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         }
 
         //FIXME: this causes a segfault with PHP 5.5.7 & libedit v3.1
-        //readline_clear_history();
+		readline_clear_history();
 
         $this->historyFile = tempnam(sys_get_temp_dir(), 'psysh_test_history');
         if (false === file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
