@@ -19,7 +19,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        if (!function_exists('readline')) {
+        if (!Libedit::isSupported()) {
             $this->markTestSkipped('Libedit not enabled');
         }
 
