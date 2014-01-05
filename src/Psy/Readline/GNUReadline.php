@@ -85,6 +85,7 @@ class GNUReadline implements Readline
      */
     public function readHistory()
     {
+        readline_read_history();
         readline_clear_history();
 
         return readline_read_history($this->historyFile);
