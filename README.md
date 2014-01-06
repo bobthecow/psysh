@@ -40,6 +40,15 @@ return array(
     // for Psy shell sessions, you can override it here.
     'pager' => 'more',
 
+    // Sets the maximum number of entries the history can contain.
+    // If set to zero, the history size is unlimited.
+    'historySize' => 0,
+
+    // If set to true, the history will not keep duplicate entries.
+    // Newest entries override oldest.
+    // This is the equivalent of the HISTCONTROL=erasedups setting in bash.
+    'eraseDuplicates' => false,
+
     // By default, PsySH will use a 'forking' execution loop if pcntl is
     // installed. This is by far the best way to use it, but you can override
     // the default by explicitly enabling or disabling this functionality here.
