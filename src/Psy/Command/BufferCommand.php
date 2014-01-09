@@ -70,7 +70,7 @@ EOF
     {
         $template = sprintf('<%s>%%s</%s>', $type, $type);
 
-        return array_map(function($line) use ($template) {
+        return array_map(function ($line) use ($template) {
             return sprintf($template, $line);
         }, $lines);
     }

@@ -1,3 +1,4 @@
 vendor/
 composer.lock
 manual/
+__pycache__

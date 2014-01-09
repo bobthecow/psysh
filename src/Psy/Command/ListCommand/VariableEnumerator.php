@@ -76,7 +76,7 @@ class VariableEnumerator extends Enumerator
     protected function getVariables($showAll)
     {
         $scopeVars = $this->context->getAll();
-        uksort($scopeVars, function($a, $b) {
+        uksort($scopeVars, function ($a, $b) {
             if ($a == '_e') {
                 return 1;
             } elseif ($b == '_e') {

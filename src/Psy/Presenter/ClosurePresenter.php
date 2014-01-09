@@ -19,7 +19,7 @@ use Psy\Presenter\Presenter;
 class ClosurePresenter implements Presenter, PresenterManagerAware
 {
     const COLOR_FMT = '<keyword>function</keyword>(%s) { <comment>...</comment> }';
-    const FMT       = 'function(%s) { ... }';
+    const FMT       = 'function (%s) { ... }';
 
     protected $manager;
 
