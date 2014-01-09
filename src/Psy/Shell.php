@@ -384,8 +384,14 @@ class Shell extends Application
      */
     public function addCode($code)
     {
-        $this->codeBuffer[] = $code;
-        $this->code         = $this->cleaner->clean($this->codeBuffer);
+        try {
+            $this->codeBuffer[] = $code;
+            $this->code         = $this->cleaner->clean($this->codeBuffer);
+        } catch (\Exception $e) {
+            // Add failed code blocks to the readline history.
+            $this->readline->addHistory(implode("\n", $this->codeBuffer));
+            throw $e;
+        }
     }
 
     /**
