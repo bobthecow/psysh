@@ -582,6 +582,34 @@ class Shell extends Application
     }
 
     /**
+     * Helper for throwing an ErrorException.
+     *
+     * This allows us to:
+     *
+     *     set_error_handler(array($psysh, 'handleError'));
+     *
+     * Unlike ErrorException::throwException, this error handler respects the
+     * current error_reporting level; i.e. it logs warnings and notices, but
+     * doesn't throw an exception unless it's above the current error_reporting
+     * threshold. This should probably only be used in the inner execution loop
+     * of the shell, as most of the time a thrown exception is much more useful.
+     *
+     * @see \Psy\Exception\ErrorException::throwException
+     * @see \Psy\Shell::writeException
+     *
+     * @param int    $errno   Error type
+     * @param string $errstr  Message
+     * @param string $errfile Filename
+     * @param int    $errline Line number
+     *
+     * @return void
+     */
+    public function handleError($errno, $errstr, $errfile, $errline)
+    {
+        ErrorException::throwException($errno, $errstr, $errfile, $errline);
+    }
+
+    /**
      * Format a value for display.
      *
      * @see PresenterManager::present

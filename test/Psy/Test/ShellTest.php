@@ -11,8 +11,9 @@
 
 namespace Psy\Test;
 
-use Psy\Shell;
+use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
+use Psy\Shell;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellTest extends \PHPUnit_Framework_TestCase
@@ -90,6 +91,49 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('PHP Parse error', $streamContents);
         $this->assertContains('message', $streamContents);
         $this->assertContains('line 13', $streamContents);
+    }
+
+    public function testHandlingErrors()
+    {
+        $shell  = new Shell;
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell->setOutput($output);
+
+        $oldLevel = error_reporting();
+        error_reporting($oldLevel & ~E_USER_NOTICE);
+
+        try {
+            $shell->handleError(E_USER_NOTICE, 'wheee', null, 13);
+        } catch (ErrorException $e) {
+            error_reporting($oldLevel);
+            $this->fail('Unexpected error exception');
+        }
+        error_reporting($oldLevel);
+
+        rewind($stream);
+        $streamContents = stream_get_contents($stream);
+
+        $this->assertContains('PHP error:', $streamContents);
+        $this->assertContains('wheee',      $streamContents);
+        $this->assertContains('line 13',    $streamContents);
+    }
+
+    /**
+     * @expectedException Psy\Exception\ErrorException
+     */
+    public function testNotHandlingErrors()
+    {
+        $shell    = new Shell;
+        $oldLevel = error_reporting();
+        error_reporting($oldLevel | E_USER_NOTICE);
+
+        try {
+            $shell->handleError(E_USER_NOTICE, 'wheee', null, 13);
+        } catch (ErrorException $e) {
+            error_reporting($oldLevel);
+            throw $e;
+        }
     }
 
     public function testVersion()
