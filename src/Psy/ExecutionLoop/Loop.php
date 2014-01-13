@@ -39,7 +39,7 @@ class Loop
     {
         $loop = function($__psysh__) {
             // Load user-defined includes
-            set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+            set_error_handler(array($__psysh__, 'handleError'));
             try {
                 foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                     include $__psysh_include__;
@@ -63,7 +63,7 @@ class Loop
                     // evaluate the current code buffer
                     ob_start();
 
-                    set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+                    set_error_handler(array($__psysh__, 'handleError'));
                     $_ = eval($__psysh__->flushCode());
                     restore_error_handler();
 

@@ -606,7 +606,12 @@ class Shell extends Application
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {
-        ErrorException::throwException($errno, $errstr, $errfile, $errline);
+        if ($errno & error_reporting()) {
+            ErrorException::throwException($errno, $errstr, $errfile, $errline);
+        } else {
+            // log it and continue...
+            $this->writeException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
+        }
     }
 
     /**
