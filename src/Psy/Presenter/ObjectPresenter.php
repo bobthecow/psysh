@@ -122,7 +122,7 @@ class ObjectPresenter extends RecursivePresenter
             }
         }
 
-        set_error_handler($oldHandler);
+        restore_error_handler();
 
         return $props;
     }
