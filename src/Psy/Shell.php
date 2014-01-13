@@ -563,22 +563,39 @@ class Shell extends Application
             $message = sprintf('%s with message \'%s\'', get_class($e), $message);
         }
 
-        $severity = 'error';
-        if ($e instanceof \ErrorException) {
-            switch ($e->getSeverity()) {
-                case E_WARNING:
-                case E_CORE_WARNING:
-                case E_COMPILE_WARNING:
-                case E_USER_WARNING:
-                case E_STRICT:
-                    $severity = 'warning';
-                    break;
-            }
-        }
-
+        $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
         $output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
 
         $this->resetCodeBuffer();
+    }
+
+    /**
+     * Helper for getting an output style for the given ErrorException's level.
+     *
+     * @param  ErrorException $e
+     * @return string
+     */
+    protected function getSeverity(\ErrorException $e)
+    {
+        $severity = $e->getSeverity();
+        if ($severity & error_reporting()) {
+            switch ($severity) {
+                case E_WARNING:
+                case E_NOTICE:
+                case E_CORE_WARNING:
+                case E_COMPILE_WARNING:
+                case E_USER_WARNING:
+                case E_USER_NOTICE:
+                case E_STRICT:
+                    return 'warning';
+
+                default:
+                    return 'error';
+            }
+        } else {
+            // Since this is below the user's reporting threshold, it's always going to be a warning.
+            return 'warning';
+        }
     }
 
     /**
