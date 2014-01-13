@@ -103,7 +103,7 @@ class ObjectPresenter extends RecursivePresenter
     protected function getProperties($value, \ReflectionClass $class)
     {
         $deprecated = false;
-        $oldHandler = set_error_handler(function($errno, $errstr) use (&$deprecated) {
+        set_error_handler(function($errno, $errstr) use (&$deprecated) {
             if (in_array($errno, array(E_DEPRECATED, E_USER_DEPRECATED))) {
                 $deprecated = true;
             } else {
@@ -122,7 +122,7 @@ class ObjectPresenter extends RecursivePresenter
             }
         }
 
-        set_error_handler($oldHandler);
+        restore_error_handler();
 
         return $props;
     }
