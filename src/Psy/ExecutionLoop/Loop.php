@@ -37,7 +37,7 @@ class Loop
      */
     public function run(Shell $shell)
     {
-        $loop = function($__psysh__) {
+        $loop = function ($__psysh__) {
             // Load user-defined includes
             set_error_handler(array($__psysh__, 'handleError'));
             try {

@@ -62,7 +62,7 @@ EOL
         $walker = $this->getWalker();
         $nodes  = $this->parse($code);
         $depth  = $input->getOption('depth');
-        $output->page(function(ShellOutput $output) use (&$walker, $nodes, $depth) {
+        $output->page(function (ShellOutput $output) use (&$walker, $nodes, $depth) {
             $out = Inspector::export($nodes, $depth);
             $walker($output, $out);
         });
@@ -112,7 +112,7 @@ EOL
      */
     private function getWalker()
     {
-        $walker = function(ShellOutput $output, $tree, $depth = 0) use (&$walker) {
+        $walker = function (ShellOutput $output, $tree, $depth = 0) use (&$walker) {
             $indent = str_repeat('  ', $depth);
             if (is_array($tree)) {
                 if (empty($tree)) {

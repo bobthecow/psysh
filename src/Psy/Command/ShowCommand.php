@@ -48,7 +48,7 @@ EOL
     {
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
-        $output->page(function(ShellOutput $output) use ($reflector) {
+        $output->page(function (ShellOutput $output) use ($reflector) {
             $output->writeln(SignatureFormatter::format($reflector));
             $output->writeln(CodeFormatter::format($reflector), ShellOutput::OUTPUT_RAW);
         });

@@ -58,7 +58,7 @@ EOL
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
         $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
-        $output->page(function($output) use ($reflector, $doc) {
+        $output->page(function ($output) use ($reflector, $doc) {
             $output->writeln(SignatureFormatter::format($reflector));
             if (empty($doc) && !$this->getApplication()->getManualDb()) {
                 $output->writeln('');
