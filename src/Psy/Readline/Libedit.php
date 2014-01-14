@@ -25,8 +25,7 @@ class Libedit extends GNUReadline
 {
 
     /**
-     * If `unvis` is available, we can emulate GNU Readline by manually reading
-     * and parsing the history file. Without it, we're pretty much outta luck.
+     * Let's emulate GNU Readline by manually reading and parsing the history file!
      *
      * @return boolean
      */
