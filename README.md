@@ -68,6 +68,13 @@ return array(
         // want to play :)
         new \Psy\Command\ParseCommand,
     ),
+
+    // PsySH ships with presenters for scalars, resources, arrays, and objects.
+    // But you're not limited to those presenters. You can enable additional
+    // presenters (like the included MongoCursorPresenter), or write your own!
+    'presenters' => array(
+        new \Psy\Presenter\MongoCursorPresenter,
+    ),
 );
 ```
 
