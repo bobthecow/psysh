@@ -15,6 +15,7 @@ use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Zend as Printer;
 use PHPParser_NodeTraverser as NodeTraverser;
+use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
@@ -67,6 +68,7 @@ class CodeCleaner
     private function getDefaultPasses()
     {
         return array(
+            new AbstractClassPass,
             new AssignThisVariablePass,
             new FunctionReturnInWriteContextPass,
             new CallTimePassByReferencePass,
