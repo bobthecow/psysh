@@ -11,7 +11,6 @@
 
 namespace Psy\Output;
 
-use Psy\Output\OutputPager;
 use Symfony\Component\Console\Output\StreamOutput;
 
 /**
@@ -34,8 +33,6 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      *
      * @param StreamOutput $output
      * @param string       $cmd    Pager process command (default: 'less -R -S -F -X')
-     *
-     * @return void
      */
     public function __construct(StreamOutput $output, $cmd = 'less -R -S -F -X')
     {

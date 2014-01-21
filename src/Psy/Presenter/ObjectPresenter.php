@@ -11,7 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\RecursivePresenter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**

@@ -11,9 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\ObjectPresenter;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-
 /**
  * An Exception Presenter.
  */

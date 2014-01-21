@@ -37,8 +37,8 @@ class Compiler
 
         $phar->startBuffering();
 
-        $finder = new Finder();
-        $finder->files()
+        $finder = Finder::create()
+            ->files()
             ->ignoreVCS(true)
             ->name('*.php')
             ->notName('Compiler.php')
@@ -49,8 +49,8 @@ class Compiler
             $this->addFile($phar, $file);
         }
 
-        $finder = new Finder();
-        $finder->files()
+        $finder = Finder::create()
+            ->files()
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')

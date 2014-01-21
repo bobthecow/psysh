@@ -11,7 +11,6 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Command\ListCommand\Enumerator;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -91,7 +90,7 @@ class FunctionEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareFunctions($functions)
+    protected function prepareFunctions(array $functions)
     {
         natcasesort($functions);
 

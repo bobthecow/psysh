@@ -15,7 +15,6 @@ use PHPParser_Node as Node;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
-use Psy\CodeCleaner\CodeCleanerPass;
 
 /**
  * Abstract namespace-aware code cleaner pass.

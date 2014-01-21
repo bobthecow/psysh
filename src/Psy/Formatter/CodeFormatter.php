@@ -11,9 +11,7 @@
 
 namespace Psy\Formatter;
 
-use Psy\Formatter\Formatter;
 use Psy\Exception\RuntimeException;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * A pretty-printer for code.

@@ -11,7 +11,6 @@
 
 namespace Psy\Formatter;
 
-use Psy\Formatter\Formatter;
 use Psy\Util\Docblock;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 

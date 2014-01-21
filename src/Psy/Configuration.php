@@ -15,14 +15,12 @@ use Psy\CodeCleaner;
 use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
-use Psy\Output\ProcOutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
 use Psy\Readline\Readline;
 use Psy\Readline\Libedit;
 use Psy\Readline\GNUReadline;
 use Psy\Readline\Transient;
-use Psy\Shell;
 
 /**
  * The Psy Shell configuration.

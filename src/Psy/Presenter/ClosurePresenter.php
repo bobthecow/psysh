@@ -11,8 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\Presenter;
-
 /**
  * A Closure Presenter.
  */

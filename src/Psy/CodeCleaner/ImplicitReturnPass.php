@@ -13,7 +13,6 @@ namespace Psy\CodeCleaner;
 
 use PHPParser_Node_Expr as Expression;
 use PHPParser_Node_Stmt_Return as ReturnStatement;
-use Psy\CodeCleaner\CodeCleanerPass;
 
 /**
  * Add an implicit "return" to the last statement, provided it can be returned.

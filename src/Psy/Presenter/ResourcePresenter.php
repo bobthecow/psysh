@@ -11,7 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\Presenter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**

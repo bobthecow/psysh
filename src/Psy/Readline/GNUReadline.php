@@ -11,8 +11,6 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline\Readline;
-
 /**
  * A Readline interface implementation for GNU Readline.
  *

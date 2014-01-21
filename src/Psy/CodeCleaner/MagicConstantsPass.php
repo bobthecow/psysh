@@ -17,7 +17,6 @@ use PHPParser_Node_Name as Name;
 use PHPParser_Node_Scalar_DirConst as DirConstant;
 use PHPParser_Node_Scalar_FileConst as FileConstant;
 use PHPParser_Node_Scalar_String as StringNode;
-use Psy\CodeCleaner\CodeCleanerPass;
 
 /**
  * Swap out __DIR__ and __FILE__ magic constants with our best guess?

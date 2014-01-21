@@ -12,7 +12,6 @@
 namespace Psy\Command;
 
 use Psy\Output\ShellOutput;
-use Psy\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -66,7 +65,7 @@ EOF
      *
      * @return array Formatted strings
      */
-    protected function formatLines($lines, $type = 'return')
+    protected function formatLines(array $lines, $type = 'return')
     {
         $template = sprintf('<%s>%%s</%s>', $type, $type);
 

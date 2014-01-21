@@ -15,7 +15,6 @@ use PHPParser_Node as Node;
 use PHPParser_Node_Expr as Expression;
 use PHPParser_Node_Expr_FuncCall as FunctionCall;
 use PHPParser_Node_Stmt_Function as FunctionStatement;
-use Psy\CodeCleaner\NamespaceAwarePass;
 use Psy\Exception\FatalErrorException;
 
 /**

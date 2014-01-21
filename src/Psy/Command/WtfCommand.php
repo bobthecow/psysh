@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\TraceCommand;
 use Psy\Context;
 use Psy\ContextAware;
 use Psy\Output\ShellOutput;

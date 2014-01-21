@@ -11,7 +11,6 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Command\ListCommand\Enumerator;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -59,7 +58,7 @@ class ClassEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareClasses($classes)
+    protected function prepareClasses(array $classes)
     {
         natcasesort($classes);
 

@@ -11,7 +11,6 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline\GNUReadline;
 use Psy\Util\String;
 
 /**

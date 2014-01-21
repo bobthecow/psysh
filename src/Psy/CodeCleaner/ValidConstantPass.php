@@ -13,7 +13,6 @@ namespace Psy\CodeCleaner;
 
 use PHPParser_Node as Node;
 use PHPParser_Node_Expr_ConstFetch as ConstantFetch;
-use Psy\CodeCleaner\NamespaceAwarePass;
 use Psy\Exception\FatalErrorException;
 
 /**
