@@ -15,6 +15,8 @@ use Psy\Presenter\ResourcePresenter;
 
 class ResourcePresenterTest extends \PHPUnit_Framework_TestCase
 {
+    private $presenter;
+
     public function setUp()
     {
         $this->presenter = new ResourcePresenter;
