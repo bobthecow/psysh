@@ -18,6 +18,9 @@ use Psy\Presenter\ScalarPresenter;
 
 class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
 {
+    private $presenter;
+    private $manager;
+
     public function setUp()
     {
         $this->presenter = new ArrayPresenter;

@@ -15,6 +15,8 @@ use Psy\Presenter\ScalarPresenter;
 
 class ScalarPresenterTest extends \PHPUnit_Framework_TestCase
 {
+    private $presenter;
+
     public function setUp()
     {
         $this->presenter = new ScalarPresenter;
