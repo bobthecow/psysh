@@ -51,11 +51,10 @@ class WtfCommand extends TraceCommand implements ContextAware
             ->setAliases(array('last-exception', 'wtf?'))
             ->setDefinition(array(
                 new InputArgument('incredulity', InputArgument::OPTIONAL, 'Number of lines to show'),
-
                 new InputOption('verbose', 'v',  InputOption::VALUE_NONE, 'Show entire backtrace.'),
             ))
             ->setDescription('Show the backtrace of the most recent exception.')
-            ->setHelp(<<<EOF
+            ->setHelp(<<<HELP
 Shows a few lines of the backtrace of the most recent exception.
 
 If you want to see more lines, add more question marks or exclamation marks:
@@ -68,7 +67,7 @@ To see the entire backtrace, pass the -v/--verbose flag:
 
 e.g.
 <return>>>> wtf -v</return>
-EOF
+HELP
             );
     }
 

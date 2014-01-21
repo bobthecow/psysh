@@ -36,7 +36,7 @@ class HelpCommand extends Command
                 new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name', null),
             ))
             ->setDescription('Show a list of commands. Type `help [foo]` for information about [foo].')
-            ->setHelp("My. How meta.");
+            ->setHelp('My. How meta.');
     }
 
     /**

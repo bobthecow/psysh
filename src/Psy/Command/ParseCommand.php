@@ -41,8 +41,17 @@ class ParseCommand extends Command
                 new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
             ))
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
-            ->setHelp('Parse PHP code and show the abstract syntax tree.')
-        ;
+            ->setHelp(<<<HELP
+Parse PHP code and show the abstract syntax tree.
+
+This command is used in the development of PsySH. Given a string of PHP code,
+it pretty-prints the PHP Parser parse tree.
+
+See https://github.com/nikic/PHP-Parser
+
+It prolly won't be super useful for most of you, but it's here if you want to play.
+HELP
+            );
     }
 
     /**

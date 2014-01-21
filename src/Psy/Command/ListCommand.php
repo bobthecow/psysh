@@ -82,7 +82,7 @@ class ListCommand extends ReflectingCommand implements PresenterManagerAware
                 new InputOption('long',        'l', InputOption::VALUE_NONE,     'List in long format: includes class names and method signatures.'),
             ))
             ->setDescription('List local, instance or class variables, methods and constants.')
-            ->setHelp(<<<EOF
+            ->setHelp(<<<HELP
 List variables, constants, classes, interfaces, traits, functions, methods,
 and properties.
 
@@ -99,7 +99,7 @@ e.g.
 <return>>>> ls -al ReflectionClass</return>
 <return>>>> ls --constants --category date</return>
 <return>>>> ls -l --functions --grep /^array_.*/</return>
-EOF
+HELP
             );
     }
 

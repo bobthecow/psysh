@@ -33,8 +33,16 @@ class TraceCommand extends Command
                 new InputOption('num',         'n', InputOption::VALUE_REQUIRED, 'Only include NUM lines.'),
             ))
             ->setDescription('Show the current call stack.')
-            ->setHelp('Show the current call stack.')
-        ;
+            ->setHelp(<<<HELP
+Show the current call stack.
+
+Optionally, include PsySH in the call stack by passing the <info>--include-psy</info> option.
+
+e.g.
+<return>> trace -n10</return>
+<return>> trace --include-psy</return>
+HELP
+            );
     }
 
     /**

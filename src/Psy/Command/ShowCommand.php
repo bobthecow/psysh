@@ -34,7 +34,12 @@ class ShowCommand extends ReflectingCommand
                 new InputArgument('value', InputArgument::REQUIRED, 'Function, class, instance, constant, method or property to show.'),
             ))
             ->setDescription('Show the code for an object, class, constant, method or property.')
-            ->setHelp('Show the code for an object, class, constant, method or property.');
+
+            // TODO: help!
+            ->setHelp(<<<HELP
+Show the code for an object, class, constant, method or property.
+HELP
+            );
     }
 
     /**

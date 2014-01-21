@@ -32,12 +32,12 @@ class ExitCommand extends Command
             ->setAliases(array('quit', 'q'))
             ->setDefinition(array())
             ->setDescription('End the current session and return to caller.')
-            ->setHelp(<<<EOL
+            ->setHelp(<<<HELP
 End the current session and return to caller.
 
 e.g.
 <return>>>> exit</return>
-EOL
+HELP
             );
     }
 

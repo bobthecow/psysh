@@ -28,8 +28,7 @@ class PsyVersionCommand extends Command
             ->setName('version')
             ->setDefinition(array())
             ->setDescription('Show Psy Shell version.')
-            ->setHelp('Show Psy Shell version.')
-        ;
+            ->setHelp('Show Psy Shell version.');
     }
 
     /**
