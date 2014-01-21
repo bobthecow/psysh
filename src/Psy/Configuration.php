@@ -11,7 +11,6 @@
 
 namespace Psy;
 
-use Psy\CodeCleaner;
 use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;

@@ -11,7 +11,6 @@
 
 namespace Psy\ExecutionLoop;
 
-use Psy\ExecutionLoop\Loop;
 use Psy\Shell;
 
 /**

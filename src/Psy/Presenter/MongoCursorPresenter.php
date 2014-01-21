@@ -64,7 +64,6 @@ class MongoCursorPresenter extends ObjectPresenter
             $info['fields'] = array();
         }
 
-
         foreach (self::$boringFields as $boring) {
             if ($info[$boring] === 0) {
                 unset($info[$boring]);

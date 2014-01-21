@@ -16,7 +16,6 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
-use Psy\Readline;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;

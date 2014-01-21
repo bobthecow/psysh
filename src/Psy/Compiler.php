@@ -11,7 +11,6 @@
 
 namespace Psy;
 
-use Psy\Shell;
 use Symfony\Component\Finder\Finder;
 
 /**

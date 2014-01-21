@@ -28,7 +28,6 @@ class ExceptionPresenter extends ObjectPresenter
         return $value instanceof \Exception;
     }
 
-
     /**
      * Get an array of exception object properties.
      *

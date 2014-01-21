@@ -11,7 +11,6 @@
 
 namespace Psy\Presenter;
 
-
 /**
  * A Presenter manager service.
  *
