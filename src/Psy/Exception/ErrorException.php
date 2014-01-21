@@ -11,8 +11,6 @@
 
 namespace Psy\Exception;
 
-use Psy\Exception\Exception;
-
 /**
  * A custom error Exception for Psy with a formatted $message.
  */

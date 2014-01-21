@@ -29,7 +29,8 @@ interface Presenter
     /**
      * Present a reference to the value.
      *
-     * @param mixed $value
+     * @param mixed   $value
+     * @param Boolean $color
      *
      * @return string
      */

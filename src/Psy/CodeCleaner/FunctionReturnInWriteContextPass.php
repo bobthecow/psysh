@@ -40,10 +40,10 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
     /**
      * Validate that the functions are used correctly.
      *
-     * @throws FatalRuntimeException if a function is passed as an argument reference
-     * @throws FatalRuntimeException if a function is used as an argument in the isset
-     * @throws FatalRuntimeException if a function is used as an argument in the empty, only for PHP < 5.5
-     * @throws FatalRuntimeException if a value is assigned to a function
+     * @throws FatalErrorException if a function is passed as an argument reference
+     * @throws FatalErrorException if a function is used as an argument in the isset
+     * @throws FatalErrorException if a function is used as an argument in the empty, only for PHP < 5.5
+     * @throws FatalErrorException if a value is assigned to a function
      *
      * @param Node $node
      */

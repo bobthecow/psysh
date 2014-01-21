@@ -11,8 +11,6 @@
 
 namespace Psy\Exception;
 
-use Psy\Exception\Exception;
-
 /**
  * A break exception, used for halting the Psy Shell.
  */

@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
 use Psy\Exception\BreakException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

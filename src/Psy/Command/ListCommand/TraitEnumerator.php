@@ -11,7 +11,6 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Command\ListCommand\Enumerator;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -64,7 +63,7 @@ class TraitEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareTraits($traits)
+    protected function prepareTraits(array $traits)
     {
         natcasesort($traits);
 

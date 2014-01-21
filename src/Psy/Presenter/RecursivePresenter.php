@@ -11,10 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\Presenter;
-use Psy\Presenter\PresenterManager;
-use Psy\Presenter\PresenterManagerAware;
-
 /**
  * An abstract Presenter capable of recursively presenting sub-values.
  */

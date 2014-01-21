@@ -18,7 +18,6 @@ use PHPParser_Node_Stmt as Statement;
 use PHPParser_Node_Stmt_Class as ClassStatement;
 use PHPParser_Node_Stmt_Interface as InterfaceStatement;
 use PHPParser_Node_Stmt_Trait as TraitStatement;
-use Psy\CodeCleaner\NamespaceAwarePass;
 use Psy\Exception\FatalErrorException;
 
 /**

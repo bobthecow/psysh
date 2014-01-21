@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\ReflectingCommand;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Output\ShellOutput;
@@ -35,10 +34,7 @@ class ShowCommand extends ReflectingCommand
                 new InputArgument('value', InputArgument::REQUIRED, 'Function, class, instance, constant, method or property to show.'),
             ))
             ->setDescription('Show the code for an object, class, constant, method or property.')
-            ->setHelp(<<<EOL
-Show the code for an object, class, constant, method or property.
-EOL
-            );
+            ->setHelp('Show the code for an object, class, constant, method or property.');
     }
 
     /**

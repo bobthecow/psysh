@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -29,10 +28,8 @@ class PsyVersionCommand extends Command
             ->setName('version')
             ->setDefinition(array())
             ->setDescription('Show Psy Shell version.')
-            ->setHelp(<<<EOF
-Show Psy Shell version.
-EOF
-            );
+            ->setHelp('Show Psy Shell version.')
+        ;
     }
 
     /**

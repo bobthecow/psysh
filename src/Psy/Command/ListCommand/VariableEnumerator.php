@@ -11,7 +11,6 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Command\ListCommand\Enumerator;
 use Psy\Presenter\PresenterManager;
 use Psy\Context;
 use Symfony\Component\Console\Input\InputInterface;
@@ -111,7 +110,7 @@ class VariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareVariables($variables)
+    protected function prepareVariables(array $variables)
     {
         // My kingdom for a generator.
         $ret = array();

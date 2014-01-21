@@ -11,9 +11,6 @@
 
 namespace Psy\Output;
 
-use Psy\Output\OutputPager;
-use Psy\Output\PassthruPager;
-use Psy\Output\ProcOutputPager;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
 

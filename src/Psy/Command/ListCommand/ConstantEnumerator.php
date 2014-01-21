@@ -11,7 +11,6 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Command\ListCommand\Enumerator;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -81,7 +80,7 @@ class ConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareConstants($constants)
+    protected function prepareConstants(array $constants)
     {
         // My kingdom for a generator.
         $ret = array();

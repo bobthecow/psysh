@@ -11,7 +11,6 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Command\ListCommand\Enumerator;
 use Psy\Reflection\ReflectionConstant;
 use Symfony\Component\Console\Input\InputInterface;
 

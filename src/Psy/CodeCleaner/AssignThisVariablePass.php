@@ -14,7 +14,6 @@ namespace Psy\CodeCleaner;
 use PHPParser_Node as Node;
 use PHPParser_Node_Expr_Assign as Assign;
 use PHPParser_Node_Expr_Variable as Variable;
-use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Exception\FatalErrorException;
 
 /**

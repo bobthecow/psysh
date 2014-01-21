@@ -11,8 +11,6 @@
 
 namespace Psy;
 
-use Psy\Context;
-
 /**
  * ContextAware interface.
  *

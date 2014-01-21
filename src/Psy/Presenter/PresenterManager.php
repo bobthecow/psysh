@@ -11,8 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Psy\Presenter\Presenter;
-use Psy\Presenter\PresenterManagerAware;
 
 /**
  * A Presenter manager service.

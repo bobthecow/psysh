@@ -13,7 +13,6 @@ namespace Psy\Command;
 
 use Psy\Context;
 use Psy\ContextAware;
-use Psy\Command\Command;
 use Psy\Exception\RuntimeException;
 use Psy\Util\Mirror;
 

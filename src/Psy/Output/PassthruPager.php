@@ -11,7 +11,6 @@
 
 namespace Psy\Output;
 
-use Psy\Output\OutputPager;
 use Symfony\Component\Console\Output\StreamOutput;
 
 /**

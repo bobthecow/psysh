@@ -14,7 +14,6 @@ namespace Psy\CodeCleaner;
 use PHPParser_Node_Name as Name;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use Psy\CodeCleaner;
-use Psy\CodeCleaner\CodeCleanerPass;
 
 /**
  * Provide implicit namespaces for subsequent execution.

@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\ReflectingCommand;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Symfony\Component\Console\Input\InputArgument;

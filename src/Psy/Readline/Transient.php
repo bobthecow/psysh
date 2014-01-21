@@ -11,8 +11,6 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline\Readline;
-
 /**
  * An array-based Readline emulation implementation.
  */

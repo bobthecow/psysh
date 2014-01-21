@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -34,10 +33,8 @@ class TraceCommand extends Command
                 new InputOption('num',         'n', InputOption::VALUE_REQUIRED, 'Only include NUM lines.'),
             ))
             ->setDescription('Show the current call stack.')
-            ->setHelp(<<<EOF
-Show the current call stack.
-EOF
-            );
+            ->setHelp('Show the current call stack.')
+        ;
     }
 
     /**

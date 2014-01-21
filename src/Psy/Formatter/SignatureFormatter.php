@@ -11,7 +11,6 @@
 
 namespace Psy\Formatter;
 
-use Psy\Formatter\Formatter;
 use Psy\Util\Json;
 use Psy\Reflection\ReflectionConstant;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -69,7 +68,7 @@ class SignatureFormatter implements Formatter
     /**
      * Print the method, property or class modifiers.
      *
-     * Techinically this should be a trait. Can't wait for 5.4 :)
+     * Technically this should be a trait. Can't wait for 5.4 :)
      *
      * @param \Reflector $reflector
      *

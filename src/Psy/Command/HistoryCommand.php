@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Readline;
 use Symfony\Component\Console\Input\InputInterface;

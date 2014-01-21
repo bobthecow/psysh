@@ -13,7 +13,6 @@ namespace Psy\Command;
 
 use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
-use Psy\Command\Command;
 use Psy\Output\ShellOutput;
 use Psy\Util\Inspector;
 use Psy\Util\Json;
@@ -42,10 +41,8 @@ class ParseCommand extends Command
                 new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
             ))
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
-            ->setHelp(<<<EOL
-Parse PHP code and show the abstract syntax tree.
-EOL
-            );
+            ->setHelp('Parse PHP code and show the abstract syntax tree.')
+        ;
     }
 
     /**

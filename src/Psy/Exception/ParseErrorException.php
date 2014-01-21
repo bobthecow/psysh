@@ -11,8 +11,6 @@
 
 namespace Psy\Exception;
 
-use Psy\Exception\Exception;
-
 /**
  * A "parse error" Exception for Psy.
  */

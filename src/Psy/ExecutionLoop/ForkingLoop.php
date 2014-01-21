@@ -25,7 +25,7 @@ class ForkingLoop extends Loop
     private $savegame;
 
     /**
-     * Run the exection loop.
+     * Run the execution loop.
      *
      * Forks into a master and a loop process. The loop process will handle the
      * evaluation of all instructions, then return its state via a socket upon

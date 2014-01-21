@@ -13,7 +13,7 @@ namespace Psy;
 
 use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
-use PHPParser_PrettyPrinter_Zend as Printer;
+use PHPParser_PrettyPrinter_Default as Printer;
 use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;

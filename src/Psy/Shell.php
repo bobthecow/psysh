@@ -11,9 +11,6 @@
 
 namespace Psy;
 
-use Psy\Configuration;
-use Psy\Context;
-use Psy\ContextAware;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
