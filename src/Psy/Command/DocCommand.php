@@ -57,9 +57,11 @@ HELP
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
         $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
-        $output->page(function ($output) use ($reflector, $doc) {
+        $db  = $this->getApplication()->getManualDb();
+
+        $output->page(function ($output) use ($reflector, $doc, $db) {
             $output->writeln(SignatureFormatter::format($reflector));
-            if (empty($doc) && !$this->getApplication()->getManualDb()) {
+            if (empty($doc) && !$db) {
                 $output->writeln('');
                 $output->writeln('<warning>PHP manual not found</warning>');
                 $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
