@@ -7,7 +7,15 @@ Check out the [Interactive Debugging in PHP talk from OSCON](https://presentate.
 
 ## Installation
 
-PsySH [is available via Composer](https://packagist.org/packages/psy/psysh), or you can use it directly from this repository:
+PsySH [is available via Composer](https://packagist.org/packages/psy/psysh), so you can use it in your project, or install it globally like this:
+
+```
+composer global require psy/psysh:dev-master
+```
+
+If this is your first time installing something globally with Composer, [make sure you have your path set up correctly](http://getcomposer.org/doc/03-cli.md#global).
+
+Or you can use by checking out the the repository directly:
 
 ```
 git clone https://github.com/bobthecow/psysh.git
