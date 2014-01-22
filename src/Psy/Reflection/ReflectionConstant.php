@@ -76,7 +76,7 @@ class ReflectionConstant implements \Reflector
     }
 
     /**
-     * Gets the contant's file name.
+     * Gets the constant's file name.
      *
      * Currently returns null, because if it returns a file name the signature
      * formatter will barf.

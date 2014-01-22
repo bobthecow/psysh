@@ -64,7 +64,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Validate a class definition statment.
+     * Validate a class definition statement.
      *
      * @param ClassStatement $stmt
      */

@@ -31,7 +31,7 @@ class Loop
     }
 
     /**
-     * Run the exection loop.
+     * Run the execution loop.
      *
      * @param Shell $shell
      */

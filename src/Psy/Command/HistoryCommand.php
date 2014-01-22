@@ -183,14 +183,14 @@ HELP
             $length = $end - $start;
         } elseif ($head) {
             if (!preg_match('/^\d+$/', $head)) {
-                throw new \InvalidArgumentException('Please specificy an integer argument for --head.');
+                throw new \InvalidArgumentException('Please specify an integer argument for --head.');
             }
 
             $start  = 0;
             $length = intval($head);
         } elseif ($tail) {
             if (!preg_match('/^\d+$/', $tail)) {
-                throw new \InvalidArgumentException('Please specificy an integer argument for --tail.');
+                throw new \InvalidArgumentException('Please specify an integer argument for --tail.');
             }
 
             $start  = count($history) - $tail;
