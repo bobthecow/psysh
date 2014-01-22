@@ -104,6 +104,36 @@ From here, you can start entering PHP code and see the result interactively:
 
 
 
+### the `doc` command
+
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. See the [README.md](https://github.com/bobthecow/psysh#downloading-the-manual) for install instructions.
+
+```
+>>> doc var_dump
+function var_dump($var, $... = unknown)
+
+Description:
+  Dumps information about a variable
+
+Param:
+  mixed  $expression  The variable you want to dump.
+
+Return:
+  void  
+
+>>> function timesFive($x) {
+...     $result = $x * 5;
+...     return $result;
+... }
+=> null
+>>> doc timesFive
+function timesFive($x)
+
+>>>
+```
+
+
+
 ### PsySH as a Debugger
 
 To use this functionality, drop the psysh phar file into your project, include it:
