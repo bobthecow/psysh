@@ -37,7 +37,7 @@ abstract class Enumerator
     private $pattern;
 
     /**
-     * Enumarator constructor.
+     * Enumerator constructor.
      *
      * @param PresenterManager $presenterManager
      */

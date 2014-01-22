@@ -83,14 +83,12 @@ class PresenterManager implements Presenter, \IteratorAggregate
     public function canPresent($value)
     {
         return $this->getPresenter($value) !== null;
-
-        return false;
     }
 
     /**
      * Present a reference to the value.
      *
-     * @throws InvalidArugmentException If no Presenter is registered for $value
+     * @throws InvalidArgumentException If no Presenter is registered for $value
      *
      * @param mixed $value
      *

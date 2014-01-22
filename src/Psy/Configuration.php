@@ -211,7 +211,7 @@ class Configuration
      */
     public function setHistoryFile($file)
     {
-        $this->historyFile = (string) $historyFile;
+        $this->historyFile = (string) $file;
     }
 
     /**

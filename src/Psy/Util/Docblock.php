@@ -24,7 +24,7 @@ namespace Psy\Util;
 class Docblock
 {
     /**
-     * Tags in the docblock that have a whitepace-delimited number of parameters
+     * Tags in the docblock that have a whitespace-delimited number of parameters
      * (such as `@param type var desc` and `@return type desc`) and the names of
      * those parameters.
      *

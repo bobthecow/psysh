@@ -751,7 +751,7 @@ class Shell extends Application
         // $line = substr($info['line_buffer'], 0, $info['end']);
 
         // Check whether there's a command for this
-        // $words = explod(' ', $line);
+        // $words = explode(' ', $line);
         // $firstWord = reset($words);
 
         // check whether this is a variable...
