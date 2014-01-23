@@ -1,0 +1,20 @@
+<div id="tweets">
+  <div class="container">
+    <div id="tweet-carousel" class="carousel slide" data-ride="carousel">
+      <div class="carousel-inner">
+        {% for tweet in site.data.tweets %}
+          <div class="tweet item{% if forloop.first %} active{% endif %}">
+            {{ tweet }}
+          </div>
+        {% endfor %}
+      </div>
+
+      <a class="left carousel-control hidden-xs" href="#tweet-carousel" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+      </a>
+      <a class="right carousel-control hidden-xs" href="#tweet-carousel" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+    </div>
+  </div>
+</div>
