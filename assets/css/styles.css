@@ -51,6 +51,34 @@
     padding-top: 40px;
 }
 
+#tweets {
+    border-top: 1px solid #ddd;
+    margin: 90px 0;
+    padding-top: 60px;
+}
+#tweets .tweet {
+    height: 260px;
+}
+#tweets iframe, #tweets blockquote {
+    margin:   0 auto !important;
+    position: relative !important;
+    top:      50%;
+    -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+}
+#tweets blockquote {
+    max-width: 500px;
+}
+#tweets .carousel-control {
+    opacity: 0.8;
+}
+#tweets .carousel-control.left, .carousel-control.right {
+    background: none;
+}
+#tweets .carousel-control .glyphicon-chevron-left {
+    left: 40%;
+}
 
 .social {
     text-align:       center;
