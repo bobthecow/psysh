@@ -11,6 +11,7 @@
 #hero .jumbotron {
     background-color: #222;
     color: #ccc;
+    margin-bottom: 0;
 }
 
 #hero code {
@@ -39,8 +40,30 @@
 }
 
 #footer {
-    border-top: 1px solid #ddd;
-    padding: 40px 0;
     margin-top: 60px;
+    padding: 0 0 40px;
+    border-top: 1px solid #ddd;
     background-color: #f3f3f3;
+    color: #666;
+    text-align: center;
 }
+#footer .container {
+    padding-top: 40px;
+}
+
+
+.social {
+    text-align:       center;
+    padding:          15px;
+    background-color: #eaeaea;
+    border-bottom:    1px solid #ddd;
+}
+#hero .social {
+    margin-bottom: 30px;
+}
+.social > div                { display: inline-block; }
+.social > div.github-fork    { margin-left: -10px; }
+.social > div.twitter-follow { margin-left: 2px;   }
+.social > div.twitter-share  { margin-left: 4px;   }
+.social > div.googleplus-one { margin-left: -4px;  }
+.social > div.facebook-like  { margin-left: -14px; }
