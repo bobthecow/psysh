@@ -12,6 +12,9 @@
     background-color: #222;
     color: #ccc;
     margin-bottom: 0;
+
+    background: #222 url(/assets/img/bg.jpg) left center no-repeat;
+    background-size: auto 100%;
 }
 
 #hero code {
