@@ -42,11 +42,9 @@ class MongoCursorPresenter extends ObjectPresenter
     protected function getProperties($value, \ReflectionClass $class)
     {
         $empty = new \StdClass;
-        $props = array();
-
         $info  = $value->info();
 
-        if ($info['query'] == new \StdClass) {
+        if ($info['query'] == $empty) {
             $info['query'] = array();
         }
 
