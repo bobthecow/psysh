@@ -60,7 +60,7 @@
     padding-top: 60px;
 }
 #tweets .tweet {
-    height: 260px;
+    height: 300px;
 }
 #tweets iframe, #tweets blockquote {
     margin:   0 auto !important;
