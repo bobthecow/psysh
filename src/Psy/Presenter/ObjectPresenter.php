@@ -18,8 +18,8 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class ObjectPresenter extends RecursivePresenter
 {
-    const FMT       = '%s%s #%s>';
-    const COLOR_FMT = '<object>%s<class>%s</class> <strong>#%s</strong>></object>';
+    const FMT       = '\\<%s #%s>';
+    const COLOR_FMT = '<object>\\<<class>%s</class> <strong>#%s</strong>></object>';
 
     /**
      * ObjectPresenter can present objects.
@@ -44,7 +44,7 @@ class ObjectPresenter extends RecursivePresenter
     {
         $format = $color ? self::COLOR_FMT : self::FMT;
 
-        return sprintf($format, OutputFormatter::escape('<'), get_class($value), spl_object_hash($value));
+        return sprintf($format, get_class($value), spl_object_hash($value));
     }
 
     /**

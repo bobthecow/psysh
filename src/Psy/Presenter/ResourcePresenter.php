@@ -18,8 +18,8 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class ResourcePresenter implements Presenter
 {
-    const FMT       = '%s%s resource #%s>';
-    const COLOR_FMT = '<resource>%s%s <strong>resource #%s</strong>></resource>';
+    const FMT       = '\\<%s resource #%s>';
+    const COLOR_FMT = '<resource>\\<%s <strong>resource #%s</strong>></resource>';
 
     /**
      * Resource presenter can present resources.
@@ -51,7 +51,7 @@ class ResourcePresenter implements Presenter
         $id     = str_replace('Resource id #', '', (string) $value);
         $format = $color ? self::COLOR_FMT : self::FMT;
 
-        return sprintf($format, OutputFormatter::escape('<'), $type, $id);
+        return sprintf($format, $type, $id);
     }
 
     /**

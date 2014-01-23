@@ -141,7 +141,7 @@ HELP
                 $props = array_keys(json_decode(json_encode($tree), true));
 
                 if (in_array('__CLASS__', $props)) {
-                    $output->write(sprintf('  %s<strong>%s</strong>> ', OutputFormatter::escape('<'), $tree->{'__CLASS__'}));
+                    $output->write(sprintf('  \\<<strong>%s</strong>> ', $tree->{'__CLASS__'}));
                     unset($props['__CLASS__']);
                 }
 
