@@ -14,6 +14,9 @@ namespace Psy\Command;
 use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
 use Psy\Output\ShellOutput;
+use Psy\Presenter\PHPParserPresenter;
+use Psy\Presenter\PresenterManager;
+use Psy\Presenter\PresenterManagerAware;
 use Psy\Util\Inspector;
 use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -25,9 +28,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Parse PHP code and show the abstract syntax tree.
  */
-class ParseCommand extends Command
+class ParseCommand extends Command implements PresenterManagerAware
 {
+    private $presenterManager;
     private $parser;
+
+    /**
+     * PresenterManagerAware interface.
+     *
+     * @param PresenterManager $manager
+     */
+    public function setPresenterManager(PresenterManager $manager)
+    {
+        $this->presenterManager = new PresenterManager;
+
+        foreach ($manager as $presenter) {
+            $this->presenterManager->addPresenter($presenter);
+        }
+
+        $this->presenterManager->addPresenter(new PHPParserPresenter);
+    }
 
     /**
      * {@inheritdoc}
@@ -59,19 +79,14 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $code  = $input->getArgument('code');
-
+        $code = $input->getArgument('code');
         if (strpos('<?', $code) === false) {
-            $code = '<?php '.$code;
+            $code = '<?php ' . $code;
         }
 
-        $walker = $this->getWalker();
-        $nodes  = $this->parse($code);
-        $depth  = $input->getOption('depth');
-        $output->page(function (ShellOutput $output) use (&$walker, $nodes, $depth) {
-            $out = Inspector::export($nodes, $depth);
-            $walker($output, $out);
-        });
+        $depth = $input->getOption('depth');
+        $nodes = $this->parse($code);
+        $output->page($this->presenterManager->present($nodes, $depth, true));
     }
 
     /**
@@ -109,61 +124,5 @@ HELP
         }
 
         return $this->parser;
-    }
-
-    /**
-     * Get a recursive formatting tree walker function.
-     *
-     * @return \Closure
-     */
-    private function getWalker()
-    {
-        $walker = function (ShellOutput $output, $tree, $depth = 0) use (&$walker) {
-            $indent = str_repeat('  ', $depth);
-            if (is_array($tree)) {
-                if (empty($tree)) {
-                    return $output->writeln('[]');
-                }
-
-                $keys = array_keys($tree);
-                $isAssoc = !is_int(reset($keys));
-                $output->writeln('[');
-                foreach ($tree as $key => $node) {
-                    if ($isAssoc) {
-                        $output->write($indent.sprintf('  <comment>%s</comment>: ', OutputFormatter::escape($key)));
-                    } else {
-                        $output->write($indent);
-                    }
-                    $walker($output, $node, $depth + 1);
-                }
-                $output->writeln($indent.']');
-            } elseif (is_object($tree)) {
-                $props = array_keys(json_decode(json_encode($tree), true));
-
-                if (in_array('__CLASS__', $props)) {
-                    $output->write(sprintf('  \\<<strong>%s</strong>> ', $tree->{'__CLASS__'}));
-                    unset($props['__CLASS__']);
-                }
-
-                if (empty($props)) {
-                    return $output->writeln('{}');
-                }
-
-                $output->writeln('{');
-
-                foreach ($props as $prop) {
-                    if ($prop === '__CLASS__') {
-                        continue;
-                    }
-                    $output->write($indent.sprintf('  <info>%s</info>: ', OutputFormatter::escape($prop)));
-                    $walker($output, $tree->$prop, $depth + 1);
-                }
-                $output->writeln($indent.'}');
-            } else {
-                $output->writeln(sprintf('<return>%s</return>', OutputFormatter::escape(Json::encode($tree))));
-            }
-        };
-
-        return $walker;
     }
 }

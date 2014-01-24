@@ -13,6 +13,8 @@ namespace Psy\Util;
 
 /**
  * A utility class for inspecting objects.
+ *
+ * This has basically been deprecated by presenters, because they're a lot awesomer.
  */
 class Inspector
 {
