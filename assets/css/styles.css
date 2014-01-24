@@ -12,7 +12,6 @@ code, pre {
     box-shadow: 0 1px 0 #333;
 }
 
-/*
 .navbar-brand, #hero h1 {
     font-family: "Source Code Pro", monospace;
     text-transform: lowercase;
@@ -21,7 +20,6 @@ code, pre {
 .navbar-brand:before, #hero h1:before {
     content: '>>> ';
 }
-*/
 
 
 #hero h1 {
@@ -37,6 +35,10 @@ code, pre {
 
     background: #222 url(/assets/img/bg.jpg) left center no-repeat;
     background-size: auto 100%;
+}
+
+#hero h2 {
+    font-weight: lighter;
 }
 
 #hero code {
