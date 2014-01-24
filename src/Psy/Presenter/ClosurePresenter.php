@@ -62,12 +62,13 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      *
      * @param \Closure $value
      * @param int      $depth (default:null)
+     * @param bool     $color (default: false)
      *
      * @return string
      */
-    public function present($value, $depth = null)
+    public function present($value, $depth = null, $color = false)
     {
-        return $this->presentRef($value, false);
+        return $this->presentRef($value, $color);
     }
 
     /**

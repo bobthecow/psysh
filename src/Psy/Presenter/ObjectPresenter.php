@@ -37,6 +37,7 @@ class ObjectPresenter extends RecursivePresenter
      * Present a reference to the object.
      *
      * @param object $value
+     * @param bool   $color (default: false)
      *
      * @return string
      */
@@ -51,30 +52,32 @@ class ObjectPresenter extends RecursivePresenter
      * Present the object.
      *
      * @param object $value
-     * @param int    $depth (default:null)
+     * @param int    $depth (default: null)
+     * @param bool   $color (default: false)
      *
      * @return string
      */
-    protected function presentValue($value, $depth = null)
+    protected function presentValue($value, $depth = null, $color = false)
     {
         if ($depth === 0) {
-            return $this->presentRef($value);
+            return $this->presentRef($value, $color);
         }
 
         $class = new \ReflectionObject($value);
         $props = $this->getProperties($value, $class);
 
-        return sprintf('%s %s', $this->presentRef($value), $this->formatProperties($props));
+        return sprintf('%s %s', $this->presentRef($value, $color), $this->formatProperties($props, $color));
     }
 
     /**
      * Format object properties.
      *
      * @param array $props
+     * @param bool  $color (default: false)
      *
      * @return string
      */
-    protected function formatProperties($props)
+    protected function formatProperties($props, $color = false)
     {
         if (empty($props)) {
             return '{}';
@@ -82,7 +85,7 @@ class ObjectPresenter extends RecursivePresenter
 
         $formatted = array();
         foreach ($props as $name => $value) {
-            $formatted[] = sprintf('%s: %s', $name, $this->indentValue($this->presentSubValue($value)));
+            $formatted[] = sprintf('%s: %s', $name, $this->indentValue($this->presentSubValue($value, $color)));
         }
 
         $template = sprintf('{%s%s%%s%s}', PHP_EOL, self::INDENT, PHP_EOL);

@@ -43,11 +43,7 @@ class ScalarPresenter implements Presenter
      */
     public function presentRef($value, $color = false)
     {
-        if ($color && $typeStyle = $this->getTypeStyle($value)) {
-            return sprintf('<%s>%s</%s>', $typeStyle, $this->present($value), $typeStyle);
-        } else {
-            return $this->present($value);
-        }
+        return $this->present($value, null, $color);
     }
 
     /**
@@ -55,12 +51,19 @@ class ScalarPresenter implements Presenter
      *
      * @param mixed $value
      * @param int   $depth (default: null)
+     * @param bool  $color (default: false)
      *
      * @return string
      */
-    public function present($value, $depth = null)
+    public function present($value, $depth = null, $color = false)
     {
-        return OutputFormatter::escape(Json::encode($value));
+        $formatted = OutputFormatter::escape(Json::encode($value));
+
+        if ($color && $typeStyle = $this->getTypeStyle($value)) {
+            return sprintf('<%s>%s</%s>', $typeStyle, $formatted, $typeStyle);
+        } else {
+            return $formatted;
+        }
     }
 
     /**

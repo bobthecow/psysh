@@ -110,13 +110,14 @@ class PresenterManager implements Presenter, \IteratorAggregate
      *
      * @param mixed $value
      * @param int   $depth (default: null)
+     * @param bool  $color (default: false)
      *
      * @return string
      */
-    public function present($value, $depth = null)
+    public function present($value, $depth = null, $color = false)
     {
         if ($presenter = $this->getPresenter($value)) {
-            return $presenter->present($value, $depth);
+            return $presenter->present($value, $depth, $color);
         }
 
         throw new \InvalidArgumentException(sprintf('Unable to present %s', $value));

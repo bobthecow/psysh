@@ -54,20 +54,26 @@ class ArrayPresenter extends RecursivePresenter
      *
      * @param object $value
      * @param int    $depth (default: null)
+     * @param bool   $color (default: false)
      *
      * @return string
      */
-    protected function presentValue($value, $depth = null)
+    protected function presentValue($value, $depth = null, $color = false)
     {
         if (empty($value) || $depth === 0) {
-            return $this->presentRef($value);
+            return $this->presentRef($value, $color);
         }
 
-        $formatted = array_map(array($this, 'presentSubValue'), $value);
+        $formatted = array();
+        foreach ($value as $key => $val) {
+            $formatted[$key] = $this->presentSubValue($val, $color);
+        }
 
         if ($this->shouldShowKeys($value)) {
             $pad = max(array_map('strlen', array_map(array('Psy\Util\Json', 'encode'), array_keys($value))));
-            array_walk($formatted, array($this, 'formatKeyAndValue'), $pad);
+            foreach ($formatted as $key => $val) {
+                $formatted[$key] = $this->formatKeyAndValue($key, $val, $pad, $color);
+            }
         } else {
             $formatted = array_map(array($this, 'indentValue'), $formatted);
         }
@@ -103,17 +109,25 @@ class ArrayPresenter extends RecursivePresenter
     /**
      * Format a key => value pair.
      *
-     * @param string  $value
      * @param mixed   $key
+     * @param string  $value
      * @param integer $pad   Maximum key width, to align the hashrockets.
+     * @param bool    $color (default: false)
      *
      * @return string
      */
-    protected function formatKeyAndValue(&$value, $key, $pad = 0)
+    protected function formatKeyAndValue($key, $value, $pad = 0, $color = false)
     {
-        $value = sprintf(
-            "%-${pad}s => %s",
-            OutputFormatter::escape(Json::encode($key)),
+        if ($color) {
+            $type = is_string($value) ? 'string' : 'number';
+            $tpl  = "<$type>%-${pad}s</$type> => %s";
+        } else {
+            $tpl = "%-${pad}s => %s";
+        }
+
+        return sprintf(
+            $tpl,
+            Json::encode($key),
             $this->indentValue($value)
         );
     }

@@ -20,7 +20,7 @@ class MongoCursorPresenter extends ObjectPresenter
     private static $ignoreFields = array('server', 'host', 'port', 'connection_type_desc');
 
     /**
-     * ObjectPresenter can present Mongo Cursors.
+     * MongoCursorPresenter can present Mongo Cursors.
      *
      * @param mixed $value
      *
