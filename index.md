@@ -2,22 +2,21 @@
 layout: default
 title:  PsySH
 ---
-
 <a class="section-head" id="usage"></a>
 
 ## Usage
 
 ### PsySH as a REPL
 
-PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've [downloaded the phar file](#install), running it directly (`./psysh`) will drop you into an interactive prompt, like so:
+PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've [installed PsySH](#install), running it directly (`psysh` or `./psysh`) will drop you into an interactive prompt, like so:
 
 ```
-~/psysh/bin$ ./psysh
+~ $ ./psysh
 Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman
 >>>
 ```
 
-From here, you can start entering PHP code and see the result interactively:
+From here, you can type PHP code and see the result interactively:
 
 ```
 >>> function timesFive($x) {
@@ -32,21 +31,26 @@ From here, you can start entering PHP code and see the result interactively:
 
 ### PsySH as a Debugger
 
-To use this functionality, drop the psysh phar file into your project, include it:
+To use PsySH as a debugger, install it as a Composer dependency or include the Phar directly in your project:
 
 ```php
 <?php
-require('psysh');
+require('/path/to/psysh');
 ```
 
 Then, drop this line into your script where you'd like to have a breakpoint:
 
-```
+```php
 \Psy\Shell::debug(get_defined_vars());
 ```
 
 When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is loaded and available for you to inspect and experiment with.
 
+Pro Tip™: You don't have to use `get_defined_vars`… You can pass anything you want in as your debugging context:
+
+```php
+\Psy\Shell::debug(['app' => $myApp]);
+```
 <a class="section-head" id="configure"></a>
 
 ## Configuration
@@ -72,8 +76,8 @@ return array(
     'usePcntl' => false,
 
     // PsySH uses readline if you have it installed, because interactive input
-    // is pretty awful without it. But you can explicitly disable it if you hate
-    // yourself or something.
+    // is pretty awful without it. But you can explicitly disable it if you
+    // hate yourself or something.
     'useReadline' => false,
 
     // "Default includes" will be included once at the beginning of every PsySH
