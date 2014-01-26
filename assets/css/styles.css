@@ -63,6 +63,10 @@ code, pre, #install .shell {
     margin: 40px 0;
 }
 
+.oscon-talk code {
+    white-space: normal;
+}
+
 /*
 #hero a:link, #hero a:visited {
     font-weight: bold;
