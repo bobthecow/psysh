@@ -1,0 +1,32 @@
+<div id="features">
+  {% for feature in site.data.features %}
+    <div class="feature">
+      <div class="container">
+        {% if feature.img %}
+          <div class="row">
+            {% capture even %}{{ forloop.index | modulo: 2 }}{% endcapture %}
+            {% if even == '0' %}
+              <div class="col-sm-5">
+                <img src="{{ feature.img }}" alt="{{ feature.title }}" class="img-circle img-responsive">
+              </div>
+            {% endif %}
+            <div class="feature-text col-sm-7">
+              <h2>{{ feature.title }}</h2>
+              {{ feature.body }}
+            </div>
+            {% if even != '0' %}
+              <div class="col-sm-5">
+                <img src="{{ feature.img }}" alt="{{ feature.title }}" class="img-circle img-responsive">
+              </div>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="feature-text">
+            <h2>{{ feature.title }}</h2>
+            {{ feature.body }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>

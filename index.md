@@ -3,26 +3,49 @@ layout: default
 title:  PsySH
 ---
 
-<a class="section-head" id="install"></a>
+<a class="section-head" id="usage"></a>
 
-## Installation
+## Usage
 
-PsySH [is available via Composer](https://packagist.org/packages/psy/psysh), or you can use it directly from [the GitHub repository](https://github.com/bobthecow/psysh):
+### PsySH as a REPL
 
-```
-git clone https://github.com/bobthecow/psysh.git
-cd psysh
-./bin/psysh
-```
-
-But by far the easiest way to use it is to download the precompiled phar:
+PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've [downloaded the phar file](#install), running it directly (`./psysh`) will drop you into an interactive prompt, like so:
 
 ```
-wget psysh.org/psysh
-chmod +x psysh
-./psysh
+~/psysh/bin$ ./psysh
+Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman
+>>>
 ```
 
+From here, you can start entering PHP code and see the result interactively:
+
+```
+>>> function timesFive($x) {
+...     $result = $x * 5;
+...     return $result;
+... }
+=> null
+>>> timesFive(10);
+=> 50
+>>>
+```
+
+### PsySH as a Debugger
+
+To use this functionality, drop the psysh phar file into your project, include it:
+
+```php
+<?php
+require('psysh');
+```
+
+Then, drop this line into your script where you'd like to have a breakpoint:
+
+```
+\Psy\Shell::debug(get_defined_vars());
+```
+
+When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is loaded and available for you to inspect and experiment with.
 
 <a class="section-head" id="configure"></a>
 
@@ -74,79 +97,3 @@ return array(
     ),
 );
 ```
-
-<a class="section-head" id="usage"></a>
-
-## Usage
-
-### PsySH as a REPL
-
-PsySH functions as a <abbr title="Read-Eval-Print Loop">REPL</abbr> for PHP right out of the box! Once you've [downloaded the phar file](#install), running it directly (`./psysh`) will drop you into an interactive prompt, like so:
-
-```
-~/psysh/bin$ ./psysh
-Psy Shell v0.1.0-dev (PHP 5.4.9-4ubuntu2.2 — cli) by Justin Hileman
->>>
-```
-
-From here, you can start entering PHP code and see the result interactively:
-
-```
->>> function timesFive($x) {
-...     $result = $x * 5;
-...     return $result;
-... }
-=> null
->>> timesFive(10);
-=> 50
->>>
-```
-
-
-
-### the `doc` command
-
-The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. See the [README.md](https://github.com/bobthecow/psysh#downloading-the-manual) for install instructions.
-
-```
->>> doc var_dump
-function var_dump($var, $... = unknown)
-
-Description:
-  Dumps information about a variable
-
-Param:
-  mixed  $expression  The variable you want to dump.
-
-Return:
-  void  
-
->>> function timesFive($x) {
-...     $result = $x * 5;
-...     return $result;
-... }
-=> null
->>> doc timesFive
-function timesFive($x)
-
->>>
-```
-
-
-
-### PsySH as a Debugger
-
-To use this functionality, drop the psysh phar file into your project, include it:
-
-```php
-<?php
-require('psysh');
-```
-
-Then, drop this line into your script where you'd like to have a breakpoint:
-
-```
-\Psy\Shell::debug(get_defined_vars());
-```
-
-When your script reaches this point, execution will be suspended and you'll be dropped into a PsySH shell. Your program state is loaded and available for you to inspect and experiment with.

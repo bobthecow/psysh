@@ -19,14 +19,21 @@
         <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#install">Installation</a></li>
-            <li><a href="#configure">Configuration</a></li>
+            <li><a href="#features">Features</a></li>
             <li><a href="#usage">Usage</a></li>
+            <li><a href="#configure">Configuration</a></li>
           </ul>
         </nav>
       </div>
     </header>
 
     {% include hero.html %}
+
+    {% include install.html %}
+
+    {% include features.html %}
+
+    {% include talk.html %}
 
     <div class="container">
       {{ content }}

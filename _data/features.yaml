@@ -1,0 +1,70 @@
+
+  - title: Stop <code>die()</code>ing all the time
+    body:  |
+      <p>
+      PsySH can be used as an interactive debugger, much like JavaScript's <code>debugger</code> statement, saving you
+      from endless <code>var_dump()</code> and <code>die()</code> iterations. Just drop this line in where you'd like to
+      have a breakpoint:
+      </p>
+      <p><code>Psy\Shell::debug(get_defined_vars());</code></p>
+
+  # - title: Automatic semicolon insertion
+  #   body:  |
+  #     …
+
+  - title: Read documentation in context
+    img:   /assets/img/doc.jpg
+    body:  |
+      <p>
+      Have a question about a core PHP function? Try <code>doc array_map</code>.
+      Want to read the documentation for an object property? Run <code>doc $response->statusTexts</code>.
+      </p>
+      <p><code>&gt;&gt;&gt; help doc</code></p>
+
+  - title: Reflect like a boss
+    img:   /assets/img/ls.jpg
+    body:  |
+      <p>
+      The <code>list</code> command knows all about your code — and everyone else's. Easily list and search
+      all variables, constants, classes, interfaces, traits, functions, methods and properties.
+      </p>
+      <p><code>&gt;&gt;&gt; help list</code></p>
+
+
+  - title: Use the source!
+    img:   /assets/img/show.jpg
+    body:  |
+      <p>
+      Easily show the source code for any userland object, class, interface, trait, constant, method or property.
+      </p>
+      <p><code>&gt;&gt;&gt; help show</code></p>
+
+  - title: Forget to catch that last exception?
+    img:   /assets/img/wtf.jpg
+    body:  |
+      <p>
+      No worries, PsySH has your back. We caught it for you, and made it available via the <code>wtf</code> command.
+      </p>
+      <p><code>&gt;&gt;&gt; help wtf</code></p>
+
+  - title: Learn from your history <em>and</em> repeat your past
+    img:   /assets/img/hist.jpg
+    body:  |
+      <p>Show, search, save and replay your shell history.</p>
+      <p><code>&gt;&gt;&gt; help history</code></p>
+
+
+  - title: Roll your own commands
+    body:  |
+      <p>
+      If the awesome features listed above aren't enough for you, you can write your own commands! PsySH has first-class
+      support for custom commands — just register them in your <code>~/.psysh/rc.php</code>.
+      </p>
+
+  # - title: Say something about presenters
+  #   body:  |
+  #     "Clean+concise string representations of evaluated values"
+
+  # - title: Say something about custom presenters
+  #   body:  |
+  #     …

@@ -1,4 +1,4 @@
-code, pre {
+code, pre, #install .shell {
     font-family: "Source Code Pro", monospace;
 }
 
@@ -28,7 +28,7 @@ code, pre {
     color: #eee;
 }
 
-#hero .jumbotron {
+.jumbotron {
     background-color: #222;
     color: #ccc;
     margin-bottom: 0;
@@ -37,17 +37,30 @@ code, pre {
     background-size: auto 100%;
 }
 
+#hero .jumbotron {
+    padding: 120px 0 180px;
+}
+
 #hero h2 {
     font-weight: lighter;
 }
 
-#hero code {
+.jumbotron code {
     color: #ddd;
     background-color: #000;
 }
 
 #hero .call-to-action {
     margin-top: 40px;
+}
+
+.oscon-talk .jumbotron {
+    box-shadow: inset 0 3px 10px black;
+}
+
+.oscon-talk .col-sm-8,
+.oscon-talk .col-sm-4 {
+    margin: 40px 0;
 }
 
 /*
@@ -60,13 +73,95 @@ code, pre {
 }
 */
 
+#install {
+    padding-top: 52px;
+}
 
+#install h2 {
+    margin: 40px 0 60px;
+    text-align: center;
+    color: #555;
+}
 
+#install .title {
+    display: block;
+    margin: 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #111;
+    border-radius: 5px 5px 0 0;
+    background: #f7f7f7;
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Y3ZjdmNyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjclIiBzdG9wLWNvbG9yPSIjY2ZjZmNmIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2FhYWFhYSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f7f7f7), color-stop(7%, #cfcfcf), color-stop(100%, #aaaaaa));
+    background: -webkit-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+    background: -o-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+    background: -ms-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+    background: linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#aaaaaa', GradientType=0 );
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .25);
+    color: #444;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+}
+#install .or {
+    text-align: center;
+    padding: 40px 0;
+    margin-bottom: -15px;
+    font-size: 120%;
+}
+#install .shell {
+    margin-bottom: -15px;
+    padding: 20px 0;
+    min-height: 8em;
+    border-radius: 0 0 5px 5px;
+    background-color: #222;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, .3);
+    color: #ccc;
+    text-shadow: none;
+    font-size: 120%;
+}
+#install .shell p {
+    margin: 0;
+    padding: 2px 20px;
+}
+#install .shell .pwd    { color: #f0ad4e; }
+#install .shell .prompt { color: #d9534f; }
+#install .shell .cmd    { color: #428bca; }
+#install .shell .args   { color: #5bc0de; }
+
+.feature {
+    padding: 80px 0;
+    background-color: #f3f3f3;
+    border-top: 1px solid #ddd;
+}
+.feature:first-child {
+    padding-top: 95px;
+}
+.feature:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.features-section {
+    border-bottom: 1px solid #ddd;
+}
+.feature-text {
+    padding: 80px;
+}
+.feature img {
+    border: 1px solid #ddd;
+}
+@media (max-width: 767px) {
+    .feature-text {
+        padding: 0 15px;
+    }
+    .feature-text:first-child {
+        padding-bottom: 40px;
+    }
+}
 
 .section-head {
   display: block;
   clear: both;
-  padding-top: 60px;
+  padding-top: 52px;
 }
 
 
