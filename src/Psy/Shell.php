@@ -157,6 +157,7 @@ class Shell extends Application
         return array(
             new Command\HelpCommand,
             new Command\ListCommand,
+            new Command\DumpCommand,
             new Command\DocCommand,
             new Command\ShowCommand,
             new Command\WtfCommand,
