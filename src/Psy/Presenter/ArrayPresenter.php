@@ -12,7 +12,6 @@
 namespace Psy\Presenter;
 
 use Psy\Util\Json;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * An array Presenter.

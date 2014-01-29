@@ -13,13 +13,9 @@ namespace Psy\Command;
 
 use PHPParser_Lexer as Lexer;
 use PHPParser_Parser as Parser;
-use Psy\Output\ShellOutput;
 use Psy\Presenter\PHPParserPresenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
-use Psy\Util\Inspector;
-use Psy\Util\Json;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

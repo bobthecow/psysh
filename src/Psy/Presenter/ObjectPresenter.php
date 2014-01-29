@@ -11,8 +11,6 @@
 
 namespace Psy\Presenter;
 
-use Symfony\Component\Console\Formatter\OutputFormatter;
-
 /**
  * An object Presenter.
  */
