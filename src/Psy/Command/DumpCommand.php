@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Exception\RuntimeException;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
 use Symfony\Component\Console\Input\InputArgument;
