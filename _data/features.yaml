@@ -6,7 +6,7 @@
       from endless <code>var_dump()</code> and <code>die()</code> iterations. Just drop this line in where you'd like to
       have a breakpoint:
       </p>
-      <p><code>Psy\Shell::debug(get_defined_vars());</code></p>
+      <p><code>\Psy\Shell::debug(get_defined_vars());</code></p>
 
   # - title: Automatic semicolon insertion
   #   body:  |
