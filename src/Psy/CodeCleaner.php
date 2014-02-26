@@ -12,13 +12,14 @@
 namespace Psy;
 
 use PHPParser_Lexer as Lexer;
+use PHPParser_NodeTraverser as NodeTraverser;
 use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Default as Printer;
-use PHPParser_NodeTraverser as NodeTraverser;
 use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
-use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
+use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
+use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
@@ -27,8 +28,8 @@ use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\StaticConstructorPass;
 use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
-use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\CodeCleaner\ValidConstantPass;
+use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\Exception\ParseErrorException;
 
 /**
@@ -72,6 +73,7 @@ class CodeCleaner
             new AssignThisVariablePass,
             new FunctionReturnInWriteContextPass,
             new CallTimePassByReferencePass,
+            new CalledClassPass,
             new InstanceOfPass,
             new LeavePsyshAlonePass,
             new ImplicitReturnPass,

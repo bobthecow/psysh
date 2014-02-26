@@ -57,13 +57,27 @@ class ScalarPresenter implements Presenter
      */
     public function present($value, $depth = null, $color = false)
     {
-        $formatted = OutputFormatter::escape(Json::encode($value));
+        $formatted = $this->format($value);
 
         if ($color && $typeStyle = $this->getTypeStyle($value)) {
             return sprintf('<%s>%s</%s>', $typeStyle, $formatted, $typeStyle);
         } else {
             return $formatted;
         }
+    }
+
+    private function format($value)
+    {
+        // Handle unencodable floats.
+        if (is_float($value)) {
+            if (is_nan($value)) {
+                return 'NAN';
+            } elseif (is_infinite($value)) {
+                return $value === INF ? 'INF' : '-INF';
+            }
+        }
+
+        return OutputFormatter::escape(Json::encode($value));
     }
 
     /**
