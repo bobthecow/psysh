@@ -42,6 +42,11 @@ class ScalarPresenterTest extends \PHPUnit_Framework_TestCase
             array(true,    'true'),
             array(false,   'false'),
             array(null,    'null'),
+            array(NAN,     'NAN'),
+            array(acos(8), 'NAN'),
+            array(INF,     'INF'),
+            array(-INF,    '-INF'),
+            array(log(0),  '-INF'),
         );
     }
 }
