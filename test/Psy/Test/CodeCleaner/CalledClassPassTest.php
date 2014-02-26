@@ -69,6 +69,25 @@ class CalledClassPassTest extends CodeCleanerTestCase
             array('class Foo { function bar() { return get_class(null); } }'),
             array('class Foo { function bar() { return get_called_class(); } }'),
             array('class Foo { function bar() { return get_called_class(null); } }'),
+        );
+    }
+
+    /**
+     * @dataProvider validTraitStatements
+     */
+    public function testProcessTraitStatementPasses($code)
+    {
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            $this->markTestSkipped();
+        }
+
+        $stmts = $this->parse($code);
+        $this->traverser->traverse($stmts);
+    }
+
+    public function validTraitStatements()
+    {
+        return array(
             array('trait Foo { function bar() { return get_class(); } }'),
             array('trait Foo { function bar() { return get_class(null); } }'),
             array('trait Foo { function bar() { return get_called_class(); } }'),
