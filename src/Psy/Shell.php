@@ -52,6 +52,7 @@ class Shell extends Application
     private $inputBuffer;
     private $code;
     private $codeBuffer;
+    private $codeBufferOpen;
     private $context;
     private $includes;
     private $loop;
@@ -233,6 +234,8 @@ class Shell extends Application
      */
     public function getInput()
     {
+        $this->codeBufferOpen = false;
+
         do {
             // reset output verbosity (in case it was altered by a subcommand)
             $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
@@ -371,7 +374,7 @@ class Shell extends Application
      */
     protected function hasValidCode()
     {
-        return $this->code !== false;
+        return !$this->codeBufferOpen && $this->code !== false;
     }
 
     /**
@@ -382,6 +385,14 @@ class Shell extends Application
     public function addCode($code)
     {
         try {
+            // Code lines ending in \ keep the buffer open
+            if (substr(rtrim($code), -1) === '\\') {
+                $this->codeBufferOpen = true;
+                $code = substr(rtrim($code), 0, -1);
+            } else {
+                $this->codeBufferOpen = false;
+            }
+
             $this->codeBuffer[] = $code;
             $this->code         = $this->cleaner->clean($this->codeBuffer);
         } catch (\Exception $e) {
