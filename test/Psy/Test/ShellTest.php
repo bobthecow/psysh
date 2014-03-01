@@ -183,12 +183,27 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell  = new Shell;
         $shell->setOutput($output);
 
-        $shell->writeStdout('{{stdout}}');
+        $shell->writeStdout("{{stdout}}\n");
 
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
         $this->assertEquals('{{stdout}}'.PHP_EOL, $streamContents);
+    }
+
+    public function testWriteStdoutWithoutNewline()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell  = new Shell;
+        $shell->setOutput($output);
+
+        $shell->writeStdout('{{stdout}}');
+
+        rewind($stream);
+        $streamContents = stream_get_contents($stream);
+
+        $this->assertEquals('{{stdout}}<aside>⏎</aside>'.PHP_EOL, $streamContents);
     }
 
     /**

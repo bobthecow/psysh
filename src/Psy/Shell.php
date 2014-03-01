@@ -501,7 +501,11 @@ class Shell extends Application
     public function writeStdout($out)
     {
         if (!empty($out)) {
-            $this->output->writeln($out, ShellOutput::OUTPUT_RAW);
+            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+
+            if (substr($out, -1) !== "\n") {
+                $this->output->writeln("<aside>⏎</aside>");
+            }
         }
     }
 
