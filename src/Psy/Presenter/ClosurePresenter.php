@@ -16,8 +16,9 @@ namespace Psy\Presenter;
  */
 class ClosurePresenter implements Presenter, PresenterManagerAware
 {
-    const COLOR_FMT = '<keyword>function</keyword> (%s) { <comment>...</comment> }';
-    const FMT       = 'function (%s) { ... }';
+    const COLOR_FMT = '<keyword>function</keyword> (%s)%s { <comment>...</comment> }';
+    const FMT       = 'function (%s)%s { ... }';
+    const USE_FMT   = ' use (%s)';
 
     protected $manager;
 
@@ -54,7 +55,11 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
     {
         $format = $color ? self::COLOR_FMT : self::FMT;
 
-        return sprintf($format, $this->formatParams($value, $color));
+        return sprintf(
+            $format,
+            $this->formatParams($value, $color),
+            $this->formatStaticVariables($value, $color)
+        );
     }
 
     /**
@@ -108,9 +113,10 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      */
     protected function formatParam(\ReflectionParameter $param, $color = false)
     {
-        $ret = '$' . $param->name;
         if ($color) {
-            $ret = '<strong>' . $ret . '</strong>';
+            $ret = $this->formatParamNameColor($param->name);
+        } else {
+            $ret = $this->formatParamName($param->name);
         }
 
         if ($param->isOptional()) {
@@ -135,5 +141,54 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
         }
 
         return $ret;
+    }
+
+    /**
+     * Format static (used) variable names.
+     *
+     * @param \Closure $value
+     * @param bool     $color (default: false)
+     *
+     * @return string
+     */
+    protected function formatStaticVariables(\Closure $value, $color = false)
+    {
+        $r = new \ReflectionFunction($value);
+        $used = $r->getStaticVariables();
+        if (empty($used)) {
+            return '';
+        }
+
+        $method = $color ? 'formatParamNameColor' : 'formatParamName';
+        $names = array_map(array($this, $method), array_keys($used));
+
+        return sprintf(
+            self::USE_FMT,
+            implode(', ', $names)
+        );
+    }
+
+    /**
+     * Format a Closure parameter name.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function formatParamName($name)
+    {
+        return sprintf('$%s', $name);
+    }
+
+    /**
+     * Format a Closure parameter name with COLOR!
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function formatParamNameColor($name)
+    {
+        return sprintf('$<strong>%s</strong>', $name);
     }
 }
