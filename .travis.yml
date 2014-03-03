@@ -6,3 +6,4 @@ php:
 
 before_script:
  - composer install
+ - echo 'display_errors = Off' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini

@@ -18,6 +18,7 @@ use PHPParser_PrettyPrinter_Default as Printer;
 use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CalledClassPass;
+use Psy\CodeCleaner\CallPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
@@ -84,6 +85,7 @@ class CodeCleaner
             new ValidClassNamePass,
             new ValidConstantPass,
             new MagicConstantsPass,
+            new CallPass,              // must run after the valid function name pass
         );
     }
 
