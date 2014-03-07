@@ -25,6 +25,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\ArgvInput;
 
 /**
  * The Psy Shell application
@@ -77,7 +78,7 @@ class Shell extends Application
     }
 
     /**
-     * Check whether the last thing in a backtrace is an include call.
+     * Check whether the first thing in a backtrace is an include call.
      *
      * This is used by the psysh bin to decide whether to start a shell on boot,
      * or to simply autoload the library.
@@ -204,6 +205,10 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
+        if ($input === null && !isset($_SERVER['argv'])) {
+            $input = new ArgvInput(array());
+        }
+
         if ($output === null) {
             $output = $this->config->getOutput();
         }
