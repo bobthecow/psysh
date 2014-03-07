@@ -77,6 +77,19 @@ class Shell extends Application
     }
 
     /**
+     * Check whether the last thing in a backtrace is an include call.
+     *
+     * This is used by the psysh bin to decide whether to start a shell on boot,
+     * or to simply autoload the library.
+     */
+    public static function isIncluded(array $trace)
+    {
+        $first = $trace[0];
+        return isset($first['function']) &&
+          in_array($first['function'], array('require', 'include', 'require_once', 'include_once'));
+    }
+
+    /**
      * Invoke a Psy Shell from the current context.
      *
      * For example:

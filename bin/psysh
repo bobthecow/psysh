@@ -27,6 +27,12 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 
+// If the psysh binary was included directly, assume they just wanted an
+// autoloader and bail early.
+if (Shell::isIncluded(debug_backtrace())) {
+    return;
+}
+
 call_user_func(function(ArgvInput $input, Shell $shell) {
     // Handle --help
     if ($input->hasParameterOption(array('--help', '-h'))) {
