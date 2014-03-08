@@ -166,6 +166,26 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('class a { }', $code);
     }
 
+    public function testKeepCodeBufferOpen()
+    {
+        $shell = new Shell;
+
+        $shell->addCode('1 \\');
+        $this->assertNull($shell->flushCode());
+        $this->assertTrue($shell->hasCode());
+
+        $shell->addCode('+ 1 \\');
+        $this->assertNull($shell->flushCode());
+        $this->assertTrue($shell->hasCode());
+
+        $shell->addCode('+ 1');
+        $code = $shell->flushCode();
+        $this->assertFalse($shell->hasCode());
+        $code = preg_replace('/\s+/', ' ', $code);
+        $this->assertNotNull($code);
+        $this->assertEquals('return 1 + 1 + 1;', $code);
+    }
+
     /**
      * @expectedException \Psy\Exception\ParseErrorException
      */
@@ -183,12 +203,27 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell  = new Shell;
         $shell->setOutput($output);
 
-        $shell->writeStdout('{{stdout}}');
+        $shell->writeStdout("{{stdout}}\n");
 
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
         $this->assertEquals('{{stdout}}'.PHP_EOL, $streamContents);
+    }
+
+    public function testWriteStdoutWithoutNewline()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell  = new Shell;
+        $shell->setOutput($output);
+
+        $shell->writeStdout('{{stdout}}');
+
+        rewind($stream);
+        $streamContents = stream_get_contents($stream);
+
+        $this->assertEquals('{{stdout}}<aside>⏎</aside>'.PHP_EOL, $streamContents);
     }
 
     /**

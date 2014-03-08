@@ -25,6 +25,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\ArgvInput;
 
 /**
  * The Psy Shell application
@@ -38,7 +39,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.1.1';
+    const VERSION = 'v0.1.2';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -52,6 +53,7 @@ class Shell extends Application
     private $inputBuffer;
     private $code;
     private $codeBuffer;
+    private $codeBufferOpen;
     private $context;
     private $includes;
     private $loop;
@@ -73,6 +75,19 @@ class Shell extends Application
         parent::__construct('Psy Shell', self::VERSION);
 
         $this->config->setShell($this);
+    }
+
+    /**
+     * Check whether the first thing in a backtrace is an include call.
+     *
+     * This is used by the psysh bin to decide whether to start a shell on boot,
+     * or to simply autoload the library.
+     */
+    public static function isIncluded(array $trace)
+    {
+        $first = $trace[0];
+        return isset($first['function']) &&
+          in_array($first['function'], array('require', 'include', 'require_once', 'include_once'));
     }
 
     /**
@@ -190,6 +205,10 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
+        if ($input === null && !isset($_SERVER['argv'])) {
+            $input = new ArgvInput(array());
+        }
+
         if ($output === null) {
             $output = $this->config->getOutput();
         }
@@ -233,6 +252,8 @@ class Shell extends Application
      */
     public function getInput()
     {
+        $this->codeBufferOpen = false;
+
         do {
             // reset output verbosity (in case it was altered by a subcommand)
             $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
@@ -371,7 +392,7 @@ class Shell extends Application
      */
     protected function hasValidCode()
     {
-        return $this->code !== false;
+        return !$this->codeBufferOpen && $this->code !== false;
     }
 
     /**
@@ -382,6 +403,14 @@ class Shell extends Application
     public function addCode($code)
     {
         try {
+            // Code lines ending in \ keep the buffer open
+            if (substr(rtrim($code), -1) === '\\') {
+                $this->codeBufferOpen = true;
+                $code = substr(rtrim($code), 0, -1);
+            } else {
+                $this->codeBufferOpen = false;
+            }
+
             $this->codeBuffer[] = $code;
             $this->code         = $this->cleaner->clean($this->codeBuffer);
         } catch (\Exception $e) {
@@ -501,7 +530,11 @@ class Shell extends Application
     public function writeStdout($out)
     {
         if (!empty($out)) {
-            $this->output->writeln($out, ShellOutput::OUTPUT_RAW);
+            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+
+            if (substr($out, -1) !== "\n") {
+                $this->output->writeln("<aside>⏎</aside>");
+            }
         }
     }
 
