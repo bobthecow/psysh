@@ -10,6 +10,7 @@
  * file that was distributed with this source code.
  */
 
+/* <<< */
 if (is_file(__DIR__ . '/../vendor/autoload.php')) {
     require(__DIR__ . '/../vendor/autoload.php');
 } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
@@ -21,6 +22,7 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
         'php composer.phar install' . PHP_EOL
     );
 }
+/* >>> */
 
 use Psy\Shell;
 use Symfony\Component\Console\Input\ArgvInput;
