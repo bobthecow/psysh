@@ -68,7 +68,6 @@ class Compiler
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_namespaces.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_classmap.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/ClassLoader.php'));
-        $this->addPsyshBin($phar);
 
         // Stubs
         $phar->setStub($this->getStub());
@@ -99,18 +98,6 @@ class Compiler
         }
 
         $phar->addFromString($path, $content);
-    }
-
-    /**
-     * Add the psysh bin file.
-     *
-     * @param Phar $phar
-     */
-    private function addPsyshBin($phar)
-    {
-        $content = file_get_contents(__DIR__.'/../../bin/psysh');
-        $content = preg_replace('{^#!/usr/bin/env php\s*}', '', $content);
-        $phar->addFromString('bin/psysh', $content);
     }
 
     /**
@@ -151,24 +138,21 @@ class Compiler
     /**
      * Get a Phar stub for psysh
      *
+     * This is basically the psysh bin, with the autoload require statements swapped out.
+     *
      * @return string
      */
     private function getStub()
     {
-        return <<<'EOS'
-#!/usr/bin/env php
-<?php
-
+        $autoload = <<<'EOS'
 Phar::mapPhar('psysh.phar');
-
-// Allow running phar directly, or including.
-if ('cli' === php_sapi_name() && in_array(basename(__FILE__), array(basename($_SERVER['argv'][0]), basename(realpath($_SERVER['argv'][0]))))) {
-    require 'phar://psysh.phar/bin/psysh';
-} else {
-    require 'phar://psysh.phar/vendor/autoload.php';
-}
-
-__HALT_COMPILER();
+require 'phar://psysh.phar/vendor/autoload.php';
 EOS;
+
+        $content = file_get_contents(__DIR__.'/../../bin/psysh');
+        $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
+        $content .= "__HALT_COMPILER();";
+
+        return $content;
     }
 }
