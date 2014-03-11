@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.1.2';
+    const VERSION = 'v0.1.3';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -85,9 +85,8 @@ class Shell extends Application
      */
     public static function isIncluded(array $trace)
     {
-        $first = $trace[0];
-        return isset($first['function']) &&
-          in_array($first['function'], array('require', 'include', 'require_once', 'include_once'));
+        return isset($trace[0]['function']) &&
+          in_array($trace[0]['function'], array('require', 'include', 'require_once', 'include_once'));
     }
 
     /**
