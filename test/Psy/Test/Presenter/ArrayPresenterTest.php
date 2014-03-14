@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell
  *
- * (c) 2013 Justin Hileman
+ * (c) 2012-2014 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -67,6 +67,43 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @dataProvider presentArrayObjectsData
+     */
+    public function testPresentArrayObjects($arrayObj, $expect, $expectRef)
+    {
+        $this->assertEquals($expect,    $this->presenter->present($arrayObj));
+        $this->assertEquals($expectRef, $this->presenter->presentRef($arrayObj));
+    }
+
+    public function presentArrayObjectsData()
+    {
+        $obj1    = new \ArrayObject(array(1, "string"));
+        $hash1   = spl_object_hash($obj1);
+        $ref1    = '\\<ArrayObject #'.$hash1.'>';
+        $expect1 = <<<EOS
+$ref1 [
+    1,
+    "string"
+]
+EOS;
+
+        $obj2    = new FakeArrayObject(array('a' => 'AAA', 'b' => 'BBB'));
+        $hash2   = spl_object_hash($obj2);
+        $ref2    = '\\<Psy\\Test\\Presenter\\FakeArrayObject #'.$hash2.'>';
+        $expect2 = <<<EOS
+$ref2 [
+    "a" => "AAA",
+    "b" => "BBB"
+]
+EOS;
+
+        return array(
+            array($obj1, $expect1, $ref1),
+            array($obj2, $expect2, $ref2),
+        );
+    }
+
     public function testPresentsRecursively()
     {
         $obj      = new \StdClass;
@@ -87,4 +124,10 @@ EOS;
     {
         return preg_replace('/\\s/', '', $text);
     }
+}
+
+
+class FakeArrayObject extends \ArrayObject
+{
+    // this space intentionally left blank.
 }

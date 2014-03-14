@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell
  *
- * (c) 2013 Justin Hileman
+ * (c) 2012-2014 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,6 +18,9 @@ use Psy\Util\Json;
  */
 class ArrayPresenter extends RecursivePresenter
 {
+    const ARRAY_OBJECT_FMT       = '\\<%s #%s>';
+    const ARRAY_OBJECT_COLOR_FMT = '<object>\\<<class>%s</class> <strong>#%s</strong>></object>';
+
     /**
      * ArrayPresenter can present arrays.
      *
@@ -39,13 +42,30 @@ class ArrayPresenter extends RecursivePresenter
      */
     public function presentRef($value, $color = false)
     {
-        if (empty($value)) {
+        if ($value instanceof \ArrayObject) {
+            return $this->presentArrayObjectRef($value, $color);
+        } elseif (empty($value)) {
             return '[]';
         } elseif ($color) {
             return sprintf('Array(<number>%d</number>)', count($value));
         } else {
             return sprintf('Array(%d)', count($value));
         }
+    }
+
+    /**
+     * Present a reference to an ArrayObject
+     *
+     * @param ArrayObject $value
+     * @param boolean     $color
+     *
+     * @return string
+     */
+    protected function presentArrayObjectRef($value, $color)
+    {
+        $format = $color ? self::ARRAY_OBJECT_COLOR_FMT : self::ARRAY_OBJECT_FMT;
+
+        return sprintf($format, get_class($value), spl_object_hash($value));
     }
 
     /**
@@ -59,6 +79,12 @@ class ArrayPresenter extends RecursivePresenter
      */
     protected function presentValue($value, $depth = null, $color = false)
     {
+        $prefix = '';
+        if ($value instanceof \ArrayObject) {
+            $prefix = $this->presentArrayObjectRef($value, $color) . ' ';
+            $value  = iterator_to_array($value->getIterator());
+        }
+
         if (empty($value) || $depth === 0) {
             return $this->presentRef($value, $color);
         }
@@ -77,7 +103,7 @@ class ArrayPresenter extends RecursivePresenter
             $formatted = array_map(array($this, 'indentValue'), $formatted);
         }
 
-        $template = sprintf('[%s%s%%s%s]', PHP_EOL, self::INDENT, PHP_EOL);
+        $template = sprintf('%s[%s%s%%s%s]', $prefix, PHP_EOL, self::INDENT, PHP_EOL);
         $glue     = sprintf(',%s%s', PHP_EOL, self::INDENT);
 
         return sprintf($template, implode($glue, $formatted));

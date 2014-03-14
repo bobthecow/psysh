@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell
  *
- * (c) 2013 Justin Hileman
+ * (c) 2012-2014 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.1.4';
+    const VERSION = 'v0.1.5';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';

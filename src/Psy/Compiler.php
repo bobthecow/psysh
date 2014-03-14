@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell
  *
- * (c) 2013 Justin Hileman
+ * (c) 2012-2014 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -151,7 +151,7 @@ EOS;
 
         $content = file_get_contents(__DIR__.'/../../bin/psysh');
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
-        $content .= "__HALT_COMPILER();";
+        $content .= "__halt_compiler();";
 
         return $content;
     }
