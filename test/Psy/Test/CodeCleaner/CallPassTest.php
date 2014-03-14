@@ -173,6 +173,46 @@ try {
             //array('$f = tmpfile(); echo strtolower($$f);'), // different id of resource
             array('$f = new stdClass; echo strtolower($$f);'),
             array('class A { function __toString() { return "foo";}} $f = new A; echo strtolower($$f);'),
+
+            // get_class, get_called_class and get_parent_class
+            array('var_dump(get_class());'),
+            array('var_dump(get_class(null));'),
+            array('var_dump(get_class("foo"));'),
+            array('$a = new RecursiveArrayIterator(array()); var_dump(get_class($a));'),
+
+            array('var_dump(get_called_class());'),
+            array('var_dump(get_called_class(null));'),
+            array('var_dump(get_called_class("foo"));'),
+            array('$a = new RecursiveArrayIterator(array()); var_dump(get_called_class($a));'),
+
+            array('var_dump(get_parent_class());'),
+            array('var_dump(get_parent_class(null));'),
+            array('var_dump(get_parent_class("foo"));'),
+            array('$a = new RecursiveArrayIterator(array()); var_dump(get_parent_class($a));'),
+
+            array('function f() { return get_class(); } var_dump(f());'),
+            array('function f() { return get_class(null); } var_dump(f());'),
+            array('function f() { return get_called_class(); } var_dump(f());'),
+            array('function f() { return get_called_class(null); } var_dump(f());'),
+            array('function f() { return get_parent_class(); } var_dump(f());'),
+
+            array('$foo = 5; var_dump(get_class($foo));'),
+            array('function bar() { return new StdClass(); } var_dump(get_class(bar()));'),
+            array('$foo = "foo"; var_dump(get_called_class($foo));'),
+            array('function bar() { return new stdClass(); } var_dump(get_called_class(bar()));'),
+            array('function foo($bar) { return get_class($bar); } var_dump(foo("a"));'),
+            array('function foo($bar) { return get_called_class($bar); } var_dump(foo("a"));'),
+            array('class Foo { function bar() { var_dump(get_class(), get_class(null)); } } $f = new Foo; $f->bar();'),
+            array('class Foo { function bar() { var_dump(get_called_class(), get_called_class(null)); } } $f = new Foo; $f->bar();'),
+            array('class Foo { function bar() { var_dump(get_parent_class(), get_parent_class(null)); } } $f = new Foo; $f->bar();'),
+
+            array('trait A { function bar() { var_dump(get_class(), get_class(null), get_class(self), get_class($this)); } } class B { use A; } $f = new B; $f->bar();'),
+            array('trait A { function bar() { var_dump(get_called_class(), get_called_class(null), get_called_class(self), get_called_class($this)); } } class B { use A; } $f = new B; $f->bar();'),
+            array('trait A { function bar() { var_dump(get_parent_class(), get_parent_class(null), get_parent_class(self), get_parent_class($this)); } } class B { use A; } $f = new B; $f->bar();'),
+
+            array('class A { static function foo() { $f = function() { var_dump(get_called_class()); }; $f(); } }
+                   class B extends A {}; A::foo(); B::foo();'
+            ),
         );
     }
 }

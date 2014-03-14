@@ -17,7 +17,6 @@ use PHPParser_Parser as Parser;
 use PHPParser_PrettyPrinter_Default as Printer;
 use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
-use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
@@ -74,7 +73,6 @@ class CodeCleaner
             new AssignThisVariablePass,
             new FunctionReturnInWriteContextPass,
             new CallTimePassByReferencePass,
-            new CalledClassPass,
             new InstanceOfPass,
             new LeavePsyshAlonePass,
             new ImplicitReturnPass,
