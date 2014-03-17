@@ -108,4 +108,12 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
+
+    public function testConfigIncludes()
+    {
+        $config = new Configuration(array('defaultIncludes' => array('/file.php')));
+        $includes = $config->getDefaultIncludes();
+        $this->assertCount(1, $includes);
+        $this->assertEquals('/file.php', $includes[0]);
+    }
 }
