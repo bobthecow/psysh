@@ -69,7 +69,7 @@ class Shell extends Application
         $this->cleaner  = $this->config->getCodeCleaner();
         $this->loop     = $this->config->getLoop();
         $this->context  = new Context;
-        $this->includes = $this->config->getDefaultIncludes();
+        $this->setIncludes($this->config->getDefaultIncludes());
         $this->readline = $this->config->getReadline();
 
         parent::__construct('Psy Shell', self::VERSION);
@@ -359,7 +359,7 @@ class Shell extends Application
      */
     public function setIncludes(array $includes = array())
     {
-        $this->includes = $includes;
+        $this->includes = array_merge($this->getIncludes(), $includes);
     }
 
     /**
@@ -369,7 +369,7 @@ class Shell extends Application
      */
     public function getIncludes()
     {
-        return $this->includes;
+        return $this->includes ?: array();
     }
 
     /**

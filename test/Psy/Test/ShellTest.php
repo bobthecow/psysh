@@ -14,6 +14,7 @@ namespace Psy\Test;
 use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
 use Psy\Shell;
+use Psy\Configuration;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellTest extends \PHPUnit_Framework_TestCase
@@ -66,6 +67,16 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($shell->getIncludes());
         $shell->setIncludes(array('foo', 'bar', 'baz'));
         $this->assertEquals(array('foo', 'bar', 'baz'), $shell->getIncludes());
+    }
+
+    public function testIncludesConfig()
+    {
+        $config = new Configuration(array('defaultIncludes' => array('/file.php')));
+        $shell = new Shell($config);
+
+        $includes = $shell->getIncludes();
+        $this->assertEquals('/file.php', $includes[0]);
+        $this->assertTrue(function_exists('global_test_function_for_existance'));
     }
 
     public function testRenderingExceptions()
