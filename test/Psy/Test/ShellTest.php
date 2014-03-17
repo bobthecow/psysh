@@ -76,7 +76,6 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
         $includes = $shell->getIncludes();
         $this->assertEquals('/file.php', $includes[0]);
-        $this->assertTrue(function_exists('global_test_function_for_existance'));
     }
 
     public function testRenderingExceptions()
