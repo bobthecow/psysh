@@ -50,7 +50,7 @@ class WtfCommand extends TraceCommand implements ContextAware
             ->setName('wtf')
             ->setAliases(array('last-exception', 'wtf?'))
             ->setDefinition(array(
-                new InputArgument('incredulity', InputArgument::OPTIONAL, 'Number of lines to show'),
+                new InputArgument('incredulity', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Number of lines to show'),
                 new InputOption('verbose', 'v',  InputOption::VALUE_NONE, 'Show entire backtrace.'),
             ))
             ->setDescription('Show the backtrace of the most recent exception.')
@@ -89,7 +89,7 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $incredulity = $input->getArgument('incredulity');
+        $incredulity = implode('', $input->getArgument('incredulity'));
         if (strlen(preg_replace('/[\\?!]/', '', $incredulity))) {
             throw new \InvalidArgumentException('Incredulity must include only "?" and "!".');
         }
