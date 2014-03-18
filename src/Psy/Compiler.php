@@ -151,7 +151,7 @@ EOS;
 
         $content = file_get_contents(__DIR__.'/../../bin/psysh');
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
-        $content .= "__halt_compiler();";
+        $content .= "__HALT_COMPILER();";
 
         return $content;
     }
