@@ -170,19 +170,20 @@ class CallPass extends NamespaceAwarePass
             }
         }
 
-        if ('get_class' === $function && (empty($args) || null === reset($args))) {
+        $normalizedFunction = strtolower($ref->name);
+        if ('get_class' === $normalizedFunction && (empty($args) || null === reset($args))) {
             if ('' === $declared) {
                 trigger_error('get_class() called without object from outside a class', E_USER_WARNING);
                 $value = false;
             } else {
                 $value = $declared;
             }
-        } elseif ('get_called_class' === $function && empty($args)) {
+        } elseif ('get_called_class' === $normalizedFunction && empty($args)) {
             if (false === $called) {
                 trigger_error('get_called_class() called from outside a class', E_USER_WARNING);
             }
             $value = $called;
-        } elseif ('get_parent_class' === $function && empty($args) && '' !== $declared) {
+        } elseif ('get_parent_class' === $normalizedFunction && empty($args) && '' !== $declared) {
             $value = get_parent_class($declared);
         } else {
             $value = call_user_func_array($function, static::processParameters($ref, $args, $references));
@@ -221,13 +222,22 @@ class CallPass extends NamespaceAwarePass
             throw new FatalErrorException('Call to a member function '.$method.'() on a non-object');
         }
 
-        return static::processCall(new \ReflectionClass($object), $method, $args, $references, $called, $object);
+        $refMethod = static::getMethodReflection(new \ReflectionClass($object), $method, $called, '__call');
+
+        if ('__call' === strtolower($refMethod->name)) {
+            $args = array($method, $args);
+            $references = array();
+        }
+
+        $value = $refMethod->invokeArgs($object, static::processParameters($refMethod, $args, $references));
+
+        return $value;
     }
 
     /**
      * Calls a static method
      *
-     * @param string      $class       The class name
+     * @param string      $class      The class name
      * @param string      $method     The name of method
      * @param array       $args       The function arguments
      * @param array       $references The variable references
@@ -243,22 +253,23 @@ class CallPass extends NamespaceAwarePass
     public static function &callStatic($class, $method, array $args = array(), array $references = array(), $declared = '', $called = false)
     {
         $called = '' === $declared ? false : $called;
+        $normalizedClass = strtolower($class);
 
-        if ('self' === $class) {
+        if ('self' === $normalizedClass) {
             if ('' === $declared) {
                 throw new FatalErrorException('Cannot access self:: when no class scope is active');
             }
 
             $ref = new \ReflectionClass($declared);
-        } elseif ('static' === $class) {
+        } elseif ('static' === $normalizedClass) {
             if (false === $called) {
                 throw new FatalErrorException('Cannot access static:: when no class scope is active');
             }
 
             $ref = new \ReflectionClass($called);
-        } elseif ('parent' === $declared) {
+        } elseif ('parent' === $normalizedClass) {
             if (false === $called) {
-                throw new FatalErrorException('Cannot access static:: when no class scope is active');
+                throw new FatalErrorException('Cannot access parent:: when no class scope is active');
             } elseif (false === get_parent_class($called)) {
                 throw new FatalErrorException('Cannot access parent:: when current class scope has no parent');
             }
@@ -270,32 +281,37 @@ class CallPass extends NamespaceAwarePass
             $ref = new \ReflectionClass($class);
         }
 
-        return static::processCall($ref, $method, $args, $references, $called, null);
-    }
+        $refMethod = static::getMethodReflection($ref, $method, $called, '__callStatic');
 
-    protected static function &processCall(\ReflectionClass $refClass, $method, $args, $references, $called, $object)
-    {
-        $magicMethod = $object ? '__call' : '__callStatic';
-
-        if ($refClass->hasMethod($method)) {
-            $refMethod = $refClass->getMethod($method);
-        } elseif ($refClass->hasMethod($magicMethod)) {
-            $refMethod = $refClass->getMethod($magicMethod);
+        if ('__callstatic' === strtolower($refMethod->name)) {
             $args = array($method, $args);
             $references = array();
+        }
+
+        if (!$refMethod->isStatic() && !in_array($normalizedClass, array('self', 'static', 'parent'), true)) {
+            // this should be Strict standards error
+            trigger_error(sprintf('Non-static method %s::%s() should not be called statically', $refMethod->name, $method), E_USER_NOTICE);
+        }
+
+        $value = $refMethod->invokeArgs(null, static::processParameters($refMethod, $args, $references));
+
+        return $value;
+    }
+
+    protected static function getMethodReflection(\ReflectionClass $refClass, $method, $called, $magicMethod = null)
+    {
+        if ($refClass->hasMethod($method)) {
+            $refMethod = $refClass->getMethod($method);
+        } elseif ($magicMethod && $refClass->hasMethod($magicMethod)) {
+            $refMethod = $refClass->getMethod($magicMethod);
         } else {
             throw new FatalErrorException(sprintf('Call to undefined method %s::%s()', $refClass->name, $method));
         }
 
-        if (!$object && !$refMethod->isStatic()) {
-            // this should be Strict standards error
-            trigger_error(sprintf('Non-static method %s::%s() should not be called statically', $refMethod->getShortName(), $method), E_USER_NOTICE);
-        }
-
-        if (!$refMethod->isPublic() && $magicMethod !== $refMethod->name) {
+        if (!$refMethod->isPublic() && strtolower($magicMethod) !== strtolower($refMethod->name)) {
             $refCalled = false !== $called ? new \ReflectionClass($called) : null;
 
-            if (!$refCalled || $refCalled->name !== $refMethod->class && $refMethod->isPrivate() && $refCalled->isSubclassOf($refMethod->class)) {
+            if (!$refCalled || strtolower($refCalled->name) !== strtolower($refMethod->class) && $refMethod->isPrivate() && $refCalled->isSubclassOf($refMethod->class)) {
                 throw new FatalErrorException(sprintf(
                     "Call to %s method %s::{$method}() from context '%s'",
                     $refMethod->isProtected() ? 'protected' : 'private', $refMethod->getDeclaringClass()->name, $called ?: ''
@@ -305,9 +321,7 @@ class CallPass extends NamespaceAwarePass
 
         $refMethod->setAccessible(true);
 
-        $value = $refMethod->invokeArgs($object, static::processParameters($refMethod, $args, $references));
-
-        return $value;
+        return $refMethod;
     }
 
     protected static function processParameters(\ReflectionFunctionAbstract $ref, array $args, array $references)
@@ -346,7 +360,7 @@ class CallPass extends NamespaceAwarePass
             $fullName  = $this->getFullyQualifiedName($name);
 
             if (isset($this->currentScope[$type][strtolower($fullName)]) && $test($fullName)
-                || !$test($shortName) && !in_array($shortName, array('parent', 'self', 'static'), true)
+                || !$test($shortName) && !in_array(strtolower($shortName), array('parent', 'self', 'static'), true)
             ) {
                 $name = new String((string) $fullName);
             } else {
@@ -376,7 +390,15 @@ class CallPass extends NamespaceAwarePass
                     new Variable(
                         new StaticCall(new Name('\\'.__CLASS__), 'checkVariable', array(
                             new Argument(is_string($value->name) ? new String($value->name) : $value->name),
-                            new Argument(new FunctionCall(new Name('get_defined_vars'))),
+                            // fix for traits
+                            new Argument(new FunctionCall(new Name('array_merge'), array(
+                                new Argument(new FunctionCall(new Name('get_defined_vars'))),
+                                new Ternary(
+                                    new IssetNode(array(new Variable(new Name('this')))),
+                                    new ArrayNode(),
+                                    new ArrayNode()
+                                )
+                            )))
                         ))
                     ), null, true
                 );

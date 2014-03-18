@@ -55,7 +55,7 @@ class CallPassTest extends CodeCleanerTestCase
             array('namespace A; class Foo {} \Foo::bar();', "namespace A;\n\nclass Foo\n{\n    \n}\n$static('Foo', 'bar', array(), array(), $arguments);"),
             array('class Foo { public function bar() { static::foobar(); }}', "class Foo\n{\n    public function bar()\n    {\n        $static('static', 'foobar', array(), array(), $arguments);\n    }\n}"),
 
-            array('f("foo", 3, $b)', "$function('f', array('foo', 3, &\${\\Psy\\CodeCleaner\\CallPass::checkVariable('b', get_defined_vars())}), array(false, false, true), $arguments);"),
+            array('f("foo", 3, $b)', "$function('f', array('foo', 3, &\${\\Psy\\CodeCleaner\\CallPass::checkVariable('b', array_merge(get_defined_vars(), isset(\$this) ? array() : array()))}), array(false, false, true), $arguments);"),
             array('f("foo", g(3), $b = 4)', "$function('f', array('foo', $function('g', array(3), array(false), $arguments), \$b = 4), array(false, null, null), $arguments);"),
             array('f(new DateTime)', "$function('f', array(new DateTime()), array(true), $arguments);"),
         );
@@ -71,6 +71,7 @@ class CallPassTest extends CodeCleanerTestCase
         $fixedCode = $printer->prettyPrint($this->traverse($stmts));
 
         $processFixed = new PhpProcess('<?php
+error_reporting(E_ALL | E_STRICT);
 require_once "vendor/autoload.php";
 try {
     '.$fixedCode.';
@@ -82,16 +83,17 @@ try {
 ', __DIR__.'/../../../..');
 
         $processFixed->run();
-        preg_match_all('{(PHP[^:]+(?<!Stack trace):\s*.+?)(, called)? in }', $processFixed->getErrorOutput(), $matches);
+        preg_match_all('{(PHP[^:]+(?<!Stack trace):\s*.+)(, called)? in }', $processFixed->getErrorOutput(), $matches);
         $errors = $matches[1];
 
-        $process = new PhpProcess('<?php '.$code);
+        $process = new PhpProcess('<?php error_reporting(E_ALL | E_STRICT);'.$code);
         $process->run();
 
         preg_match_all('{(PHP[^:]+(?<!Stack trace):\s*.+?)(, called)? in - }', $process->getErrorOutput(), $matches);
 
         $this->assertEquals($process->getOutput(), $processFixed->getOutput(), sprintf("Fixed code:\n%s\nReal errors:\n%s\nProcess errors:\n%s\n", $fixedCode, implode("\n", $matches[1]), implode("\n", $errors)));
         $this->assertEquals(str_ireplace(' Strict Standards:', ' Notice:', $matches[1]), $errors, 'Fixed code: '.$fixedCode);
+        $this->assertEquals(0, $processFixed->getExitCode(), sprintf("Fixed code:\n%s\nErrors:\n%s\n", $fixedCode, implode("\n", $errors)));
     }
 
     public function getCalls()
@@ -127,6 +129,8 @@ try {
                    B::bar();'
             ),
 
+            array('class A { private function bar() {} } class B extends A { public function foo() { return static::bar(); } } $b = new B; $b->foo();'),
+
             // Valid function calls
             array('function f() { return "a"; }; echo f();'),
             array('function f(&$a) { return ++$a; }; $a = 1; f($a); echo $a;'),
@@ -152,13 +156,28 @@ try {
             array('class A { public static function foo() { return static::bar(); } }
                    class B extends A { protected static function bar() { return __CLASS__; } } echo B::foo();'),
 
-            array('class A { private function __call($name, $args) { var_dump($name, $args); } }
-                   class B extends A { } $o = new B; echo $o->foo(5, "ads", true, null);'),
-
+            // this
+            array('class A { public static function foo() { return $this->bar(); }} A::foo();'),
             array('class A { public function foo() { $f = function() { $name = "this"; var_dump($$name->bar()); }; $f(); } public function bar() { return "bar"; }} $a = new A; $a->foo();'),
+            array('class A { public function foo() { return new ReflectionObject($this); } } $a = new A; $a->foo();'),
 
-            array('class A { private static function __callStatic($name, $args) { var_dump($name, $args); } }
+            // self, static, parent
+            array('parent::foo();'),
+            array('self::foo();'),
+            array('static::foo();'),
+            array('paRent::foo();'),
+            array('Self::foo();'),
+            array('STATIC::foo();'),
+            array('class A { public function foo() { return paRent::foo(); }} $a = new A; $a->foo();'),
+            array('class A { public function foo() { return SELF::bar(); } public function bar() {}} $a = new A; $a->foo();'),
+            array('class A { public function foo() { return stAtic::bar(); } public function bar() {}} $a = new A; $a->foo();'),
+
+            // magic methods
+            array('class A { private function __CALL($name, $args) { var_dump($name, $args); } }
+                   class B extends A { } $o = new B; echo $o->foo(5, "ads", true, null);'),
+            array('class A { private static function __CallStatic($name, $args) { var_dump($name, $args); } }
                    class B extends A { } B::foo(5, "ads", true, null);'),
+            array('class A { public function __isset($name) { var_dump($name); return true;}} $a = new A; var_dump(isset($a->foo));'),
 
             // Fatal errors for PHP < 5.4
             array('$f = array(new \DateTime, "getTimestamp"); $f();'),
@@ -171,7 +190,7 @@ try {
             array('$f = true; echo strtolower($$f);'),
             array('$f = 0; echo strtolower($$f);'),
             //array('$f = tmpfile(); echo strtolower($$f);'), // different id of resource
-            array('$f = new stdClass; echo strtolower($$f);'),
+            array('set_error_handler(function() {}); $f = new stdClass; echo strtolower($$f);'),
             array('class A { function __toString() { return "foo";}} $f = new A; echo strtolower($$f);'),
 
             // get_class, get_called_class and get_parent_class
@@ -206,6 +225,10 @@ try {
             array('class Foo { function bar() { var_dump(get_called_class(), get_called_class(null)); } } $f = new Foo; $f->bar();'),
             array('class Foo { function bar() { var_dump(get_parent_class(), get_parent_class(null)); } } $f = new Foo; $f->bar();'),
 
+            array('class Foo { function bar() { var_dump(geT_class(), get_CLASS(null)); } } $f = new Foo; $f->bar();'),
+            array('class Foo { function bar() { var_dump(gET_called_Class(), get_called_CLASS(null)); } } $f = new Foo; $f->bar();'),
+            array('class Foo { function bar() { var_dump(get_Parent_class(), get_parent_CLASS(null)); } } $f = new Foo; $f->bar();'),
+
             array('trait A { function bar() { var_dump(get_class(), get_class(null), get_class(self), get_class($this)); } } class B { use A; } $f = new B; $f->bar();'),
             array('trait A { function bar() { var_dump(get_called_class(), get_called_class(null), get_called_class(self), get_called_class($this)); } } class B { use A; } $f = new B; $f->bar();'),
             array('trait A { function bar() { var_dump(get_parent_class(), get_parent_class(null), get_parent_class(self), get_parent_class($this)); } } class B { use A; } $f = new B; $f->bar();'),
@@ -213,6 +236,13 @@ try {
             array('class A { static function foo() { $f = function() { var_dump(get_called_class()); }; $f(); } }
                    class B extends A {}; A::foo(); B::foo();'
             ),
+
+            // traits
+            array('trait T { public function foo() { var_dump(__CLASS__);}} class A { use T;} $a = new A; $a->foo();'),
+            array('trait T { private function foo() { var_dump(__CLASS__);}} class A { use T;} $a = new A; $a->foo();'),
+            array('trait T { public function foo() { var_dump(__CLASS__);}} class A { use T { foo as protected; } } $a = new A; $a->foo();'),
+            array('trait T { private function foo() { var_dump(__CLASS__);}} class A { use T { foo as public; } } $a = new A; $a->foo();'),
+            array('trait T { protected function foo() { var_dump(__CLASS__);}} class A { use T; public function foo() { return parent::foo(); } } $a = new A; $a->foo();'),
         );
     }
 }
