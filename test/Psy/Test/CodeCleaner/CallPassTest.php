@@ -34,7 +34,7 @@ class CallPassTest extends CodeCleanerTestCase
         $function = '\Psy\CodeCleaner\CallPass::callFunction';
         $method = '\Psy\CodeCleaner\CallPass::callMethod';
         $static = '\Psy\CodeCleaner\CallPass::callStatic';
-        $arguments = '__CLASS__, @get_called_class()';
+        $arguments = '__CLASS__, \Psy\CodeCleaner\CallPass::getCalledClass(\Psy\CodeCleaner\CallPass::suppressErrors(), get_called_class())';
 
         return array(
             array('$a()', "$function(\$a, array(), array(), $arguments);"),

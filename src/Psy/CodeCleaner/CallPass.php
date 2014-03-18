@@ -16,7 +16,6 @@ use PHPParser_Node_Arg as Argument;
 use PHPParser_Node_Expr_Array as ArrayNode;
 use PHPParser_Node_Expr_ArrayItem as ArrayItem;
 use PHPParser_Node_Expr_ConstFetch as ConstantFetch;
-use PHPParser_Node_Expr_ErrorSuppress as ErrorSuppress;
 use PHPParser_Node_Expr_FuncCall as FunctionCall;
 use PHPParser_Node_Expr_Isset as IssetNode;
 use PHPParser_Node_Expr_MethodCall as MethodCall;
@@ -68,9 +67,37 @@ class CallPass extends NamespaceAwarePass
         }
 
         $args[] = new Argument(new ClassConst());
-        $args[] = new Argument(new ErrorSuppress(new FunctionCall(new Name('get_called_class'))));
+        $args[] = new Argument(new StaticCall(new Name('\\'.__CLASS__), 'getCalledClass', array(
+            new Argument(new StaticCall(new Name('\\'.__CLASS__), 'suppressErrors')),
+            new Argument(new FunctionCall(new Name('get_called_class')))
+        )));
 
         return new StaticCall(new Name('\\'.__CLASS__), $method, $args);
+    }
+
+    /**
+     * Sets an error handler to suppress all errors
+     *
+     * @return mixed The previously defined error handler
+     */
+    public static function suppressErrors()
+    {
+        return set_error_handler(function() {});
+    }
+
+    /**
+     * Returns the second argument and restores error handler
+     *
+     * @param mixed $errorHandler The previously defined error handler
+     * @param mixed $calledClass  The argument for returning
+     *
+     * @return mixed
+     */
+    public static function getCalledClass($errorHandler, $calledClass)
+    {
+        restore_error_handler();
+
+        return $calledClass;
     }
 
     /**
