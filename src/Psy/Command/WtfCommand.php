@@ -94,7 +94,12 @@ HELP
             throw new \InvalidArgumentException('Incredulity must include only "?" and "!".');
         }
 
-        $count = $input->getOption('verbose') ? PHP_INT_MAX : pow(2, max(0, (strlen($incredulity) - 1)));
-        $output->page($this->getBacktrace($this->context->getLastException(), $count), ShellOutput::NUMBER_LINES | ShellOutput::OUTPUT_RAW);
+        $exception = $this->context->getLastException();
+        $count     = $input->getOption('verbose') ? PHP_INT_MAX : pow(2, max(0, (strlen($incredulity) - 1)));
+        $trace     = $this->getBacktrace($exception, $count);
+
+        $output->page(function($output) use ($exception, $trace) {
+            $output->write($trace, true, ShellOutput::NUMBER_LINES);
+        });
     }
 }
