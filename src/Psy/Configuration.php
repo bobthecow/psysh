@@ -168,7 +168,7 @@ class Configuration
      */
     public function setDefaultIncludes(array $includes = array())
     {
-        $this->defaultIncludes = array_merge($this->getDefaultIncludes(), $includes);
+        $this->defaultIncludes = $includes;
     }
 
     /**
