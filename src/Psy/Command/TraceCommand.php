@@ -68,6 +68,10 @@ HELP
      */
     protected function getBacktrace(\Exception $e, $count = null, $includePsy = true)
     {
+        if ($cwd = getcwd()) {
+            $cwd = rtrim($cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        }
+
         if ($count === null) {
             $count = PHP_INT_MAX;
         }
@@ -96,12 +100,29 @@ HELP
             $class    = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
             $type     = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
             $function = $trace[$i]['function'];
-            $file     = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
+            $file     = isset($trace[$i]['file']) ? $this->replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
             $lines[] = sprintf(' %s%s%s() at <info>%s:%s</info>', $class, $type, $function, $file, $line);
         }
 
         return $lines;
+    }
+
+    /**
+     * Replace the given directory from the start of a filepath.
+     *
+     * @param string $cwd
+     * @param string $file
+     *
+     * @return string
+     */
+    private function replaceCwd($cwd, $file)
+    {
+        if ($cwd === false) {
+            return $file;
+        } else {
+            return preg_replace('/^'.preg_quote($cwd, '/').'/', '', $file);
+        }
     }
 }
