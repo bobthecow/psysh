@@ -63,7 +63,9 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testIncludes()
     {
-        $shell = new Shell;
+        $config = new Configuration(array('configFile' => '(ignore user config)'));
+
+        $shell = new Shell($config);
         $this->assertEmpty($shell->getIncludes());
         $shell->setIncludes(array('foo', 'bar', 'baz'));
         $this->assertEquals(array('foo', 'bar', 'baz'), $shell->getIncludes());
@@ -71,7 +73,11 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testIncludesConfig()
     {
-        $config = new Configuration(array('defaultIncludes' => array('/file.php')));
+        $config = new Configuration(array(
+            'defaultIncludes' => array('/file.php'),
+            'configFile'      => '(ignore user config)'
+        ));
+
         $shell = new Shell($config);
 
         $includes = $shell->getIncludes();

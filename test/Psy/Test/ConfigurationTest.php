@@ -111,7 +111,11 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testConfigIncludes()
     {
-        $config = new Configuration(array('defaultIncludes' => array('/file.php')));
+        $config = new Configuration(array(
+            'defaultIncludes' => array('/file.php'),
+            'configFile'      => '(ignore user config)'
+        ));
+
         $includes = $config->getDefaultIncludes();
         $this->assertCount(1, $includes);
         $this->assertEquals('/file.php', $includes[0]);
