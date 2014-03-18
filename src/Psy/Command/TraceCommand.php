@@ -15,6 +15,7 @@ use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * Show the current stack trace.
@@ -103,7 +104,14 @@ HELP
             $file     = isset($trace[$i]['file']) ? $this->replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
-            $lines[] = sprintf(' %s%s%s() at <info>%s:%s</info>', $class, $type, $function, $file, $line);
+            $lines[] = sprintf(
+                ' %s%s%s() at <info>%s:%s</info>',
+                OutputFormatter::escape($class),
+                OutputFormatter::escape($type),
+                OutputFormatter::escape($function),
+                OutputFormatter::escape($file),
+                OutputFormatter::escape($line)
+            );
         }
 
         return $lines;
