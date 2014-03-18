@@ -106,7 +106,7 @@ class ShellOutput extends ConsoleOutput
 
         if ($type & self::NUMBER_LINES) {
             $pad = strlen((string) count($messages));
-            $template = $this->isDecorated() ? "<aside>%-{$pad}s</aside>: %s" : "%-{$pad}s: %s";
+            $template = $this->isDecorated() ? "<aside>%{$pad}s</aside>: %s" : "%{$pad}s: %s";
 
             if ($type & self::OUTPUT_RAW) {
                 $messages = array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $messages);
