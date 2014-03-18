@@ -98,7 +98,10 @@ HELP
         $count     = $input->getOption('verbose') ? PHP_INT_MAX : pow(2, max(0, (strlen($incredulity) - 1)));
         $trace     = $this->getBacktrace($exception, $count);
 
-        $output->page(function($output) use ($exception, $trace) {
+        $shell = $this->getApplication();
+        $output->page(function($output) use ($exception, $trace, $shell) {
+            $shell->renderException($exception, $output);
+            $output->writeln('--');
             $output->write($trace, true, ShellOutput::NUMBER_LINES);
         });
     }
