@@ -120,8 +120,17 @@ HELP
             $reflector = null;
         }
 
+        // TODO: something cleaner than this :-/
+        if ($input->getOption('long')) {
+            $output->startPaging();
+        }
+
         foreach ($this->enumerators as $enumerator) {
             $this->$method($output, $enumerator->enumerate($input, $reflector, $target));
+        }
+
+        if ($input->getOption('long')) {
+            $output->stopPaging();
         }
     }
 
