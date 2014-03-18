@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Symfony\Component\Console\Helper\TableHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -65,11 +66,10 @@ class HelpCommand extends Command
             // list available commands
             $commands = $this->getApplication()->all();
 
-            $width = 0;
-            foreach ($commands as $command) {
-                $width = strlen($command->getName()) > $width ? strlen($command->getName()) : $width;
-            }
-            $width += 2;
+            $table = $this->getApplication()->getHelperSet()->get('table')
+                ->setLayout(TableHelper::LAYOUT_BORDERLESS)
+                ->setHorizontalBorderChar('')
+                ->setCrossingChar('');
 
             foreach ($commands as $name => $command) {
                 if ($name !== $command->getName()) {
@@ -77,15 +77,21 @@ class HelpCommand extends Command
                 }
 
                 if ($command->getAliases()) {
-                    $aliases = sprintf('  <comment>Aliases:</comment> %s', implode(', ', $command->getAliases()));
+                    $aliases = sprintf('<comment>Aliases:</comment> %s', implode(', ', $command->getAliases()));
                 } else {
                     $aliases = '';
                 }
 
-                $messages[] = sprintf("  <info>%-${width}s</info> %s%s", $name, $command->getDescription(), $aliases);
+                $table->addRow(array(
+                    sprintf('<info>%s</info>', $name),
+                    $command->getDescription(),
+                    $aliases,
+                ));
             }
 
-            $output->page($messages);
+            $output->page(function($output) use ($table) {
+                $table->render($output);
+            });
         }
     }
 }

@@ -29,6 +29,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\TableHelper;
 
 /**
  * List available local variables, object properties, etc.
@@ -119,8 +120,17 @@ HELP
             $reflector = null;
         }
 
+        // TODO: something cleaner than this :-/
+        if ($input->getOption('long')) {
+            $output->startPaging();
+        }
+
         foreach ($this->enumerators as $enumerator) {
             $this->$method($output, $enumerator->enumerate($input, $reflector, $target));
+        }
+
+        if ($input->getOption('long')) {
+            $output->stopPaging();
         }
     }
 
@@ -175,15 +185,18 @@ HELP
     {
         if ($result === null) return;
 
+        $table = $this->getTable();
+
         foreach ($result as $label => $items) {
             $output->writeln('');
             $output->writeln(sprintf('<strong>%s:</strong>', $label));
 
-            $pad = max(array_map('strlen', array_keys($items)));
+            $table->setRows(array());
             foreach ($items as $item) {
-                $itemPad = $pad + (2 * strlen($item['style'])) + 5;
-                $output->writeln(sprintf("  %-${itemPad}s  %s", $this->formatItemName($item), $item['value']));
+                $table->addRow(array($this->formatItemName($item), $item['value']));
             }
+
+            $table->render($output);
         }
     }
 
@@ -255,5 +268,18 @@ HELP
             $input->setOption('properties', true);
             $input->setOption('methods',    true);
         }
+    }
+
+    /**
+     * Get a TableHelper instance.
+     *
+     * @return TableHelper
+     */
+    private function getTable()
+    {
+        return $this->getApplication()->getHelperSet()->get('table')
+            ->setLayout(TableHelper::LAYOUT_BORDERLESS)
+            ->setHorizontalBorderChar('')
+            ->setCrossingChar('');
     }
 }

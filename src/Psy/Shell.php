@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.1.5';
+    const VERSION = 'v0.1.6';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -69,7 +69,7 @@ class Shell extends Application
         $this->cleaner  = $this->config->getCodeCleaner();
         $this->loop     = $this->config->getLoop();
         $this->context  = new Context;
-        $this->includes = $this->config->getDefaultIncludes();
+        $this->includes = array();
         $this->readline = $this->config->getReadline();
 
         parent::__construct('Psy Shell', self::VERSION);
@@ -369,7 +369,7 @@ class Shell extends Application
      */
     public function getIncludes()
     {
-        return $this->includes;
+        return array_merge($this->config->getDefaultIncludes(), $this->includes);
     }
 
     /**

@@ -72,7 +72,7 @@ class ShellOutput extends ConsoleOutput
             throw new \InvalidArgumentException('Paged output requires a string, array or callback.');
         }
 
-        $this->paging++;
+        $this->startPaging();
 
         if (is_callable($messages)) {
             $messages($this);
@@ -80,6 +80,22 @@ class ShellOutput extends ConsoleOutput
             $this->write($messages, true, $type);
         }
 
+        $this->stopPaging();
+    }
+
+    /**
+     * Start sending output to the output pager.
+     */
+    public function startPaging()
+    {
+        $this->paging++;
+    }
+
+    /**
+     * Stop paging output and flush the output pager.
+     */
+    public function stopPaging()
+    {
         $this->paging--;
         $this->closePager();
     }
@@ -106,7 +122,7 @@ class ShellOutput extends ConsoleOutput
 
         if ($type & self::NUMBER_LINES) {
             $pad = strlen((string) count($messages));
-            $template = $this->isDecorated() ? "<aside>%-{$pad}s</aside>: %s" : "%-{$pad}s: %s";
+            $template = $this->isDecorated() ? "<aside>%{$pad}s</aside>: %s" : "%{$pad}s: %s";
 
             if ($type & self::OUTPUT_RAW) {
                 $messages = array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $messages);

@@ -59,10 +59,14 @@ class HistoryCommand extends Command
                 new InputOption('clear',       '',  InputOption::VALUE_NONE,     'Clear the history.')
             ))
             ->setDescription('Show the Psy Shell history.')
-
-            // TODO: help!
             ->setHelp(<<<HELP
-Show, search or save the Psy Shell history.
+Show, search, save or replay the Psy Shell history.
+
+e.g.
+<return>>>> history --grep /[bB]acon/</return>
+<return>>>> history --show 0..10 --replay</return>
+<return>>>> history --clear</return>
+<return>>>> history --tail 1000 --save somefile.txt</return>
 HELP
             );
     }
