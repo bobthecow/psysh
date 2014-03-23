@@ -11,14 +11,15 @@
 
 namespace Psy;
 
+use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
-use Psy\Readline\Readline;
-use Psy\Readline\Libedit;
 use Psy\Readline\GNUReadline;
+use Psy\Readline\Libedit;
+use Psy\Readline\Readline;
 use Psy\Readline\Transient;
 
 /**
@@ -621,7 +622,15 @@ class Configuration
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
             if (is_file($dbFile)) {
-                $this->manualDb = new \PDO('sqlite:'.$dbFile);
+                try {
+                    $this->manualDb = new \PDO('sqlite:'.$dbFile);
+                } catch (\PDOException $e) {
+                    if ($e->getMessage() === 'could not find driver') {
+                        throw new RuntimeException('SQLite PDO driver not found', 0, $e);
+                    } else {
+                        throw $e;
+                    }
+                }
             }
         }
 
