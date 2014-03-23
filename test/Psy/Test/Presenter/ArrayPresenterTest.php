@@ -126,7 +126,6 @@ EOS;
     }
 }
 
-
 class FakeArrayObject extends \ArrayObject
 {
     // this space intentionally left blank.

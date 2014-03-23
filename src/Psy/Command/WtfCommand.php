@@ -99,7 +99,7 @@ HELP
         $trace     = $this->getBacktrace($exception, $count);
 
         $shell = $this->getApplication();
-        $output->page(function($output) use ($exception, $trace, $shell) {
+        $output->page(function ($output) use ($exception, $trace, $shell) {
             $shell->renderException($exception, $output);
             $output->writeln('--');
             $output->write($trace, true, ShellOutput::NUMBER_LINES);
