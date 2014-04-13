@@ -89,7 +89,7 @@ class HelpCommand extends Command
                 ));
             }
 
-            $output->page(function($output) use ($table) {
+            $output->page(function ($output) use ($table) {
                 $table->render($output);
             });
         }

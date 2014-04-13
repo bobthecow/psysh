@@ -41,38 +41,12 @@ class MongoCursorPresenter extends ObjectPresenter
      */
     protected function getProperties($value, \ReflectionClass $class)
     {
-        $empty = new \StdClass;
-        $info  = $value->info();
+        $info = $value->info();
 
-        if ($info['query'] == $empty) {
-            $info['query'] = array();
-        }
-
-        if (isset($info['query'])) {
-            if (isset($info['query']['$query'])) {
-                if ($info['query']['$query'] == $empty) {
-                    $info['query']['$query'] = array();
-                }
-            } elseif ($info['query'] == $empty) {
-                $info['query'] = array();
-            }
-        }
-
-        if (isset($info['fields']) && $info['fields'] == $empty) {
-            $info['fields'] = array();
-        }
-
-        foreach (self::$boringFields as $boring) {
-            if ($info[$boring] === 0) {
-                unset($info[$boring]);
-            }
-        }
-
-        foreach (self::$ignoreFields as $ignore) {
-            if (isset($info[$ignore])) {
-                unset($info[$ignore]);
-            }
-        }
+        $this->normalizeQueryArray($info);
+        $this->normalizeFieldsArray($info);
+        $this->unsetBoringFields($info);
+        $this->unsetIgnoredFields($info);
 
         if ($value->dead()) {
             $info['dead'] = true;
@@ -82,5 +56,71 @@ class MongoCursorPresenter extends ObjectPresenter
             $info,
             parent::getProperties($value, $class)
         );
+    }
+
+    /**
+     * Normalize (empty) cursor query to always be an actual array.
+     *
+     * @param array $info Cursor info
+     *
+     * @return void
+     */
+    private function normalizeQueryArray(array &$info)
+    {
+        if (isset($info['query'])) {
+            if ($info['query'] == new \StdClass) {
+                $info['query'] = array();
+            } elseif (is_array($info['query']) && isset($info['query']['$query'])) {
+                if ($info['query']['$query'] == new \StdClass) {
+                    $info['query']['$query'] = array();
+                }
+            }
+        }
+    }
+
+    /**
+     * Normalize (empty) cursor fields to always be an actual array.
+     *
+     * @param array $info Cursor info
+     *
+     * @return void
+     */
+    private function normalizeFieldsArray(array &$info)
+    {
+        if (isset($info['fields']) && $info['fields'] == new \StdClass) {
+            $info['fields'] = array();
+        }
+    }
+
+    /**
+     * Unset boring fields from the Cursor info array.
+     *
+     * @param array $info Cursor info
+     *
+     * @return void
+     */
+    private function unsetBoringFields(array &$info)
+    {
+        foreach (self::$boringFields as $boring) {
+            if ($info[$boring] === 0) {
+                unset($info[$boring]);
+            }
+        }
+    }
+
+    /**
+     * Unset ignored fields from the Cursor info array.
+     *
+     * @param array $info Cursor info
+     *
+     * @return void
+     */
+    private function unsetIgnoredFields(array &$info)
+    {
+        foreach (self::$ignoreFields as $ignore) {
+            if (isset($info[$ignore])) {
+                unset($info[$ignore]);
+            }
+        }
     }
 }

@@ -11,14 +11,15 @@
 
 namespace Psy;
 
+use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManager;
-use Psy\Readline\Readline;
-use Psy\Readline\Libedit;
 use Psy\Readline\GNUReadline;
+use Psy\Readline\Libedit;
+use Psy\Readline\Readline;
 use Psy\Readline\Transient;
 
 /**
@@ -366,25 +367,35 @@ class Configuration
     public function getReadline()
     {
         if (!isset($this->readline)) {
-
-            $historyFile = $this->getHistoryFile();
-            $historySize = $this->getHistorySize();
-            $eraseDups = $this->getEraseDuplicates();
-
-            if ($this->useReadline()) {
-                if (GNUReadline::isSupported()) {
-                    $this->readline = new GNUReadline($historyFile, $historySize, $eraseDups);
-                } elseif (Libedit::isSupported()) {
-                    $this->readline = new Libedit($historyFile, $historySize, $eraseDups);
-                }
-            }
-
-            if (!isset($this->readline)) {
-                $this->readline = new Transient(null, $historySize, $eraseDups);
-            }
+            $className = $this->getReadlineClass();
+            $this->readline = new $className(
+                $this->getHistoryFile(),
+                $this->getHistorySize(),
+                $this->getEraseDuplicates()
+            );
         }
 
         return $this->readline;
+    }
+
+    /**
+     * Get the appropriate Readline implementation class name.
+     *
+     * @see self::getReadline
+     *
+     * @return string
+     */
+    private function getReadlineClass()
+    {
+        if ($this->useReadline()) {
+            if (GNUReadline::isSupported()) {
+                return 'Psy\Readline\GNUReadline';
+            } elseif (Libedit::isSupported()) {
+                return 'Psy\Readline\Libedit';
+            }
+        }
+
+        return 'Psy\Readline\Transient';
     }
 
     /**
@@ -621,7 +632,15 @@ class Configuration
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
             if (is_file($dbFile)) {
-                $this->manualDb = new \PDO('sqlite:'.$dbFile);
+                try {
+                    $this->manualDb = new \PDO('sqlite:'.$dbFile);
+                } catch (\PDOException $e) {
+                    if ($e->getMessage() === 'could not find driver') {
+                        throw new RuntimeException('SQLite PDO driver not found', 0, $e);
+                    } else {
+                        throw $e;
+                    }
+                }
             }
         }
 
