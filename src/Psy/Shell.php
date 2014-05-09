@@ -276,7 +276,7 @@ class Shell extends Application
             }
 
             // handle empty input
-            if (!trim($input)) {
+            if (trim($input) === '') {
                 continue;
             }
 
