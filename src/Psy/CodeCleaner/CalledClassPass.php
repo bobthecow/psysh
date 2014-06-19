@@ -54,6 +54,11 @@ class CalledClassPass extends CodeCleanerPass
                 return;
             }
 
+            // We'll ignore name expressions as well (things like `$foo()`)
+            if (!($node->name instanceof Name)) {
+                return;
+            }
+
             $name = strtolower($node->name);
             if (in_array($name, array('get_class', 'get_called_class'))) {
                 $msg = sprintf('%s() called without object from outside a class', $name);
