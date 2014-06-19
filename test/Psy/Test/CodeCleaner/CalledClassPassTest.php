@@ -69,6 +69,7 @@ class CalledClassPassTest extends CodeCleanerTestCase
             array('class Foo { function bar() { return get_class(null); } }'),
             array('class Foo { function bar() { return get_called_class(); } }'),
             array('class Foo { function bar() { return get_called_class(null); } }'),
+            array('$foo = function(){}; $foo()'),
         );
     }
 
