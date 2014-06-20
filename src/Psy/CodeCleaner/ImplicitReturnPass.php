@@ -23,7 +23,7 @@ class ImplicitReturnPass extends CodeCleanerPass
     /**
      * @param array $nodes
      */
-    public function afterTraverse(array $nodes)
+    public function beforeTraverse(array $nodes)
     {
         $last = end($nodes);
 
@@ -32,15 +32,6 @@ class ImplicitReturnPass extends CodeCleanerPass
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
             ));
-        } elseif ($last instanceof NamespaceStatement) {
-            $nsLast = end($last->stmts);
-
-            if ($nsLast instanceof Expression) {
-                $last->stmts[count($last->stmts) - 1] = new ReturnStatement($nsLast, array(
-                    'startLine' => $nsLast->getLine(),
-                    'endLine'   => $nsLast->getLine(),
-                ));
-            }
         }
 
         return $nodes;
