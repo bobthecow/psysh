@@ -13,6 +13,7 @@ namespace Psy\CodeCleaner;
 
 use PHPParser_Node as Node;
 use PHPParser_Node_Name as Name;
+use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
 use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
 use PHPParser_Node_Stmt_Use as UseStatement;
 
@@ -28,7 +29,29 @@ use PHPParser_Node_Stmt_Use as UseStatement;
  */
 class UseStatementPass extends NamespaceAwarePass
 {
-    private $aliases = array();
+    private $aliases       = array();
+    private $lastAliases   = array();
+    private $lastNamespace = null;
+
+    /**
+     * Re-load the last set of use statements on re-entering a namespace.
+     *
+     * This isn't how namespaces normally work, but because PsySH has to spin up
+     * a new namespace for every line of code, we do this to make things work
+     * like you'd expect.
+     *
+     * @param Node $node
+     */
+    public function enterNode(Node $node)
+    {
+        if ($node instanceof NamespaceStatement) {
+            // If this is the same namespace as last namespace, let's do ourselves
+            // a favor and reload all the aliases...
+            if (strtolower($node->name) == strtolower($this->lastNamespace)) {
+                $this->aliases = $this->lastAliases;
+            }
+        }
+    }
 
     /**
      * If this statement is a namespace, forget all the aliases we had. If it's
@@ -48,8 +71,10 @@ class UseStatementPass extends NamespaceAwarePass
 
             return false;
         } elseif ($node instanceof NamespaceStatement) {
-            // start fresh, since this is a new namespace.
-            $this->aliases = array();
+            // start fresh, since we're done with this namespace.
+            $this->lastNamespace = $node->name;
+            $this->lastAliases   = $this->aliases;
+            $this->aliases       = array();
         } elseif ($node instanceof \Traversable) {
             foreach ($node as $name => $subNode) {
                 if ($subNode instanceof Name) {
@@ -76,9 +101,9 @@ class UseStatementPass extends NamespaceAwarePass
         $that = strtolower($name);
         foreach ($this->aliases as $alias => $prefix) {
             if ($that === $alias) {
-                return $prefix;
+                return new FullyQualifiedName($prefix->toString());
             } elseif (substr($that, 0, strlen($alias) + 1) === $alias.'\\') {
-                return new Name($prefix->toString() . substr($name, strlen($alias)));
+                return new FullyQualifiedName($prefix->toString() . substr($name, strlen($alias)));
             }
         }
     }
