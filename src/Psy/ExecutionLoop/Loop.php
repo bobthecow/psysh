@@ -95,7 +95,8 @@ class Loop
         };
 
         // bind the closure to $this from the shell scope variables...
-        if (version_compare(PHP_VERSION, '5.4', '>=')) {
+        // skip binding on HHVM, see https://github.com/facebook/hhvm/issues/1203
+        if (version_compare(PHP_VERSION, '5.4', '>=') && !defined('HHVM_VERSION')) {
             $that = null;
             try {
                 $that = $shell->getScopeVariable('this');
