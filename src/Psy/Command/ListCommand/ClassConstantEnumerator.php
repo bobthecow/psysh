@@ -30,6 +30,12 @@ class ClassConstantEnumerator extends Enumerator
             return;
         }
 
+        // We can only list constants on actual class (or object) reflectors.
+        if (!$reflector instanceof \ReflectionClass) {
+            // TODO: handle ReflectionExtension as well
+            return;
+        }
+
         // only list constants if we are specifically asked
         if (!$input->getOption('constants')) {
             return;

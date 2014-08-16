@@ -29,6 +29,11 @@ class MethodEnumerator extends Enumerator
             return;
         }
 
+        // We can only list methods on actual class (or object) reflectors.
+        if (!$reflector instanceof \ReflectionClass) {
+            return;
+        }
+
         // only list methods if we are specifically asked
         if (!$input->getOption('methods')) {
             return;
