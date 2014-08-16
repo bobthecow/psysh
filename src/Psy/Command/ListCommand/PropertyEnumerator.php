@@ -29,6 +29,11 @@ class PropertyEnumerator extends Enumerator
             return;
         }
 
+        // We can only list properties on actual class (or object) reflectors.
+        if (!$reflector instanceof \ReflectionClass) {
+            return;
+        }
+
         // only list properties if we are specifically asked
         if (!$input->getOption('properties')) {
             return;
