@@ -22,7 +22,8 @@
         "symfony/finder": "~2.1"
     },
     "suggest": {
-        "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)"
+        "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
+        "ext-readline": "Enables support for arrow-key history navigation, and showing and manipulating command history."
     },
     "autoload": {
         "psr-0": {
