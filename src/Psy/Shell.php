@@ -671,7 +671,7 @@ class Shell extends Application
      */
     protected function presentValue($val)
     {
-        return $this->config->getPresenterManager()->present($val);
+        return $this->config->getPresenterManager()->present($val, null, true);
     }
 
     /**
