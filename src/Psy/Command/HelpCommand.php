@@ -67,6 +67,7 @@ class HelpCommand extends Command
             $commands = $this->getApplication()->all();
 
             $table = $this->getApplication()->getHelperSet()->get('table')
+                ->setRows(array())
                 ->setLayout(TableHelper::LAYOUT_BORDERLESS)
                 ->setHorizontalBorderChar('')
                 ->setCrossingChar('');
