@@ -11,10 +11,10 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr as Expression;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Stmt_Function as FunctionStatement;
+use PhpParser\Node;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Stmt\Function_ as FunctionStmt;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -35,7 +35,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof FunctionStatement) {
+        if ($node instanceof FunctionStmt) {
             $name = $this->getFullyQualifiedName($node->name);
 
             if (function_exists($name) || isset($this->currentScope[strtolower($name)])) {
@@ -43,7 +43,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
             }
 
             $this->currentScope[strtolower($name)] = true;
-        } elseif ($node instanceof FunctionCall) {
+        } elseif ($node instanceof FuncCall) {
             // if function name is an expression, give it a pass for now.
             $name = $node->name;
             if (!$name instanceof Expression) {

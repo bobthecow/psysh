@@ -11,10 +11,10 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
-use PHPParser_Node_Stmt_Class as ClassStatement;
-use PHPParser_Node_Stmt_ClassMethod as ClassMethod;
+use PhpParser\Node;
+use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\ClassMethod;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -51,9 +51,9 @@ class StaticConstructorPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof NamespaceStatement) {
+        if ($node instanceof NamespaceStmt) {
             $this->namespace = isset($node->name) ? $node->name->parts : array();
-        } elseif ($node instanceof ClassStatement) {
+        } elseif ($node instanceof ClassStmt) {
 
             // Bail early if this is PHP 5.3.3 and we have a namespaced class
             if (!empty($this->namespace) && $this->isPHP533) {

@@ -11,12 +11,12 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr_ConstFetch as ConstFetch;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Stmt_Class as ClassStmt;
-use PHPParser_Node_Stmt_Trait as TraitStmt;
+use PhpParser\Node;
+use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 use Psy\Exception\ErrorException;
 
 /**
@@ -44,7 +44,7 @@ class CalledClassPass extends CodeCleanerPass
     {
         if ($node instanceof ClassStmt || $node instanceof TraitStmt) {
             $this->inClass = true;
-        } elseif ($node instanceof FunctionCall && !$this->inClass) {
+        } elseif ($node instanceof FuncCall && !$this->inClass) {
 
             // We'll give any args at all (besides null) a pass.
             // Technically we should be checking whether the args are objects, but this will do for now.
@@ -58,6 +58,7 @@ class CalledClassPass extends CodeCleanerPass
             if (!($node->name instanceof Name)) {
                 return;
             }
+
 
             $name = strtolower($node->name);
             if (in_array($name, array('get_class', 'get_called_class'))) {

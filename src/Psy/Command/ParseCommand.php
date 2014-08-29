@@ -11,8 +11,8 @@
 
 namespace Psy\Command;
 
-use PHPParser_Lexer as Lexer;
-use PHPParser_Parser as Parser;
+use PhpParser\Lexer;
+use PhpParser\Parser;
 use Psy\Presenter\PHPParserPresenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
@@ -98,7 +98,7 @@ HELP
 
         try {
             return $parser->parse($code);
-        } catch (\PHPParser_Error $e) {
+        } catch (\PhpParser\Error $e) {
             if (strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }

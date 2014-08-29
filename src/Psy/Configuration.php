@@ -102,7 +102,7 @@ class Configuration
     {
         // feature detection
         $this->hasReadline = function_exists('readline');
-        $this->hasPcntl    = function_exists('pcntl_signal');
+        $this->hasPcntl    = function_exists('pcntl_signal') && function_exists('posix_getpid');
 
         if (file_exists($this->configFile)) {
             $this->loadConfigFile($this->configFile);

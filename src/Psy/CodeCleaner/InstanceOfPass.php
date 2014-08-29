@@ -11,11 +11,11 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr_Instanceof as InstanceOfNode;
-use PHPParser_Node_Scalar as Scalar;
-use PHPParser_Node_Scalar_Encapsed as EncapsedString;
-use PHPParser_Node_Expr_ConstFetch as ConstFetch;
+use PhpParser\Node;
+use PhpParser\Node\Expr\Instanceof_ as InstanceofStmt;
+use PhpParser\Node\Scalar;
+use PhpParser\Node\Scalar\Encapsed;
+use PhpParser\Node\Expr\ConstFetch;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -34,11 +34,11 @@ class InstanceOfPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if (!$node instanceof InstanceOfNode) {
+        if (!$node instanceof InstanceofStmt) {
             return;
         }
 
-        if (($node->expr instanceof Scalar && !$node->expr instanceof EncapsedString) || $node->expr instanceof ConstFetch) {
+        if (($node->expr instanceof Scalar && !$node->expr instanceof Encapsed) || $node->expr instanceof ConstFetch) {
             throw new FatalErrorException('instanceof expects an object instance, constant given');
         }
     }

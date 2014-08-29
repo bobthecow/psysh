@@ -11,10 +11,10 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Name_FullyQualified as FullyQualifiedName;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
+use PhpParser\Node;
+use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
+use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
 
 /**
  * Abstract namespace-aware code cleaner pass.
@@ -44,7 +44,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof NamespaceStatement) {
+        if ($node instanceof NamespaceStmt) {
             $this->namespace = isset($node->name) ? $node->name->parts : array();
         }
     }
