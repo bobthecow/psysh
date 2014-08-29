@@ -11,13 +11,13 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr as Expression;
-use PHPParser_Node_Expr_New as NewExpression;
-use PHPParser_Node_Stmt as Statement;
-use PHPParser_Node_Stmt_Class as ClassStatement;
-use PHPParser_Node_Stmt_Interface as InterfaceStatement;
-use PHPParser_Node_Stmt_Trait as TraitStatement;
+use PhpParser\Node;
+use PhpParser\Node\Expr as Expr;
+use PhpParser\Node\Expr\New_ as NewExpr;
+use PhpParser\Node\Stmt;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
+use PhpParser\Node\Stmt\Trait_ as TraitStmt;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -52,13 +52,13 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof ClassStatement) {
+        if ($node instanceof ClassStmt) {
             $this->validateClassStatement($node);
-        } elseif ($node instanceof InterfaceStatement) {
+        } elseif ($node instanceof InterfaceStmt) {
             $this->validateInterfaceStatement($node);
-        } elseif ($node instanceof TraitStatement) {
+        } elseif ($node instanceof TraitStmt) {
             $this->validateTraitStatement($node);
-        } elseif ($node instanceof NewExpression) {
+        } elseif ($node instanceof NewExpr) {
             $this->validateNewExpression($node);
         }
     }
@@ -66,9 +66,9 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate a class definition statement.
      *
-     * @param ClassStatement $stmt
+     * @param ClassStmt $stmt
      */
-    protected function validateClassStatement(ClassStatement $stmt)
+    protected function validateClassStatement(ClassStmt $stmt)
     {
         $this->ensureCanDefine($stmt);
         if (isset($stmt->extends)) {
@@ -80,9 +80,9 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate an interface definition statment.
      *
-     * @param InterfaceStatement $stmt
+     * @param InterfaceStmt $stmt
      */
-    protected function validateInterfaceStatement(InterfaceStatement $stmt)
+    protected function validateInterfaceStatement(InterfaceStmt $stmt)
     {
         $this->ensureCanDefine($stmt);
         $this->ensureInterfacesExist($stmt->extends, $stmt);
@@ -91,9 +91,9 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate a trait definition statment.
      *
-     * @param TraitStatement $stmt
+     * @param TraitStmt $stmt
      */
-    protected function validateTraitStatement(TraitStatement $stmt)
+    protected function validateTraitStatement(TraitStmt $stmt)
     {
         $this->ensureCanDefine($stmt);
     }
@@ -101,12 +101,12 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate a `new` expression.
      *
-     * @param NewExpression $stmt
+     * @param NewExpr $stmt
      */
-    protected function validateNewExpression(NewExpression $stmt)
+    protected function validateNewExpression(NewExpr $stmt)
     {
         // if class name is an expression, give it a pass for now
-        if (!$stmt->class instanceof Expression) {
+        if (!$stmt->class instanceof Expr) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
         }
     }
@@ -114,9 +114,9 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that no class, interface or trait name collides with a new definition.
      *
-     * @param Statement $stmt
+     * @param Stmt $stmt
      */
-    protected function ensureCanDefine(Statement $stmt)
+    protected function ensureCanDefine(Stmt $stmt)
     {
         $name = $this->getFullyQualifiedName($stmt->name);
 
@@ -142,8 +142,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that a referenced class exists.
      *
-     * @param string    $name
-     * @param Statement $stmt
+     * @param string $name
+     * @param Stmt   $stmt
      */
     protected function ensureClassExists($name, $stmt)
     {
@@ -155,8 +155,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that a referenced interface exists.
      *
-     * @param string    $name
-     * @param Statement $stmt
+     * @param string $name
+     * @param Stmt   $stmt
      */
     protected function ensureInterfacesExist($interfaces, $stmt)
     {
@@ -171,17 +171,17 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Get a symbol type key for storing in the scope name cache.
      *
-     * @param Statement $stmt [description]
+     * @param Stmt $stmt
      *
      * @return string
      */
-    protected function getScopeType(Statement $stmt)
+    protected function getScopeType(Stmt $stmt)
     {
-        if ($stmt instanceof ClassStatement) {
+        if ($stmt instanceof ClassStmt) {
             return self::CLASS_TYPE;
-        } elseif ($stmt instanceof InterfaceStatement) {
+        } elseif ($stmt instanceof InterfaceStmt) {
             return self::INTERFACE_TYPE;
-        } elseif ($stmt instanceof TraitStatement) {
+        } elseif ($stmt instanceof TraitStmt) {
             return self::TRAIT_TYPE;
         }
     }
@@ -240,8 +240,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Error creation factory
      *
-     * @param string    $msg
-     * @param Statement $stmt
+     * @param string $msg
+     * @param Stmt   $stmt
      *
      * @return FatalErrorException
      */

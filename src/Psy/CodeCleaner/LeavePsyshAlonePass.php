@@ -11,8 +11,8 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr_Variable as Variable;
+use PhpParser\Node;
+use PhpParser\Node\Expr\Variable;
 use Psy\Exception\RuntimeException;
 
 /**

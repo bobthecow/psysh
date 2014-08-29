@@ -11,10 +11,10 @@
 
 namespace Psy;
 
-use PHPParser_Lexer as Lexer;
-use PHPParser_NodeTraverser as NodeTraverser;
-use PHPParser_Parser as Parser;
-use PHPParser_PrettyPrinter_Default as Printer;
+use PhpParser\Lexer;
+use PhpParser\NodeTraverser;
+use PhpParser\Parser;
+use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CalledClassPass;
@@ -46,9 +46,9 @@ class CodeCleaner
     /**
      * CodeCleaner constructor.
      *
-     * @param Parser        $parser    A PHPParser Parser instance. One will be created if not explicitly supplied.
-     * @param Printer       $printer   A PHPParser Printer instance. One will be created if not explicitly supplied.
-     * @param NodeTraverser $traverser A PHPParser NodeTraverser instance. One will be created if not explicitly supplied.
+     * @param Parser        $parser    A PhpParser Parser instance. One will be created if not explicitly supplied.
+     * @param Printer       $printer   A PhpParser Printer instance. One will be created if not explicitly supplied.
+     * @param NodeTraverser $traverser A PhpParser NodeTraverser instance. One will be created if not explicitly supplied.
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
@@ -144,7 +144,7 @@ class CodeCleaner
     {
         try {
             return $this->parser->parse($code);
-        } catch (\PHPParser_Error $e) {
+        } catch (\PhpParser\Error $e) {
             if (!$this->parseErrorIsEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
@@ -152,13 +152,13 @@ class CodeCleaner
             try {
                 // Unexpected EOF, try again with an implicit semicolon
                 return $this->parser->parse($code.';');
-            } catch (\PHPParser_Error $e) {
+            } catch (\PhpParser\Error $e) {
                 return false;
             }
         }
     }
 
-    private function parseErrorIsEOF(\PHPParser_Error $e)
+    private function parseErrorIsEOF(\PhpParser\Error $e)
     {
         $msg = $e->getRawMessage();
 

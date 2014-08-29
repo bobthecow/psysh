@@ -11,14 +11,14 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr_Array as ArrayNode;
-use PHPParser_Node_Expr_Empty as EmptyNode;
-use PHPParser_Node_Expr_Isset as IssetNode;
-use PHPParser_Node_Expr_Assign as AssignNode;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Expr_MethodCall as MethodCall;
-use PHPParser_Node_Expr_StaticCall as StaticCall;
+use PhpParser\Node;
+use PhpParser\Node\Expr\Array_ as ArrayNode;
+use PhpParser\Node\Expr\Empty_ as EmptyNode;
+use PhpParser\Node\Expr\Isset_ as IssetNode;
+use PhpParser\Node\Expr\Assign as AssignNode;
+use PhpParser\Node\Expr\FuncCall as FunctionCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use Psy\Exception\FatalErrorException;
 
 /**
