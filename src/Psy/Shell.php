@@ -553,11 +553,7 @@ class Shell extends Application
         $ret    = $this->presentValue($ret);
         $indent = str_repeat(' ', strlen(self::RETVAL));
 
-        $this->output->writeln(sprintf(
-            '%s<return>%s</return>',
-            self::RETVAL,
-            str_replace(PHP_EOL, PHP_EOL . $indent, $ret)
-        ));
+        $this->output->writeln(self::RETVAL . str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
     }
 
     /**

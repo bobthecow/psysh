@@ -260,8 +260,8 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getReturnValues()
     {
         return array(
-            array('{{return value}}', '=> <return>"{{return value}}"</return>'.PHP_EOL),
-            array(1, '=> <return>1</return>'.PHP_EOL),
+            array('{{return value}}', '=> <string>"{{return value}}"</string>'.PHP_EOL),
+            array(1, '=> <number>1</number>'.PHP_EOL),
         );
     }
 
