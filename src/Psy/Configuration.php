@@ -21,6 +21,7 @@ use Psy\Readline\GNUReadline;
 use Psy\Readline\Libedit;
 use Psy\Readline\Readline;
 use Psy\Readline\Transient;
+use XdgBaseDir\Xdg;
 
 /**
  * The Psy Shell configuration.
@@ -29,13 +30,14 @@ class Configuration
 {
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
-        'loop', 'tempDir', 'manualDbFile', 'presenters', 'requireSemicolons',
-        'historySize', 'eraseDuplicates'
+        'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
+        'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates'
     );
 
     private $defaultIncludes;
-    private $baseDir;
-    private $tempDir;
+    private $configDir;
+    private $dataDir;
+    private $runtimeDir;
     private $configFile;
     private $historyFile;
     private $historySize;
@@ -66,20 +68,73 @@ class Configuration
      */
     public function __construct(array $config = array())
     {
-        // base configuration
-        $this->baseDir    = isset($config['baseDir'])    ? $config['baseDir']    : $this->getHomeDir() . '/.psysh';
-        $this->configFile = isset($config['configFile']) ? $config['configFile'] : $this->baseDir . '/rc.php';
-
-        // make sure there's a baseDir
-        if (!is_dir($this->baseDir)) {
-            mkdir($this->baseDir, 0777, true);
+        // explicit configFile option
+        if (isset($config['configFile'])) {
+            $this->configFile = $config['configFile'];
         }
 
-        unset($config['baseDir'], $config['configFile']);
+        // legacy baseDir option
+        if (isset($config['baseDir'])) {
+            $this->setConfigDir($config['baseDir']);
+            $this->setDataDir($config['baseDir']);
+        }
+
+        unset($config['configFile'], $config['baseDir']);
 
         // go go gadget, config!
         $this->loadConfig($config);
         $this->init();
+    }
+
+    /**
+     * Initialize the configuration.
+     *
+     * This checks for the presence of Readline and Pcntl extensions.
+     *
+     * If a config file is available, it will be loaded and merged with the current config.
+     */
+    public function init()
+    {
+        // feature detection
+        $this->hasReadline = function_exists('readline');
+        $this->hasPcntl    = function_exists('pcntl_signal') && function_exists('posix_getpid');
+
+        if ($configFile = $this->getConfigFile()) {
+            $this->loadConfigFile($configFile);
+        }
+    }
+
+    /**
+     * Get the current PsySH config file.
+     *
+     * If a `configFile` option was passed to the Configuration constructor,
+     * this file will be returned. If not, all possible config directories will
+     * be searched, and the first `config.php` or `rc.php` file which exists
+     * will be returned.
+     *
+     * If you're trying to decide where to put your config file, pick
+     *
+     *     ~/.config/psysh/config.php
+     *
+     * @return string
+     */
+    public function getConfigFile()
+    {
+        if (isset($this->configFile)) {
+            return $this->configFile;
+        }
+
+        foreach ($this->getConfigDirs() as $dir) {
+            $file = $dir . '/config.php';
+            if (is_file($file)) {
+                return $this->configFile = $file;
+            }
+
+            $file = $dir . '/rc.php';
+            if (is_file($file)) {
+                return $this->configFile = $file;
+            }
+        }
     }
 
     /**
@@ -93,21 +148,59 @@ class Configuration
     }
 
     /**
-     * Initialize the configuration.
+     * Get potential config directory paths.
      *
-     * This checks for the presence of Readline and Pcntl extensions.
+     * If a `configDir` option was explicitly set, returns an array containing
+     * just that directory.
      *
-     * If a config file has been specified, it will be loaded and merged with the current config.
+     * Otherwise, it returns `~/.psysh` and all XDG Base Directory config directories:
+     *
+     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+     *
+     * @return string[]
      */
-    public function init()
+    protected function getConfigDirs()
     {
-        // feature detection
-        $this->hasReadline = function_exists('readline');
-        $this->hasPcntl    = function_exists('pcntl_signal') && function_exists('posix_getpid');
-
-        if (file_exists($this->configFile)) {
-            $this->loadConfigFile($this->configFile);
+        if (isset($this->configDir)) {
+            return array($this->configDir);
         }
+
+        $xdg = new Xdg();
+        $dirs = array_map(function ($dir) {
+            return $dir . '/psysh';
+        }, $xdg->getConfigDirs());
+
+        array_unshift($dirs, $this->getHomeDir() . '/.psysh');
+
+        return $dirs;
+    }
+
+    /**
+     * Get potential data directory paths.
+     *
+     * If a `dataDir` option was explicitly set, returns an array containing
+     * just that directory.
+     *
+     * Otherwise, it returns `~/.psysh` and all XDG Base Directory data directories:
+     *
+     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+     *
+     * @return string[]
+     */
+    protected function getDataDirs()
+    {
+        if (isset($this->dataDir)) {
+            return array($this->dataDir);
+        }
+
+        $xdg = new Xdg();
+        $dirs = array_map(function ($dir) {
+            return $dir . '/psysh';
+        }, $xdg->getDataDirs());
+
+        array_unshift($dirs, $this->getHomeDir() . '/.psysh');
+
+        return $dirs;
     }
 
     /**
@@ -133,7 +226,7 @@ class Configuration
     }
 
     /**
-     * Load a configuration file (default: `$HOME/.psysh/rc.php`).
+     * Load a configuration file (default: `$HOME/.config/psysh/config.php`).
      *
      * This configuration instance will be available to the config file as $config.
      * The config file may directly manipulate the configuration, or may return
@@ -184,26 +277,95 @@ class Configuration
     }
 
     /**
+     * Set the shell's config directory location.
+     *
+     * @param string $dir
+     */
+    public function setConfigDir($dir)
+    {
+        $this->configDir = (string) $dir;
+    }
+
+    /**
+     * Get the current configuration directory, if any is explicitly set.
+     *
+     * @return string
+     */
+    public function getConfigDir()
+    {
+        return $this->configDir;
+    }
+
+    /**
+     * Set the shell's data directory location.
+     *
+     * @param string $dir
+     */
+    public function setDataDir($dir)
+    {
+        $this->dataDir = (string) $dir;
+    }
+
+    /**
+     * Get the current data directory, if any is explicitly set.
+     *
+     * @return string
+     */
+    public function getDataDir()
+    {
+        return $this->dataDir;
+    }
+
+    /**
      * Set the shell's temporary directory location.
      *
      * @param string $dir
      */
-    public function setTempDir($dir)
+    public function setRuntimeDir($dir)
     {
-        $this->tempDir = $dir;
+        $this->runtimeDir = (string) $dir;
     }
 
     /**
      * Get the shell's temporary directory location.
      *
-     * Defaults to `/psysh/` inside the system's temp dir unless explicitly
+     * Defaults to  `/psysh` inside the system's temp dir unless explicitly
      * overridden.
+     *
+     * @return string
+     */
+    public function getRuntimeDir()
+    {
+        if (!isset($this->runtimeDir)) {
+            $xdg = new Xdg();
+            $this->runtimeDir = $xdg->getRuntimeDir() . '/psysh';
+        }
+
+        if (!is_dir($this->runtimeDir)) {
+            mkdir($this->runtimeDir, 0700, true);
+        }
+
+        return $this->runtimeDir;
+    }
+
+    /**
+     * @deprecated Use setRuntimeDir() instead.
+     *
+     * @param string $dir
+     */
+    public function setTempDir($dir)
+    {
+        return $this->setRuntimeDir($dir);
+    }
+
+    /**
+     * @deprecated Use getRuntimeDir() instead.
      *
      * @return string
      */
     public function getTempDir()
     {
-        return $this->tempDir ?: sys_get_temp_dir().'/psysh/';
+        return $this->getRuntimeDir();
     }
 
     /**
@@ -226,7 +388,37 @@ class Configuration
      */
     public function getHistoryFile()
     {
-        return $this->historyFile ?: $this->baseDir.'/history';
+        if (isset($this->historyFile)) {
+            return $this->historyFile;
+        }
+
+        foreach ($this->getConfigDirs() as $dir) {
+            $file = $dir . '/psysh_history';
+            if (is_file($file)) {
+                return $this->historyFile = $file;
+            }
+
+            $file = $dir . '/history';
+            if (is_file($file)) {
+                return $this->historyFile = $file;
+            }
+        }
+
+        // fallback: create our own
+        if (isset($this->configDir)) {
+            $dir = $this->configDir;
+        } else {
+            $xdg = new Xdg();
+            $dir = $xdg->getHomeConfigDir();
+        }
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0700, true);
+        }
+
+        $file = $dir . '/psysh_history';
+
+        return $this->historyFile = $file;
     }
 
     /**
@@ -274,7 +466,7 @@ class Configuration
      *
      * The file will be created inside the current temporary directory.
      *
-     * @see self::getTempDir
+     * @see self::getRuntimeDir
      *
      * @param string $type
      * @param int    $pid
@@ -283,12 +475,7 @@ class Configuration
      */
     public function getTempFile($type, $pid)
     {
-        $tempDir = $this->getTempDir();
-        if (!is_dir($tempDir)) {
-            mkdir($tempDir, 0777, true);
-        }
-
-        return tempnam($tempDir, $type.'_'.$pid.'_');
+        return tempnam($this->getRuntimeDir(), $type.'_'.$pid.'_');
     }
 
     /**
@@ -303,12 +490,7 @@ class Configuration
      */
     public function getPipe($type, $pid)
     {
-        $tempDir = $this->getTempDir();
-        if (!is_dir($tempDir)) {
-            mkdir($tempDir, 0777, true);
-        }
-
-        return sprintf('%s/%s_%s', $tempDir, $type, $pid);
+        return sprintf('%s/%s_%s', $this->getRuntimeDir(), $type, $pid);
     }
 
     /**
@@ -642,11 +824,20 @@ class Configuration
     /**
      * Get the current PHP manual database file.
      *
-     * @return string Default: '~/.psysh/php_manual.sqlite'
+     * @return string Default: '~/.local/share/psysh/php_manual.sqlite'
      */
     public function getManualDbFile()
     {
-        return $this->manualDbFile ?: $this->baseDir.'/php_manual.sqlite';
+        if (isset($this->manualDbFile)) {
+            return $this->manualDbFile;
+        }
+
+        foreach ($this->getDataDirs() as $dir) {
+            $file = $dir . '/php_manual.sqlite';
+            if (is_file($file)) {
+                return $this->manualDbFile = $file;
+            }
+        }
     }
 
     /**

@@ -30,43 +30,58 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($config->requireSemicolons());
     }
 
+    public function testGettersAndSetters()
+    {
+        $config = new Configuration();
+
+        $this->assertNull($config->getDataDir());
+        $config->setDataDir('wheee');
+        $this->assertEquals('wheee', $config->getDataDir());
+
+        $this->assertNull($config->getConfigDir());
+        $config->setConfigDir('wheee');
+        $this->assertEquals('wheee', $config->getConfigDir());
+    }
+
     /**
      * @dataProvider directories
      */
-    public function testFilesAndDirectories($baseDir = null, $tempDir = null)
+    public function testFilesAndDirectories($home, $configFile, $historyFile, $manualDbFile)
     {
-        $config = new Configuration(array('baseDir' => $baseDir, 'tempDir' => $tempDir));
+        $oldHome = getenv('HOME');
+        putenv("HOME=$home");
 
-        $this->assertStringEndsWith('/history', $config->getHistoryFile());
+        $config = new Configuration();
+        $this->assertEquals(realpath($configFile),   realpath($config->getConfigFile()));
+        $this->assertEquals(realpath($historyFile),  realpath($config->getHistoryFile()));
+        $this->assertEquals(realpath($manualDbFile), realpath($config->getManualDbFile()));
 
-        if ($baseDir !== null) {
-            $this->assertEquals($baseDir, realpath(dirname($config->getHistoryFile())));
-            $this->assertStringEndsWith('/history', $config->getHistoryFile());
-            $this->assertTrue(is_dir($baseDir));
-        }
-
-        if ($tempDir === null) {
-            $sysTempDir = realpath(sys_get_temp_dir());
-            $this->assertStringStartsWith($sysTempDir, realpath($config->getTempFile('foo', 123)));
-            $this->assertStringStartsWith($sysTempDir, realpath(dirname($config->getPipe('pipe', 123))));
-            $this->assertStringStartsWith($sysTempDir, realpath($config->getTempDir()));
-        } else {
-            $this->assertStringStartsWith($tempDir, realpath($config->getTempFile('foo', 123)));
-            $this->assertStringStartsWith($tempDir, realpath(dirname($config->getPipe('pipe', 123))));
-            $this->assertStringStartsWith($tempDir, realpath($config->getTempDir()));
-        }
+        putenv("HOME=$oldHome");
     }
 
     public function directories()
     {
-        $base = realpath(sys_get_temp_dir()).DIRECTORY_SEPARATOR.'psysh_test';
+        $base = realpath(__DIR__.'/../../fixtures');
 
         return array(
-            array(null, null),
-            array($this->joinPath($base, 'base', '1'), null),
-            array($this->joinPath($base, 'base', '1'), $this->joinPath($base, 'temp', '1')),
-            array(null, $base),
-            array($this->joinPath($base, 'base', '2'), $this->joinPath($base, 'temp', '2')),
+            array(
+                $base . '/default',
+                $base . '/default/.config/psysh/config.php',
+                $base . '/default/.config/psysh/psysh_history',
+                $base . '/default/.local/share/psysh/php_manual.sqlite',
+            ),
+            array(
+                $base . '/legacy',
+                $base . '/legacy/.psysh/rc.php',
+                $base . '/legacy/.psysh/history',
+                $base . '/legacy/.psysh/php_manual.sqlite',
+            ),
+            array(
+                $base . '/mixed',
+                $base . '/mixed/.psysh/config.php',
+                $base . '/mixed/.psysh/psysh_history',
+                null,
+            ),
         );
     }
 
@@ -96,12 +111,14 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfigFile()
     {
-        $config = new Configuration(array('configFile' => __DIR__.'/../../fixtures/rc.php'));
+        $config = new Configuration(array('configFile' => __DIR__.'/../../fixtures/config.php'));
 
-        $tempDir = $this->joinPath(realpath(sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
-        $this->assertStringStartsWith($tempDir, realpath($config->getTempFile('foo', 123)));
-        $this->assertStringStartsWith($tempDir, realpath(dirname($config->getPipe('pipe', 123))));
-        $this->assertStringStartsWith($tempDir, realpath($config->getTempDir()));
+        $runtimeDir = $this->joinPath(realpath(sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
+
+        $this->assertStringStartsWith($runtimeDir, realpath($config->getTempFile('foo', 123)));
+        $this->assertStringStartsWith($runtimeDir, realpath(dirname($config->getPipe('pipe', 123))));
+        $this->assertStringStartsWith($runtimeDir, realpath($config->getTempDir()));
+        $this->assertStringStartsWith($runtimeDir, realpath($config->getRuntimeDir()));
 
         $this->assertEquals(function_exists('readline'), $config->useReadline());
         $this->assertFalse($config->usePcntl());
@@ -116,7 +133,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         $config = new Configuration(array(
             'defaultIncludes' => array('/file.php'),
-            'configFile'      => '(ignore user config)'
+            'configFile'      => __DIR__.'/../../fixtures/empty.php'
         ));
 
         $includes = $config->getDefaultIncludes();
