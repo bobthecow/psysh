@@ -11,10 +11,10 @@
 
 namespace Psy\Presenter;
 
-use PHPParser_Node as Node;
+use PhpParser\Node;
 
 /**
- * A PHPParser Presenter.
+ * A PhpParser Presenter.
  */
 class PHPParserPresenter extends ObjectPresenter
 {

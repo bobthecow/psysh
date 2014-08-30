@@ -11,10 +11,10 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Expr_MethodCall as MethodCall;
-use PHPParser_Node_Expr_StaticCall as StaticCall;
+use PhpParser\Node;
+use PhpParser\Node\Expr\FuncCall as FunctionCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use Psy\Exception\FatalErrorException;
 
 /**

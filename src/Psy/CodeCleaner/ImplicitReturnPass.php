@@ -11,9 +11,8 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node_Expr as Expression;
-use PHPParser_Node_Stmt_Return as ReturnStatement;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Stmt\Return_ as ReturnStmt;
 
 /**
  * Add an implicit "return" to the last statement, provided it can be returned.
@@ -27,8 +26,8 @@ class ImplicitReturnPass extends CodeCleanerPass
     {
         $last = end($nodes);
 
-        if ($last instanceof Expression) {
-            $nodes[count($nodes) - 1] = new ReturnStatement($last, array(
+        if ($last instanceof Expr) {
+            $nodes[count($nodes) - 1] = new ReturnStmt($last, array(
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
             ));

@@ -11,10 +11,10 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_NodeVisitorAbstract as NodeVisitorAbstract;
+use PhpParser\NodeVisitorAbstract;
 
 /**
- * A CodeCleaner pass is a PHPParser Node Visitor.
+ * A CodeCleaner pass is a PhpParser Node Visitor.
  */
 abstract class CodeCleanerPass extends NodeVisitorAbstract
 {

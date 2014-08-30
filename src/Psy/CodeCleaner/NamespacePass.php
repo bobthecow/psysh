@@ -11,8 +11,8 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Stmt_Namespace as NamespaceStatement;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
 use Psy\CodeCleaner;
 
 /**
@@ -50,14 +50,14 @@ class NamespacePass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $first = reset($nodes);
-        if (count($nodes) === 1 && $first instanceof NamespaceStatement && empty($first->stmts)) {
+        if (count($nodes) === 1 && $first instanceof NamespaceStmt && empty($first->stmts)) {
             $this->setNamespace($first->name);
         } else {
             foreach ($nodes as $key => $node) {
-                if ($node instanceof NamespaceStatement) {
+                if ($node instanceof NamespaceStmt) {
                     $this->setNamespace(null);
                 } elseif ($this->namespace !== null) {
-                    $nodes[$key] = new NamespaceStatement($this->namespace, array($node));
+                    $nodes[$key] = new NamespaceStmt($this->namespace, array($node));
                 }
             }
         }

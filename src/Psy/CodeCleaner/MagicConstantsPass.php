@@ -11,12 +11,12 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Expr_FuncCall as FunctionCall;
-use PHPParser_Node_Name as Name;
-use PHPParser_Node_Scalar_DirConst as DirConstant;
-use PHPParser_Node_Scalar_FileConst as FileConstant;
-use PHPParser_Node_Scalar_String as StringNode;
+use PhpParser\Node;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\MagicConst\Dir;
+use PhpParser\Node\Scalar\MagicConst\File;
+use PhpParser\Node\Scalar\String as String;
 
 /**
  * Swap out __DIR__ and __FILE__ magic constants with our best guess?
@@ -29,14 +29,14 @@ class MagicConstantsPass extends CodeCleanerPass
      *
      * @param Node $node
      *
-     * @return null|FunctionCall|StringNode
+     * @return null|FuncCall|StringNode
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof DirConstant) {
-            return new FunctionCall(new Name('getcwd'), array(), $node->getAttributes());
-        } elseif ($node instanceof FileConstant) {
-            return new StringNode('', $node->getAttributes());
+        if ($node instanceof Dir) {
+            return new FuncCall(new Name('getcwd'), array(), $node->getAttributes());
+        } elseif ($node instanceof File) {
+            return new String('', $node->getAttributes());
         }
     }
 }
