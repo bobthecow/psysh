@@ -18,8 +18,8 @@ class CalledClassPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new CalledClassPass;
-        $this->traverser = new NodeTraverser;
+        $this->pass      = new CalledClassPass();
+        $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor($this->pass);
     }
 
@@ -69,7 +69,7 @@ class CalledClassPassTest extends CodeCleanerTestCase
             array('class Foo { function bar() { return get_class(null); } }'),
             array('class Foo { function bar() { return get_called_class(); } }'),
             array('class Foo { function bar() { return get_called_class(null); } }'),
-            array('$foo = function(){}; $foo()'),
+            array('$foo = function () {}; $foo()'),
         );
     }
 

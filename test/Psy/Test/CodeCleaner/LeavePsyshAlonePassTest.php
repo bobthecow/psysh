@@ -17,7 +17,7 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->setPass(new LeavePsyshAlonePass);
+        $this->setPass(new LeavePsyshAlonePass());
     }
 
     public function testPassesInlineHtmlThroughJustFine()

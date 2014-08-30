@@ -23,11 +23,11 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->presenter = new ArrayPresenter;
+        $this->presenter = new ArrayPresenter();
 
-        $this->manager   = new PresenterManager;
-        $this->manager->addPresenter(new ScalarPresenter);
-        $this->manager->addPresenter(new ObjectPresenter);
+        $this->manager   = new PresenterManager();
+        $this->manager->addPresenter(new ScalarPresenter());
+        $this->manager->addPresenter(new ObjectPresenter());
         $this->manager->addPresenter($this->presenter);
     }
 
@@ -106,7 +106,7 @@ EOS;
 
     public function testPresentsRecursively()
     {
-        $obj      = new \StdClass;
+        $obj      = new \StdClass();
         $array    = array(1, $obj, "a");
         $hash     = spl_object_hash($obj);
         $expected = <<<EOS

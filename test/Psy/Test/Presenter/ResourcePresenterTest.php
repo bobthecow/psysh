@@ -19,7 +19,7 @@ class ResourcePresenterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->presenter = new ResourcePresenter;
+        $this->presenter = new ResourcePresenter();
     }
 
     public function testPresent()

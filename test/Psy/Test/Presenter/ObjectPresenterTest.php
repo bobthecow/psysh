@@ -23,17 +23,17 @@ class ObjectPresenterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->presenter = new ObjectPresenter;
+        $this->presenter = new ObjectPresenter();
 
-        $this->manager   = new PresenterManager;
-        $this->manager->addPresenter(new ScalarPresenter);
-        $this->manager->addPresenter(new ArrayPresenter);
+        $this->manager   = new PresenterManager();
+        $this->manager->addPresenter(new ScalarPresenter());
+        $this->manager->addPresenter(new ArrayPresenter());
         $this->manager->addPresenter($this->presenter);
     }
 
     public function testPresentEmptyObject()
     {
-        $empty = new \stdClass;
+        $empty = new \StdClass();
         $this->assertEquals(
             $this->presenter->presentRef($empty) . ' {}',
             $this->presenter->present($empty)
@@ -42,11 +42,11 @@ class ObjectPresenterTest extends \PHPUnit_Framework_TestCase
 
     public function testPresentWithDepth()
     {
-        $obj = new \stdClass;
+        $obj = new \StdClass();
         $obj->name = 'std';
         $obj->type = 'class';
         $obj->tags = array('stuff', 'junk');
-        $obj->child = new \stdClass;
+        $obj->child = new \StdClass();
         $obj->child->name = 'std, jr';
 
         $hash      = spl_object_hash($obj);
@@ -66,11 +66,11 @@ EOS;
 
     public function testPresentWithoutDepth()
     {
-        $obj = new \stdClass;
+        $obj = new \StdClass();
         $obj->name = 'std';
         $obj->type = 'class';
         $obj->tags = array('stuff', 'junk');
-        $obj->child = new \stdClass;
+        $obj->child = new \StdClass();
         $obj->child->name = 'std, jr';
 
         $hash      = spl_object_hash($obj);
@@ -95,7 +95,7 @@ EOS;
 
     public function testPresentRef()
     {
-        $obj = new \stdClass;
+        $obj = new \StdClass();
 
         $formatted = $this->presenter->presentRef($obj);
 

@@ -17,7 +17,7 @@ class InstanceOfPassTest extends CodeCleanerTestCase
 {
     protected function setUp()
     {
-        $this->setPass(new InstanceOfPass);
+        $this->setPass(new InstanceOfPass());
     }
 
     /**
@@ -33,17 +33,17 @@ class InstanceOfPassTest extends CodeCleanerTestCase
     public function invalidStatements()
     {
         return array(
-            array('null instanceof StdClass'),
-            array('true instanceof StdClass'),
-            array('9 instanceof StdClass'),
-            array('1.0 instanceof StdClass'),
-            array('"foo" instanceof StdClass'),
-            array('__DIR__ instanceof StdClass'),
-            array('PHP_SAPI instanceof StdClass'),
-            array('1+1 instanceof StdClass'),
-            array('true && false instanceof StdClass'),
-            array('"a"."b" instanceof StdClass'),
-            array('!5 instanceof StdClass'),
+            array('null instanceof stdClass'),
+            array('true instanceof stdClass'),
+            array('9 instanceof stdClass'),
+            array('1.0 instanceof stdClass'),
+            array('"foo" instanceof stdClass'),
+            array('__DIR__ instanceof stdClass'),
+            array('PHP_SAPI instanceof stdClass'),
+            array('1+1 instanceof stdClass'),
+            array('true && false instanceof stdClass'),
+            array('"a"."b" instanceof stdClass'),
+            array('!5 instanceof stdClass'),
         );
     }
 
@@ -59,13 +59,13 @@ class InstanceOfPassTest extends CodeCleanerTestCase
     public function validStatements()
     {
         $data = array(
-            array('$a instanceof StdClass'),
-            array('strtolower("foo") instanceof StdClass'),
-            array('array(1) instanceof StdClass'),
-            array('(string) "foo" instanceof StdClass'),
-            array('(1+1) instanceof StdClass'),
-            array('"foo ${foo} $bar" instanceof StdClass'),
-            array('DateTime::ISO8601 instanceof StdClass'),
+            array('$a instanceof stdClass'),
+            array('strtolower("foo") instanceof stdClass'),
+            array('array(1) instanceof stdClass'),
+            array('(string) "foo" instanceof stdClass'),
+            array('(1+1) instanceof stdClass'),
+            array('"foo ${foo} $bar" instanceof stdClass'),
+            array('DateTime::ISO8601 instanceof stdClass'),
 
         );
 

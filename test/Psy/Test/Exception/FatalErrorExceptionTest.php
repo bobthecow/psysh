@@ -18,7 +18,7 @@ class FatalErrorExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testInstance()
     {
-        $e = new FatalErrorException;
+        $e = new FatalErrorException();
 
         $this->assertTrue($e instanceof Exception);
         $this->assertTrue($e instanceof \ErrorException);

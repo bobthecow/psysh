@@ -51,7 +51,7 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $trace = $this->getBacktrace(new \Exception, $input->getOption('num'), $input->getOption('include-psy'));
+        $trace = $this->getBacktrace(new \Exception(), $input->getOption('num'), $input->getOption('include-psy'));
         $output->page($trace, ShellOutput::NUMBER_LINES | ShellOutput::OUTPUT_RAW);
     }
 

@@ -32,12 +32,12 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $one       = 'banana';
         $two       = 123;
-        $three     = new \StdClass;
+        $three     = new \StdClass();
         $__psysh__ = 'ignore this';
         $_         = 'ignore this';
         $_e        = 'ignore this';
 
-        $shell = new Shell;
+        $shell = new Shell();
         $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
@@ -56,7 +56,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnknownScopeVariablesThrowExceptions()
     {
-        $shell = new Shell;
+        $shell = new Shell();
         $shell->setScopeVariables(array('foo' => 'FOO', 'bar' => 1));
         $shell->getScopeVariable('baz');
     }
@@ -86,7 +86,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testRenderingExceptions()
     {
-        $shell  = new Shell;
+        $shell  = new Shell();
         $output = $this->getOutput();
         $stream = $output->getStream();
         $e      = new ParseErrorException('message', 13);
@@ -111,7 +111,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testHandlingErrors()
     {
-        $shell  = new Shell;
+        $shell  = new Shell();
         $output = $this->getOutput();
         $stream = $output->getStream();
         $shell->setOutput($output);
@@ -140,7 +140,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotHandlingErrors()
     {
-        $shell    = new Shell;
+        $shell    = new Shell();
         $oldLevel = error_reporting();
         error_reporting($oldLevel | E_USER_NOTICE);
 
@@ -154,7 +154,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testVersion()
     {
-        $shell = new Shell;
+        $shell = new Shell();
 
         $this->assertInstanceOf('Symfony\Component\Console\Application', $shell);
         $this->assertContains(Shell::VERSION, $shell->getVersion());
@@ -164,7 +164,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testCodeBuffer()
     {
-        $shell = new Shell;
+        $shell = new Shell();
 
         $shell->addCode('class');
         $this->assertNull($shell->flushCode());
@@ -184,7 +184,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testKeepCodeBufferOpen()
     {
-        $shell = new Shell;
+        $shell = new Shell();
 
         $shell->addCode('1 \\');
         $this->assertNull($shell->flushCode());
@@ -207,7 +207,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
      */
     public function testCodeBufferThrowsParseExceptions()
     {
-        $shell = new Shell;
+        $shell = new Shell();
         $shell->addCode('this is not valid');
         $shell->flushCode();
     }
@@ -216,7 +216,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell  = new Shell;
+        $shell  = new Shell();
         $shell->setOutput($output);
 
         $shell->writeStdout("{{stdout}}\n");
@@ -231,7 +231,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell  = new Shell;
+        $shell  = new Shell();
         $shell->setOutput($output);
 
         $shell->writeStdout('{{stdout}}');
@@ -249,7 +249,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell  = new Shell;
+        $shell  = new Shell();
         $shell->setOutput($output);
 
         $shell->writeReturnValue($input);
@@ -272,7 +272,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell  = new Shell;
+        $shell  = new Shell();
         $shell->setOutput($output);
 
         $shell->writeException($exception);

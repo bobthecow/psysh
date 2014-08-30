@@ -44,7 +44,7 @@ class Inspector
 
             return $return;
         } elseif (is_object($var)) {
-            $return = new \StdClass;
+            $return = new \StdClass();
             $class  = new \ReflectionObject($var);
             $return->__CLASS__ = get_class($var);
 

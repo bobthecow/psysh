@@ -17,7 +17,7 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 {
     protected function setUp()
     {
-        $this->setPass(new StaticConstructorPass);
+        $this->setPass(new StaticConstructorPass());
     }
 
     /**

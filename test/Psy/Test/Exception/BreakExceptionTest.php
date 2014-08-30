@@ -18,7 +18,7 @@ class BreakExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testInstance()
     {
-        $e = new BreakException;
+        $e = new BreakException();
 
         $this->assertTrue($e instanceof Exception);
         $this->assertTrue($e instanceof BreakException);

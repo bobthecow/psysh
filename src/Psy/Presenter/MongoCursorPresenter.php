@@ -68,10 +68,10 @@ class MongoCursorPresenter extends ObjectPresenter
     private function normalizeQueryArray(array &$info)
     {
         if (isset($info['query'])) {
-            if ($info['query'] == new \StdClass) {
+            if ($info['query'] == new \StdClass()) {
                 $info['query'] = array();
             } elseif (is_array($info['query']) && isset($info['query']['$query'])) {
-                if ($info['query']['$query'] == new \StdClass) {
+                if ($info['query']['$query'] == new \StdClass()) {
                     $info['query']['$query'] = array();
                 }
             }
@@ -87,7 +87,7 @@ class MongoCursorPresenter extends ObjectPresenter
      */
     private function normalizeFieldsArray(array &$info)
     {
-        if (isset($info['fields']) && $info['fields'] == new \StdClass) {
+        if (isset($info['fields']) && $info['fields'] == new \StdClass()) {
             $info['fields'] = array();
         }
     }

@@ -17,7 +17,7 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->setPass(new ValidFunctionNamePass);
+        $this->setPass(new ValidFunctionNamePass());
     }
 
     /**

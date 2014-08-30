@@ -18,7 +18,7 @@ class ParseErrorExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testInstance()
     {
-        $e = new ParseErrorException;
+        $e = new ParseErrorException();
 
         $this->assertTrue($e instanceof Exception);
         $this->assertTrue($e instanceof \PHPParser_Error);

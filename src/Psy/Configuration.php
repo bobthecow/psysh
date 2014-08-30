@@ -75,7 +75,6 @@ class Configuration
 
         unset($config['baseDir'], $config['configFile']);
 
-
         // go go gadget, config!
         $this->loadConfig($config);
         $this->init();
@@ -451,7 +450,7 @@ class Configuration
     public function getCodeCleaner()
     {
         if (!isset($this->cleaner)) {
-            $this->cleaner = new CodeCleaner;
+            $this->cleaner = new CodeCleaner();
         }
 
         return $this->cleaner;
@@ -678,7 +677,7 @@ class Configuration
     public function getPresenterManager()
     {
         if (!isset($this->presenters)) {
-            $this->presenters = new PresenterManager;
+            $this->presenters = new PresenterManager();
         }
 
         return $this->presenters;

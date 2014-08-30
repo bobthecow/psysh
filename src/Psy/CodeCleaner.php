@@ -52,9 +52,9 @@ class CodeCleaner
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
-        $this->parser    = $parser    ?: new Parser(new Lexer);
-        $this->printer   = $printer   ?: new Printer;
-        $this->traverser = $traverser ?: new NodeTraverser;
+        $this->parser    = $parser    ?: new Parser(new Lexer());
+        $this->printer   = $printer   ?: new Printer();
+        $this->traverser = $traverser ?: new NodeTraverser();
 
         foreach ($this->getDefaultPasses() as $pass) {
             $this->traverser->addVisitor($pass);
@@ -69,21 +69,21 @@ class CodeCleaner
     private function getDefaultPasses()
     {
         return array(
-            new AbstractClassPass,
-            new AssignThisVariablePass,
-            new FunctionReturnInWriteContextPass,
-            new CallTimePassByReferencePass,
-            new CalledClassPass,
-            new InstanceOfPass,
-            new LeavePsyshAlonePass,
-            new ImplicitReturnPass,
-            new UseStatementPass,      // must run before namespace and validation passes
-            new NamespacePass($this),  // must run after the implicit return pass
-            new StaticConstructorPass,
-            new ValidFunctionNamePass,
-            new ValidClassNamePass,
-            new ValidConstantPass,
-            new MagicConstantsPass,
+            new AbstractClassPass(),
+            new AssignThisVariablePass(),
+            new FunctionReturnInWriteContextPass(),
+            new CallTimePassByReferencePass(),
+            new CalledClassPass(),
+            new InstanceOfPass(),
+            new LeavePsyshAlonePass(),
+            new ImplicitReturnPass(),
+            new UseStatementPass(),      // must run before namespace and validation passes
+            new NamespacePass($this),    // must run after the implicit return pass
+            new StaticConstructorPass(),
+            new ValidFunctionNamePass(),
+            new ValidClassNamePass(),
+            new ValidConstantPass(),
+            new MagicConstantsPass(),
         );
     }
 

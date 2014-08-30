@@ -29,12 +29,12 @@ class PresenterManager implements Presenter, \IteratorAggregate
      */
     public function __construct()
     {
-        $this->addPresenter(new ObjectPresenter); // lowest precedence
-        $this->addPresenter(new ArrayPresenter);
-        $this->addPresenter(new ClosurePresenter);
-        $this->addPresenter(new ExceptionPresenter);
-        $this->addPresenter(new ResourcePresenter);
-        $this->addPresenter(new ScalarPresenter);
+        $this->addPresenter(new ObjectPresenter()); // lowest precedence
+        $this->addPresenter(new ArrayPresenter());
+        $this->addPresenter(new ClosurePresenter());
+        $this->addPresenter(new ExceptionPresenter());
+        $this->addPresenter(new ResourcePresenter());
+        $this->addPresenter(new ScalarPresenter());
     }
 
     /**

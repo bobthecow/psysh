@@ -18,7 +18,7 @@ class ErrorExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testInstance()
     {
-        $e = new ErrorException;
+        $e = new ErrorException();
 
         $this->assertTrue($e instanceof Exception);
         $this->assertTrue($e instanceof \ErrorException);

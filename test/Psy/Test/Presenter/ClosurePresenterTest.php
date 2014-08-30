@@ -23,11 +23,11 @@ class ClosurePresenterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->presenter = new ClosurePresenter;
+        $this->presenter = new ClosurePresenter();
 
-        $this->manager   = new PresenterManager;
-        $this->manager->addPresenter(new ScalarPresenter);
-        $this->manager->addPresenter(new ObjectPresenter);
+        $this->manager   = new PresenterManager();
+        $this->manager->addPresenter(new ScalarPresenter());
+        $this->manager->addPresenter(new ObjectPresenter());
         $this->manager->addPresenter($this->presenter);
     }
 

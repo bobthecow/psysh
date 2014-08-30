@@ -17,7 +17,7 @@ class ValidConstantPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->setPass(new ValidConstantPass);
+        $this->setPass(new ValidConstantPass());
     }
 
     /**

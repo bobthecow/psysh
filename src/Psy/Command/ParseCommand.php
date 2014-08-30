@@ -36,13 +36,13 @@ class ParseCommand extends Command implements PresenterManagerAware
      */
     public function setPresenterManager(PresenterManager $manager)
     {
-        $this->presenterManager = new PresenterManager;
+        $this->presenterManager = new PresenterManager();
 
         foreach ($manager as $presenter) {
             $this->presenterManager->addPresenter($presenter);
         }
 
-        $this->presenterManager->addPresenter(new PHPParserPresenter);
+        $this->presenterManager->addPresenter(new PHPParserPresenter());
     }
 
     /**
@@ -116,7 +116,7 @@ HELP
     private function getParser()
     {
         if (!isset($this->parser)) {
-            $this->parser = new Parser(new Lexer);
+            $this->parser = new Parser(new Lexer());
         }
 
         return $this->parser;

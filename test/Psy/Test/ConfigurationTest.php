@@ -21,7 +21,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
     public function testDefaults()
     {
-        $config = new Configuration;
+        $config = new Configuration();
 
         $this->assertEquals(function_exists('readline'), $config->hasReadline());
         $this->assertEquals(function_exists('readline'), $config->useReadline());
@@ -71,9 +71,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfig()
     {
-        $config  = new Configuration;
-        $cleaner = new CodeCleaner;
-        $pager   = new PassthruPager(new ConsoleOutput);
+        $config  = new Configuration();
+        $cleaner = new CodeCleaner();
+        $pager   = new PassthruPager(new ConsoleOutput());
         $loop    = new Loop($config);
 
         $config->loadConfig(array(

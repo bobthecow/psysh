@@ -19,7 +19,7 @@ class ScalarPresenterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->presenter = new ScalarPresenter;
+        $this->presenter = new ScalarPresenter();
     }
 
     /**

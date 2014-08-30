@@ -65,10 +65,10 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
-        $this->config   = $config ?: new Configuration;
+        $this->config   = $config ?: new Configuration();
         $this->cleaner  = $this->config->getCodeCleaner();
         $this->loop     = $this->config->getLoop();
-        $this->context  = new Context;
+        $this->context  = new Context();
         $this->includes = array();
         $this->readline = $this->config->getReadline();
 
@@ -114,7 +114,7 @@ class Shell extends Application
     {
         echo PHP_EOL;
 
-        $sh = new \Psy\Shell;
+        $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
         $sh->run();
 
@@ -165,22 +165,22 @@ class Shell extends Application
      */
     protected function getDefaultCommands()
     {
-        $hist = new Command\HistoryCommand;
+        $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
         return array(
-            new Command\HelpCommand,
-            new Command\ListCommand,
-            new Command\DumpCommand,
-            new Command\DocCommand,
-            new Command\ShowCommand,
-            new Command\WtfCommand,
-            new Command\TraceCommand,
-            new Command\BufferCommand,
-            new Command\ClearCommand,
-            // new Command\PsyVersionCommand,
+            new Command\HelpCommand(),
+            new Command\ListCommand(),
+            new Command\DumpCommand(),
+            new Command\DocCommand(),
+            new Command\ShowCommand(),
+            new Command\WtfCommand(),
+            new Command\TraceCommand(),
+            new Command\BufferCommand(),
+            new Command\ClearCommand(),
+            // new Command\PsyVersionCommand(),
             $hist,
-            new Command\ExitCommand,
+            new Command\ExitCommand(),
         );
     }
 
