@@ -411,7 +411,7 @@ class Shell extends Application
             }
 
             $this->codeBuffer[] = $code;
-            $this->code         = $this->cleaner->clean($this->codeBuffer);
+            $this->code         = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
             $this->readline->addHistory(implode("\n", $this->codeBuffer));

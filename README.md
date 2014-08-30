@@ -69,6 +69,10 @@ return array(
     // yourself or something.
     'useReadline' => false,
 
+    // PsySH automatically inserts semicolons at the end of input if a statement
+    // is missing one. To disable this, set `requireSemicolons` to true.
+    'requireSemicolons' => false,
+
     // "Default includes" will be included once at the beginning of every PsySH
     // session. This is a good place to add autoloaders for your favorite
     // libraries.

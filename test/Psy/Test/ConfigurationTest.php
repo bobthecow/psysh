@@ -27,6 +27,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(function_exists('readline'), $config->useReadline());
         $this->assertEquals(function_exists('pcntl_signal'), $config->hasPcntl());
         $this->assertEquals(function_exists('pcntl_signal'), $config->usePcntl());
+        $this->assertFalse($config->requireSemicolons());
     }
 
     /**
@@ -77,11 +78,12 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $loop    = new Loop($config);
 
         $config->loadConfig(array(
-            'useReadline' => false,
-            'usePcntl'    => false,
-            'codeCleaner' => $cleaner,
-            'pager'       => $pager,
-            'loop'        => $loop,
+            'useReadline'       => false,
+            'usePcntl'          => false,
+            'codeCleaner'       => $cleaner,
+            'pager'             => $pager,
+            'loop'              => $loop,
+            'requireSemicolons' => true,
         ));
 
         $this->assertFalse($config->useReadline());
@@ -89,6 +91,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
         $this->assertSame($loop, $config->getLoop());
+        $this->assertTrue($config->requireSemicolons());
     }
 
     public function testLoadConfigFile()

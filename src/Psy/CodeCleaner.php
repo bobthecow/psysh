@@ -93,12 +93,13 @@ class CodeCleaner
      * @throws ParseErrorException if the code is invalid PHP, and cannot be coerced into valid PHP.
      *
      * @param array $codeLines
+     * @param bool  $requireSemicolons
      *
      * @return string|false Cleaned PHP code, False if the input is incomplete.
      */
-    public function clean(array $codeLines)
+    public function clean(array $codeLines, $requireSemicolons = false)
     {
-        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines) . PHP_EOL);
+        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines) . PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
             return false;
         }
@@ -137,16 +138,21 @@ class CodeCleaner
      * @see Parser::parse
      *
      * @param string $code
+     * @param bool   $requireSemicolons
      *
      * @return array A set of statements
      */
-    protected function parse($code)
+    protected function parse($code, $requireSemicolons = false)
     {
         try {
             return $this->parser->parse($code);
         } catch (\PhpParser\Error $e) {
             if (!$this->parseErrorIsEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
+            }
+
+            if ($requireSemicolons) {
+                return false;
             }
 
             try {

@@ -29,9 +29,10 @@ class Configuration
 {
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
-        'loop', 'tempDir', 'manualDbFile', 'presenters',
+        'loop', 'tempDir', 'manualDbFile', 'presenters', 'requireSemicolons',
         'historySize', 'eraseDuplicates'
     );
+
     private $defaultIncludes;
     private $baseDir;
     private $tempDir;
@@ -45,6 +46,7 @@ class Configuration
     private $hasPcntl;
     private $usePcntl;
     private $newCommands = array();
+    private $requireSemicolons = false;
 
     // services
     private $output;
@@ -428,6 +430,32 @@ class Configuration
     public function usePcntl()
     {
         return isset($this->usePcntl) ? ($this->hasPcntl && $this->usePcntl) : $this->hasPcntl;
+    }
+
+    /**
+     * Enable or disable strict requirement of semicolons.
+     *
+     * @see self::requireSemicolons()
+     *
+     * @param bool $requireSemicolons
+     */
+    public function setRequireSemicolons($requireSemicolons)
+    {
+        $this->requireSemicolons = (bool) $requireSemicolons;
+    }
+
+    /**
+     * Check whether to require semicolons on all statements.
+     *
+     * By default, PsySH will automatically insert semicolons at the end of
+     * statements if they're missing. To strictly require semicolons, set
+     * `requireSemicolons` to true.
+     *
+     * @return bool
+     */
+    public function requireSemicolons()
+    {
+        return $this->requireSemicolons;
     }
 
     /**
