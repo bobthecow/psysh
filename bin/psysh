@@ -69,7 +69,7 @@ call_user_func(function() {
         }
 
         $version = $shell->getVersion();
-        $name    = reset($_SERVER['argv']);
+        $name    = basename(reset($_SERVER['argv']));
         echo <<<EOL
 $version
 
