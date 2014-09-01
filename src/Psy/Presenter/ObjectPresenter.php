@@ -35,7 +35,7 @@ class ObjectPresenter extends RecursivePresenter
      * Present a reference to the object.
      *
      * @param object $value
-     * @param bool   $color (default: false)
+     * @param bool $color (default: false)
      *
      * @return string
      */
@@ -52,17 +52,22 @@ class ObjectPresenter extends RecursivePresenter
      * @param object $value
      * @param int    $depth (default: null)
      * @param bool   $color (default: false)
+     * @param int    $options One of Presenter constants
      *
      * @return string
      */
-    protected function presentValue($value, $depth = null, $color = false)
+    protected function presentValue($value, $depth = null, $color = false, $options = 0)
     {
         if ($depth === 0) {
             return $this->presentRef($value, $color);
         }
 
         $class = new \ReflectionObject($value);
-        $props = $this->getProperties($value, $class);
+        $propertyFilter = \ReflectionProperty::IS_PUBLIC;
+        if ($options & Presenter::VERBOSE) {
+            $propertyFilter |= \ReflectionProperty::IS_PRIVATE | \ReflectionProperty::IS_PROTECTED;
+        }
+        $props = $this->getProperties($value, $class, $propertyFilter);
 
         return sprintf('%s %s', $this->presentRef($value, $color), $this->formatProperties($props, $color));
     }
@@ -95,12 +100,13 @@ class ObjectPresenter extends RecursivePresenter
     /**
      * Get an array of object properties.
      *
-     * @param object           $value
+     * @param object $value
      * @param \ReflectionClass $class
+     * @param int $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $propertyFilter)
     {
         $deprecated = false;
         set_error_handler(function ($errno, $errstr) use (&$deprecated) {
@@ -113,8 +119,9 @@ class ObjectPresenter extends RecursivePresenter
         });
 
         $props = array();
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
+        foreach ($class->getProperties($propertyFilter) as $prop) {
             $deprecated = false;
+            $prop->setAccessible(true);
             $val = $prop->getValue($value);
 
             if (!$deprecated) {

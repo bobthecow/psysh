@@ -41,16 +41,17 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      * @see self::presentValue()
      *
      * @param mixed $value
-     * @param int   $depth (default: null)
-     * @param bool  $color (default: false)
+     * @param int $depth (default: null)
+     * @param bool $color (default: false)
+     * @param int $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false)
+    public function present($value, $depth = null, $color = false, $options = 0)
     {
         $this->setDepth($depth);
 
-        return $this->presentValue($value, $depth, $color);
+        return $this->presentValue($value, $depth, $color, $options);
     }
 
     /**
@@ -58,7 +59,7 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      * actually doing the presentation.
      *
      * @param mixed $value
-     * @param bool  $color (default: false)
+     * @param bool $color (default: false)
      *
      * @return string
      */
@@ -87,15 +88,16 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      * @see PresenterManager::presentRef()
      *
      * @param mixed $value
-     * @param bool  $color (default: false)
+     * @param bool $color (default: false)
+     * @param int $options One of Presenter constants
      *
      * @return string
      */
-    protected function presentSubValue($value, $color = false)
+    protected function presentSubValue($value, $color = false, $options = 0)
     {
         $depth = $this->depth;
         if ($depth > 0) {
-            $formatted = $this->manager->present($value, $depth - 1, $color);
+            $formatted = $this->manager->present($value, $depth - 1, $color, $options);
             $this->setDepth($depth);
 
             return $formatted;

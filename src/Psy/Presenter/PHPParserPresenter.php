@@ -37,6 +37,7 @@ class PHPParserPresenter extends ObjectPresenter
      * Present a reference to the object.
      *
      * @param object $value
+     * @param bool $color
      *
      * @return string
      */
@@ -50,12 +51,13 @@ class PHPParserPresenter extends ObjectPresenter
     /**
      * Get an array of object properties.
      *
-     * @param object           $value
+     * @param object $value
      * @param \ReflectionClass $class
+     * @param int $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $propertyFilter)
     {
         $props = array();
 

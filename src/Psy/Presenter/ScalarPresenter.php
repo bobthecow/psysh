@@ -38,6 +38,7 @@ class ScalarPresenter implements Presenter
      * Present a reference to the value.
      *
      * @param mixed $value
+     * @param bool $color
      *
      * @return string
      */
@@ -50,12 +51,13 @@ class ScalarPresenter implements Presenter
      * Present the scalar value.
      *
      * @param mixed $value
-     * @param int   $depth (default: null)
-     * @param bool  $color (default: false)
+     * @param int $depth (default: null)
+     * @param bool $color (default: false)
+     * @param int $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false)
+    public function present($value, $depth = null, $color = false, $options = 0)
     {
         $formatted = $this->format($value);
 

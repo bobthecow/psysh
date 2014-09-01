@@ -12,6 +12,7 @@
 namespace Psy\Command;
 
 use Psy\Exception\RuntimeException;
+use Psy\Presenter\Presenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
 use Symfony\Component\Console\Input\InputArgument;
@@ -48,6 +49,7 @@ class DumpCommand extends ReflectingCommand implements PresenterManagerAware
             ->setDefinition(array(
                 new InputArgument('target', InputArgument::REQUIRED, 'A target object or primitive to dump.', null),
                 new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
+                new InputOption('all', 'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.')
             ))
             ->setDescription('Dump an object or primitive.')
             ->setHelp(<<<HELP
@@ -69,7 +71,7 @@ HELP
     {
         $depth  = $input->getOption('depth');
         $target = $this->resolveTarget($input->getArgument('target'));
-        $output->page($this->presenterManager->present($target, $depth, true));
+        $output->page($this->presenterManager->present($target, $depth, true, $input->getOption('all') ? Presenter::VERBOSE : null));
     }
 
     /**

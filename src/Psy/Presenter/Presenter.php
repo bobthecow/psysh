@@ -17,6 +17,8 @@ namespace Psy\Presenter;
  */
 interface Presenter
 {
+    const VERBOSE = 1;
+
     /**
      * Check whether this Presenter can present $value.
      *
@@ -29,7 +31,7 @@ interface Presenter
     /**
      * Present a reference to the value.
      *
-     * @param mixed   $value
+     * @param mixed $value
      * @param Boolean $color
      *
      * @return string
@@ -42,10 +44,11 @@ interface Presenter
      * Optionally pass a $depth argument to limit the depth of recursive values.
      *
      * @param mixed $value
-     * @param int   $depth (default: null)
-     * @param bool  $color (default: false)
+     * @param int $depth (default: null)
+     * @param bool $color (default: false)
+     * @param int $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false);
+    public function present($value, $depth = null, $color = false, $options = 0);
 }

@@ -35,6 +35,7 @@ class ResourcePresenter implements Presenter
      * Present a reference to the value.
      *
      * @param mixed $value
+     * @param bool $color
      *
      * @return string
      */
@@ -56,12 +57,13 @@ class ResourcePresenter implements Presenter
      * Present the resource.
      *
      * @param resource $value
-     * @param int      $depth (default: null)
-     * @param bool     $color (default: false)
+     * @param int $depth (default: null)
+     * @param bool $color (default: false)
+     * @param int $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false)
+    public function present($value, $depth = null, $color = false, $options = 0)
     {
         return $this->presentRef($value, $color);
     }

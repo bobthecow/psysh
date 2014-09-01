@@ -37,6 +37,7 @@ class ArrayPresenter extends RecursivePresenter
      * Present a reference to the array.
      *
      * @param array $value
+     * @param bool $color
      *
      * @return string
      */
@@ -72,12 +73,13 @@ class ArrayPresenter extends RecursivePresenter
      * Present the array.
      *
      * @param object $value
-     * @param int    $depth (default: null)
-     * @param bool   $color (default: false)
+     * @param int $depth (default: null)
+     * @param bool $color (default: false)
+     * @param int $options One of Presenter constants
      *
      * @return string
      */
-    protected function presentValue($value, $depth = null, $color = false)
+    protected function presentValue($value, $depth = null, $color = false, $options = 0)
     {
         $prefix = '';
         if ($value instanceof \ArrayObject) {

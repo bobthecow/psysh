@@ -13,8 +13,10 @@ namespace Psy\Test\Presenter;
 
 use Psy\Presenter\ArrayPresenter;
 use Psy\Presenter\ObjectPresenter;
+use Psy\Presenter\Presenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\ScalarPresenter;
+use Psy\Test\Presenter\Fixtures\SimpleClass;
 
 class ObjectPresenterTest extends \PHPUnit_Framework_TestCase
 {
@@ -101,5 +103,21 @@ EOS;
 
         $this->assertStringMatchesFormat('\<stdClass #%s>', $formatted);
         $this->assertContains(spl_object_hash($obj), $formatted);
+    }
+
+    public function testPresentVerbose()
+    {
+        $obj = new SimpleClass();
+        $hash = spl_object_hash($obj);
+
+        $expected = <<<EOS
+\<Psy\Test\Presenter\Fixtures\SimpleClass #$hash> {
+    hello: "Hello world!",
+    foo: "bar",
+    secret: 42
+}
+EOS;
+
+        $this->assertStringMatchesFormat($expected, $this->presenter->present($obj, null, false, Presenter::VERBOSE));
     }
 }
