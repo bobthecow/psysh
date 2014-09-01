@@ -53,7 +53,8 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')
-            ->in(__DIR__.'/../../vendor/nikic/')
+            ->in(__DIR__.'/../../vendor/dnoegel/php-xdg-base-dir/src')
+            ->in(__DIR__.'/../../vendor/nikic/php-parser/lib')
             ->in(__DIR__.'/../../vendor/symfony/console')
             ->in(__DIR__.'/../../vendor/symfony/yaml');
 
@@ -63,6 +64,7 @@ class Compiler
 
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/autoload.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/include_paths.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_files.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_psr4.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_real.php'));
         $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_namespaces.php'));
