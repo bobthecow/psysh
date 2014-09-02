@@ -51,6 +51,7 @@ class Configuration
     private $requireSemicolons = false;
 
     // services
+    private $readline;
     private $output;
     private $shell;
     private $cleaner;
