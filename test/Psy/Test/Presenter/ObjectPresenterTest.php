@@ -13,8 +13,10 @@ namespace Psy\Test\Presenter;
 
 use Psy\Presenter\ArrayPresenter;
 use Psy\Presenter\ObjectPresenter;
+use Psy\Presenter\Presenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\ScalarPresenter;
+use Psy\Test\Presenter\Fixtures\SimpleClass;
 
 class ObjectPresenterTest extends \PHPUnit_Framework_TestCase
 {
@@ -53,11 +55,11 @@ class ObjectPresenterTest extends \PHPUnit_Framework_TestCase
         $childHash = spl_object_hash($obj->child);
 
         $expected = <<<EOS
-\<stdClass #$hash> {
-    name: "std",
-    type: "class",
-    tags: Array(2),
-    child: \<stdClass #$childHash>
+<object>\<<class>stdClass</class> <strong>#$hash</strong>></object> {
+    name: <string>"std"</string>,
+    type: <string>"class"</string>,
+    tags: Array(<number>2</number>),
+    child: <object>\<<class>stdClass</class> <strong>#$childHash</strong>></object>
 }
 EOS;
 
@@ -77,15 +79,15 @@ EOS;
         $childHash = spl_object_hash($obj->child);
 
         $expected = <<<EOS
-\<stdClass #$hash> {
-    name: "std",
-    type: "class",
+<object>\<<class>stdClass</class> <strong>#$hash</strong>></object> {
+    name: <string>"std"</string>,
+    type: <string>"class"</string>,
     tags: [
-        "stuff",
-        "junk"
+        <string>"stuff"</string>,
+        <string>"junk"</string>
     ],
-    child: \<stdClass #$childHash> {
-        name: "std, jr"
+    child: <object>\<<class>stdClass</class> <strong>#$childHash</strong>></object> {
+        name: <string>"std, jr"</string>
     }
 }
 EOS;
@@ -99,7 +101,23 @@ EOS;
 
         $formatted = $this->presenter->presentRef($obj);
 
-        $this->assertStringMatchesFormat('\<stdClass #%s>', $formatted);
+        $this->assertStringMatchesFormat('<object>\<<class>stdClass</class> <strong>#%s</strong>></object>', $formatted);
         $this->assertContains(spl_object_hash($obj), $formatted);
+    }
+
+    public function testPresentVerbose()
+    {
+        $obj = new SimpleClass();
+        $hash = spl_object_hash($obj);
+
+        $expected = <<<EOS
+<object>\<<class>Psy\Test\Presenter\Fixtures\SimpleClass</class> <strong>#$hash</strong>></object> {
+    hello: <string>"Hello world!"</string>,
+    <protected>foo</protected>: <string>"bar"</string>,
+    <private>secret</private>: <number>42</number>
+}
+EOS;
+
+        $this->assertStringMatchesFormat($expected, $this->presenter->present($obj, null, Presenter::VERBOSE));
     }
 }

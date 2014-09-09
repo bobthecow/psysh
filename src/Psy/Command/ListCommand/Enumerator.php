@@ -87,7 +87,7 @@ abstract class Enumerator
 
     protected function presentRef($value)
     {
-        return $this->presenterManager->presentRef($value, true);
+        return $this->presenterManager->presentRef($value);
     }
 
     protected function showItem($name)

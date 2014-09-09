@@ -82,7 +82,7 @@ HELP
 
         $depth = $input->getOption('depth');
         $nodes = $this->parse($code);
-        $output->page($this->presenterManager->present($nodes, $depth, true));
+        $output->page($this->presenterManager->present($nodes, $depth));
     }
 
     /**

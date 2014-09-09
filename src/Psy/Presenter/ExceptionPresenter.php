@@ -33,10 +33,11 @@ class ExceptionPresenter extends ObjectPresenter
      *
      * @param object           $value
      * @param \ReflectionClass $class
+     * @param int              $options One of Presenter constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $options = 0)
     {
         $props = array(
             'message'  => $value->getMessage(),
@@ -46,6 +47,6 @@ class ExceptionPresenter extends ObjectPresenter
             'previous' => $value->getPrevious(),
         );
 
-        return array_merge(array_filter($props), parent::getProperties($value, $class));
+        return array_merge(array_filter($props), parent::getProperties($value, $class, $options));
     }
 }

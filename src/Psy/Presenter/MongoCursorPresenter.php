@@ -36,10 +36,11 @@ class MongoCursorPresenter extends ObjectPresenter
      *
      * @param object           $value
      * @param \ReflectionClass $class
+     * @param int              $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $propertyFilter)
     {
         $info = $value->info();
 
@@ -54,7 +55,7 @@ class MongoCursorPresenter extends ObjectPresenter
 
         return array_merge(
             $info,
-            parent::getProperties($value, $class)
+            parent::getProperties($value, $class, $propertyFilter)
         );
     }
 

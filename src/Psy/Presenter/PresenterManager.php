@@ -88,16 +88,16 @@ class PresenterManager implements Presenter, \IteratorAggregate
     /**
      * Present a reference to the value.
      *
-     * @throws InvalidArgumentException If no Presenter is registered for $value
      *
      * @param mixed $value
      *
+     * @throws \InvalidArgumentException If no Presenter is registered for $value
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
         if ($presenter = $this->getPresenter($value)) {
-            return $presenter->presentRef($value, $color);
+            return $presenter->presentRef($value);
         }
 
         throw new \InvalidArgumentException(sprintf('Unable to present %s', $value));
@@ -106,18 +106,18 @@ class PresenterManager implements Presenter, \IteratorAggregate
     /**
      * Present a full representation of the value.
      *
-     * @throws InvalidArgumentException If no Presenter is registered for $value
      *
      * @param mixed $value
-     * @param int   $depth (default: null)
-     * @param bool  $color (default: false)
+     * @param int   $depth   (default: null)
+     * @param int   $options One of Presenter constants
      *
+     * @throws \InvalidArgumentException If no Presenter is registered for $value
      * @return string
      */
-    public function present($value, $depth = null, $color = false)
+    public function present($value, $depth = null, $options = 0)
     {
         if ($presenter = $this->getPresenter($value)) {
-            return $presenter->present($value, $depth, $color);
+            return $presenter->present($value, $depth, $options);
         }
 
         throw new \InvalidArgumentException(sprintf('Unable to present %s', $value));

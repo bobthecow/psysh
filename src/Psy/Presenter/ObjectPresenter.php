@@ -16,8 +16,7 @@ namespace Psy\Presenter;
  */
 class ObjectPresenter extends RecursivePresenter
 {
-    const FMT       = '\\<%s #%s>';
-    const COLOR_FMT = '<object>\\<<class>%s</class> <strong>#%s</strong>></object>';
+    const FMT = '<object>\\<<class>%s</class> <strong>#%s</strong>></object>';
 
     /**
      * ObjectPresenter can present objects.
@@ -35,47 +34,47 @@ class ObjectPresenter extends RecursivePresenter
      * Present a reference to the object.
      *
      * @param object $value
-     * @param bool   $color (default: false)
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
-        $format = $color ? self::COLOR_FMT : self::FMT;
-
-        return sprintf($format, get_class($value), spl_object_hash($value));
+        return sprintf(self::FMT, get_class($value), spl_object_hash($value));
     }
 
     /**
      * Present the object.
      *
      * @param object $value
-     * @param int    $depth (default: null)
-     * @param bool   $color (default: false)
+     * @param int    $depth   (default: null)
+     * @param int    $options One of Presenter constants
      *
      * @return string
      */
-    protected function presentValue($value, $depth = null, $color = false)
+    protected function presentValue($value, $depth = null, $options = 0)
     {
         if ($depth === 0) {
-            return $this->presentRef($value, $color);
+            return $this->presentRef($value);
         }
 
         $class = new \ReflectionObject($value);
-        $props = $this->getProperties($value, $class);
+        $propertyFilter = \ReflectionProperty::IS_PUBLIC;
+        if ($options & Presenter::VERBOSE) {
+            $propertyFilter |= \ReflectionProperty::IS_PRIVATE | \ReflectionProperty::IS_PROTECTED;
+        }
+        $props = $this->getProperties($value, $class, $propertyFilter);
 
-        return sprintf('%s %s', $this->presentRef($value, $color), $this->formatProperties($props, $color));
+        return sprintf('%s %s', $this->presentRef($value), $this->formatProperties($props));
     }
 
     /**
      * Format object properties.
      *
      * @param array $props
-     * @param bool  $color (default: false)
      *
      * @return string
      */
-    protected function formatProperties($props, $color = false)
+    protected function formatProperties($props)
     {
         if (empty($props)) {
             return '{}';
@@ -83,7 +82,7 @@ class ObjectPresenter extends RecursivePresenter
 
         $formatted = array();
         foreach ($props as $name => $value) {
-            $formatted[] = sprintf('%s: %s', $name, $this->indentValue($this->presentSubValue($value, $color)));
+            $formatted[] = sprintf('%s: %s', $name, $this->indentValue($this->presentSubValue($value)));
         }
 
         $template = sprintf('{%s%s%%s%s}', PHP_EOL, self::INDENT, PHP_EOL);
@@ -97,10 +96,11 @@ class ObjectPresenter extends RecursivePresenter
      *
      * @param object           $value
      * @param \ReflectionClass $class
+     * @param int              $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $propertyFilter)
     {
         $deprecated = false;
         set_error_handler(function ($errno, $errstr) use (&$deprecated) {
@@ -113,17 +113,31 @@ class ObjectPresenter extends RecursivePresenter
         });
 
         $props = array();
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
+        foreach ($class->getProperties($propertyFilter) as $prop) {
             $deprecated = false;
+
+            $prop->setAccessible(true);
             $val = $prop->getValue($value);
 
             if (!$deprecated) {
-                $props[$prop->getName()] = $val;
+                $props[$this->propertyKey($prop)] = $val;
             }
         }
 
         restore_error_handler();
 
         return $props;
+    }
+
+    protected function propertyKey(\ReflectionProperty $prop)
+    {
+        $key = $prop->getName();
+        if ($prop->isProtected()) {
+            return sprintf('<protected>%s</protected>', $key);
+        } elseif ($prop->isPrivate()) {
+            return sprintf('<private>%s</private>', $key);
+        }
+
+        return $key;
     }
 }

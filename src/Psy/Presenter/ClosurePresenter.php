@@ -16,9 +16,8 @@ namespace Psy\Presenter;
  */
 class ClosurePresenter implements Presenter, PresenterManagerAware
 {
-    const COLOR_FMT = '<keyword>function</keyword> (%s)%s { <comment>...</comment> }';
-    const FMT       = 'function (%s)%s { ... }';
-    const USE_FMT   = ' use (%s)';
+    const FMT     = '<keyword>function</keyword> (%s)%s { <comment>...</comment> }';
+    const USE_FMT = ' use (%s)';
 
     protected $manager;
 
@@ -51,14 +50,12 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
-        $format = $color ? self::COLOR_FMT : self::FMT;
-
         return sprintf(
-            $format,
-            $this->formatParams($value, $color),
-            $this->formatStaticVariables($value, $color)
+            self::FMT,
+            $this->formatParams($value),
+            $this->formatStaticVariables($value)
         );
     }
 
@@ -66,14 +63,14 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      * Present the Closure.
      *
      * @param \Closure $value
-     * @param int      $depth (default:null)
-     * @param bool     $color (default: false)
+     * @param int      $depth   (default:null)
+     * @param int      $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false)
+    public function present($value, $depth = null, $options = 0)
     {
-        return $this->presentRef($value, $color);
+        return $this->presentRef($value);
     }
 
     /**
@@ -83,25 +80,12 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      *
      * @return string
      */
-    protected function formatParams(\Closure $value, $color = false)
+    protected function formatParams(\Closure $value)
     {
         $r = new \ReflectionFunction($value);
-        $method = $color ? 'formatParamColor' : 'formatParam';
-        $params = array_map(array($this, $method), $r->getParameters());
+        $params = array_map(array($this, 'formatParam'), $r->getParameters());
 
         return implode(', ', $params);
-    }
-
-    /**
-     * PHP's "map" implementation leaves much to be desired.
-     *
-     * @param \ReflectionParameter $param
-     *
-     * @return string
-     */
-    protected function formatParamColor(\ReflectionParameter $param)
-    {
-        return $this->formatParam($param, true);
     }
 
     /**
@@ -111,32 +95,20 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      *
      * @return string
      */
-    protected function formatParam(\ReflectionParameter $param, $color = false)
+    protected function formatParam(\ReflectionParameter $param)
     {
-        if ($color) {
-            $ret = $this->formatParamNameColor($param->name);
-        } else {
-            $ret = $this->formatParamName($param->name);
-        }
+        $ret = $this->formatParamName($param->name);
 
         if ($param->isOptional()) {
             $ret .= ' = ';
 
             if (version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant()) {
                 $name = $param->getDefaultValueConstantName();
-                if ($color) {
-                    $ret .= '<const>'.$name.'</const>';
-                } else {
-                    $ret .= $name;
-                }
+                $ret .= '<const>'.$name.'</const>';
             } elseif ($param->isDefaultValueAvailable()) {
-                $ret .= $this->manager->presentRef($param->getDefaultValue(), $color);
+                $ret .= $this->manager->presentRef($param->getDefaultValue());
             } else {
-                if ($color) {
-                    $ret .= '<urgent>?</urgent>';
-                } else {
-                    $ret .= '?';
-                }
+                $ret .= '<urgent>?</urgent>';
             }
         }
 
@@ -147,11 +119,10 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      * Format static (used) variable names.
      *
      * @param \Closure $value
-     * @param bool     $color (default: false)
      *
      * @return string
      */
-    protected function formatStaticVariables(\Closure $value, $color = false)
+    protected function formatStaticVariables(\Closure $value)
     {
         $r = new \ReflectionFunction($value);
         $used = $r->getStaticVariables();
@@ -159,8 +130,7 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
             return '';
         }
 
-        $method = $color ? 'formatParamNameColor' : 'formatParamName';
-        $names = array_map(array($this, $method), array_keys($used));
+        $names = array_map(array($this, 'formatParamName'), array_keys($used));
 
         return sprintf(
             self::USE_FMT,
@@ -176,18 +146,6 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      * @return string
      */
     protected function formatParamName($name)
-    {
-        return sprintf('$%s', $name);
-    }
-
-    /**
-     * Format a Closure parameter name with COLOR!
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function formatParamNameColor($name)
     {
         return sprintf('$<strong>%s</strong>', $name);
     }
