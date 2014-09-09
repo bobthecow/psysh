@@ -34,9 +34,9 @@ class MongoCursorPresenter extends ObjectPresenter
     /**
      * Get an array of object properties.
      *
-     * @param object $value
+     * @param object           $value
      * @param \ReflectionClass $class
-     * @param int $propertyFilter One of \ReflectionProperty constants
+     * @param int              $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */

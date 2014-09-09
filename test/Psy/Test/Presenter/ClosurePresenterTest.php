@@ -50,15 +50,33 @@ class ClosurePresenterTest extends \PHPUnit_Framework_TestCase
     public function presentData()
     {
         $null = null;
-        $eol  = version_compare(PHP_VERSION, '5.4.3', '>=') ? 'PHP_EOL' : '"\n"';
+        $eol  = version_compare(PHP_VERSION, '5.4.3', '>=') ? '<const>PHP_EOL</const>' : '<string>"\n"</string>';
 
         return array(
-            array(function () {},                       'function () { ... }'                      ),
-            array(function ($foo) {},                   'function ($foo) { ... }'                  ),
-            array(function ($foo, $bar = null) {},      'function ($foo, $bar = null) { ... }'     ),
-            array(function ($foo = "bar") {},           'function ($foo = "bar") { ... }'          ),
-            array(function ($foo = \PHP_EOL) {},        'function ($foo = ' . $eol . ') { ... }'   ),
-            array(function ($foo) use ($eol, $null) {}, 'function ($foo) use ($eol, $null) { ... }'),
+            array(
+                function () {},
+                '<keyword>function</keyword> () { <comment>...</comment> }'
+            ),
+            array(
+                function ($foo) {},
+                '<keyword>function</keyword> ($<strong>foo</strong>) { <comment>...</comment> }'
+            ),
+            array(
+                function ($foo, $bar = null) {},
+                '<keyword>function</keyword> ($<strong>foo</strong>, $<strong>bar</strong> = <bool>null</bool>) { <comment>...</comment> }'
+            ),
+            array(
+                function ($foo = "bar") {},
+                '<keyword>function</keyword> ($<strong>foo</strong> = <string>"bar"</string>) { <comment>...</comment> }'
+            ),
+            array(
+                function ($foo = \PHP_EOL) {},
+                '<keyword>function</keyword> ($<strong>foo</strong> = ' . $eol . ') { <comment>...</comment> }'
+            ),
+            array(
+                function ($foo) use ($eol, $null) {},
+                '<keyword>function</keyword> ($<strong>foo</strong>) use ($<strong>eol</strong>, $<strong>null</strong>) { <comment>...</comment> }'
+            ),
         );
     }
 }

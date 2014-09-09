@@ -33,20 +33,20 @@ class ScalarPresenterTest extends \PHPUnit_Framework_TestCase
     public function scalarData()
     {
         return array(
-            array(1,       '1'),
-            array(1.5,     '1.5'),
-            array('2',     '"2"'),
-            array('2.5',   '"2.5"'),
-            array('alpha', '"alpha"'),
-            array("a\nb",  '"a\\nb"'),
-            array(true,    'true'),
-            array(false,   'false'),
-            array(null,    'null'),
-            array(NAN,     'NAN'),
-            array(acos(8), 'NAN'),
-            array(INF,     'INF'),
-            array(-INF,    '-INF'),
-            array(log(0),  '-INF'),
+            array(1,       '<number>1</number>'),
+            array(1.5,     '<number>1.5</number>'),
+            array('2',     '<string>"2"</string>'),
+            array('2.5',   '<string>"2.5"</string>'),
+            array('alpha', '<string>"alpha"</string>'),
+            array("a\nb",  '<string>"a\\nb"</string>'),
+            array(true,    '<bool>true</bool>'),
+            array(false,   '<bool>false</bool>'),
+            array(null,    '<bool>null</bool>'),
+            array(NAN,     '<number>NAN</number>'), // heh.
+            array(acos(8), '<number>NAN</number>'),
+            array(INF,     '<number>INF</number>'),
+            array(-INF,    '<number>-INF</number>'),
+            array(log(0),  '<number>-INF</number>'),
         );
     }
 }

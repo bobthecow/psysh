@@ -18,8 +18,7 @@ use PhpParser\Node;
  */
 class PHPParserPresenter extends ObjectPresenter
 {
-    const FMT       = '\\<%s>';
-    const COLOR_FMT = '<object>\\<<class>%s</class>></object>';
+    const FMT = '<object>\\<<class>%s</class>></object>';
 
     /**
      * PHPParserPresenter can present parse trees.
@@ -37,23 +36,20 @@ class PHPParserPresenter extends ObjectPresenter
      * Present a reference to the object.
      *
      * @param object $value
-     * @param bool $color
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
-        $format = $color ? self::COLOR_FMT : self::FMT;
-
-        return sprintf($format, get_class($value));
+        return sprintf(self::FMT, get_class($value));
     }
 
     /**
      * Get an array of object properties.
      *
-     * @param object $value
+     * @param object           $value
      * @param \ReflectionClass $class
-     * @param int $propertyFilter One of \ReflectionProperty constants
+     * @param int              $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */

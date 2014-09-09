@@ -38,30 +38,28 @@ class ScalarPresenter implements Presenter
      * Present a reference to the value.
      *
      * @param mixed $value
-     * @param bool $color
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
-        return $this->present($value, null, $color);
+        return $this->present($value);
     }
 
     /**
      * Present the scalar value.
      *
      * @param mixed $value
-     * @param int $depth (default: null)
-     * @param bool $color (default: false)
-     * @param int $options One of Presenter constants
+     * @param int   $depth   (default: null)
+     * @param int   $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false, $options = 0)
+    public function present($value, $depth = null, $options = 0)
     {
         $formatted = $this->format($value);
 
-        if ($color && $typeStyle = $this->getTypeStyle($value)) {
+        if ($typeStyle = $this->getTypeStyle($value)) {
             return sprintf('<%s>%s</%s>', $typeStyle, $formatted, $typeStyle);
         } else {
             return $formatted;

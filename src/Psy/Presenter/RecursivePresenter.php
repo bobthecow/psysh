@@ -41,17 +41,16 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      * @see self::presentValue()
      *
      * @param mixed $value
-     * @param int $depth (default: null)
-     * @param bool $color (default: false)
-     * @param int $options One of Presenter constants
+     * @param int   $depth   (default: null)
+     * @param int   $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false, $options = 0)
+    public function present($value, $depth = null, $options = 0)
     {
         $this->setDepth($depth);
 
-        return $this->presentValue($value, $depth, $color, $options);
+        return $this->presentValue($value, $depth, $options);
     }
 
     /**
@@ -59,11 +58,10 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      * actually doing the presentation.
      *
      * @param mixed $value
-     * @param bool $color (default: false)
      *
      * @return string
      */
-    abstract protected function presentValue($value, $color = false);
+    abstract protected function presentValue($value);
 
     /**
      * Keep track of the remaining recursion depth.
@@ -88,21 +86,20 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      * @see PresenterManager::presentRef()
      *
      * @param mixed $value
-     * @param bool $color (default: false)
-     * @param int $options One of Presenter constants
+     * @param int   $options One of Presenter constants
      *
      * @return string
      */
-    protected function presentSubValue($value, $color = false, $options = 0)
+    protected function presentSubValue($value, $options = 0)
     {
         $depth = $this->depth;
         if ($depth > 0) {
-            $formatted = $this->manager->present($value, $depth - 1, $color, $options);
+            $formatted = $this->manager->present($value, $depth - 1, $options);
             $this->setDepth($depth);
 
             return $formatted;
         } else {
-            return $this->manager->presentRef($value, $color);
+            return $this->manager->presentRef($value);
         }
     }
 
@@ -115,6 +112,6 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      */
     protected function indentValue($value)
     {
-        return str_replace(PHP_EOL, PHP_EOL . self::INDENT, $value);
+        return str_replace(PHP_EOL, PHP_EOL.self::INDENT, $value);
     }
 }

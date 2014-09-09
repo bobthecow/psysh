@@ -31,9 +31,9 @@ class ExceptionPresenter extends ObjectPresenter
     /**
      * Get an array of exception object properties.
      *
-     * @param object $value
+     * @param object           $value
      * @param \ReflectionClass $class
-     * @param int $options One of Presenter constants
+     * @param int              $options One of Presenter constants
      *
      * @return array
      */

@@ -16,8 +16,7 @@ namespace Psy\Presenter;
  */
 class ResourcePresenter implements Presenter
 {
-    const FMT       = '\\<%s resource #%s>';
-    const COLOR_FMT = '<resource>\\<%s <strong>resource #%s</strong>></resource>';
+    const FMT = '<resource>\\<%s <strong>resource #%s</strong>></resource>';
 
     /**
      * Resource presenter can present resources.
@@ -35,11 +34,10 @@ class ResourcePresenter implements Presenter
      * Present a reference to the value.
      *
      * @param mixed $value
-     * @param bool $color
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
         $type = get_resource_type($value);
         if ($type === 'stream') {
@@ -47,24 +45,22 @@ class ResourcePresenter implements Presenter
             $type = sprintf('%s stream', $meta['stream_type']);
         }
 
-        $id     = str_replace('Resource id #', '', (string) $value);
-        $format = $color ? self::COLOR_FMT : self::FMT;
+        $id = str_replace('Resource id #', '', (string) $value);
 
-        return sprintf($format, $type, $id);
+        return sprintf(self::FMT, $type, $id);
     }
 
     /**
      * Present the resource.
      *
      * @param resource $value
-     * @param int $depth (default: null)
-     * @param bool $color (default: false)
-     * @param int $options One of Presenter constants
+     * @param int      $depth   (default: null)
+     * @param int      $options One of Presenter constants
      *
      * @return string
      */
-    public function present($value, $depth = null, $color = false, $options = 0)
+    public function present($value, $depth = null, $options = 0)
     {
-        return $this->presentRef($value, $color);
+        return $this->presentRef($value);
     }
 }

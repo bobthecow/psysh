@@ -43,9 +43,9 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(array(),                   '[]'),
-            array(array(1),                  '[1]'),
-            array(array(2, "string"),        '[2,"string"]'),
-            array(array('a' => 1, 'b' => 2), '["a"=>1,"b"=>2]'),
+            array(array(1),                  '[<number>1</number>]'),
+            array(array(2, "string"),        '[<number>2</number>,<string>"string"</string>]'),
+            array(array('a' => 1, 'b' => 2), '[<string>"a"</string>=><number>1</number>,<string>"b"</string>=><number>2</number>]'),
         );
     }
 
@@ -61,9 +61,9 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(array(),        '[]'),
-            array(array(1),       'Array(1)'),
-            array(array(1, 2),    'Array(2)'),
-            array(array(1, 2, 3), 'Array(3)'),
+            array(array(1),       'Array(<number>1</number>)'),
+            array(array(1, 2),    'Array(<number>2</number>)'),
+            array(array(1, 2, 3), 'Array(<number>3</number>)'),
         );
     }
 
@@ -80,21 +80,21 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
     {
         $obj1    = new \ArrayObject(array(1, "string"));
         $hash1   = spl_object_hash($obj1);
-        $ref1    = '\\<ArrayObject #'.$hash1.'>';
+        $ref1    = '<object>\\<<class>ArrayObject</class> <strong>#'.$hash1.'</strong>></object>';
         $expect1 = <<<EOS
 $ref1 [
-    1,
-    "string"
+    <number>1</number>,
+    <string>"string"</string>
 ]
 EOS;
 
         $obj2    = new FakeArrayObject(array('a' => 'AAA', 'b' => 'BBB'));
         $hash2   = spl_object_hash($obj2);
-        $ref2    = '\\<Psy\\Test\\Presenter\\FakeArrayObject #'.$hash2.'>';
+        $ref2    = '<object>\\<<class>Psy\\Test\\Presenter\\FakeArrayObject</class> <strong>#'.$hash2.'</strong>></object>';
         $expect2 = <<<EOS
 $ref2 [
-    "a" => "AAA",
-    "b" => "BBB"
+    <string>"a"</string> => <string>"AAA"</string>,
+    <string>"b"</string> => <string>"BBB"</string>
 ]
 EOS;
 
@@ -111,9 +111,9 @@ EOS;
         $hash     = spl_object_hash($obj);
         $expected = <<<EOS
 [
-    1,
-    \<stdClass #$hash> {},
-    "a"
+    <number>1</number>,
+    <object>\<<class>stdClass</class> <strong>#$hash</strong>></object> {},
+    <string>"a"</string>
 ]
 EOS;
 
