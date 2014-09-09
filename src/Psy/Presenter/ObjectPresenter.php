@@ -115,16 +115,29 @@ class ObjectPresenter extends RecursivePresenter
         $props = array();
         foreach ($class->getProperties($propertyFilter) as $prop) {
             $deprecated = false;
+
             $prop->setAccessible(true);
             $val = $prop->getValue($value);
 
             if (!$deprecated) {
-                $props[$prop->getName()] = $val;
+                $props[$this->propertyKey($prop)] = $val;
             }
         }
 
         restore_error_handler();
 
         return $props;
+    }
+
+    protected function propertyKey(\ReflectionProperty $prop)
+    {
+        $key = $prop->getName();
+        if ($prop->isProtected()) {
+            return sprintf('<protected>%s</protected>', $key);
+        } elseif ($prop->isPrivate()) {
+            return sprintf('<private>%s</private>', $key);
+        }
+
+        return $key;
     }
 }

@@ -113,8 +113,8 @@ EOS;
         $expected = <<<EOS
 <object>\<<class>Psy\Test\Presenter\Fixtures\SimpleClass</class> <strong>#$hash</strong>></object> {
     hello: <string>"Hello world!"</string>,
-    foo: <string>"bar"</string>,
-    secret: <number>42</number>
+    <protected>foo</protected>: <string>"bar"</string>,
+    <private>secret</private>: <number>42</number>
 }
 EOS;
 
