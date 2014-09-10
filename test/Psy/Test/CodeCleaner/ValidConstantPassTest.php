@@ -49,7 +49,7 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     public function getValidReferences()
     {
         return array(
-            array('PHP_EOL;')
+            array('PHP_EOL;'),
         );
     }
 }

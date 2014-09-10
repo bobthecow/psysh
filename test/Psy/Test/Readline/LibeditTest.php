@@ -101,7 +101,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(array(
             'This is an entry',
-            'This is an entry'
+            'This is an entry',
         ), $readline->listHistory());
         $readline->clearHistory();
     }
@@ -121,9 +121,8 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             "foo\rbar",
             "baz\r",
-            "w00t"
+            "w00t",
         ), $readline->listHistory());
         $readline->clearHistory();
     }
-
 }

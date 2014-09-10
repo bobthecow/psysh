@@ -31,7 +31,7 @@ class Configuration
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates'
+        'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
     );
 
     private $defaultIncludes;
@@ -728,10 +728,11 @@ class Configuration
     public function getPager()
     {
         if (!isset($this->pager) && $this->usePcntl()) {
-
-            if ($pager = ini_get('cli.pager')) {    // use the default pager (5.4+)
+            if ($pager = ini_get('cli.pager')) {
+                // use the default pager (5.4+)
                 $this->pager = $pager;
-            } elseif ($less = exec('which less 2>/dev/null')) { // check for the presence of less...
+            } elseif ($less = exec('which less 2>/dev/null')) {
+                // check for the presence of less...
                 $this->pager = $less.' -R -S -F -X';
             }
         }

@@ -55,27 +55,27 @@ class ClosurePresenterTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 function () {},
-                '<keyword>function</keyword> () { <comment>...</comment> }'
+                '<keyword>function</keyword> () { <comment>...</comment> }',
             ),
             array(
                 function ($foo) {},
-                '<keyword>function</keyword> ($<strong>foo</strong>) { <comment>...</comment> }'
+                '<keyword>function</keyword> ($<strong>foo</strong>) { <comment>...</comment> }',
             ),
             array(
                 function ($foo, $bar = null) {},
-                '<keyword>function</keyword> ($<strong>foo</strong>, $<strong>bar</strong> = <bool>null</bool>) { <comment>...</comment> }'
+                '<keyword>function</keyword> ($<strong>foo</strong>, $<strong>bar</strong> = <bool>null</bool>) { <comment>...</comment> }',
             ),
             array(
                 function ($foo = "bar") {},
-                '<keyword>function</keyword> ($<strong>foo</strong> = <string>"bar"</string>) { <comment>...</comment> }'
+                '<keyword>function</keyword> ($<strong>foo</strong> = <string>"bar"</string>) { <comment>...</comment> }',
             ),
             array(
                 function ($foo = \PHP_EOL) {},
-                '<keyword>function</keyword> ($<strong>foo</strong> = ' . $eol . ') { <comment>...</comment> }'
+                '<keyword>function</keyword> ($<strong>foo</strong> = '.$eol.') { <comment>...</comment> }',
             ),
             array(
                 function ($foo) use ($eol, $null) {},
-                '<keyword>function</keyword> ($<strong>foo</strong>) use ($<strong>eol</strong>, $<strong>null</strong>) { <comment>...</comment> }'
+                '<keyword>function</keyword> ($<strong>foo</strong>) use ($<strong>eol</strong>, $<strong>null</strong>) { <comment>...</comment> }',
             ),
         );
     }

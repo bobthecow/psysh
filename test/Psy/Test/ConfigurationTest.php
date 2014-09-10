@@ -133,7 +133,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         $config = new Configuration(array(
             'defaultIncludes' => array('/file.php'),
-            'configFile'      => __DIR__.'/../../fixtures/empty.php'
+            'configFile'      => __DIR__.'/../../fixtures/empty.php',
         ));
 
         $includes = $config->getDefaultIncludes();

@@ -21,7 +21,6 @@ use Psy\Exception\FatalErrorException;
  */
 class AbstractClassPass extends CodeCleanerPass
 {
-
     private $class;
     private $abstractMethods;
 
@@ -67,5 +66,4 @@ class AbstractClassPass extends CodeCleanerPass
             }
         }
     }
-
 }

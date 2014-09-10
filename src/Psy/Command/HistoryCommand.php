@@ -56,7 +56,7 @@ class HistoryCommand extends Command
 
                 new InputOption('save',        '',  InputOption::VALUE_REQUIRED, 'Save history to a file.'),
                 new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay'),
-                new InputOption('clear',       '',  InputOption::VALUE_NONE,     'Clear the history.')
+                new InputOption('clear',       '',  InputOption::VALUE_NONE,     'Clear the history.'),
             ))
             ->setDescription('Show the Psy Shell history.')
             ->setHelp(<<<HELP

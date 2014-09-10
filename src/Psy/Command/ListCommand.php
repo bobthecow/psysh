@@ -165,7 +165,9 @@ HELP
      */
     protected function write(OutputInterface $output, array $result = null)
     {
-        if ($result === null) return;
+        if ($result === null) {
+            return;
+        }
 
         foreach ($result as $label => $items) {
             $names = array_map(array($this, 'formatItemName'), $items);
@@ -183,7 +185,9 @@ HELP
      */
     protected function writeLong(OutputInterface $output, array $result = null)
     {
-        if ($result === null) return;
+        if ($result === null) {
+            return;
+        }
 
         $table = $this->getTable();
 
@@ -231,7 +235,6 @@ HELP
         }
 
         if (!$input->getArgument('target')) {
-
             // if no target is passed, there can be no properties or methods
             foreach (array('properties', 'methods') as $option) {
                 if ($input->getOption($option)) {
@@ -247,9 +250,7 @@ HELP
 
             // default to --vars if no other options are passed
             $input->setOption('vars', true);
-
         } else {
-
             // if a target is passed, classes, functions, etc don't make sense
             foreach (array('vars', 'globals', 'functions', 'classes', 'interfaces', 'traits') as $option) {
                 if ($input->getOption($option)) {

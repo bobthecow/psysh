@@ -73,7 +73,7 @@ class DocblockTest extends \PHPUnit_Framework_TestCase
                     ),
                     'return' => array(
                         array('type' => 'int', 'desc' => 'At least it isn\'t a string'),
-                    )
+                    ),
                 ),
             ),
             array(

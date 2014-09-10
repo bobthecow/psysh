@@ -100,7 +100,6 @@ class VariableEnumerator extends Enumerator
         }
 
         return $ret;
-
     }
 
     /**

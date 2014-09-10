@@ -45,7 +45,6 @@ class CalledClassPass extends CodeCleanerPass
         if ($node instanceof ClassStmt || $node instanceof TraitStmt) {
             $this->inClass = true;
         } elseif ($node instanceof FuncCall && !$this->inClass) {
-
             // We'll give any args at all (besides null) a pass.
             // Technically we should be checking whether the args are objects, but this will do for now.
             //

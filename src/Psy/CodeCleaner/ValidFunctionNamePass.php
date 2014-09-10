@@ -12,7 +12,6 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Stmt\Function_ as FunctionStmt;
 use Psy\Exception\FatalErrorException;

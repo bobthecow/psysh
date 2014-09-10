@@ -75,7 +75,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $config = $this->getConfig(array(
             'defaultIncludes' => array('/file.php'),
-            'configFile'      => __DIR__.'/../../fixtures/empty.php'
+            'configFile'      => __DIR__.'/../../fixtures/empty.php',
         ));
 
         $shell = new Shell($config);
