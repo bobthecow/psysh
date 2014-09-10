@@ -80,7 +80,7 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
     {
         $obj1    = new \ArrayObject(array(1, "string"));
         $hash1   = spl_object_hash($obj1);
-        $ref1    = '<object>\\<<class>ArrayObject</class> <strong>#'.$hash1.'</strong>></object>';
+        $ref1    = '<object>\\<<class>ArrayObject</class> <strong>#' . $hash1 . '</strong>></object>';
         $expect1 = <<<EOS
 $ref1 [
     <number>1</number>,
@@ -90,7 +90,7 @@ EOS;
 
         $obj2    = new FakeArrayObject(array('a' => 'AAA', 'b' => 'BBB'));
         $hash2   = spl_object_hash($obj2);
-        $ref2    = '<object>\\<<class>Psy\\Test\\Presenter\\FakeArrayObject</class> <strong>#'.$hash2.'</strong>></object>';
+        $ref2    = '<object>\\<<class>Psy\\Test\\Presenter\\FakeArrayObject</class> <strong>#' . $hash2 . '</strong>></object>';
         $expect2 = <<<EOS
 $ref2 [
     <string>"a"</string> => <string>"AAA"</string>,

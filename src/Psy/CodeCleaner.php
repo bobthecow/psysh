@@ -157,7 +157,7 @@ class CodeCleaner
 
             try {
                 // Unexpected EOF, try again with an implicit semicolon
-                return $this->parser->parse($code.';');
+                return $this->parser->parse($code . ';');
             } catch (\PhpParser\Error $e) {
                 return false;
             }

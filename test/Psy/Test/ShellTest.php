@@ -63,7 +63,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
     public function testIncludes()
     {
-        $config = $this->getConfig(array('configFile' => __DIR__.'/../../fixtures/empty.php'));
+        $config = $this->getConfig(array('configFile' => __DIR__ . '/../../fixtures/empty.php'));
 
         $shell = new Shell($config);
         $this->assertEmpty($shell->getIncludes());
@@ -75,7 +75,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     {
         $config = $this->getConfig(array(
             'defaultIncludes' => array('/file.php'),
-            'configFile'      => __DIR__.'/../../fixtures/empty.php',
+            'configFile'      => __DIR__ . '/../../fixtures/empty.php',
         ));
 
         $shell = new Shell($config);
@@ -224,7 +224,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
-        $this->assertEquals('{{stdout}}'.PHP_EOL, $streamContents);
+        $this->assertEquals('{{stdout}}' . PHP_EOL, $streamContents);
     }
 
     public function testWriteStdoutWithoutNewline()
@@ -239,7 +239,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
-        $this->assertEquals('{{stdout}}<aside>⏎</aside>'.PHP_EOL, $streamContents);
+        $this->assertEquals('{{stdout}}<aside>⏎</aside>' . PHP_EOL, $streamContents);
     }
 
     /**
@@ -260,8 +260,8 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getReturnValues()
     {
         return array(
-            array('{{return value}}', '=> <string>"{{return value}}"</string>'.PHP_EOL),
-            array(1, '=> <number>1</number>'.PHP_EOL),
+            array('{{return value}}', '=> <string>"{{return value}}"</string>' . PHP_EOL),
+            array(1, '=> <number>1</number>' . PHP_EOL),
         );
     }
 
@@ -283,7 +283,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getRenderedExceptions()
     {
         return array(
-            array(new \Exception('{{message}}'), "Exception with message '{{message}}'".PHP_EOL),
+            array(new \Exception('{{message}}'), "Exception with message '{{message}}'" . PHP_EOL),
         );
     }
 

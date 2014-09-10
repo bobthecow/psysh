@@ -41,14 +41,14 @@ class Context
 
             case '_e':
                 if (!isset($this->lastException)) {
-                    throw new \InvalidArgumentException('Unknown variable: $'.$name);
+                    throw new \InvalidArgumentException('Unknown variable: $' . $name);
                 }
 
                 return $this->lastException;
 
             default:
                 if (!array_key_exists($name, $this->scopeVariables)) {
-                    throw new \InvalidArgumentException('Unknown variable: $'.$name);
+                    throw new \InvalidArgumentException('Unknown variable: $' . $name);
                 }
 
                 return $this->scopeVariables[$name];

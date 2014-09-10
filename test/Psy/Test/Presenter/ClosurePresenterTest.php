@@ -71,7 +71,7 @@ class ClosurePresenterTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 function ($foo = \PHP_EOL) {},
-                '<keyword>function</keyword> ($<strong>foo</strong> = '.$eol.') { <comment>...</comment> }',
+                '<keyword>function</keyword> ($<strong>foo</strong> = ' . $eol . ') { <comment>...</comment> }',
             ),
             array(
                 function ($foo) use ($eol, $null) {},

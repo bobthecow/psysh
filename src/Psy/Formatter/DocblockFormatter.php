@@ -149,7 +149,7 @@ class DocblockFormatter implements Formatter
      */
     private static function indent($text, $indent = '  ')
     {
-        return $indent . str_replace("\n", "\n".$indent, $text);
+        return $indent . str_replace("\n", "\n" . $indent, $text);
     }
 
     /**

@@ -61,7 +61,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function directories()
     {
-        $base = realpath(__DIR__.'/../../fixtures');
+        $base = realpath(__DIR__ . '/../../fixtures');
 
         return array(
             array(
@@ -111,7 +111,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfigFile()
     {
-        $config = new Configuration(array('configFile' => __DIR__.'/../../fixtures/config.php'));
+        $config = new Configuration(array('configFile' => __DIR__ . '/../../fixtures/config.php'));
 
         $runtimeDir = $this->joinPath(realpath(sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
 
@@ -133,7 +133,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         $config = new Configuration(array(
             'defaultIncludes' => array('/file.php'),
-            'configFile'      => __DIR__.'/../../fixtures/empty.php',
+            'configFile'      => __DIR__ . '/../../fixtures/empty.php',
         ));
 
         $includes = $config->getDefaultIncludes();

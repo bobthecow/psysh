@@ -112,6 +112,6 @@ abstract class RecursivePresenter implements Presenter, PresenterManagerAware
      */
     protected function indentValue($value)
     {
-        return str_replace(PHP_EOL, PHP_EOL.self::INDENT, $value);
+        return str_replace(PHP_EOL, PHP_EOL . self::INDENT, $value);
     }
 }

@@ -215,14 +215,14 @@ class Configuration
     {
         foreach (self::$AVAILABLE_OPTIONS as $option) {
             if (isset($options[$option])) {
-                $method = 'set'.ucfirst($option);
+                $method = 'set' . ucfirst($option);
                 $this->$method($options[$option]);
             }
         }
 
         foreach (array('commands') as $option) {
             if (isset($options[$option])) {
-                $method = 'add'.ucfirst($option);
+                $method = 'add' . ucfirst($option);
                 $this->$method($options[$option]);
             }
         }
@@ -478,7 +478,7 @@ class Configuration
      */
     public function getTempFile($type, $pid)
     {
-        return tempnam($this->getRuntimeDir(), $type.'_'.$pid.'_');
+        return tempnam($this->getRuntimeDir(), $type . '_' . $pid . '_');
     }
 
     /**
@@ -733,7 +733,7 @@ class Configuration
                 $this->pager = $pager;
             } elseif ($less = exec('which less 2>/dev/null')) {
                 // check for the presence of less...
-                $this->pager = $less.' -R -S -F -X';
+                $this->pager = $less . ' -R -S -F -X';
             }
         }
 
@@ -855,7 +855,7 @@ class Configuration
             $dbFile = $this->getManualDbFile();
             if (is_file($dbFile)) {
                 try {
-                    $this->manualDb = new \PDO('sqlite:'.$dbFile);
+                    $this->manualDb = new \PDO('sqlite:' . $dbFile);
                 } catch (\PDOException $e) {
                     if ($e->getMessage() === 'could not find driver') {
                         throw new RuntimeException('SQLite PDO driver not found', 0, $e);

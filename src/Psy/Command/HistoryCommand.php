@@ -90,7 +90,7 @@ HELP
         $insensitive = $input->getOption('insensitive');
         if ($pattern = $input->getOption('grep')) {
             if (substr($pattern, 0, 1) !== '/' || substr($pattern, -1) !== '/' || strlen($pattern) < 3) {
-                $pattern = '/'.preg_quote($pattern, '/').'/';
+                $pattern = '/' . preg_quote($pattern, '/') . '/';
             }
 
             if ($insensitive) {
@@ -166,7 +166,7 @@ HELP
             return array($start, $end);
         }
 
-        throw new \InvalidArgumentException('Unexpected range: '.$range);
+        throw new \InvalidArgumentException('Unexpected range: ' . $range);
     }
 
     /**
@@ -240,7 +240,7 @@ HELP
         }
 
         if ($count > 1) {
-            throw new \InvalidArgumentException('Please specify only one of --'.implode(', --', $options));
+            throw new \InvalidArgumentException('Please specify only one of --' . implode(', --', $options));
         }
     }
 

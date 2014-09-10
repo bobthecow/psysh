@@ -45,7 +45,7 @@ class ShellOutput extends ConsoleOutput
         } elseif ($pager instanceof OutputPager) {
             $this->pager = $pager;
         } else {
-            throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
+            throw new \InvalidArgumentException('Unexpected pager parameter: ' . $pager);
         }
     }
 

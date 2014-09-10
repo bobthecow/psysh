@@ -49,7 +49,7 @@ class SignatureFormatter implements Formatter
                 return self::formatProperty($reflector);
 
             default:
-                throw new \InvalidArgumentException('Unexpected Reflector class: '.get_class($reflector));
+                throw new \InvalidArgumentException('Unexpected Reflector class: ' . get_class($reflector));
         }
     }
 
@@ -233,7 +233,7 @@ class SignatureFormatter implements Formatter
                 // come to think of it, the only time I've seen this is with the intl extension.
 
                 // Hax: we'll try to extract it :P
-                $chunks = explode('$'.$param->getName(), (string) $param);
+                $chunks = explode('$' . $param->getName(), (string) $param);
                 $chunks = explode(' ', trim($chunks[0]));
                 $guess  = end($chunks);
 

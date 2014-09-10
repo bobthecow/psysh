@@ -104,7 +104,7 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
 
             if (version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant()) {
                 $name = $param->getDefaultValueConstantName();
-                $ret .= '<const>'.$name.'</const>';
+                $ret .= '<const>' . $name . '</const>';
             } elseif ($param->isDefaultValueAvailable()) {
                 $ret .= $this->manager->presentRef($param->getDefaultValue());
             } else {

@@ -50,7 +50,7 @@ class ErrorExceptionTest extends \PHPUnit_Framework_TestCase
         try {
             ErrorException::throwException($level, '{whot}', '{file}', '13');
         } catch (ErrorException $e) {
-            $this->assertContains('PHP '.$type, $e->getMessage());
+            $this->assertContains('PHP ' . $type, $e->getMessage());
             $this->assertContains('{whot}', $e->getMessage());
             $this->assertContains('{file}', $e->getMessage());
             $this->assertContains('13', $e->getMessage());
@@ -78,7 +78,7 @@ class ErrorExceptionTest extends \PHPUnit_Framework_TestCase
         try {
             trigger_error('{whot}', $level);
         } catch (ErrorException $e) {
-            $this->assertContains('PHP '.$type, $e->getMessage());
+            $this->assertContains('PHP ' . $type, $e->getMessage());
             $this->assertContains('{whot}', $e->getMessage());
         }
         restore_error_handler();

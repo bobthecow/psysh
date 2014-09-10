@@ -85,7 +85,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 return array($this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY);
 
             default:
-                throw new RuntimeException('Unknown target: '.$valueName);
+                throw new RuntimeException('Unknown target: ' . $valueName);
         }
     }
 
@@ -104,7 +104,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         if ($namespace = $this->getApplication()->getNamespace()) {
-            $fullName = $namespace.'\\'.$name;
+            $fullName = $namespace . '\\' . $name;
 
             if (class_exists($fullName) || interface_exists($fullName) || ($includeFunctions && function_exists($fullName))) {
                 return $fullName;

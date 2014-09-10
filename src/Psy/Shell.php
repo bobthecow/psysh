@@ -445,7 +445,7 @@ class Shell extends Application
         $command = $this->getCommand($input);
 
         if (empty($command)) {
-            throw new \InvalidArgumentException('Command not found: '.$input);
+            throw new \InvalidArgumentException('Command not found: ' . $input);
         }
 
         $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));

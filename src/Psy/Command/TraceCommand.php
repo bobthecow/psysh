@@ -130,7 +130,7 @@ HELP
         if ($cwd === false) {
             return $file;
         } else {
-            return preg_replace('/^'.preg_quote($cwd, '/').'/', '', $file);
+            return preg_replace('/^' . preg_quote($cwd, '/') . '/', '', $file);
         }
     }
 }

@@ -36,7 +36,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
 
     protected function parse($code, $prefix = '<?php ')
     {
-        $code = $prefix.$code;
+        $code = $prefix . $code;
         try {
             return $this->getParser()->parse($code);
         } catch (\PHPParser_Error $e) {
@@ -46,7 +46,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
 
             try {
                 // Unexpected EOF, try again with an implicit semicolon
-                return $this->getParser()->parse($code.';');
+                return $this->getParser()->parse($code . ';');
             } catch (\PHPParser_Error $e) {
                 return false;
             }

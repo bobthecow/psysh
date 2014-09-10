@@ -75,7 +75,7 @@ class ArrayPresenter extends RecursivePresenter
     {
         $prefix = '';
         if ($value instanceof \ArrayObject) {
-            $prefix = $this->presentArrayObjectRef($value).' ';
+            $prefix = $this->presentArrayObjectRef($value) . ' ';
             $value  = iterator_to_array($value->getIterator());
         }
 
