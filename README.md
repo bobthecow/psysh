@@ -12,7 +12,7 @@ Check out the [Interactive Debugging in PHP talk from OSCON](https://presentate.
 PsySH [is available via Composer](https://packagist.org/packages/psy/psysh), so you can use it in your project, or install it globally like this:
 
 ```
-composer global require psy/psysh:~0.1
+composer g require psy/psysh:@stable
 ```
 
 If this is your first time installing something globally with Composer, [make sure you have your path set up correctly](http://getcomposer.org/doc/03-cli.md#global).
@@ -36,7 +36,7 @@ chmod +x psysh
 
 ## PsySH configuration
 
-While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.psysh/rc.php`:
+While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.config/psysh/config.php`:
 
 ```php
 <?php
@@ -69,6 +69,10 @@ return array(
     // yourself or something.
     'useReadline' => false,
 
+    // PsySH automatically inserts semicolons at the end of input if a statement
+    // is missing one. To disable this, set `requireSemicolons` to true.
+    'requireSemicolons' => false,
+
     // "Default includes" will be included once at the beginning of every PsySH
     // session. This is a good place to add autoloaders for your favorite
     // libraries.
@@ -99,7 +103,7 @@ return array(
 
 ## Downloading the manual
 
-The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.psysh/`:
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/`:
 
  * **[English](http://psysh.org/manual/en/php_manual.sqlite)**
  * [Brazilian Portuguese](http://psysh.org/manual/pt_BR/php_manual.sqlite)

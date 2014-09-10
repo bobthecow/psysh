@@ -42,7 +42,7 @@ class Compiler
             ->name('*.php')
             ->notName('Compiler.php')
             ->notName('Autoloader.php')
-            ->in(__DIR__.'/..');
+            ->in(__DIR__ . '/..');
 
         foreach ($finder as $file) {
             $this->addFile($phar, $file);
@@ -53,21 +53,23 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')
-            ->in(__DIR__.'/../../vendor/nikic/')
-            ->in(__DIR__.'/../../vendor/symfony/console')
-            ->in(__DIR__.'/../../vendor/symfony/yaml');
+            ->in(__DIR__ . '/../../vendor/dnoegel/php-xdg-base-dir/src')
+            ->in(__DIR__ . '/../../vendor/nikic/php-parser/lib')
+            ->in(__DIR__ . '/../../vendor/symfony/console')
+            ->in(__DIR__ . '/../../vendor/symfony/yaml');
 
         foreach ($finder as $file) {
             $this->addFile($phar, $file);
         }
 
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/autoload.php'));
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/include_paths.php'));
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_psr4.php'));
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_real.php'));
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_namespaces.php'));
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/autoload_classmap.php'));
-        $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../vendor/composer/ClassLoader.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/autoload.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/include_paths.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/autoload_files.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/autoload_psr4.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/autoload_real.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/autoload_namespaces.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/autoload_classmap.php'));
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/composer/ClassLoader.php'));
 
         // Stubs
         $phar->setStub($this->getStub());
@@ -88,13 +90,13 @@ class Compiler
      */
     private function addFile($phar, $file, $strip = true)
     {
-        $path = str_replace(dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR, '', $file->getRealPath());
+        $path = str_replace(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR, '', $file->getRealPath());
 
         $content = file_get_contents($file);
         if ($strip) {
             $content = $this->stripWhitespace($content);
         } elseif ('LICENSE' === basename($file)) {
-            $content = "\n".$content."\n";
+            $content = "\n" . $content . "\n";
         }
 
         $phar->addFromString($path, $content);
@@ -149,7 +151,7 @@ Phar::mapPhar('psysh.phar');
 require 'phar://psysh.phar/vendor/autoload.php';
 EOS;
 
-        $content = file_get_contents(__DIR__.'/../../bin/psysh');
+        $content = file_get_contents(__DIR__ . '/../../bin/psysh');
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
         $content .= "__HALT_COMPILER();";
 

@@ -30,7 +30,7 @@ class DocblockFormatterTest extends \PHPUnit_Framework_TestCase
     private function methodWithDocblock($foo, $bar = 1)
     {
         if (empty($foo)) {
-            throw new \InvalidArgumentException;
+            throw new \InvalidArgumentException();
         }
 
         return "method called";

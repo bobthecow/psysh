@@ -11,8 +11,8 @@
 
 namespace Psy\Command;
 
-use PHPParser_Lexer as Lexer;
-use PHPParser_Parser as Parser;
+use PhpParser\Lexer;
+use PhpParser\Parser;
 use Psy\Presenter\PHPParserPresenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
@@ -36,13 +36,13 @@ class ParseCommand extends Command implements PresenterManagerAware
      */
     public function setPresenterManager(PresenterManager $manager)
     {
-        $this->presenterManager = new PresenterManager;
+        $this->presenterManager = new PresenterManager();
 
         foreach ($manager as $presenter) {
             $this->presenterManager->addPresenter($presenter);
         }
 
-        $this->presenterManager->addPresenter(new PHPParserPresenter);
+        $this->presenterManager->addPresenter(new PHPParserPresenter());
     }
 
     /**
@@ -82,7 +82,7 @@ HELP
 
         $depth = $input->getOption('depth');
         $nodes = $this->parse($code);
-        $output->page($this->presenterManager->present($nodes, $depth, true));
+        $output->page($this->presenterManager->present($nodes, $depth));
     }
 
     /**
@@ -98,7 +98,7 @@ HELP
 
         try {
             return $parser->parse($code);
-        } catch (\PHPParser_Error $e) {
+        } catch (\PhpParser\Error $e) {
             if (strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
@@ -116,7 +116,7 @@ HELP
     private function getParser()
     {
         if (!isset($this->parser)) {
-            $this->parser = new Parser(new Lexer);
+            $this->parser = new Parser(new Lexer());
         }
 
         return $this->parser;

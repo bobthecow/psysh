@@ -22,7 +22,6 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
 
     private function someFakeMethod(array $one, $two = 'TWO', \Reflector $three = null)
     {
-
     }
 
     /**
@@ -65,7 +64,7 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 new \ReflectionClass('Psy\CodeCleaner\CodeCleanerPass'),
-                'abstract class Psy\CodeCleaner\CodeCleanerPass extends PHPParser_NodeVisitorAbstract implements PHPParser_NodeVisitor'
+                'abstract class Psy\CodeCleaner\CodeCleanerPass extends PhpParser\NodeVisitorAbstract implements PhpParser\NodeVisitor',
             ),
         );
     }

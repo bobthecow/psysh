@@ -11,10 +11,10 @@
 
 namespace Psy;
 
-use PHPParser_Lexer as Lexer;
-use PHPParser_NodeTraverser as NodeTraverser;
-use PHPParser_Parser as Parser;
-use PHPParser_PrettyPrinter_Default as Printer;
+use PhpParser\Lexer;
+use PhpParser\NodeTraverser;
+use PhpParser\Parser;
+use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CalledClassPass;
@@ -46,15 +46,15 @@ class CodeCleaner
     /**
      * CodeCleaner constructor.
      *
-     * @param Parser        $parser    A PHPParser Parser instance. One will be created if not explicitly supplied.
-     * @param Printer       $printer   A PHPParser Printer instance. One will be created if not explicitly supplied.
-     * @param NodeTraverser $traverser A PHPParser NodeTraverser instance. One will be created if not explicitly supplied.
+     * @param Parser        $parser    A PhpParser Parser instance. One will be created if not explicitly supplied.
+     * @param Printer       $printer   A PhpParser Printer instance. One will be created if not explicitly supplied.
+     * @param NodeTraverser $traverser A PhpParser NodeTraverser instance. One will be created if not explicitly supplied.
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
-        $this->parser    = $parser    ?: new Parser(new Lexer);
-        $this->printer   = $printer   ?: new Printer;
-        $this->traverser = $traverser ?: new NodeTraverser;
+        $this->parser    = $parser    ?: new Parser(new Lexer());
+        $this->printer   = $printer   ?: new Printer();
+        $this->traverser = $traverser ?: new NodeTraverser();
 
         foreach ($this->getDefaultPasses() as $pass) {
             $this->traverser->addVisitor($pass);
@@ -69,21 +69,21 @@ class CodeCleaner
     private function getDefaultPasses()
     {
         return array(
-            new AbstractClassPass,
-            new AssignThisVariablePass,
-            new FunctionReturnInWriteContextPass,
-            new CallTimePassByReferencePass,
-            new CalledClassPass,
-            new InstanceOfPass,
-            new LeavePsyshAlonePass,
-            new ImplicitReturnPass,
-            new UseStatementPass,      // must run before namespace and validation passes
-            new NamespacePass($this),  // must run after the implicit return pass
-            new StaticConstructorPass,
-            new ValidFunctionNamePass,
-            new ValidClassNamePass,
-            new ValidConstantPass,
-            new MagicConstantsPass,
+            new AbstractClassPass(),
+            new AssignThisVariablePass(),
+            new FunctionReturnInWriteContextPass(),
+            new CallTimePassByReferencePass(),
+            new CalledClassPass(),
+            new InstanceOfPass(),
+            new LeavePsyshAlonePass(),
+            new ImplicitReturnPass(),
+            new UseStatementPass(),      // must run before namespace and validation passes
+            new NamespacePass($this),    // must run after the implicit return pass
+            new StaticConstructorPass(),
+            new ValidFunctionNamePass(),
+            new ValidClassNamePass(),
+            new ValidConstantPass(),
+            new MagicConstantsPass(),
         );
     }
 
@@ -93,12 +93,13 @@ class CodeCleaner
      * @throws ParseErrorException if the code is invalid PHP, and cannot be coerced into valid PHP.
      *
      * @param array $codeLines
+     * @param bool  $requireSemicolons
      *
      * @return string|false Cleaned PHP code, False if the input is incomplete.
      */
-    public function clean(array $codeLines)
+    public function clean(array $codeLines, $requireSemicolons = false)
     {
-        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines) . PHP_EOL);
+        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines) . PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
             return false;
         }
@@ -137,28 +138,33 @@ class CodeCleaner
      * @see Parser::parse
      *
      * @param string $code
+     * @param bool   $requireSemicolons
      *
      * @return array A set of statements
      */
-    protected function parse($code)
+    protected function parse($code, $requireSemicolons = false)
     {
         try {
             return $this->parser->parse($code);
-        } catch (\PHPParser_Error $e) {
+        } catch (\PhpParser\Error $e) {
             if (!$this->parseErrorIsEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
 
+            if ($requireSemicolons) {
+                return false;
+            }
+
             try {
                 // Unexpected EOF, try again with an implicit semicolon
-                return $this->parser->parse($code.';');
-            } catch (\PHPParser_Error $e) {
+                return $this->parser->parse($code . ';');
+            } catch (\PhpParser\Error $e) {
                 return false;
             }
         }
     }
 
-    private function parseErrorIsEOF(\PHPParser_Error $e)
+    private function parseErrorIsEOF(\PhpParser\Error $e)
     {
         $msg = $e->getRawMessage();
 

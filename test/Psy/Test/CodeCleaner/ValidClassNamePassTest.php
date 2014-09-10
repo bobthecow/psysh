@@ -18,7 +18,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->setPass(new ValidClassNamePass);
+        $this->setPass(new ValidClassNamePass());
     }
 
     /**
@@ -44,7 +44,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
         // class declarations
         return array(
             // core class
-            array('class StdClass {}'),
+            array('class stdClass {}'),
             // capitalization
             array('class stdClass {}'),
 
@@ -100,10 +100,10 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             // extends and implements
             array('class ValidClassNamePassTest extends NotAClass {}'),
             array('class ValidClassNamePassTest extends ArrayAccess {}'),
-            array('class ValidClassNamePassTest implements StdClass {}'),
-            array('class ValidClassNamePassTest implements ArrayAccess, StdClass {}'),
-            array('interface ValidClassNamePassTest extends StdClass {}'),
-            array('interface ValidClassNamePassTest extends ArrayAccess, StdClass {}'),
+            array('class ValidClassNamePassTest implements stdClass {}'),
+            array('class ValidClassNamePassTest implements ArrayAccess, stdClass {}'),
+            array('interface ValidClassNamePassTest extends stdClass {}'),
+            array('interface ValidClassNamePassTest extends ArrayAccess, stdClass {}'),
 
             // class instantiations
             array('new Psy_Test_CodeCleaner_ValidClassNamePass_Gamma();'),
@@ -136,10 +136,10 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     class Psy_Test_CodeCleaner_ValidClassNamePass_Eta {}
                 }
             "),
-            array('namespace Psy\Test\CodeCleaner\ValidClassNamePass { class StdClass {} }'),
+            array('namespace Psy\Test\CodeCleaner\ValidClassNamePass { class stdClass {} }'),
 
             // class instantiations
-            array('new StdClass();'),
+            array('new stdClass();'),
             array('new stdClass();'),
             array("
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {

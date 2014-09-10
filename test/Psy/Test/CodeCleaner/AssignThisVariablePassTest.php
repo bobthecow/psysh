@@ -18,8 +18,8 @@ class AssignThisVariablePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new AssignThisVariablePass;
-        $this->traverser = new NodeTraverser;
+        $this->pass      = new AssignThisVariablePass();
+        $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor($this->pass);
     }
 

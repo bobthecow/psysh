@@ -19,13 +19,13 @@ class ResourcePresenterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->presenter = new ResourcePresenter;
+        $this->presenter = new ResourcePresenter();
     }
 
     public function testPresent()
     {
         $resource = fopen('php://stdin', 'r');
-        $this->assertStringMatchesFormat('\<STDIO stream resource #%d>', $this->presenter->present($resource));
+        $this->assertStringMatchesFormat('<resource>\<STDIO stream <strong>resource #%d</strong>></resource>', $this->presenter->present($resource));
         fclose($resource);
     }
 }

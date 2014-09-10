@@ -11,15 +11,14 @@
 
 namespace Psy\Presenter;
 
-use PHPParser_Node as Node;
+use PhpParser\Node;
 
 /**
- * A PHPParser Presenter.
+ * A PhpParser Presenter.
  */
 class PHPParserPresenter extends ObjectPresenter
 {
-    const FMT       = '\\<%s>';
-    const COLOR_FMT = '<object>\\<<class>%s</class>></object>';
+    const FMT = '<object>\\<<class>%s</class>></object>';
 
     /**
      * PHPParserPresenter can present parse trees.
@@ -40,11 +39,9 @@ class PHPParserPresenter extends ObjectPresenter
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
-        $format = $color ? self::COLOR_FMT : self::FMT;
-
-        return sprintf($format, get_class($value));
+        return sprintf(self::FMT, get_class($value));
     }
 
     /**
@@ -52,10 +49,11 @@ class PHPParserPresenter extends ObjectPresenter
      *
      * @param object           $value
      * @param \ReflectionClass $class
+     * @param int              $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $propertyFilter)
     {
         $props = array();
 

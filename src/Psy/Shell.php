@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.1.12';
+    const VERSION = 'v0.2.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -65,10 +65,10 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
-        $this->config   = $config ?: new Configuration;
+        $this->config   = $config ?: new Configuration();
         $this->cleaner  = $this->config->getCodeCleaner();
         $this->loop     = $this->config->getLoop();
-        $this->context  = new Context;
+        $this->context  = new Context();
         $this->includes = array();
         $this->readline = $this->config->getReadline();
 
@@ -114,7 +114,7 @@ class Shell extends Application
     {
         echo PHP_EOL;
 
-        $sh = new \Psy\Shell;
+        $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
         $sh->run();
 
@@ -165,22 +165,22 @@ class Shell extends Application
      */
     protected function getDefaultCommands()
     {
-        $hist = new Command\HistoryCommand;
+        $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
         return array(
-            new Command\HelpCommand,
-            new Command\ListCommand,
-            new Command\DumpCommand,
-            new Command\DocCommand,
-            new Command\ShowCommand,
-            new Command\WtfCommand,
-            new Command\TraceCommand,
-            new Command\BufferCommand,
-            new Command\ClearCommand,
-            // new Command\PsyVersionCommand,
+            new Command\HelpCommand(),
+            new Command\ListCommand(),
+            new Command\DumpCommand(),
+            new Command\DocCommand(),
+            new Command\ShowCommand(),
+            new Command\WtfCommand(),
+            new Command\TraceCommand(),
+            new Command\BufferCommand(),
+            new Command\ClearCommand(),
+            // new Command\PsyVersionCommand(),
             $hist,
-            new Command\ExitCommand,
+            new Command\ExitCommand(),
         );
     }
 
@@ -411,7 +411,7 @@ class Shell extends Application
             }
 
             $this->codeBuffer[] = $code;
-            $this->code         = $this->cleaner->clean($this->codeBuffer);
+            $this->code         = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
             $this->readline->addHistory(implode("\n", $this->codeBuffer));
@@ -445,7 +445,7 @@ class Shell extends Application
         $command = $this->getCommand($input);
 
         if (empty($command)) {
-            throw new \InvalidArgumentException('Command not found: '.$input);
+            throw new \InvalidArgumentException('Command not found: ' . $input);
         }
 
         $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
@@ -553,11 +553,7 @@ class Shell extends Application
         $ret    = $this->presentValue($ret);
         $indent = str_repeat(' ', strlen(self::RETVAL));
 
-        $this->output->writeln(sprintf(
-            '%s<return>%s</return>',
-            self::RETVAL,
-            str_replace(PHP_EOL, PHP_EOL . $indent, $ret)
-        ));
+        $this->output->writeln(self::RETVAL . str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
     }
 
     /**

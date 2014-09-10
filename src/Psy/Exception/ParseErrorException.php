@@ -14,7 +14,7 @@ namespace Psy\Exception;
 /**
  * A "parse error" Exception for Psy.
  */
-class ParseErrorException extends \PHPParser_Error implements Exception
+class ParseErrorException extends \PhpParser\Error implements Exception
 {
     /**
      * Constructor!
@@ -29,13 +29,13 @@ class ParseErrorException extends \PHPParser_Error implements Exception
     }
 
     /**
-     * Create a ParseErrorException from a PHPParser Error.
+     * Create a ParseErrorException from a PhpParser Error.
      *
-     * @param \PHPParser_Error $e
+     * @param \PhpParser\Error $e
      *
      * @return ParseErrorException
      */
-    public static function fromParseError(\PHPParser_Error $e)
+    public static function fromParseError(\PhpParser\Error $e)
     {
         return new self($e->getRawMessage(), $e->getRawLine());
     }

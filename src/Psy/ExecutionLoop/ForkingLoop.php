@@ -44,7 +44,6 @@ class ForkingLoop extends Loop
         if ($pid < 0) {
             throw new \RuntimeException('Unable to start execution loop.');
         } elseif ($pid > 0) {
-
             // This is the main thread. We'll just wait for a while.
 
             // We won't be needing this one.

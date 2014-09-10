@@ -30,7 +30,7 @@ class InspectorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('BAZ', $result->baz);
         $this->assertEquals(array('a' => array('b' => 'Array(1)')), $result->qux);
 
-        $result = Inspector::export(new \StdClass, 0);
+        $result = Inspector::export(new \StdClass(), 0);
         $this->assertInternalType('string', $result);
         $this->assertRegExp('/<stdClass #[0-9a-f]+>/i', $result);
 

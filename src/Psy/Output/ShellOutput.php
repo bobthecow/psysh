@@ -45,7 +45,7 @@ class ShellOutput extends ConsoleOutput
         } elseif ($pager instanceof OutputPager) {
             $this->pager = $pager;
         } else {
-            throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
+            throw new \InvalidArgumentException('Unexpected pager parameter: ' . $pager);
         }
     }
 
@@ -175,19 +175,19 @@ class ShellOutput extends ConsoleOutput
 
         $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
         $formatter->setStyle('aside',   new OutputFormatterStyle('blue'));
-        $formatter->setStyle('strong',  new OutputFormatterStyle('white', null, array('bold')));
+        $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, array('bold')));
         $formatter->setStyle('return',  new OutputFormatterStyle('cyan'));
         $formatter->setStyle('urgent',  new OutputFormatterStyle('red'));
         $formatter->setStyle('hidden',  new OutputFormatterStyle('black'));
 
         // Visibility
-        $formatter->setStyle('public',    new OutputFormatterStyle('white', null, array('bold')));
+        $formatter->setStyle('public',    new OutputFormatterStyle(null, null, array('bold')));
         $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
         $formatter->setStyle('private',   new OutputFormatterStyle('red'));
         $formatter->setStyle('global',    new OutputFormatterStyle('cyan', null, array('bold')));
         $formatter->setStyle('const',     new OutputFormatterStyle('cyan'));
         $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, array('underscore')));
-        $formatter->setStyle('function',  new OutputFormatterStyle('white'));
+        $formatter->setStyle('function',  new OutputFormatterStyle(null));
 
         // Types
         $formatter->setStyle('number',   new OutputFormatterStyle('magenta'));

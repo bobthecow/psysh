@@ -87,7 +87,7 @@ abstract class Enumerator
 
     protected function presentRef($value)
     {
-        return $this->presenterManager->presentRef($value, true);
+        return $this->presenterManager->presentRef($value);
     }
 
     protected function showItem($name)
@@ -99,7 +99,7 @@ abstract class Enumerator
     {
         if ($pattern = $input->getOption('grep')) {
             if (substr($pattern, 0, 1) !== '/' || substr($pattern, -1) !== '/' || strlen($pattern) < 3) {
-                $pattern = '/'.preg_quote($pattern, '/').'/';
+                $pattern = '/' . preg_quote($pattern, '/') . '/';
             }
 
             if ($input->getOption('insensitive')) {

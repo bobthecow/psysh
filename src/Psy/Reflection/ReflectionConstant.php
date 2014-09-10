@@ -39,7 +39,7 @@ class ReflectionConstant implements \Reflector
 
         $constants = $class->getConstants();
         if (!array_key_exists($name, $constants)) {
-            throw new \InvalidArgumentException('Unknown constant: '.$name);
+            throw new \InvalidArgumentException('Unknown constant: ' . $name);
         }
 
         $this->value = $constants[$name];

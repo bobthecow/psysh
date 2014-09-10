@@ -11,9 +11,9 @@
 
 namespace Psy\CodeCleaner;
 
-use PHPParser_Node as Node;
-use PHPParser_Node_Stmt_Class as ClassStmt;
-use PHPParser_Node_Stmt_ClassMethod as ClassMethod;
+use PhpParser\Node;
+use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\ClassMethod;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -21,7 +21,6 @@ use Psy\Exception\FatalErrorException;
  */
 class AbstractClassPass extends CodeCleanerPass
 {
-
     private $class;
     private $abstractMethods;
 
@@ -67,5 +66,4 @@ class AbstractClassPass extends CodeCleanerPass
             }
         }
     }
-
 }

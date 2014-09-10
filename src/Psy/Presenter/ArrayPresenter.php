@@ -18,8 +18,7 @@ use Psy\Util\Json;
  */
 class ArrayPresenter extends RecursivePresenter
 {
-    const ARRAY_OBJECT_FMT       = '\\<%s #%s>';
-    const ARRAY_OBJECT_COLOR_FMT = '<object>\\<<class>%s</class> <strong>#%s</strong>></object>';
+    const ARRAY_OBJECT_FMT = '<object>\\<<class>%s</class> <strong>#%s</strong>></object>';
 
     /**
      * ArrayPresenter can present arrays.
@@ -40,16 +39,14 @@ class ArrayPresenter extends RecursivePresenter
      *
      * @return string
      */
-    public function presentRef($value, $color = false)
+    public function presentRef($value)
     {
         if ($value instanceof \ArrayObject) {
-            return $this->presentArrayObjectRef($value, $color);
+            return $this->presentArrayObjectRef($value);
         } elseif (empty($value)) {
             return '[]';
-        } elseif ($color) {
-            return sprintf('Array(<number>%d</number>)', count($value));
         } else {
-            return sprintf('Array(%d)', count($value));
+            return sprintf('Array(<number>%d</number>)', count($value));
         }
     }
 
@@ -57,47 +54,44 @@ class ArrayPresenter extends RecursivePresenter
      * Present a reference to an ArrayObject
      *
      * @param ArrayObject $value
-     * @param boolean     $color
      *
      * @return string
      */
-    protected function presentArrayObjectRef($value, $color)
+    protected function presentArrayObjectRef($value)
     {
-        $format = $color ? self::ARRAY_OBJECT_COLOR_FMT : self::ARRAY_OBJECT_FMT;
-
-        return sprintf($format, get_class($value), spl_object_hash($value));
+        return sprintf(self::ARRAY_OBJECT_FMT, get_class($value), spl_object_hash($value));
     }
 
     /**
      * Present the array.
      *
      * @param object $value
-     * @param int    $depth (default: null)
-     * @param bool   $color (default: false)
+     * @param int    $depth   (default: null)
+     * @param int    $options One of Presenter constants
      *
      * @return string
      */
-    protected function presentValue($value, $depth = null, $color = false)
+    protected function presentValue($value, $depth = null, $options = 0)
     {
         $prefix = '';
         if ($value instanceof \ArrayObject) {
-            $prefix = $this->presentArrayObjectRef($value, $color) . ' ';
+            $prefix = $this->presentArrayObjectRef($value) . ' ';
             $value  = iterator_to_array($value->getIterator());
         }
 
         if (empty($value) || $depth === 0) {
-            return $this->presentRef($value, $color);
+            return $this->presentRef($value);
         }
 
         $formatted = array();
         foreach ($value as $key => $val) {
-            $formatted[$key] = $this->presentSubValue($val, $color);
+            $formatted[$key] = $this->presentSubValue($val);
         }
 
         if ($this->shouldShowKeys($value)) {
             $pad = max(array_map('strlen', array_map(array('Psy\Util\Json', 'encode'), array_keys($value))));
             foreach ($formatted as $key => $val) {
-                $formatted[$key] = $this->formatKeyAndValue($key, $val, $pad, $color);
+                $formatted[$key] = $this->formatKeyAndValue($key, $val, $pad);
             }
         } else {
             $formatted = array_map(array($this, 'indentValue'), $formatted);
@@ -137,18 +131,13 @@ class ArrayPresenter extends RecursivePresenter
      * @param mixed   $key
      * @param string  $value
      * @param integer $pad   Maximum key width, to align the hashrockets.
-     * @param bool    $color (default: false)
      *
      * @return string
      */
-    protected function formatKeyAndValue($key, $value, $pad = 0, $color = false)
+    protected function formatKeyAndValue($key, $value, $pad = 0)
     {
-        if ($color) {
-            $type = is_string($value) ? 'string' : 'number';
-            $tpl  = "<$type>%-${pad}s</$type> => %s";
-        } else {
-            $tpl = "%-${pad}s => %s";
-        }
+        $type = is_string($value) ? 'string' : 'number';
+        $tpl  = "<$type>%-${pad}s</$type> => %s";
 
         return sprintf(
             $tpl,

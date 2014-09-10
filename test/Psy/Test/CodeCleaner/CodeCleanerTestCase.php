@@ -29,14 +29,14 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     {
         $this->pass = $pass;
         if (!isset($this->traverser)) {
-            $this->traverser = new NodeTraverser;
+            $this->traverser = new NodeTraverser();
         }
         $this->traverser->addVisitor($this->pass);
     }
 
     protected function parse($code, $prefix = '<?php ')
     {
-        $code = $prefix.$code;
+        $code = $prefix . $code;
         try {
             return $this->getParser()->parse($code);
         } catch (\PHPParser_Error $e) {
@@ -46,7 +46,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
 
             try {
                 // Unexpected EOF, try again with an implicit semicolon
-                return $this->getParser()->parse($code.';');
+                return $this->getParser()->parse($code . ';');
             } catch (\PHPParser_Error $e) {
                 return false;
             }
@@ -73,7 +73,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     private function getParser()
     {
         if (!isset($this->parser)) {
-            $this->parser = new Parser(new Lexer);
+            $this->parser = new Parser(new Lexer());
         }
 
         return $this->parser;
@@ -82,7 +82,7 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     private function getPrinter()
     {
         if (!isset($this->printer)) {
-            $this->printer = new Printer;
+            $this->printer = new Printer();
         }
 
         return $this->printer;

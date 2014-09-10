@@ -9,9 +9,13 @@
  * file that was distributed with this source code.
  */
 
-$config->setTempDir(sys_get_temp_dir().'/psysh_test/withconfig/temp');
+namespace Psy\Test\Presenter\Fixtures;
 
-return array(
-    'useReadline' => true,
-    'usePcntl'    => false,
-);
+class SimpleClass
+{
+    public $hello = 'Hello world!';
+
+    protected $foo = 'bar';
+
+    private $secret = 42;
+}

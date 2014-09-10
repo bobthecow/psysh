@@ -36,10 +36,11 @@ class MongoCursorPresenter extends ObjectPresenter
      *
      * @param object           $value
      * @param \ReflectionClass $class
+     * @param int              $propertyFilter One of \ReflectionProperty constants
      *
      * @return array
      */
-    protected function getProperties($value, \ReflectionClass $class)
+    protected function getProperties($value, \ReflectionClass $class, $propertyFilter)
     {
         $info = $value->info();
 
@@ -54,7 +55,7 @@ class MongoCursorPresenter extends ObjectPresenter
 
         return array_merge(
             $info,
-            parent::getProperties($value, $class)
+            parent::getProperties($value, $class, $propertyFilter)
         );
     }
 
@@ -68,10 +69,10 @@ class MongoCursorPresenter extends ObjectPresenter
     private function normalizeQueryArray(array &$info)
     {
         if (isset($info['query'])) {
-            if ($info['query'] == new \StdClass) {
+            if ($info['query'] == new \StdClass()) {
                 $info['query'] = array();
             } elseif (is_array($info['query']) && isset($info['query']['$query'])) {
-                if ($info['query']['$query'] == new \StdClass) {
+                if ($info['query']['$query'] == new \StdClass()) {
                     $info['query']['$query'] = array();
                 }
             }
@@ -87,7 +88,7 @@ class MongoCursorPresenter extends ObjectPresenter
      */
     private function normalizeFieldsArray(array &$info)
     {
-        if (isset($info['fields']) && $info['fields'] == new \StdClass) {
+        if (isset($info['fields']) && $info['fields'] == new \StdClass()) {
             $info['fields'] = array();
         }
     }

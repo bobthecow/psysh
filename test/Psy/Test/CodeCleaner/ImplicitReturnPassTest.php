@@ -17,7 +17,7 @@ class ImplicitReturnPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->setPass(new ImplicitReturnPass);
+        $this->setPass(new ImplicitReturnPass());
     }
 
     /**

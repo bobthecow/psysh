@@ -25,7 +25,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
 
         $this->historyFile = tempnam(sys_get_temp_dir(), 'psysh_test_history');
         if (false === file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
-            $this->fail('Unable to write history file: '.$this->historyFile);
+            $this->fail('Unable to write history file: ' . $this->historyFile);
         }
         // Calling readline_read_history before readline_clear_history
         // avoids segfault with PHP 5.5.7 & libedit v3.1
@@ -101,7 +101,7 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(array(
             'This is an entry',
-            'This is an entry'
+            'This is an entry',
         ), $readline->listHistory());
         $readline->clearHistory();
     }
@@ -121,9 +121,8 @@ class LibeditTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(
             "foo\rbar",
             "baz\r",
-            "w00t"
+            "w00t",
         ), $readline->listHistory());
         $readline->clearHistory();
     }
-
 }
