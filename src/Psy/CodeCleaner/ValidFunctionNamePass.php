@@ -12,7 +12,10 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Function_ as FunctionStmt;
 use Psy\Exception\FatalErrorException;
 
@@ -45,10 +48,12 @@ class ValidFunctionNamePass extends NamespaceAwarePass
         } elseif ($node instanceof FuncCall) {
             // if function name is an expression, give it a pass for now.
             $name = $node->name;
-            if (!$name instanceof Expression) {
+            if ($name instanceof Variable) {
+                $fullName  = sprintf('\\Closure::%s', $name->name);
+                $this->currentScope[$fullName] = true;
+            }else if (!$name instanceof Expression) {
                 $shortName = implode('\\', $name->parts);
                 $fullName  = $this->getFullyQualifiedName($name);
-
                 if (
                     !isset($this->currentScope[strtolower($fullName)]) &&
                     !function_exists($shortName) &&
