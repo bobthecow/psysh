@@ -12,8 +12,6 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Function_ as FunctionStmt;
@@ -46,12 +44,9 @@ class ValidFunctionNamePass extends NamespaceAwarePass
 
             $this->currentScope[strtolower($name)] = true;
         } elseif ($node instanceof FuncCall) {
-            // if function name is an expression, give it a pass for now.
+            // if function name is an expression or a variable, give it a pass for now.
             $name = $node->name;
-            if ($name instanceof Variable) {
-                $fullName  = sprintf('\\Closure::%s', $name->name);
-                $this->currentScope[$fullName] = true;
-            }else if (!$name instanceof Expression) {
+            if (!$name instanceof Expression && !$name instanceof Variable) {
                 $shortName = implode('\\', $name->parts);
                 $fullName  = $this->getFullyQualifiedName($name);
                 if (
