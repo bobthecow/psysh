@@ -109,6 +109,8 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
                     theta();
                 }
             "),
+            // closures
+            array('$test = function(){};$test()'),
             array("
                 namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
                     function theta() {}
