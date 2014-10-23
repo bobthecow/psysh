@@ -2,4 +2,3 @@ vendor/
 composer.lock
 manual/
 __pycache__
-.idea
