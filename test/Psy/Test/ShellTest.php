@@ -212,6 +212,17 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell->flushCode();
     }
 
+    public function testClosuresSupport()
+    {
+        $shell = new Shell($this->getConfig());
+        $code = '$test = function () {}';
+        $shell->addCode($code);
+        $shell->flushCode();
+        $code = '$test()';
+        $shell->addCode($code);
+        $shell->flushCode();
+    }
+
     public function testWriteStdout()
     {
         $output = $this->getOutput();
