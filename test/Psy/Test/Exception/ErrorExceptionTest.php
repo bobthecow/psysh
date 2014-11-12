@@ -52,8 +52,8 @@ class ErrorExceptionTest extends \PHPUnit_Framework_TestCase
         } catch (ErrorException $e) {
             $this->assertContains('PHP ' . $type, $e->getMessage());
             $this->assertContains('{whot}', $e->getMessage());
-            $this->assertContains('{file}', $e->getMessage());
-            $this->assertContains('13', $e->getMessage());
+            $this->assertContains('in {file}', $e->getMessage());
+            $this->assertContains('on line 13', $e->getMessage());
         }
     }
 
