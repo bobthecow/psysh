@@ -32,6 +32,12 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
+        if (version_compare(PHP_VERSION, '5.5', '>=')) {
+            return array(
+                array('empty()'),
+            );
+        }
+
         return array(
             array('empty()'),
             array('empty(null)'),
@@ -53,10 +59,19 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        $data = array(
-            array('empty($foo)'),
-        );
+        if (version_compare(PHP_VERSION, '5.5', '<')) {
+            return array(
+                array('empty($foo)'),
+            );
+        }
 
-        return $data;
+        return array(
+            array('empty($foo)'),
+            array('empty(null)'),
+            array('empty(PHP_EOL)'),
+            array('empty("wat")'),
+            array('empty(1.1)'),
+            array('empty(Foo::$bar)'),
+        );
     }
 }
