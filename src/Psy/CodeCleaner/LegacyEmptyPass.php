@@ -58,7 +58,6 @@ class LegacyEmptyPass extends CodeCleanerPass
                 return (string) $node->name;
 
             default:
-                var_dump($node);
                 return $node->getType();
         }
     }

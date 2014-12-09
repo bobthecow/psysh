@@ -22,7 +22,7 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\FatalErrorException
+     * @expectedException \Psy\Exception\ParseErrorException
      */
     public function testProcessInvalidStatement($code)
     {
@@ -38,6 +38,7 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
             array('empty(PHP_EOL)'),
             array('empty("wat")'),
             array('empty(1.1)'),
+            array('empty(Foo::$bar)'),
         );
     }
 
@@ -54,7 +55,6 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
     {
         $data = array(
             array('empty($foo)'),
-            array('empty(Bar::$baz)'),
         );
 
         return $data;
