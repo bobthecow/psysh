@@ -29,7 +29,20 @@ class ArrayPresenter extends RecursivePresenter
      */
     public function canPresent($value)
     {
-        return is_array($value) || $value instanceof \ArrayObject;
+        return is_array($value) || $this->isArrayObject($value);
+    }
+
+    /**
+     * Determine whether something is an ArrayObject.
+     *
+     * This is a useful extension point for Presenter subclasses for Array-like
+     * objects which aren't necessarily subclasses of ArrayObject.
+     *
+     * @return boolean
+     */
+    protected function isArrayObject($value)
+    {
+        return $value instanceof \ArrayObject;
     }
 
     /**
@@ -41,7 +54,7 @@ class ArrayPresenter extends RecursivePresenter
      */
     public function presentRef($value)
     {
-        if ($value instanceof \ArrayObject) {
+        if ($this->isArrayObject($value)) {
             return $this->presentArrayObjectRef($value);
         } elseif (empty($value)) {
             return '[]';
@@ -63,6 +76,19 @@ class ArrayPresenter extends RecursivePresenter
     }
 
     /**
+     * Get an array of values from an ArrayObject.
+     *
+     * This is a useful extension point for Presenter subclasses for Array-like
+     * objects which aren't necessarily subclasses of ArrayObject.
+     *
+     * @return array
+     */
+    protected function getArrayObjectValue($value)
+    {
+        return iterator_to_array($value->getIterator());
+    }
+
+    /**
      * Present the array.
      *
      * @param object $value
@@ -74,9 +100,9 @@ class ArrayPresenter extends RecursivePresenter
     protected function presentValue($value, $depth = null, $options = 0)
     {
         $prefix = '';
-        if ($value instanceof \ArrayObject) {
+        if ($this->isArrayObject($value)) {
             $prefix = $this->presentArrayObjectRef($value) . ' ';
-            $value  = iterator_to_array($value->getIterator());
+            $value  = $this->getArrayObjectValue($value);
         }
 
         if (empty($value) || $depth === 0) {
