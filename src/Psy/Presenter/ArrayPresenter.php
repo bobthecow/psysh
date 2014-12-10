@@ -106,7 +106,7 @@ class ArrayPresenter extends RecursivePresenter
         }
 
         if (empty($value) || $depth === 0) {
-            return $this->presentRef($value);
+            return $prefix . $this->presentRef($value);
         }
 
         $formatted = array();
