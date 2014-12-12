@@ -34,6 +34,7 @@ class ScalarPresenterTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(1,       '<number>1</number>'),
+            array(1.0,     '<number>1.0</number>'),
             array(1.5,     '<number>1.5</number>'),
             array('2',     '<string>"2"</string>'),
             array('2.5',   '<string>"2.5"</string>'),

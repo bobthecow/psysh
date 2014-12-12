@@ -68,13 +68,22 @@ class ScalarPresenter implements Presenter
 
     private function format($value)
     {
-        // Handle unencodable floats.
+        // Handle floats.
         if (is_float($value)) {
+            // Some are unencodable...
             if (is_nan($value)) {
                 return 'NAN';
             } elseif (is_infinite($value)) {
                 return $value === INF ? 'INF' : '-INF';
             }
+
+            // ... others just encode as ints when there's no decimal
+            $float = Json::encode($value);
+            if (strpos($float, '.') === false) {
+                $float .= '.0';
+            }
+
+            return $float;
         }
 
         return OutputFormatter::escape(Json::encode($value));
