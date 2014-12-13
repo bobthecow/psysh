@@ -234,9 +234,9 @@ class Shell extends Application
 
         $this->readline->readHistory();
 
-        // if ($this->config->useReadline()) {
-        //     readline_completion_function(array($this, 'autocomplete'));
-        // }
+        if ($this->config->useReadline()) {
+            readline_completion_function(array($this, 'autocomplete'));
+        }
 
         $this->output->writeln($this->getHeader());
 
@@ -774,17 +774,13 @@ class Shell extends Application
      *
      * @return mixed Array possible completions for the given input, if any.
      */
-    protected function autocomplete($text)
+    public function autocomplete($text)
     {
         $info = readline_info();
-        // $line = substr($info['line_buffer'], 0, $info['end']);
 
-        // Check whether there's a command for this
-        // $words = explode(' ', $line);
-        // $firstWord = reset($words);
+        // Finds the character preceeding the submitted $text
+        $firstChar = $info['line_buffer'][$info['point']-strlen($text)-1];
 
-        // check whether this is a variable...
-        $firstChar = substr($info['line_buffer'], max(0, $info['end'] - strlen($text) - 1), 1);
         if ($firstChar == '$') {
             return $this->getScopeVariableNames();
         }
