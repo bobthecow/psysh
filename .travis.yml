@@ -13,6 +13,7 @@ install:
 script:
   - vendor/bin/phpunit
   - vendor/bin/phpcs -n --standard=phpcs.xml ./
+  - vendor/bin/php-cs-fixer --diff --dry-run -vv fix
 
 matrix:
   allow_failures:
