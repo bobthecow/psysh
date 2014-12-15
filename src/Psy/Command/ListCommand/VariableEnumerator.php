@@ -76,13 +76,13 @@ class VariableEnumerator extends Enumerator
     {
         $scopeVars = $this->context->getAll();
         uksort($scopeVars, function ($a, $b) {
-            if ($a == '_e') {
+            if ($a === '_e') {
                 return 1;
-            } elseif ($b == '_e') {
+            } elseif ($b === '_e') {
                 return -1;
-            } elseif ($a == '_') {
+            } elseif ($a === '_') {
                 return 1;
-            } elseif ($b == '_') {
+            } elseif ($b === '_') {
                 return -1;
             } else {
                 // TODO: this should be natcasesort

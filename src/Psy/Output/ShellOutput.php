@@ -114,7 +114,7 @@ class ShellOutput extends ConsoleOutput
      */
     public function write($messages, $newline = false, $type = 0)
     {
-        if ($this->getVerbosity() == self::VERBOSITY_QUIET) {
+        if ($this->getVerbosity() === self::VERBOSITY_QUIET) {
             return;
         }
 

@@ -786,7 +786,7 @@ class Shell extends Application
 
         // check whether this is a variable...
         $firstChar = substr($info['line_buffer'], max(0, $info['end'] - strlen($text) - 1), 1);
-        if ($firstChar == '$') {
+        if ($firstChar === '$') {
             return $this->getScopeVariableNames();
         }
     }
