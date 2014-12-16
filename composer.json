@@ -28,6 +28,7 @@
         "ext-readline": "Enables support for arrow-key history navigation, and showing and manipulating command history."
     },
     "autoload": {
+        "files": ["src/Psy/functions.php"],
         "psr-0": {
             "Psy\\": "src/"
         }
