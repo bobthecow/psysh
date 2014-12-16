@@ -4,7 +4,8 @@ use Symfony\CS\Config\Config;
 use Symfony\CS\FixerInterface;
 
 $config = Config::create()
-    // use default level and extra fixers:
+    // use symfony level and extra fixers:
+    ->level(Symfony\CS\FixerInterface::SYMFONY_LEVEL)
     ->fixers(array('-concat_without_spaces', 'concat_with_spaces', 'strict'))
     ->setUsingCache(true)
     ->setUsingLinter(false);
