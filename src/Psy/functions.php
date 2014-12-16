@@ -5,9 +5,7 @@ namespace Psy;
 /**
  * Command to return the eval-able code to startup PsySH.
  *
- * ~~~php
- * eval(\Psy\sh());
- * ~~~
+ *     eval(\Psy\sh());
  *
  * @return string
  */
