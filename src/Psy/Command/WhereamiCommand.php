@@ -61,7 +61,9 @@ HELP
     protected function trace()
     {
         foreach ($this->backtrace as $i => $backtrace) {
-            if (!isset($backtrace['class'], $backtrace['function'])) continue;
+            if (!isset($backtrace['class'], $backtrace['function'])) {
+                continue;
+            }
             $correctClass = $backtrace['class'] === 'Psy\Shell';
             $correctFunction = $backtrace['function'] === 'debug';
             if ($correctClass && $correctFunction) {

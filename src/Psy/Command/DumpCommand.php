@@ -52,7 +52,8 @@ class DumpCommand extends ReflectingCommand implements PresenterManagerAware
                 new InputOption('all', 'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
             ))
             ->setDescription('Dump an object or primitive.')
-            ->setHelp(<<<HELP
+            ->setHelp(
+                <<<HELP
 Dump an object or primitive.
 
 This is like var_dump but <strong>way</strong> awesomer.

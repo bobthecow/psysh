@@ -8,12 +8,13 @@ php:
  - hhvm
 
 install:
-  - travis_retry composer install --no-interaction --prefer-source
+ - travis_retry composer install --no-interaction --prefer-source
 
 script:
-  - vendor/bin/phpunit
+ - vendor/bin/phpunit
+ - ./vendor/bin/phpcs -n --standard=phpcs.xml ./
 
 matrix:
-  allow_failures:
-    - php: hhvm
-  fast_finish: true
+ allow_failures:
+   - php: hhvm
+ fast_finish: true

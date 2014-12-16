@@ -57,7 +57,8 @@ class ParseCommand extends Command implements PresenterManagerAware
                 new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
             ))
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
-            ->setHelp(<<<HELP
+            ->setHelp(
+                <<<HELP
 Parse PHP code and show the abstract syntax tree.
 
 This command is used in the development of PsySH. Given a string of PHP code,
