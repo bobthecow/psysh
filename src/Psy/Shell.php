@@ -175,6 +175,7 @@ class Shell extends Application
             new Command\DocCommand(),
             new Command\ShowCommand(),
             new Command\WtfCommand(),
+            new Command\WhereamiCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
