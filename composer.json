@@ -20,7 +20,7 @@
         "jakub-onderka/php-console-highlighter": "dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": ">=3.7, <4.3",
+        "phpunit/phpunit": "~3.7|~4.0",
         "symfony/finder": "~2.1",
         "squizlabs/php_codesniffer": "~2.0",
         "fabpot/php-cs-fixer": "2.0.*@dev"
