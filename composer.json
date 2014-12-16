@@ -23,7 +23,7 @@
         "phpunit/phpunit": "~3.7|~4.0",
         "symfony/finder": "~2.1",
         "squizlabs/php_codesniffer": "~2.0",
-        "fabpot/php-cs-fixer": "2.0.*@dev"
+        "fabpot/php-cs-fixer": "~1.3"
     },
     "suggest": {
         "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
