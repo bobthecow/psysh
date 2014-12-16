@@ -17,7 +17,7 @@
         "symfony/console": "~2.3.10|~2.4.2|~2.5",
         "nikic/php-parser": "~1.0",
         "dnoegel/php-xdg-base-dir": "0.1",
-        "jakub-onderka/php-console-highlighter": "dev-master"
+        "jakub-onderka/php-console-highlighter": "0.3.*"
     },
     "require-dev": {
         "phpunit/phpunit": ">=3.7, <4.3",
