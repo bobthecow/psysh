@@ -83,8 +83,8 @@ HELP
         $trace = $e->getTrace();
         array_unshift($trace, array(
             'function' => '',
-            'file'     => $e->getFile() != null ? $e->getFile() : 'n/a',
-            'line'     => $e->getLine() != null ? $e->getLine() : 'n/a',
+            'file'     => $e->getFile() !== null ? $e->getFile() : 'n/a',
+            'line'     => $e->getLine() !== null ? $e->getLine() : 'n/a',
             'args'     => array(),
         ));
 

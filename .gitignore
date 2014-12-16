@@ -2,3 +2,4 @@ vendor/
 composer.lock
 manual/
 __pycache__
+.php_cs.cache

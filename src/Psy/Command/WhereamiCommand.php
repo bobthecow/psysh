@@ -22,7 +22,6 @@ use JakubOnderka\PhpConsoleHighlighter\Highlighter;
  */
 class WhereamiCommand extends Command
 {
-
     public function __construct()
     {
         $this->backtrace = debug_backtrace();

@@ -148,7 +148,7 @@ class Docblock
             if (self::isTagged($line)) {
                 $b++;
                 $blocks[] = array();
-            } elseif ($b == -1) {
+            } elseif ($b === -1) {
                 $b = 0;
                 $blocks[] = array();
             }
@@ -159,7 +159,7 @@ class Docblock
         foreach ($blocks as $block => $body) {
             $body = trim(implode("\n", $body));
 
-            if ($block == 0 && !self::isTagged($body)) {
+            if ($block === 0 && !self::isTagged($body)) {
                 // This is the description block
                 $this->desc = $body;
             } else {
@@ -222,7 +222,7 @@ class Docblock
      */
     public static function isTagged($str)
     {
-        return isset($str[1]) && $str[0] == '@' && ctype_alpha($str[1]);
+        return isset($str[1]) && $str[0] === '@' && ctype_alpha($str[1]);
     }
 
     /**
