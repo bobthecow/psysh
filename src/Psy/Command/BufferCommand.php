@@ -35,7 +35,8 @@ class BufferCommand extends Command
                 new InputOption('clear', '', InputOption::VALUE_NONE, 'Clear the current buffer.'),
             ))
             ->setDescription('Show (or clear) the contents of the code input buffer.')
-            ->setHelp(<<<HELP
+            ->setHelp(
+                <<<HELP
 Show the contents of the code buffer for the current multi-line expression.
 
 Optionally, clear the buffer by passing the <info>--clear</info> option.

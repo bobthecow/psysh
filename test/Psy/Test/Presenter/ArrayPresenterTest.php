@@ -15,6 +15,7 @@ use Psy\Presenter\ArrayPresenter;
 use Psy\Presenter\ObjectPresenter;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\ScalarPresenter;
+use Psy\Test\Presenter\FakeArrayObject;
 
 class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
 {
@@ -124,9 +125,4 @@ EOS;
     {
         return preg_replace('/\\s/', '', $text);
     }
-}
-
-class FakeArrayObject extends \ArrayObject
-{
-    // this space intentionally left blank.
 }
