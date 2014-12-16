@@ -54,6 +54,8 @@ class Compiler
             ->name('*.php')
             ->exclude('Tests')
             ->in(__DIR__ . '/../../vendor/dnoegel/php-xdg-base-dir/src')
+            ->in(__DIR__ . '/../../vendor/jakub-onderka/php-console-color')
+            ->in(__DIR__ . '/../../vendor/jakub-onderka/php-console-highlighter')
             ->in(__DIR__ . '/../../vendor/nikic/php-parser/lib')
             ->in(__DIR__ . '/../../vendor/symfony/console')
             ->in(__DIR__ . '/../../vendor/symfony/yaml');
