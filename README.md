@@ -1,8 +1,8 @@
 # PsySH
 
-[![Package version](http://img.shields.io/packagist/v/psy/psysh.svg)](https://packagist.org/packages/psy/psysh)
-[![Build status](http://img.shields.io/travis/bobthecow/psysh/master.svg)](http://travis-ci.org/bobthecow/psysh)
-[![Made out of awesome](http://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg)](http://psysh.org)
+[![Package version](http://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
+[![Build status](http://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
+[![Made out of awesome](http://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
 
 Check out the [Interactive Debugging in PHP talk from OSCON](https://presentate.com/bobthecow/talks/php-for-pirates) on Presentate.
 
