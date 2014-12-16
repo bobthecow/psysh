@@ -25,6 +25,7 @@ class WhereamiCommand extends Command
     public function __construct()
     {
         $this->backtrace = debug_backtrace();
+
         return parent::__construct();
     }
 
@@ -36,7 +37,7 @@ class WhereamiCommand extends Command
         $this
             ->setName('whereami')
             ->setDefinition(array(
-                new InputOption('num', 'n', InputOption::VALUE_OPTIONAL, 'Number of lines before and after.', '5')
+                new InputOption('num', 'n', InputOption::VALUE_OPTIONAL, 'Number of lines before and after.', '5'),
             ))
             ->setDescription('Show where you are in the code.')
             ->setHelp(
@@ -69,6 +70,7 @@ HELP
                 return $backtrace;
             }
         }
+
         return $backtrace[count($backtrace) - 1];
     }
 
@@ -88,6 +90,7 @@ HELP
             $file = $backtrace['file'];
             $line = $backtrace['line'];
         }
+
         return compact('file', 'line');
     }
 
