@@ -83,7 +83,8 @@ class ListCommand extends ReflectingCommand implements PresenterManagerAware
                 new InputOption('long',        'l', InputOption::VALUE_NONE,     'List in long format: includes class names and method signatures.'),
             ))
             ->setDescription('List local, instance or class variables, methods and constants.')
-            ->setHelp(<<<HELP
+            ->setHelp(
+                <<<HELP
 List variables, constants, classes, interfaces, traits, functions, methods,
 and properties.
 

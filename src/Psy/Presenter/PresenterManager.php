@@ -29,12 +29,30 @@ class PresenterManager implements Presenter, \IteratorAggregate
      */
     public function __construct()
     {
-        $this->addPresenter(new ObjectPresenter()); // lowest precedence
-        $this->addPresenter(new ArrayPresenter());
-        $this->addPresenter(new ClosurePresenter());
-        $this->addPresenter(new ExceptionPresenter());
-        $this->addPresenter(new ResourcePresenter());
-        $this->addPresenter(new ScalarPresenter());
+        $this->addPresenters(array(
+            new ObjectPresenter(), // lowest precedence
+            new ArrayPresenter(),
+            new ClosurePresenter(),
+            new ExceptionPresenter(),
+            new ResourcePresenter(),
+            new ScalarPresenter(),
+        ));
+    }
+
+    /**
+     * Register Presenters.
+     *
+     * Presenters should be passed in an array from lowest to highest precedence.
+     *
+     * @see self::addPresenter
+     *
+     * @param Presenter[] $presenters
+     */
+    public function addPresenters(array $presenters)
+    {
+        foreach ($presenters as $presenter) {
+            $this->addPresenter($presenter);
+        }
     }
 
     /**
@@ -43,7 +61,7 @@ class PresenterManager implements Presenter, \IteratorAggregate
      * If multiple Presenters are able to present a value, the most recently
      * registered Presenter takes precedence.
      *
-     * If $presenter is already registered, it is be re-registered as the
+     * If $presenter is already registered, it will be re-registered as the
      * highest precedence Presenter.
      *
      * @param Presenter $presenter

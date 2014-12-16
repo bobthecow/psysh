@@ -61,7 +61,7 @@ class ForkingLoop extends Loop
             fclose($down);
 
             if ($content) {
-                $shell->setScopeVariables(unserialize($content));
+                $shell->setScopeVariables(@unserialize($content));
             }
 
             return;

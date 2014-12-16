@@ -195,7 +195,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function classExists($name)
     {
-        return class_exists($name) || $this->findInScope($name) == self::CLASS_TYPE;
+        return class_exists($name) || $this->findInScope($name) === self::CLASS_TYPE;
     }
 
     /**
@@ -207,7 +207,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function interfaceExists($name)
     {
-        return interface_exists($name) || $this->findInScope($name) == self::INTERFACE_TYPE;
+        return interface_exists($name) || $this->findInScope($name) === self::INTERFACE_TYPE;
     }
 
     /**
@@ -219,7 +219,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function traitExists($name)
     {
-        return $this->checkTraits && (trait_exists($name) || $this->findInScope($name) == self::TRAIT_TYPE);
+        return $this->checkTraits && (trait_exists($name) || $this->findInScope($name) === self::TRAIT_TYPE);
     }
 
     /**

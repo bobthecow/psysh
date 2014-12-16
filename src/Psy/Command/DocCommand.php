@@ -34,7 +34,8 @@ class DocCommand extends ReflectingCommand
                 new InputArgument('value', InputArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
             ))
             ->setDescription('Read the documentation for an object, class, constant, method or property.')
-            ->setHelp(<<<HELP
+            ->setHelp(
+                <<<HELP
 Read the documentation for an object, class, constant, method or property.
 
 It's awesome for well-documented code, not quite as awesome for poorly documented code.

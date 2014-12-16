@@ -23,6 +23,7 @@ use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
+use Psy\CodeCleaner\LegacyEmptyPass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\StaticConstructorPass;
@@ -76,6 +77,7 @@ class CodeCleaner
             new CalledClassPass(),
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
+            new LegacyEmptyPass(),
             new ImplicitReturnPass(),
             new UseStatementPass(),      // must run before namespace and validation passes
             new NamespacePass($this),    // must run after the implicit return pass

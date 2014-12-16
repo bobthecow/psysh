@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.2.1';
+    const VERSION = 'v0.3.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -175,6 +175,7 @@ class Shell extends Application
             new Command\DocCommand(),
             new Command\ShowCommand(),
             new Command\WtfCommand(),
+            new Command\WhereamiCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
@@ -785,7 +786,7 @@ class Shell extends Application
 
         // check whether this is a variable...
         $firstChar = substr($info['line_buffer'], max(0, $info['end'] - strlen($text) - 1), 1);
-        if ($firstChar == '$') {
+        if ($firstChar === '$') {
             return $this->getScopeVariableNames();
         }
     }

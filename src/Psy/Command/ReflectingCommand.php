@@ -73,7 +73,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 return array($this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
 
             case (!$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches)):
-                if ($matches[2] == '->') {
+                if ($matches[2] === '->') {
                     $kind = Mirror::METHOD | Mirror::PROPERTY;
                 } else {
                     $kind = Mirror::CONSTANT | Mirror::METHOD;
@@ -124,7 +124,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function getTargetAndReflector($valueName, $classOnly = false)
     {
-        list ($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
+        list($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
 
         return array($value, Mirror::get($value, $member, $kind));
     }

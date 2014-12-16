@@ -28,7 +28,7 @@ class Inspector
      */
     public static function export($var, $depth = 5)
     {
-        if ($depth == 0) {
+        if ($depth === 0) {
             if (is_object($var)) {
                 return sprintf('<%s #%s>', get_class($var), spl_object_hash($var));
             } elseif (is_array($var)) {
