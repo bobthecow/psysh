@@ -7,7 +7,6 @@ $config = Config::create()
     // use symfony level and extra fixers:
     ->level(Symfony\CS\FixerInterface::SYMFONY_LEVEL)
     ->fixers(array('-concat_without_spaces', 'concat_with_spaces', 'strict'))
-    ->setUsingCache(true)
     ->setUsingLinter(false);
 
 $finder = $config->getFinder()
