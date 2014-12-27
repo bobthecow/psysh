@@ -72,7 +72,7 @@ HELP
             }
         }
 
-        return $backtrace[count($backtrace) - 1];
+        return $this->backtrace[count($backtrace) - 1];
     }
 
     /**
