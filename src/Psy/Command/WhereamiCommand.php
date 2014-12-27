@@ -105,6 +105,6 @@ HELP
         $colors->addTheme('line_number', array('blue'));
         $highlighter = new Highlighter($colors);
         $contents = file_get_contents($file);
-        $output->page($highlighter->getCodeSnippet($contents, $line, $num, $num));
+        $output->page($highlighter->getCodeSnippet($contents, $line, $num, $num), ShellOutput::OUTPUT_RAW);
     }
 }
