@@ -11,11 +11,12 @@
 
 namespace Psy\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use JakubOnderka\PhpConsoleColor\ConsoleColor;
 use JakubOnderka\PhpConsoleHighlighter\Highlighter;
+use Psy\Output\ShellOutput;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Show the context of where you opened the debugger.
