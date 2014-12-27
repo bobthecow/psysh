@@ -11,6 +11,8 @@
 
 namespace Psy\Formatter;
 
+use JakubOnderka\PhpConsoleColor\ConsoleColor;
+use JakubOnderka\PhpConsoleHighlighter\Highlighter;
 use Psy\Exception\RuntimeException;
 
 /**
@@ -33,11 +35,14 @@ class CodeFormatter implements Formatter
             }
 
             $file  = file_get_contents($fileName);
-            $lines = preg_split('/\r?\n/', $file);
-
-            $start = $reflector->getStartLine() - 1;
+            $start = $reflector->getStartLine();
             $end   = $reflector->getEndLine() - $start;
-            $code  = array_slice($lines, $start, $end);
+
+            $colors = new ConsoleColor();
+            $colors->addTheme('line_number', array('blue'));
+            $highlighter = new Highlighter($colors);
+
+            return $highlighter->getCodeSnippet($file, $start, 0, $end);
 
             // no need to escape this bad boy, since (for now) it's being output raw.
             // return OutputFormatter::escape(implode(PHP_EOL, $code));

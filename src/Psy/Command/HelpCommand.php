@@ -66,11 +66,7 @@ class HelpCommand extends Command
             // list available commands
             $commands = $this->getApplication()->all();
 
-            $table = $this->getApplication()->getHelperSet()->get('table')
-                ->setRows(array())
-                ->setLayout(TableHelper::LAYOUT_BORDERLESS)
-                ->setHorizontalBorderChar('')
-                ->setCrossingChar('');
+            $table = $this->getTable();
 
             foreach ($commands as $name => $command) {
                 if ($name !== $command->getName()) {
@@ -94,5 +90,24 @@ class HelpCommand extends Command
                 $table->render($output);
             });
         }
+    }
+
+    /**
+     * Get a TableHelper instance.
+     *
+     * @return TableHelper
+     */
+    protected function getTable()
+    {
+        $old = error_reporting();
+        error_reporting($old & ~E_USER_DEPRECATED);
+        $table = $this->getApplication()->getHelperSet()->get('table');
+        error_reporting($old);
+
+        return $table
+                ->setRows(array())
+                ->setLayout(TableHelper::LAYOUT_BORDERLESS)
+                ->setHorizontalBorderChar('')
+                ->setCrossingChar('');
     }
 }

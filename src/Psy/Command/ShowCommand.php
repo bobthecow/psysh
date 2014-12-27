@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Exception\RuntimeException;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Output\ShellOutput;
@@ -52,9 +53,11 @@ HELP
     {
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
-        $output->page(function (ShellOutput $output) use ($reflector) {
+        try {
+            $output->page(CodeFormatter::format($reflector), ShellOutput::OUTPUT_RAW);
+        } catch (RuntimeException $e) {
             $output->writeln(SignatureFormatter::format($reflector));
-            $output->writeln(CodeFormatter::format($reflector), ShellOutput::OUTPUT_RAW);
-        });
+            throw $e;
+        }
     }
 }

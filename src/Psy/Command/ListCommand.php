@@ -279,7 +279,12 @@ HELP
      */
     private function getTable()
     {
-        return $this->getApplication()->getHelperSet()->get('table')
+        $old = error_reporting();
+        error_reporting($old & ~E_USER_DEPRECATED);
+        $table = $this->getApplication()->getHelperSet()->get('table');
+        error_reporting($old);
+
+        return $table
             ->setLayout(TableHelper::LAYOUT_BORDERLESS)
             ->setHorizontalBorderChar('')
             ->setCrossingChar('');

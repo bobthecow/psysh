@@ -15,19 +15,25 @@ use Psy\Formatter\CodeFormatter;
 
 class CodeFormatterTest extends \PHPUnit_Framework_TestCase
 {
-    public function testFormat()
-    {
-        $expected = <<<EOS
-    private function ignoreThisMethod(\$arg)
+    private function ignoreThisMethod($arg)
     {
         echo "whot!";
     }
+
+    public function testFormat()
+    {
+        $expected = <<<EOS
+  > 18|     private function ignoreThisMethod(\$arg)
+    19|     {
+    20|         echo "whot!";
+    21|     }
 EOS;
 
-        $this->assertEquals(
-            str_replace("\n", PHP_EOL, $expected),
-            CodeFormatter::format(new \ReflectionMethod($this, 'ignoreThisMethod'))
-        );
+        $formatted = CodeFormatter::format(new \ReflectionMethod($this, 'ignoreThisMethod'));
+        $formattedWithoutColors = preg_replace('#' . chr(27) . '\[\d\d?m#', '', $formatted);
+
+        $this->assertEquals($expected, rtrim($formattedWithoutColors));
+        $this->assertNotEquals($expected, rtrim($formatted));
     }
 
     /**
@@ -51,10 +57,5 @@ EOS;
     public function filenames()
     {
         return array(array(null), array('not a file'));
-    }
-
-    private function ignoreThisMethod($arg)
-    {
-        echo "whot!";
     }
 }
