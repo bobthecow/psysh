@@ -72,7 +72,7 @@ HELP
             }
         }
 
-        return $this->backtrace[count($backtrace) - 1];
+        return end($this->backtrace);
     }
 
     /**
@@ -100,12 +100,12 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        extract($this->fileInfo());
+        $info = $this->fileInfo();
         $num = $input->getOption('num');
         $colors = new ConsoleColor();
         $colors->addTheme('line_number', array('blue'));
         $highlighter = new Highlighter($colors);
-        $contents = file_get_contents($file);
-        $output->page($highlighter->getCodeSnippet($contents, $line, $num, $num), ShellOutput::OUTPUT_RAW);
+        $contents = file_get_contents($info['file']);
+        $output->page($highlighter->getCodeSnippet($contents, $info['line'], $num, $num), ShellOutput::OUTPUT_RAW);
     }
 }
