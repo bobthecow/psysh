@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.3.2';
+    const VERSION = 'v0.3.3';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -106,13 +106,30 @@ class Shell extends Application
      *         var_dump($item); // will be whatever you set $item to in Psy Shell
      *     }
      *
-     * @param array $vars Scope variables from the calling context (default: array())
+     * Optionally, supply an object as the `$bind` parameter. This determines
+     * the value `$this` will have in the shell, and sets up class scope so that
+     * private and protected members are accessible:
+     *
+     *     class Foo {
+     *         function bar() {
+     *             \Psy\Shell::debug(get_defined_vars(), $this);
+     *         }
+     *     }
+     *
+     * This only really works in PHP 5.4+ and HHVM 3.5+, so upgrade already.
+     *
+     * @param array  $vars Scope variables from the calling context (default: array())
+     * @param object $bind Bound object ($this) value for the shell
      *
      * @return array Scope variables from the debugger session.
      */
-    public static function debug(array $vars = array())
+    public static function debug(array $vars = array(), $bind = null)
     {
         echo PHP_EOL;
+
+        if ($bind !== null) {
+            $vars['this'] = $bind;
+        }
 
         $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
