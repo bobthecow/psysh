@@ -95,8 +95,7 @@ class Loop
         };
 
         // bind the closure to $this from the shell scope variables...
-        // skip binding on HHVM, see https://github.com/facebook/hhvm/issues/1203
-        if (version_compare(PHP_VERSION, '5.4', '>=') && !defined('HHVM_VERSION')) {
+        if (self::bindLoop()) {
             $that = null;
             try {
                 $that = $shell->getScopeVariable('this');
@@ -134,5 +133,21 @@ class Loop
     public function afterLoop()
     {
         // no-op
+    }
+
+    /**
+     * Decide whether to bind the execution loop.
+     *
+     * @return boolean
+     */
+    protected static function bindLoop()
+    {
+        // skip binding on HHVM <= 3.5.0
+        // see https://github.com/facebook/hhvm/issues/1203
+        if (defined('HHVM_VERSION')) {
+            return version_compare(HHVM_VERSION, '3.5.0', '>=');
+        }
+
+        return version_compare(PHP_VERSION, '5.4', '>=');
     }
 }
