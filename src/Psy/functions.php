@@ -11,5 +11,5 @@ namespace Psy;
  */
 function sh()
 {
-    return "extract(\Psy\Shell::debug(get_defined_vars()));";
+    return 'extract(\Psy\Shell::debug(get_defined_vars(), $this ?: null));';
 }
