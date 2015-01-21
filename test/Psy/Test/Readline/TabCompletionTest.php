@@ -5,22 +5,32 @@ namespace Psy\Test\Readline;
 use Psy\Readline\TabCompletion;
 use Psy\Context;
 
-/**
- * Class TabCompletionTest
- * @package Psy\Test\Readline
- */
 class TabCompletionTest extends \PHPUnit_Framework_TestCase
 {
-    public function testClassesCompletion()
+    /**
+     * @dataProvider classesInput
+     */
+    public function testClassesCompletion($word, $index, $line, $point, $end, $expect)
     {
-        class_alias('\Psy\Test\Readline\TabCompletionTest', 'Foo');
         $context = new Context();
         $tabCompletion = new TabCompletion($context);
-        $code = $tabCompletion->processCallback('stdC', 4, array(
-           "line_buffer"               => "new stdC",
-           "point"                     => 7,
-           "end"                       => 7,
+
+        $code = $tabCompletion->processCallback($word, $index, array(
+           'line_buffer' => $line,
+           'point'       => $point,
+           'end'         => $end,
         ));
-        $this->assertContains('stdClass()', $code);
+
+        $this->assertContains($expect, $code);
+    }
+
+    public function classesInput()
+    {
+        return array(
+            array('stdC', 4, 'new stdC',  7, 7, 'stdClass()'),
+            array('stdC', 5, 'new \stdC', 8, 8, 'stdClass()'),
+            array('stdC', 5, '(new stdC', 8, 8, 'stdClass()'),
+            array('s',    7, 'new \a\\s', 8, 8, 'stdClass()'),
+        );
     }
 }
