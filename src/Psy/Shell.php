@@ -16,6 +16,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
+use Psy\Readline\TabCompletion;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -57,6 +58,7 @@ class Shell extends Application
     private $context;
     private $includes;
     private $loop;
+    private $completion;
 
     /**
      * Create a new Psy Shell.
@@ -71,6 +73,10 @@ class Shell extends Application
         $this->context  = new Context();
         $this->includes = array();
         $this->readline = $this->config->getReadline();
+        if ($this->config->getTabCompletion()) {
+            $this->completion = new TabCompletion($this->context);
+            $this->completion->activate();
+        }
 
         parent::__construct('Psy Shell', self::VERSION);
 

@@ -32,6 +32,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
+        'tabCompletion',
     );
 
     private $defaultIncludes;
@@ -48,6 +49,7 @@ class Configuration
     private $hasPcntl;
     private $usePcntl;
     private $newCommands = array();
+    private $tabCompletion = false;
     private $requireSemicolons = false;
 
     // services
@@ -769,6 +771,26 @@ class Configuration
         }
 
         return $this->loop;
+    }
+
+    /**
+     * Enables tab completion mode
+     *
+     * @param $tabCompletion
+     */
+    public function setTabCompletion($tabCompletion)
+    {
+        $this->tabCompletion = (bool) $tabCompletion;
+    }
+
+    /**
+     * Retrieves the tab completion status
+     *
+     * @return bool
+     */
+    public function getTabCompletion()
+    {
+        return $this->tabCompletion;
     }
 
     /**
