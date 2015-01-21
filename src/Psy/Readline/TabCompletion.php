@@ -24,9 +24,10 @@ class TabCompletion
     }
 
     /**
-     * @param  $input
-     * @param  $index
-     * @param  array $info
+     * @param string $input Readline current word
+     * @param int    $index Current word index
+     * @param array  $info  readline_info() data
+     *
      * @return array
      */
     public function processCallback($input, $index, $info = array())
