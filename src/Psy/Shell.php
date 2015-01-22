@@ -188,6 +188,7 @@ class Shell extends Application
             new Command\WtfCommand($this->config->colorMode()),
             new Command\WhereamiCommand($this->config->colorMode()),
             new Command\ThrowUpCommand(),
+            new Command\TimeitCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
