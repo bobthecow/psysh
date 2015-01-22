@@ -196,6 +196,7 @@ class Shell extends Application
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
+            new Command\TimeitCommand(),
             // new Command\PsyVersionCommand(),
             $hist,
             new Command\ExitCommand(),
@@ -639,6 +640,15 @@ class Shell extends Application
             // Since this is below the user's reporting threshold, it's always going to be a warning.
             return 'warning';
         }
+    }
+
+    /**
+     * @param $code
+     * @return mixed
+     */
+    public function execute($code)
+    {
+        return $this->loop->execute($this, $code);
     }
 
     /**

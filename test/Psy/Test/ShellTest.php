@@ -322,4 +322,15 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
         return new Configuration(array_merge($defaults, $config));
     }
+
+    public function testShellExecute()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell  = new Shell($this->getConfig());
+        $shell->setOutput($output);
+        $shell->execute('return 12');
+        rewind($stream);
+        $this->assertEquals('=> <number>12</number>' . PHP_EOL, stream_get_contents($stream));
+    }
 }
