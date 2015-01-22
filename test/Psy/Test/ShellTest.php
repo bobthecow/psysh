@@ -345,4 +345,15 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         return new Configuration(array_merge($defaults, $config));
     }
+
+    public function testShellExecute()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell  = new Shell($this->getConfig());
+        $shell->setOutput($output);
+        $shell->execute('return 12');
+        rewind($stream);
+        $this->assertEquals("=> \033[35m12\033[39m" . PHP_EOL, stream_get_contents($stream));
+    }
 }

@@ -23,6 +23,36 @@ class ExecutionLoop
 {
     const NOOP_INPUT = 'return null;';
 
+    /** @var \Psy\CodeCleaner  */
+    protected $cleaner;
+
+    /**
+     * Constructor.
+     *
+     * @param CodeCleaner $cleaner
+     */
+    public function __construct(CodeCleaner $cleaner)
+    {
+        $this->cleaner = $cleaner;
+    }
+
+    /**
+     * @param  Shell $shell
+     * @param  $code
+     * @return mixed
+     */
+    public function execute(Shell &$shell, $code)
+    {
+        $code = $this->cleaner->clean(array($code));
+
+        $executionClosure = $this->getExecutionClosure();
+        if (self::bindLoop()) {
+            $executionClosure = $this->setClosureShellScope($shell, $executionClosure);
+        }
+
+        return $executionClosure($shell, $code);
+    }
+
     /**
      * Run the execution loop.
      *
@@ -32,7 +62,27 @@ class ExecutionLoop
      */
     public function run(Shell $shell)
     {
-        $loop = function ($__psysh__) {
+        $executionClosure = $this->getExecutionClosure();
+        // bind the closure to $this from the shell scope variables...
+        if (self::bindLoop()) {
+            $executionClosure = $this->setClosureShellScope($shell, $executionClosure);
+        }
+
+        $loop = $this->getLoopClosure($executionClosure);
+
+        try {
+            $loop($shell);
+        } catch (BreakException $_e) {
+            $shell->writeException($_e);
+        }
+    }
+
+    /**
+     * @return callable
+     */
+    protected function getLoopClosure(\Closure $executionClosure)
+    {
+        return function (Shell &$__psysh__) use ($executionClosure) {
             // Load user-defined includes
             set_error_handler([$__psysh__, 'handleError']);
             try {
@@ -45,87 +95,97 @@ class ExecutionLoop
             restore_error_handler();
             unset($__psysh_include__);
 
-            extract($__psysh__->getScopeVariables(false));
-
             do {
                 $__psysh__->beforeLoop();
                 $__psysh__->setScopeVariables(get_defined_vars());
 
-                try {
-                    // read a line, see if we should eval
-                    $__psysh__->getInput();
+                // read a line, see if we should eval
+                $__psysh__->getInput();
 
-                    // evaluate the current code buffer
-                    ob_start([$__psysh__, 'writeStdout'], 1);
-
-                    // Let PsySH inject some magic variables back into the
-                    // shell scope... things like $__class, and $__file set by
-                    // reflection commands
-                    extract($__psysh__->getSpecialScopeVariables(false));
-
-                    // And unset any magic variables which are no longer needed
-                    foreach ($__psysh__->getUnusedCommandScopeVariableNames() as $__psysh_var_name__) {
-                        unset($$__psysh_var_name__, $__psysh_var_name__);
-                    }
-
-                    set_error_handler([$__psysh__, 'handleError']);
-                    $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: Loop::NOOP_INPUT));
-                    restore_error_handler();
-
-                    ob_end_flush();
-
-                    $__psysh__->writeReturnValue($_);
-                } catch (BreakException $_e) {
-                    restore_error_handler();
-                    if (ob_get_level() > 0) {
-                        ob_end_clean();
-                    }
-                    $__psysh__->writeException($_e);
-
-                    return;
-                } catch (ThrowUpException $_e) {
-                    restore_error_handler();
-                    if (ob_get_level() > 0) {
-                        ob_end_clean();
-                    }
-                    $__psysh__->writeException($_e);
-
-                    throw $_e;
-                } catch (\TypeError $_e) {
-                    restore_error_handler();
-                    if (ob_get_level() > 0) {
-                        ob_end_clean();
-                    }
-                    $__psysh__->writeException(TypeErrorException::fromTypeError($_e));
-                } catch (\Error $_e) {
-                    restore_error_handler();
-                    if (ob_get_level() > 0) {
-                        ob_end_clean();
-                    }
-                    $__psysh__->writeException(ErrorException::fromError($_e));
-                } catch (\Exception $_e) {
-                    restore_error_handler();
-                    if (ob_get_level() > 0) {
-                        ob_end_clean();
-                    }
-                    $__psysh__->writeException($_e);
-                }
+                $executionClosure($__psysh__);
 
                 $__psysh__->afterLoop();
             } while (true);
         };
+    }
 
-        // bind the closure to $this from the shell scope variables...
-        if (self::bindLoop()) {
-            $that = $shell->getBoundObject();
-            if (is_object($that)) {
-                $loop = $loop->bindTo($that, get_class($that));
-            } else {
-                $loop = $loop->bindTo(null, null);
+    /**
+     * @return callable
+     */
+    protected function getExecutionClosure()
+    {
+        return function (Shell &$__psysh__, $code = null) {
+            try {
+                // evaluate the current code buffer
+                ob_start(array($__psysh__, 'writeStdout'), 1);
+
+                // Restore execution scope variables
+                extract($__psysh__->getScopeVariables(false));
+
+                // Let PsySH inject some magic variables back into the
+                // shell scope... things like $__class, and $__file set by
+                // reflection commands
+                extract($__psysh__->getSpecialScopeVariables(false));
+
+                set_error_handler(array($__psysh__, 'handleError'));
+                $_ = eval($__psysh__->onExecute($code ?: ($__psysh__->flushCode() ?: Loop::NOOP_INPUT)));
+                restore_error_handler();
+
+                ob_end_flush();
+
+                $__psysh__->writeReturnValue($_);
+
+                $__psysh__->setScopeVariables(get_defined_vars());
+            } catch (BreakException $_e) {
+                restore_error_handler();
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $__psysh__->writeException($_e);
+
+                throw $_e;
+            } catch (ThrowUpException $_e) {
+                restore_error_handler();
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $__psysh__->writeException($_e);
+
+                throw $_e;
+            } catch (\TypeError $_e) {
+                restore_error_handler();
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $__psysh__->writeException(TypeErrorException::fromTypeError($_e));
+            } catch (\Error $_e) {
+                restore_error_handler();
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $__psysh__->writeException(ErrorException::fromError($_e));
+            } catch (\Exception $_e) {
+                restore_error_handler();
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $__psysh__->writeException($_e);
             }
+        };
+    }
+
+    /**
+     * @param $loop
+     * @return mixed
+     */
+    protected function setClosureShellScope(Shell $shell, $loop)
+    {
+        $that = $shell->getBoundObject();
+        if (is_object($that)) {
+            return $loop->bindTo($that, get_class($that));
         }
 
-        $loop($shell);
+        return $loop->bindTo(null, null);
     }
 
     /**
