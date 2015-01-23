@@ -1,11 +1,11 @@
 <?php
 
-namespace Psy\Test\Readline;
+namespace Psy\Test\TabCompletion;
 
-use Psy\Readline\TabCompletion;
 use Psy\Context;
+use Psy\TabCompletion\AutoCompleter;
 
-class TabCompletionTest extends \PHPUnit_Framework_TestCase
+class AutoCompleterTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider classesInput
@@ -13,7 +13,7 @@ class TabCompletionTest extends \PHPUnit_Framework_TestCase
     public function testClassesCompletion($word, $index, $line, $point, $end, $expect)
     {
         $context = new Context();
-        $tabCompletion = new TabCompletion($context);
+        $tabCompletion = new AutoCompleter($context);
 
         $code = $tabCompletion->processCallback($word, $index, array(
            'line_buffer' => $line,

@@ -49,7 +49,7 @@ class Configuration
     private $hasPcntl;
     private $usePcntl;
     private $newCommands = array();
-    private $tabCompletion = false;
+    private $tabCompletion = true;
     private $requireSemicolons = false;
 
     // services
