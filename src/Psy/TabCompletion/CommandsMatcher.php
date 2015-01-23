@@ -21,7 +21,7 @@ class CommandsMatcher extends AbstractMatcher
     public function getMatches($input, $index, $info = array())
     {
         return array_filter($this->commands, function ($command) use ($input, $index, $info) {
-            return $this->startsWith($input, $command);
+            return AbstractMatcher::startsWith($input, $command);
         });
     }
 }

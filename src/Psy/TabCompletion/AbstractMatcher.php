@@ -10,7 +10,10 @@ use Psy\Context;
  */
 abstract class AbstractMatcher
 {
+    /** @var Context  */
     protected $context;
+
+    protected $scope;
 
     /**
      * @param Context $context
@@ -21,8 +24,8 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param  $input input received from the readline completion
-     * @param  $index cursor position when the readline completion occured
+     * @param  $input string input received from the readline completion
+     * @param  $index int cursor position when the readline completion occured
      * @param  array $info readline_info object
      * @return array The matches resulting from the query
      */
@@ -33,9 +36,25 @@ abstract class AbstractMatcher
      * @param $word
      * @return int
      */
-    protected function startsWith($prefix, $word)
+    public static function startsWith($prefix, $word)
     {
         return preg_match(sprintf('#^%s#', $prefix), $word);
+    }
+
+    /**
+     * @param $scope mixed The object to query
+     */
+    public function setScope($scope)
+    {
+        $this->scope = $scope;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getScope()
+    {
+        return $this->scope;
     }
 
     /**

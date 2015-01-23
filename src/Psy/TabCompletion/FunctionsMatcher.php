@@ -17,7 +17,7 @@ class FunctionsMatcher extends AbstractMatcher
         $allFunctions = array_merge($functions['user'], $functions['internal']);
 
         return array_filter($allFunctions, function ($func) use ($input) {
-            return $this->startsWith($input, $func);
+            return AbstractMatcher::startsWith($input, $func);
         });
     }
 }
