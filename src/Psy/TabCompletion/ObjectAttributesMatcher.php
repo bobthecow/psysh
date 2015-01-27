@@ -14,8 +14,12 @@ class ObjectAttributesMatcher extends AbstractMatcher
     public function getMatches($input, $index, $info = array())
     {
         $scope = $this->getScope();
-        return array_filter(array_keys(get_class_vars(get_class($scope))), function ($var) use ($input, $index, $info) {
-            return AbstractMatcher::startsWith($input, $var);
-        });
+
+        return array_filter(
+            array_keys(get_class_vars(get_class($scope))),
+            function ($var) use ($input, $index, $info) {
+                return AbstractMatcher::startsWith($input, $var);
+            }
+        );
     }
 }

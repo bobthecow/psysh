@@ -16,15 +16,20 @@ class ClassAttributesMatcher extends AbstractMatcher
         $scope = $this->getScope();
         $reflection = new \ReflectionClass($scope);
         $vars = array_merge(
-            $reflection->getStaticProperties(),
-            $reflection->getConstants()
+            array_map(
+                function ($var) {
+                    return '$' . $var;
+                }, array_keys($reflection->getStaticProperties())
+            ),
+            array_keys($reflection->getConstants())
         );
+
         return array_map(
             function ($name) use ($scope) {
                 return $scope . AutoCompleter::DOUBLE_SEMICOLON_OPERATOR . $name;
             },
             array_filter(
-                array_keys($vars),
+                $vars,
                 function ($var) use ($input) {
                     return AbstractMatcher::startsWith($input, $var);
                 }

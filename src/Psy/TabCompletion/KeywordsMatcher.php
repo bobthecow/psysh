@@ -1,7 +1,6 @@
 <?php
 
 namespace Psy\TabCompletion;
-use Psy\Context;
 
 /**
  * Class KeywordsMatcher

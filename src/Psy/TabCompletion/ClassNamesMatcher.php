@@ -13,8 +13,11 @@ class ClassNamesMatcher extends AbstractMatcher
      */
     public function getMatches($input, $index, $info = array())
     {
-        return array_filter(get_declared_classes(), function ($className) use ($input, $index, $info) {
-            return AbstractMatcher::startsWith($input, $className);
-        });
+        return array_filter(
+            get_declared_classes(),
+            function ($className) use ($input, $index, $info) {
+                return AbstractMatcher::startsWith($input, $className);
+            }
+        );
     }
 }

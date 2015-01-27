@@ -8,7 +8,7 @@ namespace Psy\TabCompletion;
  */
 class CommandsMatcher extends AbstractMatcher
 {
-    protected $commands;
+    protected $commands = array();
 
     public function setCommands($commands)
     {

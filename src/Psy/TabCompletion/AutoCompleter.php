@@ -38,7 +38,7 @@ class AutoCompleter
         self::ARROW_OPERATOR,
         self::DOUBLE_SEMICOLON_OPERATOR,
         self::NEW_OPERATOR,
-        self::DOLLAR_OPERATOR
+        self::DOLLAR_OPERATOR,
     );
 
     /**
@@ -50,6 +50,9 @@ class AutoCompleter
         $this->registerMatchers();
     }
 
+    /**
+     *
+     */
     protected function registerMatchers()
     {
         $this->matchers = array(
@@ -61,7 +64,7 @@ class AutoCompleter
             self::CLASS_METHODS_MATCHER => new ClassMethodsMatcher($this->context),
             self::CLASS_ATTRIBUTES_MATCHER => new ClassAttributesMatcher($this->context),
             self::OBJECT_METHODS_MATCHER => new ObjectMethodsMatcher($this->context),
-            self::OBJECT_ATTRIBUTES_MATCHER => new ObjectAttributesMatcher($this->context)
+            self::OBJECT_ATTRIBUTES_MATCHER => new ObjectAttributesMatcher($this->context),
         );
     }
 
@@ -103,17 +106,18 @@ class AutoCompleter
             foreach ($this->operators as $operator) {
                 $opLen = strlen($operator);
                 if ($operator === substr($line, $len - $opLen, $opLen)) {
-                    preg_match('#(?P<obj>[a-z0-9-_]+)::#im', $line, $matches);
+                    preg_match('#(?P<obj>[a-z0-9-_\\\\]+)(::|->)#im', $line, $matches);
                     if (array_key_exists('obj', $matches)) {
                         return array($operator, $matches['obj'], str_replace($line, '', $copy));
                     }
-                    return array($operator, '');
+
+                    return array($operator, '', $copy);
                 }
             }
             $line = substr($line, 0, $len - 1);
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -125,12 +129,17 @@ class AutoCompleter
      */
     public function processCallback($input, $index, $info = array())
     {
+        var_dump(func_get_args());
         $line = substr($info['line_buffer'], 0, $info['end']);
 
         // do we have any operator there near the input of the cursor?
         list($operator, $class, $start) = $this->extractOperatorData($line);
+
         if (!is_null($operator)) {
-            $matches = $this->getMatchesByOperator($operator, $class, $start, $index, $info);
+            if ($operator === self::DOUBLE_SEMICOLON_OPERATOR) {
+                $input = $start;
+            }
+            $matches = $this->getMatchesByOperator($operator, $class, $input, $index, $info);
 
             if (!empty($matches)) {
                 return $matches;
@@ -147,6 +156,7 @@ class AutoCompleter
             array(
                 $this->getMatcher(self::KEYWORDS_MATCHER),
                 $this->getMatcher(self::FUNCTIONS_MATCHER),
+                $this->getMatcher(self::CLASS_NAMES_MATCHER),
                 $this->getMatcher(self::COMMANDS_MATCHER),
             )
         ));
@@ -193,6 +203,7 @@ class AutoCompleter
         return call_user_func_array('array_merge', array_map(
             function (AbstractMatcher $matcher) use ($input, $index, $info, $class) {
                 $matcher->setScope($class);
+
                 return $matcher->getMatches($input, $index, $info);
             },
             $matchers
