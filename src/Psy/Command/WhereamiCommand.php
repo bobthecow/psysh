@@ -25,7 +25,7 @@ class WhereamiCommand extends Command
 {
     public function __construct()
     {
-        $this->backtrace = debug_backtrace();
+        $this->backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         return parent::__construct();
     }
