@@ -74,8 +74,7 @@ class Shell extends Application
         $this->includes = array();
         $this->readline = $this->config->getReadline();
         if ($this->config->getTabCompletion()) {
-            $this->completion = new AutoCompleter($this->context);
-            $this->completion->setCommands($this->getDefaultCommands());
+            $this->completion = new AutoCompleter($this->context, $this->getDefaultCommands());
             $this->completion->activate();
         }
 

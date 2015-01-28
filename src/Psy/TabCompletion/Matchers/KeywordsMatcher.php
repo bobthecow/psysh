@@ -1,10 +1,12 @@
 <?php
 
-namespace Psy\TabCompletion;
+namespace Psy\TabCompletion\Matchers;
+
+use Psy\TabCompletion\Rulers\ClassNamesRuler;
 
 /**
  * Class KeywordsMatcher
- * @package Psy\TabCompletion
+ * @package Psy\TabCompletion\Matchers
  */
 class KeywordsMatcher extends AbstractMatcher
 {
@@ -13,12 +15,24 @@ class KeywordsMatcher extends AbstractMatcher
         'include_once', 'isset', 'list', 'print',  'require', 'require_once', 'unset',
     );
 
+    protected $mandatoryStartKeywords = array(
+        'die', 'echo', 'print', 'unset',
+    );
+
     /**
      * @return array
      */
     public function getKeywords()
     {
         return $this->keywords;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function buildRules()
+    {
+        $this->rules[] = new ClassNamesRuler();
     }
 
     /**
@@ -33,8 +47,10 @@ class KeywordsMatcher extends AbstractMatcher
     /**
      * {@inheritDoc}
      */
-    public function getMatches($input, $index, $info = array())
+    public function getMatches(array $tokens, array $info = array())
     {
+        $input = $this->getInput($tokens);
+
         return array_filter($this->keywords, function ($keyword) use ($input) {
             return AbstractMatcher::startsWith($input, $keyword);
         });
