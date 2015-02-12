@@ -112,6 +112,9 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     new Psy_Test_CodeCleaner_ValidClassNamePass_Delta();
                 }
             "),
+
+            // class constant fetch
+            array('Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::FOO'),
         );
     }
 
@@ -163,6 +166,9 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     new \\Psy\\Test\\CodeCleaner\\ValidClassNamePass\\Kappa();
                 }
             "),
+
+            // Class constant fetch (ValidConstantPassTest validates the actual constant)
+            array('class A {} A::FOO'),
         );
     }
 }

@@ -14,6 +14,7 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr as Expr;
 use PhpParser\Node\Expr\New_ as NewExpr;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
 use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
@@ -60,6 +61,8 @@ class ValidClassNamePass extends NamespaceAwarePass
             $this->validateTraitStatement($node);
         } elseif ($node instanceof NewExpr) {
             $this->validateNewExpression($node);
+        } elseif ($node instanceof ClassConstFetch) {
+            $this->validateClassConstFetchExpression($node);
         }
     }
 
@@ -104,6 +107,19 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param NewExpr $stmt
      */
     protected function validateNewExpression(NewExpr $stmt)
+    {
+        // if class name is an expression, give it a pass for now
+        if (!$stmt->class instanceof Expr) {
+            $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
+        }
+    }
+
+    /**
+     * Validate a class constant fetch expression's class.
+     *
+     * @param  ClassConstFetch $stmt
+     */
+    protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
         // if class name is an expression, give it a pass for now
         if (!$stmt->class instanceof Expr) {
