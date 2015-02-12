@@ -39,7 +39,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.3.4';
+    const VERSION = 'v0.3.5';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
