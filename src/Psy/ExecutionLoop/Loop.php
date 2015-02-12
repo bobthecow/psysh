@@ -106,7 +106,7 @@ class Loop
             if (is_object($that)) {
                 $loop = $loop->bindTo($that, get_class($that));
             } else {
-                $loop = $loop->bindTo(null);
+                $loop = $loop->bindTo(null, null);
             }
         }
 
