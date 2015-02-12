@@ -33,7 +33,11 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     public function getInvalidReferences()
     {
         return array(
-            array('Foo\BAR;'),
+            array('Foo\BAR'),
+
+            // class constant fetch
+            array('Psy\Test\CodeCleaner\ValidConstantPassTest::FOO'),
+            array('DateTime::BACON'),
         );
     }
 
@@ -49,7 +53,12 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     public function getValidReferences()
     {
         return array(
-            array('PHP_EOL;'),
+            array('PHP_EOL'),
+
+            // class constant fetch
+            array('NotAClass::FOO'),
+            array('DateTime::ATOM'),
+            array('$a = new DateTime; $a::ATOM'),
         );
     }
 }

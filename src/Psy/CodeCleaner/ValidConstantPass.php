@@ -12,6 +12,8 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
 use Psy\Exception\FatalErrorException;
 
@@ -44,6 +46,33 @@ class ValidConstantPass extends NamespaceAwarePass
             $name = $this->getFullyQualifiedName($node->name);
             if (!defined($name)) {
                 throw new FatalErrorException(sprintf('Undefined constant %s', $name), 0, 1, null, $node->getLine());
+            }
+        } elseif ($node instanceof ClassConstFetch) {
+            $this->validateClassConstFetchExpression($node);
+        }
+    }
+
+    /**
+     * Validate a class constant fetch expression.
+     *
+     * @throws FatalErrorException if a class constant is not defined.
+     *
+     * @param ClassConstFetch $stmt
+     */
+    protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
+    {
+        // if class name is an expression, give it a pass for now
+        if (!$stmt->class instanceof Expr) {
+            $className = $this->getFullyQualifiedName($stmt->class);
+
+            // if the class doesn't exist, don't throw an exception… it might be
+            // defined in the same line it's used or something stupid like that.
+            if (class_exists($className)) {
+                $constName = sprintf('%s::%s', $className, $stmt->name);
+                if (!defined($constName)) {
+                    $msg = sprintf('Class constant \'%s\' not found', $constName);
+                    throw new FatalErrorException($msg, 0, 1, null, $stmt->getLine());
+                }
             }
         }
     }
