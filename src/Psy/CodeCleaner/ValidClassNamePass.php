@@ -117,7 +117,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate a class constant fetch expression's class.
      *
-     * @param  ClassConstFetch $stmt
+     * @param ClassConstFetch $stmt
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {

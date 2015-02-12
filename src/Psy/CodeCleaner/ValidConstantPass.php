@@ -54,9 +54,9 @@ class ValidConstantPass extends NamespaceAwarePass
     /**
      * Validate a class constant fetch expression.
      *
-     * @throws  FatalErrorException if a class constant is not defined.
+     * @throws FatalErrorException if a class constant is not defined.
      *
-     * @param  ClassConstFetch $stmt
+     * @param ClassConstFetch $stmt
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
