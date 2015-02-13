@@ -73,12 +73,13 @@ class Shell extends Application
         $this->context  = new Context();
         $this->includes = array();
         $this->readline = $this->config->getReadline();
-        if ($this->config->getTabCompletion()) {
-            $this->completion = new AutoCompleter($this->context, $this->getDefaultCommands());
-            $this->completion->activate();
-        }
 
         parent::__construct('Psy Shell', self::VERSION);
+
+        if ($this->config->getTabCompletion()) {
+            $this->completion = new AutoCompleter($this->context, $this->all());
+            $this->completion->activate();
+        }
 
         $this->config->setShell($this);
     }

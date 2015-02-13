@@ -97,6 +97,8 @@ class AutoCompleter
             }
         }
 
+        $matches = array_unique($matches);
+
         return !empty($matches) ? $matches : array('');
     }
 

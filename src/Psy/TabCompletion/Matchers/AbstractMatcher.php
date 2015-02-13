@@ -56,7 +56,7 @@ abstract class AbstractMatcher
     {
         $var = '';
         $firstToken = array_pop($tokens);
-        if (AbstractRuler::tokenIs(AbstractRuler::T_STRING, $firstToken)) {
+        if (AbstractRuler::tokenIs($firstToken, AbstractRuler::T_STRING)) {
             $var = $firstToken[1];
         }
 
