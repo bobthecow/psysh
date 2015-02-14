@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use Psy\Exception\ThrowUpException;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
@@ -193,6 +194,7 @@ class Shell extends Application
             new Command\ShowCommand(),
             new Command\WtfCommand(),
             new Command\WhereamiCommand(),
+            new Command\ThrowUpCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
@@ -236,6 +238,8 @@ class Shell extends Application
     /**
      * Runs the current application.
      *
+     * @throws Exception if thrown via the `throw-up` command.
+     *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
      *
@@ -258,7 +262,13 @@ class Shell extends Application
 
         $this->output->writeln($this->getHeader());
 
-        $this->loop->run($this);
+        try {
+            $this->loop->run($this);
+        } catch (ThrowUpException $e) {
+            $this->setCatchExceptions(false);
+
+            throw $e->getPrevious();
+        }
     }
 
     /**

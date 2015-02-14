@@ -14,6 +14,7 @@ namespace Psy\ExecutionLoop;
 use Psy\Configuration;
 use Psy\Shell;
 use Psy\Exception\BreakException;
+use Psy\Exception\ThrowUpException;
 
 /**
  * The Psy Shell execution loop.
@@ -32,6 +33,8 @@ class Loop
 
     /**
      * Run the execution loop.
+     *
+     * @throws ThrowUpException if thrown by the `throw-up` command.
      *
      * @param Shell $shell
      */
@@ -80,6 +83,14 @@ class Loop
                     $__psysh__->writeException($_e);
 
                     return;
+                } catch (ThrowUpException $_e) {
+                    restore_error_handler();
+                    if (ob_get_level() > 0) {
+                        ob_end_clean();
+                    }
+                    $__psysh__->writeException($_e);
+
+                    throw $_e;
                 } catch (\Exception $_e) {
                     restore_error_handler();
                     if (ob_get_level() > 0) {
