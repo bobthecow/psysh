@@ -102,7 +102,7 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
         if ($param->isOptional()) {
             $ret .= ' = ';
 
-            if (version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant()) {
+            if (self::isParamDefaultValueConstant($param)) {
                 $name = $param->getDefaultValueConstantName();
                 $ret .= '<const>' . $name . '</const>';
             } elseif ($param->isDefaultValueAvailable()) {
@@ -148,5 +148,26 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
     protected function formatParamName($name)
     {
         return sprintf('$<strong>%s</strong>', $name);
+    }
+
+    /**
+     * Check whether a parameter's default value is a constant.
+     *
+     * This is only supported in PHP >= 5.4.3, and currently unimplemented in
+     * HHVM.
+     *
+     * @param \ReflectionParameter $param
+     *
+     * @return boolean
+     */
+    protected static function isParamDefaultValueConstant(\ReflectionParameter $param)
+    {
+        // HHVM doesn't currently support `isDefaultValueConstant`, skip for now
+        // see https://github.com/facebook/hhvm/issues/3812
+        if (defined('HHVM_VERSION')) {
+            return false;
+        }
+
+        return version_compare(PHP_VERSION, '5.4.3', '>=') && $param->isDefaultValueConstant();
     }
 }
