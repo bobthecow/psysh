@@ -83,7 +83,11 @@ class GNUReadline implements Readline
      */
     public function readHistory()
     {
-        readline_read_history();
+        /* Workaround PHP bug #69054
+         * If open_basedir is set, readline_read_history() segfaults */
+        if (!ini_get('open_basedir')) {
+            readline_read_history();
+        }
         readline_clear_history();
 
         return readline_read_history($this->historyFile);
