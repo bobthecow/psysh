@@ -129,12 +129,12 @@ class Configuration
 
         foreach ($this->getConfigDirs() as $dir) {
             $file = $dir . '/config.php';
-            if (is_file($file)) {
+            if (@is_file($file)) {
                 return $this->configFile = $file;
             }
 
             $file = $dir . '/rc.php';
-            if (is_file($file)) {
+            if (@is_file($file)) {
                 return $this->configFile = $file;
             }
         }
@@ -397,12 +397,12 @@ class Configuration
 
         foreach ($this->getConfigDirs() as $dir) {
             $file = $dir . '/psysh_history';
-            if (is_file($file)) {
+            if (@is_file($file)) {
                 return $this->historyFile = $file;
             }
 
             $file = $dir . '/history';
-            if (is_file($file)) {
+            if (@is_file($file)) {
                 return $this->historyFile = $file;
             }
         }
@@ -838,7 +838,7 @@ class Configuration
 
         foreach ($this->getDataDirs() as $dir) {
             $file = $dir . '/php_manual.sqlite';
-            if (is_file($file)) {
+            if (@is_file($file)) {
                 return $this->manualDbFile = $file;
             }
         }
