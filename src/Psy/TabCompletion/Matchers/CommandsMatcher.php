@@ -2,7 +2,7 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\TabCompletion\Rulers\ClassNamesRuler;
+use Psy\Command\Command;
 
 /**
  * Class CommandsMatcher
@@ -13,17 +13,22 @@ class CommandsMatcher extends AbstractMatcher
     /** @var array  */
     protected $commands = array();
 
-    protected function buildRules()
+    public function __construct(array $commands)
     {
-        $this->rules[] = new ClassNamesRuler();
+        $this->setCommands($commands);
     }
 
     /**
-     * @param $commands
+     * @param Command[] $commands
      */
-    public function setCommands($commands)
+    public function setCommands(array $commands)
     {
-        $this->commands = $commands;
+        $names = array();
+        foreach ($commands as $command) {
+            $names = array_merge(array($command->getName()), $names);
+            $names = array_merge($command->getAliases(), $names);
+        }
+        $this->commands = $names;
     }
 
     /**
@@ -36,5 +41,24 @@ class CommandsMatcher extends AbstractMatcher
         return array_filter($this->commands, function ($command) use ($input) {
             return AbstractMatcher::startsWith($input, $command);
         });
+    }
+
+    /**
+     * @param  array $tokens
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        $token = array_pop($tokens);
+        $prevToken = array_pop($tokens);
+
+        switch (true) {
+            case self::tokenIs($prevToken, self::T_NEW):
+                return false;
+            case self::hasToken(array(self::T_OPEN_TAG, self::T_STRING), $token):
+                return true;
+        }
+
+        return false;
     }
 }

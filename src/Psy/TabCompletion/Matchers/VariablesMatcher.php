@@ -2,22 +2,12 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\TabCompletion\Rulers\VariableRuler;
-
 /**
  * Class VariablesMatcher
  * @package Psy\TabCompletion\Matchers
  */
 class VariablesMatcher extends AbstractMatcher
 {
-    /**
-     * {@inheritDoc}
-     */
-    protected function buildRules()
-    {
-        $this->rules[] = new VariableRuler();
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -28,5 +18,24 @@ class VariablesMatcher extends AbstractMatcher
         return array_filter(array_keys($this->context->getAll()), function ($variable) use ($var) {
             return AbstractMatcher::startsWith($var, $variable);
         });
+    }
+
+    /**
+     * @param  array $tokens
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        $token = array_pop($tokens);
+        $prevToken = array_pop($tokens);
+
+        switch (true) {
+            case self::hasToken(array(self::T_OPEN_TAG, self::T_VARIABLE), $token):
+            case is_string($token) && $token === '$':
+            case self::isOperator($token):
+                return true;
+        }
+
+        return false;
     }
 }

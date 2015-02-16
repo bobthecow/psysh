@@ -2,9 +2,6 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\TabCompletion\Rulers\StaticOperatorRuler;
-use Psy\TabCompletion\Rulers\AbstractRuler;
-
 /**
  * Class ClassAttributesMatcher
  * @package Psy\TabCompletion\Matchers
@@ -14,20 +11,12 @@ class ClassAttributesMatcher extends AbstractMatcher
     /**
      * {@inheritDoc}
      */
-    protected function buildRules()
-    {
-        $this->rules[] = new StaticOperatorRuler();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMatches(array $tokens, array $info = array())
     {
         $input = $this->getInput($tokens);
 
         $firstToken = array_pop($tokens);
-        if (AbstractRuler::tokenIs($firstToken, AbstractRuler::T_STRING)) {
+        if (self::tokenIs($firstToken, self::T_STRING)) {
             // second token is the nekudotayim operator
             array_pop($tokens);
         }
@@ -56,5 +45,23 @@ class ClassAttributesMatcher extends AbstractMatcher
                 }
             )
         );
+    }
+
+    /**
+     * @param  array $tokens
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        $token = array_pop($tokens);
+        $prevToken = array_pop($tokens);
+
+        switch (true) {
+            case self::tokenIs($prevToken, self::T_DOUBLE_COLON) && self::tokenIs($token, self::T_STRING):
+            case self::tokenIs($token, self::T_DOUBLE_COLON):
+                return true;
+        }
+
+        return false;
     }
 }

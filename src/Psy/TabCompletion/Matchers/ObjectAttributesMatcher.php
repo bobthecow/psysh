@@ -2,9 +2,6 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\TabCompletion\Rulers\AbstractRuler;
-use Psy\TabCompletion\Rulers\ObjectOperatorRuler;
-
 /**
  * Class ObjectAttributesMatcher
  * @package Psy\TabCompletion\Matchers
@@ -14,20 +11,12 @@ class ObjectAttributesMatcher extends AbstractMatcher
     /**
      * {@inheritDoc}
      */
-    protected function buildRules()
-    {
-        $this->rules[] = new ObjectOperatorRuler();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMatches(array $tokens, array $info = array())
     {
         $input = $this->getInput($tokens);
 
         $firstToken = array_pop($tokens);
-        if (AbstractRuler::tokenIs($firstToken, AbstractRuler::T_STRING)) {
+        if (self::tokenIs($firstToken, self::T_STRING)) {
             // second token is the object operator
             array_pop($tokens);
         }
@@ -41,5 +30,23 @@ class ObjectAttributesMatcher extends AbstractMatcher
                 return AbstractMatcher::startsWith($input, $var);
             }
         );
+    }
+
+    /**
+     * @param  array $tokens
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        $token = array_pop($tokens);
+        $prevToken = array_pop($tokens);
+
+        switch (true) {
+            case self::tokenIs($token, self::T_OBJECT_OPERATOR):
+            case self::tokenIs($prevToken, self::T_OBJECT_OPERATOR):
+                return true;
+        }
+
+        return false;
     }
 }

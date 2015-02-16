@@ -21,6 +21,7 @@ use Psy\Readline\GNUReadline;
 use Psy\Readline\Libedit;
 use Psy\Readline\Readline;
 use Psy\Readline\Transient;
+use Psy\TabCompletion\AutoCompleter;
 use XdgBaseDir\Xdg;
 
 /**
@@ -32,7 +33,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
-        'tabCompletion',
+        'tabCompletion', 'tabCompletionMatchers',
     );
 
     private $defaultIncludes;
@@ -49,7 +50,6 @@ class Configuration
     private $hasPcntl;
     private $usePcntl;
     private $newCommands = array();
-    private $tabCompletion = true;
     private $requireSemicolons = false;
 
     // services
@@ -61,6 +61,7 @@ class Configuration
     private $loop;
     private $manualDb;
     private $presenters;
+    private $tabCompletionMatchers = array();
 
     /**
      * Construct a Configuration instance.
@@ -222,7 +223,7 @@ class Configuration
             }
         }
 
-        foreach (array('commands') as $option) {
+        foreach (array('commands', 'tabCompletionMatchers') as $option) {
             if (isset($options[$option])) {
                 $method = 'add' . ucfirst($option);
                 $this->$method($options[$option]);
@@ -774,23 +775,31 @@ class Configuration
     }
 
     /**
-     * Enables tab completion mode
-     *
-     * @param $tabCompletion
-     */
-    public function setTabCompletion($tabCompletion)
-    {
-        $this->tabCompletion = (bool) $tabCompletion;
-    }
-
-    /**
      * Retrieves the tab completion status
      *
      * @return bool
      */
     public function getTabCompletion()
     {
-        return $this->tabCompletion;
+        return function_exists('readline_info');
+    }
+
+    /**
+     *
+     */
+    public function getAutoCompleter()
+    {
+        $completer = new AutoCompleter();
+
+        return $completer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTabCompletionMatchers()
+    {
+        return $this->tabCompletionMatchers;
     }
 
     /**

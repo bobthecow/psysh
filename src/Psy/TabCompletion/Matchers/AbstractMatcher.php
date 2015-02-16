@@ -3,48 +3,49 @@
 namespace Psy\TabCompletion\Matchers;
 
 use Psy\Context;
-use Psy\TabCompletion\Rulers\AbstractRuler;
+use Psy\ContextAware;
 
 /**
  * Class AbstractMatcher
  * @package Psy\TabCompletion\Matchers
  */
-abstract class AbstractMatcher
+abstract class AbstractMatcher implements ContextAware
 {
+    /** Syntax types */
+    const CONSTANT_SYNTAX = '^[A-Z0-9-_]+$';
+    const VAR_SYNTAX = '^\$[a-zA-Z0-9-_]+$';
+    const MISC_OPERATORS = '+-*/^|&';
+    /** Token values */
+    const T_OPEN_TAG = 'T_OPEN_TAG';
+    const T_VARIABLE = 'T_VARIABLE';
+    const T_OBJECT_OPERATOR = 'T_OBJECT_OPERATOR';
+    const T_DOUBLE_COLON = 'T_DOUBLE_COLON';
+    const T_NEW = 'T_NEW';
+    const T_CLONE = 'T_CLONE';
+    const T_NS_SEPARATOR = 'T_NS_SEPARATOR';
+    const T_STRING = 'T_STRING';
+    const T_WHITESPACE = 'T_WHITESPACE';
+    const T_AND_EQUAL = 'T_AND_EQUAL';
+    const T_BOOLEAN_AND = 'T_BOOLEAN_AND';
+    const T_BOOLEAN_OR = 'T_BOOLEAN_OR';
+
     /** @var Context  */
     protected $context;
-
-    /** @var AbstractRuler[] */
-    protected $rules = array();
 
     /**
      * @param Context $context
      */
-    public function __construct(Context $context)
+    public function setContext(Context $context)
     {
         $this->context = $context;
-        $this->buildRules();
     }
 
     /**
-     * Rules to apply to the tokens for successfully returning the matches
-     * @return mixed
-     */
-    abstract protected function buildRules();
-
-    /**
-     * Rule to accomplish for successfully applying the matches for the input
      * @param  array $tokens
-     * @return mixed
+     * @return bool
      */
-    public function checkRules(array $tokens)
+    public function hasMatched(array $tokens)
     {
-        foreach ($this->rules as $rule) {
-            if ($rule->check($tokens)) {
-                return true;
-            }
-        }
-
         return false;
     }
 
@@ -56,7 +57,7 @@ abstract class AbstractMatcher
     {
         $var = '';
         $firstToken = array_pop($tokens);
-        if (AbstractRuler::tokenIs($firstToken, AbstractRuler::T_STRING)) {
+        if (self::tokenIs($firstToken, self::T_STRING)) {
             $var = $firstToken[1];
         }
 
@@ -70,8 +71,8 @@ abstract class AbstractMatcher
     protected function getNamespaceAndClass($tokens)
     {
         $class = '';
-        while (AbstractRuler::hasToken(
-            array(AbstractRuler::T_NS_SEPARATOR, AbstractRuler::T_STRING),
+        while (self::hasToken(
+            array(self::T_NS_SEPARATOR, self::T_STRING),
             $token = array_pop($tokens)
         )) {
             $class = $token[1] . $class;
@@ -104,5 +105,62 @@ abstract class AbstractMatcher
     protected function getVariable($var)
     {
         return $this->context->get($var);
+    }
+
+    /**
+     * @param $token
+     * @param  string $syntax
+     * @return bool
+     */
+    public static function hasSyntax($token, $syntax = self::VAR_SYNTAX)
+    {
+        if (!is_array($token)) {
+            return false;
+        }
+
+        $regexp = sprintf('#%s#', $syntax);
+
+        return (bool) preg_match($regexp, $token[1]);
+    }
+
+    /**
+     * @param $token
+     * @param $which
+     * @return bool
+     */
+    public static function tokenIs($token, $which)
+    {
+        if (!is_array($token)) {
+            return false;
+        }
+
+        return token_name($token[0]) === $which;
+    }
+
+    /**
+     * @param $token
+     * @return bool
+     */
+    public static function isOperator($token)
+    {
+        if (!is_string($token)) {
+            return false;
+        }
+
+        return strpos(self::MISC_OPERATORS, $token) !== false;
+    }
+
+    /**
+     * @param  array $coll
+     * @param $token
+     * @return bool
+     */
+    public static function hasToken(array $coll, $token)
+    {
+        if (!is_array($token)) {
+            return false;
+        }
+
+        return in_array(token_name($token[0]), $coll);
     }
 }

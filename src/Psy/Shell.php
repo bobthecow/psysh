@@ -16,7 +16,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
-use Psy\TabCompletion\AutoCompleter;
+use Psy\TabCompletion\Matchers;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -59,6 +59,7 @@ class Shell extends Application
     private $includes;
     private $loop;
     private $completion;
+    private $tabCompletionMatchers = array();
 
     /**
      * Create a new Psy Shell.
@@ -76,12 +77,19 @@ class Shell extends Application
 
         parent::__construct('Psy Shell', self::VERSION);
 
+        $this->config->setShell($this);
+        // auto completer needs shell to be linked to configuration because of the context aware matchers
         if ($this->config->getTabCompletion()) {
-            $this->completion = new AutoCompleter($this->context, $this->all());
+            $this->completion = $this->config->getAutoCompleter();
+            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
+            foreach ($this->getTabCompletionMatchers() as $matcher) {
+                if ($matcher instanceof ContextAware) {
+                    $matcher->setContext($this->context);
+                }
+                $this->completion->addMatcher($matcher);
+            }
             $this->completion->activate();
         }
-
-        $this->config->setShell($this);
     }
 
     /**
@@ -207,6 +215,34 @@ class Shell extends Application
             $hist,
             new Command\ExitCommand(),
         );
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTabCompletionMatchers()
+    {
+        $this->addTabCompletionMatchers(
+            array(
+                new Matchers\CommandsMatcher($this->all()),
+                new Matchers\KeywordsMatcher(),
+                new Matchers\VariablesMatcher(),
+                new Matchers\ConstantsMatcher(),
+                new Matchers\FunctionsMatcher(),
+                new Matchers\ClassNamesMatcher(),
+                new Matchers\ClassMethodsMatcher(),
+                new Matchers\ClassAttributesMatcher(),
+                new Matchers\ObjectMethodsMatcher(),
+                new Matchers\ObjectAttributesMatcher(),
+            )
+        );
+
+        return $this->tabCompletionMatchers;
+    }
+
+    public function addTabCompletionMatchers(array $matchers)
+    {
+        $this->tabCompletionMatchers = array_merge($matchers, $this->tabCompletionMatchers);
     }
 
     /**

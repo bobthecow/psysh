@@ -2,8 +2,7 @@
 
 namespace Psy\TabCompletion;
 
-use Psy\Command\Command;
-use Psy\Context;
+use Psy\TabCompletion\Matchers\AbstractMatcher;
 
 /**
  * Class AutoCompleter
@@ -11,66 +10,12 @@ use Psy\Context;
  */
 class AutoCompleter
 {
-    /** matchers constants */
-    const COMMANDS_MATCHER = 'commands';
-    const KEYWORDS_MATCHER = 'keyword';
-    const VARIABLES_MATCHER = 'variables';
-    const CONSTANTS_MATCHER = 'constants';
-    const FUNCTIONS_MATCHER = 'functions';
-    const CLASS_NAMES_MATCHER = 'class_names';
-    const CLASS_ATTRIBUTES_MATCHER = 'class_attributes';
-    const CLASS_METHODS_MATCHER = 'class_methods';
-    const OBJECT_ATTRIBUTES_MATCHER = 'object_attributes';
-    const OBJECT_METHODS_MATCHER = 'object_methods';
-
-    /** @var Context */
-    protected $context;
-
     /** @var Matchers\AbstractMatcher[]  */
-    public $matchers;
+    protected $matchers;
 
-    /**
-     * @param Context $context
-     * @param array   $commands
-     */
-    public function __construct(Context $context = null, array $commands = array())
+    public function addMatcher(AbstractMatcher $matcher)
     {
-        $this->context = $context;
-        $this->registerMatchers();
-        $this->setCommands($commands);
-    }
-
-    /**
-     *
-     */
-    protected function registerMatchers()
-    {
-        $this->matchers = array(
-            self::COMMANDS_MATCHER => new Matchers\CommandsMatcher($this->context),
-            self::KEYWORDS_MATCHER => new Matchers\KeywordsMatcher($this->context),
-            self::VARIABLES_MATCHER => new Matchers\VariablesMatcher($this->context),
-            self::CONSTANTS_MATCHER => new Matchers\ConstantsMatcher($this->context),
-            self::FUNCTIONS_MATCHER => new Matchers\FunctionsMatcher($this->context),
-            self::CLASS_NAMES_MATCHER => new Matchers\ClassNamesMatcher($this->context),
-            self::CLASS_METHODS_MATCHER => new Matchers\ClassMethodsMatcher($this->context),
-            self::CLASS_ATTRIBUTES_MATCHER => new Matchers\ClassAttributesMatcher($this->context),
-            self::OBJECT_METHODS_MATCHER => new Matchers\ObjectMethodsMatcher($this->context),
-            self::OBJECT_ATTRIBUTES_MATCHER => new Matchers\ObjectAttributesMatcher($this->context),
-        );
-    }
-
-    /**
-     * @param $commands
-     */
-    public function setCommands(array $commands)
-    {
-        /** @var Matchers\CommandsMatcher $commandsMatcher */
-        $commandsMatcher = $this->matchers[self::COMMANDS_MATCHER];
-        $commandsMatcher->setCommands(
-            array_map(function (Command $command) {
-                return $command->getName();
-            }, $commands)
-        );
+        $this->matchers[] = $matcher;
     }
 
     public function activate()
@@ -89,10 +34,14 @@ class AutoCompleter
     {
         $line = substr($info['line_buffer'], 0, $info['end']);
         $tokens = token_get_all('<?php ' . $line);
+        // remove whitespaces
+        $tokens = array_filter($tokens, function ($token) {
+            return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
+        });
 
         $matches = array();
         foreach ($this->matchers as $matcher) {
-            if ($matcher->checkRules($tokens)) {
+            if ($matcher->hasMatched($tokens)) {
                 $matches = array_merge($matcher->getMatches($tokens), $matches);
             }
         }
@@ -110,5 +59,10 @@ class AutoCompleter
     public function callback($input, $index)
     {
         return $this->processCallback($input, $index, readline_info());
+    }
+
+    public function __destruct()
+    {
+        readline_callback_handler_remove();
     }
 }

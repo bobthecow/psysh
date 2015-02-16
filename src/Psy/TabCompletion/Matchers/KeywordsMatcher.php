@@ -2,8 +2,6 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\TabCompletion\Rulers\ClassNamesRuler;
-
 /**
  * Class KeywordsMatcher
  * @package Psy\TabCompletion\Matchers
@@ -28,14 +26,6 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * {@inheritDoc}
-     */
-    protected function buildRules()
-    {
-        $this->rules[] = new ClassNamesRuler();
-    }
-
-    /**
      * @param $keyword
      * @return bool
      */
@@ -54,5 +44,24 @@ class KeywordsMatcher extends AbstractMatcher
         return array_filter($this->keywords, function ($keyword) use ($input) {
             return AbstractMatcher::startsWith($input, $keyword);
         });
+    }
+
+    /**
+     * @param  array $tokens
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        $token = array_pop($tokens);
+        $prevToken = array_pop($tokens);
+
+        switch (true) {
+            case self::hasToken(array(self::T_OPEN_TAG, self::T_VARIABLE), $token):
+            case is_string($token) && $token === '$':
+            case self::isOperator($token):
+                return true;
+        }
+
+        return false;
     }
 }

@@ -2,22 +2,12 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\TabCompletion\Rulers\ConstantsRuler;
-
 /**
  * Class ConstantsMatcher
  * @package Psy\TabCompletion\Matchers
  */
 class ConstantsMatcher extends AbstractMatcher
 {
-    /**
-     * {@inheritDoc}
-     */
-    protected function buildRules()
-    {
-        $this->rules[] = new ConstantsRuler();
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -28,5 +18,25 @@ class ConstantsMatcher extends AbstractMatcher
         return array_filter(array_keys(get_defined_constants()), function ($constant) use ($const) {
             return AbstractMatcher::startsWith($const, $constant);
         });
+    }
+
+    /**
+     * @param  array $tokens
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        $token = array_pop($tokens);
+        $prevToken = array_pop($tokens);
+
+        switch (true) {
+            case self::tokenIs($prevToken, self::T_NEW):
+                return false;
+            case self::hasToken(array(self::T_OPEN_TAG, self::T_STRING), $token):
+            case self::isOperator($token):
+                return true;
+        }
+
+        return false;
     }
 }
