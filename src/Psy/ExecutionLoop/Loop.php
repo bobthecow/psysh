@@ -38,7 +38,7 @@ class Loop
      */
     protected function getExecutionClosure()
     {
-        return function (Shell &$__psysh__, $code = null) {
+        return function (Shell &$__psysh__) {
 
             try {
                 extract($__psysh__->getScopeVariables());
@@ -47,7 +47,7 @@ class Loop
                 ob_start();
 
                 set_error_handler(array($__psysh__, 'handleError'));
-                $_ = eval(!is_null($code) ? $code : $__psysh__->flushCode());
+                $_ = eval($__psysh__->flushCode());
                 restore_error_handler();
 
                 $__psysh_out__ = ob_get_contents();
@@ -58,11 +58,8 @@ class Loop
 
                 // a bit of housekeeping
                 unset($__psysh_out__);
-                unset($code);
 
                 $__psysh__->setScopeVariables(get_defined_vars());
-            } catch (BreakException $_e) {
-                throw $_e;
             } catch (\Exception $_e) {
                 restore_error_handler();
                 if (ob_get_level() > 0) {
@@ -117,8 +114,9 @@ class Loop
         if (self::bindLoop()) {
             $executionClosure = $this->setClosureShellScope($shell, $executionClosure);
         }
+        $shell->addCode($code);
 
-        return $executionClosure($shell, $code);
+        return $executionClosure($shell);
     }
 
     /**
@@ -165,7 +163,7 @@ class Loop
             return $loop->bindTo($that, get_class($that));
         }
 
-        return $loop->bindTo(null);
+        return $loop->bindTo(null, null);
     }
 
     /**

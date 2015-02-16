@@ -6,7 +6,6 @@ use Psy\Configuration;
 use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 
 /**
  * Class TimeitCommand
@@ -21,10 +20,8 @@ class TimeitCommand extends Command
     {
         $this
             ->setName('timeit')
-            ->setDefinition(array(
-                new InputArgument('target', InputArgument::REQUIRED, 'A target object or primitive to profile.', null),
-            ))
             ->setDescription('Profiles with a timer.')
+            ->setUsesWholeStringInput(true)
             ->setHelp(
                 <<<HELP
 Time profiling for functions and commands.
@@ -40,16 +37,16 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $target = $input->getArgument('target');
-        $start = microtime(true);
+        $target = $input->getLine();
 
         /** @var Shell $shell */
         $shell = $this->getApplication();
         $sh = new Shell(new Configuration());
         $sh->setOutput($output);
         $sh->setScopeVariables($shell->getScopeVariables());
-        $sh->execute($target);
 
+        $start = microtime(true);
+        $sh->execute($target);
         $end = microtime(true);
 
         $output->writeln(sprintf('<info>Command took %.6f seconds to complete.</info>', $end-$start));

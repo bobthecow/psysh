@@ -14,6 +14,7 @@ namespace Psy;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
+use Psy\Input\WholeStringInput;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
 use Symfony\Component\Console\Application;
@@ -467,7 +468,12 @@ class Shell extends Application
             throw new \InvalidArgumentException('Command not found: ' . $input);
         }
 
-        $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
+        $sanitizedInput = str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;"));
+        if ($command->getUsesWholeStringInput()) {
+            $input = new WholeStringInput($sanitizedInput);
+        } else {
+            $input = new StringInput($sanitizedInput);
+        }
 
         if ($input->hasParameterOption(array('--help', '-h'))) {
             $helpCommand = $this->get('help');
