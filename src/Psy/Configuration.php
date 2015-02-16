@@ -51,6 +51,7 @@ class Configuration
     private $usePcntl;
     private $newCommands = array();
     private $requireSemicolons = false;
+    private $tabCompletion;
 
     // services
     private $readline;
@@ -674,6 +675,29 @@ class Configuration
     }
 
     /**
+     * Enable or disable tab completion.
+     *
+     * @param bool $tabCompletion
+     */
+    public function setTabCompletion($tabCompletion)
+    {
+        $this->tabCompletion = (bool) $tabCompletion;
+    }
+
+    /**
+     * Check whether to use tab completion.
+     *
+     * If `setTabCompletion` has been set to true, but readline is not actually
+     * available, this will return false.
+     *
+     * @return bool True if the current Shell should use tab completion.
+     */
+    public function getTabCompletion()
+    {
+        return isset($this->tabCompletion) ? ($this->hasReadline && $this->tabCompletion) : $this->hasReadline;
+    }
+
+    /**
      * Set the Shell Output service.
      *
      * @param ShellOutput $output
@@ -773,16 +797,6 @@ class Configuration
         }
 
         return $this->loop;
-    }
-
-    /**
-     * Retrieves the tab completion status
-     *
-     * @return bool
-     */
-    public function getTabCompletion()
-    {
-        return function_exists('readline_info');
     }
 
     /**
