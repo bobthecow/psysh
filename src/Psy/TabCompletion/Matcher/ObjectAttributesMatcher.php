@@ -1,10 +1,10 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+namespace Psy\TabCompletion\Matcher;
 
 /**
  * Class ObjectAttributesMatcher
- * @package Psy\TabCompletion\Matchers
+ * @package Psy\TabCompletion\Matcher
  */
 class ObjectAttributesMatcher extends AbstractContextAwareMatcher
 {

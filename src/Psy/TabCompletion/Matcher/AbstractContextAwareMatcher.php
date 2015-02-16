@@ -1,13 +1,13 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+namespace Psy\TabCompletion\Matcher;
 
 use Psy\Context;
 use Psy\ContextAware;
 
 /**
  * Class AbstractContextAwareMatcher
- * @package Psy\TabCompletion\Matchers
+ * @package Psy\TabCompletion\Matcher
  */
 abstract class AbstractContextAwareMatcher extends AbstractMatcher implements ContextAware
 {

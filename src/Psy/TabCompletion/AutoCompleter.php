@@ -2,7 +2,7 @@
 
 namespace Psy\TabCompletion;
 
-use Psy\TabCompletion\Matchers\AbstractMatcher;
+use Psy\TabCompletion\Matcher\AbstractMatcher;
 
 /**
  * Class AutoCompleter
@@ -10,7 +10,7 @@ use Psy\TabCompletion\Matchers\AbstractMatcher;
  */
 class AutoCompleter
 {
-    /** @var Matchers\AbstractMatcher[]  */
+    /** @var Matcher\AbstractMatcher[]  */
     protected $matchers;
 
     public function addMatcher(AbstractMatcher $matcher)

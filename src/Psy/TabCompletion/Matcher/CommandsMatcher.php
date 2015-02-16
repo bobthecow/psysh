@@ -1,12 +1,12 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+namespace Psy\TabCompletion\Matcher;
 
 use Psy\Command\Command;
 
 /**
  * Class CommandsMatcher
- * @package Psy\TabCompletion\Matchers
+ * @package Psy\TabCompletion\Matcher
  */
 class CommandsMatcher extends AbstractMatcher
 {
