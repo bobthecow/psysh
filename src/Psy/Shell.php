@@ -14,6 +14,7 @@ namespace Psy;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
+use Psy\Input\WholeStringInput;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
 use Symfony\Component\Console\Application;
@@ -196,6 +197,7 @@ class Shell extends Application
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
+            new Command\TimeitCommand(),
             // new Command\PsyVersionCommand(),
             $hist,
             new Command\ExitCommand(),
@@ -466,7 +468,12 @@ class Shell extends Application
             throw new \InvalidArgumentException('Command not found: ' . $input);
         }
 
-        $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
+        $sanitizedInput = str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;"));
+        if ($command->getUsesWholeStringInput()) {
+            $input = new WholeStringInput($sanitizedInput);
+        } else {
+            $input = new StringInput($sanitizedInput);
+        }
 
         if ($input->hasParameterOption(array('--help', '-h'))) {
             $helpCommand = $this->get('help');
@@ -639,6 +646,15 @@ class Shell extends Application
             // Since this is below the user's reporting threshold, it's always going to be a warning.
             return 'warning';
         }
+    }
+
+    /**
+     * @param $code
+     * @return mixed
+     */
+    public function execute($code)
+    {
+        return $this->loop->execute($this, $code);
     }
 
     /**

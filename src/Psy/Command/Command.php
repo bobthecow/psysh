@@ -21,6 +21,11 @@ use Symfony\Component\Console\Command\Command as BaseCommand;
 abstract class Command extends BaseCommand
 {
     /**
+     * @var bool
+     */
+    protected $usesWholeStringInput = false;
+
+    /**
      * Sets the application instance for this command.
      *
      * @param Application $application An Application instance
@@ -109,6 +114,25 @@ abstract class Command extends BaseCommand
     protected function getHiddenOptions()
     {
         return array('verbose');
+    }
+
+    /**
+     * @param $bool
+     * @return $this
+     */
+    public function setUsesWholeStringInput($bool)
+    {
+        $this->usesWholeStringInput = $bool;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getUsesWholeStringInput()
+    {
+        return $this->usesWholeStringInput;
     }
 
     /**
