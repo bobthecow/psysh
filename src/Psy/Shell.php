@@ -203,6 +203,8 @@ class Shell extends Application
         $hist->setReadline($this->readline);
 
         return array(
+            new Command\SandboxCommand(),
+            new Command\ComposerCommand(),
             new Command\HelpCommand(),
             new Command\ListCommand(),
             new Command\DumpCommand(),
