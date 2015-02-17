@@ -202,8 +202,11 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
+        $sandbox = new Command\SandboxCommand();
+        $sandbox->setTempDir($this->config->getRuntimeDir());
+
         return array(
-            new Command\SandboxCommand(),
+            $sandbox,
             new Command\ComposerCommand(),
             new Command\HelpCommand(),
             new Command\ListCommand(),

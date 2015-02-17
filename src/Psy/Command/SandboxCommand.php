@@ -4,6 +4,7 @@ namespace Psy\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -15,23 +16,21 @@ class SandboxCommand extends Command
     const SANDBOX_FOLDER = 'psysh_sandbox';
 
     const ACTION_ADD = 'add';
+    const ACTION_CREATE = 'create';
     const ACTION_LIST = 'list';
     const ACTION_WHICH = 'which';
+    const ACTION_USE = 'use';
     const ACTION_SWITCH = 'switch';
     const ACTION_DELETE = 'delete';
+    const ACTION_CLEAR = 'clear';
     const ACTION_EXIT = 'exit';
+    const ACTION_RESET = 'reset';
+    const ACTION_HELP = 'help';
 
     /**
-     * @var array
+     * @var String
      */
-    protected $allowedActions = array(
-        self::ACTION_ADD,
-        self::ACTION_LIST,
-        self::ACTION_WHICH,
-        self::ACTION_SWITCH,
-        self::ACTION_DELETE,
-        self::ACTION_EXIT,
-    );
+    protected $tempDir;
 
     /**
      * @var array
@@ -68,28 +67,28 @@ class SandboxCommand extends Command
             ->setDefinition(array(
                 new InputArgument(
                     'action',
-                    InputArgument::REQUIRED,
-                    'Action to perform over the sandboxes add|list|switch|delete|exit'
-                ),
-                new InputArgument(
-                    'name',
                     InputArgument::OPTIONAL,
-                    'Optional name for the sandbox'
+                    'Action to perform : add|create, list, which, use|switch, clear|delete, exit|reset'
+                ),
+                new InputArgument('args', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
+                new InputOption(
+                    'grep',
+                    null,
+                    InputOption::VALUE_OPTIONAL,
+                    'grep parameter'
                 ),
             ))
             ->setDescription('Manages sandboxed environments.')
             ->setHelp(
                 <<<HELP
-sandbox add [name] creates a encapsulated sandbox with an optional name, if not provided will autogenerate a name.
+sandbox add|create [name] creates a encapsulated sandbox with an optional name, if not provided will autogenerate a name.
 sandbox list Will show a list of the currently generated sandboxes
 sandbox which Will show the current sandbox
-sandbox switch name Switches to sandbox by name,
-sandbox delete [name] Removes a sandbox by name, or the current if name is not provided.
-sandbox exit Erases all sandboxes and sets the normal state.
+sandbox use|switch name Switches to sandbox by name,
+sandbox clear|delete [name] Removes a sandbox by name, or the current if name is not provided.
+sandbox exit|reset Erases all sandboxes and sets the normal state.
 HELP
             );
-
-        $this->restoreFolder = exec('pwd');
     }
 
     /**
@@ -100,10 +99,23 @@ HELP
         $this->input = $input;
         $this->output = $output;
 
-        $action = $this->input->getArgument('action');
-        $name = $this->input->getArgument('name');
-        if (!in_array($action, $this->allowedActions)) {
-            throw new \InvalidArgumentException("Action $action is not allowed.");
+        // extract real command name
+        $tokens = preg_split('{\s+}', $input->__toString());
+        $args = array();
+        foreach ($tokens as $token) {
+            if ($token && $token[0] !== '-') {
+                $args[] = $token;
+                if (count($args) >= 3) {
+                    break;
+                }
+            }
+        }
+
+        $name = null;
+        array_shift($args); // command name
+        $action = array_shift($args);
+        if (count($args) > 0) {
+            $name = array_shift($args);
         }
 
         $this->performAction($action, $name);
@@ -117,6 +129,7 @@ HELP
     {
         switch ($action) {
             case self::ACTION_ADD:
+            case self::ACTION_CREATE:
                 $identifier = $this->createSandbox($name);
                 $this->switchSandbox($identifier);
                 break;
@@ -127,15 +140,38 @@ HELP
                 $this->showCurrentSandbox();
                 break;
             case self::ACTION_SWITCH:
+            case self::ACTION_USE:
                 $this->switchSandbox($name);
                 break;
             case self::ACTION_DELETE:
+            case self::ACTION_CLEAR:
                 $this->removeSandbox($name);
                 break;
             case self::ACTION_EXIT:
+            case self::ACTION_RESET:
                 $this->restoreState();
                 break;
+            case self::ACTION_HELP:
+            default:
+                $this->showUsage();
+                break;
         }
+    }
+
+    /**
+     * @param $dir
+     */
+    public function setTempDir($dir)
+    {
+        $this->tempDir = $dir;
+    }
+
+    /**
+     *
+     */
+    protected function showUsage()
+    {
+        $this->output->writeln($this->asText());
     }
 
     /**
@@ -144,7 +180,7 @@ HELP
      */
     protected function getSandboxPath($name)
     {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::SANDBOX_FOLDER . DIRECTORY_SEPARATOR . $name;
+        return $this->tempDir . DIRECTORY_SEPARATOR . self::SANDBOX_FOLDER . DIRECTORY_SEPARATOR . $name;
     }
 
     /**
@@ -153,19 +189,22 @@ HELP
      */
     protected function createSandbox($name = null)
     {
+        if (is_null($this->restoreFolder)) {
+            $this->restoreFolder = exec('pwd');
+        }
+
         $name = !is_null($name) ? $name : uniqid();
         $path = $this->getSandboxPath($name);
-        if (file_exists($path)) {
+        if (@file_exists($path)) {
             throw new \InvalidArgumentException("Sandbox with name : $name already exists.");
         }
 
-        $this->output->writeln("<info>Trying to create sandbox named : $name</info>");
-        $result = mkdir($path, 0777, true);
+        $result = @mkdir($path, 0777, true);
         if (!$result) {
             throw new \RuntimeException("Unable to create sandbox element.");
         }
 
-        $this->output->writeln("<info>Storing sandbox named : $name</info>");
+        $this->output->writeln("<info>Created sandbox named : $name</info>");
         $this->sandboxes[$name] = $path;
 
         return $name;
@@ -176,9 +215,16 @@ HELP
      */
     protected function listSandboxes()
     {
-        $this->output->writeln("<info>Retrieving sandbox list</info>");
+        $grep = $this->input->getOption('grep');
+        if (!is_null($grep)) {
+            $this->output->writeln("<info>Retrieving sandbox list matching with : $grep</info>");
+        } else {
+            $this->output->writeln("<info>Retrieving sandbox list</info>");
+        }
         foreach (array_keys($this->sandboxes) as $sandbox) {
-            $this->output->writeln("<info>Sandbox : $sandbox</info>");
+            if (is_null($grep) || preg_match(sprintf('#%s#', preg_quote($grep)), $sandbox)) {
+                $this->output->writeln("<info>Sandbox : $sandbox</info>");
+            }
         }
     }
 
@@ -191,7 +237,7 @@ HELP
             throw new \RuntimeException("You are not currently on a sandbox.");
         }
 
-        $this->output->writeln("<info>Currently on sandbox : {$this->current} </info>");
+        $this->output->writeln(sprintf("<info>Currently on sandbox : %s </info>", $this->current));
     }
 
     /**

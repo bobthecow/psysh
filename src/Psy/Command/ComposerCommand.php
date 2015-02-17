@@ -2,8 +2,10 @@
 
 namespace Psy\Command;
 
+use Composer\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -12,9 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ComposerCommand extends Command
 {
-    const COMPOSER_IS_GLOBAL = 'global';
-    const COMPOSER_IS_LOCAL = 'local';
-
     const PIPE_WRITE = 0;
     const PIPE_READ = 1;
     const PIPE_ERR = 2;
@@ -27,6 +26,11 @@ class ComposerCommand extends Command
         self::PIPE_READ => array("pipe", "w"),
         self::PIPE_ERR => array("pipe", "w"),
     );
+
+    /**
+     * @var string
+     */
+    protected $composerPath;
 
     /**
      * @var string
@@ -51,7 +55,8 @@ class ComposerCommand extends Command
         $this
             ->setName('composer')
             ->setDefinition(array(
-                new InputArgument('library', InputArgument::REQUIRED, 'library to install'),
+                new InputArgument('command-name', InputArgument::REQUIRED, ''),
+                new InputArgument('args', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
             ))
             ->setDescription('Composer installation.')
             ->setHelp(
@@ -61,6 +66,7 @@ composer library Installs the library
 if composer is not found will install it locally
 HELP
             );
+        $this->ignoreValidationErrors();
     }
 
     /**
@@ -71,27 +77,65 @@ HELP
         $this->input = $input;
         $this->output = $output;
 
-        $library = $this->input->getArgument('library');
-
         if (!$this->checkComposerInstallation()) {
             $this->installComposer();
         }
 
-        $this->installLibrary($library);
-    }
+        $this->callComposerBootstrap();
 
-    protected function getComposerPath()
-    {
-        if ($this->installationType === self::COMPOSER_IS_LOCAL) {
-            return 'php composer.phar';
+        // extract real command name
+        $tokens = preg_split('{\s+}', $input->__toString());
+        $args = array();
+        foreach ($tokens as $token) {
+            if ($token && $token[0] !== '-') {
+                $args[] = $token;
+                if (count($args) >= 2) {
+                    break;
+                }
+            }
+        }
+        // show help for this command if no command was found
+        if (count($args) < 2) {
+            return parent::run($input, $output);
         }
 
-        return 'composer';
+        $app = new Application();
+        $app->setAutoExit(false);
+        $input = new StringInput(implode(' ', array_slice($tokens, 1, count($tokens))));
+
+        return $app->doRun($input, $this->output);
     }
 
-    protected function bashCommand($command)
+    public function setComposerPath($path)
     {
-        $process = proc_open('bash', $this->specification, $pipes);
+        $this->composerPath = $path;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getSystemShell()
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            return 'cmd.exe';
+        }
+
+        return 'bash';
+    }
+
+    protected function callComposerBootstrap()
+    {
+        // TODO if the path is provided as paramater use it instead
+        require_once 'phar://composer.phar/src/bootstrap.php';
+    }
+
+    /**
+     * @param $command
+     * @return bool|string
+     */
+    protected function shellCommand($command)
+    {
+        $process = proc_open($this->getSystemShell(), $this->specification, $pipes);
         stream_set_blocking($pipes[self::PIPE_ERR], 0);
 
         if (is_resource($process)) {
@@ -118,39 +162,13 @@ HELP
 
     protected function checkComposerInstallation()
     {
-        $whichComposer = $this->bashCommand('which composer');
-
-        if (! $whichComposer) {
-            // it will be local for sure
-            $this->installationType = self::COMPOSER_IS_LOCAL;
-
-            // does it exists locally?
-            return file_exists('composer.phar');
-        }
-
-        $this->installationType = self::COMPOSER_IS_GLOBAL;
-
-        return true;
+        return @file_exists('composer.phar') or is_null($this->composerPath);
     }
 
     protected function installComposer()
     {
-        $this->output->writeln("<info>Composer not found, installing locally.</info>");
-        $response = $this->bashCommand('php -r "readfile(\'https://getcomposer.org/installer\');" | php');
+        $this->output->writeln("<info>Composer not found, downloading.</info>");
+        $response = $this->shellCommand('php -r "readfile(\'https://getcomposer.org/installer\');" | php');
         $this->output->writeln("<info>$response</info>");
-    }
-
-    protected function installLibrary($library)
-    {
-        // require
-        $composer = $this->getComposerPath();
-
-        $this->output->writeln("<info>Require $library</info>");
-        $this->bashCommand("$composer require '$library'");
-        $this->output->writeln("<info>composer update</info>");
-        $this->bashCommand("$composer update");
-        $this->output->writeln("<info>dumping autoload</info>");
-        $this->bashCommand("$composer dump-autoload");
-        require_once 'vendor/autoload.php';
     }
 }
