@@ -70,10 +70,10 @@ class SandboxCommand extends Command
                     InputArgument::OPTIONAL,
                     'Action to perform : add|create, list, which, use|switch, clear|delete, exit|reset'
                 ),
-                new InputArgument('args', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
+                new InputArgument('name', InputArgument::OPTIONAL),
                 new InputOption(
                     'grep',
-                    null,
+                    'g',
                     InputOption::VALUE_OPTIONAL,
                     'grep parameter'
                 ),
@@ -99,24 +99,8 @@ HELP
         $this->input = $input;
         $this->output = $output;
 
-        // extract real command name
-        $tokens = preg_split('{\s+}', $input->__toString());
-        $args = array();
-        foreach ($tokens as $token) {
-            if ($token && $token[0] !== '-') {
-                $args[] = $token;
-                if (count($args) >= 3) {
-                    break;
-                }
-            }
-        }
-
-        $name = null;
-        array_shift($args); // command name
-        $action = array_shift($args);
-        if (count($args) > 0) {
-            $name = array_shift($args);
-        }
+        $name = $input->getArgument('name');
+        $action = $input->getArgument('action');
 
         $this->performAction($action, $name);
     }
@@ -190,7 +174,7 @@ HELP
     protected function createSandbox($name = null)
     {
         if (is_null($this->restoreFolder)) {
-            $this->restoreFolder = exec('pwd');
+            $this->restoreFolder = getcwd();
         }
 
         $name = !is_null($name) ? $name : uniqid();
