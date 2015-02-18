@@ -3,8 +3,9 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class VariablesMatcher
- * @package Psy\TabCompletion\Matcher
+ * A variable name tab completion Matcher.
+ *
+ * This matcher provides completion for variable names in the current Context.
  */
 class VariablesMatcher extends AbstractContextAwareMatcher
 {
@@ -21,8 +22,7 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

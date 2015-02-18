@@ -3,8 +3,7 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class AbstractMatcher
- * @package Psy\TabCompletion\Matcher
+ * Abstract tab completion Matcher.
  */
 abstract class AbstractMatcher
 {
@@ -27,7 +26,10 @@ abstract class AbstractMatcher
     const T_BOOLEAN_OR = 'T_BOOLEAN_OR';
 
     /**
-     * @param  array $tokens
+     * Check whether this matcher can provide completions for $tokens.
+     *
+     * @param array $tokens Tokenized readline input.
+     *
      * @return bool
      */
     public function hasMatched(array $tokens)
@@ -36,7 +38,10 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param  $tokens
+     * Get current readline input word.
+     *
+     * @param array $tokens Tokenized readline input (see token_get_all)
+     *
      * @return string
      */
     protected function getInput(array $tokens)
@@ -51,7 +56,10 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param $tokens
+     * Get current namespace and class (if any) from readline input.
+     *
+     * @param array $tokens Tokenized readline input (see token_get_all)
+     *
      * @return string
      */
     protected function getNamespaceAndClass($tokens)
@@ -68,16 +76,22 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param  array $tokens information substracted with get_token_all
-     * @param  array $info   readline_info object
+     * Provide tab completion matches for readline input.
+     *
+     * @param array $tokens information substracted with get_token_all
+     * @param array $info   readline_info object
+     *
      * @return array The matches resulting from the query
      */
     abstract public function getMatches(array $tokens, array $info = array());
 
     /**
-     * @param $prefix
-     * @param $word
-     * @return int
+     * Check whether $word starts with $prefix.
+     *
+     * @param string $prefix
+     * @param string $word
+     *
+     * @return bool
      */
     public static function startsWith($prefix, $word)
     {
@@ -85,8 +99,11 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param $token
-     * @param  string $syntax
+     * Check whether $token matches a given syntax pattern.
+     *
+     * @param mixed  $token  A PHP token (see token_get_all)
+     * @param string $syntax A syntax pattern (default: variable pattern)
+     *
      * @return bool
      */
     public static function hasSyntax($token, $syntax = self::VAR_SYNTAX)
@@ -101,8 +118,11 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param $token
-     * @param $which
+     * Check whether $token type is $which
+     *
+     * @param string $which A PHP token type
+     * @param mixed  $token A PHP token (see token_get_all)
+     *
      * @return bool
      */
     public static function tokenIs($token, $which)
@@ -115,7 +135,10 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param $token
+     * Check whether $token is an operator.
+     *
+     * @param mixed $token A PHP token (see token_get_all)
+     *
      * @return bool
      */
     public static function isOperator($token)
@@ -128,8 +151,11 @@ abstract class AbstractMatcher
     }
 
     /**
-     * @param  array $coll
-     * @param $token
+     * Check whether $token type is present in $coll
+     *
+     * @param array $coll  A list of token types
+     * @param mixed $token A PHP token (see token_get_all)
+     *
      * @return bool
      */
     public static function hasToken(array $coll, $token)

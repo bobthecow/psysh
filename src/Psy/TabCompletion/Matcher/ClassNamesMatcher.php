@@ -3,8 +3,9 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ClassNamesMatcher
- * @package Psy\TabCompletion\Matcher
+ * A class name tab completion Matcher.
+ *
+ * This matcher provides completion for all declared classes.
  */
 class ClassNamesMatcher extends AbstractMatcher
 {
@@ -36,6 +37,9 @@ class ClassNamesMatcher extends AbstractMatcher
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function hasMatched(array $tokens)
     {
         $token = array_pop($tokens);

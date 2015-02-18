@@ -3,8 +3,10 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ClassMethodsMatcher
- * @package Psy\TabCompletion\Matcher
+ * A class method tab completion Matcher.
+ *
+ * Given a namespace and class, this matcher provides completion for static
+ * methods.
  */
 class ClassMethodsMatcher extends AbstractMatcher
 {
@@ -40,8 +42,7 @@ class ClassMethodsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

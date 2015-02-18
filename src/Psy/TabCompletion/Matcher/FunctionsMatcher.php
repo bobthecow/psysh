@@ -3,8 +3,9 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class FunctionsMatcher
- * @package Psy\TabCompletion\Matcher
+ * A function name tab completion Matcher.
+ *
+ * This matcher provides completion for all internal and user-defined functions.
  */
 class FunctionsMatcher extends AbstractMatcher
 {
@@ -24,8 +25,7 @@ class FunctionsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

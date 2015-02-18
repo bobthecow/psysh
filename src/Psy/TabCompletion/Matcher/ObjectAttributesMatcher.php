@@ -3,8 +3,10 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ObjectAttributesMatcher
- * @package Psy\TabCompletion\Matcher
+ * An object attribute tab completion Matcher.
+ *
+ * This matcher provides completion for properties of objects in the current
+ * Context.
  */
 class ObjectAttributesMatcher extends AbstractContextAwareMatcher
 {
@@ -33,8 +35,7 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

@@ -3,8 +3,10 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ClassAttributesMatcher
- * @package Psy\TabCompletion\Matcher
+ * A class attribute tab completion Matcher.
+ *
+ * Given a namespace and class, this matcher provides completion for constants
+ * and static properties.
  */
 class ClassAttributesMatcher extends AbstractMatcher
 {
@@ -48,8 +50,7 @@ class ClassAttributesMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

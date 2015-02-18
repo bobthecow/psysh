@@ -3,8 +3,9 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class KeywordsMatcher
- * @package Psy\TabCompletion\Matcher
+ * A PHP keyword tab completion Matcher.
+ *
+ * This matcher provides completion for all function-like PHP keywords.
  */
 class KeywordsMatcher extends AbstractMatcher
 {
@@ -18,6 +19,8 @@ class KeywordsMatcher extends AbstractMatcher
     );
 
     /**
+     * Get all (completable) PHP keywords.
+     *
      * @return array
      */
     public function getKeywords()
@@ -26,7 +29,10 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param $keyword
+     * Check whether $keyword is a (completable) PHP keyword.
+     *
+     * @param string $keyword
+     *
      * @return bool
      */
     public function isKeyword($keyword)
@@ -47,8 +53,7 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

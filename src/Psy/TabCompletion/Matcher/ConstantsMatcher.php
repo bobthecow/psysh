@@ -3,8 +3,9 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ConstantsMatcher
- * @package Psy\TabCompletion\Matcher
+ * A constant name tab completion Matcher.
+ *
+ * This matcher provides completion for all defined constants.
  */
 class ConstantsMatcher extends AbstractMatcher
 {
@@ -21,8 +22,7 @@ class ConstantsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

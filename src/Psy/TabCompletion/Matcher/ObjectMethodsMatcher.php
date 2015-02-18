@@ -3,8 +3,10 @@
 namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ObjectMethodsMatcher
- * @package Psy\TabCompletion\Matcher
+ * An object method tab completion Matcher.
+ *
+ * This matcher provides completion for methods of objects in the current
+ * Context.
  */
 class ObjectMethodsMatcher extends AbstractContextAwareMatcher
 {
@@ -32,6 +34,9 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function hasMatched(array $tokens)
     {
         $token = array_pop($tokens);

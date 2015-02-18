@@ -5,20 +5,29 @@ namespace Psy\TabCompletion\Matcher;
 use Psy\Command\Command;
 
 /**
- * Class CommandsMatcher
- * @package Psy\TabCompletion\Matcher
+ * A Psy Command tab completion Matcher.
+ *
+ * This matcher provides completion for all registered Psy Command names and
+ * aliases.
  */
 class CommandsMatcher extends AbstractMatcher
 {
-    /** @var array  */
+    /** @type string[] */
     protected $commands = array();
 
+    /**
+     * CommandsMatcher constructor.
+     *
+     * @param Command[] $commands
+     */
     public function __construct(array $commands)
     {
         $this->setCommands($commands);
     }
 
     /**
+     * Set Commands for completion.
+     *
      * @param Command[] $commands
      */
     public function setCommands(array $commands)
@@ -44,8 +53,7 @@ class CommandsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {
