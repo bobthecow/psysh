@@ -15,7 +15,7 @@ class ClassNamesMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = array())
     {
         $class = $this->getNamespaceAndClass($tokens);
-        if (strlen($class) > 0 && $class[0] === "\\") {
+        if (strlen($class) > 0 && $class[0] === '\\') {
             $class = substr($class, 1, strlen($class));
         }
         $quotedClass = preg_quote($class);
