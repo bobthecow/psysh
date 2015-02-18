@@ -64,16 +64,17 @@ class Loop
                     $__psysh__->getInput();
 
                     // evaluate the current code buffer
-                    ob_start();
+                    ob_start(
+                        array($__psysh__, 'writeStdout'),
+                        version_compare(PHP_VERSION, '5.4', '>=') ? 1 : 2
+                    );
 
                     set_error_handler(array($__psysh__, 'handleError'));
                     $_ = eval($__psysh__->flushCode());
                     restore_error_handler();
 
-                    $__psysh_out__ = ob_get_contents();
-                    ob_end_clean();
+                    ob_end_flush();
 
-                    $__psysh__->writeStdout($__psysh_out__);
                     $__psysh__->writeReturnValue($_);
                 } catch (BreakException $_e) {
                     restore_error_handler();

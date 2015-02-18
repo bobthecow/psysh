@@ -58,6 +58,7 @@ class Shell extends Application
     private $context;
     private $includes;
     private $loop;
+    private $outputWantsNewline = false;
 
     /**
      * Create a new Psy Shell.
@@ -553,15 +554,25 @@ class Shell extends Application
      * This is used by the shell loop for rendering output from evaluated code.
      *
      * @param string $out
+     * @param int    $phase Output buffering phase
      */
-    public function writeStdout($out)
+    public function writeStdout($out, $phase = PHP_OUTPUT_HANDLER_END)
     {
-        if (!empty($out)) {
-            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+        $isCleaning = false;
+        if (version_compare(PHP_VERSION, '5.4', '>=')) {
+            $isCleaning = $phase & PHP_OUTPUT_HANDLER_CLEAN;
+        }
 
-            if (substr($out, -1) !== "\n") {
-                $this->output->writeln("<aside>⏎</aside>");
-            }
+        // Incremental flush
+        if (!empty($out) && !$isCleaning) {
+            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+            $this->outputWantsNewline = (substr($out, -1) !== "\n");
+        }
+
+        // Output buffering is done!
+        if ($this->outputWantsNewline && $phase & PHP_OUTPUT_HANDLER_END) {
+            $this->output->writeln('<aside>⏎</aside>');
+            $this->outputWantsNewline = false;
         }
     }
 
