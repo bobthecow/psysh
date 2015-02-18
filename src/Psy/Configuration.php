@@ -52,6 +52,7 @@ class Configuration
     private $newCommands = array();
     private $requireSemicolons = false;
     private $tabCompletion;
+    private $tabCompletionMatchers = array();
 
     // services
     private $readline;
@@ -63,7 +64,6 @@ class Configuration
     private $manualDb;
     private $presenters;
     private $completer;
-    private $tabCompletionMatchers = array();
 
     /**
      * Construct a Configuration instance.
@@ -800,17 +800,23 @@ class Configuration
     }
 
     /**
+     * Get an AutoCompleter service instance.
      *
+     * @return AutoCompleter
      */
     public function getAutoCompleter()
     {
-        $this->completer = new AutoCompleter();
+        if (!isset($this->completer)) {
+            $this->completer = new AutoCompleter();
+        }
 
         return $this->completer;
     }
 
     /**
-     * @return mixed
+     * Get user specified tab completion matchers for the AutoCompleter.
+     *
+     * @return array
      */
     public function getTabCompletionMatchers()
     {
@@ -818,6 +824,8 @@ class Configuration
     }
 
     /**
+     * Add additional tab completion matchers to the AutoCompleter.
+     *
      * @param array $matchers
      */
     public function addTabCompletionMatchers(array $matchers)
