@@ -64,7 +64,10 @@ class Loop
                     $__psysh__->getInput();
 
                     // evaluate the current code buffer
-                    ob_start(array($__psysh__, 'writeStdout'), 2);
+                    ob_start(
+                        array($__psysh__, 'writeStdout'),
+                        version_compare(PHP_VERSION, '5.4', '>=') ? 1 : 2
+                    );
 
                     set_error_handler(array($__psysh__, 'handleError'));
                     $_ = eval($__psysh__->flushCode());
