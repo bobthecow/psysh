@@ -226,19 +226,17 @@ class Shell extends Application
     protected function getTabCompletionMatchers()
     {
         if (empty($this->tabCompletionMatchers)) {
-            $this->addTabCompletionMatchers(
-                array(
-                    new Matcher\CommandsMatcher($this->all()),
-                    new Matcher\KeywordsMatcher(),
-                    new Matcher\VariablesMatcher(),
-                    new Matcher\ConstantsMatcher(),
-                    new Matcher\FunctionsMatcher(),
-                    new Matcher\ClassNamesMatcher(),
-                    new Matcher\ClassMethodsMatcher(),
-                    new Matcher\ClassAttributesMatcher(),
-                    new Matcher\ObjectMethodsMatcher(),
-                    new Matcher\ObjectAttributesMatcher(),
-                )
+            $this->tabCompletionMatchers = array(
+                new Matcher\CommandsMatcher($this->all()),
+                new Matcher\KeywordsMatcher(),
+                new Matcher\VariablesMatcher(),
+                new Matcher\ConstantsMatcher(),
+                new Matcher\FunctionsMatcher(),
+                new Matcher\ClassNamesMatcher(),
+                new Matcher\ClassMethodsMatcher(),
+                new Matcher\ClassAttributesMatcher(),
+                new Matcher\ObjectMethodsMatcher(),
+                new Matcher\ObjectAttributesMatcher(),
             );
         }
 
@@ -250,7 +248,7 @@ class Shell extends Application
      */
     public function addTabCompletionMatchers(array $matchers)
     {
-        $this->tabCompletionMatchers = array_merge($matchers, $this->tabCompletionMatchers);
+        $this->tabCompletionMatchers = array_merge($matchers, $this->getTabCompletionMatchers());
     }
 
     /**

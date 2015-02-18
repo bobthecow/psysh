@@ -33,7 +33,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
-        'tabCompletion', 'tabCompletionMatchers',
+        'tabCompletion',
     );
 
     private $defaultIncludes;
