@@ -21,6 +21,7 @@ use Psy\Readline\GNUReadline;
 use Psy\Readline\Libedit;
 use Psy\Readline\Readline;
 use Psy\Readline\Transient;
+use Psy\TabCompletion\AutoCompleter;
 use XdgBaseDir\Xdg;
 
 /**
@@ -32,6 +33,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
+        'tabCompletion', 'tabCompletionMatchers',
     );
 
     private $defaultIncludes;
@@ -59,6 +61,8 @@ class Configuration
     private $loop;
     private $manualDb;
     private $presenters;
+    private $completer;
+    private $tabCompletionMatchers = array();
 
     /**
      * Construct a Configuration instance.
@@ -220,7 +224,7 @@ class Configuration
             }
         }
 
-        foreach (array('commands') as $option) {
+        foreach (array('commands', 'tabCompletionMatchers') as $option) {
             if (isset($options[$option])) {
                 $method = 'add' . ucfirst($option);
                 $this->$method($options[$option]);
@@ -769,6 +773,45 @@ class Configuration
         }
 
         return $this->loop;
+    }
+
+    /**
+     * Retrieves the tab completion status
+     *
+     * @return bool
+     */
+    public function getTabCompletion()
+    {
+        return function_exists('readline_info');
+    }
+
+    /**
+     *
+     */
+    public function getAutoCompleter()
+    {
+        $this->completer = new AutoCompleter();
+
+        return $this->completer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTabCompletionMatchers()
+    {
+        return $this->tabCompletionMatchers;
+    }
+
+    /**
+     * @param array $matchers
+     */
+    public function addTabCompletionMatchers(array $matchers)
+    {
+        $this->tabCompletionMatchers = array_merge($this->tabCompletionMatchers, $matchers);
+        if (isset($this->shell)) {
+            $this->shell->addTabCompletionMatchers($this->tabCompletionMatchers);
+        }
     }
 
     /**
