@@ -73,7 +73,7 @@ class Loop
                     $_ = eval($__psysh__->flushCode());
                     restore_error_handler();
 
-                    ob_end_clean();
+                    ob_end_flush();
 
                     $__psysh__->writeReturnValue($_);
                 } catch (BreakException $_e) {
