@@ -6,7 +6,7 @@ namespace Psy\TabCompletion\Matchers;
  * Class VariablesMatcher
  * @package Psy\TabCompletion\Matchers
  */
-class VariablesMatcher extends AbstractMatcher
+class VariablesMatcher extends AbstractContextAwareMatcher
 {
     /**
      * {@inheritDoc}
@@ -15,7 +15,7 @@ class VariablesMatcher extends AbstractMatcher
     {
         $var = str_replace('$', '', $this->getInput($tokens));
 
-        return array_filter(array_keys($this->context->getAll()), function ($variable) use ($var) {
+        return array_filter(array_keys($this->getVariables()), function ($variable) use ($var) {
             return AbstractMatcher::startsWith($var, $variable);
         });
     }
@@ -27,7 +27,6 @@ class VariablesMatcher extends AbstractMatcher
     public function hasMatched(array $tokens)
     {
         $token = array_pop($tokens);
-        $prevToken = array_pop($tokens);
 
         switch (true) {
             case self::hasToken(array(self::T_OPEN_TAG, self::T_VARIABLE), $token):

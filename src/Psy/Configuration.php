@@ -61,6 +61,7 @@ class Configuration
     private $loop;
     private $manualDb;
     private $presenters;
+    private $completer;
     private $tabCompletionMatchers = array();
 
     /**
@@ -789,9 +790,9 @@ class Configuration
      */
     public function getAutoCompleter()
     {
-        $completer = new AutoCompleter();
+        $this->completer = new AutoCompleter();
 
-        return $completer;
+        return $this->completer;
     }
 
     /**
@@ -800,6 +801,17 @@ class Configuration
     public function getTabCompletionMatchers()
     {
         return $this->tabCompletionMatchers;
+    }
+
+    /**
+     * @param array $matchers
+     */
+    public function addTabCompletionMatchers(array $matchers)
+    {
+        $this->tabCompletionMatchers = array_merge($this->tabCompletionMatchers, $matchers);
+        if (isset($this->shell)) {
+            $this->shell->addTabCompletionMatchers($this->tabCompletionMatchers);
+        }
     }
 
     /**

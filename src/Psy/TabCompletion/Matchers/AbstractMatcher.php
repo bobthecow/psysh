@@ -2,18 +2,15 @@
 
 namespace Psy\TabCompletion\Matchers;
 
-use Psy\Context;
-use Psy\ContextAware;
-
 /**
  * Class AbstractMatcher
  * @package Psy\TabCompletion\Matchers
  */
-abstract class AbstractMatcher implements ContextAware
+abstract class AbstractMatcher
 {
     /** Syntax types */
-    const CONSTANT_SYNTAX = '^[A-Z0-9-_]+$';
-    const VAR_SYNTAX = '^\$[a-zA-Z0-9-_]+$';
+    const CONSTANT_SYNTAX = '^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$';
+    const VAR_SYNTAX = '^\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$';
     const MISC_OPERATORS = '+-*/^|&';
     /** Token values */
     const T_OPEN_TAG = 'T_OPEN_TAG';
@@ -28,17 +25,6 @@ abstract class AbstractMatcher implements ContextAware
     const T_AND_EQUAL = 'T_AND_EQUAL';
     const T_BOOLEAN_AND = 'T_BOOLEAN_AND';
     const T_BOOLEAN_OR = 'T_BOOLEAN_OR';
-
-    /** @var Context  */
-    protected $context;
-
-    /**
-     * @param Context $context
-     */
-    public function setContext(Context $context)
-    {
-        $this->context = $context;
-    }
 
     /**
      * @param  array $tokens
@@ -96,15 +82,6 @@ abstract class AbstractMatcher implements ContextAware
     public static function startsWith($prefix, $word)
     {
         return preg_match(sprintf('#^%s#', $prefix), $word);
-    }
-
-    /**
-     * @param $var
-     * @return mixed
-     */
-    protected function getVariable($var)
-    {
-        return $this->context->get($var);
     }
 
     /**

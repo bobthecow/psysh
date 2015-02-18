@@ -6,7 +6,7 @@ namespace Psy\TabCompletion\Matchers;
  * Class ObjectAttributesMatcher
  * @package Psy\TabCompletion\Matchers
  */
-class ObjectAttributesMatcher extends AbstractMatcher
+class ObjectAttributesMatcher extends AbstractContextAwareMatcher
 {
     /**
      * {@inheritDoc}
@@ -22,7 +22,7 @@ class ObjectAttributesMatcher extends AbstractMatcher
         }
         $objectToken = array_pop($tokens);
         $objectName = str_replace('$', '', $objectToken[1]);
-        $object = $this->context->get($objectName);
+        $object = $this->getVariable($objectName);
 
         return array_filter(
             array_keys(get_class_vars(get_class($object))),
