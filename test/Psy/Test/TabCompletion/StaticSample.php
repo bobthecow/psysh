@@ -3,8 +3,7 @@
 namespace Psy\Test\TabCompletion;
 
 /**
- * Class StaticSample
- * @package Psy\Test\TabCompletion
+ * Class StaticSample.
  */
 class StaticSample
 {

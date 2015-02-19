@@ -78,8 +78,6 @@ class ErrorException extends \ErrorException implements Exception
      * @param string $errstr  Message
      * @param string $errfile Filename
      * @param int    $errline Line number
-     *
-     * @return void
      */
     public static function throwException($errno, $errstr, $errfile, $errline)
     {

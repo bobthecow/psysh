@@ -430,7 +430,7 @@ class Configuration
     }
 
     /**
-     * Set the readline max history size
+     * Set the readline max history size.
      *
      * @param int $value
      */
@@ -440,7 +440,7 @@ class Configuration
     }
 
     /**
-     * Get the readline max history size
+     * Get the readline max history size.
      *
      * @return int
      */

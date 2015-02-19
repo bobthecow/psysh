@@ -29,7 +29,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
     private $cmd;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param StreamOutput $output
      * @param string       $cmd    Pager process command (default: 'less -R -S -F -X')

@@ -29,9 +29,9 @@ abstract class ReflectingCommand extends Command implements ContextAware
     const INSTANCE_STATIC = '/^\$(\w+)::\$(\w+)$/';
 
     /**
-     * Context instance (for ContextAware interface)
+     * Context instance (for ContextAware interface).
      *
-     * @type Context
+     * @var Context
      */
     protected $context;
 

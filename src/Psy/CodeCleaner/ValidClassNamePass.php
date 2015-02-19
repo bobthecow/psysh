@@ -254,7 +254,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Error creation factory
+     * Error creation factory.
      *
      * @param string $msg
      * @param Stmt   $stmt

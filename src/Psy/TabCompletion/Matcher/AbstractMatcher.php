@@ -129,7 +129,7 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Check whether $token type is $which
+     * Check whether $token type is $which.
      *
      * @param string $which A PHP token type
      * @param mixed  $token A PHP token (see token_get_all)
@@ -162,7 +162,7 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Check whether $token type is present in $coll
+     * Check whether $token type is present in $coll.
      *
      * @param array $coll  A list of token types
      * @param mixed $token A PHP token (see token_get_all)

@@ -24,9 +24,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ThrowUpCommand extends Command implements ContextAware
 {
     /**
-     * Context instance (for ContextAware interface)
+     * Context instance (for ContextAware interface).
      *
-     * @type Context
+     * @var Context
      */
     protected $context;
 

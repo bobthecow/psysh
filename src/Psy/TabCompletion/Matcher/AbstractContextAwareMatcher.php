@@ -25,9 +25,9 @@ use Psy\ContextAware;
 abstract class AbstractContextAwareMatcher extends AbstractMatcher implements ContextAware
 {
     /**
-     * Context instance (for ContextAware interface)
+     * Context instance (for ContextAware interface).
      *
-     * @type Context
+     * @var Context
      */
     protected $context;
 

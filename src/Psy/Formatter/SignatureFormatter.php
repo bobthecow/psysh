@@ -143,6 +143,7 @@ class SignatureFormatter implements Formatter
 
     /**
      * Helper for getting output style for a given value's type.
+     *
      * @param mixed $value
      *
      * @return string

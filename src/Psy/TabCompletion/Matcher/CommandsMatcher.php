@@ -23,7 +23,7 @@ use Psy\Command\Command;
  */
 class CommandsMatcher extends AbstractMatcher
 {
-    /** @type string[] */
+    /** @var string[] */
     protected $commands = array();
 
     /**
