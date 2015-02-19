@@ -16,6 +16,8 @@ namespace Psy\TabCompletion\Matcher;
  *
  * This matcher provides completion for properties of objects in the current
  * Context.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ObjectAttributesMatcher extends AbstractContextAwareMatcher
 {

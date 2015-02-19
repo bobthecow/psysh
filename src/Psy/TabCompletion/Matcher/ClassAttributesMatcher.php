@@ -16,6 +16,8 @@ namespace Psy\TabCompletion\Matcher;
  *
  * Given a namespace and class, this matcher provides completion for constants
  * and static properties.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ClassAttributesMatcher extends AbstractMatcher
 {

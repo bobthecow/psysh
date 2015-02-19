@@ -15,6 +15,8 @@ use Psy\TabCompletion\Matcher\AbstractMatcher;
 
 /**
  * A readline tab completion service.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class AutoCompleter
 {

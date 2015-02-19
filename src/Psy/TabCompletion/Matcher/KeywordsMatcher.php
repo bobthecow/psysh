@@ -15,6 +15,8 @@ namespace Psy\TabCompletion\Matcher;
  * A PHP keyword tab completion Matcher.
  *
  * This matcher provides completion for all function-like PHP keywords.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class KeywordsMatcher extends AbstractMatcher
 {

@@ -16,6 +16,8 @@ namespace Psy\TabCompletion\Matcher;
  *
  * Given a namespace and class, this matcher provides completion for static
  * methods.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ClassMethodsMatcher extends AbstractMatcher
 {

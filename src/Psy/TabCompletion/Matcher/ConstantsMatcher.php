@@ -15,6 +15,8 @@ namespace Psy\TabCompletion\Matcher;
  * A constant name tab completion Matcher.
  *
  * This matcher provides completion for all defined constants.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ConstantsMatcher extends AbstractMatcher
 {

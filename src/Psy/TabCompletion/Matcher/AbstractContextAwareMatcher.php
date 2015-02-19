@@ -19,6 +19,8 @@ use Psy\ContextAware;
  *
  * The AutoCompleter service will inject a Context instance into all
  * ContextAware Matchers.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 abstract class AbstractContextAwareMatcher extends AbstractMatcher implements ContextAware
 {

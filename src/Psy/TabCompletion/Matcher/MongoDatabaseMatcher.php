@@ -15,6 +15,8 @@ namespace Psy\TabCompletion\Matcher;
  * A MongoDB tab completion Matcher.
  *
  * This matcher provides completion for Mongo collection names.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class MongoDatabaseMatcher extends AbstractContextAwareMatcher
 {

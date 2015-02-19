@@ -15,6 +15,8 @@ namespace Psy\TabCompletion\Matcher;
  * A variable name tab completion Matcher.
  *
  * This matcher provides completion for variable names in the current Context.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class VariablesMatcher extends AbstractContextAwareMatcher
 {

@@ -15,6 +15,8 @@ namespace Psy\TabCompletion\Matcher;
  * A function name tab completion Matcher.
  *
  * This matcher provides completion for all internal and user-defined functions.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class FunctionsMatcher extends AbstractMatcher
 {

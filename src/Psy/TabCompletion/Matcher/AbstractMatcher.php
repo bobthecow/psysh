@@ -13,6 +13,8 @@ namespace Psy\TabCompletion\Matcher;
 
 /**
  * Abstract tab completion Matcher.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 abstract class AbstractMatcher
 {

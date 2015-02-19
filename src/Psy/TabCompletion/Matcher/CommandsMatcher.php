@@ -18,6 +18,8 @@ use Psy\Command\Command;
  *
  * This matcher provides completion for all registered Psy Command names and
  * aliases.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class CommandsMatcher extends AbstractMatcher
 {

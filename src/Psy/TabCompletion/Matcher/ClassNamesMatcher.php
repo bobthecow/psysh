@@ -15,6 +15,8 @@ namespace Psy\TabCompletion\Matcher;
  * A class name tab completion Matcher.
  *
  * This matcher provides completion for all declared classes.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ClassNamesMatcher extends AbstractMatcher
 {
