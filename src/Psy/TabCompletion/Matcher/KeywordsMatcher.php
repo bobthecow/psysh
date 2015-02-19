@@ -1,10 +1,22 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class KeywordsMatcher
- * @package Psy\TabCompletion\Matchers
+ * A PHP keyword tab completion Matcher.
+ *
+ * This matcher provides completion for all function-like PHP keywords.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class KeywordsMatcher extends AbstractMatcher
 {
@@ -18,6 +30,8 @@ class KeywordsMatcher extends AbstractMatcher
     );
 
     /**
+     * Get all (completable) PHP keywords.
+     *
      * @return array
      */
     public function getKeywords()
@@ -26,7 +40,10 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param $keyword
+     * Check whether $keyword is a (completable) PHP keyword.
+     *
+     * @param string $keyword
+     *
      * @return bool
      */
     public function isKeyword($keyword)
@@ -47,8 +64,7 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

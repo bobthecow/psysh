@@ -33,7 +33,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
-        'tabCompletion', 'tabCompletionMatchers',
+        'tabCompletion',
     );
 
     private $defaultIncludes;
@@ -51,6 +51,8 @@ class Configuration
     private $usePcntl;
     private $newCommands = array();
     private $requireSemicolons = false;
+    private $tabCompletion;
+    private $tabCompletionMatchers = array();
 
     // services
     private $readline;
@@ -62,7 +64,6 @@ class Configuration
     private $manualDb;
     private $presenters;
     private $completer;
-    private $tabCompletionMatchers = array();
 
     /**
      * Construct a Configuration instance.
@@ -674,6 +675,29 @@ class Configuration
     }
 
     /**
+     * Enable or disable tab completion.
+     *
+     * @param bool $tabCompletion
+     */
+    public function setTabCompletion($tabCompletion)
+    {
+        $this->tabCompletion = (bool) $tabCompletion;
+    }
+
+    /**
+     * Check whether to use tab completion.
+     *
+     * If `setTabCompletion` has been set to true, but readline is not actually
+     * available, this will return false.
+     *
+     * @return bool True if the current Shell should use tab completion.
+     */
+    public function getTabCompletion()
+    {
+        return isset($this->tabCompletion) ? ($this->hasReadline && $this->tabCompletion) : $this->hasReadline;
+    }
+
+    /**
      * Set the Shell Output service.
      *
      * @param ShellOutput $output
@@ -776,27 +800,23 @@ class Configuration
     }
 
     /**
-     * Retrieves the tab completion status
+     * Get an AutoCompleter service instance.
      *
-     * @return bool
-     */
-    public function getTabCompletion()
-    {
-        return function_exists('readline_info');
-    }
-
-    /**
-     *
+     * @return AutoCompleter
      */
     public function getAutoCompleter()
     {
-        $this->completer = new AutoCompleter();
+        if (!isset($this->completer)) {
+            $this->completer = new AutoCompleter();
+        }
 
         return $this->completer;
     }
 
     /**
-     * @return mixed
+     * Get user specified tab completion matchers for the AutoCompleter.
+     *
+     * @return array
      */
     public function getTabCompletionMatchers()
     {
@@ -804,6 +824,8 @@ class Configuration
     }
 
     /**
+     * Add additional tab completion matchers to the AutoCompleter.
+     *
      * @param array $matchers
      */
     public function addTabCompletionMatchers(array $matchers)

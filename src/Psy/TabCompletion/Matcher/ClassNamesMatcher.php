@@ -1,10 +1,22 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ClassNamesMatcher
- * @package Psy\TabCompletion\Matchers
+ * A class name tab completion Matcher.
+ *
+ * This matcher provides completion for all declared classes.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ClassNamesMatcher extends AbstractMatcher
 {
@@ -14,7 +26,7 @@ class ClassNamesMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = array())
     {
         $class = $this->getNamespaceAndClass($tokens);
-        if (strlen($class) > 0 && $class[0] === "\\") {
+        if (strlen($class) > 0 && $class[0] === '\\') {
             $class = substr($class, 1, strlen($class));
         }
         $quotedClass = preg_quote($class);
@@ -36,6 +48,9 @@ class ClassNamesMatcher extends AbstractMatcher
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function hasMatched(array $tokens)
     {
         $token = array_pop($tokens);

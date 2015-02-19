@@ -1,10 +1,22 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class FunctionsMatcher
- * @package Psy\TabCompletion\Matchers
+ * A function name tab completion Matcher.
+ *
+ * This matcher provides completion for all internal and user-defined functions.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class FunctionsMatcher extends AbstractMatcher
 {
@@ -24,8 +36,7 @@ class FunctionsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

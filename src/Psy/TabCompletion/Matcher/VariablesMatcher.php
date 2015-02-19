@@ -1,10 +1,22 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class VariablesMatcher
- * @package Psy\TabCompletion\Matchers
+ * A variable name tab completion Matcher.
+ *
+ * This matcher provides completion for variable names in the current Context.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class VariablesMatcher extends AbstractContextAwareMatcher
 {
@@ -21,8 +33,7 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

@@ -98,6 +98,16 @@ return array(
     'presenters' => array(
         new \Psy\Presenter\MongoCursorPresenter,
     ),
+
+    // You can disable tab completion if you want to. Not sure why you'd want to.
+    'tabCompletion' => false,
+
+    // You can write your own autocomplete matchers, too! Here's one that enables
+    // autocompletion for MongoDB collection names:
+    'tabCompletionMatchers' => array(
+        new \Psy\TabCompletion\Matcher\MongoClientMatcher,
+        new \Psy\TabCompletion\Matcher\MongoDatabaseMatcher,
+    ),
 );
 ```
 

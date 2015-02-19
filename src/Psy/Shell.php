@@ -17,7 +17,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
-use Psy\TabCompletion\Matchers;
+use Psy\TabCompletion\Matcher;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -226,19 +226,17 @@ class Shell extends Application
     protected function getTabCompletionMatchers()
     {
         if (empty($this->tabCompletionMatchers)) {
-            $this->addTabCompletionMatchers(
-                array(
-                    new Matchers\CommandsMatcher($this->all()),
-                    new Matchers\KeywordsMatcher(),
-                    new Matchers\VariablesMatcher(),
-                    new Matchers\ConstantsMatcher(),
-                    new Matchers\FunctionsMatcher(),
-                    new Matchers\ClassNamesMatcher(),
-                    new Matchers\ClassMethodsMatcher(),
-                    new Matchers\ClassAttributesMatcher(),
-                    new Matchers\ObjectMethodsMatcher(),
-                    new Matchers\ObjectAttributesMatcher(),
-                )
+            $this->tabCompletionMatchers = array(
+                new Matcher\CommandsMatcher($this->all()),
+                new Matcher\KeywordsMatcher(),
+                new Matcher\VariablesMatcher(),
+                new Matcher\ConstantsMatcher(),
+                new Matcher\FunctionsMatcher(),
+                new Matcher\ClassNamesMatcher(),
+                new Matcher\ClassMethodsMatcher(),
+                new Matcher\ClassAttributesMatcher(),
+                new Matcher\ObjectMethodsMatcher(),
+                new Matcher\ObjectAttributesMatcher(),
             );
         }
 
@@ -250,7 +248,7 @@ class Shell extends Application
      */
     public function addTabCompletionMatchers(array $matchers)
     {
-        $this->tabCompletionMatchers = array_merge($matchers, $this->tabCompletionMatchers);
+        $this->tabCompletionMatchers = array_merge($matchers, $this->getTabCompletionMatchers());
     }
 
     /**

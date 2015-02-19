@@ -7,7 +7,7 @@ use Psy\Command\ShowCommand;
 use Psy\Configuration;
 use Psy\Context;
 use Psy\ContextAware;
-use Psy\TabCompletion\Matchers;
+use Psy\TabCompletion\Matcher;
 
 class AutoCompleterTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,16 +24,16 @@ class AutoCompleterTest extends \PHPUnit_Framework_TestCase
         );
 
         $matchers = array(
-            new Matchers\VariablesMatcher(),
-            new Matchers\ClassNamesMatcher(),
-            new Matchers\ConstantsMatcher(),
-            new Matchers\FunctionsMatcher(),
-            new Matchers\ObjectMethodsMatcher(),
-            new Matchers\ObjectAttributesMatcher(),
-            new Matchers\KeywordsMatcher(),
-            new Matchers\ClassAttributesMatcher(),
-            new Matchers\ClassMethodsMatcher(),
-            new Matchers\CommandsMatcher($commands),
+            new Matcher\VariablesMatcher(),
+            new Matcher\ClassNamesMatcher(),
+            new Matcher\ConstantsMatcher(),
+            new Matcher\FunctionsMatcher(),
+            new Matcher\ObjectMethodsMatcher(),
+            new Matcher\ObjectAttributesMatcher(),
+            new Matcher\KeywordsMatcher(),
+            new Matcher\ClassAttributesMatcher(),
+            new Matcher\ClassMethodsMatcher(),
+            new Matcher\CommandsMatcher($commands),
         );
 
         $config = new Configuration();

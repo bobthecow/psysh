@@ -1,10 +1,22 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ConstantsMatcher
- * @package Psy\TabCompletion\Matchers
+ * A constant name tab completion Matcher.
+ *
+ * This matcher provides completion for all defined constants.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ConstantsMatcher extends AbstractMatcher
 {
@@ -21,8 +33,7 @@ class ConstantsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

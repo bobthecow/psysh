@@ -1,12 +1,25 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ClassAttributesMatcher
- * @package Psy\TabCompletion\Matchers
+ * A class method tab completion Matcher.
+ *
+ * Given a namespace and class, this matcher provides completion for static
+ * methods.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
-class ClassAttributesMatcher extends AbstractMatcher
+class ClassMethodsMatcher extends AbstractMatcher
 {
     /**
      * {@inheritDoc}
@@ -24,32 +37,23 @@ class ClassAttributesMatcher extends AbstractMatcher
         $class = $this->getNamespaceAndClass($tokens);
 
         $reflection = new \ReflectionClass($class);
-        $vars = array_merge(
-            array_map(
-                function ($var) {
-                    return '$' . $var;
-                },
-                array_keys($reflection->getStaticProperties())
-            ),
-            array_keys($reflection->getConstants())
-        );
+        $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        $methods = array_map(function (\ReflectionMethod $method) {
+            return $method->getName();
+        }, $methods);
 
         return array_map(
             function ($name) use ($class) {
                 return $class . '::' . $name;
             },
-            array_filter(
-                $vars,
-                function ($var) use ($input) {
-                    return AbstractMatcher::startsWith($input, $var);
-                }
-            )
+            array_filter($methods, function ($method) use ($input) {
+                return AbstractMatcher::startsWith($input, $method);
+            })
         );
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

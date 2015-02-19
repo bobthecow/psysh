@@ -1,12 +1,24 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ObjectMethodsMatcher
- * @package Psy\TabCompletion\Matchers
+ * A MongoDB Client tab completion Matcher.
+ *
+ * This matcher provides completion for MongoClient database names.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
-class ObjectMethodsMatcher extends AbstractContextAwareMatcher
+class MongoClientMatcher extends AbstractContextAwareMatcher
 {
     /**
      * {@inheritDoc}
@@ -24,14 +36,25 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
         $objectName = str_replace('$', '', $objectToken[1]);
         $object = $this->getVariable($objectName);
 
+        if (!$object instanceof \MongoClient) {
+            return array();
+        }
+
+        $list = $object->listDBs();
+
         return array_filter(
-            get_class_methods($object),
+            array_map(function ($info) {
+                return $info['name'];
+            }, $list['databases']),
             function ($var) use ($input) {
                 return AbstractMatcher::startsWith($input, $var);
             }
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function hasMatched(array $tokens)
     {
         $token = array_pop($tokens);

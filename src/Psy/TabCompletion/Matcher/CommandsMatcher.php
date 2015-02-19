@@ -1,24 +1,44 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 use Psy\Command\Command;
 
 /**
- * Class CommandsMatcher
- * @package Psy\TabCompletion\Matchers
+ * A Psy Command tab completion Matcher.
+ *
+ * This matcher provides completion for all registered Psy Command names and
+ * aliases.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class CommandsMatcher extends AbstractMatcher
 {
-    /** @var array  */
+    /** @type string[] */
     protected $commands = array();
 
+    /**
+     * CommandsMatcher constructor.
+     *
+     * @param Command[] $commands
+     */
     public function __construct(array $commands)
     {
         $this->setCommands($commands);
     }
 
     /**
+     * Set Commands for completion.
+     *
      * @param Command[] $commands
      */
     public function setCommands(array $commands)
@@ -44,8 +64,7 @@ class CommandsMatcher extends AbstractMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {

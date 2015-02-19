@@ -1,10 +1,23 @@
 <?php
 
-namespace Psy\TabCompletion\Matchers;
+/*
+ * This file is part of Psy Shell
+ *
+ * (c) 2012-2014 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\TabCompletion\Matcher;
 
 /**
- * Class ObjectAttributesMatcher
- * @package Psy\TabCompletion\Matchers
+ * An object attribute tab completion Matcher.
+ *
+ * This matcher provides completion for properties of objects in the current
+ * Context.
+ *
+ * @author Marc Garcia <markcial@gmail.com>
  */
 class ObjectAttributesMatcher extends AbstractContextAwareMatcher
 {
@@ -33,8 +46,7 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * @param  array $tokens
-     * @return bool
+     * {@inheritDoc}
      */
     public function hasMatched(array $tokens)
     {
