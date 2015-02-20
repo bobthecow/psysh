@@ -13,6 +13,7 @@ namespace Psy\Util;
 
 /**
  * String utility methods.
+ *
  * @author ju1ius
  */
 class String
@@ -54,7 +55,8 @@ EOS;
      * The other formats are supported by PHP's stripcslashes,
      * except for the \s sequence (ASCII space).
      *
-     * @param  string $input The string to decode.
+     * @param string $input The string to decode.
+     *
      * @return string
      */
     public static function unvis($input)
@@ -65,9 +67,10 @@ EOS;
     }
 
     /**
-     * Callback for String::unvis
+     * Callback for String::unvis.
      *
-     * @param  array  $match The matches passed by preg_replace_callback
+     * @param array $match The matches passed by preg_replace_callback
+     *
      * @return string
      */
     protected static function unvisReplace($match)

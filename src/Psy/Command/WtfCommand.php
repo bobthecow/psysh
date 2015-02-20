@@ -25,9 +25,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class WtfCommand extends TraceCommand implements ContextAware
 {
     /**
-     * Context instance (for ContextAware interface)
+     * Context instance (for ContextAware interface).
      *
-     * @type Context
+     * @var Context
      */
     protected $context;
 
@@ -73,7 +73,7 @@ HELP
     }
 
     /**
-     * --verbose is not hidden for this option :)
+     * --verbose is not hidden for this option :).
      *
      * @return array
      */

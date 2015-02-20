@@ -235,7 +235,7 @@ class Configuration
      * The config file may directly manipulate the configuration, or may return
      * an array of options which will be merged with the current configuration.
      *
-     * @throws InvalidArgumentException if the config file returns a non-array result.
+     * @throws \InvalidArgumentException if the config file returns a non-array result.
      *
      * @param string $file
      */
@@ -425,7 +425,7 @@ class Configuration
     }
 
     /**
-     * Set the readline max history size
+     * Set the readline max history size.
      *
      * @param int $value
      */
@@ -435,7 +435,7 @@ class Configuration
     }
 
     /**
-     * Get the readline max history size
+     * Get the readline max history size.
      *
      * @return int
      */
