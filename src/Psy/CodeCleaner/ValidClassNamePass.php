@@ -183,7 +183,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     protected function ensureInterfacesExist($interfaces, $stmt)
     {
         foreach ($interfaces as $interface) {
-            /** @var string */
+            /** @var string $name */
             $name = $this->getFullyQualifiedName($interface);
             if (!$this->interfaceExists($name)) {
                 throw $this->createError(sprintf('Interface \'%s\' not found', $name), $stmt);
