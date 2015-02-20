@@ -268,6 +268,51 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, stream_get_contents($stream));
     }
 
+    /**
+     *
+     */
+    public function testCancellableExecutionLoop()
+    {
+        $config = $this->getConfig();
+        $config->setCancellable(true);
+
+        $output = $this->getOutput();
+
+        $cleaner = $config->getCodeCleaner();
+
+        $lines = array(
+            '$foo = "bar"',
+            '$eggs = "spam"',
+            'get_defined_vars()',
+        );
+
+        foreach ($lines as &$line) {
+            $line = $cleaner->clean(array($line), false);
+        }
+
+        /** @var Shell|\PHPUnit_Framework_MockObject_MockObject $shell */
+        $shell  = $this->getMock('\Psy\Shell', array('readline', 'flushCode'));
+        $shell->expects($this->any())
+            ->method('readline')
+            ->willReturn(null);
+        $shell->expects($this->any())
+            ->method('flushCode')
+            ->willReturnCallback(function () use (&$lines) {
+                return array_shift($lines);
+            });
+        $shell->setOutput($output);
+
+        $loop = $config->getLoop();
+        while (count($lines)) {
+            $loop->execute($shell);
+        }
+        $vars = $shell->getScopeVariables();
+        $this->assertTrue(array_key_exists('foo', $vars));
+        $this->assertEquals($vars['foo'], 'bar');
+        $this->assertTrue(array_key_exists('eggs', $vars));
+        $this->assertEquals($vars['eggs'], 'spam');
+    }
+
     public function getReturnValues()
     {
         return array(

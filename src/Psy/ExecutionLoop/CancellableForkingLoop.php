@@ -5,24 +5,11 @@ namespace Psy\ExecutionLoop;
 use Psy\Exception\BreakException;
 use Psy\Shell;
 
-/**
- * Class CancellableForkingLoop
- * @package Psy\ExecutionLoop
- */
 class CancellableForkingLoop extends Loop
 {
-    /**
-     * Run the execution loop.
-     *
-     * @param Shell $shell
-     */
-    public function run(Shell $shell)
+    protected function getExecutionLoop()
     {
-        declare (ticks = 1);
-        // ignore sigint signal
-        pcntl_signal(SIGINT, SIG_IGN, true);
-
-        $loop = function (Shell $__psysh__) {
+        return function (Shell &$__psysh__) {
             // Load user-defined includes
             set_error_handler(array($__psysh__, 'handleError'));
             try {
@@ -36,8 +23,6 @@ class CancellableForkingLoop extends Loop
             unset($__psysh_include__);
 
             extract($__psysh__->getScopeVariables());
-
-            $__psysh__->setScopeVariables(get_defined_vars());
 
             try {
                 // read a line, see if we should eval
@@ -78,7 +63,13 @@ class CancellableForkingLoop extends Loop
 
             // a bit of housekeeping
             unset($__psysh_out__);
+            $__psysh__->setScopeVariables(get_defined_vars());
         };
+    }
+
+    public function execute(Shell $shell)
+    {
+        $loop = $this->getExecutionLoop();
 
         // bind the closure to $this from the shell scope variables...
         if (self::bindLoop()) {
@@ -96,11 +87,20 @@ class CancellableForkingLoop extends Loop
             }
         }
 
-        list($up, $down) = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        // Let's do some processing.
+        $loop($shell);
+    }
 
-        if (!$up) {
-            throw new \RuntimeException('Unable to create socket pair.');
-        }
+    /**
+     * Run the execution loop.
+     *
+     * @param Shell $shell
+     */
+    public function run(Shell $shell)
+    {
+        declare (ticks = 1);
+        // ignore sigint signal
+        pcntl_signal(SIGINT, SIG_IGN, true);
 
         while (true) {
             $shell->setExitLoop(false);
@@ -122,69 +122,18 @@ class CancellableForkingLoop extends Loop
                 if (!$cancelled && !pcntl_wexitstatus($status)) {
                     $shell->setExitLoop(true);
                 }
-
-                // We won't be needing this one.
-                @fclose($up);
-
-                // Wait for a return value from the loop process.
-                $read = array($down);
-                $write = null;
-                $except = null;
-                @stream_select($read, $write, $except, null);
-
-                $content = @stream_get_contents($down);
-                @fclose($down);
-
-                if ($content) {
-                    $shell->setScopeVariables(@unserialize($content));
-                }
             } else {
                 // This is the child process. It's going to do all the work.
                 if (function_exists('setproctitle')) {
                     setproctitle('psysh (loop)');
                 }
 
-                // We won't be needing this one.
-                @fclose($down);
-
-                // Let's do some processing.
-                $loop($shell);
-
-                // Send the scope variables back up to the main thread
-                @fwrite($up, $this->serializeReturn($shell->getScopeVariables()));
-                @fclose($up);
+                $this->execute($shell);
             }
 
             if ($shell->getExitLoop()) {
-                exit;
+                break;
             }
         }
-    }
-
-    /**
-     * Serialize all serializable return values.
-     *
-     * A naïve serialization will run into issues if there is a Closure or
-     * SimpleXMLElement (among other things) in scope when exiting the execution
-     * loop. We'll just ignore these unserializable classes, and serialize what
-     * we can.
-     *
-     * @param array $return
-     *
-     * @return string
-     */
-    protected function serializeReturn(array $return)
-    {
-        $serializable = array();
-        foreach ($return as $key => $value) {
-            try {
-                serialize($value);
-                $serializable[$key] = $value;
-            } catch (\Exception $e) {
-                // we'll just ignore this one...
-            }
-        }
-
-        return serialize($serializable);
     }
 }
