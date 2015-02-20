@@ -106,7 +106,6 @@ class PresenterManager implements Presenter, \IteratorAggregate
     /**
      * Present a reference to the value.
      *
-     *
      * @param mixed $value
      *
      * @throws \InvalidArgumentException If no Presenter is registered for $value
