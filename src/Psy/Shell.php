@@ -28,7 +28,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArgvInput;
 
 /**
- * The Psy Shell application
+ * The Psy Shell application.
  *
  * Usage:
  *
@@ -594,7 +594,7 @@ class Shell extends Application
      *
      * Stores $e as the last Exception in the Shell Context.
      *
-     * @param Exception       $e      An exception instance
+     * @param \Exception      $e      An exception instance
      * @param OutputInterface $output An OutputInterface instance
      */
     public function renderException($e, $output)
@@ -615,7 +615,8 @@ class Shell extends Application
     /**
      * Helper for getting an output style for the given ErrorException's level.
      *
-     * @param  ErrorException $e
+     * @param \ErrorException $e
+     *
      * @return string
      */
     protected function getSeverity(\ErrorException $e)
@@ -661,8 +662,6 @@ class Shell extends Application
      * @param string $errstr  Message
      * @param string $errfile Filename
      * @param int    $errline Line number
-     *
-     * @return void
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {

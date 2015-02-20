@@ -19,7 +19,7 @@ use Symfony\Component\Finder\Finder;
 class Compiler
 {
     /**
-     * Compiles psysh into a single phar file
+     * Compiles psysh into a single phar file.
      *
      * @param string $pharFile The full path to the file to create
      */
@@ -140,7 +140,7 @@ class Compiler
     }
 
     /**
-     * Get a Phar stub for psysh
+     * Get a Phar stub for psysh.
      *
      * This is basically the psysh bin, with the autoload require statements swapped out.
      *

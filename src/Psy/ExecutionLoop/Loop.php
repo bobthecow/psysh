@@ -21,7 +21,7 @@ use Psy\Exception\BreakException;
 class Loop
 {
     /**
-     * The non-forking loop doesn't have much use for Configuration :)
+     * The non-forking loop doesn't have much use for Configuration :).
      *
      * @param Configuration $config
      */

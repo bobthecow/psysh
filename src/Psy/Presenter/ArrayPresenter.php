@@ -64,7 +64,7 @@ class ArrayPresenter extends RecursivePresenter
     }
 
     /**
-     * Present a reference to an ArrayObject
+     * Present a reference to an ArrayObject.
      *
      * @param ArrayObject $value
      *
