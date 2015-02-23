@@ -102,8 +102,8 @@ return array(
     // You can disable tab completion if you want to. Not sure why you'd want to.
     'tabCompletion' => false,
 
-    // You can write your own autocomplete matchers, too! Here's one that enables
-    // autocompletion for MongoDB collection names:
+    // You can write your own tab completion matchers, too! Here are some that enable
+    // tab completion for MongoDB database and collection names:
     'tabCompletionMatchers' => array(
         new \Psy\TabCompletion\Matcher\MongoClientMatcher,
         new \Psy\TabCompletion\Matcher\MongoDatabaseMatcher,
