@@ -24,12 +24,12 @@ use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
 use Psy\Presenter\PresenterManager;
 use Psy\Presenter\PresenterManagerAware;
+use Symfony\Component\Console\Helper\TableHelper;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Helper\TableHelper;
 
 /**
  * List available local variables, object properties, etc.
@@ -190,7 +190,7 @@ HELP
             return;
         }
 
-        $table = $this->getTable();
+        $table = $this->getTable($output);
 
         foreach ($result as $label => $items) {
             $output->writeln('');
@@ -201,7 +201,11 @@ HELP
                 $table->addRow(array($this->formatItemName($item), $item['value']));
             }
 
-            $table->render($output);
+            if ($table instanceof TableHelper) {
+                $table->render($output);
+            } else {
+                $table->render();
+            }
         }
     }
 
@@ -270,23 +274,5 @@ HELP
             $input->setOption('properties', true);
             $input->setOption('methods',    true);
         }
-    }
-
-    /**
-     * Get a TableHelper instance.
-     *
-     * @return TableHelper
-     */
-    private function getTable()
-    {
-        $old = error_reporting();
-        error_reporting($old & ~E_USER_DEPRECATED);
-        $table = $this->getApplication()->getHelperSet()->get('table');
-        error_reporting($old);
-
-        return $table
-            ->setLayout(TableHelper::LAYOUT_BORDERLESS)
-            ->setHorizontalBorderChar('')
-            ->setCrossingChar('');
     }
 }

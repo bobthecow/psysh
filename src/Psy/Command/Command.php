@@ -14,6 +14,10 @@ namespace Psy\Command;
 use Psy\Shell;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableHelper;
+use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * The Psy Shell base command.
@@ -232,5 +236,47 @@ abstract class Command extends BaseCommand
         }
 
         return str_replace("\n", '', var_export($default, true));
+    }
+
+    /**
+     * Get a Table instance.
+     *
+     * Falls back to legacy TableHelper.
+     *
+     * @return Table|TableHelper
+     */
+    protected function getTable(OutputInterface $output)
+    {
+        if (!class_exists('Symfony\Component\Console\Helper\Table')) {
+            return $this->getTableHelper();
+        }
+
+        $style = new TableStyle();
+        $style
+            ->setVerticalBorderChar(' ')
+            ->setHorizontalBorderChar('')
+            ->setCrossingChar('');
+
+        $table = new Table($output);
+
+        return $table
+            ->setRows(array())
+            ->setStyle($style);
+    }
+
+    /**
+     * Legacy fallback for getTable.
+     *
+     * @return TableHelper
+     */
+    protected function getTableHelper()
+    {
+        $table = $this->getApplication()->getHelperSet()->get('table');
+
+        return $table
+            ->setRows(array())
+            ->setLayout(TableHelper::LAYOUT_BORDERLESS)
+            ->setHorizontalBorderChar('')
+            ->setCrossingChar('');
     }
 }

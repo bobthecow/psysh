@@ -11,11 +11,13 @@
 
 namespace Psy;
 
+use Psy\Exception\ThrowUpException;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Output\ShellOutput;
 use Psy\Presenter\PresenterManagerAware;
+use Psy\TabCompletion\Matcher;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -28,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArgvInput;
 
 /**
- * The Psy Shell application
+ * The Psy Shell application.
  *
  * Usage:
  *
@@ -39,7 +41,7 @@ use Symfony\Component\Console\Input\ArgvInput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.3.5';
+    const VERSION = 'v0.4.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -57,6 +59,9 @@ class Shell extends Application
     private $context;
     private $includes;
     private $loop;
+    private $outputWantsNewline = false;
+    private $completion;
+    private $tabCompletionMatchers = array();
 
     /**
      * Create a new Psy Shell.
@@ -75,6 +80,18 @@ class Shell extends Application
         parent::__construct('Psy Shell', self::VERSION);
 
         $this->config->setShell($this);
+        // auto completer needs shell to be linked to configuration because of the context aware matchers
+        if ($this->config->getTabCompletion()) {
+            $this->completion = $this->config->getAutoCompleter();
+            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
+            foreach ($this->getTabCompletionMatchers() as $matcher) {
+                if ($matcher instanceof ContextAware) {
+                    $matcher->setContext($this->context);
+                }
+                $this->completion->addMatcher($matcher);
+            }
+            $this->completion->activate();
+        }
     }
 
     /**
@@ -193,6 +210,7 @@ class Shell extends Application
             new Command\ShowCommand(),
             new Command\WtfCommand(),
             new Command\WhereamiCommand(),
+            new Command\ThrowUpCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
@@ -200,6 +218,37 @@ class Shell extends Application
             $hist,
             new Command\ExitCommand(),
         );
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTabCompletionMatchers()
+    {
+        if (empty($this->tabCompletionMatchers)) {
+            $this->tabCompletionMatchers = array(
+                new Matcher\CommandsMatcher($this->all()),
+                new Matcher\KeywordsMatcher(),
+                new Matcher\VariablesMatcher(),
+                new Matcher\ConstantsMatcher(),
+                new Matcher\FunctionsMatcher(),
+                new Matcher\ClassNamesMatcher(),
+                new Matcher\ClassMethodsMatcher(),
+                new Matcher\ClassAttributesMatcher(),
+                new Matcher\ObjectMethodsMatcher(),
+                new Matcher\ObjectAttributesMatcher(),
+            );
+        }
+
+        return $this->tabCompletionMatchers;
+    }
+
+    /**
+     * @param array $matchers
+     */
+    public function addTabCompletionMatchers(array $matchers)
+    {
+        $this->tabCompletionMatchers = array_merge($matchers, $this->getTabCompletionMatchers());
     }
 
     /**
@@ -236,6 +285,8 @@ class Shell extends Application
     /**
      * Runs the current application.
      *
+     * @throws Exception if thrown via the `throw-up` command.
+     *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
      *
@@ -258,7 +309,13 @@ class Shell extends Application
 
         $this->output->writeln($this->getHeader());
 
-        $this->loop->run($this);
+        try {
+            $this->loop->run($this);
+        } catch (ThrowUpException $e) {
+            $this->setCatchExceptions(false);
+
+            throw $e->getPrevious();
+        }
     }
 
     /**
@@ -543,15 +600,25 @@ class Shell extends Application
      * This is used by the shell loop for rendering output from evaluated code.
      *
      * @param string $out
+     * @param int    $phase Output buffering phase
      */
-    public function writeStdout($out)
+    public function writeStdout($out, $phase = PHP_OUTPUT_HANDLER_END)
     {
-        if (!empty($out)) {
-            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+        $isCleaning = false;
+        if (version_compare(PHP_VERSION, '5.4', '>=')) {
+            $isCleaning = $phase & PHP_OUTPUT_HANDLER_CLEAN;
+        }
 
-            if (substr($out, -1) !== "\n") {
-                $this->output->writeln("<aside>⏎</aside>");
-            }
+        // Incremental flush
+        if (!empty($out) && !$isCleaning) {
+            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+            $this->outputWantsNewline = (substr($out, -1) !== "\n");
+        }
+
+        // Output buffering is done!
+        if ($this->outputWantsNewline && $phase & PHP_OUTPUT_HANDLER_END) {
+            $this->output->writeln('<aside>⏎</aside>');
+            $this->outputWantsNewline = false;
         }
     }
 
@@ -594,7 +661,7 @@ class Shell extends Application
      *
      * Stores $e as the last Exception in the Shell Context.
      *
-     * @param Exception       $e      An exception instance
+     * @param \Exception      $e      An exception instance
      * @param OutputInterface $output An OutputInterface instance
      */
     public function renderException($e, $output)
@@ -615,7 +682,8 @@ class Shell extends Application
     /**
      * Helper for getting an output style for the given ErrorException's level.
      *
-     * @param  ErrorException $e
+     * @param \ErrorException $e
+     *
      * @return string
      */
     protected function getSeverity(\ErrorException $e)
@@ -661,8 +729,6 @@ class Shell extends Application
      * @param string $errstr  Message
      * @param string $errfile Filename
      * @param int    $errline Line number
-     *
-     * @return void
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {

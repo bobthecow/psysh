@@ -81,7 +81,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Validate an interface definition statment.
+     * Validate an interface definition statement.
      *
      * @param InterfaceStmt $stmt
      */
@@ -92,7 +92,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Validate a trait definition statment.
+     * Validate a trait definition statement.
      *
      * @param TraitStmt $stmt
      */
@@ -130,6 +130,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that no class, interface or trait name collides with a new definition.
      *
+     * @throws FatalErrorException
+     *
      * @param Stmt $stmt
      */
     protected function ensureCanDefine(Stmt $stmt)
@@ -158,6 +160,8 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that a referenced class exists.
      *
+     * @throws FatalErrorException
+     *
      * @param string $name
      * @param Stmt   $stmt
      */
@@ -171,12 +175,15 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Ensure that a referenced interface exists.
      *
-     * @param string $name
-     * @param Stmt   $stmt
+     * @throws FatalErrorException
+     *
+     * @param $interfaces
+     * @param Stmt $stmt
      */
     protected function ensureInterfacesExist($interfaces, $stmt)
     {
         foreach ($interfaces as $interface) {
+            /** @var string $name */
             $name = $this->getFullyQualifiedName($interface);
             if (!$this->interfaceExists($name)) {
                 throw $this->createError(sprintf('Interface \'%s\' not found', $name), $stmt);
@@ -243,7 +250,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @param string $name
      *
-     * @return string
+     * @return string|null
      */
     protected function findInScope($name)
     {
@@ -254,7 +261,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Error creation factory
+     * Error creation factory.
      *
      * @param string $msg
      * @param Stmt   $stmt

@@ -74,12 +74,12 @@ class ErrorException extends \ErrorException implements Exception
      *
      *     set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
      *
+     * @throws ErrorException
+     *
      * @param int    $errno   Error type
      * @param string $errstr  Message
      * @param string $errfile Filename
      * @param int    $errline Line number
-     *
-     * @return void
      */
     public static function throwException($errno, $errstr, $errfile, $errline)
     {
