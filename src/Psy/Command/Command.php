@@ -17,6 +17,7 @@ use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableHelper;
 use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * The Psy Shell base command.
