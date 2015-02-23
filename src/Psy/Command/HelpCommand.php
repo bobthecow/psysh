@@ -66,7 +66,7 @@ class HelpCommand extends Command
             // list available commands
             $commands = $this->getApplication()->all();
 
-            $table = $this->getTable();
+            $table = $this->getTable($output);
 
             foreach ($commands as $name => $command) {
                 if ($name !== $command->getName()) {
@@ -86,28 +86,13 @@ class HelpCommand extends Command
                 ));
             }
 
-            $output->page(function ($output) use ($table) {
+            $output->startPaging();
+            if ($table instanceof TableHelper) {
                 $table->render($output);
-            });
+            } else {
+                $table->render();
+            }
+            $output->stopPaging();
         }
-    }
-
-    /**
-     * Get a TableHelper instance.
-     *
-     * @return TableHelper
-     */
-    protected function getTable()
-    {
-        $old = error_reporting();
-        error_reporting($old & ~E_USER_DEPRECATED);
-        $table = $this->getApplication()->getHelperSet()->get('table');
-        error_reporting($old);
-
-        return $table
-                ->setRows(array())
-                ->setLayout(TableHelper::LAYOUT_BORDERLESS)
-                ->setHorizontalBorderChar('')
-                ->setCrossingChar('');
     }
 }
