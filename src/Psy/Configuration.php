@@ -150,9 +150,33 @@ class Configuration
      *
      * @return string
      */
-    private function getHomeDir()
+    private function getPsyHome()
     {
-        return getenv('HOME') ?: (getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH'));
+        if ($home = getenv('HOME')) {
+            return $home . '/.psysh';
+        }
+
+        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            // Check the old default
+            $oldHome = strtr(getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH') . '/.psysh', '\\', '/');
+
+            if ($appData = getenv('APPDATA')) {
+                $home = strtr($appData, '\\', '/') . '/PsySH';
+
+                if (is_dir($oldHome) && !is_dir($home)) {
+                    $msg = sprintf(
+                        "Config directory found at '%s'. Please move it to '%s'.",
+                        strtr($oldHome, '/', '\\'),
+                        strtr($home, '/', '\\')
+                    );
+                    trigger_error($msg, E_USER_DEPRECATED);
+
+                    return $oldHome;
+                }
+
+                return $home;
+            }
+        }
     }
 
     /**
@@ -178,7 +202,9 @@ class Configuration
             return $dir . '/psysh';
         }, $xdg->getConfigDirs());
 
-        array_unshift($dirs, $this->getHomeDir() . '/.psysh');
+        if ($home = $this->getPsyHome()) {
+            array_unshift($dirs, $home);
+        }
 
         return $dirs;
     }
@@ -206,7 +232,9 @@ class Configuration
             return $dir . '/psysh';
         }, $xdg->getDataDirs());
 
-        array_unshift($dirs, $this->getHomeDir() . '/.psysh');
+        if ($home = $this->getPsyHome()) {
+            array_unshift($dirs, $home);
+        }
 
         return $dirs;
     }

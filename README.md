@@ -36,7 +36,7 @@ chmod +x psysh
 
 ## PsySH configuration
 
-While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.config/psysh/config.php`:
+While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.config/psysh/config.php` (or `C:\Users\{USER}\AppData\Roaming\PsySH` on Windows):
 
 ```php
 <?php
@@ -113,7 +113,7 @@ return array(
 
 ## Downloading the manual
 
-The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/`:
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/` (or `C:\Users\{USER}\AppData\Roaming\PsySH` on Windows):
 
  * **[English](http://psysh.org/manual/en/php_manual.sqlite)**
  * [Brazilian Portuguese](http://psysh.org/manual/pt_BR/php_manual.sqlite)
