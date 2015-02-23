@@ -73,7 +73,9 @@ HELP
     }
 
     /**
-     * --verbose is not hidden for this option :).
+     * {@inheritdoc}
+     *
+     * --verbose is not hidden for this option :)
      *
      * @return array
      */

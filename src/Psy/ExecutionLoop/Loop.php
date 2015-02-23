@@ -22,7 +22,10 @@ use Psy\Exception\ThrowUpException;
 class Loop
 {
     /**
-     * The non-forking loop doesn't have much use for Configuration :).
+     * Loop constructor.
+     *
+     * The non-forking loop doesn't have much use for Configuration, so we'll
+     * just ignore it.
      *
      * @param Configuration $config
      */
