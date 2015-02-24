@@ -12,6 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\RuntimeException;
+use Psy\ExecutionLoop\CancellableForkingLoop;
 use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
@@ -32,7 +33,7 @@ class Configuration
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
+        'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates', 'cancellable',
         'tabCompletion',
     );
 
@@ -49,6 +50,7 @@ class Configuration
     private $useReadline;
     private $hasPcntl;
     private $usePcntl;
+    private $cancellable;
     private $newCommands = array();
     private $requireSemicolons = false;
     private $tabCompletion;
@@ -826,7 +828,11 @@ class Configuration
     {
         if (!isset($this->loop)) {
             if ($this->usePcntl()) {
-                $this->loop = new ForkingLoop($this);
+                if ($this->getCancellable()) {
+                    $this->loop = new CancellableForkingLoop($this);
+                } else {
+                    $this->loop = new ForkingLoop($this);
+                }
             } else {
                 $this->loop = new Loop($this);
             }
@@ -870,6 +876,22 @@ class Configuration
         if (isset($this->shell)) {
             $this->shell->addTabCompletionMatchers($this->tabCompletionMatchers);
         }
+    }
+
+    /**
+     * @param $bool
+     */
+    public function setCancellable($bool)
+    {
+        $this->cancellable = $bool;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCancellable()
+    {
+        return $this->cancellable;
     }
 
     /**
@@ -948,7 +970,7 @@ class Configuration
     /**
      * Get a PHP manual database connection.
      *
-     * @return PDO
+     * @return \PDO
      */
     public function getManualDb()
     {
