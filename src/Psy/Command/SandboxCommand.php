@@ -7,10 +7,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class SandboxCommand
- * @package Psy\Command
- */
 class SandboxCommand extends Command
 {
     const SANDBOX_FOLDER = 'psysh_sandbox';
@@ -160,6 +156,7 @@ HELP
 
     /**
      * @param $name
+     *
      * @return string
      */
     protected function getSandboxPath($name)
@@ -168,7 +165,8 @@ HELP
     }
 
     /**
-     * @param  null        $name
+     * @param null $name
+     *
      * @return null|string
      */
     protected function createSandbox($name = null)
