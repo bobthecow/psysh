@@ -3,13 +3,17 @@
 namespace Psy\ExecutionLoop;
 
 use Psy\Exception\BreakException;
+use Psy\Exception\FatalErrorException;
 use Psy\Shell;
 
-class CancellableForkingLoop extends Loop
+class CancellableForkingLoop extends ForkingLoop
 {
-    protected function getExecutionLoop()
+    /**
+     * @return callable
+     */
+    protected function getLoopClosure(\Closure $executionClosure)
     {
-        return function (Shell &$__psysh__) {
+        return function (Shell &$__psysh__) use ($executionClosure) {
             // Load user-defined includes
             set_error_handler(array($__psysh__, 'handleError'));
             try {
@@ -22,73 +26,35 @@ class CancellableForkingLoop extends Loop
             restore_error_handler();
             unset($__psysh_include__);
 
-            extract($__psysh__->getScopeVariables());
+            do {
+                $__psysh__->beforeLoop();
 
-            try {
                 // read a line, see if we should eval
                 $__psysh__->getInput();
 
-                // evaluate the current code buffer
-                ob_start();
-
                 // allow sigint signal so the handler can intercept
                 pcntl_signal(SIGINT, SIG_DFL, true);
-                set_error_handler(array($__psysh__, 'handleError'));
-                $_ = eval($__psysh__->flushCode());
-                restore_error_handler();
+                pcntl_signal(SIGINT, function () {
+                    throw new BreakException('User aborted operation.');
+                }, true);
+                $executionClosure($__psysh__);
                 // ignore sigint signal
                 pcntl_signal(SIGINT, SIG_IGN, true);
 
-                $__psysh_out__ = ob_get_contents();
-                ob_end_clean();
-
-                $__psysh__->writeStdout($__psysh_out__);
-                $__psysh__->writeReturnValue($_);
-            } catch (BreakException $_e) {
-                $__psysh__->setExitLoop(true);
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
-                }
-                $__psysh__->writeException($_e);
-
-                return;
-            } catch (\Exception $_e) {
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
-                }
-                $__psysh__->writeException($_e);
-            }
-
-            // a bit of housekeeping
-            unset($__psysh_out__);
-            $__psysh__->setScopeVariables(get_defined_vars());
+                $__psysh__->afterLoop();
+            } while (true);
         };
     }
 
-    public function execute(Shell $shell)
+    protected function replay(Shell $shell, $loop)
     {
-        $loop = $this->getExecutionLoop();
-
-        // bind the closure to $this from the shell scope variables...
-        if (self::bindLoop()) {
-            $that = null;
-            try {
-                $that = $shell->getScopeVariable('this');
-            } catch (\InvalidArgumentException $e) {
-                // well, it was worth a shot
-            }
-
-            if (is_object($that)) {
-                $loop = $loop->bindTo($that, get_class($that));
-            } else {
-                $loop = $loop->bindTo(null, null);
-            }
+        try {
+            $loop($shell);
+        } catch (FatalErrorException $e) {
+            $shell->resetCodeBuffer();
+            $shell->writeException($e);
+            $this->replay($shell, $loop);
         }
-
-        // Let's do some processing.
-        $loop($shell);
     }
 
     /**
@@ -102,34 +68,21 @@ class CancellableForkingLoop extends Loop
         // ignore sigint signal
         pcntl_signal(SIGINT, SIG_IGN, true);
 
+        $executionClosure = $this->getExecutionClosure();
+        // bind the closure to $this from the shell scope variables...
+        if (self::bindLoop()) {
+            $executionClosure = $this->setClosureShellScope($shell, $executionClosure);
+        }
+
+        $loop = $this->getLoopClosure($executionClosure);
         while (true) {
             $shell->setExitLoop(false);
-            $pid = pcntl_fork();
-            if ($pid < 0) {
-                throw new \RuntimeException('Unable to start execution loop.');
-            } elseif ($pid > 0) {
-                // This is the main thread. We'll just wait for a while.
 
-                $cancelled = false;
-                // interception of the sigint signal
-                pcntl_signal(SIGINT, function () use ($pid, &$cancelled) {
-                    $cancelled = true;
-                    posix_kill($pid, SIGKILL);
-                    pcntl_signal_dispatch();
-                }, true);
-                pcntl_waitpid($pid, $status);
-
-                if (!$cancelled && !pcntl_wexitstatus($status)) {
-                    $shell->setExitLoop(true);
-                }
-            } else {
-                // This is the child process. It's going to do all the work.
-                if (function_exists('setproctitle')) {
-                    setproctitle('psysh (loop)');
-                }
-
-                $this->execute($shell);
+            if (function_exists('setproctitle')) {
+                setproctitle('psysh (loop)');
             }
+
+            $this->replay($shell, $loop);
 
             if ($shell->getExitLoop()) {
                 break;

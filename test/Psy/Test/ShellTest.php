@@ -283,6 +283,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $lines = array(
             '$foo = "bar"',
             '$eggs = "spam"',
+            '$closure = function () { return 12; }',
             'get_defined_vars()',
         );
 
@@ -303,14 +304,15 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell->setOutput($output);
 
         $loop = $config->getLoop();
-        while (count($lines)) {
-            $loop->execute($shell);
+        while ($line = reset($lines)) {
+            $loop->execute($shell, $line);
         }
         $vars = $shell->getScopeVariables();
         $this->assertTrue(array_key_exists('foo', $vars));
         $this->assertEquals($vars['foo'], 'bar');
         $this->assertTrue(array_key_exists('eggs', $vars));
         $this->assertEquals($vars['eggs'], 'spam');
+        $this->assertTrue(array_key_exists('closure', $vars));
     }
 
     public function getReturnValues()
