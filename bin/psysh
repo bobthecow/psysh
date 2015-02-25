@@ -33,9 +33,22 @@ use Symfony\Component\Console\Input\InputOption;
 
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
-if (Shell::isIncluded(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1))) {
+if (version_compare(PHP_VERSION, '5.3.6', '<')) {
+    $trace = debug_backtrace();
+} elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+} else {
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+}
+
+if (Shell::isIncluded($trace)) {
+    unset($trace);
+
     return;
 }
+
+// Clean up after ourselves.
+unset($trace);
 
 call_user_func(function() {
     $usageException = null;

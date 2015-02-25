@@ -32,8 +32,8 @@ class Configuration
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'presenters', 'requireSemicolons', 'historySize', 'eraseDuplicates',
-        'tabCompletion',
+        'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
+        'tabCompletionMatchers',
     );
 
     private $defaultIncludes;
@@ -257,7 +257,7 @@ class Configuration
             }
         }
 
-        foreach (array('commands', 'tabCompletionMatchers') as $option) {
+        foreach (array('commands', 'tabCompletionMatchers', 'presenters') as $option) {
             if (isset($options[$option])) {
                 $method = 'add' . ucfirst($option);
                 $this->$method($options[$option]);
@@ -976,16 +976,6 @@ class Configuration
      * @param array $presenters
      */
     public function addPresenters(array $presenters)
-    {
-        $this->setPresenters($presenters);
-    }
-
-    /**
-     * @see self::addPresenters()
-     *
-     * @param array $presenters (default: array())
-     */
-    protected function setPresenters(array $presenters = array())
     {
         $manager = $this->getPresenterManager();
         foreach ($presenters as $presenter) {
