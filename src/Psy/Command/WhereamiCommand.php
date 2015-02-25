@@ -25,7 +25,11 @@ class WhereamiCommand extends Command
 {
     public function __construct()
     {
-        $this->backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        if (version_compare(PHP_VERSION, '5.3.6', '>=')) {
+            $this->backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        } else {
+            $this->backtrace = debug_backtrace();
+        }
 
         return parent::__construct();
     }
