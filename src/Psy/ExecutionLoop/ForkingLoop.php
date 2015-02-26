@@ -11,7 +11,7 @@
 
 namespace Psy\ExecutionLoop;
 
-use Psy\Exception\FatalErrorException;
+use Psy\Exception\BreakException;
 use Psy\Shell;
 
 /**
@@ -24,16 +24,24 @@ class ForkingLoop extends Loop
 {
     /**
      * @param Shell $shell
-     * @param $loop
+     * @param $executionClosure
      */
-    protected function replay(Shell $shell, $loop)
+    protected function replay(Shell $shell, $executionClosure)
     {
         try {
-            $loop($shell);
-        } catch (FatalErrorException $e) {
+            // get input
+            $shell->getInput();
+
+            $shell->beforeLoop();
+            $executionClosure($shell);
+            $shell->afterLoop();
+        } catch (BreakException $e) {
+            $shell->writeException($e);
+            $shell->setExitLoop($e);
+        } catch (\Exception $e) {
             $shell->resetCodeBuffer();
             $shell->writeException($e);
-            $this->replay($shell, $loop);
+            $this->replay($shell, $executionClosure);
         }
     }
 
@@ -54,7 +62,7 @@ class ForkingLoop extends Loop
             $executionClosure = $this->setClosureShellScope($shell, $executionClosure);
         }
 
-        $loop = $this->getLoopClosure($executionClosure);
+        $this->setIncludes($shell);
 
         while (true) {
             $shell->setExitLoop(false);
@@ -63,7 +71,7 @@ class ForkingLoop extends Loop
                 setproctitle('psysh (loop)');
             }
 
-            $this->replay($shell, $loop);
+            $this->replay($shell, $executionClosure);
 
             if ($shell->getExitLoop()) {
                 break;

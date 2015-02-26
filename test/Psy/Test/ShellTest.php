@@ -13,7 +13,9 @@ namespace Psy\Test;
 
 use Psy\Configuration;
 use Psy\Exception\ErrorException;
+use Psy\Exception\FatalErrorException;
 use Psy\Exception\ParseErrorException;
+use Psy\ExecutionLoop\ForkingLoop;
 use Psy\Shell;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -271,7 +273,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function testCancellableExecutionLoop()
+    public function testCancellableExecutionLoopPreservesContext()
     {
         $config = $this->getConfig();
         $config->setCancellable(true);
@@ -284,11 +286,10 @@ class ShellTest extends \PHPUnit_Framework_TestCase
             '$foo = "bar"',
             '$eggs = "spam"',
             '$closure = function () { return 12; }',
-            'get_defined_vars()',
         );
 
-        foreach ($lines as &$line) {
-            $line = $cleaner->clean(array($line), false);
+        foreach ($lines as $pos => $line) {
+            $lines[$pos] = $cleaner->clean(array($line), false);
         }
 
         /** @var Shell|\PHPUnit_Framework_MockObject_MockObject $shell */
@@ -304,9 +305,113 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $shell->setOutput($output);
 
         $loop = $config->getLoop();
-        while ($line = reset($lines)) {
+        while ($line = current($lines)) {
+            $loop->execute($shell, '');
+        }
+        $vars = $shell->getScopeVariables();
+        $this->assertTrue(array_key_exists('foo', $vars));
+        $this->assertEquals($vars['foo'], 'bar');
+        $this->assertTrue(array_key_exists('eggs', $vars));
+        $this->assertEquals($vars['eggs'], 'spam');
+        $this->assertTrue(array_key_exists('closure', $vars));
+    }
+
+    public function testIncludesInForkingLoop()
+    {
+        $config = $this->getConfig();
+        $output = $this->getOutput();
+
+        $config->setDefaultIncludes(array(
+            __DIR__ . '/../../fixtures/includes/sample.php',
+        ));
+
+        $lines = array(
+            '$sample = new Test\Stubs\Sample;',
+            '$sample->property = "some text";',
+        );
+
+        /** @var Shell|\PHPUnit_Framework_MockObject_MockObject $shell */
+        $shell  = $this->getMock('\Psy\Shell', array('readline', 'flushCode', 'getExitLoop'), array($config));
+        $shell->expects($this->any())
+            ->method('getExitLoop')
+            ->willReturn(true);
+        $shell->expects($this->any())
+            ->method('readline')
+            ->willReturn(null);
+        $shell->expects($this->any())
+            ->method('flushCode')
+            ->willReturnCallback(function () use (&$lines) {
+                return array_shift($lines);
+            });
+        $shell->setOutput($output);
+
+        $loop = new ForkingLoop($config);
+
+        while (($line = current($lines))) {
             $loop->execute($shell, $line);
         }
+        $vars = $shell->getScopeVariables();
+        $this->assertArrayHasKey('sample', $vars);
+        $this->assertTrue($vars['sample'] instanceof \Test\Stubs\Sample);
+    }
+
+    public function testExecutionLoopPreservesContext()
+    {
+        $config = $this->getConfig();
+        $output = $this->getOutput();
+
+        $cleaner = $config->getCodeCleaner();
+
+        $lines = array(
+            '$foo = "bar"',
+            '$eggs = "spam"',
+            '$closure = function () { return 12; }',
+            'class Foo {}',
+            'class Foo {}',
+            'class Foo {}',
+        );
+
+        foreach ($lines as $pos => $line) {
+            $lines[$pos] = $cleaner->clean(array($line), false);
+        }
+
+        /** @var Shell|\PHPUnit_Framework_MockObject_MockObject $shell */
+        $shell  = $this->getMock('\Psy\Shell', array('readline', 'flushCode'));
+        $shell->expects($this->any())
+            ->method('readline')
+            ->willReturn(null);
+        $shell->expects($this->any())
+            ->method('flushCode')
+            ->willReturnCallback(function () use (&$lines) {
+                return array_shift($lines);
+            });
+        $shell->setOutput($output);
+
+        $loop = $config->getLoop();
+
+        while (($line = current($lines)) && count($lines) > 2) {
+            $loop->execute($shell, $line);
+        }
+        $vars = $shell->getScopeVariables();
+        $this->assertTrue(array_key_exists('foo', $vars));
+        $this->assertEquals($vars['foo'], 'bar');
+        $this->assertTrue(array_key_exists('eggs', $vars));
+        $this->assertEquals($vars['eggs'], 'spam');
+        $this->assertTrue(array_key_exists('closure', $vars));
+
+        foreach (range(0, 2) as $_) {
+            try {
+                // assert exception is thrown
+                $loop->execute($shell, current($lines));
+            } catch (FatalErrorException $exc) {
+                $this->assertEquals(
+                    "PHP Fatal error:  Class named Foo already exists in eval()'d code on line 1",
+                    $exc->getMessage()
+                );
+            }
+        }
+
+        // assert that variables are not lost
         $vars = $shell->getScopeVariables();
         $this->assertTrue(array_key_exists('foo', $vars));
         $this->assertEquals($vars['foo'], 'bar');
