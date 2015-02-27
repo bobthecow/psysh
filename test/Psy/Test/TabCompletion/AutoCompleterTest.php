@@ -72,13 +72,13 @@ class AutoCompleterTest extends \PHPUnit_Framework_TestCase
      * - [ ] if the variable is an array, return the square bracket for completion
      * - [ ] if the variable is a constructor or method, reflect to complete as a function call
      * - [ ] if the preceding token is a variable, call operators or keywords compatible for completion
-     * - [ ] a command always should be the second token after php_open_tag
-     * - [ ] keywords are never consecutive
-     * - [ ] namespacing completion should work just fine
-     * - [ ] after a new keyword, should always be a class constructor, never a function call or keyword, constant,
+     * - [X] a command always should be the second token after php_open_tag
+     * - [X] keywords are never consecutive
+     * - [X] namespacing completion should work just fine
+     * - [X] after a new keyword, should always be a class constructor, never a function call or keyword, constant,
      *       or variable that does not contain a existing class name.
-     * - [ ] on a namespaced constructor the completion must show the classes related, not constants.
-     * 
+     * - [X] on a namespaced constructor the completion must show the classes related, not constants.
+     *
      * @return array
      */
     public function classesInput()
