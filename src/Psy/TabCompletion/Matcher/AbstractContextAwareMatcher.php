@@ -54,6 +54,18 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
     }
 
     /**
+     * Returns true if the variable exists.
+     *
+     * @param $var Variable name
+     *
+     * @return bool
+     */
+    protected function hasVariable($var)
+    {
+        return (bool) $this->getVariable($var);
+    }
+
+    /**
      * Get all variables in the current Context.
      *
      * @return array

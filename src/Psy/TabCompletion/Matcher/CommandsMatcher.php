@@ -12,6 +12,7 @@
 namespace Psy\TabCompletion\Matcher;
 
 use Psy\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * A Psy Command tab completion Matcher.
@@ -24,6 +25,9 @@ use Psy\Command\Command;
 class CommandsMatcher extends AbstractMatcher
 {
     /** @var string[] */
+    protected $commandNames = array();
+
+    /** @var  Command[] */
     protected $commands = array();
 
     /**
@@ -43,22 +47,34 @@ class CommandsMatcher extends AbstractMatcher
      */
     public function setCommands(array $commands)
     {
-        $names = array();
-        foreach ($commands as $command) {
-            $names = array_merge(array($command->getName()), $names);
-            $names = array_merge($command->getAliases(), $names);
+        // use the same object so is leaks the lowest memory possible
+        foreach ($commands as &$command) {
+            $this->commands[$command->getName()] = &$command;
+            foreach ($command->getAliases() as $alias) {
+                $this->commands[$alias] = &$command;
+            }
+            $this->commandNames = array_keys($this->commands);
         }
-        $this->commands = $names;
     }
 
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
     protected function isCommand($name)
     {
-        return in_array($name, $this->commands);
+        return in_array($name, $this->commandNames);
     }
 
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
     protected function matchCommand($name)
     {
-        foreach ($this->commands as $cmd) {
+        foreach ($this->commandNames as $cmd) {
             if ($this->startsWith($name, $cmd)) {
                 return true;
             }
@@ -73,8 +89,45 @@ class CommandsMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = array())
     {
         $input = $this->getInput($tokens);
+        $prevToken = array_pop($tokens);
+        if (self::tokenIs($prevToken, self::T_STRING) && $prevToken[1] === $input) {
+            $prevToken = array_pop($tokens);
+        }
 
-        return array_filter($this->commands, function ($command) use ($input) {
+        if (is_string($prevToken) && $prevToken === '-') {
+            // user is asking for the command parameters
+            // php open tag
+            array_shift($tokens);
+            // the command
+            $commandToken = array_shift($tokens);
+            $commandName = $commandToken[1];
+            $command = &$this->commands[$commandName];
+
+            $options = $command->getDefinition()->getOptions();
+            $shorts = array_filter(array_map(function (InputOption $option) {
+                if ($shortcut = $option->getShortcut()) {
+                    return $shortcut;
+                }
+            }, $options));
+
+            $matches = array_filter(
+                array_values($shorts),
+                function ($short) use ($input) {
+                    return AbstractMatcher::startsWith($input, $short);
+                }
+            );
+
+            if (! empty($matches)) {
+                return array_map(
+                    function ($opt) {
+                        return '-' . $opt;
+                    },
+                    $matches
+                );
+            }
+        }
+
+        return array_filter($this->commandNames, function ($command) use ($input) {
             return AbstractMatcher::startsWith($input, $command);
         });
     }
@@ -86,12 +139,20 @@ class CommandsMatcher extends AbstractMatcher
     {
         /* $openTag */ array_shift($tokens);
         $command = array_shift($tokens);
+        $dash = null;
+        if (count($tokens) > 0) {
+            $dash = array_shift($tokens);
+        }
 
         switch (true) {
             case self::tokenIs($command, self::T_STRING) &&
                 !$this->isCommand($command[1]) &&
                 $this->matchCommand($command[1]) &&
                 empty($tokens):
+            case self::tokenIs($command, self::T_STRING) &&
+                !$this->isCommand($command[1]) &&
+                $this->matchCommand($command[1]) &&
+                $dash === '-':
                 return true;
         }
 
