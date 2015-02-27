@@ -90,7 +90,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $config = $this->getConfig(array(
             'tabCompletionMatchers' => array(
                 new ClassMethodsMatcher(),
-            )
+            ),
         ));
 
         $matchers = $config->getTabCompletionMatchers();
