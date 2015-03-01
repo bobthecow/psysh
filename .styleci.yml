@@ -1,0 +1,4 @@
+preset: recommended
+
+disabled:
+  - short_array_syntax
