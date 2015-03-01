@@ -12,9 +12,9 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
 use Psy\Exception\FatalErrorException;
 
 /**

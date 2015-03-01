@@ -12,10 +12,10 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Instanceof_ as InstanceofStmt;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Scalar\Encapsed;
-use PhpParser\Node\Expr\ConstFetch;
 use Psy\Exception\FatalErrorException;
 
 /**

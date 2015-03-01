@@ -11,8 +11,8 @@
 
 namespace Psy\Test\Formatter;
 
-use Psy\Reflection\ReflectionConstant;
 use Psy\Formatter\SignatureFormatter;
+use Psy\Reflection\ReflectionConstant;
 
 class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
 {

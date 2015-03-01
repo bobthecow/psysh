@@ -11,10 +11,10 @@
 
 namespace Psy\Test;
 
+use Psy\Configuration;
 use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
 use Psy\Shell;
-use Psy\Configuration;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellTest extends \PHPUnit_Framework_TestCase
