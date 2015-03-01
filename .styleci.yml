@@ -1,0 +1,8 @@
+preset: recommended
+
+enabled:
+  - concat_with_spaces
+
+disabled:
+  - concat_without_spaces
+  - short_array_syntax
