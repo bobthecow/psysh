@@ -20,7 +20,8 @@
         "jakub-onderka/php-console-highlighter": "0.3.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "~3.7|~4.0"
+        "phpunit/phpunit": "~3.7|~4.0",
+        "symfony/finder": "~2.1|~3.0"
     },
     "suggest": {
         "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
