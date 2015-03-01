@@ -13,10 +13,10 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_ as ArrayNode;
-use PhpParser\Node\Expr\Empty_ as EmptyNode;
-use PhpParser\Node\Expr\Isset_ as IssetNode;
 use PhpParser\Node\Expr\Assign as AssignNode;
+use PhpParser\Node\Expr\Empty_ as EmptyNode;
 use PhpParser\Node\Expr\FuncCall as FunctionCall;
+use PhpParser\Node\Expr\Isset_ as IssetNode;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use Psy\Exception\FatalErrorException;

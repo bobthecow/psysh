@@ -11,8 +11,8 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Presenter\PresenterManager;
 use Psy\Context;
+use Psy\Presenter\PresenterManager;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
