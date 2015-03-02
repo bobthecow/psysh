@@ -25,6 +25,8 @@ class ForkingLoop extends Loop
     /**
      * @param Shell $shell
      * @param $executionClosure
+     *
+     * @throws BreakException
      */
     protected function replay(Shell $shell, $executionClosure)
     {
@@ -36,8 +38,7 @@ class ForkingLoop extends Loop
             $executionClosure($shell);
             $shell->afterLoop();
         } catch (BreakException $e) {
-            $shell->writeException($e);
-            $shell->setExitLoop($e);
+            throw $e;
         } catch (\Exception $e) {
             $shell->resetCodeBuffer();
             $shell->writeException($e);
@@ -64,17 +65,17 @@ class ForkingLoop extends Loop
 
         $this->setIncludes($shell);
 
-        while (true) {
-            $shell->setExitLoop(false);
-
+        $keepLoop = true;
+        while ($keepLoop) {
             if (function_exists('setproctitle')) {
                 setproctitle('psysh (loop)');
             }
 
-            $this->replay($shell, $executionClosure);
-
-            if ($shell->getExitLoop()) {
-                break;
+            try {
+                $this->replay($shell, $executionClosure);
+            } catch (BreakException $e) {
+                $shell->writeException($e);
+                $keepLoop = false;
             }
         }
     }

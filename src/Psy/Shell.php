@@ -59,7 +59,6 @@ class Shell extends Application
     private $context;
     private $includes;
     private $loop;
-    private $exitLoop = false;
     private $outputWantsNewline = false;
     private $completion;
     private $tabCompletionMatchers = array();
@@ -317,22 +316,6 @@ class Shell extends Application
 
             throw $e->getPrevious();
         }
-    }
-
-    /**
-     * @param $bool
-     */
-    public function setExitLoop($bool)
-    {
-        $this->exitLoop = $bool;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExitLoop()
-    {
-        return $this->exitLoop;
     }
 
     /**

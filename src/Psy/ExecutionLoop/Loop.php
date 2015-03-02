@@ -12,8 +12,8 @@
 namespace Psy\ExecutionLoop;
 
 use Psy\Configuration;
-use Psy\Shell;
 use Psy\Exception\ThrowUpException;
+use Psy\Shell;
 
 /**
  * The Psy Shell execution loop.
