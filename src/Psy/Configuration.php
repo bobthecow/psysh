@@ -34,9 +34,10 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
-        'tabCompletionMatchers',
+        'tabCompletionMatchers', 'registerPlugins',
     );
 
+    private $registerPlugins = true;
     private $defaultIncludes;
     private $configDir;
     private $dataDir;
@@ -75,9 +76,6 @@ class Configuration
      */
     public function __construct(array $config = array())
     {
-        // ask the plugin manager for configurations
-        $config = Manager::getConfiguration($config);
-
         // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
@@ -100,6 +98,27 @@ class Configuration
         // go go gadget, config!
         $this->loadConfig($config);
         $this->init();
+
+        // ask the plugin manager for configurations
+        if ($this->getRegisterPlugins()) {
+            $this->loadConfig(Manager::getConfiguration($config));
+        }
+    }
+
+    /**
+     * @param $bool
+     */
+    public function setRegisterPlugins($bool)
+    {
+        $this->registerPlugins = $bool;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRegisterPlugins()
+    {
+        return $this->registerPlugins;
     }
 
     /**
