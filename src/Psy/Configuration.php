@@ -16,7 +16,7 @@ use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
-use Psy\Plugin\Manager;
+use Psy\Plugin\PluginManager;
 use Psy\Presenter\PresenterManager;
 use Psy\Readline\GNUReadline;
 use Psy\Readline\Libedit;
@@ -101,7 +101,7 @@ class Configuration
 
         // ask the plugin manager for configurations
         if ($this->getRegisterPlugins()) {
-            $this->loadConfig(Manager::getConfiguration($config));
+            $this->loadConfig(PluginManager::getConfiguration($config));
         }
     }
 
