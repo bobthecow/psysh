@@ -110,7 +110,7 @@ class Configuration
      */
     public function setRegisterPlugins($bool)
     {
-        $this->registerPlugins = $bool;
+        $this->registerPlugins = (bool) $bool;
     }
 
     /**
