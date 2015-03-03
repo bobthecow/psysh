@@ -16,6 +16,7 @@ use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
+use Psy\Plugin\Manager;
 use Psy\Presenter\PresenterManager;
 use Psy\Readline\GNUReadline;
 use Psy\Readline\Libedit;
@@ -74,6 +75,9 @@ class Configuration
      */
     public function __construct(array $config = array())
     {
+        // ask the plugin manager for configurations
+        $config = Manager::getConfiguration($config);
+
         // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
