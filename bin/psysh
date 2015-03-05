@@ -13,7 +13,30 @@
 // Try to find an autoloader for a local psysh version.
 // We'll wrap this whole mess in a Closure so it doesn't leak any globals.
 call_user_func(function() {
-    $cwd = getcwd();
+    $cwd = null;
+
+    // Find the cwd arg (if present)
+    foreach ($_SERVER['argv'] as $i => $arg) {
+        if ($arg === '--cwd') {
+            if ($i >= count($_SERVER['argv']) - 1) {
+                echo 'Missing --cwd argument.' . PHP_EOL;
+                exit(1);
+            }
+            $cwd = $_SERVER['argv'][$i + 1];
+            break;
+        }
+
+        if (preg_match('/^--cwd=/', $arg)) {
+            $cwd = substr($arg, 6);
+            break;
+        }
+    }
+
+    // Or fall back to the actual cwd
+    if (!isset($cwd)) {
+        $cwd = getcwd();
+    }
+
     $cwd = str_replace('\\', '/', $cwd);
 
     $chunks = explode('/', $cwd);
