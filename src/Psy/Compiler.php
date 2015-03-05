@@ -149,13 +149,13 @@ class Compiler
     private function getStub()
     {
         $autoload = <<<'EOS'
-Phar::mapPhar('psysh.phar');
-require 'phar://psysh.phar/vendor/autoload.php';
+    Phar::mapPhar('psysh.phar');
+    require 'phar://psysh.phar/vendor/autoload.php';
 EOS;
 
         $content = file_get_contents(__DIR__ . '/../../bin/psysh');
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
-        $content .= "__HALT_COMPILER();";
+        $content .= "__halt_compiler();";
 
         return $content;
     }

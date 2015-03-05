@@ -10,18 +10,62 @@
  * file that was distributed with this source code.
  */
 
+// Try to find an autoloader for a local psysh version.
+// We'll wrap this whole mess in a Closure so it doesn't leak any globals.
+call_user_func(function() {
+    $cwd = getcwd();
+    $cwd = str_replace('\\', '/', $cwd);
+
+    $chunks = explode('/', $cwd);
+    while (!empty($chunks)) {
+        $path = implode('/', $chunks);
+
+        // Find composer.json
+        if (is_file($path . '/composer.json')) {
+            if ($cfg = json_decode(file_get_contents($path . '/composer.json'), true)) {
+                if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
+                    // We're inside the psysh project. Let's use the local
+                    // Composer autoload.
+                    require($path . '/vendor/autoload.php');
+                    return;
+                }
+            }
+        }
+
+        // Or a composer.lock
+        if (is_file($path . '/composer.lock')) {
+            if ($cfg = json_decode(file_get_contents($path . '/composer.lock'), true)) {
+                foreach (array_merge($cfg['packages'], $cfg['packages-dev']) as $pkg) {
+                    if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
+                        // We're inside a project which requires psysh. We'll
+                        // use the local Composer autoload.
+                        require($path . '/vendor/autoload.php');
+                        return;
+                    }
+                }
+            }
+        }
+
+        array_pop($chunks);
+    }
+});
+
+// We didn't find an autoloader for a local version, so use the autoloader that
+// came with this script.
+if (!class_exists('\Psy\Shell')) {
 /* <<< */
-if (is_file(__DIR__ . '/../vendor/autoload.php')) {
-    require(__DIR__ . '/../vendor/autoload.php');
-} elseif (is_file(__DIR__ . '/../../../autoload.php')) {
-    require(__DIR__ . '/../../../autoload.php');
-} else {
-    echo 'You must set up the Psy Shell dependencies, run the following commands:' . PHP_EOL;
-    echo 'curl -s http://getcomposer.org/installer | php' . PHP_EOL;
-    echo 'php composer.phar install' . PHP_EOL;
-    exit(1);
-}
+    if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+        require(__DIR__ . '/../vendor/autoload.php');
+    } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
+        require(__DIR__ . '/../../../autoload.php');
+    } else {
+        echo 'You must set up the Psy Shell dependencies, run the following commands:' . PHP_EOL;
+        echo 'curl -s http://getcomposer.org/installer | php' . PHP_EOL;
+        echo 'php composer.phar install' . PHP_EOL;
+        exit(1);
+    }
 /* >>> */
+}
 
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
@@ -41,6 +85,22 @@ if (\Psy\Shell::isIncluded($trace)) {
 
 // Clean up after ourselves.
 unset($trace);
+
+// If the local version is too old, we can't do this
+if (!function_exists('\Psy\bin')) {
+    $argv = $_SERVER['argv'];
+    $first = array_shift($argv);
+    if (preg_match('/php(\.exe)?$/', $first)) {
+        array_shift($argv);
+    }
+    array_unshift($argv, 'vendor/bin/psysh');
+
+    echo 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL;
+    echo 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL;
+    echo PHP_EOL;
+    echo '    ' . implode(' ', $argv) . PHP_EOL;
+    exit(1);
+}
 
 // And go!
 call_user_func(\Psy\bin());
