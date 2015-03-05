@@ -836,6 +836,16 @@ class Configuration
     }
 
     /**
+     * Set the Shell autocompleter service.
+     *
+     * @param AutoCompleter $completer
+     */
+    public function setAutoCompleter(AutoCompleter $completer)
+    {
+        $this->completer = $completer;
+    }
+
+    /**
      * Get an AutoCompleter service instance.
      *
      * @return AutoCompleter
