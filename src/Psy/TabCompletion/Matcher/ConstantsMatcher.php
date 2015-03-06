@@ -42,6 +42,7 @@ class ConstantsMatcher extends AbstractMatcher
 
         switch (true) {
             case self::tokenIs($prevToken, self::T_NEW):
+            case self::tokenIs($prevToken, self::T_NS_SEPARATOR):
                 return false;
             case self::hasToken(array(self::T_OPEN_TAG, self::T_STRING), $token):
             case self::isOperator($token):
