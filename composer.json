@@ -37,10 +37,5 @@
             "Psy\\": "src/"
         }
     },
-    "bin": ["bin/psysh"],
-    "extra": {
-        "branch-alias": {
-            "dev-develop": "0.3.x-dev"
-        }
-    }
+    "bin": ["bin/psysh"]
 }
