@@ -51,11 +51,25 @@ class CommandsMatcher extends AbstractMatcher
         $this->commands = $names;
     }
 
+    /**
+     * Check whether a command $name is defined.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
     protected function isCommand($name)
     {
         return in_array($name, $this->commands);
     }
 
+    /**
+     * Check whether input matches a defined command.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
     protected function matchCommand($name)
     {
         foreach ($this->commands as $cmd) {
