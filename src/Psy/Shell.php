@@ -323,6 +323,8 @@ class Shell extends Application
      *
      * This will continue fetching user input until the code buffer contains
      * valid code.
+     *
+     * @throws BreakException if user hits Ctrl+D
      */
     public function getInput()
     {
