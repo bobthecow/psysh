@@ -124,6 +124,7 @@ class PresenterManager implements Presenter, \IteratorAggregate
     /**
      * Present a full representation of the value.
      *
+     * If $depth is 0, the value will be presented as a ref instead.
      *
      * @param mixed $value
      * @param int   $depth   (default: null)
@@ -136,6 +137,10 @@ class PresenterManager implements Presenter, \IteratorAggregate
     public function present($value, $depth = null, $options = 0)
     {
         if ($presenter = $this->getPresenter($value)) {
+            if ($depth === 0) {
+                return $presenter->presentRef($value);
+            }
+
             return $presenter->present($value, $depth, $options);
         }
 
