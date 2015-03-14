@@ -15,6 +15,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\New_ as NewExpr;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
 use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
@@ -63,6 +64,8 @@ class ValidClassNamePass extends NamespaceAwarePass
             $this->validateNewExpression($node);
         } elseif ($node instanceof ClassConstFetch) {
             $this->validateClassConstFetchExpression($node);
+        } elseif ($node instanceof StaticCall) {
+            $this->validateStaticCallExpression($node);
         }
     }
 
@@ -128,6 +131,19 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
+     * Validate a class constant fetch expression's class.
+     *
+     * @param StaticCall $stmt
+     */
+    protected function validateStaticCallExpression(StaticCall $stmt)
+    {
+        // if class name is an expression, give it a pass for now
+        if (!$stmt->class instanceof Expr) {
+            $this->ensureMethodExists($this->getFullyQualifiedName($stmt->class), $stmt->name, $stmt);
+        }
+    }
+
+    /**
      * Ensure that no class, interface or trait name collides with a new definition.
      *
      * @throws FatalErrorException
@@ -169,6 +185,24 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         if (!$this->classExists($name)) {
             throw $this->createError(sprintf('Class \'%s\' not found', $name), $stmt);
+        }
+    }
+
+    /**
+     * Ensure that a statically called method exists.
+     *
+     * @throws FatalErrorException
+     *
+     * @param string $class
+     * @param string $name
+     * @param Stmt   $stmt
+     */
+    protected function ensureMethodExists($class, $name, $stmt)
+    {
+        $this->ensureClassExists($class, $stmt);
+        // if method name is an expression, give it a pass for now
+        if (!$name instanceof Expr && !method_exists($class, $name)) {
+            throw $this->createError(sprintf('Call to undefined method %s::%s()', $class, $name), $stmt);
         }
     }
 

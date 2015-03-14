@@ -36,6 +36,12 @@ abstract class AbstractMatcher
     const T_BOOLEAN_AND = 'T_BOOLEAN_AND';
     const T_BOOLEAN_OR = 'T_BOOLEAN_OR';
 
+    const T_ENCAPSED_AND_WHITESPACE = 'T_ENCAPSED_AND_WHITESPACE';
+    const T_REQUIRE = 'T_REQUIRE';
+    const T_REQUIRE_ONCE = 'T_REQUIRE_ONCE';
+    const T_INCLUDE = 'T_INCLUDE';
+    const T_INCLUDE_ONCE = 'T_INCLUDE_ONCE';
+
     /**
      * Check whether this matcher can provide completions for $tokens.
      *

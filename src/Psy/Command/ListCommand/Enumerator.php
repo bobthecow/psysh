@@ -12,8 +12,8 @@
 namespace Psy\Command\ListCommand;
 
 use Psy\Formatter\SignatureFormatter;
-use Psy\Util\Mirror;
 use Psy\Presenter\PresenterManager;
+use Psy\Util\Mirror;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
