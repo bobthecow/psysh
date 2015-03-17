@@ -178,6 +178,8 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             // static call
             array('DateTime::createFromFormat()'),
             array('DateTime::$someMethod()'),
+            array('Psy\Test\CodeCleaner\Fixtures\ClassWithStatic::doStuff()'),
+            array('Psy\Test\CodeCleaner\Fixtures\ClassWithCallStatic::doStuff()'),
         );
     }
 }
