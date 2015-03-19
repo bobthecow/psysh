@@ -27,6 +27,7 @@ class CodeBuffer
     private $buffer;
     private $open;
 
+    private $calculatedDepth;
     private $depth;
     private $inverse;
 
@@ -62,7 +63,7 @@ class CodeBuffer
      */
     public function isOpen()
     {
-        return $this->open && $this->depth > 0;
+        return $this->calculatedDepth > 0;
     }
 
     /**
@@ -120,17 +121,13 @@ class CodeBuffer
 
         if ($lastCharacter === $this->openOperator) {
             $this->open = true;
+
             $code = substr(rtrim($code), 0, -1);
-        } elseif ($this->depth >= 0) {
-            $this->open = true;
-        } elseif ($this->depth <= 0) {
+        } else {
             $this->open = false;
         }
 
-        if ($lastCharacter === ';') {
-            $this->open = false;
-            $this->depth = 0;
-        }
+        $this->calculatedDepth = $this->depth + $this->open;
 
         $this->buffer[] = $code;
     }
@@ -151,5 +148,6 @@ class CodeBuffer
         $this->buffer = array();
         $this->open = false;
         $this->depth = 0;
+        $this->calculatedDepth = 0;
     }
 }
