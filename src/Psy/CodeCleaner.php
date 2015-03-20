@@ -170,6 +170,17 @@ class CodeCleaner
     {
         $msg = $e->getRawMessage();
 
+        // A special case for unclosed single-quoted strings.
+        //
+        // Unlike (all?) other unclosed statements, single quoted strings have
+        // their own special beautiful snowflake syntax error just for
+        // themselves. Expect the error to have _this exact message_, because
+        // it seems to prevent false positives when there's an unclosed single
+        // quoted string in an otherwise invalid statement.
+        if ($msg === "Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE") {
+            return true;
+        }
+
         return ($msg === "Unexpected token EOF") || (strpos($msg, "Syntax error, unexpected EOF") !== false);
     }
 }
