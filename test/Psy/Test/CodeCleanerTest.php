@@ -62,6 +62,9 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array('echo ""'),   false),
             array(array("echo ''"),   false),
             array(array('if (1) {}'), false),
+
+            array(array("\$content = <<<EOS\n"),   true),
+            array(array("\$content = <<<'EOS'\n"), true),
         );
     }
 
@@ -86,7 +89,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array('echo """'),
             array("echo '''"),
             array('$foo "bar'),
-            // array('$foo \'bar'),
+            array('$foo \'bar'),
         );
     }
 }

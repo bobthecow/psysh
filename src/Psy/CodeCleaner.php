@@ -149,6 +149,10 @@ class CodeCleaner
         try {
             return $this->parser->parse($code);
         } catch (\PhpParser\Error $e) {
+            if ($this->parseErrorIsUnclosedString($e, $code)) {
+                return false;
+            }
+
             if (!$this->parseErrorIsEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
@@ -170,17 +174,33 @@ class CodeCleaner
     {
         $msg = $e->getRawMessage();
 
-        // A special case for unclosed single-quoted strings.
-        //
-        // Unlike (all?) other unclosed statements, single quoted strings have
-        // their own special beautiful snowflake syntax error just for
-        // themselves. Expect the error to have _this exact message_, because
-        // it seems to prevent false positives when there's an unclosed single
-        // quoted string in an otherwise invalid statement.
-        if ($msg === "Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE") {
-            return true;
+        return ($msg === "Unexpected token EOF") || (strpos($msg, "Syntax error, unexpected EOF") !== false);
+    }
+
+    /**
+     * A special test for unclosed single-quoted strings.
+     *
+     * Unlike (all?) other unclosed statements, single quoted strings have
+     * their own special beautiful snowflake syntax error just for
+     * themselves.
+     *
+     * @param \PhpParser\Error $e
+     * @param string           $code
+     *
+     * @return bool
+     */
+    private function parseErrorIsUnclosedString(\PhpParser\Error $e, $code)
+    {
+        if ($e->getRawMessage() !== "Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE") {
+            return false;
         }
 
-        return ($msg === "Unexpected token EOF") || (strpos($msg, "Syntax error, unexpected EOF") !== false);
+        try {
+            $this->parser->parse($code . "';");
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 }
