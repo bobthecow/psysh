@@ -72,7 +72,7 @@ HELP
     {
         $depth  = $input->getOption('depth');
         $target = $this->resolveTarget($input->getArgument('target'));
-        $output->page($this->presenterManager->present($target, $depth, true, $input->getOption('all') ? Presenter::VERBOSE : null));
+        $output->page($this->presenterManager->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
     }
 
     /**
