@@ -96,11 +96,11 @@ return array(
         new \Psy\Command\ParseCommand,
     ),
 
-    // PsySH ships with presenters for scalars, resources, arrays, and objects.
-    // But you're not limited to those presenters. You can enable additional
-    // presenters (like the included MongoCursorPresenter), or write your own!
-    'presenters' => array(
-        new \Psy\Presenter\MongoCursorPresenter,
+    // PsySH uses symfony/var-dumper's casters for presenting scalars, resources,
+    // arrays and objects. You can enable additional casters, or write your own!
+    // See http://symfony.com/doc/current/components/var_dumper/advanced.html#casters
+    'casters' => array(
+        'MyFooClass' => 'MyFooClassCaster::castMyFooObject',
     ),
 
     // You can disable tab completion if you want to. Not sure why you'd want to.

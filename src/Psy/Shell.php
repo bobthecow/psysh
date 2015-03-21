@@ -16,8 +16,8 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
 use Psy\Output\ShellOutput;
-use Psy\Presenter\PresenterManagerAware;
 use Psy\TabCompletion\Matcher;
+use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -171,8 +171,8 @@ class Shell extends Application
                 $ret->setContext($this->context);
             }
 
-            if ($ret instanceof PresenterManagerAware) {
-                $ret->setPresenterManager($this->config->getPresenterManager());
+            if ($ret instanceof PresenterAware) {
+                $ret->setPresenter($this->config->getPresenter());
             }
         }
 
@@ -745,7 +745,7 @@ class Shell extends Application
     /**
      * Format a value for display.
      *
-     * @see PresenterManager::present
+     * @see Presenter::present
      *
      * @param mixed $val
      *
@@ -753,7 +753,7 @@ class Shell extends Application
      */
     protected function presentValue($val)
     {
-        return $this->config->getPresenterManager()->present($val);
+        return $this->config->getPresenter()->present($val);
     }
 
     /**
