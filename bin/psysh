@@ -49,7 +49,10 @@ call_user_func(function() {
                 if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
                     // We're inside the psysh project. Let's use the local
                     // Composer autoload.
-                    require $path . '/vendor/autoload.php';
+                    if (is_file($path . '/vendor/autoload.php')) {
+                        require $path . '/vendor/autoload.php';
+                    }
+
                     return;
                 }
             }
@@ -62,7 +65,10 @@ call_user_func(function() {
                     if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
                         // We're inside a project which requires psysh. We'll
                         // use the local Composer autoload.
-                        require $path . '/vendor/autoload.php';
+                        if (is_file($path . '/vendor/autoload.php')) {
+                            require $path . '/vendor/autoload.php';
+                        }
+
                         return;
                     }
                 }
