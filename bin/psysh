@@ -83,7 +83,7 @@ if (!class_exists('\Psy\Shell')) {
         require __DIR__ . '/../../../autoload.php';
     } else {
         echo 'You must set up the Psy Shell dependencies, run the following commands:' . PHP_EOL;
-        echo 'curl -s http://getcomposer.org/installer | php' . PHP_EOL;
+        echo 'curl -sS https://getcomposer.org/installer | php' . PHP_EOL;
         echo 'php composer.phar install' . PHP_EOL;
         exit(1);
     }
