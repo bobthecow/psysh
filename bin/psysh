@@ -49,7 +49,7 @@ call_user_func(function() {
                 if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
                     // We're inside the psysh project. Let's use the local
                     // Composer autoload.
-                    require($path . '/vendor/autoload.php');
+                    require $path . '/vendor/autoload.php';
                     return;
                 }
             }
@@ -62,7 +62,7 @@ call_user_func(function() {
                     if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
                         // We're inside a project which requires psysh. We'll
                         // use the local Composer autoload.
-                        require($path . '/vendor/autoload.php');
+                        require $path . '/vendor/autoload.php';
                         return;
                     }
                 }
@@ -78,9 +78,9 @@ call_user_func(function() {
 if (!class_exists('\Psy\Shell')) {
 /* <<< */
     if (is_file(__DIR__ . '/../vendor/autoload.php')) {
-        require(__DIR__ . '/../vendor/autoload.php');
+        require __DIR__ . '/../vendor/autoload.php';
     } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
-        require(__DIR__ . '/../../../autoload.php');
+        require __DIR__ . '/../../../autoload.php';
     } else {
         echo 'You must set up the Psy Shell dependencies, run the following commands:' . PHP_EOL;
         echo 'curl -s http://getcomposer.org/installer | php' . PHP_EOL;
