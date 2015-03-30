@@ -36,10 +36,10 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
             // function declarations
             array('function array_merge() {}'),
             array('function Array_Merge() {}'),
-            array("
+            array('
                 function psy_test_codecleaner_validfunctionnamepass_alpha() {}
                 function psy_test_codecleaner_validfunctionnamepass_alpha() {}
-            "),
+            '),
             array("
                 namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
                     function beta() {}

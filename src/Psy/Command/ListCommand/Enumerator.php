@@ -121,7 +121,7 @@ abstract class Enumerator
      *
      * @param string $pattern
      *
-     * @return boolean
+     * @return bool
      */
     private function validateRegex($pattern)
     {

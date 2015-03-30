@@ -25,7 +25,7 @@ class ArrayPresenter extends RecursivePresenter
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return bool
      */
     public function canPresent($value)
     {
@@ -38,7 +38,7 @@ class ArrayPresenter extends RecursivePresenter
      * This is a useful extension point for Presenter subclasses for Array-like
      * objects which aren't necessarily subclasses of ArrayObject.
      *
-     * @return boolean
+     * @return bool
      */
     protected function isArrayObject($value)
     {
@@ -137,7 +137,7 @@ class ArrayPresenter extends RecursivePresenter
      *
      * @param array $array
      *
-     * @return boolean
+     * @return bool
      */
     protected function shouldShowKeys(array $array)
     {
@@ -154,9 +154,9 @@ class ArrayPresenter extends RecursivePresenter
     /**
      * Format a key => value pair.
      *
-     * @param mixed   $key
-     * @param string  $value
-     * @param integer $pad   Maximum key width, to align the hashrockets.
+     * @param mixed  $key
+     * @param string $value
+     * @param int    $pad   Maximum key width, to align the hashrockets.
      *
      * @return string
      */

@@ -96,7 +96,7 @@ class PresenterManager implements Presenter, \IteratorAggregate
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return bool
      */
     public function canPresent($value)
     {

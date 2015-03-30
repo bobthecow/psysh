@@ -68,7 +68,7 @@ class VariableEnumerator extends Enumerator
     /**
      * Get scope variables.
      *
-     * @param boolean $showAll Include special variables (e.g. $_).
+     * @param bool $showAll Include special variables (e.g. $_).
      *
      * @return array
      */

@@ -44,7 +44,7 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
         return array(
             array(array(),                   '[]'),
             array(array(1),                  '[<number>1</number>]'),
-            array(array(2, "string"),        '[<number>2</number>,<string>"string"</string>]'),
+            array(array(2, 'string'),        '[<number>2</number>,<string>"string"</string>]'),
             array(array('a' => 1, 'b' => 2), '[<string>"a"</string>=><number>1</number>,<string>"b"</string>=><number>2</number>]'),
         );
     }
@@ -78,7 +78,7 @@ class ArrayPresenterTest extends \PHPUnit_Framework_TestCase
 
     public function presentArrayObjectsData()
     {
-        $obj1    = new \ArrayObject(array(1, "string"));
+        $obj1    = new \ArrayObject(array(1, 'string'));
         $hash1   = spl_object_hash($obj1);
         $ref1    = '<object>\\<<class>ArrayObject</class> <strong>#' . $hash1 . '</strong>></object>';
         $expect1 = <<<EOS
@@ -107,7 +107,7 @@ EOS;
     public function testPresentsRecursively()
     {
         $obj      = new \StdClass();
-        $array    = array(1, $obj, "a");
+        $array    = array(1, $obj, 'a');
         $hash     = spl_object_hash($obj);
         $expected = <<<EOS
 [

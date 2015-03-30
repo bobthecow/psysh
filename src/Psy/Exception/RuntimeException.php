@@ -25,7 +25,7 @@ class RuntimeException extends \RuntimeException implements Exception
      * @param int        $code     (default: 0)
      * @param \Exception $previous (default: null)
      */
-    public function __construct($message = "", $code = 0, \Exception $previous = null)
+    public function __construct($message = '', $code = 0, \Exception $previous = null)
     {
         $this->rawMessage = $message;
         parent::__construct($message, $code, $previous);

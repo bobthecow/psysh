@@ -55,7 +55,7 @@ class PropertyEnumerator extends Enumerator
     /**
      * Get defined properties for the given class or object Reflector.
      *
-     * @param boolean    $showAll   Include private and protected properties.
+     * @param bool       $showAll   Include private and protected properties.
      * @param \Reflector $reflector
      *
      * @return array

@@ -23,7 +23,7 @@ class ObjectPresenter extends RecursivePresenter
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return bool
      */
     public function canPresent($value)
     {

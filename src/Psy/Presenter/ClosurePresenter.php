@@ -36,7 +36,7 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return bool
      */
     public function canPresent($value)
     {
@@ -158,7 +158,7 @@ class ClosurePresenter implements Presenter, PresenterManagerAware
      *
      * @param \ReflectionParameter $param
      *
-     * @return boolean
+     * @return bool
      */
     protected static function isParamDefaultValueConstant(\ReflectionParameter $param)
     {

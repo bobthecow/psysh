@@ -69,7 +69,7 @@ class ClosurePresenterTest extends \PHPUnit_Framework_TestCase
                 '<keyword>function</keyword> ($<strong>foo</strong>, $<strong>bar</strong> = <bool>null</bool>) { <comment>...</comment> }',
             ),
             array(
-                function ($foo = "bar") {
+                function ($foo = 'bar') {
                 },
                 '<keyword>function</keyword> ($<strong>foo</strong> = <string>"bar"</string>) { <comment>...</comment> }',
             ),

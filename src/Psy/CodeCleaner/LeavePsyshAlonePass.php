@@ -29,7 +29,7 @@ class LeavePsyshAlonePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof Variable && $node->name === "__psysh__") {
+        if ($node instanceof Variable && $node->name === '__psysh__') {
             throw new RuntimeException('Don\'t mess with $__psysh__. Bad things will happen.');
         }
     }

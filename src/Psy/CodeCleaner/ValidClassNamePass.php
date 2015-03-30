@@ -253,7 +253,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     protected function classExists($name)
     {
@@ -265,7 +265,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     protected function interfaceExists($name)
     {
@@ -277,7 +277,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     protected function traitExists($name)
     {

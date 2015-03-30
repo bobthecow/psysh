@@ -53,34 +53,34 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             array('trait stdClass {}', true),
 
             // collisions inside the same code snippet
-            array("
+            array('
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
-            array("
+            '),
+            array('
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ", true),
-            array("
+            ', true),
+            array('
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ", true),
-            array("
+            ', true),
+            array('
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ", true),
-            array("
+            ', true),
+            array('
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ", true),
-            array("
+            ', true),
+            array('
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
-            array("
+            '),
+            array('
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            "),
+            '),
 
             // namespaced collisions
             array("

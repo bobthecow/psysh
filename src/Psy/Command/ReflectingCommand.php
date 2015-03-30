@@ -50,8 +50,8 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @throws \InvalidArgumentException when the value specified can't be resolved.
      *
-     * @param string  $valueName Function, class, variable, constant, method or property name.
-     * @param boolean $classOnly True if the name should only refer to a class, function or instance
+     * @param string $valueName Function, class, variable, constant, method or property name.
+     * @param bool   $classOnly True if the name should only refer to a class, function or instance
      *
      * @return array (class or instance name, member name, kind)
      */
@@ -117,8 +117,8 @@ abstract class ReflectingCommand extends Command implements ContextAware
     /**
      * Get a Reflector and documentation for a function, class or instance, constant, method or property.
      *
-     * @param string  $valueName Function, class, variable, constant, method or property name.
-     * @param boolean $classOnly True if the name should only refer to a class, function or instance
+     * @param string $valueName Function, class, variable, constant, method or property name.
+     * @param bool   $classOnly True if the name should only refer to a class, function or instance
      *
      * @return array (value, Reflector)
      */

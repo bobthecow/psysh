@@ -101,7 +101,7 @@ class CodeCleaner
      */
     public function clean(array $codeLines, $requireSemicolons = false)
     {
-        $stmts = $this->parse("<?php " . implode(PHP_EOL, $codeLines) . PHP_EOL, $requireSemicolons);
+        $stmts = $this->parse('<?php ' . implode(PHP_EOL, $codeLines) . PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
             return false;
         }
@@ -174,7 +174,7 @@ class CodeCleaner
     {
         $msg = $e->getRawMessage();
 
-        return ($msg === "Unexpected token EOF") || (strpos($msg, "Syntax error, unexpected EOF") !== false);
+        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 
     /**
@@ -191,7 +191,7 @@ class CodeCleaner
      */
     private function parseErrorIsUnclosedString(\PhpParser\Error $e, $code)
     {
-        if ($e->getRawMessage() !== "Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE") {
+        if ($e->getRawMessage() !== 'Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE') {
             return false;
         }
 
