@@ -180,6 +180,50 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             array('DateTime::$someMethod()'),
             array('Psy\Test\CodeCleaner\Fixtures\ClassWithStatic::doStuff()'),
             array('Psy\Test\CodeCleaner\Fixtures\ClassWithCallStatic::doStuff()'),
+
+            // Allow `self` and `static` as class names.
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function getInstance() {
+                        return new self();
+                    }
+                }
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function getInstance() {
+                        return new SELF();
+                    }
+                }
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function getInstance() {
+                        return new self;
+                    }
+                }
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function getInstance() {
+                        return new static();
+                    }
+                }
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function getInstance() {
+                        return new Static();
+                    }
+                }
+            "),
+            array("
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function getInstance() {
+                        return new static;
+                    }
+                }
+            "),
         );
     }
 }
