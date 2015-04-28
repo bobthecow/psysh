@@ -150,6 +150,11 @@ class ForkingLoop extends Loop
     {
         $serializable = array();
         foreach ($return as $key => $value) {
+            // Resources don't error, but they don't serialize well either.
+            if (is_resource($value)) {
+                continue;
+            }
+
             try {
                 serialize($value);
                 $serializable[$key] = $value;
