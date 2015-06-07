@@ -61,6 +61,11 @@ class ValidConstantPass extends NamespaceAwarePass
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
+        // give the `class` pseudo-constant a pass
+        if ($stmt->name === 'class') {
+            return;
+        }
+
         // if class name is an expression, give it a pass for now
         if (!$stmt->class instanceof Expr) {
             $className = $this->getFullyQualifiedName($stmt->class);
