@@ -83,6 +83,6 @@ class ErrorException extends \ErrorException implements Exception
      */
     public static function throwException($errno, $errstr, $errfile, $errline)
     {
-        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new self($errstr, 0, $errno, $errfile, $errline);
     }
 }

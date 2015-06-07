@@ -29,15 +29,15 @@ if (!function_exists('Psy\info')) {
         $core = array(
             'PsySH version'      => Shell::VERSION,
             'PHP version'        => PHP_VERSION,
-            // 'config dir'         => $config->getConfigDir(),
-            // 'data dir'           => $config->getDataDir(),
-            // 'runtime dir'        => $config->getRuntimeDir(),
             'default includes'   => $config->getDefaultIncludes(),
             'require semicolons' => $config->requireSemicolons(),
             'config file'        => array(
                 'default config file' => $config->getConfigFile(),
                 'PSYSH_CONFIG env'    => getenv('PSYSH_CONFIG'),
             ),
+            // 'config dir'  => $config->getConfigDir(),
+            // 'data dir'    => $config->getDataDir(),
+            // 'runtime dir' => $config->getRuntimeDir(),
         );
 
         if ($config->hasReadline()) {
