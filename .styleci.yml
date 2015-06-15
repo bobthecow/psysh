@@ -7,5 +7,6 @@ enabled:
   - strict
 
 disabled:
-  - unalign_equals
   - concat_without_spaces
+  - unalign_double_arrow
+  - unalign_equals
