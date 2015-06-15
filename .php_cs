@@ -8,11 +8,12 @@ $config = Config::create()
     ->level(Symfony\CS\FixerInterface::SYMFONY_LEVEL)
     ->fixers(array(
         'align_double_arrow',
-        '-unalign_equals',
-        '-concat_without_spaces',
         'concat_with_spaces',
         'ordered_use',
-        'strict'
+        'strict',
+        '-concat_without_spaces',
+        '-unalign_double_arrow',
+        '-unalign_equals',
     ))
     ->setUsingLinter(false);
 
