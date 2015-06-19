@@ -12,6 +12,7 @@ $config = Config::create()
         'ordered_use',
         'strict',
         '-concat_without_spaces',
+        '-pre_increment',
         '-unalign_double_arrow',
         '-unalign_equals',
     ))

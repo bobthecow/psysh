@@ -32,18 +32,18 @@ class Presenter
         "\0Exception\0previous",
     );
     private $styles = array(
-        'num' => 'number',
-        'const' => 'const',
-        'str' => 'string',
-        'cchr' => 'default',
-        'note' => 'class',
-        'ref' => 'default',
-        'public' => 'public',
+        'num'       => 'number',
+        'const'     => 'const',
+        'str'       => 'string',
+        'cchr'      => 'default',
+        'note'      => 'class',
+        'ref'       => 'default',
+        'public'    => 'public',
         'protected' => 'protected',
-        'private' => 'private',
-        'meta' => 'comment',
-        'key' => 'comment',
-        'index' => 'number',
+        'private'   => 'private',
+        'meta'      => 'comment',
+        'key'       => 'comment',
+        'index'     => 'number',
     );
 
     public function __construct(OutputFormatter $formatter)
@@ -114,7 +114,7 @@ class Presenter
                 if ('' !== $output) {
                     $output .= PHP_EOL;
                 }
-                $output .= str_repeat('  ', $depth).$line;
+                $output .= str_repeat('  ', $depth) . $line;
             }
         });
 
