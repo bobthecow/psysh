@@ -21,7 +21,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\VarDumper\Caster\Caster;
-use Symfony\Component\VarDumper\Cloner\Stub;
 
 /**
  * Parse PHP code and show the abstract syntax tree.
@@ -42,16 +41,16 @@ class ParseCommand extends Command implements PresenterAware
         $this->presenter->addCasters(array(
             'PhpParser\Node' => function (Node $node, array $a) {
                 $a = array(
-                    Caster::PREFIX_VIRTUAL.'type' => $node->getType(),
-                    Caster::PREFIX_VIRTUAL.'attributes' => $node->getAttributes(),
+                    Caster::PREFIX_VIRTUAL . 'type'       => $node->getType(),
+                    Caster::PREFIX_VIRTUAL . 'attributes' => $node->getAttributes(),
                 );
 
                 foreach ($node->getSubNodeNames() as $name) {
-                    $a[Caster::PREFIX_VIRTUAL.$name] = $node->$name;
+                    $a[Caster::PREFIX_VIRTUAL . $name] = $node->$name;
                 }
 
                 return $a;
-            }
+            },
         ));
     }
 

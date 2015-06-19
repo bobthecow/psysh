@@ -56,7 +56,7 @@ class Dumper extends CliDumper
             $value = strtr($value, '@', '#');
         }
         $style = $this->styles[$style];
-        $value = "<{$style}>".$this->formatter->escape($value)."</{$style}>";
+        $value = "<{$style}>" . $this->formatter->escape($value) . "</{$style}>";
         $cchr = $this->styles['cchr'];
         $value = preg_replace_callback(self::$controlCharsRx, function ($c) use ($cchr) {
             switch ($c[0]) {
