@@ -41,7 +41,7 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
         try {
             $object = $this->getVariable($objectName);
         } catch (InvalidArgumentException $e) {
-            return [];
+            return array();
         }
 
         return array_filter(
