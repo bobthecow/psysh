@@ -11,6 +11,7 @@
 
 namespace Psy\Output;
 
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -188,6 +189,7 @@ class ShellOutput extends ConsoleOutput
         $formatter->setStyle('const',     new OutputFormatterStyle('cyan'));
         $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, array('underscore')));
         $formatter->setStyle('function',  new OutputFormatterStyle(null));
+        $formatter->setStyle('default',   new OutputFormatterStyle(null));
 
         // Types
         $formatter->setStyle('number',   new OutputFormatterStyle('magenta'));

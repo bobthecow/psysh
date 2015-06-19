@@ -285,8 +285,8 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     public function getReturnValues()
     {
         return array(
-            array('{{return value}}', '=> <string>"{{return value}}"</string>' . PHP_EOL),
-            array(1, '=> <number>1</number>' . PHP_EOL),
+            array('{{return value}}', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL),
+            array(1, "=> \033[35m1\033[39m" . PHP_EOL),
         );
     }
 
