@@ -60,12 +60,24 @@ class Dumper extends CliDumper
         $cchr = $this->styles['cchr'];
         $value = preg_replace_callback(self::$controlCharsRx, function ($c) use ($cchr) {
             switch ($c[0]) {
-                case "\t": $c = '\t'; break;
-                case "\n": $c = '\n'; break;
-                case "\v": $c = '\v'; break;
-                case "\f": $c = '\f'; break;
-                case "\r": $c = '\r'; break;
-                case "\033": $c = '\e'; break;
+                case "\t":
+                    $c = '\t';
+                    break;
+                case "\n":
+                    $c = '\n';
+                    break;
+                case "\v":
+                    $c = '\v';
+                    break;
+                case "\f":
+                    $c = '\f';
+                    break;
+                case "\r":
+                    $c = '\r';
+                    break;
+                case "\033":
+                    $c = '\e';
+                    break;
                 default:
                     $c = sprintf('\x%02X', ord($c[0]));
                     break;
