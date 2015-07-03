@@ -11,6 +11,7 @@
 
 namespace Psy\Output;
 
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -28,7 +29,7 @@ class ShellOutput extends ConsoleOutput
      * Construct a ShellOutput instance.
      *
      * @param mixed                    $verbosity (default: self::VERBOSITY_NORMAL)
-     * @param boolean                  $decorated (default: null)
+     * @param bool                     $decorated (default: null)
      * @param OutputFormatterInterface $formatter (default: null)
      * @param null|string|OutputPager  $pager     (default: null)
      */
@@ -110,7 +111,7 @@ class ShellOutput extends ConsoleOutput
      *
      * @param string|array $messages The message as an array of lines or a single string
      * @param Boolean      $newline  Whether to add a newline or not
-     * @param integer      $type     The type of output
+     * @param int          $type     The type of output
      */
     public function write($messages, $newline = false, $type = 0)
     {
@@ -188,6 +189,7 @@ class ShellOutput extends ConsoleOutput
         $formatter->setStyle('const',     new OutputFormatterStyle('cyan'));
         $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, array('underscore')));
         $formatter->setStyle('function',  new OutputFormatterStyle(null));
+        $formatter->setStyle('default',   new OutputFormatterStyle(null));
 
         // Types
         $formatter->setStyle('number',   new OutputFormatterStyle('magenta'));

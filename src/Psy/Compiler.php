@@ -58,6 +58,7 @@ class Compiler
             ->in(__DIR__ . '/../../vendor/jakub-onderka/php-console-highlighter')
             ->in(__DIR__ . '/../../vendor/nikic/php-parser/lib')
             ->in(__DIR__ . '/../../vendor/symfony/console')
+            ->in(__DIR__ . '/../../vendor/symfony/var-dumper')
             ->in(__DIR__ . '/../../vendor/symfony/yaml');
 
         foreach ($finder as $file) {
@@ -149,13 +150,13 @@ class Compiler
     private function getStub()
     {
         $autoload = <<<'EOS'
-Phar::mapPhar('psysh.phar');
-require 'phar://psysh.phar/vendor/autoload.php';
+    Phar::mapPhar('psysh.phar');
+    require 'phar://psysh.phar/vendor/autoload.php';
 EOS;
 
         $content = file_get_contents(__DIR__ . '/../../bin/psysh');
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
-        $content .= "__HALT_COMPILER();";
+        $content .= '__HALT_COMPILER();';
 
         return $content;
     }

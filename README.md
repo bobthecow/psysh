@@ -96,11 +96,11 @@ return array(
         new \Psy\Command\ParseCommand,
     ),
 
-    // PsySH ships with presenters for scalars, resources, arrays, and objects.
-    // But you're not limited to those presenters. You can enable additional
-    // presenters (like the included MongoCursorPresenter), or write your own!
-    'presenters' => array(
-        new \Psy\Presenter\MongoCursorPresenter,
+    // PsySH uses symfony/var-dumper's casters for presenting scalars, resources,
+    // arrays and objects. You can enable additional casters, or write your own!
+    // See http://symfony.com/doc/current/components/var_dumper/advanced.html#casters
+    'casters' => array(
+        'MyFooClass' => 'MyFooClassCaster::castMyFooObject',
     ),
 
     // You can disable tab completion if you want to. Not sure why you'd want to.
@@ -133,3 +133,17 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * [Persian](http://psysh.org/manual/fa/php_manual.sqlite)
  * [Spanish](http://psysh.org/manual/es/php_manual.sqlite)
  * [Turkish](http://psysh.org/manual/tr/php_manual.sqlite)
+
+
+
+## As Seen On…
+
+ * Cake: [`cake console`](http://book.cakephp.org/3.0/en/console-and-shells/repl.html)
+ * Drupal: [drush-psysh](https://github.com/grota/drush-psysh)
+ * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
+ * Laravel: [`artisan tinker`](https://github.com/laravel/framework/blob/5.0/src/Illuminate/Foundation/Console/TinkerCommand.php)
+ * Magento: [`magerun console`](https://github.com/netz98/n98-magerun/blob/develop/src/N98/Magento/Command/Developer/ConsoleCommand.php)
+ * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
+ * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
+ * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)
+ * Zend Framework 2: [PsyshModule](https://zfmodules.com/gianarb/zf2-psysh-module)

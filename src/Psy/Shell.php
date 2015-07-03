@@ -16,8 +16,8 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
 use Psy\Output\ShellOutput;
-use Psy\Presenter\PresenterManagerAware;
 use Psy\TabCompletion\Matcher;
+use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.4.4';
+    const VERSION = 'v0.5.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -171,8 +171,8 @@ class Shell extends Application
                 $ret->setContext($this->context);
             }
 
-            if ($ret instanceof PresenterManagerAware) {
-                $ret->setPresenterManager($this->config->getPresenterManager());
+            if ($ret instanceof PresenterAware) {
+                $ret->setPresenter($this->config->getPresenter());
             }
         }
 
@@ -267,7 +267,7 @@ class Shell extends Application
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
      *
-     * @return integer 0 if everything went fine, or an error code
+     * @return int 0 if everything went fine, or an error code
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
@@ -290,7 +290,7 @@ class Shell extends Application
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
      *
-     * @return integer 0 if everything went fine, or an error code
+     * @return int 0 if everything went fine, or an error code
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
@@ -745,7 +745,7 @@ class Shell extends Application
     /**
      * Format a value for display.
      *
-     * @see PresenterManager::present
+     * @see Presenter::present
      *
      * @param mixed $val
      *
@@ -753,7 +753,7 @@ class Shell extends Application
      */
     protected function presentValue($val)
     {
-        return $this->config->getPresenterManager()->present($val);
+        return $this->config->getPresenter()->present($val);
     }
 
     /**
@@ -828,7 +828,7 @@ class Shell extends Application
      */
     protected function getHeader()
     {
-        return sprintf("<aside>%s by Justin Hileman</aside>", $this->getVersion());
+        return sprintf('<aside>%s by Justin Hileman</aside>', $this->getVersion());
     }
 
     /**
@@ -838,7 +838,7 @@ class Shell extends Application
      */
     public function getVersion()
     {
-        return sprintf("Psy Shell %s (PHP %s — %s)", self::VERSION, phpversion(), php_sapi_name());
+        return sprintf('Psy Shell %s (PHP %s — %s)', self::VERSION, phpversion(), php_sapi_name());
     }
 
     /**

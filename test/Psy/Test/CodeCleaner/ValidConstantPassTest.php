@@ -59,6 +59,8 @@ class ValidConstantPassTest extends CodeCleanerTestCase
             array('NotAClass::FOO'),
             array('DateTime::ATOM'),
             array('$a = new DateTime; $a::ATOM'),
+            array('DateTime::class'),
+            array('$a = new DateTime; $a::class'),
         );
     }
 }

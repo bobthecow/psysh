@@ -33,7 +33,7 @@ class DocblockFormatterTest extends \PHPUnit_Framework_TestCase
             throw new \InvalidArgumentException();
         }
 
-        return "method called";
+        return 'method called';
     }
 
     public function testFormat()

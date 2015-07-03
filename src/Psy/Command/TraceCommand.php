@@ -53,7 +53,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $trace = $this->getBacktrace(new \Exception(), $input->getOption('num'), $input->getOption('include-psy'));
-        $output->page($trace, ShellOutput::NUMBER_LINES | ShellOutput::OUTPUT_RAW);
+        $output->page($trace, ShellOutput::NUMBER_LINES);
     }
 
     /**
@@ -106,7 +106,7 @@ HELP
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
             $lines[] = sprintf(
-                ' %s%s%s() at <info>%s:%s</info>',
+                ' <class>%s</class>%s%s() at <info>%s:%s</info>',
                 OutputFormatter::escape($class),
                 OutputFormatter::escape($type),
                 OutputFormatter::escape($function),

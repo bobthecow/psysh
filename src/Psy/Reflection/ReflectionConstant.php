@@ -30,7 +30,7 @@ class ReflectionConstant implements \Reflector
      */
     public function __construct($class, $name)
     {
-        if (! $class instanceof \ReflectionClass) {
+        if (!$class instanceof \ReflectionClass) {
             $class = new \ReflectionClass($class);
         }
 

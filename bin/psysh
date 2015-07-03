@@ -10,26 +10,90 @@
  * file that was distributed with this source code.
  */
 
-/* <<< */
-if (is_file(__DIR__ . '/../vendor/autoload.php')) {
-    require(__DIR__ . '/../vendor/autoload.php');
-} elseif (is_file(__DIR__ . '/../../../autoload.php')) {
-    require(__DIR__ . '/../../../autoload.php');
-} else {
-    die(
-        'You must set up the Psy Shell dependencies, run the following commands:' . PHP_EOL .
-        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-        'php composer.phar install' . PHP_EOL
-    );
-}
-/* >>> */
+// Try to find an autoloader for a local psysh version.
+// We'll wrap this whole mess in a Closure so it doesn't leak any globals.
+call_user_func(function() {
+    $cwd = null;
 
-use Psy\Configuration;
-use Psy\Shell;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputOption;
+    // Find the cwd arg (if present)
+    foreach ($_SERVER['argv'] as $i => $arg) {
+        if ($arg === '--cwd') {
+            if ($i >= count($_SERVER['argv']) - 1) {
+                echo 'Missing --cwd argument.' . PHP_EOL;
+                exit(1);
+            }
+            $cwd = $_SERVER['argv'][$i + 1];
+            break;
+        }
+
+        if (preg_match('/^--cwd=/', $arg)) {
+            $cwd = substr($arg, 6);
+            break;
+        }
+    }
+
+    // Or fall back to the actual cwd
+    if (!isset($cwd)) {
+        $cwd = getcwd();
+    }
+
+    $cwd = str_replace('\\', '/', $cwd);
+
+    $chunks = explode('/', $cwd);
+    while (!empty($chunks)) {
+        $path = implode('/', $chunks);
+
+        // Find composer.json
+        if (is_file($path . '/composer.json')) {
+            if ($cfg = json_decode(file_get_contents($path . '/composer.json'), true)) {
+                if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
+                    // We're inside the psysh project. Let's use the local
+                    // Composer autoload.
+                    if (is_file($path . '/vendor/autoload.php')) {
+                        require $path . '/vendor/autoload.php';
+                    }
+
+                    return;
+                }
+            }
+        }
+
+        // Or a composer.lock
+        if (is_file($path . '/composer.lock')) {
+            if ($cfg = json_decode(file_get_contents($path . '/composer.lock'), true)) {
+                foreach (array_merge($cfg['packages'], $cfg['packages-dev']) as $pkg) {
+                    if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
+                        // We're inside a project which requires psysh. We'll
+                        // use the local Composer autoload.
+                        if (is_file($path . '/vendor/autoload.php')) {
+                            require $path . '/vendor/autoload.php';
+                        }
+
+                        return;
+                    }
+                }
+            }
+        }
+
+        array_pop($chunks);
+    }
+});
+
+// We didn't find an autoloader for a local version, so use the autoloader that
+// came with this script.
+if (!class_exists('\Psy\Shell')) {
+/* <<< */
+    if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+        require __DIR__ . '/../vendor/autoload.php';
+    } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
+        require __DIR__ . '/../../../autoload.php';
+    } else {
+        echo 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL;
+        echo 'See https://getcomposer.org to get Composer.' . PHP_EOL;
+        exit(1);
+    }
+/* >>> */
+}
 
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
@@ -41,7 +105,7 @@ if (version_compare(PHP_VERSION, '5.3.6', '<')) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 }
 
-if (Shell::isIncluded($trace)) {
+if (\Psy\Shell::isIncluded($trace)) {
     unset($trace);
 
     return;
@@ -50,74 +114,21 @@ if (Shell::isIncluded($trace)) {
 // Clean up after ourselves.
 unset($trace);
 
-call_user_func(function() {
-    $usageException = null;
-
-    $input = new ArgvInput();
-    try {
-        $input->bind(new InputDefinition(array(
-            new InputOption('help',    'h', InputOption::VALUE_NONE),
-            new InputOption('config',  'c', InputOption::VALUE_REQUIRED),
-            new InputOption('version', 'v', InputOption::VALUE_NONE),
-
-            new InputArgument('include', InputArgument::IS_ARRAY),
-        )));
-    } catch (\RuntimeException $e) {
-        $usageException = $e;
+// If the local version is too old, we can't do this
+if (!function_exists('\Psy\bin')) {
+    $argv = $_SERVER['argv'];
+    $first = array_shift($argv);
+    if (preg_match('/php(\.exe)?$/', $first)) {
+        array_shift($argv);
     }
+    array_unshift($argv, 'vendor/bin/psysh');
 
-    $config = array();
+    echo 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL;
+    echo 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL;
+    echo PHP_EOL;
+    echo '    ' . implode(' ', $argv) . PHP_EOL;
+    exit(1);
+}
 
-    // Handle --config
-    if ($configFile = $input->getOption('config')) {
-        $config['configFile'] = $configFile;
-    }
-
-    $shell = new Shell(new Configuration($config));
-
-    // Handle --help
-    if ($usageException !== null || $input->getOption('help')) {
-        if ($usageException !== null) {
-            echo $usageException->getMessage() . PHP_EOL . PHP_EOL;
-        }
-
-        $version = $shell->getVersion();
-        $name    = basename(reset($_SERVER['argv']));
-        echo <<<EOL
-$version
-
-Usage:
-  $name [--version] [--help] [files...]
-
-Options:
-  --help     -h Display this help message.
-  --config   -c Use an alternate PsySH config file location.
-  --version  -v Display the PsySH version.
-
-EOL;
-        exit($usageException === null ? 0 : 1);
-    }
-
-
-    // Handle --version
-    if ($input->getOption('version')) {
-        echo $shell->getVersion() . PHP_EOL;
-        exit(0);
-    }
-
-    // Pass additional arguments to Shell as 'includes'
-    $shell->setIncludes($input->getArgument('include'));
-
-    try {
-        // And go!
-        $shell->run();
-    } catch (Exception $e) {
-        echo $e->getMessage() . PHP_EOL;
-
-        // TODO: this triggers the "exited unexpectedly" logic in the
-        // ForkingLoop, so we can't exit(1) after starting the shell...
-        // fix this :)
-
-        // exit(1);
-    }
-});
+// And go!
+call_user_func(\Psy\bin());

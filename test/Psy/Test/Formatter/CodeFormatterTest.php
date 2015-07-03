@@ -17,7 +17,7 @@ class CodeFormatterTest extends \PHPUnit_Framework_TestCase
 {
     private function ignoreThisMethod($arg)
     {
-        echo "whot!";
+        echo 'whot!';
     }
 
     public function testFormat()
@@ -25,7 +25,7 @@ class CodeFormatterTest extends \PHPUnit_Framework_TestCase
         $expected = <<<EOS
   > 18|     private function ignoreThisMethod(\$arg)
     19|     {
-    20|         echo "whot!";
+    20|         echo 'whot!';
     21|     }
 EOS;
 

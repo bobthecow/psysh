@@ -251,12 +251,21 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Check whether a class exists, or has been defined in the current code snippet.
      *
+     * Gives `self`, `static` and `parent` a free pass.
+     *
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     protected function classExists($name)
     {
+        // Give `self`, `static` and `parent` a pass. This will actually let
+        // some errors through, since we're not checking whether the keyword is
+        // being used in a class scope.
+        if (in_array(strtolower($name), array('self', 'static', 'parent'))) {
+            return true;
+        }
+
         return class_exists($name) || $this->findInScope($name) === self::CLASS_TYPE;
     }
 
@@ -265,7 +274,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     protected function interfaceExists($name)
     {
@@ -277,7 +286,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     protected function traitExists($name)
     {

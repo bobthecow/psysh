@@ -55,7 +55,7 @@ class MethodEnumerator extends Enumerator
     /**
      * Get defined methods for the given class or object Reflector.
      *
-     * @param boolean    $showAll   Include private and protected methods.
+     * @param bool       $showAll   Include private and protected methods.
      * @param \Reflector $reflector
      *
      * @return array

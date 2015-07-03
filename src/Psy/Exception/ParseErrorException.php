@@ -22,7 +22,7 @@ class ParseErrorException extends \PhpParser\Error implements Exception
      * @param string $message (default: "")
      * @param int    $line    (default: -1)
      */
-    public function __construct($message = "", $line = -1)
+    public function __construct($message = '', $line = -1)
     {
         $message = sprintf('PHP Parse error: %s', $message);
         parent::__construct($message, $line);

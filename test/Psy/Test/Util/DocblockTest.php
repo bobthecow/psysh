@@ -49,7 +49,7 @@ class DocblockTest extends \PHPUnit_Framework_TestCase
                  *
                  * @throws \Exception with a description
                  */',
-                "This is a docblock",
+                'This is a docblock',
                 array(
                     'throws' => array(array('type' => '\Exception', 'desc' => 'with a description')),
                 ),

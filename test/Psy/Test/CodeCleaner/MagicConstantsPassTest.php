@@ -33,7 +33,7 @@ class MagicConstantsPassTest extends CodeCleanerTestCase
         return array(
             array('__DIR__;', 'getcwd();'),
             array('__FILE__;', "'';"),
-            array('___FILE___;', "___FILE___;"),
+            array('___FILE___;', '___FILE___;'),
         );
     }
 }

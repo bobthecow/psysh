@@ -92,6 +92,6 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     {
         $msg = $e->getRawMessage();
 
-        return ($msg === "Unexpected token EOF") || (strpos($msg, "Syntax error, unexpected EOF") !== false);
+        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }
