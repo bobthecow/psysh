@@ -26,6 +26,26 @@ use Psy\Exception\FatalErrorException;
 class ValidFunctionNamePass extends NamespaceAwarePass
 {
     /**
+     * Store newly defined function names on the way in, to allow recursion.
+     *
+     * @param Node $node
+     */
+    public function enterNode(Node $node)
+    {
+        parent::enterNode($node);
+
+        if ($node instanceof FunctionStmt) {
+            $name = $this->getFullyQualifiedName($node->name);
+
+            if (function_exists($name) || isset($this->currentScope[strtolower($name)])) {
+                throw new FatalErrorException(sprintf('Cannot redeclare %s()', $name), 0, 1, null, $node->getLine());
+            }
+
+            $this->currentScope[strtolower($name)] = true;
+        }
+    }
+
+    /**
      * Validate that function calls will succeed.
      *
      * @throws FatalErrorException if a function is redefined.
@@ -35,15 +55,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof FunctionStmt) {
-            $name = $this->getFullyQualifiedName($node->name);
-
-            if (function_exists($name) || isset($this->currentScope[strtolower($name)])) {
-                throw new FatalErrorException(sprintf('Cannot redeclare %s()', $name), 0, 1, null, $node->getLine());
-            }
-
-            $this->currentScope[strtolower($name)] = true;
-        } elseif ($node instanceof FuncCall) {
+        if ($node instanceof FuncCall) {
             // if function name is an expression or a variable, give it a pass for now.
             $name = $node->name;
             if (!$name instanceof Expression && !$name instanceof Variable) {

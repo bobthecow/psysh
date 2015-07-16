@@ -56,6 +56,9 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
                     delta();
                 }
             '),
+
+            // recursion
+            array('function a() { a(); } function a() {}'),
         );
     }
 
@@ -119,6 +122,9 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
                     Psy\\Test\\CodeCleaner\\ValidFunctionNamePass\\theta();
                 }
             '),
+
+            // recursion
+            array('function a() { a(); }'),
         );
     }
 }
