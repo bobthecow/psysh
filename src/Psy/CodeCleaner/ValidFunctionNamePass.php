@@ -30,7 +30,8 @@ class ValidFunctionNamePass extends NamespaceAwarePass
      *
      * @param Node $node
      */
-    public function enterNode(Node $node) {
+    public function enterNode(Node $node)
+    {
         parent::enterNode($node);
 
         if ($node instanceof FunctionStmt) {
