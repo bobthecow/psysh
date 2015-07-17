@@ -33,6 +33,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
+        'errorLoggingLevel',
     );
 
     private $defaultIncludes;
@@ -52,6 +53,7 @@ class Configuration
     private $requireSemicolons = false;
     private $tabCompletion;
     private $tabCompletionMatchers = array();
+    private $errorLoggingLevel = E_ALL;
 
     // services
     private $readline;
@@ -681,6 +683,38 @@ class Configuration
     public function requireSemicolons()
     {
         return $this->requireSemicolons;
+    }
+
+    /**
+     * Set the error logging level.
+     *
+     * @see self::errorLoggingLevel
+     *
+     * @param bool $errorLoggingLevel
+     */
+    public function setErrorLoggingLevel($errorLoggingLevel)
+    {
+        $this->errorLoggingLevel = (E_ALL | E_STRICT) & $errorLoggingLevel;
+    }
+
+    /**
+     * Get the current error logging level.
+     *
+     * By default, PsySH will automatically log all errors, regardless of the
+     * current `error_reporting` level. Additionally, if the `error_reporting`
+     * level warrants, an ErrorException will be thrown.
+     *
+     * Set `errorLoggingLevel` to 0 to prevent logging non-thrown errors. Set it
+     * to any valid error_reporting value to log only errors which match that
+     * level.
+     *
+     *     http://php.net/manual/en/function.error-reporting.php
+     *
+     * @return int
+     */
+    public function errorLoggingLevel()
+    {
+        return $this->errorLoggingLevel;
     }
 
     /**

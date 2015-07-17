@@ -724,8 +724,13 @@ class Shell extends Application
      * threshold. This should probably only be used in the inner execution loop
      * of the shell, as most of the time a thrown exception is much more useful.
      *
+     * If the error type matches the `errorLoggingLevel` config, it will be
+     * logged as well, regardless of the `error_reporting` level.
+     *
      * @see \Psy\Exception\ErrorException::throwException
      * @see \Psy\Shell::writeException
+     *
+     * @throws \Psy\Exception\ErrorException depending on the current error_reporting level.
      *
      * @param int    $errno   Error type
      * @param string $errstr  Message
@@ -736,7 +741,7 @@ class Shell extends Application
     {
         if ($errno & error_reporting()) {
             ErrorException::throwException($errno, $errstr, $errfile, $errline);
-        } else {
+        } elseif ($errno & $this->config->errorLoggingLevel()) {
             // log it and continue...
             $this->writeException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
         }

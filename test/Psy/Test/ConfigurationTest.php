@@ -99,6 +99,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             'pager'             => $pager,
             'loop'              => $loop,
             'requireSemicolons' => true,
+            'errorLoggingLevel' => E_ERROR | E_WARNING,
         ));
 
         $this->assertFalse($config->useReadline());
@@ -107,6 +108,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($pager, $config->getPager());
         $this->assertSame($loop, $config->getLoop());
         $this->assertTrue($config->requireSemicolons());
+        $this->assertEquals(E_ERROR | E_WARNING, $config->errorLoggingLevel());
     }
 
     public function testLoadConfigFile()
@@ -127,6 +129,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(function_exists('readline'), $config->useReadline());
         $this->assertFalse($config->usePcntl());
+        $this->assertEquals(E_ALL & ~E_NOTICE, $config->errorLoggingLevel());
     }
 
     /**

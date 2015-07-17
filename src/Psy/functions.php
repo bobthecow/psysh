@@ -27,11 +27,12 @@ if (!function_exists('Psy\info')) {
         $config = new Configuration();
 
         $core = array(
-            'PsySH version'      => Shell::VERSION,
-            'PHP version'        => PHP_VERSION,
-            'default includes'   => $config->getDefaultIncludes(),
-            'require semicolons' => $config->requireSemicolons(),
-            'config file'        => array(
+            'PsySH version'       => Shell::VERSION,
+            'PHP version'         => PHP_VERSION,
+            'default includes'    => $config->getDefaultIncludes(),
+            'require semicolons'  => $config->requireSemicolons(),
+            'error logging level' => $config->errorLoggingLevel(),
+            'config file'         => array(
                 'default config file' => $config->getConfigFile(),
                 'PSYSH_CONFIG env'    => getenv('PSYSH_CONFIG'),
             ),
