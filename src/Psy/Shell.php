@@ -158,7 +158,7 @@ class Shell extends Application
     /**
      * Adds a command object.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @param BaseCommand $command A Symfony Console Command object
      *

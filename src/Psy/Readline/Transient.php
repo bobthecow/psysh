@@ -25,7 +25,7 @@ class Transient implements Readline
     /**
      * Transient Readline is always supported.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public static function isSupported()
     {
@@ -44,7 +44,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addHistory($line)
     {
@@ -69,7 +69,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function clearHistory()
     {
@@ -79,7 +79,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function listHistory()
     {
@@ -87,7 +87,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function readHistory()
     {
@@ -95,7 +95,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @throws BreakException if user hits Ctrl+D
      *
@@ -109,7 +109,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function redisplay()
     {
@@ -117,7 +117,7 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function writeHistory()
     {

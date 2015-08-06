@@ -21,7 +21,7 @@ namespace Psy\TabCompletion\Matcher;
 class MongoClientMatcher extends AbstractContextAwareMatcher
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMatches(array $tokens, array $info = array())
     {
@@ -53,7 +53,7 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasMatched(array $tokens)
     {

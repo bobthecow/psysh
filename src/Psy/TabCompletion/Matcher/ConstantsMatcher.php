@@ -21,7 +21,7 @@ namespace Psy\TabCompletion\Matcher;
 class ConstantsMatcher extends AbstractMatcher
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMatches(array $tokens, array $info = array())
     {
@@ -33,7 +33,7 @@ class ConstantsMatcher extends AbstractMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasMatched(array $tokens)
     {

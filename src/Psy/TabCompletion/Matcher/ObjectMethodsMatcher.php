@@ -24,7 +24,7 @@ use InvalidArgumentException;
 class ObjectMethodsMatcher extends AbstractContextAwareMatcher
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMatches(array $tokens, array $info = array())
     {
@@ -53,7 +53,7 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasMatched(array $tokens)
     {

@@ -52,7 +52,7 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMatches(array $tokens, array $info = array())
     {
@@ -64,7 +64,7 @@ class KeywordsMatcher extends AbstractMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasMatched(array $tokens)
     {
