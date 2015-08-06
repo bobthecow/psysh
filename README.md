@@ -1,5 +1,7 @@
 # PsySH
 
+[![Join the chat at https://gitter.im/bobthecow/psysh](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bobthecow/psysh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Package version](http://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
 [![Build status](http://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
 [![Made out of awesome](http://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
