@@ -105,6 +105,9 @@ class Configuration
      * This checks for the presence of Readline and Pcntl extensions.
      *
      * If a config file is available, it will be loaded and merged with the current config.
+     *
+     * If no custom config file was specified and a local project config file
+     * is available, it will be loaded and merged with the current config.
      */
     public function init()
     {
@@ -114,6 +117,10 @@ class Configuration
 
         if ($configFile = $this->getConfigFile()) {
             $this->loadConfigFile($configFile);
+        }
+
+        if (!$this->configFile && $localConfig = $this->getLocalConfigFile()) {
+            $this->loadConfigFile($localConfig);
         }
     }
 
@@ -140,13 +147,30 @@ class Configuration
         foreach ($this->getConfigDirs() as $dir) {
             $file = $dir . '/config.php';
             if (@is_file($file)) {
-                return $this->configFile = $file;
+                return $file;
             }
 
             $file = $dir . '/rc.php';
             if (@is_file($file)) {
-                return $this->configFile = $file;
+                return $file;
             }
+        }
+    }
+
+    /**
+     * Get the local PsySH config file.
+     *
+     * Searches for a project specific config file `.psysh.php` in the current
+     * working directory.
+     *
+     * @return string
+     */
+    public function getLocalConfigFile()
+    {
+        $localConfig = getenv('PWD') . '/.psysh.php';
+
+        if (@is_file($localConfig)) {
+            return $localConfig;
         }
     }
 
