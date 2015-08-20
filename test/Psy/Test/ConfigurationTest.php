@@ -46,41 +46,50 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider directories
      */
-    public function testFilesAndDirectories($home, $configFile, $historyFile, $manualDbFile)
+    public function testFilesAndDirectories($home, $configFile, $localFile, $historyFile, $manualDbFile)
     {
         $oldHome = getenv('HOME');
         putenv("HOME=$home");
 
+        $oldPwd = getenv('PWD');
+        putenv("PWD=$home");
+
         $config = new Configuration();
         $this->assertEquals(realpath($configFile),   realpath($config->getConfigFile()));
+        $this->assertEquals(realpath($localFile),    realpath($config->getLocalConfigFile()));
         $this->assertEquals(realpath($historyFile),  realpath($config->getHistoryFile()));
         $this->assertEquals(realpath($manualDbFile), realpath($config->getManualDbFile()));
 
         putenv("HOME=$oldHome");
+        putenv("PWD=$oldPwd");
     }
 
     public function directories()
     {
         $base = realpath(__DIR__ . '/../../fixtures');
+        $none = null;
 
         return array(
             array(
                 $base . '/default',
                 $base . '/default/.config/psysh/config.php',
+                $base . '/default/.psysh.php',
                 $base . '/default/.config/psysh/psysh_history',
                 $base . '/default/.local/share/psysh/php_manual.sqlite',
             ),
             array(
                 $base . '/legacy',
                 $base . '/legacy/.psysh/rc.php',
+                $none,
                 $base . '/legacy/.psysh/history',
                 $base . '/legacy/.psysh/php_manual.sqlite',
             ),
             array(
                 $base . '/mixed',
                 $base . '/mixed/.psysh/config.php',
+                $none,
                 $base . '/mixed/.psysh/psysh_history',
-                null,
+                $none,
             ),
         );
     }

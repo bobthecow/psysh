@@ -113,6 +113,10 @@ class Configuration
         if ($configFile = $this->getConfigFile()) {
             $this->loadConfigFile($configFile);
         }
+
+        if ($localConfig = $this->getLocalConfigFile()) {
+            $this->loadConfigFile($localConfig);
+        }
     }
 
     /**
@@ -145,6 +149,23 @@ class Configuration
             if (@is_file($file)) {
                 return $this->configFile = $file;
             }
+        }
+    }
+
+    /**
+     * Get the local PsySH config file.
+     *
+     * Searches for a project specific config file `.psysh` in the current
+     * working directory.
+     *
+     * @return string
+     */
+    public function getLocalConfigFile()
+    {
+        $localConfig = getenv('PWD') . '/.psysh.php';
+
+        if (@is_file($localConfig)) {
+            return $localConfig;
         }
     }
 
