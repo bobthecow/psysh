@@ -9,6 +9,7 @@ enabled:
 
 disabled:
   - concat_without_spaces
+  - method_argument_space
   - pre_increment
   - unalign_double_arrow
   - unalign_equals
