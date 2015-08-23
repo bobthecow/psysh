@@ -224,6 +224,9 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     }
                 }
             '),
+
+            // PHP 7.0 anonymous classes.
+            array('$obj = new class() {}'),
         );
     }
 }

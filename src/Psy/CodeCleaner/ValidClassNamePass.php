@@ -111,8 +111,8 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function validateNewExpression(NewExpr $stmt)
     {
-        // if class name is an expression, give it a pass for now
-        if (!$stmt->class instanceof Expr) {
+        // if class name is an expression or an anonymous class, give it a pass for now
+        if (!$stmt->class instanceof Expr && !$stmt->class instanceof ClassStmt) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
         }
     }
