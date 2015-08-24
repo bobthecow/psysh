@@ -34,6 +34,7 @@ if (!function_exists('Psy\info')) {
             'error logging level' => $config->errorLoggingLevel(),
             'config file'         => array(
                 'default config file' => $config->getConfigFile(),
+                'local config file'   => $config->getLocalConfigFile(),
                 'PSYSH_CONFIG env'    => getenv('PSYSH_CONFIG'),
             ),
             // 'config dir'  => $config->getConfigDir(),
