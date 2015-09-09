@@ -133,7 +133,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     public function getValid()
     {
-        return array(
+        $valid = array(
             // class declarations
             array('class Psy_Test_CodeCleaner_ValidClassNamePass_Epsilon {}'),
             array('namespace Psy\Test\CodeCleaner\ValidClassNamePass; class Zeta {}'),
@@ -228,5 +228,16 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             // PHP 7.0 anonymous classes.
             array('$obj = new class() {}'),
         );
+
+        if (version_compare(PHP_VERSION, '5.5', '>=')) {
+            $valid[] = array('interface A {} A::class');
+            $valid[] = array('interface A {} A::CLASS');
+            $valid[] = array('class A {} A::class');
+            $valid[] = array('class A {} A::CLASS');
+            $valid[] = array('A::class');
+            $valid[] = array('A::CLASS');
+        }
+
+        return $valid;
     }
 }
