@@ -124,6 +124,11 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
+        // there is no need to check exists for ::class const
+        if ($stmt->name === 'class') {
+            return;
+        }
+
         // if class name is an expression, give it a pass for now
         if (!$stmt->class instanceof Expr) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
