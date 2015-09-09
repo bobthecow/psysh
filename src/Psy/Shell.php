@@ -279,7 +279,11 @@ class Shell extends Application
             $output = $this->config->getOutput();
         }
 
-        return parent::run($input, $output);
+        try {
+            return parent::run($input, $output);
+        } catch (\Exception $e) {
+            $this->writeException($e);
+        }
     }
 
     /**
@@ -299,7 +303,7 @@ class Shell extends Application
         $this->resetCodeBuffer();
 
         $this->setAutoExit(false);
-        $this->setCatchExceptions(true);
+        $this->setCatchExceptions(false);
 
         $this->readline->readHistory();
 
@@ -312,8 +316,6 @@ class Shell extends Application
         try {
             $this->loop->run($this);
         } catch (ThrowUpException $e) {
-            $this->setCatchExceptions(false);
-
             throw $e->getPrevious();
         }
     }
@@ -644,18 +646,6 @@ class Shell extends Application
     }
 
     /**
-     * Write a caught Exception to stdout.
-     *
-     * @see self::renderException
-     *
-     * @param \Exception $e
-     */
-    public function writeException(\Exception $e)
-    {
-        $this->renderException($e, $this->output);
-    }
-
-    /**
      * Renders a caught Exception.
      *
      * Exceptions are formatted according to severity. ErrorExceptions which were
@@ -666,7 +656,7 @@ class Shell extends Application
      * @param \Exception      $e      An exception instance
      * @param OutputInterface $output An OutputInterface instance
      */
-    public function renderException($e, $output)
+    public function writeException(\Exception $e)
     {
         $this->context->setLastException($e);
 
@@ -676,7 +666,7 @@ class Shell extends Application
         }
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
-        $output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
+        $this->output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
 
         $this->resetCodeBuffer();
     }

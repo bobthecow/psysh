@@ -105,11 +105,12 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $stream = $output->getStream();
         $e      = new ParseErrorException('message', 13);
 
+        $shell->setOutput($output);
         $shell->addCode('code');
         $this->assertTrue($shell->hasCode());
         $this->assertNotEmpty($shell->getCodeBuffer());
 
-        $shell->renderException($e, $output);
+        $shell->writeException($e);
 
         $this->assertSame($e, $shell->getScopeVariable('_e'));
         $this->assertFalse($shell->hasCode());
