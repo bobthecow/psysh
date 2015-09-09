@@ -22,6 +22,7 @@ class StrTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals($expected, Str::unvis($input));
     }
+
     public function testUnvisProvider()
     {
         //return require_once(__DIR__.'/../../../fixtures/unvis_fixtures.php');
