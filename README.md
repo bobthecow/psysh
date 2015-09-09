@@ -2,7 +2,10 @@
 
 [![Package version](http://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
 [![Build status](http://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
+[![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
 [![Made out of awesome](http://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
+
+[![Join the chat at https://gitter.im/bobthecow/psysh](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg?style=flat-square)](https://gitter.im/bobthecow/psysh)
 
 
 ## About
@@ -76,6 +79,12 @@ return array(
     // PsySH automatically inserts semicolons at the end of input if a statement
     // is missing one. To disable this, set `requireSemicolons` to true.
     'requireSemicolons' => false,
+
+    // While PsySH respects the current `error_reporting` level, and doesn't throw
+    // exceptions for all errors, it does log all errors regardless of level. Set
+    // `errorLoggingLevel` to 0 to prevent logging non-thrown errors. Set it to any
+    // valid `error_reporting` value to log only errors which match that level.
+    'errorLoggingLevel' => E_ALL & ~E_NOTICE,
 
     // "Default includes" will be included once at the beginning of every PsySH
     // session. This is a good place to add autoloaders for your favorite

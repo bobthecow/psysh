@@ -111,8 +111,8 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function validateNewExpression(NewExpr $stmt)
     {
-        // if class name is an expression, give it a pass for now
-        if (!$stmt->class instanceof Expr) {
+        // if class name is an expression or an anonymous class, give it a pass for now
+        if (!$stmt->class instanceof Expr && !$stmt->class instanceof ClassStmt) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
         }
     }
@@ -124,6 +124,11 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
+        // there is no need to check exists for ::class const for php 5.5 or newer
+        if ($stmt->name === 'class' && version_compare(PHP_VERSION, '5.5', '>=')) {
+            return;
+        }
+
         // if class name is an expression, give it a pass for now
         if (!$stmt->class instanceof Expr) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);

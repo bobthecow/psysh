@@ -10,7 +10,7 @@ Please branch off and send pull requests to the `develop` branch.
 
 ```sh
 svn co https://svn.php.net/repository/phpdoc/en/trunk/reference/ php_manual
-bin/build_manual phpdoc_manual ~/.psysh/php_manual.sqlite
+bin/build_manual phpdoc_manual ~/.local/share/psysh/php_manual.sqlite
 ```
 
 To build the manual for another language, switch out `en` above for `de`, `es`, or any of the other languages listed in the README.

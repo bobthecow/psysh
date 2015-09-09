@@ -22,7 +22,7 @@ namespace Psy\TabCompletion\Matcher;
 class ClassMethodsMatcher extends AbstractMatcher
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMatches(array $tokens, array $info = array())
     {
@@ -53,7 +53,7 @@ class ClassMethodsMatcher extends AbstractMatcher
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function hasMatched(array $tokens)
     {

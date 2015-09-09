@@ -33,7 +33,7 @@ class Libedit extends GNUReadline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function listHistory()
     {

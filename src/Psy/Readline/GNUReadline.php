@@ -47,7 +47,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addHistory($line)
     {
@@ -59,7 +59,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function clearHistory()
     {
@@ -71,7 +71,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function listHistory()
     {
@@ -79,7 +79,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function readHistory()
     {
@@ -99,7 +99,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function readline($prompt = null)
     {
@@ -107,7 +107,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function redisplay()
     {
@@ -115,7 +115,7 @@ class GNUReadline implements Readline
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function writeHistory()
     {

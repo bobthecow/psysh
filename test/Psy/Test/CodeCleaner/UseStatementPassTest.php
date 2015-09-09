@@ -33,7 +33,7 @@ class UseStatementPassTest extends CodeCleanerTestCase
         return array(
             array(
                 "use StdClass as NotSoStd;\n\$std = new NotSoStd();",
-                "\$std = new \\StdClass();",
+                '$std = new \\StdClass();',
             ),
             array(
                 "namespace Foo;\n\nuse StdClass as S;\n\$std = new S();",
@@ -45,7 +45,7 @@ class UseStatementPassTest extends CodeCleanerTestCase
             ),
             array(
                 "use Foo\\Bar as fb;\n\$baz = new fb\\Baz();",
-                "\$baz = new \\Foo\\Bar\\Baz();",
+                '$baz = new \\Foo\\Bar\\Baz();',
             ),
         );
     }

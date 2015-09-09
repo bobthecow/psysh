@@ -33,6 +33,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
+        'errorLoggingLevel',
     );
 
     private $defaultIncludes;
@@ -52,6 +53,7 @@ class Configuration
     private $requireSemicolons = false;
     private $tabCompletion;
     private $tabCompletionMatchers = array();
+    private $errorLoggingLevel = E_ALL;
 
     // services
     private $readline;
@@ -103,6 +105,9 @@ class Configuration
      * This checks for the presence of Readline and Pcntl extensions.
      *
      * If a config file is available, it will be loaded and merged with the current config.
+     *
+     * If no custom config file was specified and a local project config file
+     * is available, it will be loaded and merged with the current config.
      */
     public function init()
     {
@@ -112,6 +117,10 @@ class Configuration
 
         if ($configFile = $this->getConfigFile()) {
             $this->loadConfigFile($configFile);
+        }
+
+        if (!$this->configFile && $localConfig = $this->getLocalConfigFile()) {
+            $this->loadConfigFile($localConfig);
         }
     }
 
@@ -138,13 +147,30 @@ class Configuration
         foreach ($this->getConfigDirs() as $dir) {
             $file = $dir . '/config.php';
             if (@is_file($file)) {
-                return $this->configFile = $file;
+                return $file;
             }
 
             $file = $dir . '/rc.php';
             if (@is_file($file)) {
-                return $this->configFile = $file;
+                return $file;
             }
+        }
+    }
+
+    /**
+     * Get the local PsySH config file.
+     *
+     * Searches for a project specific config file `.psysh.php` in the current
+     * working directory.
+     *
+     * @return string
+     */
+    public function getLocalConfigFile()
+    {
+        $localConfig = getenv('PWD') . '/.psysh.php';
+
+        if (@is_file($localConfig)) {
+            return $localConfig;
         }
     }
 
@@ -681,6 +707,38 @@ class Configuration
     public function requireSemicolons()
     {
         return $this->requireSemicolons;
+    }
+
+    /**
+     * Set the error logging level.
+     *
+     * @see self::errorLoggingLevel
+     *
+     * @param bool $errorLoggingLevel
+     */
+    public function setErrorLoggingLevel($errorLoggingLevel)
+    {
+        $this->errorLoggingLevel = (E_ALL | E_STRICT) & $errorLoggingLevel;
+    }
+
+    /**
+     * Get the current error logging level.
+     *
+     * By default, PsySH will automatically log all errors, regardless of the
+     * current `error_reporting` level. Additionally, if the `error_reporting`
+     * level warrants, an ErrorException will be thrown.
+     *
+     * Set `errorLoggingLevel` to 0 to prevent logging non-thrown errors. Set it
+     * to any valid error_reporting value to log only errors which match that
+     * level.
+     *
+     *     http://php.net/manual/en/function.error-reporting.php
+     *
+     * @return int
+     */
+    public function errorLoggingLevel()
+    {
+        return $this->errorLoggingLevel;
     }
 
     /**

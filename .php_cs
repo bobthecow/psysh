@@ -9,9 +9,11 @@ $config = Config::create()
     ->fixers(array(
         'align_double_arrow',
         'concat_with_spaces',
+        'long_array_syntax',
         'ordered_use',
         'strict',
         '-concat_without_spaces',
+        '-method_argument_space',
         '-pre_increment',
         '-unalign_double_arrow',
         '-unalign_equals',
