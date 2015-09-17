@@ -43,8 +43,8 @@ class ProcOutputPager extends StreamOutput implements OutputPager
     /**
      * Writes a message to the output.
      *
-     * @param string  $message A message to write to the output
-     * @param Boolean $newline Whether to add a newline or not
+     * @param string $message A message to write to the output
+     * @param bool   $newline Whether to add a newline or not
      *
      * @throws \RuntimeException When unable to write output (should never happen)
      */
