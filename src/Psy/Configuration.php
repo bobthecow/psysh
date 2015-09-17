@@ -478,7 +478,19 @@ class Configuration
             $dir = $this->configDir;
         } else {
             $xdg = new Xdg();
-            $dir = $xdg->getHomeConfigDir();
+            $dir = $xdg->getHomeConfigDir() . '/psysh';
+
+            // Deprecation warning for incorrect psysh_history path.
+            // TODO: remove this before v0.8.0
+            $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
+            if (@is_file($oldHistory)) {
+                $msg = sprintf(
+                    "Config directory found at '%s'. Please delete it or move it to '%s/psysh_history'.",
+                    $oldHistory,
+                    $dir
+                );
+                trigger_error($msg, E_USER_DEPRECATED);
+            }
         }
 
         if (!is_dir($dir)) {
