@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ForkingLoop;
 use Psy\ExecutionLoop\Loop;
@@ -86,10 +87,7 @@ class Configuration
         if (isset($config['baseDir'])) {
             $msg = "The 'baseDir' configuration option is deprecated. " .
                 "Please specify 'configDir' and 'dataDir' options instead.";
-            trigger_error($msg, E_USER_DEPRECATED);
-
-            $this->setConfigDir($config['baseDir']);
-            $this->setDataDir($config['baseDir']);
+            throw new DeprecatedException($msg);
         }
 
         unset($config['configFile'], $config['baseDir']);
@@ -198,9 +196,7 @@ class Configuration
                         strtr($oldHome, '/', '\\'),
                         strtr($home, '/', '\\')
                     );
-                    trigger_error($msg, E_USER_DEPRECATED);
-
-                    return $oldHome;
+                    throw new DeprecatedException($msg);
                 }
 
                 return $home;
@@ -420,9 +416,7 @@ class Configuration
      */
     public function setTempDir($dir)
     {
-        trigger_error("'setTempDir' is deprecated. Use 'setRuntimeDir' instead.", E_USER_DEPRECATED);
-
-        return $this->setRuntimeDir($dir);
+        throw new DeprecatedException("'setTempDir' is deprecated. Use 'setRuntimeDir' instead.");
     }
 
     /**
@@ -432,9 +426,7 @@ class Configuration
      */
     public function getTempDir()
     {
-        trigger_error("'getTempDir' is deprecated. Use 'getRuntimeDir' instead.", E_USER_DEPRECATED);
-
-        return $this->getRuntimeDir();
+        throw new DeprecatedException("'getTempDir' is deprecated. Use 'getRuntimeDir' instead.");
     }
 
     /**

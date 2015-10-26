@@ -119,12 +119,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertStringStartsWith($runtimeDir, realpath($config->getTempFile('foo', 123)));
         $this->assertStringStartsWith($runtimeDir, realpath(dirname($config->getPipe('pipe', 123))));
-
-        // This will be deprecated, but we want to actually test the value.
-        $was = error_reporting(error_reporting() & ~E_USER_DEPRECATED);
-        $this->assertStringStartsWith($runtimeDir, realpath($config->getTempDir()));
-        error_reporting($was);
-
         $this->assertStringStartsWith($runtimeDir, realpath($config->getRuntimeDir()));
 
         $this->assertEquals(function_exists('readline'), $config->useReadline());
@@ -153,7 +147,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error_Deprecated
+     * @expectedException Psy\Exception\DeprecatedException
      */
     public function testSetTempDirIsDeprecated()
     {
@@ -162,7 +156,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error_Deprecated
+     * @expectedException Psy\Exception\DeprecatedException
      */
     public function testGetTempDirIsDeprecated()
     {
@@ -171,7 +165,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error_Deprecated
+     * @expectedException Psy\Exception\DeprecatedException
      */
     public function testBaseDirConfigIsDeprecated()
     {
