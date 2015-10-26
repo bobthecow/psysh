@@ -111,6 +111,8 @@ class SignatureFormatter implements Formatter
 
         $interfaces = $reflector->getInterfaceNames();
         if (!empty($interfaces)) {
+            sort($interfaces);
+
             $chunks[] = 'implements';
             $chunks[] = implode(', ', array_map(function ($name) {
                 return sprintf('<class>%s</class>', $name);

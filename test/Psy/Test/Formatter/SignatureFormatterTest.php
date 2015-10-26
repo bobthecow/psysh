@@ -42,12 +42,12 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
                 new \ReflectionClass($this),
                 "class Psy\Test\Formatter\SignatureFormatterTest "
                 . 'extends PHPUnit_Framework_TestCase implements '
-                . 'PHPUnit_Framework_SelfDescribing, Countable, '
+                . 'Countable, PHPUnit_Framework_SelfDescribing, '
                 . 'PHPUnit_Framework_Test',
             ),
             array(
-                new \ReflectionFunction('implode'),
-                'function implode($glue, $pieces)',
+                new \ReflectionFunction('printf'),
+                'function printf($format, $args = unknown)',
             ),
             array(
                 new ReflectionConstant($this, 'FOO'),
