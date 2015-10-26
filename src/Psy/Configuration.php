@@ -477,7 +477,7 @@ class Configuration
             $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
             if (@is_file($oldHistory)) {
                 $msg = sprintf(
-                    "Config directory found at '%s'. Please delete it or move it to '%s/psysh_history'.",
+                    "PsySH history file found at '%s'. Please delete it or move it to '%s/psysh_history'.",
                     $oldHistory,
                     $dir
                 );
