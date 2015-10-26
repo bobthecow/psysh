@@ -29,10 +29,6 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
     public function testFormat($reflector, $expected)
     {
         $this->assertEquals($expected, strip_tags(SignatureFormatter::format($reflector)));
-        // $this->assertEquals(
-        //     ,
-        //     strip_tags(SignatureFormatter::format(new \ReflectionFunction('sort')))
-        // );
     }
 
     public function signatureReflectors()
@@ -46,8 +42,8 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
                 . 'PHPUnit_Framework_Test',
             ),
             array(
-                new \ReflectionFunction('printf'),
-                'function printf($format, $args = unknown)',
+                new \ReflectionFunction('implode'),
+                defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
             ),
             array(
                 new ReflectionConstant($this, 'FOO'),
