@@ -482,6 +482,8 @@ class Configuration
                     $dir
                 );
                 trigger_error($msg, E_USER_DEPRECATED);
+
+                return $this->historyFile = $oldHistory;
             }
         }
 
