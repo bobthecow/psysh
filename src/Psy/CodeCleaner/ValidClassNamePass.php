@@ -132,7 +132,7 @@ class ValidClassNamePass extends NamespaceAwarePass
 
         // if class name is an expression, give it a pass for now
         if (!$stmt->class instanceof Expr) {
-            $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
+            $this->ensureClassOrInterfaceExists($this->getFullyQualifiedName($stmt->class), $stmt);
         }
     }
 
@@ -190,6 +190,21 @@ class ValidClassNamePass extends NamespaceAwarePass
     protected function ensureClassExists($name, $stmt)
     {
         if (!$this->classExists($name)) {
+            throw $this->createError(sprintf('Class \'%s\' not found', $name), $stmt);
+        }
+    }
+
+    /**
+     * Ensure that a referenced class _or interface_ exists.
+     *
+     * @throws FatalErrorException
+     *
+     * @param string $name
+     * @param Stmt   $stmt
+     */
+    protected function ensureClassOrInterfaceExists($name, $stmt)
+    {
+        if (!$this->classExists($name) && !$this->interfaceExists($name)) {
             throw $this->createError(sprintf('Class \'%s\' not found', $name), $stmt);
         }
     }
