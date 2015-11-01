@@ -11,12 +11,12 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Exception\ParseErrorException;
+use Psy\ParserFactory;
 
 class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
 {
@@ -73,7 +73,8 @@ class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
     private function getParser()
     {
         if (!isset($this->parser)) {
-            $this->parser = new Parser(new Lexer());
+            $parserFactory = new ParserFactory();
+            $this->parser  = $parserFactory->createParser();
         }
 
         return $this->parser;
