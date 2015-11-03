@@ -118,7 +118,7 @@ return array(
 
 ## Downloading the manual
 
-The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/` (or `C:\Users\{USER}\AppData\Roaming\PsySH` on Windows):
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/` (or `%HOME%\.psysh\` on Windows, for example: `C:\Users\bob\.psysh\php_manual.sqlite`):
 
  * **[English](http://psysh.org/manual/en/php_manual.sqlite)**
  * [Brazilian Portuguese](http://psysh.org/manual/pt_BR/php_manual.sqlite)
