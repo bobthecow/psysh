@@ -82,8 +82,6 @@ class Compiler
 
         $phar->stopBuffering();
 
-        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../LICENSE'), false);
-
         unset($phar);
     }
 
