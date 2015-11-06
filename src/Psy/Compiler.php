@@ -53,25 +53,7 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')
-            ->in(__DIR__ . '/../../vendor/dnoegel/php-xdg-base-dir/src')
-            ->in(__DIR__ . '/../../vendor/jakub-onderka/php-console-color')
-            ->in(__DIR__ . '/../../vendor/jakub-onderka/php-console-highlighter')
-            ->in(__DIR__ . '/../../vendor/nikic/php-parser/lib')
-            ->in(__DIR__ . '/../../vendor/symfony/console')
-            ->in(__DIR__ . '/../../vendor/symfony/var-dumper')
-            ->in(__DIR__ . '/../../vendor/symfony/yaml');
-
-        foreach ($finder as $file) {
-            $this->addFile($phar, $file);
-        }
-
-        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../vendor/autoload.php'));
-
-        $finder = Finder::create()
-            ->files()
-            ->ignoreVCS(true)
-            ->name('*.php')
-            ->in(__DIR__ . '/../../vendor/composer');
+            ->in(__DIR__ . '/../../build-vendor');
 
         foreach ($finder as $file) {
             $this->addFile($phar, $file);
@@ -152,7 +134,7 @@ class Compiler
 
     const STUB_AUTOLOAD = <<<'EOS'
     Phar::mapPhar('psysh.phar');
-    require 'phar://psysh.phar/vendor/autoload.php';
+    require 'phar://psysh.phar/build-vendor/autoload.php';
 EOS;
 
     /**
