@@ -149,24 +149,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException Psy\Exception\DeprecatedException
      */
-    public function testSetTempDirIsDeprecated()
-    {
-        $config = new Configuration();
-        $config->setTempDir('fake');
-    }
-
-    /**
-     * @expectedException Psy\Exception\DeprecatedException
-     */
-    public function testGetTempDirIsDeprecated()
-    {
-        $config = new Configuration();
-        $config->getTempDir();
-    }
-
-    /**
-     * @expectedException Psy\Exception\DeprecatedException
-     */
     public function testBaseDirConfigIsDeprecated()
     {
         $config = new Configuration(array('baseDir' => 'fake'));

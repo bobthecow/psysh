@@ -34,7 +34,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
-        'errorLoggingLevel',
+        'errorLoggingLevel', 'warnOnMultipleConfigs',
     );
 
     private $defaultIncludes;
@@ -55,6 +55,7 @@ class Configuration
     private $tabCompletion;
     private $tabCompletionMatchers = array();
     private $errorLoggingLevel = E_ALL;
+    private $warnOnMultipleConfigs = false;
 
     // services
     private $readline;
@@ -142,16 +143,15 @@ class Configuration
             return $this->configFile;
         }
 
-        foreach ($this->getConfigDirs() as $dir) {
-            $file = $dir . '/config.php';
-            if (@is_file($file)) {
-                return $file;
+        $files = ConfigPaths::getConfigFiles(array('config.php', 'rc.php'), $this->configDir);
+
+        if (!empty($files)) {
+            if ($this->warnOnMultipleConfigs && count($files) > 1) {
+                $msg = sprintf('Multiple configuration files found: %s. Using %s', implode($files, ', '), $files[0]);
+                trigger_error($msg, E_USER_NOTICE);
             }
 
-            $file = $dir . '/rc.php';
-            if (@is_file($file)) {
-                return $file;
-            }
+            return $files[0];
         }
     }
 
@@ -170,98 +170,6 @@ class Configuration
         if (@is_file($localConfig)) {
             return $localConfig;
         }
-    }
-
-    /**
-     * Helper function to get the proper home directory.
-     *
-     * @return string
-     */
-    private function getPsyHome()
-    {
-        if ($home = getenv('HOME')) {
-            return $home . '/.psysh';
-        }
-
-        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            // Check the old default
-            $oldHome = strtr(getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH') . '/.psysh', '\\', '/');
-
-            if ($appData = getenv('APPDATA')) {
-                $home = strtr($appData, '\\', '/') . '/PsySH';
-
-                if (is_dir($oldHome) && !is_dir($home)) {
-                    $msg = sprintf(
-                        "Config directory found at '%s'. Please move it to '%s'.",
-                        strtr($oldHome, '/', '\\'),
-                        strtr($home, '/', '\\')
-                    );
-                    throw new DeprecatedException($msg);
-                }
-
-                return $home;
-            }
-        }
-    }
-
-    /**
-     * Get potential config directory paths.
-     *
-     * If a `configDir` option was explicitly set, returns an array containing
-     * just that directory.
-     *
-     * Otherwise, it returns `~/.psysh` and all XDG Base Directory config directories:
-     *
-     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-     *
-     * @return string[]
-     */
-    protected function getConfigDirs()
-    {
-        if (isset($this->configDir)) {
-            return array($this->configDir);
-        }
-
-        $xdg = new Xdg();
-        $dirs = array_map(function ($dir) {
-            return $dir . '/psysh';
-        }, $xdg->getConfigDirs());
-
-        if ($home = $this->getPsyHome()) {
-            array_unshift($dirs, $home);
-        }
-
-        return $dirs;
-    }
-
-    /**
-     * Get potential data directory paths.
-     *
-     * If a `dataDir` option was explicitly set, returns an array containing
-     * just that directory.
-     *
-     * Otherwise, it returns `~/.psysh` and all XDG Base Directory data directories:
-     *
-     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-     *
-     * @return string[]
-     */
-    protected function getDataDirs()
-    {
-        if (isset($this->dataDir)) {
-            return array($this->dataDir);
-        }
-
-        $xdg = new Xdg();
-        $dirs = array_map(function ($dir) {
-            return $dir . '/psysh';
-        }, $xdg->getDataDirs());
-
-        if ($home = $this->getPsyHome()) {
-            array_unshift($dirs, $home);
-        }
-
-        return $dirs;
     }
 
     /**
@@ -398,8 +306,7 @@ class Configuration
     public function getRuntimeDir()
     {
         if (!isset($this->runtimeDir)) {
-            $xdg = new Xdg();
-            $this->runtimeDir = $xdg->getRuntimeDir() . '/psysh';
+            $this->runtimeDir = ConfigPaths::getRuntimeDir();
         }
 
         if (!is_dir($this->runtimeDir)) {
@@ -407,26 +314,6 @@ class Configuration
         }
 
         return $this->runtimeDir;
-    }
-
-    /**
-     * @deprecated Use setRuntimeDir() instead.
-     *
-     * @param string $dir
-     */
-    public function setTempDir($dir)
-    {
-        throw new DeprecatedException("'setTempDir' is deprecated. Use 'setRuntimeDir' instead.");
-    }
-
-    /**
-     * @deprecated Use getRuntimeDir() instead.
-     *
-     * @return string
-     */
-    public function getTempDir()
-    {
-        throw new DeprecatedException("'getTempDir' is deprecated. Use 'getRuntimeDir' instead.");
     }
 
     /**
@@ -453,47 +340,42 @@ class Configuration
             return $this->historyFile;
         }
 
-        foreach ($this->getConfigDirs() as $dir) {
-            $file = $dir . '/psysh_history';
-            if (@is_file($file)) {
-                return $this->historyFile = $file;
-            }
+        // Deprecation warning for incorrect psysh_history path.
+        // TODO: remove this before v0.8.0
+        $xdg = new Xdg();
+        $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
+        if (@is_file($oldHistory)) {
+            $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+            $newHistory = $dir . '/psysh_history';
 
-            $file = $dir . '/history';
-            if (@is_file($file)) {
-                return $this->historyFile = $file;
-            }
+            $msg = sprintf(
+                "PsySH history file found at '%s'. Please delete it or move it to '%s'.",
+                strtr($oldHistory, '\\', '/'),
+                $newHistory
+            );
+            trigger_error($msg, E_USER_DEPRECATED);
+
+            return $this->historyFile = $oldHistory;
         }
 
-        // fallback: create our own
-        if (isset($this->configDir)) {
-            $dir = $this->configDir;
-        } else {
-            $xdg = new Xdg();
-            $dir = $xdg->getHomeConfigDir() . '/psysh';
+        $files = ConfigPaths::getConfigFiles(array('psysh_history', 'history'), $this->configDir);
 
-            // Deprecation warning for incorrect psysh_history path.
-            // TODO: remove this before v0.8.0
-            $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
-            if (@is_file($oldHistory)) {
-                $msg = sprintf(
-                    "PsySH history file found at '%s'. Please delete it or move it to '%s/psysh_history'.",
-                    $oldHistory,
-                    $dir
-                );
-                trigger_error($msg, E_USER_DEPRECATED);
-
-                return $this->historyFile = $oldHistory;
+        if (!empty($files)) {
+            if ($this->warnOnMultipleConfigs && count($files) > 1) {
+                $msg = sprintf('Multiple history files found: %s. Using %s', implode($files, ', '), $files[0]);
+                trigger_error($msg, E_USER_NOTICE);
             }
+
+            return $this->historyFile = $files[0];
         }
 
+        // fallback: create our own history file
+        $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
         if (!is_dir($dir)) {
             mkdir($dir, 0700, true);
         }
 
-        $file = $dir . '/psysh_history';
-
-        return $this->historyFile = $file;
+        return $this->historyFile = $dir . '/psysh_history';
     }
 
     /**
@@ -1010,11 +892,14 @@ class Configuration
             return $this->manualDbFile;
         }
 
-        foreach ($this->getDataDirs() as $dir) {
-            $file = $dir . '/php_manual.sqlite';
-            if (@is_file($file)) {
-                return $this->manualDbFile = $file;
+        $files = ConfigPaths::getDataFiles(array('php_manual.sqlite'), $this->dataDir);
+        if (!empty($files)) {
+            if ($this->warnOnMultipleConfigs && count($files) > 1) {
+                $msg = sprintf('Multiple manual database files found: %s. Using %s', implode($files, ', '), $files[0]);
+                trigger_error($msg, E_USER_NOTICE);
             }
+
+            return $this->manualDbFile = $files[0];
         }
     }
 
@@ -1065,5 +950,34 @@ class Configuration
         }
 
         return $this->presenter;
+    }
+
+    /**
+     * Enable or disable warnings on multiple configuration or data files.
+     *
+     * @see self::warnOnMultipleConfigs()
+     *
+     * @param bool $warnOnMultipleConfigs
+     */
+    public function setWarnOnMultipleConfigs($warnOnMultipleConfigs)
+    {
+        $this->warnOnMultipleConfigs = (bool) $warnOnMultipleConfigs;
+    }
+
+    /**
+     * Check whether to warn on multiple configuration or data files.
+     *
+     * By default, PsySH will use the file with highest precedence, and will
+     * silently ignore all others. With this enabled, a warning will be emitted
+     * (but not an exception thrown) if multiple configuration or data files
+     * are found.
+     *
+     * This will default to true in a future release, but is false for now.
+     *
+     * @return bool
+     */
+    public function warnOnMultipleConfigs()
+    {
+        return $this->warnOnMultipleConfigs;
     }
 }

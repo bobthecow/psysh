@@ -121,6 +121,14 @@ return array(
         new \Psy\TabCompletion\Matcher\MongoClientMatcher,
         new \Psy\TabCompletion\Matcher\MongoDatabaseMatcher,
     ),
+
+    // If multiple versions of the same configuration or data file exist, PsySH will
+    // use the file with highest precedence, and will silently ignore all others. With
+    // this enabled, a warning will be emitted (but not an exception thrown) if multiple
+    // configuration or data files are found.
+    //
+    // This will default to true in a future release, but is false for now.
+    'warnOnMultipleConfigs' => true,
 );
 ```
 
