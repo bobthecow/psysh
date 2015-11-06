@@ -78,7 +78,7 @@ return array(
 
     // PsySH automatically inserts semicolons at the end of input if a statement
     // is missing one. To disable this, set `requireSemicolons` to true.
-    'requireSemicolons' => false,
+    'requireSemicolons' => true,
 
     // While PsySH respects the current `error_reporting` level, and doesn't throw
     // exceptions for all errors, it does log all errors regardless of level. Set
@@ -90,7 +90,7 @@ return array(
     // session. This is a good place to add autoloaders for your favorite
     // libraries.
     'defaultIncludes' => array(
-        __DIR__.'/include/bootstrap.php',
+        __DIR__ . '/include/bootstrap.php',
     ),
 
     // While PsySH ships with a bunch of great commands, it's possible to add
