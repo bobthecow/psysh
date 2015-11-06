@@ -79,7 +79,7 @@ class Compiler
 
         $phar->stopBuffering();
 
-        // $this->addFile($phar, new \SplFileInfo(__DIR__.'/../../LICENSE'), false);
+        $this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../LICENSE'), false);
 
         unset($phar);
     }
@@ -140,6 +140,20 @@ class Compiler
         return $output;
     }
 
+    private static function getStubLicense()
+    {
+        $license = file_get_contents(__DIR__ . '/../../LICENSE');
+        $license = str_replace('The MIT License (MIT)', '', $license);
+        $license = str_replace("\n", "\n * ", trim($license));
+
+        return $license;
+    }
+
+    const STUB_AUTOLOAD = <<<'EOS'
+    Phar::mapPhar('psysh.phar');
+    require 'phar://psysh.phar/vendor/autoload.php';
+EOS;
+
     /**
      * Get a Phar stub for psysh.
      *
@@ -149,13 +163,10 @@ class Compiler
      */
     private function getStub()
     {
-        $autoload = <<<'EOS'
-    Phar::mapPhar('psysh.phar');
-    require 'phar://psysh.phar/vendor/autoload.php';
-EOS;
-
         $content = file_get_contents(__DIR__ . '/../../bin/psysh');
-        $content = preg_replace('{/\* <<<.*?>>> \*/}sm', $autoload, $content);
+        $content = preg_replace('{/\* <<<.*?>>> \*/}sm', self::STUB_AUTOLOAD, $content);
+        $content = preg_replace('/\\(c\\) .*?with this source code./sm', self::getStubLicense(), $content);
+
         $content .= '__HALT_COMPILER();';
 
         return $content;
