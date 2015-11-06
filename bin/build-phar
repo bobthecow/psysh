@@ -20,6 +20,10 @@ if (!class_exists('Symfony\Component\Finder\Finder')) {
     throw new RuntimeException('Missing PsySH dev dependencies, install with `composer.phar install --dev`.');
 }
 
+if (!is_file(dirname(__DIR__) . '/build-vendor/autoload.php')) {
+    throw new RuntimeException('Missing phar vendor dependencies, install with bin/build-vendor');
+}
+
 use Psy\Compiler;
 
 error_reporting(-1);
