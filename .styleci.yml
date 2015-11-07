@@ -17,6 +17,7 @@ disabled:
 finder:
   name:
     - "*.php"
+    - ".php_cs"
     - "build-manual"
     - "build-phar"
     - "psysh"
