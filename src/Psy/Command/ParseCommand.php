@@ -11,9 +11,9 @@
 
 namespace Psy\Command;
 
-use PhpParser\Lexer;
 use PhpParser\Node;
 use PhpParser\Parser;
+use Psy\ParserFactory;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,7 +28,19 @@ use Symfony\Component\VarDumper\Caster\Caster;
 class ParseCommand extends Command implements PresenterAware
 {
     private $presenter;
-    private $parser;
+    private $parserFactory;
+    private $parsers;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($name = null)
+    {
+        $this->parserFactory = new ParserFactory();
+        $this->parsers = array();
+
+        parent::__construct($name);
+    }
 
     /**
      * PresenterAware interface.
@@ -59,12 +71,26 @@ class ParseCommand extends Command implements PresenterAware
      */
     protected function configure()
     {
+        $definition = array(
+            new InputArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
+            new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
+        );
+
+        if ($this->parserFactory->hasKindsSupport()) {
+            $definition[] = new InputOption(
+                'kind',
+                '',
+                InputOption::VALUE_REQUIRED,
+                'One of PhpParser\\ParserFactory constants: '
+                    . implode(', ', ParserFactory::getPossibleKinds())
+                    . " (default is based on current interpreter's version)",
+                $this->parserFactory->getDefaultKind()
+            );
+        }
+
         $this
             ->setName('parse')
-            ->setDefinition(array(
-                new InputArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
-                new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
-            ))
+            ->setDefinition($definition)
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
             ->setHelp(
                 <<<HELP
@@ -90,22 +116,22 @@ HELP
             $code = '<?php ' . $code;
         }
 
-        $depth = $input->getOption('depth');
-        $nodes = $this->parse($code);
+        $parserKind = $input->getOption('kind');
+        $depth      = $input->getOption('depth');
+        $nodes      = $this->parse($this->getParser($parserKind), $code);
         $output->page($this->presenter->present($nodes, $depth));
     }
 
     /**
      * Lex and parse a string of code into statements.
      *
+     * @param Parser $parser
      * @param string $code
      *
      * @return array Statements
      */
-    private function parse($code)
+    private function parse(Parser $parser, $code)
     {
-        $parser = $this->getParser();
-
         try {
             return $parser->parse($code);
         } catch (\PhpParser\Error $e) {
@@ -121,14 +147,16 @@ HELP
     /**
      * Get (or create) the Parser instance.
      *
+     * @param string|null $kind One of Psy\ParserFactory constants (only for PHP parser 2.0 and above).
+     *
      * @return Parser
      */
-    private function getParser()
+    private function getParser($kind = null)
     {
-        if (!isset($this->parser)) {
-            $this->parser = new Parser(new Lexer());
+        if (!array_key_exists($kind, $this->parsers)) {
+            $this->parsers[$kind] = $this->parserFactory->createParser($kind);
         }
 
-        return $this->parser;
+        return $this->parsers[$kind];
     }
 }

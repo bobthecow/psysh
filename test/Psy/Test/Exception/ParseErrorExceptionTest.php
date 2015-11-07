@@ -21,7 +21,7 @@ class ParseErrorExceptionTest extends \PHPUnit_Framework_TestCase
         $e = new ParseErrorException();
 
         $this->assertTrue($e instanceof Exception);
-        $this->assertTrue($e instanceof \PHPParser_Error);
+        $this->assertTrue($e instanceof \PhpParser\Error);
         $this->assertTrue($e instanceof ParseErrorException);
     }
 
@@ -35,7 +35,7 @@ class ParseErrorExceptionTest extends \PHPUnit_Framework_TestCase
 
     public function testConstructFromParseError()
     {
-        $e = ParseErrorException::fromParseError(new \PHPParser_Error('{msg}'));
+        $e = ParseErrorException::fromParseError(new \PhpParser\Error('{msg}'));
 
         $this->assertContains('{msg}', $e->getRawMessage());
         $this->assertContains('PHP Parse error:', $e->getMessage());

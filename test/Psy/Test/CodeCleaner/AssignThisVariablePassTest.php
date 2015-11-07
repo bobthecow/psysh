@@ -11,7 +11,7 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PHPParser_NodeTraverser as NodeTraverser;
+use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\AssignThisVariablePass;
 
 class AssignThisVariablePassTest extends CodeCleanerTestCase
