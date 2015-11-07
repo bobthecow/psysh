@@ -2,13 +2,26 @@
 
 use Symfony\CS\Config\Config;
 use Symfony\CS\FixerInterface;
+use Symfony\CS\Fixer\Contrib\HeaderCommentFixer;
+
+$header = <<<EOF
+This file is part of Psy Shell.
+
+(c) 2012-2015 Justin Hileman
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+EOF;
+
+HeaderCommentFixer::setHeader($header);
 
 $config = Config::create()
     // use symfony level and extra fixers:
-    ->level(Symfony\CS\FixerInterface::SYMFONY_LEVEL)
+    ->level(FixerInterface::SYMFONY_LEVEL)
     ->fixers(array(
         'align_double_arrow',
         'concat_with_spaces',
+        'header_comment',
         'long_array_syntax',
         'ordered_use',
         'strict',
@@ -21,7 +34,10 @@ $config = Config::create()
     ->setUsingLinter(false);
 
 $finder = $config->getFinder()
-    ->in('src')
-    ->in('test');
+    ->in(__DIR__)
+    ->name('.php_cs')
+    ->name('build-manual')
+    ->name('build-phar')
+    ->name('psysh');
 
 return $config;
