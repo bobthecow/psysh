@@ -13,3 +13,10 @@ disabled:
   - pre_increment
   - unalign_double_arrow
   - unalign_equals
+
+finder:
+  name:
+    - "*.php"
+    - "build-manual"
+    - "build-phar"
+    - "psysh"
