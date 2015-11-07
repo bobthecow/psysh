@@ -34,8 +34,8 @@
     },
     "autoload": {
         "files": ["src/Psy/functions.php"],
-        "psr-0": {
-            "Psy\\": "src/"
+        "psr-4": {
+            "Psy\\": "src/Psy/"
         }
     },
     "bin": ["bin/psysh"],
