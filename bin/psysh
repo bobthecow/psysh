@@ -81,7 +81,8 @@ call_user_func(function () {
 
 // We didn't find an autoloader for a local version, so use the autoloader that
 // came with this script.
-if (!class_exists('\Psy\Shell')) {
+if (!class_exists('Psy\Shell')) {
+/* <<< */
     if (is_file(__DIR__ . '/../vendor/autoload.php')) {
         require __DIR__ . '/../vendor/autoload.php';
     } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
@@ -91,6 +92,7 @@ if (!class_exists('\Psy\Shell')) {
         echo 'See https://getcomposer.org to get Composer.' . PHP_EOL;
         exit(1);
     }
+/* >>> */
 }
 
 // If the psysh binary was included directly, assume they just wanted an
@@ -103,7 +105,7 @@ if (version_compare(PHP_VERSION, '5.3.6', '<')) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 }
 
-if (\Psy\Shell::isIncluded($trace)) {
+if (Psy\Shell::isIncluded($trace)) {
     unset($trace);
 
     return;
@@ -113,7 +115,7 @@ if (\Psy\Shell::isIncluded($trace)) {
 unset($trace);
 
 // If the local version is too old, we can't do this
-if (!function_exists('\Psy\bin')) {
+if (!function_exists('Psy\bin')) {
     $argv = $_SERVER['argv'];
     $first = array_shift($argv);
     if (preg_match('/php(\.exe)?$/', $first)) {
@@ -129,4 +131,4 @@ if (!function_exists('\Psy\bin')) {
 }
 
 // And go!
-call_user_func(\Psy\bin());
+call_user_func(Psy\bin());

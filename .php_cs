@@ -37,7 +37,6 @@ $finder = $config->getFinder()
     ->in(__DIR__)
     ->name('.php_cs')
     ->name('build-manual')
-    ->name('build-phar')
-    ->name('psysh');
+    ->name('build-phar');
 
 return $config;

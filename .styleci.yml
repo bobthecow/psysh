@@ -20,4 +20,3 @@ finder:
     - ".php_cs"
     - "build-manual"
     - "build-phar"
-    - "psysh"
