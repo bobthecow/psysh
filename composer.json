@@ -38,6 +38,11 @@
             "Psy\\": "src/Psy/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Psy\\Test\\": "test/Psy/Test/"
+        }
+    },
     "bin": ["bin/psysh"],
     "extra": {
         "branch-alias": {
