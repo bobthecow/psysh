@@ -37,6 +37,7 @@ $finder = $config->getFinder()
     ->in(__DIR__)
     ->name('.php_cs')
     ->name('build-manual')
-    ->name('build-phar');
+    ->name('build-phar')
+    ->exclude('build-vendor');
 
 return $config;
