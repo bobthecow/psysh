@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.5.2';
+    const VERSION = 'v0.6.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -158,7 +158,7 @@ class Shell extends Application
     /**
      * Adds a command object.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @param BaseCommand $command A Symfony Console Command object
      *
@@ -279,7 +279,11 @@ class Shell extends Application
             $output = $this->config->getOutput();
         }
 
-        return parent::run($input, $output);
+        try {
+            return parent::run($input, $output);
+        } catch (\Exception $e) {
+            $this->writeException($e);
+        }
     }
 
     /**
@@ -299,7 +303,7 @@ class Shell extends Application
         $this->resetCodeBuffer();
 
         $this->setAutoExit(false);
-        $this->setCatchExceptions(true);
+        $this->setCatchExceptions(false);
 
         $this->readline->readHistory();
 
@@ -312,8 +316,6 @@ class Shell extends Application
         try {
             $this->loop->run($this);
         } catch (ThrowUpException $e) {
-            $this->setCatchExceptions(false);
-
             throw $e->getPrevious();
         }
     }
@@ -644,18 +646,6 @@ class Shell extends Application
     }
 
     /**
-     * Write a caught Exception to stdout.
-     *
-     * @see self::renderException
-     *
-     * @param \Exception $e
-     */
-    public function writeException(\Exception $e)
-    {
-        $this->renderException($e, $this->output);
-    }
-
-    /**
      * Renders a caught Exception.
      *
      * Exceptions are formatted according to severity. ErrorExceptions which were
@@ -666,7 +656,7 @@ class Shell extends Application
      * @param \Exception      $e      An exception instance
      * @param OutputInterface $output An OutputInterface instance
      */
-    public function renderException($e, $output)
+    public function writeException(\Exception $e)
     {
         $this->context->setLastException($e);
 
@@ -676,7 +666,7 @@ class Shell extends Application
         }
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
-        $output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
+        $this->output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
 
         $this->resetCodeBuffer();
     }
@@ -724,8 +714,13 @@ class Shell extends Application
      * threshold. This should probably only be used in the inner execution loop
      * of the shell, as most of the time a thrown exception is much more useful.
      *
+     * If the error type matches the `errorLoggingLevel` config, it will be
+     * logged as well, regardless of the `error_reporting` level.
+     *
      * @see \Psy\Exception\ErrorException::throwException
      * @see \Psy\Shell::writeException
+     *
+     * @throws \Psy\Exception\ErrorException depending on the current error_reporting level.
      *
      * @param int    $errno   Error type
      * @param string $errstr  Message
@@ -736,7 +731,7 @@ class Shell extends Application
     {
         if ($errno & error_reporting()) {
             ErrorException::throwException($errno, $errstr, $errfile, $errline);
-        } else {
+        } elseif ($errno & $this->config->errorLoggingLevel()) {
             // log it and continue...
             $this->writeException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
         }

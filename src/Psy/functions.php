@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2015 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy;
 
 use Symfony\Component\Console\Input\ArgvInput;
@@ -27,12 +36,14 @@ if (!function_exists('Psy\info')) {
         $config = new Configuration();
 
         $core = array(
-            'PsySH version'      => Shell::VERSION,
-            'PHP version'        => PHP_VERSION,
-            'default includes'   => $config->getDefaultIncludes(),
-            'require semicolons' => $config->requireSemicolons(),
-            'config file'        => array(
+            'PsySH version'       => Shell::VERSION,
+            'PHP version'         => PHP_VERSION,
+            'default includes'    => $config->getDefaultIncludes(),
+            'require semicolons'  => $config->requireSemicolons(),
+            'error logging level' => $config->errorLoggingLevel(),
+            'config file'         => array(
                 'default config file' => $config->getConfigFile(),
+                'local config file'   => $config->getLocalConfigFile(),
                 'PSYSH_CONFIG env'    => getenv('PSYSH_CONFIG'),
             ),
             // 'config dir'  => $config->getConfigDir(),

@@ -2,9 +2,9 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell.
  *
- * (c) 2013 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -119,15 +119,15 @@ function format_doc($doc)
     if (!empty($doc['params'])) {
         $chunks[] = '<comment>Param:</comment>';
 
-        $typeMax = max(array_map(function($param) {
+        $typeMax = max(array_map(function ($param) {
             return strlen($param['type']);
         }, $doc['params']));
 
-        $max = max(array_map(function($param) {
+        $max = max(array_map(function ($param) {
             return strlen($param['name']);
         }, $doc['params']));
 
-        $template  = '  <info>%-'.$typeMax.'s</info>  <strong>%-'.$max.'s</strong>  %s';
+        $template  = '  <info>%-' . $typeMax . 's</info>  <strong>%-' . $max . 's</strong>  %s';
         $indent    = str_repeat(' ', $typeMax + $max + 6);
         $wrapWidth = WRAP_WIDTH - strlen($indent);
 
@@ -182,7 +182,7 @@ function thunk_tags($text)
 
 function indent_text($text, $indent = '  ', $leading = true)
 {
-    return ($leading ? $indent : '') . str_replace("\n", "\n".$indent, $text);
+    return ($leading ? $indent : '') . str_replace("\n", "\n" . $indent, $text);
 }
 
 function find_type($xml, $paramName)
@@ -190,7 +190,7 @@ function find_type($xml, $paramName)
     foreach ($xml->getElementsByTagName('methodparam') as $param) {
         if ($type = $param->getElementsByTagName('type')->item(0)) {
             if ($parameter = $param->getElementsByTagName('parameter')->item(0)) {
-                if ($paramName == $parameter->textContent) {
+                if ($paramName === $parameter->textContent) {
                     return $type->textContent;
                 }
             }
@@ -201,7 +201,7 @@ function find_type($xml, $paramName)
 $docs = array();
 foreach (glob($argv[1] . '/*/*/*.xml') as $function) {
     $funcname = basename($function);
-    if ($funcname == 'main.xml' || strpos($funcname, 'entities.') === 0) {
+    if ($funcname === 'main.xml' || strpos($funcname, 'entities.') === 0) {
         continue;
     }
 
@@ -225,7 +225,7 @@ foreach (glob($argv[1] . '/*/*/*.xml') as $function) {
 
                 if ($synopsis = $refsect1->getElementsByTagName('methodsynopsis')->item(0)) {
                     foreach ($synopsis->childNodes as $node) {
-                        if ($node instanceof DOMElement && $node->tagName == 'type') {
+                        if ($node instanceof DOMElement && $node->tagName === 'type') {
                             $doc['return_type'] = $node->textContent;
                             break;
                         }
@@ -244,7 +244,7 @@ foreach (glob($argv[1] . '/*/*/*.xml') as $function) {
                 foreach ($vars as $var) {
                     if ($name = $var->getElementsByTagName('parameter')->item(0)) {
                         $params[] = array(
-                            'name'        => '$'.$name->textContent,
+                            'name'        => '$' . $name->textContent,
                             'type'        => find_type($xml, $name->textContent),
                             'description' => extract_paragraphs($var),
                         );
@@ -276,7 +276,7 @@ if (is_file($argv[2])) {
     unlink($argv[2]);
 }
 
-$db = new PDO('sqlite:'.$argv[2]);
+$db = new PDO('sqlite:' . $argv[2]);
 
 $db->query('CREATE TABLE php_manual (id char(256) PRIMARY KEY, doc TEXT)');
 $cmd = $db->prepare('INSERT INTO php_manual (id, doc) VALUES (?, ?)');

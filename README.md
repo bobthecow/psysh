@@ -2,7 +2,10 @@
 
 [![Package version](http://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
 [![Build status](http://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
+[![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
 [![Made out of awesome](http://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
+
+[![Join the chat at https://gitter.im/bobthecow/psysh](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg?style=flat-square)](https://gitter.im/bobthecow/psysh)
 
 
 ## About
@@ -40,7 +43,7 @@ cd psysh
 
 ## PsySH configuration
 
-While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.config/psysh/config.php` (or `C:\Users\{USER}\AppData\Roaming\PsySH` on Windows):
+While PsySH strives to detect the right settings automatically, you might want to configure it yourself. Just add a file to `~/.config/psysh/config.php` (or `C:\Users\{USER}\AppData\Roaming\PsySH\config.php` on Windows):
 
 ```php
 <?php
@@ -75,13 +78,19 @@ return array(
 
     // PsySH automatically inserts semicolons at the end of input if a statement
     // is missing one. To disable this, set `requireSemicolons` to true.
-    'requireSemicolons' => false,
+    'requireSemicolons' => true,
+
+    // While PsySH respects the current `error_reporting` level, and doesn't throw
+    // exceptions for all errors, it does log all errors regardless of level. Set
+    // `errorLoggingLevel` to 0 to prevent logging non-thrown errors. Set it to any
+    // valid `error_reporting` value to log only errors which match that level.
+    'errorLoggingLevel' => E_ALL & ~E_NOTICE,
 
     // "Default includes" will be included once at the beginning of every PsySH
     // session. This is a good place to add autoloaders for your favorite
     // libraries.
     'defaultIncludes' => array(
-        __DIR__.'/include/bootstrap.php',
+        __DIR__ . '/include/bootstrap.php',
     ),
 
     // While PsySH ships with a bunch of great commands, it's possible to add
@@ -112,13 +121,21 @@ return array(
         new \Psy\TabCompletion\Matcher\MongoClientMatcher,
         new \Psy\TabCompletion\Matcher\MongoDatabaseMatcher,
     ),
+
+    // If multiple versions of the same configuration or data file exist, PsySH will
+    // use the file with highest precedence, and will silently ignore all others. With
+    // this enabled, a warning will be emitted (but not an exception thrown) if multiple
+    // configuration or data files are found.
+    //
+    // This will default to true in a future release, but is false for now.
+    'warnOnMultipleConfigs' => true,
 );
 ```
 
 
 ## Downloading the manual
 
-The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/` (or `C:\Users\{USER}\AppData\Roaming\PsySH` on Windows):
+The PsySH `doc` command is great for documenting source code, but you'll need a little something extra for PHP core documentation. Download one of the following PHP Manual files and drop it in `~/.local/share/psysh/` (or `C:\Users\{USER}\AppData\Roaming\PsySH\` on Windows):
 
  * **[English](http://psysh.org/manual/en/php_manual.sqlite)**
  * [Brazilian Portuguese](http://psysh.org/manual/pt_BR/php_manual.sqlite)
@@ -139,10 +156,12 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
 ## As Seen On…
 
  * Cake: [`cake console`](http://book.cakephp.org/3.0/en/console-and-shells/repl.html)
- * Drupal: [drush-psysh](https://github.com/grota/drush-psysh)
+ * Drupal: [`drush php`](http://drushcommands.com/drush-7x/core/core-cli), [drush-psysh](https://github.com/grota/drush-psysh)
  * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
  * Laravel: [`artisan tinker`](https://github.com/laravel/framework/blob/5.0/src/Illuminate/Foundation/Console/TinkerCommand.php)
+ * Lumen: [`artisan tinker`](https://github.com/vluzrmos/lumen-tinker)
  * Magento: [`magerun console`](https://github.com/netz98/n98-magerun/blob/develop/src/N98/Magento/Command/Developer/ConsoleCommand.php)
+ * Pantheon CLI: [`terminus cli console`](https://github.com/pantheon-systems/cli)
  * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
  * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
  * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)

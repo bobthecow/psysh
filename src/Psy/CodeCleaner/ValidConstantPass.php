@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -72,10 +72,11 @@ class ValidConstantPass extends NamespaceAwarePass
 
             // if the class doesn't exist, don't throw an exception… it might be
             // defined in the same line it's used or something stupid like that.
-            if (class_exists($className)) {
+            if (class_exists($className) || interface_exists($className)) {
                 $constName = sprintf('%s::%s', $className, $stmt->name);
                 if (!defined($constName)) {
-                    $msg = sprintf('Class constant \'%s\' not found', $constName);
+                    $constType = class_exists($className) ? 'Class' : 'Interface';
+                    $msg = sprintf('%s constant \'%s\' not found', $constType, $constName);
                     throw new FatalErrorException($msg, 0, 1, null, $stmt->getLine());
                 }
             }

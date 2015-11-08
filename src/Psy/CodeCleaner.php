@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,7 +11,6 @@
 
 namespace Psy;
 
-use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser;
 use PhpParser\PrettyPrinter\Standard as Printer;
@@ -53,7 +52,12 @@ class CodeCleaner
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
-        $this->parser    = $parser    ?: new Parser(new Lexer());
+        if ($parser === null) {
+            $parserFactory = new ParserFactory();
+            $parser        = $parserFactory->createParser();
+        }
+
+        $this->parser    = $parser;
         $this->printer   = $printer   ?: new Printer();
         $this->traverser = $traverser ?: new NodeTraverser();
 

@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of Psy Shell
+ * This file is part of Psy Shell.
  *
- * (c) 2012-2014 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -133,7 +133,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     public function getValid()
     {
-        return array(
+        $valid = array(
             // class declarations
             array('class Psy_Test_CodeCleaner_ValidClassNamePass_Epsilon {}'),
             array('namespace Psy\Test\CodeCleaner\ValidClassNamePass; class Zeta {}'),
@@ -174,6 +174,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             // Class constant fetch (ValidConstantPassTest validates the actual constant)
             array('class A {} A::FOO'),
             array('$a = new DateTime; $a::ATOM'),
+            array('interface A { const B = 1; } A::B'),
 
             // static call
             array('DateTime::createFromFormat()'),
@@ -224,6 +225,20 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     }
                 }
             '),
+
+            // PHP 7.0 anonymous classes.
+            array('$obj = new class() {}'),
         );
+
+        if (version_compare(PHP_VERSION, '5.5', '>=')) {
+            $valid[] = array('interface A {} A::class');
+            $valid[] = array('interface A {} A::CLASS');
+            $valid[] = array('class A {} A::class');
+            $valid[] = array('class A {} A::CLASS');
+            $valid[] = array('A::class');
+            $valid[] = array('A::CLASS');
+        }
+
+        return $valid;
     }
 }

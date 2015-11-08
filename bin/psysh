@@ -2,9 +2,9 @@
 <?php
 
 /*
- * This file is part of PsySH
+ * This file is part of Psy Shell.
  *
- * (c) 2013 Justin Hileman
+ * (c) 2012-2015 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
 
 // Try to find an autoloader for a local psysh version.
 // We'll wrap this whole mess in a Closure so it doesn't leak any globals.
-call_user_func(function() {
+call_user_func(function () {
     $cwd = null;
 
     // Find the cwd arg (if present)
@@ -81,7 +81,7 @@ call_user_func(function() {
 
 // We didn't find an autoloader for a local version, so use the autoloader that
 // came with this script.
-if (!class_exists('\Psy\Shell')) {
+if (!class_exists('Psy\Shell')) {
 /* <<< */
     if (is_file(__DIR__ . '/../vendor/autoload.php')) {
         require __DIR__ . '/../vendor/autoload.php';
@@ -105,7 +105,7 @@ if (version_compare(PHP_VERSION, '5.3.6', '<')) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 }
 
-if (\Psy\Shell::isIncluded($trace)) {
+if (Psy\Shell::isIncluded($trace)) {
     unset($trace);
 
     return;
@@ -115,7 +115,7 @@ if (\Psy\Shell::isIncluded($trace)) {
 unset($trace);
 
 // If the local version is too old, we can't do this
-if (!function_exists('\Psy\bin')) {
+if (!function_exists('Psy\bin')) {
     $argv = $_SERVER['argv'];
     $first = array_shift($argv);
     if (preg_match('/php(\.exe)?$/', $first)) {
@@ -131,4 +131,4 @@ if (!function_exists('\Psy\bin')) {
 }
 
 // And go!
-call_user_func(\Psy\bin());
+call_user_func(Psy\bin());
