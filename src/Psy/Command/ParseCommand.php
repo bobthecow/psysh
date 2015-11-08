@@ -77,15 +77,12 @@ class ParseCommand extends Command implements PresenterAware
         );
 
         if ($this->parserFactory->hasKindsSupport()) {
-            $definition[] = new InputOption(
-                'kind',
-                '',
-                InputOption::VALUE_REQUIRED,
-                'One of PhpParser\\ParserFactory constants: '
-                    . implode(', ', ParserFactory::getPossibleKinds())
-                    . " (default is based on current interpreter's version)",
-                $this->parserFactory->getDefaultKind()
-            );
+            $msg = 'One of PhpParser\\ParserFactory constants: '
+                . implode(', ', ParserFactory::getPossibleKinds())
+                . " (default is based on current interpreter's version)";
+            $defaultKind = $this->parserFactory->getDefaultKind();
+
+            $definition[] = new InputOption('kind', '', InputOption::VALUE_REQUIRED, $msg, $defaultKind);
         }
 
         $this
