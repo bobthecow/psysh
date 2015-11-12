@@ -158,7 +158,7 @@ class ConfigPaths
             }
 
             $dir = strtr(getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH'), '\\', '/') . '/.psysh';
-            if (!in_array($dirs, $dir)) {
+            if (!in_array($dir, $dirs)) {
                 $dirs[] = $dir;
             }
         }
