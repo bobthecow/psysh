@@ -25,6 +25,7 @@ use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\LegacyEmptyPass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
+use Psy\CodeCleaner\RequirePass;
 use Psy\CodeCleaner\StaticConstructorPass;
 use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
@@ -90,6 +91,7 @@ class CodeCleaner
             new ValidClassNamePass(),
             new ValidConstantPass(),
             new MagicConstantsPass(),
+            new RequirePass(),
         );
     }
 
