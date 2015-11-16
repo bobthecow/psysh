@@ -31,6 +31,4 @@ class ExitPassTest extends CodeCleanerTestCase
         $stmts = $this->parse('exit;');
         $this->traverser->traverse($stmts);
     }
-
 }
-
