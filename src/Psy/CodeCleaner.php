@@ -18,6 +18,7 @@ use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
+use Psy\CodeCleaner\ExitPass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
@@ -90,6 +91,7 @@ class CodeCleaner
             new ValidClassNamePass(),
             new ValidConstantPass(),
             new MagicConstantsPass(),
+            new ExitPass(),
         );
     }
 
