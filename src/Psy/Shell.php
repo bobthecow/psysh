@@ -78,20 +78,6 @@ class Shell extends Application
         $this->readline = $this->config->getReadline();
 
         parent::__construct('Psy Shell', self::VERSION);
-
-        $this->config->setShell($this);
-        // auto completer needs shell to be linked to configuration because of the context aware matchers
-        if ($this->config->getTabCompletion()) {
-            $this->completion = $this->config->getAutoCompleter();
-            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
-            foreach ($this->getTabCompletionMatchers() as $matcher) {
-                if ($matcher instanceof ContextAware) {
-                    $matcher->setContext($this->context);
-                }
-                $this->completion->addMatcher($matcher);
-            }
-            $this->completion->activate();
-        }
     }
 
     /**
@@ -271,6 +257,8 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
+        $this->initializeTabCompletion();
+
         if ($input === null && !isset($_SERVER['argv'])) {
             $input = new ArgvInput(array());
         }
@@ -868,6 +856,28 @@ class Shell extends Application
         $firstChar = substr($info['line_buffer'], max(0, $info['end'] - strlen($text) - 1), 1);
         if ($firstChar === '$') {
             return $this->getScopeVariableNames();
+        }
+    }
+
+    /**
+     * Initialize tab completion matchers.
+     *
+     * If tab completion is enabled this adds tab completion matchers to the
+     * auto completer and sets context if needed.
+     */
+    protected function initializeTabCompletion()
+    {
+        // auto completer needs shell to be linked to configuration because of the context aware matchers
+        if ($this->config->getTabCompletion()) {
+            $this->completion = $this->config->getAutoCompleter();
+            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
+            foreach ($this->getTabCompletionMatchers() as $matcher) {
+                if ($matcher instanceof ContextAware) {
+                    $matcher->setContext($this->context);
+                }
+                $this->completion->addMatcher($matcher);
+            }
+            $this->completion->activate();
         }
     }
 }
