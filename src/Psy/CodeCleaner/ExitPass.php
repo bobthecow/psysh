@@ -12,12 +12,11 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use Psy\Exception\BreakException;
 use PhpParser\Node\Expr\Exit_;
+use Psy\Exception\BreakException;
 
 class ExitPass extends CodeCleanerPass
 {
-
     /**
      * Throws a PsySH BreakException instead on exit().
      *
@@ -25,7 +24,8 @@ class ExitPass extends CodeCleanerPass
      *
      * @param \PhpParser\Node $node
      */
-    public function enterNode(Node $node) {
+    public function enterNode(Node $node)
+    {
         if ($node instanceof Exit_) {
             throw new BreakException('Goodbye.');
         }
