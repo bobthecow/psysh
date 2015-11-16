@@ -859,6 +859,12 @@ class Shell extends Application
         }
     }
 
+    /**
+     * Initialize tab completion matchers.
+     *
+     * If tab completion is enabled this adds tab completion matchers to the
+     * auto completer and sets context if needed.
+     */
     protected function initializeTabCompletion()
     {
         // auto completer needs shell to be linked to configuration because of the context aware matchers
