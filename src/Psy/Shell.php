@@ -869,7 +869,8 @@ class Shell extends Application
         }
     }
 
-    protected function initializeTabCompletion() {
+    protected function initializeTabCompletion()
+    {
         // auto completer needs shell to be linked to configuration because of the context aware matchers
         if ($this->config->getTabCompletion()) {
             $this->completion = $this->config->getAutoCompleter();
@@ -883,5 +884,4 @@ class Shell extends Application
             $this->completion->activate();
         }
     }
-
 }
