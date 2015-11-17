@@ -11,24 +11,41 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\ExitPass;
 
 class ExitPassTest extends CodeCleanerTestCase
 {
+    /**
+     * @var string
+     */
+    private $expectedExceptionString = "throw new Psy\\Exception\\BreakException('Goodbye.');";
+
     public function setUp()
     {
-        $this->pass      = new ExitPass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new ExitPass());
     }
 
     /**
-     * @expectedException \Psy\Exception\BreakException
+     * @dataProvider dataProviderExitStatement
      */
-    public function testExitStatement()
+    public function testExitStatement($from, $to)
     {
-        $stmts = $this->parse('exit;');
-        $this->traverser->traverse($stmts);
+        $this->assertProcessesAs($from, $to);
+    }
+
+    /**
+     * Data provider for testExitStatement.
+     *
+     * @return array
+     */
+    public function dataProviderExitStatement()
+    {
+        return array(
+            array('exit;', $this->expectedExceptionString),
+            array('exit();', $this->expectedExceptionString),
+            array('die;', $this->expectedExceptionString),
+            array('if (true) { exit; }', "if (true) {\n    $this->expectedExceptionString\n}"),
+            array('if (false) { exit; }', "if (false) {\n    $this->expectedExceptionString\n}"),
+        );
     }
 }
