@@ -199,6 +199,12 @@ class Shell extends Application
      */
     protected function getDefaultCommands()
     {
+        $show = new Command\ShowCommand();
+        $show->setForceColor($this->config->forceColor());
+
+        $whereami = new Command\WhereamiCommand();
+        $whereami->setForceColor($this->config->forceColor());
+
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
@@ -207,9 +213,9 @@ class Shell extends Application
             new Command\ListCommand(),
             new Command\DumpCommand(),
             new Command\DocCommand(),
-            new Command\ShowCommand(),
+            $show,
             new Command\WtfCommand(),
-            new Command\WhereamiCommand(),
+            $whereami,
             new Command\ThrowUpCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
