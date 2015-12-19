@@ -24,6 +24,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ShowCommand extends ReflectingCommand
 {
+    private $forceColor;
+
+    /**
+     * @param bool $forceColor (default: false)
+     */
+    public function __construct($forceColor = false)
+    {
+        $this->forceColor = $forceColor;
+
+        return parent::__construct();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -54,10 +66,20 @@ HELP
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
         try {
-            $output->page(CodeFormatter::format($reflector), ShellOutput::OUTPUT_RAW);
+            $output->page(CodeFormatter::format($reflector, $this->forceColor()), ShellOutput::OUTPUT_RAW);
         } catch (RuntimeException $e) {
             $output->writeln(SignatureFormatter::format($reflector));
             throw $e;
         }
+    }
+
+    /**
+     * Returns whether or not to force colors in output.
+     *
+     * @return bool
+     */
+    public function forceColor()
+    {
+        return $this->forceColor;
     }
 }

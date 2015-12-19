@@ -129,6 +129,10 @@ return array(
     //
     // This will default to true in a future release, but is false for now.
     'warnOnMultipleConfigs' => true,
+
+    // When set to true, forces output to contain ANSI colors, even in non-interactive
+    // (non-tty) shells, where it may not be supported.
+    'forceColor' => false,
 );
 ```
 

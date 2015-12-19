@@ -24,10 +24,11 @@ class CodeFormatter implements Formatter
      * Format the code represented by $reflector.
      *
      * @param \Reflector $reflector
+     * @param bool       $forceColor (default: false)
      *
      * @return string formatted code
      */
-    public static function format(\Reflector $reflector)
+    public static function format(\Reflector $reflector, $forceColor = false)
     {
         if ($fileName = $reflector->getFileName()) {
             if (!is_file($fileName)) {
@@ -40,6 +41,7 @@ class CodeFormatter implements Formatter
 
             $colors = new ConsoleColor();
             $colors->addTheme('line_number', array('blue'));
+            $colors->setForceStyle($forceColor);
             $highlighter = new Highlighter($colors);
 
             return $highlighter->getCodeSnippet($file, $start, 0, $end);
