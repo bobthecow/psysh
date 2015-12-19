@@ -23,6 +23,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class WhereamiCommand extends Command
 {
+    private $forceColor;
+
     public function __construct()
     {
         if (version_compare(PHP_VERSION, '5.3.6', '>=')) {
@@ -108,8 +110,29 @@ HELP
         $num = $input->getOption('num');
         $colors = new ConsoleColor();
         $colors->addTheme('line_number', array('blue'));
+        $colors->setForceStyle($this->forceColor());
         $highlighter = new Highlighter($colors);
         $contents = file_get_contents($info['file']);
         $output->page($highlighter->getCodeSnippet($contents, $info['line'], $num, $num), ShellOutput::OUTPUT_RAW);
+    }
+
+    /**
+     * Sets whether or not to force colors in output.
+     *
+     * @param bool $forceColor
+     */
+    public function setForceColor($forceColor)
+    {
+        $this->forceColor = $forceColor;
+    }
+
+    /**
+     * Returns whether or not to force colors in output.
+     *
+     * @return bool
+     */
+    public function forceColor()
+    {
+        return $this->forceColor;
     }
 }

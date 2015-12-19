@@ -34,7 +34,7 @@ class Configuration
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
-        'errorLoggingLevel', 'warnOnMultipleConfigs',
+        'errorLoggingLevel', 'warnOnMultipleConfigs', 'forceColor'
     );
 
     private $defaultIncludes;
@@ -56,6 +56,7 @@ class Configuration
     private $tabCompletionMatchers = array();
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
+    private $forceColor = false;
 
     // services
     private $readline;
@@ -701,10 +702,28 @@ class Configuration
     public function getOutput()
     {
         if (!isset($this->output)) {
-            $this->output = new ShellOutput(ShellOutput::VERBOSITY_NORMAL, null, null, $this->getPager());
+            $this->output = new ShellOutput(
+                ShellOutput::VERBOSITY_NORMAL,
+                $this->getOutputDecorated(),
+                null,
+                $this->getPager()
+            );
         }
 
         return $this->output;
+    }
+
+    /**
+     * If color is not forced, returns `null` so "auto-guessing"
+     * (http://git.io/vEe9u) is used.
+     *
+     * If color is forced, returns `true` to always decorate output.
+     *
+     * @return null|true
+     */
+    public function getOutputDecorated()
+    {
+        return $this->forceColor() ? true : null;
     }
 
     /**
@@ -979,5 +998,26 @@ class Configuration
     public function warnOnMultipleConfigs()
     {
         return $this->warnOnMultipleConfigs;
+    }
+
+    /**
+     * When set to `true`, forces output to contain ANSI colors, even in
+     * non-interactive (non-tty) shells, where it may not be supported.
+     *
+     * @param bool $forceColor
+     */
+    public function setForceColor($forceColor)
+    {
+        $this->forceColor = (bool) $forceColor;
+    }
+
+    /**
+     * Returns whether or not to force colors in output.
+     *
+     * @return bool
+     */
+    public function forceColor()
+    {
+        return $this->forceColor;
     }
 }
