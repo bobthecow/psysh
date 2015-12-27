@@ -66,13 +66,13 @@ abstract class ReflectingCommand extends Command implements ContextAware
             case preg_match(self::INSTANCE, $valueName, $matches):
                 return array($this->resolveInstance($matches[1]), null, 0);
 
-            case (!$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches)):
+            case !$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches):
                 return array($this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD);
 
-            case (!$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches)):
+            case !$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches):
                 return array($this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
 
-            case (!$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches)):
+            case !$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
                 if ($matches[2] === '->') {
                     $kind = Mirror::METHOD | Mirror::PROPERTY;
                 } else {
@@ -81,7 +81,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
                 return array($this->resolveInstance($matches[1]), $matches[3], $kind);
 
-            case (!$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches)):
+            case !$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches):
                 return array($this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY);
 
             default:

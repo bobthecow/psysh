@@ -33,7 +33,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array('true'),  true,  false),
 
             array(array('echo "foo";', 'true'), false, "echo 'foo';\nreturn true;"),
-            array(array('echo "foo";', 'true'), true , false),
+            array(array('echo "foo";', 'true'), true,  false),
         );
     }
 
