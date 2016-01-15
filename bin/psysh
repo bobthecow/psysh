@@ -16,13 +16,14 @@ call_user_func(function () {
     $cwd = null;
 
     // Find the cwd arg (if present)
-    foreach ($_SERVER['argv'] as $i => $arg) {
+    $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
+    foreach ($argv as $i => $arg) {
         if ($arg === '--cwd') {
-            if ($i >= count($_SERVER['argv']) - 1) {
+            if ($i >= count($argv) - 1) {
                 echo 'Missing --cwd argument.' . PHP_EOL;
                 exit(1);
             }
-            $cwd = $_SERVER['argv'][$i + 1];
+            $cwd = $argv[$i + 1];
             break;
         }
 
