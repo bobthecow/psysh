@@ -137,10 +137,11 @@ if (!function_exists('Psy\bin')) {
             $input = new ArgvInput();
             try {
                 $input->bind(new InputDefinition(array(
-                    new InputOption('help',    'h',  InputOption::VALUE_NONE),
-                    new InputOption('config',  'c',  InputOption::VALUE_REQUIRED),
-                    new InputOption('version', 'v',  InputOption::VALUE_NONE),
-                    new InputOption('cwd',     null, InputOption::VALUE_REQUIRED),
+                    new InputOption('help',        'h',  InputOption::VALUE_NONE),
+                    new InputOption('config',      'c',  InputOption::VALUE_REQUIRED),
+                    new InputOption('version',     'v',  InputOption::VALUE_NONE),
+                    new InputOption('cwd',         null, InputOption::VALUE_REQUIRED),
+                    new InputOption('force-color', null, InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 )));
@@ -153,6 +154,11 @@ if (!function_exists('Psy\bin')) {
             // Handle --config
             if ($configFile = $input->getOption('config')) {
                 $config['configFile'] = $configFile;
+            }
+
+            // Handle --force-color
+            if ($input->getOption('force-color')) {
+                $config['forceColor'] = true;
             }
 
             $shell = new Shell(new Configuration($config));
@@ -172,10 +178,11 @@ Usage:
   $name [--version] [--help] [files...]
 
 Options:
-  --help     -h Display this help message.
-  --config   -c Use an alternate PsySH config file location.
-  --cwd         Use an alternate working directory.
-  --version  -v Display the PsySH version.
+  --help        -h Display this help message.
+  --config      -c Use an alternate PsySH config file location.
+  --cwd            Use an alternate working directory.
+  --version     -v Display the PsySH version.
+  --force-color    Forces output to contain colors.
 
 EOL;
                 exit($usageException === null ? 0 : 1);
