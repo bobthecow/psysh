@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Configuration;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\SignatureFormatter;
@@ -24,6 +25,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ShowCommand extends ReflectingCommand
 {
+    private $colorMode;
+
+    /**
+     * @param null|string $colorMode (default: null)
+     */
+    public function __construct($colorMode = null)
+    {
+        $this->colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
+
+        return parent::__construct();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -54,7 +67,7 @@ HELP
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
         try {
-            $output->page(CodeFormatter::format($reflector), ShellOutput::OUTPUT_RAW);
+            $output->page(CodeFormatter::format($reflector, $this->colorMode), ShellOutput::OUTPUT_RAW);
         } catch (RuntimeException $e) {
             $output->writeln(SignatureFormatter::format($reflector));
             throw $e;
