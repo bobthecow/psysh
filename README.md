@@ -129,6 +129,10 @@ return array(
     //
     // This will default to true in a future release, but is false for now.
     'warnOnMultipleConfigs' => true,
+
+    // By default, output contains colors if support for them is detected. To override:
+    'colorMode' => \Psy\Configuration::COLOR_MODE_FORCED,   // force colors in output
+    'colorMode' => \Psy\Configuration::COLOR_MODE_DISABLED, // disable colors in output
 );
 ```
 

@@ -30,11 +30,15 @@ use XdgBaseDir\Xdg;
  */
 class Configuration
 {
+    const COLOR_MODE_AUTO = 'auto';
+    const COLOR_MODE_FORCED = 'forced';
+    const COLOR_MODE_DISABLED = 'disabled';
+
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
-        'errorLoggingLevel', 'warnOnMultipleConfigs',
+        'errorLoggingLevel', 'warnOnMultipleConfigs', 'colorMode',
     );
 
     private $defaultIncludes;
@@ -56,6 +60,7 @@ class Configuration
     private $tabCompletionMatchers = array();
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
+    private $colorMode;
 
     // services
     private $readline;
@@ -77,6 +82,8 @@ class Configuration
      */
     public function __construct(array $config = array())
     {
+        $this->setColorMode(self::COLOR_MODE_AUTO);
+
         // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
@@ -701,10 +708,31 @@ class Configuration
     public function getOutput()
     {
         if (!isset($this->output)) {
-            $this->output = new ShellOutput(ShellOutput::VERBOSITY_NORMAL, null, null, $this->getPager());
+            $this->output = new ShellOutput(
+                ShellOutput::VERBOSITY_NORMAL,
+                $this->getOutputDecorated(),
+                null,
+                $this->getPager()
+            );
         }
 
         return $this->output;
+    }
+
+    /**
+     * Get the decoration (i.e. color) setting for the Shell Output service.
+     *
+     * @return null|bool 3-state boolean corresponding to the current color mode
+     */
+    public function getOutputDecorated()
+    {
+        if ($this->colorMode() === self::COLOR_MODE_AUTO) {
+            return;
+        } elseif ($this->colorMode() === self::COLOR_MODE_FORCED) {
+            return true;
+        } elseif ($this->colorMode() === self::COLOR_MODE_DISABLED) {
+            return false;
+        }
     }
 
     /**
@@ -979,5 +1007,35 @@ class Configuration
     public function warnOnMultipleConfigs()
     {
         return $this->warnOnMultipleConfigs;
+    }
+
+    /**
+     * Set the current color mode.
+     *
+     * @param string $colorMode
+     */
+    public function setColorMode($colorMode)
+    {
+        $validColorModes = array(
+            self::COLOR_MODE_AUTO,
+            self::COLOR_MODE_FORCED,
+            self::COLOR_MODE_DISABLED,
+        );
+
+        if (in_array($colorMode, $validColorModes)) {
+            $this->colorMode = $colorMode;
+        } else {
+            throw new \InvalidArgumentException('invalid color mode: ' . $colorMode);
+        }
+    }
+
+    /**
+     * Get the current color mode.
+     *
+     * @return string
+     */
+    public function colorMode()
+    {
+        return $this->colorMode;
     }
 }
