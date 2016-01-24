@@ -9,7 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy;
+namespace Psy\Listener;
+
+use Psy\Shell;
 
 /**
  * Listener interface.
@@ -20,15 +22,25 @@ interface Listener
 {
     /**
      * Determines whether this listener should be active.
+     *
+     * @return bool
      */
-    public function enabled();
+    public static function isSupported();
 
     /**
      * Operations to run before the start of the loop.
      *
      * @param Shell $shell
      */
-    public function onBeforeLoop(Shell $shell);
+    public function beforeLoop(Shell $shell);
+
+    /**
+     * Operations to run on user input.
+     *
+     * @param Shell  $shell
+     * @param string $input
+     */
+    public function onInput(Shell $shell, $input);
 
     /**
      * When a command is about to be executed.
@@ -43,5 +55,5 @@ interface Listener
      *
      * @param Shell $shell
      */
-    public function onAfterLoop(Shell $shell);
+    public function afterLoop(Shell $shell);
 }
