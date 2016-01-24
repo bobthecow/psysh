@@ -91,8 +91,6 @@ class ForkingLoop extends Loop
     public function beforeLoop(Shell $shell)
     {
         $this->createSavegame();
-
-        parent::beforeLoop($shell);
     }
 
     /**
@@ -105,8 +103,6 @@ class ForkingLoop extends Loop
             posix_kill($this->savegame, SIGKILL);
             pcntl_signal_dispatch();
         }
-
-        parent::afterLoop($shell);
     }
 
     /**
