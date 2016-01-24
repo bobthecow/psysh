@@ -225,11 +225,13 @@ class Shell extends Application
      */
     protected function getDefaultListeners()
     {
-        return array_filter(array(
-            new Listener\Reloader(),
-        ), function ($listener) {
-            return $listener->enabled();
-        });
+        $listeners = array();
+
+        if (Listener\Reloader::isSupported()) {
+            $listeners[] = new Listener\Reloader();
+        }
+
+        return $listeners;
     }
 
     /**
@@ -352,6 +354,8 @@ class Shell extends Application
                 continue;
             }
 
+            $this->onInput($input);
+
             if ($this->hasCommand($input)) {
                 $this->readline->addHistory($input);
                 $this->runCommand($input);
@@ -364,22 +368,42 @@ class Shell extends Application
     }
 
     /**
-     * Pass the beforeLoop callback through to the Loop instance.
+     * Run listeners, then pass the beforeLoop callback through to the Loop instance.
      *
      * @see Loop::beforeLoop
      */
     public function beforeLoop()
     {
+        foreach ($this->listeners as $listener) {
+            $listener->beforeLoop($this);
+        }
+
         $this->loop->beforeLoop($this);
     }
 
     /**
-     * Pass the afterLoop callback through to the Loop instance.
+     * Run listeners on input.
+     *
+     * @param string $input
+     */
+    public function onInput($input)
+    {
+        foreach ($this->listeners as $listeners) {
+            $listeners->onInput($this, $input);
+        }
+    }
+
+    /**
+     * Run listeners, then pass the afterLoop callback through to the Loop instance.
      *
      * @see Loop::afterLoop
      */
     public function afterLoop()
     {
+        foreach ($this->listeners as $listener) {
+            $listener->afterLoop($this);
+        }
+
         $this->loop->afterLoop($this);
     }
 
