@@ -105,8 +105,6 @@ class Loop
                     $__psysh__->writeException($_e);
                 }
 
-                // a bit of housekeeping
-                unset($__psysh_out__);
                 $__psysh__->afterLoop();
             } while (true);
         };
