@@ -36,7 +36,7 @@ class BufferCommand extends Command
             ))
             ->setDescription('Show (or clear) the contents of the code input buffer.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Show the contents of the code buffer for the current multi-line expression.
 
 Optionally, clear the buffer by passing the <info>--clear</info> option.

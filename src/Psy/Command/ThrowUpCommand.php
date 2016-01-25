@@ -52,14 +52,14 @@ class ThrowUpCommand extends Command implements ContextAware
             ))
             ->setDescription('Throw an exception out of the Psy Shell.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Throws an exception out of the current the Psy Shell instance.
 
 By default it throws the most recent exception.
 
 e.g.
 <return>>>> throw-up</return>
-<return>>>> throw-up \$e</return>
+<return>>>> throw-up $e</return>
 HELP
             );
     }

@@ -55,7 +55,7 @@ class WtfCommand extends TraceCommand implements ContextAware
             ))
             ->setDescription('Show the backtrace of the most recent exception.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Shows a few lines of the backtrace of the most recent exception.
 
 If you want to see more lines, add more question marks or exclamation marks:
