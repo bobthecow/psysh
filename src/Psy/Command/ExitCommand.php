@@ -33,7 +33,7 @@ class ExitCommand extends Command
             ->setDefinition(array())
             ->setDescription('End the current session and return to caller.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 End the current session and return to caller.
 
 e.g.

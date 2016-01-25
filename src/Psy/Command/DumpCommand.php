@@ -52,14 +52,14 @@ class DumpCommand extends ReflectingCommand implements PresenterAware
             ))
             ->setDescription('Dump an object or primitive.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Dump an object or primitive.
 
 This is like var_dump but <strong>way</strong> awesomer.
 
 e.g.
-<return>>>> dump \$_</return>
-<return>>>> dump \$someVar</return>
+<return>>>> dump $_</return>
+<return>>>> dump $someVar</return>
 HELP
             );
     }

@@ -31,7 +31,7 @@ class ClearCommand extends Command
             ->setDefinition(array())
             ->setDescription('Clear the Psy Shell screen.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Clear the Psy Shell screen.
 
 Pro Tip: If your PHP has readline support, you should be able to use ctrl+l too!

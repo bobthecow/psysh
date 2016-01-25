@@ -60,7 +60,7 @@ class HistoryCommand extends Command
             ))
             ->setDescription('Show the Psy Shell history.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Show, search, save or replay the Psy Shell history.
 
 e.g.
