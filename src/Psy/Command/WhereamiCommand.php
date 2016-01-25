@@ -54,7 +54,7 @@ class WhereamiCommand extends Command
             ))
             ->setDescription('Show where you are in the code.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Show where you are in the code.
 
 Optionally, include how many lines before and after you want to display.

@@ -84,7 +84,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
             ))
             ->setDescription('List local, instance or class variables, methods and constants.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 List variables, constants, classes, interfaces, traits, functions, methods,
 and properties.
 
@@ -96,7 +96,7 @@ and methods on that class.
 
 e.g.
 <return>>>> ls</return>
-<return>>>> ls \$foo</return>
+<return>>>> ls $foo</return>
 <return>>>> ls -k --grep mongo -i</return>
 <return>>>> ls -al ReflectionClass</return>
 <return>>>> ls --constants --category date</return>
