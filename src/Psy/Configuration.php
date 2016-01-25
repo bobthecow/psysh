@@ -37,8 +37,9 @@ class Configuration
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'requireSemicolons', 'historySize', 'eraseDuplicates', 'tabCompletion',
-        'errorLoggingLevel', 'warnOnMultipleConfigs', 'colorMode',
+        'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
+        'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
+        'colorMode',
     );
 
     private $defaultIncludes;
@@ -56,6 +57,7 @@ class Configuration
     private $usePcntl;
     private $newCommands = array();
     private $requireSemicolons = false;
+    private $useUnicode;
     private $tabCompletion;
     private $tabCompletionMatchers = array();
     private $errorLoggingLevel = E_ALL;
@@ -602,6 +604,37 @@ class Configuration
     public function requireSemicolons()
     {
         return $this->requireSemicolons;
+    }
+
+    /**
+     * Enable or disable Unicode in PsySH specific output.
+     *
+     * Note that this does not disable Unicode output in general, it just makes
+     * it so PsySH won't output any itself.
+     *
+     * @param bool $useUnicode
+     */
+    public function setUseUnicode($useUnicode)
+    {
+        $this->useUnicode = (bool) $useUnicode;
+    }
+
+    /**
+     * Check whether to use Unicode in PsySH specific output.
+     *
+     * Note that this does not disable Unicode output in general, it just makes
+     * it so PsySH won't output any itself.
+     *
+     * @return bool
+     */
+    public function useUnicode()
+    {
+        if (isset($this->useUnicode)) {
+            return $this->useUnicode;
+        }
+
+        // TODO: detect `chsh` != 65001 on Windows and return false
+        return true;
     }
 
     /**

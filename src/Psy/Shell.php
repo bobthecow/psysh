@@ -609,7 +609,7 @@ class Shell extends Application
 
         // Output buffering is done!
         if ($this->outputWantsNewline && $phase & PHP_OUTPUT_HANDLER_END) {
-            $this->output->writeln('<aside>⏎</aside>');
+            $this->output->writeln(sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
             $this->outputWantsNewline = false;
         }
     }
@@ -821,7 +821,9 @@ class Shell extends Application
      */
     public function getVersion()
     {
-        return sprintf('Psy Shell %s (PHP %s — %s)', self::VERSION, phpversion(), php_sapi_name());
+        $separator = $this->config->useUnicode() ? '—' : '-';
+
+        return sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, phpversion(), $separator, php_sapi_name());
     }
 
     /**
