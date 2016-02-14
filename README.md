@@ -1,16 +1,16 @@
 # PsySH
 
-[![Package version](http://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
-[![Build status](http://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
+[![Package version](https://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
+[![Build status](https://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
 [![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
-[![Made out of awesome](http://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
+[![Made out of awesome](https://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
 
-[![Join the chat at https://gitter.im/bobthecow/psysh](http://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg?style=flat-square)](https://gitter.im/bobthecow/psysh)
+[![Join the chat at https://gitter.im/bobthecow/psysh](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg?style=flat-square)](https://gitter.im/bobthecow/psysh)
 
 
 ## About
 
-PsySH is a runtime developer console, interactive debugger and [REPL](http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) for PHP. Learn more at [psysh.org](http://psysh.org/). Check out the [Interactive Debugging in PHP talk from OSCON](https://presentate.com/bobthecow/talks/php-for-pirates) on Presentate.
+PsySH is a runtime developer console, interactive debugger and [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) for PHP. Learn more at [psysh.org](http://psysh.org/). Check out the [Interactive Debugging in PHP talk from OSCON](https://presentate.com/bobthecow/talks/php-for-pirates) on Presentate.
 
 
 ## Installation
@@ -167,12 +167,12 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
 ## As Seen On…
 
  * Cake: [`cake console`](http://book.cakephp.org/3.0/en/console-and-shells/repl.html)
- * Drupal: [`drush php`](http://drushcommands.com/drush-7x/core/core-cli), [drush-psysh](https://github.com/grota/drush-psysh)
+ * Drupal: [`drush php`](http://drushcommands.com/drush-7x/core/core-cli/), [drush-psysh](https://github.com/grota/drush-psysh)
  * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
  * Laravel: [`artisan tinker`](https://github.com/laravel/framework/blob/5.0/src/Illuminate/Foundation/Console/TinkerCommand.php)
  * Lumen: [`artisan tinker`](https://github.com/vluzrmos/lumen-tinker)
  * Magento: [`magerun console`](https://github.com/netz98/n98-magerun/blob/develop/src/N98/Magento/Command/Developer/ConsoleCommand.php)
- * Pantheon CLI: [`terminus cli console`](https://github.com/pantheon-systems/cli)
+ * Pantheon CLI: [`terminus cli console`](https://github.com/pantheon-systems/terminus)
  * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
  * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
  * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)
