@@ -11,8 +11,9 @@
 
 namespace Psy\Formatter;
 
-use JakubOnderka\PhpConsoleColor\ConsoleColor;
 use JakubOnderka\PhpConsoleHighlighter\Highlighter;
+use Psy\Configuration;
+use Psy\ConsoleColorFactory;
 use Psy\Exception\RuntimeException;
 
 /**
@@ -23,12 +24,15 @@ class CodeFormatter implements Formatter
     /**
      * Format the code represented by $reflector.
      *
-     * @param \Reflector $reflector
+     * @param \Reflector  $reflector
+     * @param null|string $colorMode (default: null)
      *
      * @return string formatted code
      */
-    public static function format(\Reflector $reflector)
+    public static function format(\Reflector $reflector, $colorMode = null)
     {
+        $colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
+
         if ($fileName = $reflector->getFileName()) {
             if (!is_file($fileName)) {
                 throw new RuntimeException('Source code unavailable.');
@@ -38,8 +42,8 @@ class CodeFormatter implements Formatter
             $start = $reflector->getStartLine();
             $end   = $reflector->getEndLine() - $start;
 
-            $colors = new ConsoleColor();
-            $colors->addTheme('line_number', array('blue'));
+            $factory = new ConsoleColorFactory($colorMode);
+            $colors = $factory->getConsoleColor();
             $highlighter = new Highlighter($colors);
 
             return $highlighter->getCodeSnippet($file, $start, 0, $end);

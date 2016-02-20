@@ -90,7 +90,7 @@ class ParseCommand extends Command implements PresenterAware
             ->setDefinition($definition)
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
             ->setHelp(
-                <<<HELP
+                <<<'HELP'
 Parse PHP code and show the abstract syntax tree.
 
 This command is used in the development of PsySH. Given a string of PHP code,

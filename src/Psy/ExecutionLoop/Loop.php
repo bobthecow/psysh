@@ -21,6 +21,8 @@ use Psy\Shell;
  */
 class Loop
 {
+    const NOOP_INPUT = 'return null;';
+
     /**
      * Loop constructor.
      *
@@ -73,7 +75,7 @@ class Loop
                     );
 
                     set_error_handler(array($__psysh__, 'handleError'));
-                    $_ = eval($__psysh__->flushCode());
+                    $_ = eval($__psysh__->flushCode() ?: Loop::NOOP_INPUT);
                     restore_error_handler();
 
                     ob_end_flush();
@@ -103,8 +105,6 @@ class Loop
                     $__psysh__->writeException($_e);
                 }
 
-                // a bit of housekeeping
-                unset($__psysh_out__);
                 $__psysh__->afterLoop();
             } while (true);
         };

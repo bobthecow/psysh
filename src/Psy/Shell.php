@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.6.1';
+    const VERSION = 'v0.7.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -78,20 +78,6 @@ class Shell extends Application
         $this->readline = $this->config->getReadline();
 
         parent::__construct('Psy Shell', self::VERSION);
-
-        $this->config->setShell($this);
-        // auto completer needs shell to be linked to configuration because of the context aware matchers
-        if ($this->config->getTabCompletion()) {
-            $this->completion = $this->config->getAutoCompleter();
-            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
-            foreach ($this->getTabCompletionMatchers() as $matcher) {
-                if ($matcher instanceof ContextAware) {
-                    $matcher->setContext($this->context);
-                }
-                $this->completion->addMatcher($matcher);
-            }
-            $this->completion->activate();
-        }
     }
 
     /**
@@ -207,9 +193,9 @@ class Shell extends Application
             new Command\ListCommand(),
             new Command\DumpCommand(),
             new Command\DocCommand(),
-            new Command\ShowCommand(),
+            new Command\ShowCommand($this->config->colorMode()),
             new Command\WtfCommand(),
-            new Command\WhereamiCommand(),
+            new Command\WhereamiCommand($this->config->colorMode()),
             new Command\ThrowUpCommand(),
             new Command\TraceCommand(),
             new Command\BufferCommand(),
@@ -271,6 +257,8 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
+        $this->initializeTabCompletion();
+
         if ($input === null && !isset($_SERVER['argv'])) {
             $input = new ArgvInput(array());
         }
@@ -621,7 +609,7 @@ class Shell extends Application
 
         // Output buffering is done!
         if ($this->outputWantsNewline && $phase & PHP_OUTPUT_HANDLER_END) {
-            $this->output->writeln('<aside>⏎</aside>');
+            $this->output->writeln(sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
             $this->outputWantsNewline = false;
         }
     }
@@ -833,7 +821,9 @@ class Shell extends Application
      */
     public function getVersion()
     {
-        return sprintf('Psy Shell %s (PHP %s — %s)', self::VERSION, phpversion(), php_sapi_name());
+        $separator = $this->config->useUnicode() ? '—' : '-';
+
+        return sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, phpversion(), $separator, php_sapi_name());
     }
 
     /**
@@ -868,6 +858,28 @@ class Shell extends Application
         $firstChar = substr($info['line_buffer'], max(0, $info['end'] - strlen($text) - 1), 1);
         if ($firstChar === '$') {
             return $this->getScopeVariableNames();
+        }
+    }
+
+    /**
+     * Initialize tab completion matchers.
+     *
+     * If tab completion is enabled this adds tab completion matchers to the
+     * auto completer and sets context if needed.
+     */
+    protected function initializeTabCompletion()
+    {
+        // auto completer needs shell to be linked to configuration because of the context aware matchers
+        if ($this->config->getTabCompletion()) {
+            $this->completion = $this->config->getAutoCompleter();
+            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
+            foreach ($this->getTabCompletionMatchers() as $matcher) {
+                if ($matcher instanceof ContextAware) {
+                    $matcher->setContext($this->context);
+                }
+                $this->completion->addMatcher($matcher);
+            }
+            $this->completion->activate();
         }
     }
 }
