@@ -222,6 +222,11 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         $this->ensureClassExists($class, $stmt);
 
+        // let's pretend all calls to self, parent and static are valid
+        if (in_array(strtolower($class), array('self', 'parent', 'static'))) {
+            return;
+        }
+
         // if method name is an expression, give it a pass for now
         if ($name instanceof Expr) {
             return;
