@@ -172,4 +172,3 @@ class ForkingLoop extends Loop
         return @serialize($serializable);
     }
 }
-
