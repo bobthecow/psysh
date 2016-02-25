@@ -149,7 +149,13 @@ class ForkingLoop extends Loop
     private function serializeReturn(array $return)
     {
         $serializable = array();
+
         foreach ($return as $key => $value) {
+            // No need to return magic variables
+            if ($key === '_' || $key === '_e') {
+                continue;
+            }
+
             // Resources don't error, but they don't serialize well either.
             if (is_resource($value)) {
                 continue;
