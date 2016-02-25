@@ -33,7 +33,7 @@ class ErrorException extends \ErrorException implements Exception
         $this->rawMessage = $message;
 
         if (!empty($filename) && preg_match('{Psy[/\\\\]ExecutionLoop}', $filename)) {
-            $filename = null;
+            $filename = '';
         }
 
         switch ($severity) {
