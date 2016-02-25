@@ -602,7 +602,7 @@ class Shell extends Application
         }
 
         // Incremental flush
-        if (!empty($out) && !$isCleaning) {
+        if ($out !== '' && !$isCleaning) {
             $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
             $this->outputWantsNewline = (substr($out, -1) !== "\n");
         }
