@@ -15,8 +15,6 @@ script:
   - vendor/bin/phpunit
 
 matrix:
-  allow_failures:
-    - php: hhvm
   fast_finish: true
 
 notifications:

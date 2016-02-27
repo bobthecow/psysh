@@ -167,7 +167,7 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
 ## As Seen On…
 
  * Cake: [`cake console`](http://book.cakephp.org/3.0/en/console-and-shells/repl.html)
- * Drupal: [`drush php`](http://drushcommands.com/drush-7x/core/core-cli/), [drush-psysh](https://github.com/grota/drush-psysh)
+ * Drupal: [`drush php`](http://drushcommands.com/drush-8x/core/core-cli/), [drush-psysh](https://github.com/grota/drush-psysh)
  * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
  * Laravel: [`artisan tinker`](https://github.com/laravel/framework/blob/5.0/src/Illuminate/Foundation/Console/TinkerCommand.php)
  * Lumen: [`artisan tinker`](https://github.com/vluzrmos/lumen-tinker)

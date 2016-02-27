@@ -225,6 +225,27 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     }
                 }
             '),
+            array('
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function foo() {
+                        return parent::bar();
+                    }
+                }
+            '),
+            array('
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function foo() {
+                        return self::bar();
+                    }
+                }
+            '),
+            array('
+                class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
+                    public static function foo() {
+                        return static::bar();
+                    }
+                }
+            '),
 
             // PHP 7.0 anonymous classes.
             array('$obj = new class() {}'),
