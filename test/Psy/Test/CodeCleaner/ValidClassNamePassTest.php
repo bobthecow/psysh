@@ -259,6 +259,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                     }
                 }
             '),
+            array('class A {} class B { function c() { return new A; } }'),
         );
 
         if (version_compare(PHP_VERSION, '5.5', '>=')) {
