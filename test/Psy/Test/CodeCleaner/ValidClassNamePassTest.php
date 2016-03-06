@@ -247,9 +247,6 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                 }
             '),
 
-            // PHP 7.0 anonymous classes.
-            array('$obj = new class() {}'),
-
             array('class A { static function b() { return new A; } }'),
             array('
                 class A {
@@ -261,6 +258,12 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             '),
             array('class A {} class B { function c() { return new A; } }'),
         );
+
+        // Ugh. There's gotta be a better way to test for this.
+        if (class_exists('PhpParser\ParserFactory')) {
+            // PHP 7.0 anonymous classes, only supported by PHP Parser v2.x
+            $valid[] = array('$obj = new class() {}');
+        }
 
         if (version_compare(PHP_VERSION, '5.5', '>=')) {
             $valid[] = array('interface A {} A::class');
