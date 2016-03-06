@@ -78,6 +78,8 @@ class Shell extends Application
         $this->readline = $this->config->getReadline();
 
         parent::__construct('Psy Shell', self::VERSION);
+
+        $this->config->setShell($this);
     }
 
     /**
