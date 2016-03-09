@@ -1,11 +1,11 @@
 # PsySH
 
 [![Package version](https://img.shields.io/packagist/v/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
-[![Build status](https://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
-[![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
+[![Monthly downloads](http://img.shields.io/packagist/dm/psy/psysh.svg?style=flat-square)](https://packagist.org/packages/psy/psysh)
 [![Made out of awesome](https://img.shields.io/badge/made_out_of_awesome-✓-brightgreen.svg?style=flat-square)](http://psysh.org)
 
-[![Join the chat at https://gitter.im/bobthecow/psysh](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg?style=flat-square)](https://gitter.im/bobthecow/psysh)
+[![Build status](https://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
+[![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
 
 
 ## About

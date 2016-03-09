@@ -42,7 +42,29 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Validate class, interface and trait statements, and `new` expressions.
+     * Validate class, interface and trait definitions.
+     *
+     * Validate them upon entering the node, so that we know about their
+     * presence and can validate constant fetches and static calls in class or
+     * trait methods.
+     *
+     * @param Node
+     */
+    public function enterNode(Node $node)
+    {
+        parent::enterNode($node);
+
+        if ($node instanceof ClassStmt) {
+            $this->validateClassStatement($node);
+        } elseif ($node instanceof InterfaceStmt) {
+            $this->validateInterfaceStatement($node);
+        } elseif ($node instanceof TraitStmt) {
+            $this->validateTraitStatement($node);
+        }
+    }
+
+    /**
+     * Validate `new` expressions, class constant fetches, and static calls.
      *
      * @throws FatalErrorException if a class, interface or trait is referenced which does not exist.
      * @throws FatalErrorException if a class extends something that is not a class.
@@ -54,13 +76,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof ClassStmt) {
-            $this->validateClassStatement($node);
-        } elseif ($node instanceof InterfaceStmt) {
-            $this->validateInterfaceStatement($node);
-        } elseif ($node instanceof TraitStmt) {
-            $this->validateTraitStatement($node);
-        } elseif ($node instanceof NewExpr) {
+        if ($node instanceof NewExpr) {
             $this->validateNewExpression($node);
         } elseif ($node instanceof ClassConstFetch) {
             $this->validateClassConstFetchExpression($node);

@@ -10,17 +10,15 @@ php:
 
 install:
   - travis_retry composer install --no-interaction --prefer-source
+  - '[ -z "$MIN_VERSIONS" ] || composer require --no-interaction --prefer-source $MIN_VERSIONS'
 
 script:
   - vendor/bin/phpunit
 
 matrix:
   fast_finish: true
-
-notifications:
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/0c7cfb83f9925542003e
-    on_success: change
-    on_failure: always
-    on_start:   false
+  include:
+    - php: 5.3
+      env: MIN_VERSIONS="symfony/console:2.3.10 symfony/var-dumper:2.7.0 nikic/php-parser:1.2.1 jakub-onderka/php-console-highlighter:0.3.0"
+  allow_failures:
+    - env: MIN_VERSIONS="symfony/console:2.3.10 symfony/var-dumper:2.7.0 nikic/php-parser:1.2.1 jakub-onderka/php-console-highlighter:0.3.0"
