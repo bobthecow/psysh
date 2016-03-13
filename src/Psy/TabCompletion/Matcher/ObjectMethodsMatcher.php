@@ -36,6 +36,9 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
             array_pop($tokens);
         }
         $objectToken = array_pop($tokens);
+        if (!is_array($objectToken)) {
+            return array();
+        }
         $objectName = str_replace('$', '', $objectToken[1]);
 
         try {
