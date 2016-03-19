@@ -257,6 +257,9 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                 }
             '),
             array('class A {} class B { function c() { return new A; } }'),
+
+            // recursion
+            array('class A { function a() { A::a(); } }'),
         );
 
         // Ugh. There's gotta be a better way to test for this.

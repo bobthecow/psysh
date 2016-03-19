@@ -243,6 +243,11 @@ class ValidClassNamePass extends NamespaceAwarePass
             return;
         }
 
+        // ... and all calls to classes defined right now
+        if ($this->findInScope($class) === self::CLASS_TYPE) {
+            return;
+        }
+
         // if method name is an expression, give it a pass for now
         if ($name instanceof Expr) {
             return;
