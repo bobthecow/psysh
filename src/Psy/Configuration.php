@@ -21,6 +21,7 @@ use Psy\Readline\GNUReadline;
 use Psy\Readline\Libedit;
 use Psy\Readline\Readline;
 use Psy\Readline\Transient;
+use Psy\Readline\HoaConsole;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use XdgBaseDir\Xdg;
@@ -541,6 +542,8 @@ class Configuration
                 return 'Psy\Readline\GNUReadline';
             } elseif (Libedit::isSupported()) {
                 return 'Psy\Readline\Libedit';
+            } elseif (HoaConsole::isSupported()) {
+                return 'Psy\Readline\HoaConsole';
             }
         }
 
