@@ -11,10 +11,9 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline\Readline;
-use Psy\Exception\BreakException;
 use Hoa\Console\Console;
 use Hoa\Console\Readline\Readline as HoaReadline;
+use Psy\Exception\BreakException;
 
 /**
  * Hoa\Console Readline implementation.
@@ -35,12 +34,9 @@ class HoaConsole implements Readline
         return class_exists('\Hoa\Console\Console', true);
     }
 
-    /**
-     *
-     */
     public function __construct()
     {
-        $this->hoa_readline = new HoaReadline;
+        $this->hoa_readline = new HoaReadline();
         $this->reflection = new \ReflectionProperty($this->hoa_readline, '_history');
     }
 
