@@ -111,11 +111,13 @@ class MethodEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Methods';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
-            return 'Trait Methods';
-        } else {
-            return 'Class Methods';
         }
+
+        if (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Methods';
+        }
+
+        return 'Class Methods';
     }
 
     /**
@@ -129,10 +131,12 @@ class MethodEnumerator extends Enumerator
     {
         if ($method->isPublic()) {
             return self::IS_PUBLIC;
-        } elseif ($method->isProtected()) {
-            return self::IS_PROTECTED;
-        } else {
-            return self::IS_PRIVATE;
         }
+
+        if ($method->isProtected()) {
+            return self::IS_PROTECTED;
+        }
+
+        return self::IS_PRIVATE;
     }
 }

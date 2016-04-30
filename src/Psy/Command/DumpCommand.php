@@ -88,8 +88,8 @@ HELP
         $matches = array();
         if (preg_match(self::INSTANCE, $target, $matches)) {
             return $this->getScopeVariable($matches[1]);
-        } else {
-            throw new RuntimeException('Unknown target: ' . $target);
         }
+
+        throw new RuntimeException('Unknown target: ' . $target);
     }
 }
