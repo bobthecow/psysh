@@ -47,12 +47,8 @@ class CodeFormatter implements Formatter
             $highlighter = new Highlighter($colors);
 
             return $highlighter->getCodeSnippet($file, $start, 0, $end);
-
-            // no need to escape this bad boy, since (for now) it's being output raw.
-            // return OutputFormatter::escape(implode(PHP_EOL, $code));
-            return implode(PHP_EOL, $code);
-        } else {
-            throw new RuntimeException('Source code unavailable.');
         }
+
+        throw new RuntimeException('Source code unavailable.');
     }
 }
