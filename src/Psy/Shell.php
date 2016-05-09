@@ -767,6 +767,7 @@ class Shell extends Application
     {
         $input = new StringInput($input);
         $name = $input->getFirstArgument();
+
         return $name && $this->has($name);
     }
 

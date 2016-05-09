@@ -48,7 +48,7 @@ class ConstantEnumerator extends Enumerator
         }
 
         return array(
-            $label => $constants
+            $label => $constants,
         );
     }
 

@@ -47,7 +47,7 @@ class MethodEnumerator extends Enumerator
         }
 
         return array(
-            $this->getKindLabel($reflector) => $methods
+            $this->getKindLabel($reflector) => $methods,
         );
     }
 
