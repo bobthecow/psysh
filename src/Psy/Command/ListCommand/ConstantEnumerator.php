@@ -47,10 +47,9 @@ class ConstantEnumerator extends Enumerator
             return;
         }
 
-        $ret = array();
-        $ret[$label] = $constants;
-
-        return $ret;
+        return array(
+            $label => $constants
+        );
     }
 
     /**

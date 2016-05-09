@@ -288,9 +288,13 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         if ($stmt instanceof ClassStmt) {
             return self::CLASS_TYPE;
-        } elseif ($stmt instanceof InterfaceStmt) {
+        }
+
+        if ($stmt instanceof InterfaceStmt) {
             return self::INTERFACE_TYPE;
-        } elseif ($stmt instanceof TraitStmt) {
+        }
+
+        if ($stmt instanceof TraitStmt) {
             return self::TRAIT_TYPE;
         }
     }

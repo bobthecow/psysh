@@ -766,11 +766,8 @@ class Shell extends Application
     protected function hasCommand($input)
     {
         $input = new StringInput($input);
-        if ($name = $input->getFirstArgument()) {
-            return $this->has($name);
-        }
-
-        return false;
+        $name = $input->getFirstArgument();
+        return $name && $this->has($name);
     }
 
     /**
