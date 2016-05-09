@@ -128,10 +128,8 @@ HELP
      */
     private function replaceCwd($cwd, $file)
     {
-        if ($cwd === false) {
-            return $file;
-        } else {
-            return preg_replace('/^' . preg_quote($cwd, '/') . '/', '', $file);
-        }
+        return $cwd === false
+            ? $file
+            : preg_replace('/^' . preg_quote($cwd, '/') . '/', '', $file);
     }
 }
