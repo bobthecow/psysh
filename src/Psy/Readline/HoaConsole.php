@@ -62,7 +62,7 @@ class HoaConsole implements Readline
     public function listHistory()
     {
         $i = 0;
-        $list = [];
+        $list = array();
         while (($item = $this->hoaReadline->getHistory($i++)) !== null) {
             $list[] = $item;
         }
