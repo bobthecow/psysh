@@ -32,7 +32,7 @@
         "ext-posix": "If you have PCNTL, you'll want the POSIX extension as well.",
         "ext-readline": "Enables support for arrow-key history navigation, and showing and manipulating command history.",
         "ext-pdo-sqlite": "The doc command requires SQLite to work.",
-        "hoa/console": "Pure PHP readline implementation."
+        "hoa/console": "A pure PHP readline implementation. You'll want this if your PHP install doesn't already support readline or libedit."
     },
     "autoload": {
         "files": ["src/Psy/functions.php"],
