@@ -105,16 +105,4 @@ class HoaConsole implements Readline
     {
         return true;
     }
-
-    /**
-     * Get a STDIN file handle.
-     *
-     * @throws BreakException if user hits Ctrl+D
-     *
-     * @return resource
-     */
-    private function getStdin()
-    {
-        return Console::getInput()->getStream()->getStream();
-    }
 }
