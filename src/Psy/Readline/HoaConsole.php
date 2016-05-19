@@ -23,9 +23,6 @@ class HoaConsole implements Readline
     /** @var HoaReadline */
     private $hoaReadline;
 
-    /** @var \ReflectionProperty */
-    private $reflection;
-
     /**
      * @return bool
      */
@@ -37,7 +34,6 @@ class HoaConsole implements Readline
     public function __construct()
     {
         $this->hoaReadline = new HoaReadline();
-        $this->reflection = new \ReflectionProperty($this->hoaReadline, '_history');
     }
 
     /**
@@ -65,9 +61,11 @@ class HoaConsole implements Readline
      */
     public function listHistory()
     {
-        $this->reflection->setAccessible(true);
-        $list = $this->reflection->getValue($this->hoaReadline);
-        $this->reflection->setAccessible(false);
+        $i = 0;
+        $list = [];
+        while (($item = $this->hoaReadline->getHistory($i++)) !== null) {
+            $list[] = $item;
+        }
 
         return $list;
     }
