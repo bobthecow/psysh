@@ -53,6 +53,9 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')
+            ->exclude('tests')
+            ->exclude('Test')
+            ->exclude('test')
             ->in(__DIR__ . '/../../build-vendor');
 
         foreach ($finder as $file) {
