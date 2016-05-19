@@ -11,7 +11,6 @@
 
 namespace Psy\Readline;
 
-use Hoa\Console\Console;
 use Hoa\Console\Readline\Readline as HoaReadline;
 use Psy\Exception\BreakException;
 
