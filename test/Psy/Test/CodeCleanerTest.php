@@ -26,15 +26,22 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
 
     public function semicolonCodeProvider()
     {
-        return array(
+        $values = array(
             array(array('true'),  false, 'return true;'),
             array(array('true;'), false, 'return true;'),
             array(array('true;'), true,  'return true;'),
             array(array('true'),  true,  false),
 
-            array(array('echo "foo";', 'true'), false, "echo \"foo\";\nreturn true;"),
             array(array('echo "foo";', 'true'), true,  false),
         );
+
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            $values[] = array(array('echo "foo";', 'true'), false, "echo 'foo';\nreturn true;");
+        } else {
+            $values[] = array(array('echo "foo";', 'true'), false, "echo \"foo\";\nreturn true;");
+        }
+
+        return $values;
     }
 
     /**
