@@ -21,7 +21,7 @@ use Psy\Exception\BreakException;
 class HoaConsole implements Readline
 {
     /** @var HoaReadline */
-    private $hoa_readline;
+    private $hoaReadline;
 
     /** @var \ReflectionProperty */
     private $reflection;
@@ -36,8 +36,8 @@ class HoaConsole implements Readline
 
     public function __construct()
     {
-        $this->hoa_readline = new HoaReadline();
-        $this->reflection = new \ReflectionProperty($this->hoa_readline, '_history');
+        $this->hoaReadline = new HoaReadline();
+        $this->reflection = new \ReflectionProperty($this->hoaReadline, '_history');
     }
 
     /**
@@ -45,7 +45,7 @@ class HoaConsole implements Readline
      */
     public function addHistory($line)
     {
-        $this->hoa_readline->addHistory($line);
+        $this->hoaReadline->addHistory($line);
 
         return true;
     }
@@ -55,7 +55,7 @@ class HoaConsole implements Readline
      */
     public function clearHistory()
     {
-        $this->hoa_readline->clearHistory();
+        $this->hoaReadline->clearHistory();
 
         return true;
     }
@@ -66,7 +66,7 @@ class HoaConsole implements Readline
     public function listHistory()
     {
         $this->reflection->setAccessible(true);
-        $list = $this->reflection->getValue($this->hoa_readline);
+        $list = $this->reflection->getValue($this->hoaReadline);
         $this->reflection->setAccessible(false);
 
         return $list;
@@ -89,7 +89,7 @@ class HoaConsole implements Readline
      */
     public function readline($prompt = null)
     {
-        return $this->hoa_readline->readLine($prompt);
+        return $this->hoaReadline->readLine($prompt);
     }
 
     /**
