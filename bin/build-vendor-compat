@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+cd "${BASH_SOURCE%/*}/.."
+
+rm -rf build-vendor
+
+cp composer.json composer-compat.json
+
+COMPOSER=composer-compat.json COMPOSER_VENDOR_DIR=build-vendor \
+  composer require symfony/intl hoa/console --ignore-platform-reqs --no-progress --no-update
+
+COMPOSER=composer-compat.json COMPOSER_VENDOR_DIR=build-vendor \
+  composer update --ignore-platform-reqs --no-dev --no-progress --classmap-authoritative
+

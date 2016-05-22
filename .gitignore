@@ -1,6 +1,8 @@
 build-vendor/
 vendor/
 composer.lock
+composer-compat.json
+composer-compat.lock
 manual/
 __pycache__
 .php_cs.cache
