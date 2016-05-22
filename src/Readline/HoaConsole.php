@@ -11,6 +11,7 @@
 
 namespace Psy\Readline;
 
+use Hoa\Console\Cursor;
 use Hoa\Console\Readline\Readline as HoaReadline;
 use Psy\Exception\BreakException;
 
@@ -94,7 +95,7 @@ class HoaConsole implements Readline
      */
     public function redisplay()
     {
-        // noop
+        return Cursor::clear('all');
     }
 
     /**
