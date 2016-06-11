@@ -22,6 +22,17 @@ class Dumper extends CliDumper
 {
     private $formatter;
 
+    protected static $controlCharsRx = '/[\x00-\x1F\x7F]+/';
+    protected static $controlCharsMap = array(
+        "\0"   => '\0',
+        "\t"   => '\t',
+        "\n"   => '\n',
+        "\v"   => '\v',
+        "\f"   => '\f',
+        "\r"   => '\r',
+        "\033" => '\e',
+    );
+
     public function __construct(OutputFormatter $formatter)
     {
         $this->formatter = $formatter;
@@ -55,38 +66,23 @@ class Dumper extends CliDumper
         if ('ref' === $style) {
             $value = strtr($value, '@', '#');
         }
-        $style = $this->styles[$style];
-        $value = "<{$style}>" . $this->formatter->escape($value) . "</{$style}>";
+
+        $map = self::$controlCharsMap;
         $cchr = $this->styles['cchr'];
-        $value = preg_replace_callback(self::$controlCharsRx, function ($c) use ($cchr) {
-            switch ($c[0]) {
-                case "\t":
-                    $c = '\t';
-                    break;
-                case "\n":
-                    $c = '\n';
-                    break;
-                case "\v":
-                    $c = '\v';
-                    break;
-                case "\f":
-                    $c = '\f';
-                    break;
-                case "\r":
-                    $c = '\r';
-                    break;
-                case "\033":
-                    $c = '\e';
-                    break;
-                default:
-                    $c = sprintf('\x%02X', ord($c[0]));
-                    break;
-            }
+        $value = preg_replace_callback(self::$controlCharsRx, function ($c) use ($map, $cchr) {
+            $s = '';
+            $i = 0;
+            $c = $c[0];
+            do {
+                $s .= isset($map[$c[$i]]) ? $map[$c[$i]] : sprintf('\x%02X', ord($c[$i]));
+            } while (isset($c[++$i]));
 
-            return "<{$cchr}>{$c}</{$cchr}>";
-        }, $value);
+            return "<{$cchr}>{$s}</{$cchr}>";
+        }, $this->formatter->escape($value));
 
-        return $value;
+        $style = $this->styles[$style];
+
+        return "<{$style}>{$value}</{$style}>";
     }
 
     /**
