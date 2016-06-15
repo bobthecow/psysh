@@ -176,4 +176,5 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
  * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
  * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)
+ * Yii 2 framework: [`yii shell`](https://github.com/yiisoft/yii2-shell)
  * Zend Framework 2: [PsyshModule](https://zfmodules.com/gianarb/zf2-psysh-module)
