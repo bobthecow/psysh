@@ -23,6 +23,9 @@ class HoaConsole implements Readline
     /** @var HoaReadline */
     private $hoaReadline;
 
+    /** @var string */
+    private $lastPrompt;
+
     /**
      * @return bool
      */
@@ -34,6 +37,7 @@ class HoaConsole implements Readline
     public function __construct()
     {
         $this->hoaReadline = new HoaReadline();
+        $this->hoaReadline->addMapping('\C-l', [$this, 'redisplay']);
     }
 
     /**
@@ -87,6 +91,8 @@ class HoaConsole implements Readline
      */
     public function readline($prompt = null)
     {
+        $this->lastPrompt = $prompt;
+
         return $this->hoaReadline->readLine($prompt);
     }
 
@@ -95,7 +101,9 @@ class HoaConsole implements Readline
      */
     public function redisplay()
     {
-        return Cursor::clear('all');
+        $current_line = $this->hoaReadline->getLine();
+        Cursor::clear('all');
+        echo $this->lastPrompt, $current_line;
     }
 
     /**
