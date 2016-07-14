@@ -61,7 +61,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
 
     public function unclosedStatementsProvider()
     {
-        return array(
+        $stmts = array(
             array(array('echo "'),   true),
             array(array('echo \''),  true),
             array(array('if (1) {'), true),
@@ -73,10 +73,17 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array("\$content = <<<EOS\n"),   true),
             array(array("\$content = <<<'EOS'\n"), true),
 
-            array(array('/* unclosed comment'),  true),
-            array(array('/** unclosed comment'), true),
-            array(array('// closed comment'),    false),
+            array(array('// closed comment'), false),
         );
+
+        // For some reason, HHVM doesn't consider unclosed comments an
+        // unexpected end of string?
+        if (!defined('HHVM_VERSION')) {
+            $stmts[] = array(array('/* unclosed comment'),  true);
+            $stmts[] = array(array('/** unclosed comment'), true);
+        }
+
+        return $stmts;
     }
 
     /**
