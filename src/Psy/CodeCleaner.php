@@ -147,10 +147,13 @@ class CodeCleaner
      *
      * @see Parser::parse
      *
+     * @throws ParseErrorException for parse errors that can't be resolved by
+     *                             waiting a line to see what comes next.
+     *
      * @param string $code
      * @param bool   $requireSemicolons
      *
-     * @return array A set of statements
+     * @return array|false A set of statements, or false if incomplete
      */
     protected function parse($code, $requireSemicolons = false)
     {
@@ -158,6 +161,10 @@ class CodeCleaner
             return $this->parser->parse($code);
         } catch (\PhpParser\Error $e) {
             if ($this->parseErrorIsUnclosedString($e, $code)) {
+                return false;
+            }
+
+            if ($this->parseErrorIsUnterminatedComment($e, $code)) {
                 return false;
             }
 
@@ -210,5 +217,10 @@ class CodeCleaner
         }
 
         return true;
+    }
+
+    private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, $code)
+    {
+        return $e->getRawMessage() === 'Unterminated comment';
     }
 }

@@ -72,6 +72,10 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
 
             array(array("\$content = <<<EOS\n"),   true),
             array(array("\$content = <<<'EOS'\n"), true),
+
+            array(array('/* unclosed comment'),  true),
+            array(array('/** unclosed comment'), true),
+            array(array('// closed comment'),    false),
         );
     }
 
