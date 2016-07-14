@@ -73,7 +73,8 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array("\$content = <<<EOS\n"),   true),
             array(array("\$content = <<<'EOS'\n"), true),
 
-            array(array('// closed comment'), false),
+            array(array('// closed comment'),    false),
+            array(array('function foo() { /**'), true),
         );
 
         // For some reason, HHVM doesn't consider unclosed comments an
