@@ -81,7 +81,7 @@ class Configuration
      *
      * Optionally, supply an array of configuration values to load.
      *
-     * @param array $config Optional array of configuration values.
+     * @param array $config Optional array of configuration values
      */
     public function __construct(array $config = array())
     {
@@ -211,7 +211,7 @@ class Configuration
      * The config file may directly manipulate the configuration, or may return
      * an array of options which will be merged with the current configuration.
      *
-     * @throws \InvalidArgumentException if the config file returns a non-array result.
+     * @throws \InvalidArgumentException if the config file returns a non-array result
      *
      * @param string $file
      */
@@ -463,7 +463,7 @@ class Configuration
     /**
      * Check whether this PHP instance has Readline available.
      *
-     * @return bool True if Readline is available.
+     * @return bool True if Readline is available
      */
     public function hasReadline()
     {
@@ -486,7 +486,7 @@ class Configuration
      * If `setUseReadline` as been set to true, but Readline is not actually
      * available, this will return false.
      *
-     * @return bool True if the current Shell should use Readline.
+     * @return bool True if the current Shell should use Readline
      */
     public function useReadline()
     {
@@ -553,7 +553,7 @@ class Configuration
     /**
      * Check whether this PHP instance has Pcntl available.
      *
-     * @return bool True if Pcntl is available.
+     * @return bool True if Pcntl is available
      */
     public function hasPcntl()
     {
@@ -576,7 +576,7 @@ class Configuration
      * If `setUsePcntl` has been set to true, but Pcntl is not actually
      * available, this will return false.
      *
-     * @return bool True if the current Shell should use Pcntl.
+     * @return bool True if the current Shell should use Pcntl
      */
     public function usePcntl()
     {
@@ -714,7 +714,7 @@ class Configuration
      * If `setTabCompletion` has been set to true, but readline is not actually
      * available, this will return false.
      *
-     * @return bool True if the current Shell should use tab completion.
+     * @return bool True if the current Shell should use tab completion
      */
     public function getTabCompletion()
     {
@@ -777,7 +777,7 @@ class Configuration
      * If a string is supplied, a ProcOutputPager will be used which shells out
      * to the specified command.
      *
-     * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance.
+     * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance
      *
      * @param string|OutputPager $pager
      */

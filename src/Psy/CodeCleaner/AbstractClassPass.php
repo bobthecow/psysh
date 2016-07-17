@@ -25,7 +25,7 @@ class AbstractClassPass extends CodeCleanerPass
     private $abstractMethods;
 
     /**
-     * @throws RuntimeException if the node is an abstract function with a body.
+     * @throws RuntimeException if the node is an abstract function with a body
      *
      * @param Node $node
      */
@@ -47,7 +47,7 @@ class AbstractClassPass extends CodeCleanerPass
     }
 
     /**
-     * @throws RuntimeException if the node is a non-abstract class with abstract methods.
+     * @throws RuntimeException if the node is a non-abstract class with abstract methods
      *
      * @param Node $node
      */

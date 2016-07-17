@@ -62,7 +62,7 @@ class ParserFactory
     /**
      * New parser instance with given kind.
      *
-     * @param string|null $kind One of class constants (only for PHP parser 2.0 and above).
+     * @param string|null $kind One of class constants (only for PHP parser 2.0 and above)
      *
      * @return Parser
      */

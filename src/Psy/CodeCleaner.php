@@ -48,9 +48,9 @@ class CodeCleaner
     /**
      * CodeCleaner constructor.
      *
-     * @param Parser        $parser    A PhpParser Parser instance. One will be created if not explicitly supplied.
-     * @param Printer       $printer   A PhpParser Printer instance. One will be created if not explicitly supplied.
-     * @param NodeTraverser $traverser A PhpParser NodeTraverser instance. One will be created if not explicitly supplied.
+     * @param Parser        $parser    A PhpParser Parser instance. One will be created if not explicitly supplied
+     * @param Printer       $printer   A PhpParser Printer instance. One will be created if not explicitly supplied
+     * @param NodeTraverser $traverser A PhpParser NodeTraverser instance. One will be created if not explicitly supplied
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
     {
@@ -100,12 +100,12 @@ class CodeCleaner
     /**
      * Clean the given array of code.
      *
-     * @throws ParseErrorException if the code is invalid PHP, and cannot be coerced into valid PHP.
+     * @throws ParseErrorException if the code is invalid PHP, and cannot be coerced into valid PHP
      *
      * @param array $codeLines
      * @param bool  $requireSemicolons
      *
-     * @return string|false Cleaned PHP code, False if the input is incomplete.
+     * @return string|false Cleaned PHP code, False if the input is incomplete
      */
     public function clean(array $codeLines, $requireSemicolons = false)
     {
@@ -148,7 +148,7 @@ class CodeCleaner
      * @see Parser::parse
      *
      * @throws ParseErrorException for parse errors that can't be resolved by
-     *                             waiting a line to see what comes next.
+     *                             waiting a line to see what comes next
      *
      * @param string $code
      * @param bool   $requireSemicolons

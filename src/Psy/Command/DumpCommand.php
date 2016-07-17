@@ -77,7 +77,7 @@ HELP
     /**
      * Resolve dump target name.
      *
-     * @throws RuntimeException if target name does not exist in the current scope.
+     * @throws RuntimeException if target name does not exist in the current scope
      *
      * @param string $target
      *

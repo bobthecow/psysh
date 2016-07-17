@@ -40,7 +40,7 @@ class Loop
     /**
      * Run the execution loop.
      *
-     * @throws ThrowUpException if thrown by the `throw-up` command.
+     * @throws ThrowUpException if thrown by the `throw-up` command
      *
      * @param Shell $shell
      */

@@ -25,7 +25,7 @@ class LegacyEmptyPass extends CodeCleanerPass
     /**
      * Validate use of empty in PHP < 5.5.
      *
-     * @throws ParseErrorException if the user used empty with anything but a variable.
+     * @throws ParseErrorException if the user used empty with anything but a variable
      *
      * @param Node $node
      */

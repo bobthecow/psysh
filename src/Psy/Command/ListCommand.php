@@ -162,7 +162,7 @@ HELP
      * Write the list items to $output.
      *
      * @param OutputInterface $output
-     * @param null|array      $result List of enumerated items.
+     * @param null|array      $result List of enumerated items
      */
     protected function write(OutputInterface $output, array $result = null)
     {
@@ -182,7 +182,7 @@ HELP
      * Items are listed one per line, and include the item signature.
      *
      * @param OutputInterface $output
-     * @param null|array      $result List of enumerated items.
+     * @param null|array      $result List of enumerated items
      */
     protected function writeLong(OutputInterface $output, array $result = null)
     {
@@ -224,7 +224,7 @@ HELP
     /**
      * Validate that input options make sense, provide defaults when called without options.
      *
-     * @throws RuntimeException if options are inconsistent.
+     * @throws RuntimeException if options are inconsistent
      *
      * @param InputInterface $input
      */

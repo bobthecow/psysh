@@ -45,7 +45,7 @@ abstract class AbstractMatcher
     /**
      * Check whether this matcher can provide completions for $tokens.
      *
-     * @param array $tokens Tokenized readline input.
+     * @param array $tokens Tokenized readline input
      *
      * @return bool
      */
