@@ -177,7 +177,7 @@ HELP
      * @param string $head
      * @param string $tail
      *
-     * @return array A slilce of history.
+     * @return array A slilce of history
      */
     private function getHistorySlice($show, $head, $tail)
     {

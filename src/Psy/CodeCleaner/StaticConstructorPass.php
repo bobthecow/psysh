@@ -45,7 +45,7 @@ class StaticConstructorPass extends CodeCleanerPass
     /**
      * Validate that the old-style constructor function is not static.
      *
-     * @throws FatalErrorException if the old-style constructor function is static.
+     * @throws FatalErrorException if the old-style constructor function is static
      *
      * @param Node $node
      */

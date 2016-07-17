@@ -49,8 +49,8 @@ class ValidFunctionNamePass extends NamespaceAwarePass
     /**
      * Validate that function calls will succeed.
      *
-     * @throws FatalErrorException if a function is redefined.
-     * @throws FatalErrorException if the function name is a string (not an expression) and is not defined.
+     * @throws FatalErrorException if a function is redefined
+     * @throws FatalErrorException if the function name is a string (not an expression) and is not defined
      *
      * @param Node $node
      */

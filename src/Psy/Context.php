@@ -27,7 +27,7 @@ class Context
     /**
      * Get a context variable.
      *
-     * @throws InvalidArgumentException If the variable is not found in the current context.
+     * @throws InvalidArgumentException If the variable is not found in the current context
      *
      * @param string $name
      *
@@ -121,7 +121,7 @@ class Context
     /**
      * Get the most recent Exception.
      *
-     * @throws InvalidArgumentException If no Exception has been caught.
+     * @throws InvalidArgumentException If no Exception has been caught
      *
      * @return null|Exception
      */

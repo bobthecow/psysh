@@ -55,7 +55,7 @@ EOS;
      * The other formats are supported by PHP's stripcslashes,
      * except for the \s sequence (ASCII space).
      *
-     * @param string $input The string to decode.
+     * @param string $input The string to decode
      *
      * @return string
      */

@@ -67,7 +67,7 @@ HELP
     /**
      * {@inheritdoc}
      *
-     * @throws InvalidArgumentException if there is no exception to throw.
+     * @throws InvalidArgumentException if there is no exception to throw
      * @throws ThrowUpException         because what else do you expect it to do?
      */
     protected function execute(InputInterface $input, OutputInterface $output)

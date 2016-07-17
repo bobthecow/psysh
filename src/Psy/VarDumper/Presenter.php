@@ -70,7 +70,7 @@ class Presenter
      *
      * @see http://symfony.com/doc/current/components/var_dumper/advanced.html#casters
      *
-     * @param callable[] $casters A map of casters.
+     * @param callable[] $casters A map of casters
      */
     public function addCasters(array $casters)
     {
