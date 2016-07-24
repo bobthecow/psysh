@@ -9,11 +9,12 @@ php:
   - hhvm
 
 env:
-  - COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-  - COMPOSER_FLAGS=""
+  - MIN_VERSIONS=true
+  - MIN_VERSIONS=
 
 install:
-  - travis_retry composer install --no-interaction --prefer-source $COMPOSER_FLAGS
+  - travis_retry composer install --no-interaction --prefer-source
+  - '[ "$MIN_VERSIONS" = true ] && composer update --no-interaction --prefer-source --prefer-lowest --prefer-stable'
 
 script:
   - vendor/bin/phpunit
