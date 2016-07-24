@@ -60,7 +60,7 @@ class CodeCleaner
         }
 
         $this->parser    = $parser;
-        $this->printer   = $printer   ?: new Printer();
+        $this->printer   = $printer ?: new Printer();
         $this->traverser = $traverser ?: new NodeTraverser();
 
         foreach ($this->getDefaultPasses() as $pass) {
