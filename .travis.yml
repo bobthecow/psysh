@@ -13,7 +13,7 @@ env:
   - COMPOSER_FLAGS=
 
 before_install:
-  - '[ "$TRAVIS_PHP_VERSION" != hhvm ] && phpenv config-rm xdebug.ini'
+  - '[[ "$TRAVIS_PHP_VERSION" =~ hhvm* ]] || phpenv config-rm xdebug.ini'
 
 install:
   - travis_retry composer update --no-interaction --prefer-source $COMPOSER_FLAGS
