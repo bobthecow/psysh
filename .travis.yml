@@ -12,6 +12,9 @@ env:
   - MIN_VERSIONS=true
   - MIN_VERSIONS=
 
+before_install:
+  - phpenv config-rm xdebug.ini
+
 install:
   - travis_retry composer install --no-interaction --prefer-source
   - '[ "$MIN_VERSIONS" = true ] && composer update --no-interaction --prefer-source --prefer-lowest --prefer-stable'
