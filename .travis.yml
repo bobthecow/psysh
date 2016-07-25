@@ -28,10 +28,30 @@ matrix:
       env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
 
 before_install:
-  - '[[ "$TRAVIS_PHP_VERSION" =~ hhvm* ]] || phpenv config-rm xdebug.ini'
+  - '[[ "$TRAVIS_PHP_VERSION" = hhvm* ]] || phpenv config-rm xdebug.ini'
 
 install:
   - travis_retry composer update --no-interaction --prefer-source $COMPOSER_FLAGS
 
 script:
   - vendor/bin/phpunit
+
+before_deploy:
+  - bin/build
+  - chmod +x *.phar
+  - mkdir -p dist
+  - PKG_VERSION=$TRAVIS_TAG
+  - '[[ "$TRAVIS_PHP_VERSION" = 5.3* ]] && PKG_VERSION={$PKG_VERSION}-php53'
+  - tar --transform="flags=r;s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
+  - tar --transform="flags=r;s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
+
+deploy:
+  provider: releases
+  api_key:
+    secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
+  file: dist/*.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: bobthecow/psysh
+    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.0*) && -z "$COMPOSER_FLAGS"
