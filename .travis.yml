@@ -51,7 +51,9 @@ deploy:
   provider: releases
   api_key:
     secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
-  file: dist/*.tar.gz
+  file:
+    - dist/psysh-${PKG_VERSION}.tar.gz
+    - dist/psysh-${PKG_VERSION}-compat.tar.gz
   skip_cleanup: true
   on:
     tags: true
