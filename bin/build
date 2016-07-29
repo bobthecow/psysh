@@ -2,8 +2,6 @@
 
 cd "${BASH_SOURCE%/*}/.."
 
-php --version
-
 echo "Building phar"
 ./bin/build-vendor || exit 1
 ./bin/build-phar || exit 1
