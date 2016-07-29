@@ -37,6 +37,7 @@ script:
   - vendor/bin/phpunit
 
 before_deploy:
+  - php --version
   - bin/build
   - chmod +x *.phar
   - ls -al
