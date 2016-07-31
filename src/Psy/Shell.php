@@ -17,6 +17,7 @@ use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
 use Psy\Output\ShellOutput;
 use Psy\TabCompletion\Matcher;
+use Psy\Util\Cli;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -302,6 +303,7 @@ class Shell extends Application
         // }
 
         $this->output->writeln($this->getHeader());
+        $this->writeVersionInfo();
 
         try {
             $this->loop->run($this);
@@ -882,6 +884,28 @@ class Shell extends Application
                 $this->completion->addMatcher($matcher);
             }
             $this->completion->activate();
+        }
+    }
+
+    /**
+     * @todo Implement self-update
+     * @todo Implement prompt to start update
+     *
+     * @return void|string
+     */
+    protected function writeVersionInfo()
+    {
+        if (!Cli::isCli()) {
+            return;
+        }
+
+        try {
+            $client = $this->config->getChecker();
+            if (!$client->isLatest()) {
+                $this->output->writeln(sprintf('New version is available (current: %s, latest: %s)',self::VERSION, $client->getLatest()));
+            }
+        } catch (\InvalidArgumentException $e) {
+            $this->output->writeln($e->getMessage());
         }
     }
 }
