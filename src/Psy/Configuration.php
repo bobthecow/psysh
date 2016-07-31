@@ -24,6 +24,7 @@ use Psy\Readline\Readline;
 use Psy\Readline\Transient;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
+use Psy\VersionUpdater\Checker;
 use XdgBaseDir\Xdg;
 
 /**
@@ -75,6 +76,7 @@ class Configuration
     private $manualDb;
     private $presenter;
     private $completer;
+    private $checker;
 
     /**
      * Construct a Configuration instance.
@@ -1073,5 +1075,31 @@ class Configuration
     public function colorMode()
     {
         return $this->colorMode;
+    }
+
+    /**
+     * Set a Updater service instance.
+     *
+     * @param Checker $checker
+     */
+    public function setChecker(Checker $checker)
+    {
+        $this->checker = $checker;
+    }
+
+    /**
+     * Get a Updater service instance.
+     *
+     * If none has been explicitly defined, this will create a new instance.
+     *
+     * @return Checker
+     */
+    public function getChecker()
+    {
+        if (!isset($this->checker)) {
+            $this->checker = new Checker();
+        }
+
+        return $this->checker;
     }
 }
