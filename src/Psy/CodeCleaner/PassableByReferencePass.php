@@ -29,7 +29,7 @@ class PassableByReferencePass extends CodeCleanerPass
     const EXCEPTION_MESSAGE = 'Only variables can be passed by reference';
 
     /**
-     * @throws FatalErrorException if non-variables are passed by reference.
+     * @throws FatalErrorException if non-variables are passed by reference
      *
      * @param Node $node
      */

@@ -365,7 +365,7 @@ class Configuration
                 strtr($oldHistory, '\\', '/'),
                 $newHistory
             );
-            trigger_error($msg, E_USER_DEPRECATED);
+            @trigger_error($msg, E_USER_DEPRECATED);
 
             return $this->historyFile = $oldHistory;
         }
