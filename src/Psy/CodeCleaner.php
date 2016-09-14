@@ -26,6 +26,7 @@ use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\LegacyEmptyPass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
+use Psy\CodeCleaner\PassableByReferencePass;
 use Psy\CodeCleaner\StaticConstructorPass;
 use Psy\CodeCleaner\StrictTypesPass;
 use Psy\CodeCleaner\UseStatementPass;
@@ -80,6 +81,7 @@ class CodeCleaner
             new AssignThisVariablePass(),
             new FunctionReturnInWriteContextPass(),
             new CallTimePassByReferencePass(),
+            new PassableByReferencePass(),
             new CalledClassPass(),
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
