@@ -16,7 +16,7 @@
         "php": ">=5.3.9",
         "symfony/console": "~2.3.10|^2.4.2|~3.0",
         "symfony/var-dumper": "~2.7|~3.0",
-        "nikic/php-parser": "^1.2.1|~2.0",
+        "nikic/php-parser": "^1.2.1|~2.0|~3.0",
         "dnoegel/php-xdg-base-dir": "0.1",
         "jakub-onderka/php-console-highlighter": "0.3.*"
     },
