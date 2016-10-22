@@ -6,6 +6,7 @@ php:
   - 5.5
   - 5.6
   - 7.0
+  - 7.1
   - hhvm
 
 env:
@@ -23,6 +24,8 @@ matrix:
     - php: 5.6
       env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
     - php: 7.0
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 7.1
       env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
     - php: hhvm
       env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
