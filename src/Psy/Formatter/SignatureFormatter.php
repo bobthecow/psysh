@@ -12,6 +12,7 @@
 namespace Psy\Formatter;
 
 use Psy\Reflection\ReflectionConstant;
+use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
@@ -33,6 +34,7 @@ class SignatureFormatter implements Formatter
     {
         switch (true) {
             case $reflector instanceof \ReflectionFunction:
+            case $reflector instanceof ReflectionLanguageConstruct:
                 return self::formatFunction($reflector);
 
             // this case also covers \ReflectionObject:
