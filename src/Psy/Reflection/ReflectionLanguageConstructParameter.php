@@ -34,7 +34,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function getClass()
     {
-        return null;
+        return;
     }
 
     /**
