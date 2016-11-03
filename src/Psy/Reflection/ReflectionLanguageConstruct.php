@@ -76,7 +76,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     public function __construct($keyword)
     {
-        if (!array_key_exists($keyword, self::$languageConstructs)) {
+        if (self::isLanguageConstruct($keyword)) {
             throw new \InvalidArgumentException('Unknown language construct: ' . $keyword);
         }
 
@@ -136,5 +136,17 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     public function __toString()
     {
         return $this->getName();
+    }
+
+    /**
+     * Check whether keyword is a (known) language construct.
+     *
+     * @param $keyword
+     *
+     * @return bool
+     */
+    public static function isLanguageConstruct($keyword)
+    {
+        return array_key_exists($keyword, self::$languageConstructs);
     }
 }

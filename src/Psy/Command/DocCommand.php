@@ -23,10 +23,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DocCommand extends ReflectingCommand
 {
-    private static $languageConstructs = array(
-        'isset', 'unset', 'empty', 'echo', 'print', 'die', 'exit',
-    );
-
     /**
      * {@inheritdoc}
      */
@@ -61,7 +57,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $value = $input->getArgument('value');
-        if (in_array($value, self::$languageConstructs)) {
+        if (ReflectionLanguageConstruct::isLanguageConstruct($value)) {
             $reflector = new ReflectionLanguageConstruct($value);
             $doc = $this->getManualDocById($value);
         } else {
