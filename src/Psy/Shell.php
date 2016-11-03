@@ -17,7 +17,6 @@ use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
 use Psy\Output\ShellOutput;
 use Psy\TabCompletion\Matcher;
-use Psy\Util\Cli;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -895,7 +894,7 @@ class Shell extends Application
      */
     protected function writeVersionInfo()
     {
-        if (!Cli::isCli()) {
+        if (PHP_SAPI !== 'cli') {
             return;
         }
 
