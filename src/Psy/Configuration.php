@@ -26,6 +26,8 @@ use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
+use Psy\VersionUpdater\IntervalChecker;
+use Psy\VersionUpdater\NoopChecker;
 use XdgBaseDir\Xdg;
 
 /**
@@ -42,7 +44,7 @@ class Configuration
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
         'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
-        'colorMode',
+        'colorMode', 'updateCheck',
     );
 
     private $defaultIncludes;
@@ -66,6 +68,7 @@ class Configuration
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
     private $colorMode;
+    private $updateCheck;
 
     // services
     private $readline;
@@ -1079,7 +1082,7 @@ class Configuration
     }
 
     /**
-     * Set a Updater service instance.
+     * Set an update checker service instance.
      *
      * @param Checker $checker
      */
@@ -1089,7 +1092,7 @@ class Configuration
     }
 
     /**
-     * Get a Updater service instance.
+     * Get an update checker service instance.
      *
      * If none has been explicitly defined, this will create a new instance.
      *
@@ -1098,9 +1101,76 @@ class Configuration
     public function getChecker()
     {
         if (!isset($this->checker)) {
-            $this->checker = new GitHubChecker();
+            $interval = $this->getUpdateCheck();
+            switch ($interval) {
+                case Checker::ALWAYS:
+                    $this->checker = new GitHubChecker();
+                    break;
+
+                case Checker::DAILY:
+                case Checker::WEEKLY:
+                case Checker::MONTHLY:
+                    $this->checker = new IntervalChecker($this->getUpdateCheckCacheFile(), $interval);
+                    break;
+
+                case Checker::NEVER:
+                    $this->checker = new NoopChecker();
+                    break;
+            }
         }
 
         return $this->checker;
+    }
+
+    /**
+     * Get the current update check interval.
+     *
+     * One of 'always', 'daily', 'weekly', 'monthly' or 'never'. If none is
+     * explicitly set, default to 'weekly'.
+     *
+     * @return string
+     */
+    public function getUpdateCheck()
+    {
+        return isset($this->updateCheck) ? $this->updateCheck : Checker::WEEKLY;
+    }
+
+    /**
+     * Set the update check interval.
+     *
+     * @throws \InvalidArgumentDescription if the update check interval is unknown
+     *
+     * @param string $interval
+     */
+    public function setUpdateCheck($interval)
+    {
+        $validIntervals = array(
+            Checker::ALWAYS,
+            Checker::DAILY,
+            Checker::WEEKLY,
+            Checker::MONTHLY,
+            Checker::NEVER,
+        );
+
+        if (!in_array($interval, $validIntervals)) {
+            throw new \InvalidArgumentException('invalid update check interval: ' . $interval);
+        }
+
+        $this->updateCheck = $interval;
+    }
+
+    /**
+     * Get a cache file path for the update checker.
+     *
+     * @return string
+     */
+    public function getUpdateCheckCacheFile()
+    {
+        $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+        if (!is_dir($dir)) {
+            mkdir($dir, 0700, true);
+        }
+
+        return $dir . '/update_check.json';
     }
 }

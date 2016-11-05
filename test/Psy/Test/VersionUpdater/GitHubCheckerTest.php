@@ -25,9 +25,9 @@ class GitHubCheckerTest extends \PHPUnit_Framework_TestCase
     public function testExceptionInvocation($input)
     {
         $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
-            ->setMethods(array('downloadFromGitHub'))
+            ->setMethods(array('fetchLatestRelease'))
             ->getMock();
-        $checker->expects($this->once())->method('downloadFromGitHub')->willReturn($input);
+        $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);
         $checker->isLatest();
     }
 
@@ -40,9 +40,9 @@ class GitHubCheckerTest extends \PHPUnit_Framework_TestCase
     public function testDataSetResults($assertion, $input)
     {
         $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
-            ->setMethods(array('downloadFromGitHub'))
+            ->setMethods(array('fetchLatestRelease'))
             ->getMock();
-        $checker->expects($this->once())->method('downloadFromGitHub')->willReturn($input);
+        $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);
         $this->assertSame($assertion, $checker->isLatest());
     }
 

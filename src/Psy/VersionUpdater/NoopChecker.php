@@ -11,21 +11,26 @@
 
 namespace Psy\VersionUpdater;
 
-interface Checker
-{
-    const ALWAYS = 'always';
-    const DAILY = 'daily';
-    const WEEKLY = 'weekly';
-    const MONTHLY = 'monthly';
-    const NEVER = 'never';
+use Psy\Shell;
 
+/**
+ * A version checker stub which always thinks the current verion is up to date.
+ */
+class NoopChecker implements Checker
+{
     /**
      * @return bool
      */
-    public function isLatest();
+    public function isLatest()
+    {
+        return true;
+    }
 
     /**
      * @return string
      */
-    public function getLatest();
+    public function getLatest()
+    {
+        return Shell::VERSION;
+    }
 }

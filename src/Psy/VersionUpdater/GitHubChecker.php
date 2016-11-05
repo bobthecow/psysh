@@ -52,7 +52,7 @@ class GitHubChecker implements Checker
      */
     private function getVersionFromTag()
     {
-        $contents = $this->downloadFromGitHub();
+        $contents = $this->fetchLatestRelease();
         if (!$contents || !isset($contents->tag_name)) {
             throw new \InvalidArgumentException('Unable to check for updates');
         }
@@ -66,7 +66,7 @@ class GitHubChecker implements Checker
      *
      * @return mixed
      */
-    public function downloadFromGitHub()
+    public function fetchLatestRelease()
     {
         $context = stream_context_create(array('http' => array('user_agent' => 'PsySH/' . Shell::VERSION)));
 

@@ -140,6 +140,12 @@ return array(
     // By default, output contains colors if support for them is detected. To override:
     'colorMode' => \Psy\Configuration::COLOR_MODE_FORCED,   // force colors in output
     'colorMode' => \Psy\Configuration::COLOR_MODE_DISABLED, // disable colors in output
+
+    // Frequency of update checks when starting an interactive shell session. Valid
+    // options are 'always', 'daily', 'weekly', and 'monthly'. Default is 'weekly'.
+    //
+    // To disable update checks entirely, set to 'never'.
+    'updateCheck' => 'daily',
 );
 ```
 
