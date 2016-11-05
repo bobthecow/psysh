@@ -13,7 +13,7 @@ namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
 
-class CheckerTest extends \PHPUnit_Framework_TestCase
+class GitHubCheckerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider malformedResults
@@ -24,7 +24,7 @@ class CheckerTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionInvocation($input)
     {
-        $checker = $this->getMockBuilder('Psy\\VersionUpdater\\Checker')
+        $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
             ->setMethods(array('downloadFromGitHub'))
             ->getMock();
         $checker->expects($this->once())->method('downloadFromGitHub')->willReturn($input);
@@ -39,7 +39,7 @@ class CheckerTest extends \PHPUnit_Framework_TestCase
      */
     public function testDataSetResults($assertion, $input)
     {
-        $checker = $this->getMockBuilder('Psy\\VersionUpdater\\Checker')
+        $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
             ->setMethods(array('downloadFromGitHub'))
             ->getMock();
         $checker->expects($this->once())->method('downloadFromGitHub')->willReturn($input);

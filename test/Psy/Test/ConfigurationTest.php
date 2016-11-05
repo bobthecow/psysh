@@ -15,7 +15,7 @@ use Psy\CodeCleaner;
 use Psy\Configuration;
 use Psy\ExecutionLoop\Loop;
 use Psy\Output\PassthruPager;
-use Psy\VersionUpdater\Checker;
+use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
@@ -243,7 +243,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public function testSetCheckerValid()
     {
         $config = new Configuration();
-        $checker = new Checker();
+        $checker = new GitHubChecker();
 
         $config->setChecker($checker);
 

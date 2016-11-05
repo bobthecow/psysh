@@ -25,6 +25,7 @@ use Psy\Readline\Transient;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
+use Psy\VersionUpdater\GitHubChecker;
 use XdgBaseDir\Xdg;
 
 /**
@@ -1097,7 +1098,7 @@ class Configuration
     public function getChecker()
     {
         if (!isset($this->checker)) {
-            $this->checker = new Checker();
+            $this->checker = new GitHubChecker();
         }
 
         return $this->checker;
