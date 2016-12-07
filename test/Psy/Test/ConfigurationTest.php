@@ -151,7 +151,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Psy\Exception\DeprecatedException
+     * @expectedException \Psy\Exception\DeprecatedException
      */
     public function testBaseDirConfigIsDeprecated()
     {
