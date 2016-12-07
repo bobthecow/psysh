@@ -85,4 +85,16 @@ class ErrorException extends \ErrorException implements Exception
     {
         throw new self($errstr, 0, $errno, $errfile, $errline);
     }
+
+    /**
+     * Create an ErrorException from an Error.
+     *
+     * @param \Error $e
+     *
+     * @return ErrorException
+     */
+    public static function fromError(\Error $e)
+    {
+        return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
+    }
 }

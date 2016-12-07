@@ -20,7 +20,7 @@ use Psy\TabCompletion\Matcher\AbstractMatcher;
  */
 class AutoCompleter
 {
-    /** @var Matcher\AbstractMatcher[]  */
+    /** @var Matcher\AbstractMatcher[] */
     protected $matchers;
 
     /**

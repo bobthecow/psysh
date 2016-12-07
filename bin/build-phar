@@ -1,4 +1,4 @@
-#!/usr/bin/env php
+#!/usr/bin/env php -d phar.readonly=Off
 <?php
 
 /*
@@ -30,4 +30,9 @@ error_reporting(-1);
 ini_set('display_errors', 1);
 
 $compiler = new Compiler();
-$compiler->compile();
+
+if (isset($_SERVER['argv']) && isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] === '--compat') {
+    $compiler->compile('psysh-compat.phar');
+} else {
+    $compiler->compile();
+}

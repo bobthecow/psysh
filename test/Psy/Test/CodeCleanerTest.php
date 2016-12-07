@@ -26,15 +26,22 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
 
     public function semicolonCodeProvider()
     {
-        return array(
+        $values = array(
             array(array('true'),  false, 'return true;'),
             array(array('true;'), false, 'return true;'),
             array(array('true;'), true,  'return true;'),
             array(array('true'),  true,  false),
 
-            array(array('echo "foo";', 'true'), false, "echo 'foo';\nreturn true;"),
             array(array('echo "foo";', 'true'), true,  false),
         );
+
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            $values[] = array(array('echo "foo";', 'true'), false, "echo 'foo';\nreturn true;");
+        } else {
+            $values[] = array(array('echo "foo";', 'true'), false, "echo \"foo\";\nreturn true;");
+        }
+
+        return $values;
     }
 
     /**
@@ -63,14 +70,40 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array("echo ''"),   false),
             array(array('if (1) {}'), false),
 
-            array(array("\$content = <<<EOS\n"),   true),
-            array(array("\$content = <<<'EOS'\n"), true),
+            array(array('// closed comment'),    false),
+            array(array('function foo() { /**'), true),
+        );
+    }
+
+    /**
+     * @dataProvider moreUnclosedStatementsProvider
+     */
+    public function testMoreUnclosedStatements(array $lines)
+    {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('HHVM not supported.');
+        }
+
+        $cc  = new CodeCleaner();
+        $res = $cc->clean($lines);
+
+        $this->assertFalse($res);
+    }
+
+    public function moreUnclosedStatementsProvider()
+    {
+        return array(
+            array(array("\$content = <<<EOS\n")),
+            array(array("\$content = <<<'EOS'\n")),
+
+            array(array('/* unclosed comment')),
+            array(array('/** unclosed comment')),
         );
     }
 
     /**
      * @dataProvider invalidStatementsProvider
-     * @expectedException Psy\Exception\ParseErrorException
+     * @expectedException \Psy\Exception\ParseErrorException
      */
     public function testInvalidStatementsThrowParseErrors($code)
     {

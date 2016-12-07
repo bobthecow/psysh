@@ -2,5 +2,10 @@
 
 cd "${BASH_SOURCE%/*}/.."
 
+echo "Building phar"
 ./bin/build-vendor || exit 1
-./bin/build-phar
+./bin/build-phar || exit 1
+
+echo "Building compat phar"
+./bin/build-vendor-compat || exit 1
+./bin/build-phar --compat

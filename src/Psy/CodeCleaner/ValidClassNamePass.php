@@ -66,11 +66,11 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate `new` expressions, class constant fetches, and static calls.
      *
-     * @throws FatalErrorException if a class, interface or trait is referenced which does not exist.
-     * @throws FatalErrorException if a class extends something that is not a class.
-     * @throws FatalErrorException if a class implements something that is not an interface.
-     * @throws FatalErrorException if an interface extends something that is not an interface.
-     * @throws FatalErrorException if a class, interface or trait redefines an existing class, interface or trait name.
+     * @throws FatalErrorException if a class, interface or trait is referenced which does not exist
+     * @throws FatalErrorException if a class extends something that is not a class
+     * @throws FatalErrorException if a class implements something that is not an interface
+     * @throws FatalErrorException if an interface extends something that is not an interface
+     * @throws FatalErrorException if a class, interface or trait redefines an existing class, interface or trait name
      *
      * @param Node $node
      */
@@ -240,6 +240,11 @@ class ValidClassNamePass extends NamespaceAwarePass
 
         // let's pretend all calls to self, parent and static are valid
         if (in_array(strtolower($class), array('self', 'parent', 'static'))) {
+            return;
+        }
+
+        // ... and all calls to classes defined right now
+        if ($this->findInScope($class) === self::CLASS_TYPE) {
             return;
         }
 

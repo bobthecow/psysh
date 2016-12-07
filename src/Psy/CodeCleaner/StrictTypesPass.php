@@ -36,7 +36,7 @@ class StrictTypesPass extends CodeCleanerPass
      * Otherwise, apply remembered strict types declaration to to the code until
      * a new declaration is encountered.
      *
-     * @throws FatalErrorException if an invalid `strict_types` declaration is found.
+     * @throws FatalErrorException if an invalid `strict_types` declaration is found
      *
      * @param array $nodes
      */

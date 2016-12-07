@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.7.2';
+    const VERSION = 'v0.8.0';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -126,7 +126,7 @@ class Shell extends Application
      * @param array  $vars Scope variables from the calling context (default: array())
      * @param object $bind Bound object ($this) value for the shell
      *
-     * @return array Scope variables from the debugger session.
+     * @return array Scope variables from the debugger session
      */
     public static function debug(array $vars = array(), $bind = null)
     {
@@ -279,7 +279,7 @@ class Shell extends Application
     /**
      * Runs the current application.
      *
-     * @throws Exception if thrown via the `throw-up` command.
+     * @throws Exception if thrown via the `throw-up` command
      *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
@@ -302,6 +302,7 @@ class Shell extends Application
         // }
 
         $this->output->writeln($this->getHeader());
+        $this->writeVersionInfo();
 
         try {
             $this->loop->run($this);
@@ -392,7 +393,7 @@ class Shell extends Application
     /**
      * Return the set of variables currently in scope.
      *
-     * @return array Associative array of scope variables.
+     * @return array Associative array of scope variables
      */
     public function getScopeVariables()
     {
@@ -402,7 +403,7 @@ class Shell extends Application
     /**
      * Get the set of variable names currently in scope.
      *
-     * @return array Array of variable names.
+     * @return array Array of variable names
      */
     public function getScopeVariableNames()
     {
@@ -444,7 +445,7 @@ class Shell extends Application
     /**
      * Check whether this shell's code buffer contains code.
      *
-     * @return bool True if the code buffer contains code.
+     * @return bool True if the code buffer contains code
      */
     public function hasCode()
     {
@@ -456,7 +457,7 @@ class Shell extends Application
      *
      * If the code is valid, the code buffer should be flushed and evaluated.
      *
-     * @return bool True if the code buffer content is valid.
+     * @return bool True if the code buffer content is valid
      */
     protected function hasValidCode()
     {
@@ -503,7 +504,7 @@ class Shell extends Application
     /**
      * Run a Psy Shell command given the user input.
      *
-     * @throws InvalidArgumentException if the input is not a valid command.
+     * @throws InvalidArgumentException if the input is not a valid command
      *
      * @param string $input User input string
      *
@@ -561,7 +562,7 @@ class Shell extends Application
      * If the code buffer is valid, resets the code buffer and returns the
      * current code.
      *
-     * @return string PHP code buffer contents.
+     * @return string PHP code buffer contents
      */
     public function flushCode()
     {
@@ -579,7 +580,7 @@ class Shell extends Application
      *
      * @see CodeCleaner::getNamespace
      *
-     * @return string Current code namespace.
+     * @return string Current code namespace
      */
     public function getNamespace()
     {
@@ -710,7 +711,7 @@ class Shell extends Application
      * @see \Psy\Exception\ErrorException::throwException
      * @see \Psy\Shell::writeException
      *
-     * @throws \Psy\Exception\ErrorException depending on the current error_reporting level.
+     * @throws \Psy\Exception\ErrorException depending on the current error_reporting level
      *
      * @param int    $errno   Error type
      * @param string $errstr  Message
@@ -761,7 +762,7 @@ class Shell extends Application
      *
      * @param string $input
      *
-     * @return bool True if the shell has a command for the given input.
+     * @return bool True if the shell has a command for the given input
      */
     protected function hasCommand($input)
     {
@@ -792,7 +793,7 @@ class Shell extends Application
      * If readline is enabled, this delegates to readline. Otherwise, it's an
      * ugly `fgets` call.
      *
-     * @return string One line of user input.
+     * @return string One line of user input
      */
     protected function readline()
     {
@@ -845,7 +846,7 @@ class Shell extends Application
      *
      * @param string $text
      *
-     * @return mixed Array possible completions for the given input, if any.
+     * @return mixed Array possible completions for the given input, if any
      */
     protected function autocomplete($text)
     {
@@ -882,6 +883,28 @@ class Shell extends Application
                 $this->completion->addMatcher($matcher);
             }
             $this->completion->activate();
+        }
+    }
+
+    /**
+     * @todo Implement self-update
+     * @todo Implement prompt to start update
+     *
+     * @return void|string
+     */
+    protected function writeVersionInfo()
+    {
+        if (PHP_SAPI !== 'cli') {
+            return;
+        }
+
+        try {
+            $client = $this->config->getChecker();
+            if (!$client->isLatest()) {
+                $this->output->writeln(sprintf('New version is available (current: %s, latest: %s)',self::VERSION, $client->getLatest()));
+            }
+        } catch (\InvalidArgumentException $e) {
+            $this->output->writeln($e->getMessage());
         }
     }
 }

@@ -6,19 +6,57 @@ php:
   - 5.5
   - 5.6
   - 7.0
+  - 7.1
   - hhvm
 
+env:
+  - COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+  - COMPOSER_FLAGS=
+
+matrix:
+  allow_failures:
+    - php: 5.3
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 5.4
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 5.5
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 5.6
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 7.0
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: 7.1
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: hhvm
+      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+
+before_install:
+  - '[[ "$TRAVIS_PHP_VERSION" != hhvm* ]] && (php --ini | grep xdebug) && phpenv config-rm xdebug.ini || true'
+
 install:
-  - travis_retry composer install --no-interaction --prefer-source
-  - '[ -z "$MIN_VERSIONS" ] || composer require --no-interaction --prefer-source $MIN_VERSIONS'
+  - travis_retry composer update --no-interaction --prefer-source $COMPOSER_FLAGS
 
 script:
   - vendor/bin/phpunit
 
-matrix:
-  fast_finish: true
-  include:
-    - php: 5.3
-      env: MIN_VERSIONS="symfony/console:2.3.10 symfony/var-dumper:2.7.0 nikic/php-parser:1.2.1 jakub-onderka/php-console-highlighter:0.3.0"
-  allow_failures:
-    - env: MIN_VERSIONS="symfony/console:2.3.10 symfony/var-dumper:2.7.0 nikic/php-parser:1.2.1 jakub-onderka/php-console-highlighter:0.3.0"
+before_deploy:
+  - bin/build
+  - chmod +x *.phar
+  - mkdir -p dist
+  - PKG_VERSION=$TRAVIS_TAG
+  - '[[ "$TRAVIS_PHP_VERSION" = 5.3* ]] && PKG_VERSION=${PKG_VERSION}-php53 || true'
+  - tar --transform="flags=r;s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
+  - tar --transform="flags=r;s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
+
+deploy:
+  provider: releases
+  api_key:
+    secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
+  file:
+    - dist/psysh-${PKG_VERSION}.tar.gz
+    - dist/psysh-${PKG_VERSION}-compat.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: bobthecow/psysh
+    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.0*) && -z "$COMPOSER_FLAGS"

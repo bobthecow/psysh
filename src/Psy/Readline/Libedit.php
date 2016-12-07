@@ -62,7 +62,7 @@ class Libedit extends GNUReadline
      * if "\0" is found in an entry,
      * everything from it until the next line is a comment.
      *
-     * @param string $line The history line to parse.
+     * @param string $line The history line to parse
      *
      * @return string | null
      */

@@ -140,6 +140,12 @@ return array(
     // By default, output contains colors if support for them is detected. To override:
     'colorMode' => \Psy\Configuration::COLOR_MODE_FORCED,   // force colors in output
     'colorMode' => \Psy\Configuration::COLOR_MODE_DISABLED, // disable colors in output
+
+    // Frequency of update checks when starting an interactive shell session. Valid
+    // options are 'always', 'daily', 'weekly', and 'monthly'. Default is 'weekly'.
+    //
+    // To disable update checks entirely, set to 'never'.
+    'updateCheck' => 'daily',
 );
 ```
 
@@ -176,4 +182,5 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
  * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
  * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)
+ * Yii 2: [`yii shell`](https://github.com/yiisoft/yii2-shell)
  * Zend Framework 2: [PsyshModule](https://zfmodules.com/gianarb/zf2-psysh-module)

@@ -20,12 +20,12 @@ class DocblockFormatterTest extends \PHPUnit_Framework_TestCase
      *
      * @author Justin Hileman <justin@justinhileman.info>
      *
-     * @throws InvalidArgumentException if $foo is empty.
+     * @throws InvalidArgumentException if $foo is empty
      *
-     * @param mixed $foo It's a foo thing.
-     * @param int   $bar This is definitely bar.
+     * @param mixed $foo It's a foo thing
+     * @param int   $bar This is definitely bar
      *
-     * @return string A string of no consequence.
+     * @return string A string of no consequence
      */
     private function methodWithDocblock($foo, $bar = 1)
     {
@@ -43,14 +43,14 @@ class DocblockFormatterTest extends \PHPUnit_Framework_TestCase
   This is a docblock!
 
 <comment>Throws:</comment>
-  <info>InvalidArgumentException </info> if \$foo is empty.
+  <info>InvalidArgumentException </info> if \$foo is empty
 
 <comment>Param:</comment>
-  <info>mixed </info> <strong>\$foo </strong> It's a foo thing.
-  <info>int   </info> <strong>\$bar </strong> This is definitely bar.
+  <info>mixed </info> <strong>\$foo </strong> It's a foo thing
+  <info>int   </info> <strong>\$bar </strong> This is definitely bar
 
 <comment>Return:</comment>
-  <info>string </info> A string of no consequence.
+  <info>string </info> A string of no consequence
 
 <comment>Author:</comment> Justin Hileman \<justin@justinhileman.info>
 EOS;

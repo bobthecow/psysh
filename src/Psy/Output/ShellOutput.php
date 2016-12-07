@@ -60,7 +60,7 @@ class ShellOutput extends ConsoleOutput
      *
      * Upon completion, the output pager is flushed.
      *
-     * @param string|array|Closure $messages A string, array of strings or a callback.
+     * @param string|array|Closure $messages A string, array of strings or a callback
      * @param int                  $type     (default: 0)
      */
     public function page($messages, $type = 0)
@@ -175,6 +175,7 @@ class ShellOutput extends ConsoleOutput
         $formatter = $this->getFormatter();
 
         $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
+        $formatter->setStyle('error',   new OutputFormatterStyle('black', 'red', array('bold')));
         $formatter->setStyle('aside',   new OutputFormatterStyle('blue'));
         $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, array('bold')));
         $formatter->setStyle('return',  new OutputFormatterStyle('cyan'));

@@ -53,6 +53,9 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')
+            ->exclude('tests')
+            ->exclude('Test')
+            ->exclude('test')
             ->in(__DIR__ . '/../../build-vendor');
 
         foreach ($finder as $file) {
@@ -147,6 +150,9 @@ EOS;
     private function getStub()
     {
         $content = file_get_contents(__DIR__ . '/../../bin/psysh');
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            $content = str_replace('#!/usr/bin/env php', '#!/usr/bin/env php -d detect_unicode=Off', $content);
+        }
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', self::STUB_AUTOLOAD, $content);
         $content = preg_replace('/\\(c\\) .*?with this source code./sm', self::getStubLicense(), $content);
 

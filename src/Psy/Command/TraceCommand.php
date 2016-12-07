@@ -62,11 +62,11 @@ HELP
      * Optionally limit the number of rows to include with $count, and exclude
      * Psy from the trace.
      *
-     * @param \Exception $e          The exception with a backtrace.
+     * @param \Exception $e          The exception with a backtrace
      * @param int        $count      (default: PHP_INT_MAX)
      * @param bool       $includePsy (default: true)
      *
-     * @return array Formatted stacktrace lines.
+     * @return array Formatted stacktrace lines
      */
     protected function getBacktrace(\Exception $e, $count = null, $includePsy = true)
     {
