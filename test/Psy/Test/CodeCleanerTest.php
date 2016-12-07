@@ -61,7 +61,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
 
     public function unclosedStatementsProvider()
     {
-        $stmts = array(
+        return array(
             array(array('echo "'),   true),
             array(array('echo \''),  true),
             array(array('if (1) {'), true),
@@ -70,26 +70,40 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array("echo ''"),   false),
             array(array('if (1) {}'), false),
 
-            array(array("\$content = <<<EOS\n"),   true),
-            array(array("\$content = <<<'EOS'\n"), true),
-
             array(array('// closed comment'),    false),
             array(array('function foo() { /**'), true),
         );
+    }
 
-        // For some reason, HHVM doesn't consider unclosed comments an
-        // unexpected end of string?
-        if (!defined('HHVM_VERSION')) {
-            $stmts[] = array(array('/* unclosed comment'),  true);
-            $stmts[] = array(array('/** unclosed comment'), true);
+    /**
+     * @dataProvider moreUnclosedStatementsProvider
+     */
+    public function testMoreUnclosedStatements(array $lines)
+    {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('HHVM not supported.');
         }
 
-        return $stmts;
+        $cc  = new CodeCleaner();
+        $res = $cc->clean($lines);
+
+        $this->assertFalse($res);
+    }
+
+    public function moreUnclosedStatementsProvider()
+    {
+        return array(
+            array(array("\$content = <<<EOS\n")),
+            array(array("\$content = <<<'EOS'\n")),
+
+            array(array('/* unclosed comment')),
+            array(array('/** unclosed comment')),
+        );
     }
 
     /**
      * @dataProvider invalidStatementsProvider
-     * @expectedException Psy\Exception\ParseErrorException
+     * @expectedException \Psy\Exception\ParseErrorException
      */
     public function testInvalidStatementsThrowParseErrors($code)
     {
