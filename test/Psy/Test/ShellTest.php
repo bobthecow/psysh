@@ -151,7 +151,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Psy\Exception\ErrorException
+     * @expectedException \Psy\Exception\ErrorException
      */
     public function testNotHandlingErrors()
     {
