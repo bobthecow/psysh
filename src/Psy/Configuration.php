@@ -1110,7 +1110,12 @@ class Configuration
                 case Checker::DAILY:
                 case Checker::WEEKLY:
                 case Checker::MONTHLY:
-                    $this->checker = new IntervalChecker($this->getUpdateCheckCacheFile(), $interval);
+                    $check_file = $this->getUpdateCheckCacheFile();
+                    if ($check_file === false) {
+                        $this->checker = new NoopChecker();
+                    } else {
+                        $this->checker = new IntervalChecker($check_file, $interval);
+                    }
                     break;
 
                 case Checker::NEVER:
@@ -1162,15 +1167,30 @@ class Configuration
     /**
      * Get a cache file path for the update checker.
      *
-     * @return string
+     * @return string|false Return false if config file/directory is not writable
      */
     public function getUpdateCheckCacheFile()
     {
         $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+
+        if (!is_writable($dir)) {
+            return false;
+        }
+
         if (!is_dir($dir)) {
             mkdir($dir, 0700, true);
         }
 
-        return $dir . '/update_check.json';
+        $file = $dir . '/update_check.json';
+
+        if (!is_writable($file)) {
+            return false;
+        }
+
+        if (!file_exists($file)) {
+            touch($file);
+        }
+
+        return $file;
     }
 }
