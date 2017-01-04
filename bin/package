@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+cd "${BASH_SOURCE%/*}/.."
+
+USAGE="usage: bin/package [-v PACKAGE_VERSION]"
+
+while getopts ":v:h" opt; do
+  case $opt in
+    v)
+      PKG_VERSION=$OPTARG
+      ;;
+    h)
+      echo $USAGE >&2
+      exit
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      echo $USAGE >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument" >&2
+      echo $USAGE >&2
+      exit 1
+      ;;
+  esac
+done
+
+./bin/build || exit 1
+chmod +x *.phar
+
+echo "Creating tarballs"
+
+mkdir -p dist || exit 1
+
+if [ -z "$PKG_VERSION" ]; then
+  PKG_VERSION=$(git describe --tag --exact-match) || exit 1
+  if [[ $(php --version) = PHP\ 5.3* ]]; then
+    PKG_VERSION=${PKG_VERSION}-php53
+  fi
+fi
+
+# Support BSD tar because OS X :(
+TAR_FLAGS='--transform="flags=r;s/.*/psysh/"'
+if [[ $(tar --version) = bsdtar* ]]; then
+  TAR_FLAGS='-s /.*/psysh/'
+fi
+
+tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar || exit 1
+tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar

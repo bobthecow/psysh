@@ -4,5 +4,6 @@ composer.lock
 composer-compat.json
 composer-compat.lock
 manual/
+dist/
 __pycache__
 .php_cs.cache
