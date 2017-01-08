@@ -78,7 +78,7 @@ class UseStatementPass extends NamespaceAwarePass
             foreach ($node->uses as $use) {
                 $this->aliases[strtolower($use->alias)] = Name::concat($node->prefix, $use->name, array(
                     'startLine' => $node->prefix->getAttribute('startLine'),
-                    'endLine' => $use->name->getAttribute('endLine'),
+                    'endLine'   => $use->name->getAttribute('endLine'),
                 ));
             }
 
