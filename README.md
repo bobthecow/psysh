@@ -18,12 +18,14 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
 Download the `psysh` phar to install:
 
 ```
-wget psysh.org/psysh
+wget https://git.io/psysh
 chmod +x psysh
 ./psysh
 ```
 
 It's even awesomer if you put it somewhere in your system path (like `/usr/local/bin` or `~/bin`)!
+
+Additional releases—including compatibility releases for PHP 5.3 and PHP without readline or intl—[are available on GitHub](https://github.com/bobthecow/psysh/releases).
 
 PsySH [is available via Composer](https://packagist.org/packages/psy/psysh), so you can use it in your project as well:
 
