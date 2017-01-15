@@ -64,7 +64,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         } else {
             // TODO: add an "else" here which adds a runtime check for instances where we can't tell
             // whether a class is being redefined by static analysis alone.
-            if ($this->conditionalScopes == 0) {
+            if ($this->conditionalScopes === 0) {
                 if ($node instanceof ClassStmt) {
                     $this->validateClassStatement($node);
                 } elseif ($node instanceof InterfaceStmt) {
@@ -102,12 +102,10 @@ class ValidClassNamePass extends NamespaceAwarePass
 
     private static function isConditional(Node $node)
     {
-        return (
-            $node instanceof IfStmt ||
+        return $node instanceof IfStmt ||
             $node instanceof WhileStmt ||
             $node instanceof DoStmt ||
-            $node instanceof SwitchStmt
-        );
+            $node instanceof SwitchStmt;
     }
 
     /**
