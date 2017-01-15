@@ -260,6 +260,57 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
             // recursion
             array('class A { function a() { A::a(); } }'),
+
+            // conditionally defined classes
+            array('
+                class A {}
+                if (false) {
+                    class A {}
+                }
+            '),
+            array('
+                class A {}
+                if (true) {
+                    class A {}
+                } else if (false) {
+                    class A {}
+                } else {
+                    class A {}
+                }
+            '),
+            // ewww
+            array('
+                class A {}
+                if (true):
+                    class A {}
+                elseif (false):
+                    class A {}
+                else:
+                    class A {}
+                endif;
+            '),
+            array('
+                class A {}
+                while (false) { class A {} }
+            '),
+            array('
+                class A {}
+                do { class A {} } while (false);
+            '),
+            array('
+                class A {}
+                switch (1) {
+                    case 0:
+                        class A {}
+                        break;
+                    case 1:
+                        class A {}
+                        break;
+                    case 2:
+                        class A {}
+                        break;
+                }
+            '),
         );
 
         // Ugh. There's gotta be a better way to test for this.

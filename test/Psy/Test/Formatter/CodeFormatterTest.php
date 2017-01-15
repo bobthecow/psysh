@@ -38,7 +38,7 @@ EOS;
 
     /**
      * @dataProvider filenames
-     * @expectedException Psy\Exception\RuntimeException
+     * @expectedException \Psy\Exception\RuntimeException
      */
     public function testCodeFormatterThrowsException($filename)
     {

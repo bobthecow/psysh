@@ -125,6 +125,57 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
 
             // recursion
             array('function a() { a(); }'),
+
+            // conditionally defined functions
+            array('
+                function a() {}
+                if (false) {
+                    function a() {}
+                }
+            '),
+            array('
+                function a() {}
+                if (true) {
+                    function a() {}
+                } else if (false) {
+                    function a() {}
+                } else {
+                    function a() {}
+                }
+            '),
+            // ewww
+            array('
+                function a() {}
+                if (true):
+                    function a() {}
+                elseif (false):
+                    function a() {}
+                else:
+                    function a() {}
+                endif;
+            '),
+            array('
+                function a() {}
+                while (false) { function a() {} }
+            '),
+            array('
+                function a() {}
+                do { function a() {} } while (false);
+            '),
+            array('
+                function a() {}
+                switch (1) {
+                    case 0:
+                        function a() {}
+                        break;
+                    case 1:
+                        function a() {}
+                        break;
+                    case 2:
+                        function a() {}
+                        break;
+                }
+            '),
         );
     }
 }

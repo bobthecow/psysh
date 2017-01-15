@@ -40,13 +40,7 @@ script:
   - vendor/bin/phpunit
 
 before_deploy:
-  - bin/build
-  - chmod +x *.phar
-  - mkdir -p dist
-  - PKG_VERSION=$TRAVIS_TAG
-  - '[[ "$TRAVIS_PHP_VERSION" = 5.3* ]] && PKG_VERSION=${PKG_VERSION}-php53 || true'
-  - tar --transform="flags=r;s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
-  - tar --transform="flags=r;s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
+  - bin/package -v $TRAVIS_TAG
 
 deploy:
   provider: releases

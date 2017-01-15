@@ -18,8 +18,12 @@ use PhpParser\Node\Expr\New_ as NewExpr;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Do_ as DoStmt;
+use PhpParser\Node\Stmt\If_ as IfStmt;
 use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
+use PhpParser\Node\Stmt\Switch_ as SwitchStmt;
 use PhpParser\Node\Stmt\Trait_ as TraitStmt;
+use PhpParser\Node\Stmt\While_ as WhileStmt;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -35,6 +39,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     const TRAIT_TYPE     = 'trait';
 
     protected $checkTraits;
+    private $conditionalScopes = 0;
 
     public function __construct()
     {
@@ -54,12 +59,20 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         parent::enterNode($node);
 
-        if ($node instanceof ClassStmt) {
-            $this->validateClassStatement($node);
-        } elseif ($node instanceof InterfaceStmt) {
-            $this->validateInterfaceStatement($node);
-        } elseif ($node instanceof TraitStmt) {
-            $this->validateTraitStatement($node);
+        if (self::isConditional($node)) {
+            $this->conditionalScopes++;
+        } else {
+            // TODO: add an "else" here which adds a runtime check for instances where we can't tell
+            // whether a class is being redefined by static analysis alone.
+            if ($this->conditionalScopes === 0) {
+                if ($node instanceof ClassStmt) {
+                    $this->validateClassStatement($node);
+                } elseif ($node instanceof InterfaceStmt) {
+                    $this->validateInterfaceStatement($node);
+                } elseif ($node instanceof TraitStmt) {
+                    $this->validateTraitStatement($node);
+                }
+            }
         }
     }
 
@@ -76,13 +89,23 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof NewExpr) {
+        if (self::isConditional($node)) {
+            $this->conditionalScopes--;
+        } elseif ($node instanceof NewExpr) {
             $this->validateNewExpression($node);
         } elseif ($node instanceof ClassConstFetch) {
             $this->validateClassConstFetchExpression($node);
         } elseif ($node instanceof StaticCall) {
             $this->validateStaticCallExpression($node);
         }
+    }
+
+    private static function isConditional(Node $node)
+    {
+        return $node instanceof IfStmt ||
+            $node instanceof WhileStmt ||
+            $node instanceof DoStmt ||
+            $node instanceof SwitchStmt;
     }
 
     /**

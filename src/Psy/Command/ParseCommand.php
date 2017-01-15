@@ -113,7 +113,7 @@ HELP
             $code = '<?php ' . $code;
         }
 
-        $parserKind = $input->getOption('kind');
+        $parserKind = $this->parserFactory->hasKindsSupport() ? $input->getOption('kind') : null;
         $depth      = $input->getOption('depth');
         $nodes      = $this->parse($this->getParser($parserKind), $code);
         $output->page($this->presenter->present($nodes, $depth));

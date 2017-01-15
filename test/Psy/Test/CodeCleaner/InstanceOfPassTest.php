@@ -66,7 +66,6 @@ class InstanceOfPassTest extends CodeCleanerTestCase
             array('(1+1) instanceof stdClass'),
             array('"foo ${foo} $bar" instanceof stdClass'),
             array('DateTime::ISO8601 instanceof stdClass'),
-
         );
 
         return $data;
