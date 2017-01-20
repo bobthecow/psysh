@@ -78,16 +78,22 @@ class VariableEnumerator extends Enumerator
         uksort($scopeVars, function ($a, $b) {
             if ($a === '_e') {
                 return 1;
-            } elseif ($b === '_e') {
-                return -1;
-            } elseif ($a === '_') {
-                return 1;
-            } elseif ($b === '_') {
-                return -1;
-            } else {
-                // TODO: this should be natcasesort
-                return strcasecmp($a, $b);
             }
+
+            if ($b === '_e') {
+                return -1;
+            }
+
+            if ($a === '_') {
+                return 1;
+            }
+
+            if ($b === '_') {
+                return -1;
+            }
+
+            // TODO: this should be natcasesort
+            return strcasecmp($a, $b);
         });
 
         $ret = array();

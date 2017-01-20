@@ -112,11 +112,13 @@ class PropertyEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Properties';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
-            return 'Trait Properties';
-        } else {
-            return 'Class Properties';
         }
+
+        if (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Properties';
+        }
+
+        return 'Class Properties';
     }
 
     /**
@@ -130,11 +132,13 @@ class PropertyEnumerator extends Enumerator
     {
         if ($property->isPublic()) {
             return self::IS_PUBLIC;
-        } elseif ($property->isProtected()) {
-            return self::IS_PROTECTED;
-        } else {
-            return self::IS_PRIVATE;
         }
+
+        if ($property->isProtected()) {
+            return self::IS_PROTECTED;
+        }
+
+        return self::IS_PRIVATE;
     }
 
     /**
