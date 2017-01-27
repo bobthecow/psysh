@@ -148,6 +148,11 @@ return array(
     //
     // To disable update checks entirely, set to 'never'.
     'updateCheck' => 'daily',
+
+    // Display an additional startup message. Default is ''.
+    // You can color and style the message thanks to the Symfony Console tags.
+    // See https://symfony.com/doc/current/console/coloring.html for more details.
+    'startupMessage' => sprintf('<info>%s</info>', shell_exec('uptime')),
 );
 ```
 
