@@ -73,9 +73,9 @@ class Compiler
     /**
      * Add a file to the psysh Phar.
      *
-     * @param Phar        $phar
-     * @param SplFileInfo $file
-     * @param bool        $strip (default: true)
+     * @param \Phar        $phar
+     * @param \SplFileInfo $file
+     * @param bool         $strip (default: true)
      */
     private function addFile($phar, $file, $strip = true)
     {

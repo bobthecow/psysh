@@ -60,8 +60,8 @@ class ShellOutput extends ConsoleOutput
      *
      * Upon completion, the output pager is flushed.
      *
-     * @param string|array|Closure $messages A string, array of strings or a callback
-     * @param int                  $type     (default: 0)
+     * @param string|array|\Closure $messages A string, array of strings or a callback
+     * @param int                   $type     (default: 0)
      */
     public function page($messages, $type = 0)
     {
