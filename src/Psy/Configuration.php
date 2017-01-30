@@ -457,7 +457,7 @@ class Configuration
      * The pipe will be created inside the current temporary directory.
      *
      * @param string $type
-     * @param id     $pid
+     * @param int    $pid
      *
      * @return string Pipe name
      */
@@ -976,7 +976,7 @@ class Configuration
     /**
      * Get a PHP manual database connection.
      *
-     * @return PDO
+     * @return \PDO
      */
     public function getManualDb()
     {

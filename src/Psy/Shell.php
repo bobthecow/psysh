@@ -747,7 +747,7 @@ class Shell extends Application
      *
      * @param string $input
      *
-     * @return null|Command
+     * @return null|BaseCommand
      */
     protected function getCommand($input)
     {
@@ -832,7 +832,7 @@ class Shell extends Application
     /**
      * Get a PHP manual database instance.
      *
-     * @return PDO|null
+     * @return \PDO|null
      */
     public function getManualDb()
     {
