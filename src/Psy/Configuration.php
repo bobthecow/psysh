@@ -52,6 +52,7 @@ class Configuration
     private $dataDir;
     private $runtimeDir;
     private $configFile;
+    /** @var string|false */
     private $historyFile;
     private $historySize;
     private $eraseDuplicates;
@@ -339,7 +340,9 @@ class Configuration
      */
     public function setHistoryFile($file)
     {
-        $this->historyFile = (string) $file;
+        $path = pathinfo($file);
+
+        $this->historyFile = ConfigPaths::touchFileWithMkdir($path['dirname'], $path['basename']);
     }
 
     /**
@@ -370,8 +373,9 @@ class Configuration
                 $newHistory
             );
             @trigger_error($msg, E_USER_DEPRECATED);
+            $this->setHistoryFile($oldHistory);
 
-            return $this->historyFile = $oldHistory;
+            return $this->historyFile;
         }
 
         $files = ConfigPaths::getConfigFiles(array('psysh_history', 'history'), $this->configDir);
@@ -382,16 +386,14 @@ class Configuration
                 trigger_error($msg, E_USER_NOTICE);
             }
 
-            return $this->historyFile = $files[0];
+            $this->setHistoryFile($files[0]);
+        } else {
+            // fallback: create our own history file
+            $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+            $this->setHistoryFile($dir . '/psysh_history');
         }
 
-        // fallback: create our own history file
-        $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-        if (!is_dir($dir)) {
-            mkdir($dir, 0700, true);
-        }
-
-        return $this->historyFile = $dir . '/psysh_history';
+        return $this->historyFile;
     }
 
     /**
@@ -1173,24 +1175,6 @@ class Configuration
     {
         $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
 
-        if (!is_writable($dir)) {
-            return false;
-        }
-
-        if (!is_dir($dir)) {
-            mkdir($dir, 0700, true);
-        }
-
-        $file = $dir . '/update_check.json';
-
-        if (!is_writable($file)) {
-            return false;
-        }
-
-        if (!file_exists($file)) {
-            touch($file);
-        }
-
-        return $file;
+        return ConfigPaths::touchFileWithMkdir($dir, '/update_check.json');
     }
 }
