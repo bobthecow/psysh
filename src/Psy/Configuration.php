@@ -1175,6 +1175,6 @@ class Configuration
     {
         $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
 
-        return ConfigPaths::touchFileWithMkdir($dir, '/update_check.json');
+        return ConfigPaths::touchFileWithMkdir($dir, 'update_check.json');
     }
 }
