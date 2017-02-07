@@ -193,6 +193,18 @@ class ConfigPaths
      */
     public static function touchFileWithMkdir($dir, $file)
     {
+        $path = sprintf('%s/%s', rtrim($dir, '/'), ltrim($file, '/'));
+
+        if (file_exists($path)) {
+            if (is_writable($path)) {
+                return $path;
+            }
+
+            trigger_error("Writing to {$path} is not allowed.", E_USER_NOTICE);
+
+            return false;
+        }
+
         if (!is_writable($dir)) {
             trigger_error("Writing to {$dir} is not allowed.", E_USER_NOTICE);
 
@@ -203,17 +215,7 @@ class ConfigPaths
             mkdir($dir, 0700, true);
         }
 
-        $path = sprintf('%s/%s', rtrim($dir, '/'), ltrim($file, '/'));
-
-        if (!is_writable($path)) {
-            trigger_error("Writing to {$path} is not allowed.", E_USER_NOTICE);
-
-            return false;
-        }
-
-        if (!file_exists($path)) {
-            touch($path);
-        }
+        touch($path);
 
         return $path;
     }
