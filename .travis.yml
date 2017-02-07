@@ -38,7 +38,7 @@ install:
 
 script:
   - vendor/bin/phpunit
-  - '[[ "$TRAVIS_PHP_VERSION" != 7.1* ]] || bin/build'
+#  - '[[ "$TRAVIS_PHP_VERSION" != 7.1* ]] || bin/build'
 
 before_deploy:
   - bin/package -v $TRAVIS_TAG
