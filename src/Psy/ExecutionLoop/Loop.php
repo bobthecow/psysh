@@ -60,7 +60,7 @@ class Loop
             restore_error_handler();
             unset($__psysh_include__);
 
-            extract($__psysh__->getScopeVariables());
+            extract($__psysh__->getScopeVariables(false));
 
             do {
                 $__psysh__->beforeLoop();
@@ -125,13 +125,7 @@ class Loop
 
         // bind the closure to $this from the shell scope variables...
         if (self::bindLoop()) {
-            $that = null;
-            try {
-                $that = $shell->getScopeVariable('this');
-            } catch (\InvalidArgumentException $e) {
-                // well, it was worth a shot
-            }
-
+            $that = $shell->getBoundObject();
             if (is_object($that)) {
                 $loop = $loop->bindTo($that, get_class($that));
             } else {

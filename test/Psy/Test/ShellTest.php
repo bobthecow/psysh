@@ -39,7 +39,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $_e        = 'ignore this';
 
         $shell = new Shell($this->getConfig());
-        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e'));
+        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
         $this->assertEquals(array('one', 'two', 'three', '_'), $shell->getScopeVariableNames());
@@ -50,6 +50,12 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
         $shell->setScopeVariables(array());
         $this->assertEquals(array('_'), $shell->getScopeVariableNames());
+
+        $shell->setBoundObject($this);
+        $this->assertEquals(array('_', 'this'), $shell->getScopeVariableNames());
+        $this->assertSame($this, $shell->getScopeVariable('this'));
+        $this->assertEquals(array('_' => null), $shell->getScopeVariables(false));
+        $this->assertEquals(array('_' => null, 'this' => $this), $shell->getScopeVariables());
     }
 
     /**

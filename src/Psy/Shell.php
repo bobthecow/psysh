@@ -111,9 +111,9 @@ class Shell extends Application
      *         var_dump($item); // will be whatever you set $item to in Psy Shell
      *     }
      *
-     * Optionally, supply an object as the `$bind` parameter. This determines
-     * the value `$this` will have in the shell, and sets up class scope so that
-     * private and protected members are accessible:
+     * Optionally, supply an object as the `$boundObject` parameter. This
+     * determines the value `$this` will have in the shell, and sets up class
+     * scope so that private and protected members are accessible:
      *
      *     class Foo {
      *         function bar() {
@@ -123,24 +123,25 @@ class Shell extends Application
      *
      * This only really works in PHP 5.4+ and HHVM 3.5+, so upgrade already.
      *
-     * @param array  $vars Scope variables from the calling context (default: array())
-     * @param object $bind Bound object ($this) value for the shell
+     * @param array  $vars        Scope variables from the calling context (default: array())
+     * @param object $boundObject Bound object ($this) value for the shell
      *
      * @return array Scope variables from the debugger session
      */
-    public static function debug(array $vars = array(), $bind = null)
+    public static function debug(array $vars = array(), $boundObject = null)
     {
         echo PHP_EOL;
 
-        if ($bind !== null) {
-            $vars['this'] = $bind;
-        }
-
         $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
+
+        if ($boundObject !== null) {
+            $sh->setBoundObject($boundObject);
+        }
+
         $sh->run();
 
-        return $sh->getScopeVariables();
+        return $sh->getScopeVariables(false);
     }
 
     /**
@@ -393,11 +394,21 @@ class Shell extends Application
     /**
      * Return the set of variables currently in scope.
      *
+     * @param bool $includeBoundObject Pass false to exclude 'this'. If you're
+     *                                 passing the scope variables to `extract`
+     *                                 in PHP 7.1+, you _must_ exclude 'this'
+     *
      * @return array Associative array of scope variables
      */
-    public function getScopeVariables()
+    public function getScopeVariables($includeBoundObject = true)
     {
-        return $this->context->getAll();
+        $vars = $this->context->getAll();
+
+        if (!$includeBoundObject) {
+            unset($vars['this']);
+        }
+
+        return $vars;
     }
 
     /**
@@ -420,6 +431,26 @@ class Shell extends Application
     public function getScopeVariable($name)
     {
         return $this->context->get($name);
+    }
+
+    /**
+     * Set the bound object ($this variable) for the interactive shell.
+     *
+     * @param object|null $boundObject
+     */
+    public function setBoundObject($boundObject)
+    {
+        $this->context->setBoundObject($boundObject);
+    }
+
+    /**
+     * Get the bound object ($this variable) for the interactive shell.
+     *
+     * @return object|null
+     */
+    public function getBoundObject()
+    {
+        return $this->context->getBoundObject();
     }
 
     /**

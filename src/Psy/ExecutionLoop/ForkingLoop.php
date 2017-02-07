@@ -79,7 +79,7 @@ class ForkingLoop extends Loop
         parent::run($shell);
 
         // Send the scope variables back up to the main thread
-        fwrite($up, $this->serializeReturn($shell->getScopeVariables()));
+        fwrite($up, $this->serializeReturn($shell->getScopeVariables(false)));
         fclose($up);
 
         posix_kill(posix_getpid(), SIGKILL);

@@ -19,10 +19,11 @@ namespace Psy;
  */
 class Context
 {
-    private static $specialVars = array('_', '_e', '__psysh__');
+    private static $specialVars = array('_', '_e', '__psysh__', 'this');
     private $scopeVariables = array();
     private $lastException;
     private $returnValue;
+    private $boundObject;
 
     /**
      * Get a context variable.
@@ -46,6 +47,13 @@ class Context
 
                 return $this->lastException;
 
+            case 'this':
+                if (!isset($this->boundObject)) {
+                    throw new \InvalidArgumentException('Unknown variable: $' . $name);
+                }
+
+                return $this->boundObject;
+
             default:
                 if (!array_key_exists($name, $this->scopeVariables)) {
                     throw new \InvalidArgumentException('Unknown variable: $' . $name);
@@ -67,6 +75,10 @@ class Context
 
         if (isset($this->lastException)) {
             $vars['_e'] = $this->lastException;
+        }
+
+        if (isset($this->boundObject)) {
+            $vars['this'] = $this->boundObject;
         }
 
         return $vars;
@@ -132,5 +144,25 @@ class Context
         }
 
         return $this->lastException;
+    }
+
+    /**
+     * Set the bound object ($this variable) for the interactive shell.
+     *
+     * @param object|null $boundObject
+     */
+    public function setBoundObject($boundObject)
+    {
+        $this->boundObject = is_object($boundObject) ? $boundObject : null;
+    }
+
+    /**
+     * Get the bound object ($this variable) for the interactive shell.
+     *
+     * @return object|null
+     */
+    public function getBoundObject()
+    {
+        return $this->boundObject;
     }
 }
