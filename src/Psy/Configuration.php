@@ -1112,11 +1112,11 @@ class Configuration
                 case Checker::DAILY:
                 case Checker::WEEKLY:
                 case Checker::MONTHLY:
-                    $check_file = $this->getUpdateCheckCacheFile();
-                    if ($check_file === false) {
+                    $checkFile = $this->getUpdateCheckCacheFile();
+                    if ($checkFile === false) {
                         $this->checker = new NoopChecker();
                     } else {
-                        $this->checker = new IntervalChecker($check_file, $interval);
+                        $this->checker = new IntervalChecker($checkFile, $interval);
                     }
                     break;
 
