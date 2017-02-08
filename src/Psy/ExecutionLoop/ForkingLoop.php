@@ -11,6 +11,7 @@
 
 namespace Psy\ExecutionLoop;
 
+use Psy\Context;
 use Psy\Shell;
 
 /**
@@ -152,11 +153,11 @@ class ForkingLoop extends Loop
 
         foreach ($return as $key => $value) {
             // No need to return magic variables
-            if ($key === '_' || $key === '_e') {
+            if (Context::isSpecialVariableName($key)) {
                 continue;
             }
 
-            // Resources don't error, but they don't serialize well either.
+            // Resources and Closures don't error, but they don't serialize well either.
             if (is_resource($value) || $value instanceof \Closure) {
                 continue;
             }

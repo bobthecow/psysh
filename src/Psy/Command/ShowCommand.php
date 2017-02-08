@@ -66,6 +66,9 @@ HELP
     {
         list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
 
+        // Set some magic local variables
+        $this->setCommandScopeVariables($reflector);
+
         try {
             $output->page(CodeFormatter::format($reflector, $this->colorMode), ShellOutput::OUTPUT_RAW);
         } catch (RuntimeException $e) {

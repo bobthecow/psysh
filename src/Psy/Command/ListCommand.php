@@ -133,6 +133,11 @@ HELP
         if ($input->getOption('long')) {
             $output->stopPaging();
         }
+
+        // Set some magic local variables
+        if ($reflector !== null) {
+            $this->setCommandScopeVariables($reflector);
+        }
     }
 
     /**

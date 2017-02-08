@@ -416,6 +416,36 @@ class Shell extends Application
     }
 
     /**
+     * Return the set of magic variables currently in scope.
+     *
+     * @param bool $includeBoundObject Pass false to exclude 'this'. If you're
+     *                                 passing the scope variables to `extract`
+     *                                 in PHP 7.1+, you _must_ exclude 'this'
+     *
+     * @return array Associative array of magic scope variables
+     */
+    public function getSpecialScopeVariables($includeBoundObject = true)
+    {
+        $vars = $this->context->getSpecialVariables();
+
+        if (!$includeBoundObject) {
+            unset($vars['this']);
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Get the set of unused command-scope variable names.
+     *
+     * @return array Array of unused variable names
+     */
+    public function getUnusedCommandScopeVariableNames()
+    {
+        return $this->context->getUnusedCommandScopeVariableNames();
+    }
+
+    /**
      * Get the set of variable names currently in scope.
      *
      * @return array Array of variable names
