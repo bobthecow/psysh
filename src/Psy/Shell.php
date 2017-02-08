@@ -382,6 +382,26 @@ class Shell extends Application
     }
 
     /**
+     * Use the global scope.
+     *
+     * @param bool $use
+     */
+    public function setGlobalScope($use)
+    {
+        $this->context->setGlobalScope($use);
+    }
+
+    /**
+     * Whether to use the global scope.
+     *
+     * @return bool
+     */
+    public function getGlobalScope()
+    {
+        return $this->context->getGlobalScope();
+    }
+
+    /**
      * Set the variables currently in scope.
      *
      * @param array $vars
