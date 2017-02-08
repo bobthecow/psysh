@@ -79,6 +79,9 @@ HELP
                 $output->writeln($doc);
             }
         });
+
+        // Set some magic local variables
+        $this->setCommandScopeVariables($reflector);
     }
 
     private function getManualDoc($reflector)

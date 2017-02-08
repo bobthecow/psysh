@@ -169,4 +169,79 @@ abstract class ReflectingCommand extends Command implements ContextAware
     {
         return $this->context->getAll();
     }
+
+    /**
+     * Given a Reflector instance, set command-scope variables in the shell
+     * execution context. This is used to inject magic $__class, $__method and
+     * $__file variables (as well as a handful of others).
+     *
+     * @param \Reflector $reflector
+     */
+    protected function setCommandScopeVariables(\Reflector $reflector)
+    {
+        $vars = array();
+
+        switch (get_class($reflector)) {
+            case 'ReflectionClass':
+            case 'ReflectionObject':
+                $vars['__class'] = $reflector->name;
+                if ($reflector->inNamespace()) {
+                    $vars['__namespace'] = $reflector->getNamespaceName();
+                }
+                break;
+
+            case 'ReflectionMethod':
+                $vars['__method'] = sprintf('%s::%s', $reflector->class, $reflector->name);
+                $vars['__class'] = $reflector->class;
+                $classReflector = $reflector->getDeclaringClass();
+                if ($classReflector->inNamespace()) {
+                    $vars['__namespace'] = $classReflector->getNamespaceName();
+                }
+                break;
+
+            case 'ReflectionFunction':
+                $vars['__function'] = $reflector->name;
+                if ($reflector->inNamespace()) {
+                    $vars['__namespace'] = $reflector->getNamespaceName();
+                }
+                break;
+
+            case 'ReflectionGenerator':
+                $funcReflector = $reflector->getFunction();
+                $vars['__function'] = $funcReflector->name;
+                if ($funcReflector->inNamespace()) {
+                    $vars['__namespace'] = $funcReflector->getNamespaceName();
+                }
+                if ($fileName = $reflector->getExecutingFile()) {
+                    $vars['__file'] = $fileName;
+                    $vars['__line'] = $reflector->getExecutingLine();
+                    $vars['__dir']  = dirname($fileName);
+                }
+                break;
+
+            case 'ReflectionProperty':
+            case 'Psy\Reflection\ReflectionConstant':
+                $classReflector = $reflector->getDeclaringClass();
+                $vars['__class'] = $classReflector->name;
+                if ($classReflector->inNamespace()) {
+                    $vars['__namespace'] = $classReflector->getNamespaceName();
+                }
+                // no line for these, but this'll do
+                if ($fileName = $reflector->getDeclaringClass()->getFileName()) {
+                    $vars['__file'] = $fileName;
+                    $vars['__dir']  = dirname($fileName);
+                }
+                break;
+        }
+
+        if ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionFunctionAbstract) {
+            if ($fileName = $reflector->getFileName()) {
+                $vars['__file'] = $fileName;
+                $vars['__line'] = $reflector->getStartLine();
+                $vars['__dir']  = dirname($fileName);
+            }
+        }
+
+        $this->context->setCommandScopeVariables($vars);
+    }
 }
