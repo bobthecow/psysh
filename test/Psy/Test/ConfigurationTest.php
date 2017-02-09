@@ -30,6 +30,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(function_exists('pcntl_signal'), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
+        $this->assertNull($config->getStartupMessage());
     }
 
     public function testGettersAndSetters()
@@ -103,6 +104,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             'requireSemicolons' => true,
             'errorLoggingLevel' => E_ERROR | E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
+            'startupMessage'    => 'Psysh is awesome!',
         ));
 
         $this->assertFalse($config->useReadline());
@@ -113,6 +115,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($config->requireSemicolons());
         $this->assertEquals(E_ERROR | E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
+        $this->assertSame('Psysh is awesome!', $config->getStartupMessage());
     }
 
     public function testLoadConfigFile()

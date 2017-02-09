@@ -304,6 +304,7 @@ class Shell extends Application
 
         $this->output->writeln($this->getHeader());
         $this->writeVersionInfo();
+        $this->writeStartupMessage();
 
         try {
             $this->loop->run($this);
@@ -936,6 +937,17 @@ class Shell extends Application
             }
         } catch (\InvalidArgumentException $e) {
             $this->output->writeln($e->getMessage());
+        }
+    }
+
+    /**
+     * Write a startup message if set.
+     */
+    protected function writeStartupMessage()
+    {
+        $message = $this->config->getStartupMessage();
+        if ($message !== null && $message !== '') {
+            $this->output->writeln($message);
         }
     }
 }

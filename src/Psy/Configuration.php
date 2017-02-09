@@ -44,7 +44,7 @@ class Configuration
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
         'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
-        'colorMode', 'updateCheck',
+        'colorMode', 'updateCheck', 'startupMessage',
     );
 
     private $defaultIncludes;
@@ -69,6 +69,7 @@ class Configuration
     private $warnOnMultipleConfigs = false;
     private $colorMode;
     private $updateCheck;
+    private $startupMessage;
 
     // services
     private $readline;
@@ -1172,5 +1173,25 @@ class Configuration
         }
 
         return $dir . '/update_check.json';
+    }
+
+    /**
+     * Set the startup message.
+     *
+     * @param string $message
+     */
+    public function setStartupMessage($message)
+    {
+        $this->startupMessage = $message;
+    }
+
+    /**
+     * Get the startup message.
+     *
+     * @return string|null
+     */
+    public function getStartupMessage()
+    {
+        return $this->startupMessage;
     }
 }
