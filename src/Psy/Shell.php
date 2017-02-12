@@ -663,9 +663,9 @@ class Shell extends Application
     {
         $this->context->setReturnValue($ret);
         $ret    = $this->presentValue($ret);
-        $indent = str_repeat(' ', strlen(self::RETVAL));
+        $indent = str_repeat(' ', strlen(static::RETVAL));
 
-        $this->output->writeln(self::RETVAL . str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
+        $this->output->writeln(static::RETVAL . str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
     }
 
     /**
@@ -813,7 +813,7 @@ class Shell extends Application
      */
     protected function getPrompt()
     {
-        return $this->hasCode() ? self::BUFF_PROMPT : self::PROMPT;
+        return $this->hasCode() ? static::BUFF_PROMPT : static::PROMPT;
     }
 
     /**
@@ -831,7 +831,7 @@ class Shell extends Application
     {
         if (!empty($this->inputBuffer)) {
             $line = array_shift($this->inputBuffer);
-            $this->output->writeln(sprintf('<aside>%s %s</aside>', self::REPLAY, OutputFormatter::escape($line)));
+            $this->output->writeln(sprintf('<aside>%s %s</aside>', static::REPLAY, OutputFormatter::escape($line)));
 
             return $line;
         }
