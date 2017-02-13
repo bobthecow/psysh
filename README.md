@@ -183,7 +183,7 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * Drupal: [`drush php`](http://drushcommands.com/drush-8x/core/core-cli/), [drush-psysh](https://github.com/grota/drush-psysh)
  * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
  * Jupyter: [Jupyter-PHP](https://github.com/Litipk/Jupyter-PHP)
- * Laravel: [`artisan tinker`](https://github.com/laravel/framework/blob/5.0/src/Illuminate/Foundation/Console/TinkerCommand.php)
+ * Laravel: [`artisan tinker`](https://github.com/laravel/tinker)
  * Lumen: [`artisan tinker`](https://github.com/vluzrmos/lumen-tinker)
  * Magento: [`magerun console`](https://github.com/netz98/n98-magerun/blob/develop/src/N98/Magento/Command/Developer/ConsoleCommand.php)
  * Pantheon CLI: [`terminus cli console`](https://github.com/pantheon-systems/terminus)
