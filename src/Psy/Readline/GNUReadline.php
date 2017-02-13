@@ -20,8 +20,11 @@ namespace Psy\Readline;
  */
 class GNUReadline implements Readline
 {
+    /** @var string|false */
     protected $historyFile;
+    /** @var int */
     protected $historySize;
+    /** @var bool */
     protected $eraseDups;
 
     /**
@@ -38,10 +41,14 @@ class GNUReadline implements Readline
 
     /**
      * GNU Readline constructor.
+     *
+     * @param string|false $historyFile
+     * @param int          $historySize
+     * @param bool         $eraseDups
      */
     public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
     {
-        $this->historyFile = $historyFile;
+        $this->historyFile = ($historyFile !== null) ? $historyFile : false;
         $this->historySize = $historySize;
         $this->eraseDups = $eraseDups;
     }
@@ -121,7 +128,12 @@ class GNUReadline implements Readline
     {
         // We have to write history first, since it is used
         // by Libedit to list history
-        $res = readline_write_history($this->historyFile);
+        if ($this->historyFile !== false) {
+            $res = readline_write_history($this->historyFile);
+        } else {
+            $res = true;
+        }
+
         if (!$res || !$this->eraseDups && !$this->historySize > 0) {
             return $res;
         }
@@ -150,6 +162,10 @@ class GNUReadline implements Readline
             readline_add_history($line);
         }
 
-        return readline_write_history($this->historyFile);
+        if ($this->historyFile !== false) {
+            return readline_write_history($this->historyFile);
+        }
+
+        return true;
     }
 }

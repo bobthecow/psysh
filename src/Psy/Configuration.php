@@ -52,6 +52,7 @@ class Configuration
     private $dataDir;
     private $runtimeDir;
     private $configFile;
+    /** @var string|false */
     private $historyFile;
     private $historySize;
     private $eraseDuplicates;
@@ -340,7 +341,9 @@ class Configuration
      */
     public function setHistoryFile($file)
     {
-        $this->historyFile = (string) $file;
+        $path = pathinfo($file);
+
+        $this->historyFile = ConfigPaths::touchFileWithMkdir($path['dirname'], $path['basename']);
     }
 
     /**
@@ -371,8 +374,9 @@ class Configuration
                 $newHistory
             );
             @trigger_error($msg, E_USER_DEPRECATED);
+            $this->setHistoryFile($oldHistory);
 
-            return $this->historyFile = $oldHistory;
+            return $this->historyFile;
         }
 
         $files = ConfigPaths::getConfigFiles(array('psysh_history', 'history'), $this->configDir);
@@ -383,16 +387,14 @@ class Configuration
                 trigger_error($msg, E_USER_NOTICE);
             }
 
-            return $this->historyFile = $files[0];
+            $this->setHistoryFile($files[0]);
+        } else {
+            // fallback: create our own history file
+            $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+            $this->setHistoryFile($dir . '/psysh_history');
         }
 
-        // fallback: create our own history file
-        $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-        if (!is_dir($dir)) {
-            mkdir($dir, 0700, true);
-        }
-
-        return $this->historyFile = $dir . '/psysh_history';
+        return $this->historyFile;
     }
 
     /**
@@ -1111,7 +1113,12 @@ class Configuration
                 case Checker::DAILY:
                 case Checker::WEEKLY:
                 case Checker::MONTHLY:
-                    $this->checker = new IntervalChecker($this->getUpdateCheckCacheFile(), $interval);
+                    $checkFile = $this->getUpdateCheckCacheFile();
+                    if ($checkFile === false) {
+                        $this->checker = new NoopChecker();
+                    } else {
+                        $this->checker = new IntervalChecker($checkFile, $interval);
+                    }
                     break;
 
                 case Checker::NEVER:
@@ -1163,16 +1170,13 @@ class Configuration
     /**
      * Get a cache file path for the update checker.
      *
-     * @return string
+     * @return string|false Return false if config file/directory is not writable
      */
     public function getUpdateCheckCacheFile()
     {
         $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-        if (!is_dir($dir)) {
-            mkdir($dir, 0700, true);
-        }
 
-        return $dir . '/update_check.json';
+        return ConfigPaths::touchFileWithMkdir($dir, 'update_check.json');
     }
 
     /**
