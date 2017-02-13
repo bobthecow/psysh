@@ -11,7 +11,7 @@
 
 namespace Psy;
 
-use Psy\VersionUpdater\Checker;
+use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -53,7 +53,7 @@ if (!function_exists('Psy\info')) {
         );
 
         // Use an explicit, fresh update check here, rather than relying on whatever is in $config.
-        $checker = new Checker();
+        $checker = new GitHubChecker();
         $updates = array(
             'update available'       => !$checker->isLatest(),
             'latest release version' => $checker->getLatest(),
