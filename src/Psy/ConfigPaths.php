@@ -182,14 +182,14 @@ class ConfigPaths
     }
 
     /**
-     * Touch $file mkdir and if $dir is not exists.
+     * Ensure that $file inside $dir exists and is writable.
      *
-     * Generates E_USER_NOTICE error if $file or $dir is not writable.
+     * Generates E_USER_NOTICE error if either $file or $dir is not writable.
      *
      * @param string $dir
      * @param string $file
      *
-     * @return string|false Full path to $file. Return false if file is not writable.
+     * @return string|false Full path to $file, or false if file is not writable
      */
     public static function touchFileWithMkdir($dir, $file)
     {
@@ -200,19 +200,20 @@ class ConfigPaths
                 return $path;
             }
 
-            trigger_error("Writing to {$path} is not allowed.", E_USER_NOTICE);
-
-            return false;
-        }
-
-        if (!is_writable($dir)) {
-            trigger_error("Writing to {$dir} is not allowed.", E_USER_NOTICE);
+            trigger_error(sprintf('Writing to %s is not allowed.', $path), E_USER_NOTICE);
 
             return false;
         }
 
         if (!is_dir($dir)) {
-            mkdir($dir, 0700, true);
+            // Just try making it and see if it works
+            @mkdir($dir, 0700, true);
+        }
+
+        if (!is_dir($dir) || !is_writable($dir)) {
+            trigger_error(sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
+
+            return false;
         }
 
         touch($path);
