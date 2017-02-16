@@ -341,9 +341,7 @@ class Configuration
      */
     public function setHistoryFile($file)
     {
-        $path = pathinfo($file);
-
-        $this->historyFile = ConfigPaths::touchFileWithMkdir($path['dirname'], $path['basename']);
+        $this->historyFile = ConfigPaths::touchFileWithMkdir($file);
     }
 
     /**
@@ -1176,7 +1174,7 @@ class Configuration
     {
         $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
 
-        return ConfigPaths::touchFileWithMkdir($dir, 'update_check.json');
+        return ConfigPaths::touchFileWithMkdir($dir . '/update_check.json');
     }
 
     /**
