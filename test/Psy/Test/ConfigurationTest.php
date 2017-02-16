@@ -20,9 +20,16 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
+    private function getConfig($configFile = null)
+    {
+        return new Configuration(array(
+            'configFile' => $configFile ?: __DIR__ . '/../../fixtures/empty.php',
+        ));
+    }
+
     public function testDefaults()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
 
         $this->assertEquals(function_exists('readline'), $config->hasReadline());
         $this->assertEquals(function_exists('readline'), $config->useReadline());
@@ -35,7 +42,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testGettersAndSetters()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
 
         $this->assertNull($config->getDataDir());
         $config->setDataDir('wheee');
@@ -90,7 +97,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfig()
     {
-        $config  = new Configuration();
+        $config  = $this->getConfig();
         $cleaner = new CodeCleaner();
         $pager   = new PassthruPager(new ConsoleOutput());
         $loop    = new Loop($config);
@@ -120,7 +127,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfigFile()
     {
-        $config = new Configuration(array('configFile' => __DIR__ . '/../../fixtures/config.php'));
+        $config = $this->getConfig(__DIR__ . '/../../fixtures/config.php');
 
         $runtimeDir = $this->joinPath(realpath(sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
 
@@ -180,7 +187,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOutput()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $output = $config->getOutput();
 
         $this->assertInstanceOf('\Psy\Output\ShellOutput', $output);
@@ -207,7 +214,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /** @dataProvider getOutputDecoratedProvider */
     public function testGetOutputDecorated($expectation, $colorMode)
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $config->setColorMode($colorMode);
 
         $this->assertSame($expectation, $config->getOutputDecorated());
@@ -225,7 +232,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /** @dataProvider setColorModeValidProvider */
     public function testSetColorModeValid($colorMode)
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $config->setColorMode($colorMode);
 
         $this->assertEquals($colorMode, $config->colorMode());
@@ -233,7 +240,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testSetColorModeInvalid()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $colorMode = 'some invalid mode';
 
         $this->setExpectedException(
@@ -245,7 +252,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testSetCheckerValid()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $checker = new GitHubChecker();
 
         $config->setChecker($checker);
