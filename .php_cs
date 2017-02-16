@@ -30,6 +30,7 @@ $config = Config::create()
         '-pre_increment',
         '-unalign_double_arrow',
         '-unalign_equals',
+        '-no_empty_comment', // stop removing slashes in the middle of multi-line comments
     ))
     ->setUsingLinter(false);
 
