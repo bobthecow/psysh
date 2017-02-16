@@ -80,6 +80,9 @@ class Shell extends Application
         parent::__construct('Psy Shell', self::VERSION);
 
         $this->config->setShell($this);
+
+        // Register the current shell session's config with \Psy\info
+        \Psy\info($this->config);
     }
 
     /**

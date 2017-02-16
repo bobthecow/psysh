@@ -32,9 +32,27 @@ if (!function_exists('Psy\sh')) {
 }
 
 if (!function_exists('Psy\info')) {
-    function info()
+    /**
+     * Get a bunch of debugging info about the current PsySH environment and
+     * configuration.
+     *
+     * If a Configuration param is passed, that configuration is stored and
+     * used for the current shell session, and no debugging info is returned.
+     *
+     * @param Configuration|null $config
+     *
+     * @return array|null
+     */
+    function info(Configuration $config = null)
     {
-        $config = new Configuration();
+        static $lastConfig;
+        if ($config !== null) {
+            $lastConfig = $config;
+
+            return;
+        }
+
+        $config = $lastConfig ?: new Configuration();
 
         $core = array(
             'PsySH version'       => Shell::VERSION,
