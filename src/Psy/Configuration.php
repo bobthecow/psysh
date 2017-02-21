@@ -359,7 +359,7 @@ class Configuration
         }
 
         // Deprecation warning for incorrect psysh_history path.
-        // TODO: remove this before v0.8.0
+        // TODO: remove this before v0.9.0
         $xdg = new Xdg();
         $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
         if (@is_file($oldHistory)) {
