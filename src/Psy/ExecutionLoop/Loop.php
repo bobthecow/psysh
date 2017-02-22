@@ -47,6 +47,11 @@ class Loop
      */
     public function run(Shell $shell)
     {
+        /**
+         * @param Shell $__psysh__
+         *
+         * @throws ThrowUpException
+         */
         $loop = function ($__psysh__) {
             // Load user-defined includes
             set_error_handler(array($__psysh__, 'handleError'));
@@ -60,11 +65,21 @@ class Loop
             restore_error_handler();
             unset($__psysh_include__);
 
-            extract($__psysh__->getScopeVariables(false));
+            if ($__psysh__->getGlobalScope()) {
+                extract($GLOBALS, EXTR_OVERWRITE | EXTR_REFS);
+            } else {
+                extract($__psysh__->getScopeVariables(false));
+            }
 
             do {
                 $__psysh__->beforeLoop();
-                $__psysh__->setScopeVariables(get_defined_vars());
+                if ($__psysh__->getGlobalScope()) {
+                    foreach (array_diff_key($GLOBALS, get_defined_vars()) as $__key__ => $__val__) {
+                        $GLOBALS[$__key__] = &$$__key__;
+                    }
+                } else {
+                    $__psysh__->setScopeVariables(get_defined_vars());
+                }
 
                 try {
                     // read a line, see if we should eval

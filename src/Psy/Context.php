@@ -21,6 +21,7 @@ class Context
 {
     private static $specialVars = array('_', '_e', '__psysh__', 'this');
     private $scopeVariables = array();
+    private $useGlobalScope = false;
     private $lastException;
     private $returnValue;
     private $boundObject;
@@ -82,6 +83,26 @@ class Context
         }
 
         return $vars;
+    }
+
+    /**
+     * Use the global scope.
+     *
+     * @param bool $use
+     */
+    public function setGlobalScope($use)
+    {
+        $this->useGlobalScope = $use;
+    }
+
+    /**
+     * Whether to use the global scope.
+     *
+     * @return bool
+     */
+    public function getGlobalScope()
+    {
+        return $this->useGlobalScope;
     }
 
     /**
