@@ -167,6 +167,9 @@ class ForkingLoop extends Loop
             } catch (\Exception $e) {
                 // we'll just ignore this one...
             }
+            catch (\Error $e) {
+                // and this one too...
+            }
         }
 
         return @serialize($serializable);
