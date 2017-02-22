@@ -166,6 +166,8 @@ class ForkingLoop extends Loop
                 $serializable[$key] = $value;
             } catch (\Exception $e) {
                 // we'll just ignore this one...
+            } catch (\Throwable $e) {
+                // and this one too...
             }
         }
 
