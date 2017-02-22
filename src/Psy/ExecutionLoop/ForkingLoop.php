@@ -43,7 +43,9 @@ class ForkingLoop extends Loop
         $pid = pcntl_fork();
         if ($pid < 0) {
             throw new \RuntimeException('Unable to start execution loop.');
-        } elseif ($pid > 0) {
+        }
+
+        if ($pid > 0) {
             // This is the main thread. We'll just wait for a while.
 
             // We won't be needing this one.
@@ -120,7 +122,9 @@ class ForkingLoop extends Loop
         $pid = pcntl_fork();
         if ($pid < 0) {
             throw new \RuntimeException('Unable to create savegame fork.');
-        } elseif ($pid > 0) {
+        }
+
+        if ($pid > 0) {
             // we're the savegame now... let's wait and see what happens
             pcntl_waitpid($pid, $status);
 

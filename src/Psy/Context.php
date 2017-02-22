@@ -41,11 +41,11 @@ class Context
                 return $this->returnValue;
 
             case '_e':
-                if (!isset($this->lastException)) {
-                    throw new \InvalidArgumentException('Unknown variable: $' . $name);
+                if (isset($this->lastException)) {
+                    return $this->lastException;
                 }
 
-                return $this->lastException;
+                throw new \InvalidArgumentException('Unknown variable: $' . $name);
 
             case 'this':
                 if (!isset($this->boundObject)) {
@@ -55,11 +55,11 @@ class Context
                 return $this->boundObject;
 
             default:
-                if (!array_key_exists($name, $this->scopeVariables)) {
-                    throw new \InvalidArgumentException('Unknown variable: $' . $name);
+                if (array_key_exists($name, $this->scopeVariables)) {
+                    return $this->scopeVariables[$name];
                 }
 
-                return $this->scopeVariables[$name];
+                throw new \InvalidArgumentException('Unknown variable: $' . $name);
         }
     }
 
@@ -139,11 +139,11 @@ class Context
      */
     public function getLastException()
     {
-        if (!isset($this->lastException)) {
-            throw new \InvalidArgumentException('No most-recent exception');
+        if (isset($this->lastException)) {
+            return $this->lastException;
         }
 
-        return $this->lastException;
+        throw new \InvalidArgumentException('No most-recent exception');
     }
 
     /**

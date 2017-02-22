@@ -76,11 +76,9 @@ class FunctionEnumerator extends Enumerator
     {
         $funcs = get_defined_functions();
 
-        if ($type) {
-            return $funcs[$type];
-        } else {
-            return array_merge($funcs['internal'], $funcs['user']);
-        }
+        return $type
+            ? $funcs[$type]
+            : array_merge($funcs['internal'], $funcs['user']);
     }
 
     /**

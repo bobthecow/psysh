@@ -109,10 +109,12 @@ class ClassConstantEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Constants';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
-            return 'Trait Constants';
-        } else {
-            return 'Class Constants';
         }
+
+        if (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Constants';
+        }
+
+        return 'Class Constants';
     }
 }
