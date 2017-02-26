@@ -90,7 +90,13 @@ HELP
     protected function resolveTarget($target)
     {
         $matches = array();
-        if (preg_match(self::INSTANCE, $target, $matches)) {
+        if (preg_match(self::SUPERGLOBAL, $target, $matches)) {
+            if (!array_key_exists($matches[1], $GLOBALS)) {
+                throw new RuntimeException('Unknown target: ' . $target);
+            }
+
+            return $GLOBALS[$matches[1]];
+        } elseif (preg_match(self::INSTANCE, $target, $matches)) {
             return $this->getScopeVariable($matches[1]);
         } else {
             throw new RuntimeException('Unknown target: ' . $target);

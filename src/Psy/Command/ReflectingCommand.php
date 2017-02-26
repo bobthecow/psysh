@@ -27,6 +27,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     const CLASS_STATIC    = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER = '/^\$(\w+)(::|->)(\w+)$/';
     const INSTANCE_STATIC = '/^\$(\w+)::\$(\w+)$/';
+    const SUPERGLOBAL     = '/^\$(GLOBALS|_(?:SERVER|ENV|FILES|COOKIE|POST|GET|SESSION))$/';
 
     /**
      * Context instance (for ContextAware interface).
@@ -60,6 +61,14 @@ abstract class ReflectingCommand extends Command implements ContextAware
         $valueName = trim($valueName);
         $matches   = array();
         switch (true) {
+            case preg_match(self::SUPERGLOBAL, $valueName, $matches):
+                // TODO: maybe do something interesting with these at some point?
+                if (array_key_exists($matches[1], $GLOBALS)) {
+                    throw new RuntimeException('Unable to inspect a non-object');
+                } else {
+                    throw new RuntimeException('Unknown target: ' . $valueName);
+                }
+
             case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
                 return array($this->resolveName($matches[0], true), null, 0);
 
