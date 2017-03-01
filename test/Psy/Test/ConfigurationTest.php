@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,9 +20,16 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
+    private function getConfig($configFile = null)
+    {
+        return new Configuration(array(
+            'configFile' => $configFile ?: __DIR__ . '/../../fixtures/empty.php',
+        ));
+    }
+
     public function testDefaults()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
 
         $this->assertEquals(function_exists('readline'), $config->hasReadline());
         $this->assertEquals(function_exists('readline'), $config->useReadline());
@@ -30,11 +37,12 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(function_exists('pcntl_signal'), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
+        $this->assertNull($config->getStartupMessage());
     }
 
     public function testGettersAndSetters()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
 
         $this->assertNull($config->getDataDir());
         $config->setDataDir('wheee');
@@ -89,7 +97,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfig()
     {
-        $config  = new Configuration();
+        $config  = $this->getConfig();
         $cleaner = new CodeCleaner();
         $pager   = new PassthruPager(new ConsoleOutput());
         $loop    = new Loop($config);
@@ -103,6 +111,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             'requireSemicolons' => true,
             'errorLoggingLevel' => E_ERROR | E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
+            'startupMessage'    => 'Psysh is awesome!',
         ));
 
         $this->assertFalse($config->useReadline());
@@ -113,11 +122,12 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($config->requireSemicolons());
         $this->assertEquals(E_ERROR | E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
+        $this->assertSame('Psysh is awesome!', $config->getStartupMessage());
     }
 
     public function testLoadConfigFile()
     {
-        $config = new Configuration(array('configFile' => __DIR__ . '/../../fixtures/config.php'));
+        $config = $this->getConfig(__DIR__ . '/../../fixtures/config.php');
 
         $runtimeDir = $this->joinPath(realpath(sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
 
@@ -177,7 +187,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOutput()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $output = $config->getOutput();
 
         $this->assertInstanceOf('\Psy\Output\ShellOutput', $output);
@@ -204,7 +214,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /** @dataProvider getOutputDecoratedProvider */
     public function testGetOutputDecorated($expectation, $colorMode)
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $config->setColorMode($colorMode);
 
         $this->assertSame($expectation, $config->getOutputDecorated());
@@ -222,7 +232,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /** @dataProvider setColorModeValidProvider */
     public function testSetColorModeValid($colorMode)
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $config->setColorMode($colorMode);
 
         $this->assertEquals($colorMode, $config->colorMode());
@@ -230,7 +240,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testSetColorModeInvalid()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $colorMode = 'some invalid mode';
 
         $this->setExpectedException(
@@ -242,7 +252,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testSetCheckerValid()
     {
-        $config = new Configuration();
+        $config = $this->getConfig();
         $checker = new GitHubChecker();
 
         $config->setChecker($checker);

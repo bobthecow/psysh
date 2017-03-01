@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,6 +19,7 @@ use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\ExitPass;
+use Psy\CodeCleaner\FinalClassPass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
@@ -83,6 +84,7 @@ class CodeCleaner
             new CallTimePassByReferencePass(),
             new PassableByReferencePass(),
             new CalledClassPass(),
+            new FinalClassPass(),
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
             new LegacyEmptyPass(),

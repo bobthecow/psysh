@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -ev
+
 cd "${BASH_SOURCE%/*}/.."
 
 rm -rf build-vendor
@@ -12,8 +14,8 @@ if [[ $(php --version) = PHP\ 5.3* ]]; then
 fi
 
 COMPOSER=composer-compat.json COMPOSER_VENDOR_DIR=build-vendor \
-  composer require symfony/intl hoa/console $HOA_VERSION --no-progress --no-update
+  composer require symfony/intl hoa/console $HOA_VERSION --no-progress --no-update --no-interaction --verbose
 
 COMPOSER=composer-compat.json COMPOSER_VENDOR_DIR=build-vendor \
-  composer update --prefer-stable --no-dev --no-progress --classmap-authoritative
+  composer update --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose
 

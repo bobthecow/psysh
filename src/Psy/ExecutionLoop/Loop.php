@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -60,7 +60,7 @@ class Loop
             restore_error_handler();
             unset($__psysh_include__);
 
-            extract($__psysh__->getScopeVariables());
+            extract($__psysh__->getScopeVariables(false));
 
             do {
                 $__psysh__->beforeLoop();
@@ -75,6 +75,16 @@ class Loop
                         array($__psysh__, 'writeStdout'),
                         version_compare(PHP_VERSION, '5.4', '>=') ? 1 : 2
                     );
+
+                    // Let PsySH inject some magic variables back into the
+                    // shell scope... things like $__class, and $__file set by
+                    // reflection commands
+                    extract($__psysh__->getSpecialScopeVariables(false));
+
+                    // And unset any magic variables which are no longer needed
+                    foreach ($__psysh__->getUnusedCommandScopeVariableNames() as $__psysh_var_name__) {
+                        unset($$__psysh_var_name__, $__psysh_var_name__);
+                    }
 
                     set_error_handler(array($__psysh__, 'handleError'));
                     $_ = eval($__psysh__->flushCode() ?: Loop::NOOP_INPUT);
@@ -125,13 +135,7 @@ class Loop
 
         // bind the closure to $this from the shell scope variables...
         if (self::bindLoop()) {
-            $that = null;
-            try {
-                $that = $shell->getScopeVariable('this');
-            } catch (\InvalidArgumentException $e) {
-                // well, it was worth a shot
-            }
-
+            $that = $shell->getBoundObject();
             if (is_object($that)) {
                 $loop = $loop->bindTo($that, get_class($that));
             } else {

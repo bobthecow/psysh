@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,7 +31,15 @@ class CodeFormatter implements Formatter
      */
     public static function format(\Reflector $reflector, $colorMode = null)
     {
+        if (!self::isReflectable($reflector)) {
+            throw new RuntimeException('Source code unavailable.');
+        }
+
         $colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
+
+        if ($reflector instanceof \ReflectionGenerator) {
+            $reflector = $reflector->getFunction();
+        }
 
         if ($fileName = $reflector->getFileName()) {
             if (!is_file($fileName)) {
@@ -47,12 +55,22 @@ class CodeFormatter implements Formatter
             $highlighter = new Highlighter($colors);
 
             return $highlighter->getCodeSnippet($file, $start, 0, $end);
-
-            // no need to escape this bad boy, since (for now) it's being output raw.
-            // return OutputFormatter::escape(implode(PHP_EOL, $code));
-            return implode(PHP_EOL, $code);
         } else {
             throw new RuntimeException('Source code unavailable.');
         }
+    }
+
+    /**
+     * Check whether a Reflector instance is reflectable by this formatter.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return bool
+     */
+    private static function isReflectable(\Reflector $reflector)
+    {
+        return $reflector instanceof \ReflectionClass ||
+            $reflector instanceof \ReflectionFunctionAbstract ||
+            $reflector instanceof \ReflectionGenerator;
     }
 }

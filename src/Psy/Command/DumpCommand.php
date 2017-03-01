@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -72,6 +72,10 @@ HELP
         $depth  = $input->getOption('depth');
         $target = $this->resolveTarget($input->getArgument('target'));
         $output->page($this->presenter->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
+
+        if (is_object($target)) {
+            $this->setCommandScopeVariables(new \ReflectionObject($target));
+        }
     }
 
     /**
@@ -86,7 +90,13 @@ HELP
     protected function resolveTarget($target)
     {
         $matches = array();
-        if (preg_match(self::INSTANCE, $target, $matches)) {
+        if (preg_match(self::SUPERGLOBAL, $target, $matches)) {
+            if (!array_key_exists($matches[1], $GLOBALS)) {
+                throw new RuntimeException('Unknown target: ' . $target);
+            }
+
+            return $GLOBALS[$matches[1]];
+        } elseif (preg_match(self::INSTANCE, $target, $matches)) {
             return $this->getScopeVariable($matches[1]);
         } else {
             throw new RuntimeException('Unknown target: ' . $target);

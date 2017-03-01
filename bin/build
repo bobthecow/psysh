@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
+set -ev
+
 cd "${BASH_SOURCE%/*}/.."
 
 echo "Building phar"
-./bin/build-vendor || exit 1
-./bin/build-phar || exit 1
+./bin/build-vendor
+./bin/build-phar
 
 echo "Building compat phar"
-./bin/build-vendor-compat || exit 1
+./bin/build-vendor-compat
 ./bin/build-phar --compat

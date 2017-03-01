@@ -38,6 +38,7 @@ install:
 
 script:
   - vendor/bin/phpunit
+#  - '[[ "$TRAVIS_PHP_VERSION" != 7.1* ]] || bin/build'
 
 before_deploy:
   - bin/package -v $TRAVIS_TAG
@@ -53,4 +54,4 @@ deploy:
   on:
     tags: true
     repo: bobthecow/psysh
-    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.0*) && -z "$COMPOSER_FLAGS"
+    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.1*) && -z "$COMPOSER_FLAGS"

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,7 +22,8 @@ class Dumper extends CliDumper
 {
     private $formatter;
 
-    protected static $controlCharsRx = '/[\x00-\x1F\x7F]+/';
+    protected static $onlyControlCharsRx = '/^[\x00-\x1F\x7F]+$/';
+    protected static $controlCharsRx = '/([\x00-\x1F\x7F]+)/';
     protected static $controlCharsMap = array(
         "\0"   => '\0',
         "\t"   => '\t',
@@ -67,22 +68,29 @@ class Dumper extends CliDumper
             $value = strtr($value, '@', '#');
         }
 
+        $styled = '';
         $map = self::$controlCharsMap;
         $cchr = $this->styles['cchr'];
-        $value = preg_replace_callback(self::$controlCharsRx, function ($c) use ($map, $cchr) {
-            $s = '';
-            $i = 0;
-            $c = $c[0];
-            do {
-                $s .= isset($map[$c[$i]]) ? $map[$c[$i]] : sprintf('\x%02X', ord($c[$i]));
-            } while (isset($c[++$i]));
 
-            return "<{$cchr}>{$s}</{$cchr}>";
-        }, $this->formatter->escape($value));
+        $chunks = preg_split(self::$controlCharsRx, $value, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        foreach ($chunks as $chunk) {
+            if (preg_match(self::$onlyControlCharsRx, $chunk)) {
+                $chars = '';
+                $i = 0;
+                do {
+                    $chars .= isset($map[$chunk[$i]]) ? $map[$chunk[$i]] : sprintf('\x%02X', ord($chunk[$i]));
+                } while (isset($chunk[++$i]));
+
+                $chars = $this->formatter->escape($chars);
+                $styled .= "<{$cchr}>{$chars}</{$cchr}>";
+            } else {
+                $styled .= $this->formatter->escape($chunk);
+            }
+        }
 
         $style = $this->styles[$style];
 
-        return "<{$style}>{$value}</{$style}>";
+        return "<{$style}>{$styled}</{$style}>";
     }
 
     /**

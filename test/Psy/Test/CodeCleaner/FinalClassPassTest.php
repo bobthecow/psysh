@@ -12,13 +12,13 @@
 namespace Psy\Test\CodeCleaner;
 
 use PhpParser\NodeTraverser;
-use Psy\CodeCleaner\AbstractClassPass;
+use Psy\CodeCleaner\FinalClassPass;
 
-class AbstractClassPassTest extends CodeCleanerTestCase
+class FinalClassPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new AbstractClassPass();
+        $this->pass      = new FinalClassPass();
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor($this->pass);
     }
@@ -35,11 +35,18 @@ class AbstractClassPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('class A { abstract function a(); }'),
-            array('abstract class B { abstract function b() {} }'),
-            array('abstract class B { abstract function b() { echo "yep"; } }'),
+        $stmts = array(
+            array('final class A {} class B extends A {}'),
+            array('class A {} final class B extends A {} class C extends B {}'),
+            // array('namespace A { final class B {} } namespace C { class D extends \\A\\B {} }'),
         );
+
+        if (!defined('HHVM_VERSION')) {
+            // For some reason Closure isn't final in HHVM?
+            $stmts[] = array('class A extends \\Closure {}');
+        }
+
+        return $stmts;
     }
 
     /**
@@ -54,8 +61,9 @@ class AbstractClassPassTest extends CodeCleanerTestCase
     public function validStatements()
     {
         return array(
-            array('abstract class C { function c() {} }'),
-            array('abstract class D { abstract function d(); }'),
+            array('class A extends \\stdClass {}'),
+            array('final class A extends \\stdClass {}'),
+            array('class A {} class B extends A {}'),
         );
     }
 }

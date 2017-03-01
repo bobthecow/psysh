@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -ev
+
 cd "${BASH_SOURCE%/*}/.."
 
 USAGE="usage: bin/package [-v PACKAGE_VERSION]"
@@ -34,7 +36,7 @@ echo "Creating tarballs"
 mkdir -p dist || exit 1
 
 if [ -z "$PKG_VERSION" ]; then
-  PKG_VERSION=$(git describe --tag --exact-match) || exit 1
+  PKG_VERSION=$(git describe --tag --exact-match)
   if [[ $(php --version) = PHP\ 5.3* ]]; then
     PKG_VERSION=${PKG_VERSION}-php53
   fi
@@ -46,5 +48,5 @@ if [[ $(tar --version) = bsdtar* ]]; then
   TAR_FLAGS='-s /.*/psysh/'
 fi
 
-tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar || exit 1
+tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
 tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar

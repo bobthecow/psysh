@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.8.1';
+    const VERSION = 'v0.8.2';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -80,6 +80,9 @@ class Shell extends Application
         parent::__construct('Psy Shell', self::VERSION);
 
         $this->config->setShell($this);
+
+        // Register the current shell session's config with \Psy\info
+        \Psy\info($this->config);
     }
 
     /**
@@ -111,9 +114,9 @@ class Shell extends Application
      *         var_dump($item); // will be whatever you set $item to in Psy Shell
      *     }
      *
-     * Optionally, supply an object as the `$bind` parameter. This determines
-     * the value `$this` will have in the shell, and sets up class scope so that
-     * private and protected members are accessible:
+     * Optionally, supply an object as the `$boundObject` parameter. This
+     * determines the value `$this` will have in the shell, and sets up class
+     * scope so that private and protected members are accessible:
      *
      *     class Foo {
      *         function bar() {
@@ -123,24 +126,25 @@ class Shell extends Application
      *
      * This only really works in PHP 5.4+ and HHVM 3.5+, so upgrade already.
      *
-     * @param array  $vars Scope variables from the calling context (default: array())
-     * @param object $bind Bound object ($this) value for the shell
+     * @param array  $vars        Scope variables from the calling context (default: array())
+     * @param object $boundObject Bound object ($this) value for the shell
      *
      * @return array Scope variables from the debugger session
      */
-    public static function debug(array $vars = array(), $bind = null)
+    public static function debug(array $vars = array(), $boundObject = null)
     {
         echo PHP_EOL;
 
-        if ($bind !== null) {
-            $vars['this'] = $bind;
-        }
-
         $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
+
+        if ($boundObject !== null) {
+            $sh->setBoundObject($boundObject);
+        }
+
         $sh->run();
 
-        return $sh->getScopeVariables();
+        return $sh->getScopeVariables(false);
     }
 
     /**
@@ -303,6 +307,7 @@ class Shell extends Application
 
         $this->output->writeln($this->getHeader());
         $this->writeVersionInfo();
+        $this->writeStartupMessage();
 
         try {
             $this->loop->run($this);
@@ -393,11 +398,51 @@ class Shell extends Application
     /**
      * Return the set of variables currently in scope.
      *
+     * @param bool $includeBoundObject Pass false to exclude 'this'. If you're
+     *                                 passing the scope variables to `extract`
+     *                                 in PHP 7.1+, you _must_ exclude 'this'
+     *
      * @return array Associative array of scope variables
      */
-    public function getScopeVariables()
+    public function getScopeVariables($includeBoundObject = true)
     {
-        return $this->context->getAll();
+        $vars = $this->context->getAll();
+
+        if (!$includeBoundObject) {
+            unset($vars['this']);
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Return the set of magic variables currently in scope.
+     *
+     * @param bool $includeBoundObject Pass false to exclude 'this'. If you're
+     *                                 passing the scope variables to `extract`
+     *                                 in PHP 7.1+, you _must_ exclude 'this'
+     *
+     * @return array Associative array of magic scope variables
+     */
+    public function getSpecialScopeVariables($includeBoundObject = true)
+    {
+        $vars = $this->context->getSpecialVariables();
+
+        if (!$includeBoundObject) {
+            unset($vars['this']);
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Get the set of unused command-scope variable names.
+     *
+     * @return array Array of unused variable names
+     */
+    public function getUnusedCommandScopeVariableNames()
+    {
+        return $this->context->getUnusedCommandScopeVariableNames();
     }
 
     /**
@@ -420,6 +465,26 @@ class Shell extends Application
     public function getScopeVariable($name)
     {
         return $this->context->get($name);
+    }
+
+    /**
+     * Set the bound object ($this variable) for the interactive shell.
+     *
+     * @param object|null $boundObject
+     */
+    public function setBoundObject($boundObject)
+    {
+        $this->context->setBoundObject($boundObject);
+    }
+
+    /**
+     * Get the bound object ($this variable) for the interactive shell.
+     *
+     * @return object|null
+     */
+    public function getBoundObject()
+    {
+        return $this->context->getBoundObject();
     }
 
     /**
@@ -631,9 +696,9 @@ class Shell extends Application
     {
         $this->context->setReturnValue($ret);
         $ret    = $this->presentValue($ret);
-        $indent = str_repeat(' ', strlen(self::RETVAL));
+        $indent = str_repeat(' ', strlen(static::RETVAL));
 
-        $this->output->writeln(self::RETVAL . str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
+        $this->output->writeln(static::RETVAL . str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
     }
 
     /**
@@ -747,7 +812,7 @@ class Shell extends Application
      *
      * @param string $input
      *
-     * @return null|Command
+     * @return null|BaseCommand
      */
     protected function getCommand($input)
     {
@@ -781,7 +846,7 @@ class Shell extends Application
      */
     protected function getPrompt()
     {
-        return $this->hasCode() ? self::BUFF_PROMPT : self::PROMPT;
+        return $this->hasCode() ? static::BUFF_PROMPT : static::PROMPT;
     }
 
     /**
@@ -799,7 +864,7 @@ class Shell extends Application
     {
         if (!empty($this->inputBuffer)) {
             $line = array_shift($this->inputBuffer);
-            $this->output->writeln(sprintf('<aside>%s %s</aside>', self::REPLAY, OutputFormatter::escape($line)));
+            $this->output->writeln(sprintf('<aside>%s %s</aside>', static::REPLAY, OutputFormatter::escape($line)));
 
             return $line;
         }
@@ -832,7 +897,7 @@ class Shell extends Application
     /**
      * Get a PHP manual database instance.
      *
-     * @return PDO|null
+     * @return \PDO|null
      */
     public function getManualDb()
     {
@@ -905,6 +970,17 @@ class Shell extends Application
             }
         } catch (\InvalidArgumentException $e) {
             $this->output->writeln($e->getMessage());
+        }
+    }
+
+    /**
+     * Write a startup message if set.
+     */
+    protected function writeStartupMessage()
+    {
+        $message = $this->config->getStartupMessage();
+        if ($message !== null && $message !== '') {
+            $this->output->writeln($message);
         }
     }
 }
