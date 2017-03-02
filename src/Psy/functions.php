@@ -86,10 +86,13 @@ if (!function_exists('Psy\info')) {
                 'readline available' => true,
                 'readline enabled'   => $config->useReadline(),
                 'readline service'   => get_class($config->getReadline()),
-                'readline library'   => $info['library_version'],
             );
 
-            if ($info['readline_name'] !== '') {
+            if (isset($info['library_version'])) {
+                $readline['readline library'] = $info['library_version'];
+            }
+
+            if (isset($info['readline_name']) && $info['readline_name'] !== '') {
                 $readline['readline name'] = $info['readline_name'];
             }
         } else {
