@@ -41,7 +41,8 @@ class ClassConstantEnumerator extends Enumerator
             return;
         }
 
-        $constants = $this->prepareConstants($this->getConstants($reflector));
+        $noInherit = $input->getOption('no-inherit');
+        $constants = $this->prepareConstants($this->getConstants($reflector, $noInherit));
 
         if (empty($constants)) {
             return;
@@ -57,14 +58,23 @@ class ClassConstantEnumerator extends Enumerator
      * Get defined constants for the given class or object Reflector.
      *
      * @param \Reflector $reflector
+     * @param bool       $noInherit Exclude inherited constants
      *
      * @return array
      */
-    protected function getConstants(\Reflector $reflector)
+    protected function getConstants(\Reflector $reflector, $noInherit = false)
     {
+        $className = $reflector->getName();
+
         $constants = array();
         foreach ($reflector->getConstants() as $name => $constant) {
-            $constants[$name] = new ReflectionConstant($reflector, $name);
+            $constReflector = new ReflectionConstant($reflector, $name);
+
+            if ($noInherit && $constReflector->getDeclaringClass()->getName() !== $className) {
+                continue;
+            }
+
+            $constants[$name] = $constReflector;
         }
 
         // TODO: this should be natcasesort

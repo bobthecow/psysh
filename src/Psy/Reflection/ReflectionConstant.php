@@ -52,7 +52,19 @@ class ReflectionConstant implements \Reflector
      */
     public function getDeclaringClass()
     {
-        return $this->class;
+        $parent = $this->class;
+
+        // Since we don't have real reflection constants, we can't see where
+        // it's actually defined. Let's check for a constant that is also
+        // available on the parent class which has exactly the same value.
+        //
+        // While this isn't _technically_ correct, it's prolly close enough.
+        do {
+            $class = $parent;
+            $parent = $class->getParentClass();
+        } while ($parent && $parent->hasConstant($this->name) && $parent->getConstant($this->name) === $this->value);
+
+        return $class;
     }
 
     /**
