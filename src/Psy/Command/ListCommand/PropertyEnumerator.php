@@ -39,8 +39,9 @@ class PropertyEnumerator extends Enumerator
             return;
         }
 
-        $showAll    = $input->getOption('all');
-        $properties = $this->prepareProperties($this->getProperties($showAll, $reflector), $target);
+        $showAll = $input->getOption('all');
+        $noInherit = $input->getOption('no-inherit');
+        $properties = $this->prepareProperties($this->getProperties($showAll, $reflector, $noInherit), $target);
 
         if (empty($properties)) {
             return;
@@ -57,13 +58,20 @@ class PropertyEnumerator extends Enumerator
      *
      * @param bool       $showAll   Include private and protected properties
      * @param \Reflector $reflector
+     * @param bool       $noInherit Exclude inherited properties
      *
      * @return array
      */
-    protected function getProperties($showAll, \Reflector $reflector)
+    protected function getProperties($showAll, \Reflector $reflector, $noInherit = false)
     {
+        $className = $reflector->getName();
+
         $properties = array();
         foreach ($reflector->getProperties() as $property) {
+            if ($noInherit && $property->getDeclaringClass()->getName() !== $className) {
+                continue;
+            }
+
             if ($showAll || $property->isPublic()) {
                 $properties[$property->getName()] = $property;
             }

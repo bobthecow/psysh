@@ -40,7 +40,8 @@ class MethodEnumerator extends Enumerator
         }
 
         $showAll = $input->getOption('all');
-        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector));
+        $noInherit = $input->getOption('no-inherit');
+        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
 
         if (empty($methods)) {
             return;
@@ -57,13 +58,20 @@ class MethodEnumerator extends Enumerator
      *
      * @param bool       $showAll   Include private and protected methods
      * @param \Reflector $reflector
+     * @param bool       $noInherit Exclude inherited methods
      *
      * @return array
      */
-    protected function getMethods($showAll, \Reflector $reflector)
+    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false)
     {
+        $className = $reflector->getName();
+
         $methods = array();
         foreach ($reflector->getMethods() as $name => $method) {
+            if ($noInherit && $method->getDeclaringClass()->getName() !== $className) {
+                continue;
+            }
+
             if ($showAll || $method->isPublic()) {
                 $methods[$method->getName()] = $method;
             }
