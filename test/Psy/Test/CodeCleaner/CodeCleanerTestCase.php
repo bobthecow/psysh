@@ -12,7 +12,6 @@
 namespace Psy\Test\CodeCleaner;
 
 use PhpParser\NodeTraverser;
-use PhpParser\Parser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Exception\ParseErrorException;
