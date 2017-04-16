@@ -54,8 +54,7 @@ class Shell extends Application
     private $readline;
     private $inputBuffer;
     private $code;
-    private $codeBuffer;
-    private $codeBufferOpen;
+    private $buffer;
     private $context;
     private $includes;
     private $loop;
@@ -70,6 +69,8 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
+        $this->buffer = new CodeBuffer();
+
         $this->config   = $config ?: new Configuration();
         $this->cleaner  = $this->config->getCodeCleaner();
         $this->loop     = $this->config->getLoop();
@@ -294,7 +295,7 @@ class Shell extends Application
     {
         $this->setOutput($output);
 
-        $this->resetCodeBuffer();
+        $this->buffer->reset();
 
         $this->setAutoExit(false);
         $this->setCatchExceptions(false);
@@ -326,7 +327,7 @@ class Shell extends Application
      */
     public function getInput()
     {
-        $this->codeBufferOpen = false;
+        $this->buffer->close();
 
         do {
             // reset output verbosity (in case it was altered by a subcommand)
@@ -344,7 +345,7 @@ class Shell extends Application
                 $this->output->writeln('');
 
                 if ($this->hasCode()) {
-                    $this->resetCodeBuffer();
+                    $this->buffer->reset();
                 } else {
                     throw new BreakException('Ctrl+D');
                 }
@@ -514,7 +515,7 @@ class Shell extends Application
      */
     public function hasCode()
     {
-        return !empty($this->codeBuffer);
+        return !$this->buffer->isEmpty();
     }
 
     /**
@@ -526,7 +527,7 @@ class Shell extends Application
      */
     protected function hasValidCode()
     {
-        return !$this->codeBufferOpen && $this->code !== false;
+        return !$this->buffer->isOpen() && $this->code !== false;
     }
 
     /**
@@ -537,19 +538,17 @@ class Shell extends Application
     public function addCode($code)
     {
         try {
-            // Code lines ending in \ keep the buffer open
-            if (substr(rtrim($code), -1) === '\\') {
-                $this->codeBufferOpen = true;
-                $code = substr(rtrim($code), 0, -1);
-            } else {
-                $this->codeBufferOpen = false;
-            }
+            $this->buffer->addCode($code);
 
-            $this->codeBuffer[] = $code;
-            $this->code         = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
+            if (!$this->buffer->isOpen()) {
+                $this->code = $this->cleaner->clean(
+                    $this->buffer->getBuffer(),
+                    $this->config->requireSemicolons()
+                );
+            }
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
-            $this->readline->addHistory(implode("\n", $this->codeBuffer));
+            $this->readline->addHistory(implode("\n", $this->buffer->getBuffer()));
             throw $e;
         }
     }
@@ -563,7 +562,7 @@ class Shell extends Application
      */
     public function getCodeBuffer()
     {
-        return $this->codeBuffer;
+        return $this->buffer->getBuffer();
     }
 
     /**
@@ -603,8 +602,7 @@ class Shell extends Application
      */
     public function resetCodeBuffer()
     {
-        $this->codeBuffer = array();
-        $this->code       = false;
+        $this->buffer->reset();
     }
 
     /**
@@ -632,9 +630,9 @@ class Shell extends Application
     public function flushCode()
     {
         if ($this->hasValidCode()) {
-            $this->readline->addHistory(implode("\n", $this->codeBuffer));
+            $this->readline->addHistory(implode("\n", $this->buffer->getBuffer()));
             $code = $this->code;
-            $this->resetCodeBuffer();
+            $this->buffer->reset();
 
             return $code;
         }
@@ -724,7 +722,7 @@ class Shell extends Application
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
         $this->output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
 
-        $this->resetCodeBuffer();
+        $this->buffer->reset();
     }
 
     /**
