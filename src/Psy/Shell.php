@@ -889,7 +889,7 @@ class Shell extends Application
      */
     protected function getHeader()
     {
-        return sprintf('<aside>%s by Justin Hileman</aside>', $this->getVersion());
+        return;
     }
 
     /**
@@ -899,9 +899,7 @@ class Shell extends Application
      */
     public function getVersion()
     {
-        $separator = $this->config->useUnicode() ? '—' : '-';
-
-        return sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, phpversion(), $separator, php_sapi_name());
+        return;
     }
 
     /**
