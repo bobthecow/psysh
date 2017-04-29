@@ -16,6 +16,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
 use Psy\Input\ShellInput;
+use Psy\Input\SilentInput;
 use Psy\Output\ShellOutput;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
@@ -77,6 +78,7 @@ class Shell extends Application
         $this->context  = new Context();
         $this->includes = array();
         $this->readline = $this->config->getReadline();
+        $this->inputBuffer = array();
 
         parent::__construct('Psy Shell', self::VERSION);
 
@@ -192,6 +194,9 @@ class Shell extends Application
      */
     protected function getDefaultCommands()
     {
+        $sudo = new Command\SudoCommand();
+        $sudo->setReadline($this->readline);
+
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
@@ -208,6 +213,7 @@ class Shell extends Application
             new Command\BufferCommand(),
             new Command\ClearCommand(),
             // new Command\PsyVersionCommand(),
+            $sudo,
             $hist,
             new Command\ExitCommand(),
         );
@@ -550,7 +556,7 @@ class Shell extends Application
             $this->code         = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
-            $this->readline->addHistory(implode("\n", $this->codeBuffer));
+            $this->addCodeBufferToHistory();
             throw $e;
         }
     }
@@ -614,11 +620,12 @@ class Shell extends Application
      * This is useful for commands which want to replay history.
      *
      * @param string|array $input
+     * @param bool         $silent
      */
-    public function addInput($input)
+    public function addInput($input, $silent = false)
     {
         foreach ((array) $input as $line) {
-            $this->inputBuffer[] = $line;
+            $this->inputBuffer[] = $silent ? new SilentInput($line) : $line;
         }
     }
 
@@ -633,11 +640,27 @@ class Shell extends Application
     public function flushCode()
     {
         if ($this->hasValidCode()) {
-            $this->readline->addHistory(implode("\n", $this->codeBuffer));
+            $this->addCodeBufferToHistory();
             $code = $this->code;
             $this->resetCodeBuffer();
 
             return $code;
+        }
+    }
+
+    /**
+     * Filter silent input from code buffer, write the rest to readline history.
+     */
+    private function addCodeBufferToHistory()
+    {
+        $codeBuffer = array_filter($this->codeBuffer, function ($line) {
+            return !$line instanceof SilentInput;
+        });
+
+        $code = implode("\n", $codeBuffer);
+
+        if (trim($code) !== '') {
+            $this->readline->addHistory($code);
         }
     }
 
@@ -865,7 +888,9 @@ class Shell extends Application
     {
         if (!empty($this->inputBuffer)) {
             $line = array_shift($this->inputBuffer);
-            $this->output->writeln(sprintf('<aside>%s %s</aside>', static::REPLAY, OutputFormatter::escape($line)));
+            if (!$line instanceof SilentInput) {
+                $this->output->writeln(sprintf('<aside>%s %s</aside>', static::REPLAY, OutputFormatter::escape($line)));
+            }
 
             return $line;
         }
