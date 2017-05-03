@@ -15,6 +15,7 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
+use Psy\Input\ShellInput;
 use Psy\Output\ShellOutput;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
@@ -583,7 +584,7 @@ class Shell extends Application
             throw new \InvalidArgumentException('Command not found: ' . $input);
         }
 
-        $input = new StringInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
+        $input = new ShellInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
 
         if ($input->hasParameterOption(array('--help', '-h'))) {
             $helpCommand = $this->get('help');
