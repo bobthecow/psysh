@@ -14,7 +14,7 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
-use PhpParser\Node\Stmt\Namespace_ as NamespaceStmt;
+use PhpParser\Node\Stmt\Namespace_;
 
 /**
  * Abstract namespace-aware code cleaner pass.
@@ -44,7 +44,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof NamespaceStmt) {
+        if ($node instanceof Namespace_) {
             $this->namespace = isset($node->name) ? $node->name->parts : array();
         }
     }

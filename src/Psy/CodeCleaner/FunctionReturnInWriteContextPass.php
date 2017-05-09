@@ -12,11 +12,11 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\Array_ as ArrayNode;
-use PhpParser\Node\Expr\Assign as AssignNode;
-use PhpParser\Node\Expr\Empty_ as EmptyNode;
-use PhpParser\Node\Expr\FuncCall as FunctionCall;
-use PhpParser\Node\Expr\Isset_ as IssetNode;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\Empty_;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use Psy\Exception\FatalErrorException;
@@ -49,14 +49,14 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof ArrayNode || $this->isCallNode($node)) {
-            $items = $node instanceof ArrayNode ? $node->items : $node->args;
+        if ($node instanceof Array_ || $this->isCallNode($node)) {
+            $items = $node instanceof Array_ ? $node->items : $node->args;
             foreach ($items as $item) {
                 if ($item->byRef && $this->isCallNode($item->value)) {
                     throw new FatalErrorException(self::EXCEPTION_MESSAGE);
                 }
             }
-        } elseif ($node instanceof IssetNode) {
+        } elseif ($node instanceof Isset_) {
             foreach ($node->vars as $var) {
                 if (!$this->isCallNode($var)) {
                     continue;
@@ -68,15 +68,15 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                     throw new FatalErrorException(self::EXCEPTION_MESSAGE);
                 }
             }
-        } elseif ($node instanceof EmptyNode && !$this->isPhp55 && $this->isCallNode($node->expr)) {
+        } elseif ($node instanceof Empty_ && !$this->isPhp55 && $this->isCallNode($node->expr)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE);
-        } elseif ($node instanceof AssignNode && $this->isCallNode($node->var)) {
+        } elseif ($node instanceof Assign && $this->isCallNode($node->var)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE);
         }
     }
 
     private function isCallNode(Node $node)
     {
-        return $node instanceof FunctionCall || $node instanceof MethodCall || $node instanceof StaticCall;
+        return $node instanceof FuncCall || $node instanceof MethodCall || $node instanceof StaticCall;
     }
 }

@@ -11,7 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
-use PhpParser\Node as Node;
+use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\Variable;
 use Psy\Exception\FatalErrorException;

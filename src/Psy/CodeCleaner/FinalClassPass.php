@@ -12,7 +12,7 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Class_;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -37,7 +37,7 @@ class FinalClassPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof ClassStmt) {
+        if ($node instanceof Class_) {
             if ($node->extends) {
                 $extends = (string) $node->extends;
                 if ($this->isFinalClass($extends)) {

@@ -14,7 +14,7 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Exit_;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\If_;
@@ -82,7 +82,7 @@ class ImplicitReturnPass extends CodeCleanerPass
         // _might_ implicitly return a value before this catch-all return is
         // reached.
         if ($last instanceof Stmt && !$last instanceof Return_) {
-            $nodes[] = new Return_(new New_(new Name\FullyQualified('Psy\CodeCleaner\NoReturnValue')));
+            $nodes[] = new Return_(new New_(new FullyQualifiedName('Psy\CodeCleaner\NoReturnValue')));
         }
 
         return $nodes;

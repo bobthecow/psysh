@@ -13,7 +13,7 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
-use PhpParser\Node\Expr\Instanceof_ as InstanceofStmt;
+use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Scalar\Encapsed;
 use Psy\Exception\FatalErrorException;
@@ -34,7 +34,7 @@ class InstanceOfPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if (!$node instanceof InstanceofStmt) {
+        if (!$node instanceof Instanceof_) {
             return;
         }
 
