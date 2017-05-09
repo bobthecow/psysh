@@ -31,7 +31,7 @@ class ExitPass extends CodeCleanerPass
         if ($node instanceof Exit_) {
             $args = array(new Arg(new String_('Goodbye.')));
 
-            return new Throw_(new New_(new Name('Psy\Exception\BreakException'), $args));
+            return new Throw_(new New_(new Name\FullyQualified('Psy\Exception\BreakException'), $args));
         }
     }
 }
