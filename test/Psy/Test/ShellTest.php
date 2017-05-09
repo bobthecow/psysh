@@ -200,7 +200,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($shell->hasCode());
         $code = preg_replace('/\s+/', ' ', $code);
         $this->assertNotNull($code);
-        $this->assertEquals('class a { }', $code);
+        $this->assertEquals('class a { } return new \\Psy\\CodeCleaner\\NoReturnValue();', $code);
     }
 
     public function testKeepCodeBufferOpen()

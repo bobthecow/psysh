@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use Psy\CodeCleaner\NoReturnValue;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
@@ -718,6 +719,10 @@ class Shell extends Application
      */
     public function writeReturnValue($ret)
     {
+        if ($ret instanceof NoReturnValue) {
+            return;
+        }
+
         $this->context->setReturnValue($ret);
         $ret    = $this->presentValue($ret);
         $indent = str_repeat(' ', strlen(static::RETVAL));
