@@ -246,7 +246,7 @@ class ShellInput extends StringInput
                 if (PHP_VERSION_ID < 70000 && false === $value) {
                     $value = '';
                 }
-                array_unshift($this->parsed, $value);
+                array_unshift($this->parsed, array($value, null));
             }
             $this->addLongOption(substr($name, 0, $pos), $value);
         } else {
@@ -295,8 +295,9 @@ class ShellInput extends StringInput
             // if option accepts an optional or mandatory argument
             // let's see if there is one provided
             $next = array_shift($this->parsed);
-            if ((isset($next[0]) && '-' !== $next[0]) || in_array($next, array('', null), true)) {
-                $value = $next;
+            $nextToken = $next[0];
+            if ((isset($nextToken[0]) && '-' !== $nextToken[0]) || in_array($nextToken, array('', null), true)) {
+                $value = $nextToken;
             } else {
                 array_unshift($this->parsed, $next);
             }
