@@ -12,6 +12,7 @@
 namespace Psy\Command\ListCommand;
 
 use Psy\Formatter\SignatureFormatter;
+use Psy\Input\FilterOptions;
 use Psy\Util\Mirror;
 use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,11 +31,8 @@ abstract class Enumerator
     const IS_CLASS     = 'class';
     const IS_FUNCTION  = 'function';
 
+    private $filter;
     private $presenter;
-
-    private $filter       = false;
-    private $invertFilter = false;
-    private $pattern;
 
     /**
      * Enumerator constructor.
@@ -43,6 +41,7 @@ abstract class Enumerator
      */
     public function __construct(Presenter $presenter)
     {
+        $this->filter = new FilterOptions();
         $this->presenter = $presenter;
     }
 
@@ -57,7 +56,7 @@ abstract class Enumerator
      */
     public function enumerate(InputInterface $input, \Reflector $reflector = null, $target = null)
     {
-        $this->setFilter($input);
+        $this->filter->bind($input);
 
         return $this->listItems($input, $reflector, $target);
     }
@@ -85,53 +84,14 @@ abstract class Enumerator
      */
     abstract protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null);
 
+    protected function showItem($name)
+    {
+        return $this->filter->match($name);
+    }
+
     protected function presentRef($value)
     {
         return $this->presenter->presentRef($value);
-    }
-
-    protected function showItem($name)
-    {
-        return $this->filter === false || (preg_match($this->pattern, $name) xor $this->invertFilter);
-    }
-
-    private function setFilter(InputInterface $input)
-    {
-        if ($pattern = $input->getOption('grep')) {
-            if (substr($pattern, 0, 1) !== '/' || substr($pattern, -1) !== '/' || strlen($pattern) < 3) {
-                $pattern = '/' . preg_quote($pattern, '/') . '/';
-            }
-
-            if ($input->getOption('insensitive')) {
-                $pattern .= 'i';
-            }
-
-            $this->validateRegex($pattern);
-
-            $this->filter       = true;
-            $this->pattern      = $pattern;
-            $this->invertFilter = $input->getOption('invert');
-        } else {
-            $this->filter = false;
-        }
-    }
-
-    /**
-     * Validate that $pattern is a valid regular expression.
-     *
-     * @param string $pattern
-     *
-     * @return bool
-     */
-    private function validateRegex($pattern)
-    {
-        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
-        try {
-            preg_match($pattern, '');
-        } catch (ErrorException $e) {
-            throw new RuntimeException(str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));
-        }
-        restore_error_handler();
     }
 
     protected function presentSignature($target)

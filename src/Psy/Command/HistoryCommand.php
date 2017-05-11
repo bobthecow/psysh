@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Input\FilterOptions;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Readline;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -25,6 +26,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HistoryCommand extends Command
 {
+    private $filter;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($name = null)
+    {
+        $this->filter = new FilterOptions();
+
+        parent::__construct($name);
+    }
+
     /**
      * Set the Shell's Readline service.
      *
@@ -40,6 +53,8 @@ class HistoryCommand extends Command
      */
     protected function configure()
     {
+        list($grep, $insensitive, $invert) = FilterOptions::getOptions();
+
         $this
             ->setName('history')
             ->setAliases(array('hist'))
@@ -48,9 +63,9 @@ class HistoryCommand extends Command
                 new InputOption('head',        'H', InputOption::VALUE_REQUIRED, 'Display the first N items.'),
                 new InputOption('tail',        'T', InputOption::VALUE_REQUIRED, 'Display the last N items.'),
 
-                new InputOption('grep',        'G', InputOption::VALUE_REQUIRED, 'Show lines matching the given pattern (string or regex).'),
-                new InputOption('insensitive', 'i', InputOption::VALUE_NONE,     'Case insensitive search (requires --grep).'),
-                new InputOption('invert',      'v', InputOption::VALUE_NONE,     'Inverted search (requires --grep).'),
+                $grep,
+                $insensitive,
+                $invert,
 
                 new InputOption('no-numbers',  'N', InputOption::VALUE_NONE,     'Omit line numbers.'),
 
@@ -87,24 +102,13 @@ HELP
         );
         $highlighted = false;
 
-        $invert      = $input->getOption('invert');
-        $insensitive = $input->getOption('insensitive');
-        if ($pattern = $input->getOption('grep')) {
-            if (substr($pattern, 0, 1) !== '/' || substr($pattern, -1) !== '/' || strlen($pattern) < 3) {
-                $pattern = '/' . preg_quote($pattern, '/') . '/';
-            }
-
-            if ($insensitive) {
-                $pattern .= 'i';
-            }
-
-            $this->validateRegex($pattern);
-
+        $this->filter->bind($input);
+        if ($this->filter->hasFilter()) {
             $matches     = array();
             $highlighted = array();
             foreach ($history as $i => $line) {
-                if (preg_match($pattern, $line, $matches) xor $invert) {
-                    if (!$invert) {
+                if ($this->filter->match($line, $matches)) {
+                    if (isset($matches[0])) {
                         $chunks = explode($matches[0], $history[$i]);
                         $chunks = array_map(array(__CLASS__, 'escape'), $chunks);
                         $glue   = sprintf('<urgent>%s</urgent>', self::escape($matches[0]));
@@ -115,10 +119,6 @@ HELP
                     unset($history[$i]);
                 }
             }
-        } elseif ($invert) {
-            throw new \InvalidArgumentException('Cannot use -v without --grep.');
-        } elseif ($insensitive) {
-            throw new \InvalidArgumentException('Cannot use -i without --grep.');
         }
 
         if ($save = $input->getOption('save')) {
@@ -205,24 +205,6 @@ HELP
         }
 
         return array_slice($history, $start, $length, true);
-    }
-
-    /**
-     * Validate that $pattern is a valid regular expression.
-     *
-     * @param string $pattern
-     *
-     * @return bool
-     */
-    private function validateRegex($pattern)
-    {
-        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
-        try {
-            preg_match($pattern, '');
-        } catch (ErrorException $e) {
-            throw new RuntimeException(str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));
-        }
-        restore_error_handler();
     }
 
     /**
