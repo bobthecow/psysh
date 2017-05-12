@@ -11,14 +11,13 @@
 
 namespace Psy\Tests\Input;
 
-use PHPUnit\Framework\TestCase;
 use Psy\Input\CodeArgument;
 use Psy\Input\ShellInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 
-class ShellInputTest extends TestCase
+class ShellInputTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider getTokenizeData
