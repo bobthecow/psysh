@@ -12,7 +12,7 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use Psy\Exception\FatalErrorException;
 
@@ -31,7 +31,7 @@ class AbstractClassPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof ClassStmt) {
+        if ($node instanceof Class_) {
             $this->class = $node;
             $this->abstractMethods = array();
         } elseif ($node instanceof ClassMethod) {
@@ -53,7 +53,7 @@ class AbstractClassPass extends CodeCleanerPass
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof ClassStmt) {
+        if ($node instanceof Class_) {
             $count = count($this->abstractMethods);
             if ($count > 0 && !$node->isAbstract()) {
                 throw new FatalErrorException(sprintf(

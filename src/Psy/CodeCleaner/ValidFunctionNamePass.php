@@ -15,11 +15,11 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Stmt\Do_ as DoStmt;
-use PhpParser\Node\Stmt\Function_ as FunctionStmt;
-use PhpParser\Node\Stmt\If_ as IfStmt;
-use PhpParser\Node\Stmt\Switch_ as SwitchStmt;
-use PhpParser\Node\Stmt\While_ as WhileStmt;
+use PhpParser\Node\Stmt\Do_;
+use PhpParser\Node\Stmt\Function_;
+use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Switch_;
+use PhpParser\Node\Stmt\While_;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -43,10 +43,10 @@ class ValidFunctionNamePass extends NamespaceAwarePass
 
         if (self::isConditional($node)) {
             $this->conditionalScopes++;
-        } elseif ($node instanceof FunctionStmt) {
+        } elseif ($node instanceof Function_) {
             $name = $this->getFullyQualifiedName($node->name);
 
-            // TODO: add an "else" here which adds a runtime check for instances where we can't tell
+            // @todo add an "else" here which adds a runtime check for instances where we can't tell
             // whether a function is being redefined by static analysis alone.
             if ($this->conditionalScopes === 0) {
                 if (function_exists($name) ||
@@ -89,9 +89,9 @@ class ValidFunctionNamePass extends NamespaceAwarePass
 
     private static function isConditional(Node $node)
     {
-        return $node instanceof IfStmt ||
-            $node instanceof WhileStmt ||
-            $node instanceof DoStmt ||
-            $node instanceof SwitchStmt;
+        return $node instanceof If_ ||
+            $node instanceof While_ ||
+            $node instanceof Do_ ||
+            $node instanceof Switch_;
     }
 }

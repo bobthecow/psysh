@@ -15,7 +15,7 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Exit_;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Throw_;
 
@@ -31,7 +31,7 @@ class ExitPass extends CodeCleanerPass
         if ($node instanceof Exit_) {
             $args = array(new Arg(new String_('Goodbye.')));
 
-            return new Throw_(new New_(new Name('Psy\Exception\BreakException'), $args));
+            return new Throw_(new New_(new FullyQualifiedName('Psy\Exception\BreakException'), $args));
         }
     }
 }

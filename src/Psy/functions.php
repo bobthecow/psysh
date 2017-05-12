@@ -253,7 +253,7 @@ EOL;
             } catch (Exception $e) {
                 echo $e->getMessage() . PHP_EOL;
 
-                // TODO: this triggers the "exited unexpectedly" logic in the
+                // @todo this triggers the "exited unexpectedly" logic in the
                 // ForkingLoop, so we can't exit(1) after starting the shell...
                 // fix this :)
 

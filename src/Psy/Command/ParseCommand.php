@@ -13,6 +13,7 @@ namespace Psy\Command;
 
 use PhpParser\Node;
 use PhpParser\Parser;
+use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
@@ -72,7 +73,7 @@ class ParseCommand extends Command implements PresenterAware
     protected function configure()
     {
         $definition = array(
-            new InputArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
+            new CodeArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
             new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
         );
 

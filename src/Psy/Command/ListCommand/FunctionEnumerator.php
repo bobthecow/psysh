@@ -25,7 +25,7 @@ class FunctionEnumerator extends Enumerator
     {
         // only list functions when no Reflector is present.
         //
-        // TODO: make a NamespaceReflector and pass that in for commands like:
+        // @todo make a NamespaceReflector and pass that in for commands like:
         //
         //     ls --functions Foo
         //

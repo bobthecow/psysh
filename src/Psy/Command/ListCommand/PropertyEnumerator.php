@@ -77,7 +77,7 @@ class PropertyEnumerator extends Enumerator
             }
         }
 
-        // TODO: this should be natcasesort
+        // @todo this should be natcasesort
         ksort($properties);
 
         return $properties;
@@ -155,9 +155,21 @@ class PropertyEnumerator extends Enumerator
      */
     protected function presentValue(\ReflectionProperty $property, $target)
     {
+        // If $target is a class, trait or interface (try to) get the default
+        // value for the property.
         if (!is_object($target)) {
-            // TODO: figure out if there's a way to return defaults when target
-            // is a class/interface/trait rather than an object.
+            try {
+                $refl = new \ReflectionClass($target);
+                $props = $refl->getDefaultProperties();
+                if (array_key_exists($property->name, $props)) {
+                    $suffix = $property->isStatic() ? '' : ' <aside>(default)</aside>';
+
+                    return $this->presentRef($props[$property->name]) . $suffix;
+                }
+            } catch (\Exception $e) {
+                // Well, we gave it a shot.
+            }
+
             return '';
         }
 

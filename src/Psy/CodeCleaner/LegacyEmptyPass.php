@@ -12,7 +12,7 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\Empty_ as ExprEmpty;
+use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\Variable;
 use Psy\Exception\ParseErrorException;
 
@@ -35,7 +35,7 @@ class LegacyEmptyPass extends CodeCleanerPass
             return;
         }
 
-        if (!$node instanceof ExprEmpty) {
+        if (!$node instanceof Empty_) {
             return;
         }
 

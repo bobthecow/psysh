@@ -18,7 +18,7 @@ class ExitPassTest extends CodeCleanerTestCase
     /**
      * @var string
      */
-    private $expectedExceptionString = "throw new Psy\\Exception\\BreakException('Goodbye.');";
+    private $expectedExceptionString = "throw new \\Psy\\Exception\\BreakException('Goodbye.');";
 
     public function setUp()
     {

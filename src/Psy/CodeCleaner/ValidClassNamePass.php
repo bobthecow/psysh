@@ -14,16 +14,16 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\New_ as NewExpr;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Stmt;
-use PhpParser\Node\Stmt\Class_ as ClassStmt;
-use PhpParser\Node\Stmt\Do_ as DoStmt;
-use PhpParser\Node\Stmt\If_ as IfStmt;
-use PhpParser\Node\Stmt\Interface_ as InterfaceStmt;
-use PhpParser\Node\Stmt\Switch_ as SwitchStmt;
-use PhpParser\Node\Stmt\Trait_ as TraitStmt;
-use PhpParser\Node\Stmt\While_ as WhileStmt;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Do_;
+use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Interface_;
+use PhpParser\Node\Stmt\Switch_;
+use PhpParser\Node\Stmt\Trait_;
+use PhpParser\Node\Stmt\While_;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -62,14 +62,14 @@ class ValidClassNamePass extends NamespaceAwarePass
         if (self::isConditional($node)) {
             $this->conditionalScopes++;
         } else {
-            // TODO: add an "else" here which adds a runtime check for instances where we can't tell
+            // @todo add an "else" here which adds a runtime check for instances where we can't tell
             // whether a class is being redefined by static analysis alone.
             if ($this->conditionalScopes === 0) {
-                if ($node instanceof ClassStmt) {
+                if ($node instanceof Class_) {
                     $this->validateClassStatement($node);
-                } elseif ($node instanceof InterfaceStmt) {
+                } elseif ($node instanceof Interface_) {
                     $this->validateInterfaceStatement($node);
-                } elseif ($node instanceof TraitStmt) {
+                } elseif ($node instanceof Trait_) {
                     $this->validateTraitStatement($node);
                 }
             }
@@ -91,7 +91,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         if (self::isConditional($node)) {
             $this->conditionalScopes--;
-        } elseif ($node instanceof NewExpr) {
+        } elseif ($node instanceof New_) {
             $this->validateNewExpression($node);
         } elseif ($node instanceof ClassConstFetch) {
             $this->validateClassConstFetchExpression($node);
@@ -102,18 +102,18 @@ class ValidClassNamePass extends NamespaceAwarePass
 
     private static function isConditional(Node $node)
     {
-        return $node instanceof IfStmt ||
-            $node instanceof WhileStmt ||
-            $node instanceof DoStmt ||
-            $node instanceof SwitchStmt;
+        return $node instanceof If_ ||
+            $node instanceof While_ ||
+            $node instanceof Do_ ||
+            $node instanceof Switch_;
     }
 
     /**
      * Validate a class definition statement.
      *
-     * @param ClassStmt $stmt
+     * @param Class_ $stmt
      */
-    protected function validateClassStatement(ClassStmt $stmt)
+    protected function validateClassStatement(Class_ $stmt)
     {
         $this->ensureCanDefine($stmt);
         if (isset($stmt->extends)) {
@@ -125,9 +125,9 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate an interface definition statement.
      *
-     * @param InterfaceStmt $stmt
+     * @param Interface_ $stmt
      */
-    protected function validateInterfaceStatement(InterfaceStmt $stmt)
+    protected function validateInterfaceStatement(Interface_ $stmt)
     {
         $this->ensureCanDefine($stmt);
         $this->ensureInterfacesExist($stmt->extends, $stmt);
@@ -136,9 +136,9 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate a trait definition statement.
      *
-     * @param TraitStmt $stmt
+     * @param Trait_ $stmt
      */
-    protected function validateTraitStatement(TraitStmt $stmt)
+    protected function validateTraitStatement(Trait_ $stmt)
     {
         $this->ensureCanDefine($stmt);
     }
@@ -146,12 +146,12 @@ class ValidClassNamePass extends NamespaceAwarePass
     /**
      * Validate a `new` expression.
      *
-     * @param NewExpr $stmt
+     * @param New_ $stmt
      */
-    protected function validateNewExpression(NewExpr $stmt)
+    protected function validateNewExpression(New_ $stmt)
     {
         // if class name is an expression or an anonymous class, give it a pass for now
-        if (!$stmt->class instanceof Expr && !$stmt->class instanceof ClassStmt) {
+        if (!$stmt->class instanceof Expr && !$stmt->class instanceof Class_) {
             $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
         }
     }
@@ -309,11 +309,11 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function getScopeType(Stmt $stmt)
     {
-        if ($stmt instanceof ClassStmt) {
+        if ($stmt instanceof Class_) {
             return self::CLASS_TYPE;
-        } elseif ($stmt instanceof InterfaceStmt) {
+        } elseif ($stmt instanceof Interface_) {
             return self::INTERFACE_TYPE;
-        } elseif ($stmt instanceof TraitStmt) {
+        } elseif ($stmt instanceof Trait_) {
             return self::TRAIT_TYPE;
         }
     }

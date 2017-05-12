@@ -71,7 +71,7 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
      */
     public function testSignatureFormatterThrowsUnknownReflectorExpeption()
     {
-        $refl = $this->getMock('Reflector');
+        $refl = $this->getMockBuilder('Reflector')->getMock();
         SignatureFormatter::format($refl);
     }
 }

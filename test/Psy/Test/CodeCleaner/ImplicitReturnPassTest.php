@@ -31,9 +31,59 @@ class ImplicitReturnPassTest extends CodeCleanerTestCase
     public function implicitReturns()
     {
         $values = array(
-            array('4',     'return 4;'),
-            array('foo()', 'return foo();'),
+            array('4',        'return 4;'),
+            array('foo()',    'return foo();'),
+            array('return 1', 'return 1;'),
         );
+
+        $from = 'if (true) { 1; } elseif (true) { 2; } else { 3; }';
+        $to = <<<'EOS'
+if (true) {
+    return 1;
+} elseif (true) {
+    return 2;
+} else {
+    return 3;
+}
+return new \Psy\CodeCleaner\NoReturnValue();
+EOS;
+        $values[] = array($from, $to);
+
+        $from = 'class A {}';
+        $to = <<<'EOS'
+class A
+{
+}
+return new \Psy\CodeCleaner\NoReturnValue();
+EOS;
+        $values[] = array($from, $to);
+
+        $from = <<<'EOS'
+switch (false) {
+    case 0:
+        0;
+    case 1:
+        1;
+        break;
+    case 2:
+        2;
+        return;
+}
+EOS;
+        $to = <<<'EOS'
+switch (false) {
+    case 0:
+        0;
+    case 1:
+        return 1;
+        break;
+    case 2:
+        2;
+        return;
+}
+return new \Psy\CodeCleaner\NoReturnValue();
+EOS;
+        $values[] = array($from, $to);
 
         if (version_compare(PHP_VERSION, '5.4', '<')) {
             $values[] = array('exit()', 'die;');
