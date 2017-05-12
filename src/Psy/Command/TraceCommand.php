@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Input\FilterOptions;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,16 +23,34 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class TraceCommand extends Command
 {
+    protected $filter;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($name = null)
+    {
+        $this->filter = new FilterOptions();
+
+        parent::__construct($name);
+    }
+
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
+        list($grep, $insensitive, $invert) = FilterOptions::getOptions();
+
         $this
             ->setName('trace')
             ->setDefinition(array(
                 new InputOption('include-psy', 'p', InputOption::VALUE_NONE,     'Include Psy in the call stack.'),
                 new InputOption('num',         'n', InputOption::VALUE_REQUIRED, 'Only include NUM lines.'),
+
+                $grep,
+                $insensitive,
+                $invert,
             ))
             ->setDescription('Show the current call stack.')
             ->setHelp(
@@ -52,6 +71,7 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->filter->bind($input);
         $trace = $this->getBacktrace(new \Exception(), $input->getOption('num'), $input->getOption('include-psy'));
         $output->page($trace, ShellOutput::NUMBER_LINES);
     }
@@ -104,6 +124,11 @@ HELP
             $function = $trace[$i]['function'];
             $file     = isset($trace[$i]['file']) ? $this->replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
+
+            // Skip any lines that don't match our filter options
+            if (!$this->filter->match(sprintf('%s%s%s() at %s:%s', $class, $type, $function, $file, $line))) {
+                continue;
+            }
 
             $lines[] = sprintf(
                 ' <class>%s</class>%s%s() at <info>%s:%s</info>',
