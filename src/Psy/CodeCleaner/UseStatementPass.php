@@ -28,7 +28,7 @@ use PhpParser\Node\Stmt\Use_;
  * ... which it then applies implicitly to all future evaluated code, until the
  * current namespace is replaced by another namespace.
  */
-class UseStatementPass extends NamespaceAwarePass
+class UseStatementPass extends CodeCleanerPass
 {
     private $aliases       = array();
     private $lastAliases   = array();
