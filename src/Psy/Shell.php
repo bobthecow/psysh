@@ -744,16 +744,29 @@ class Shell extends Application
     public function writeException(\Exception $e)
     {
         $this->context->setLastException($e);
+        $this->output->writeln($this->formatException($e));
+        $this->resetCodeBuffer();
+    }
 
+    /**
+     * Helper for formatting an exception for writeException().
+     *
+     * @todo extract this to somewhere it makes more sense
+     *
+     * @param \Exception $e
+     *
+     * @return string
+     */
+    public function formatException(\Exception $e)
+    {
         $message = $e->getMessage();
         if (!$e instanceof PsyException) {
             $message = sprintf('%s with message \'%s\'', get_class($e), $message);
         }
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
-        $this->output->writeln(sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity));
 
-        $this->resetCodeBuffer();
+        return sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity);
     }
 
     /**

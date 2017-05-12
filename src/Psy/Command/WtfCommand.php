@@ -97,9 +97,12 @@ HELP
 
         $shell = $this->getApplication();
         $output->page(function ($output) use ($exception, $trace, $shell) {
-            $shell->writeException($exception);
-            $output->writeln('--');
-            $output->write($trace, true, ShellOutput::NUMBER_LINES);
+            do {
+                $output->writeln($shell->formatException($exception));
+                $output->writeln('--');
+                $output->write($trace, true, ShellOutput::NUMBER_LINES);
+                $output->writeln('');
+            } while ($exception = $exception->getPrevious());
         });
     }
 }
