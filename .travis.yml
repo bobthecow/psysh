@@ -29,6 +29,8 @@ matrix:
       env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
     - php: hhvm
       env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
+    - php: hhvm
+      env: COMPOSER_FLAGS=
 
 before_install:
   - '[[ "$TRAVIS_PHP_VERSION" != hhvm* ]] && (php --ini | grep xdebug) && phpenv config-rm xdebug.ini || true'
