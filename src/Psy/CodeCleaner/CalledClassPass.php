@@ -48,7 +48,7 @@ class CalledClassPass extends CodeCleanerPass
             // We'll give any args at all (besides null) a pass.
             // Technically we should be checking whether the args are objects, but this will do for now.
             //
-            // TODO: switch this to actually validate args when we get context-aware code cleaner passes.
+            // @todo switch this to actually validate args when we get context-aware code cleaner passes.
             if (!empty($node->args) && !$this->isNull($node->args[0])) {
                 return;
             }

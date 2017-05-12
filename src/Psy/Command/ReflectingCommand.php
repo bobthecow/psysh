@@ -62,7 +62,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
         $matches   = array();
         switch (true) {
             case preg_match(self::SUPERGLOBAL, $valueName, $matches):
-                // TODO: maybe do something interesting with these at some point?
+                // @todo maybe do something interesting with these at some point?
                 if (array_key_exists($matches[1], $GLOBALS)) {
                     throw new RuntimeException('Unable to inspect a non-object');
                 } else {

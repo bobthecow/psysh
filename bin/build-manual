@@ -85,7 +85,7 @@ function extract_paragraphs($element)
     foreach ($element->getElementsByTagName('para') as $p) {
         $text = '';
         foreach ($p->childNodes as $child) {
-            // @todo: figure out if there's something we can do with tables.
+            // @todo figure out if there's something we can do with tables.
             if ($child instanceof DOMElement && $child->tagName === 'table') {
                 continue;
             }

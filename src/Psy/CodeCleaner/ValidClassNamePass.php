@@ -62,7 +62,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         if (self::isConditional($node)) {
             $this->conditionalScopes++;
         } else {
-            // TODO: add an "else" here which adds a runtime check for instances where we can't tell
+            // @todo add an "else" here which adds a runtime check for instances where we can't tell
             // whether a class is being redefined by static analysis alone.
             if ($this->conditionalScopes === 0) {
                 if ($node instanceof Class_) {

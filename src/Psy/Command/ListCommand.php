@@ -126,7 +126,7 @@ HELP
             $reflector = null;
         }
 
-        // TODO: something cleaner than this :-/
+        // @todo something cleaner than this :-/
         if ($input->getOption('long')) {
             $output->startPaging();
         }

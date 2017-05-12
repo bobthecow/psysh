@@ -46,7 +46,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
         } elseif ($node instanceof Function_) {
             $name = $this->getFullyQualifiedName($node->name);
 
-            // TODO: add an "else" here which adds a runtime check for instances where we can't tell
+            // @todo add an "else" here which adds a runtime check for instances where we can't tell
             // whether a function is being redefined by static analysis alone.
             if ($this->conditionalScopes === 0) {
                 if (function_exists($name) ||

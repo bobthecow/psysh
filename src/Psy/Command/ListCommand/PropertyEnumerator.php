@@ -77,7 +77,7 @@ class PropertyEnumerator extends Enumerator
             }
         }
 
-        // TODO: this should be natcasesort
+        // @todo this should be natcasesort
         ksort($properties);
 
         return $properties;

@@ -25,10 +25,10 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     protected $currentScope;
 
     /**
-     * TODO: should this be final? Extending classes should be sure to either
+     * @todo should this be final? Extending classes should be sure to either
      * use afterTraverse or call parent::beforeTraverse() when overloading.
      *
-     * Reset the namespace and the current scope before beginning analysis.
+     * Reset the namespace and the current scope before beginning analysis
      */
     public function beforeTraverse(array $nodes)
     {
@@ -37,8 +37,8 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     }
 
     /**
-     * TODO: should this be final? Extending classes should be sure to either use
-     * leaveNode or call parent::enterNode() when overloading.
+     * @todo should this be final? Extending classes should be sure to either use
+     * leaveNode or call parent::enterNode() when overloading
      *
      * @param Node $node
      */

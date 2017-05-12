@@ -32,7 +32,7 @@ class ClassConstantEnumerator extends Enumerator
 
         // We can only list constants on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
-            // TODO: handle ReflectionExtension as well
+            // @todo handle ReflectionExtension as well
             return;
         }
 
@@ -77,7 +77,7 @@ class ClassConstantEnumerator extends Enumerator
             $constants[$name] = $constReflector;
         }
 
-        // TODO: this should be natcasesort
+        // @todo this should be natcasesort
         ksort($constants);
 
         return $constants;

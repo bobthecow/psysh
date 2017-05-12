@@ -35,7 +35,7 @@ class PassableByReferencePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        // TODO: support MethodCall and StaticCall as well.
+        // @todo support MethodCall and StaticCall as well.
         if ($node instanceof FuncCall) {
             $name = $node->name;
 
