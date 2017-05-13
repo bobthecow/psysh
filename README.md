@@ -189,6 +189,7 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * Lumen: [`artisan tinker`](https://github.com/vluzrmos/lumen-tinker)
  * Magento: [`magerun console`](https://github.com/netz98/n98-magerun/blob/develop/src/N98/Magento/Command/Developer/ConsoleCommand.php)
  * Pantheon CLI: [`terminus cli console`](https://github.com/pantheon-systems/terminus)
+ * SilverStripe: [`sliver`](https://github.com/littlegiant/sliver)
  * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
  * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
  * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)
