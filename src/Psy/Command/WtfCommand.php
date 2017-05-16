@@ -92,17 +92,34 @@ HELP
         }
 
         $exception = $this->context->getLastException();
-        $count     = $input->getOption('all') ? PHP_INT_MAX : pow(2, max(0, (strlen($incredulity) - 1)));
-        $trace     = $this->getBacktrace($exception, $count);
+        $count     = $input->getOption('all') ? PHP_INT_MAX : max(3, pow(2, strlen($incredulity) + 1));
 
         $shell = $this->getApplication();
-        $output->page(function ($output) use ($exception, $trace, $shell) {
-            do {
-                $output->writeln($shell->formatException($exception));
-                $output->writeln('--');
-                $output->write($trace, true, ShellOutput::NUMBER_LINES);
+        $output->startPaging();
+        do {
+            $traceCount = count($exception->getTrace());
+            $showLines = $count;
+            // Show the whole trace if we'd only be hiding a few lines
+            if ($traceCount < max($count * 1.2, $count + 2)) {
+                $showLines = PHP_INT_MAX;
+            }
+
+            $trace = $this->getBacktrace($exception, $showLines);
+            $moreLines = $traceCount - count($trace);
+
+            $output->writeln($shell->formatException($exception));
+            $output->writeln('--');
+            $output->write($trace, true, ShellOutput::NUMBER_LINES);
+            $output->writeln('');
+
+            if ($moreLines > 0) {
+                $output->writeln(sprintf(
+                    '<aside>Use <return>wtf -a</return> to see %d more lines</aside>',
+                    $moreLines
+                ));
                 $output->writeln('');
-            } while ($exception = $exception->getPrevious());
-        });
+            }
+        } while ($exception = $exception->getPrevious());
+        $output->stopPaging();
     }
 }
