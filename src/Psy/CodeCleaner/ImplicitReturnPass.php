@@ -18,6 +18,7 @@ use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Switch_;
 
@@ -43,6 +44,11 @@ class ImplicitReturnPass extends CodeCleanerPass
      */
     private function addImplicitReturn(array $nodes)
     {
+        // If nodes is empty, it can't have a return value.
+        if (empty($nodes)) {
+            return array(new Return_(new New_(new FullyQualifiedName('Psy\CodeCleaner\NoReturnValue'))));
+        }
+
         $last = end($nodes);
 
         // Special case a few types of statements to add an implicit return
@@ -73,6 +79,8 @@ class ImplicitReturnPass extends CodeCleanerPass
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
             ));
+        } elseif ($last instanceof Namespace_) {
+            $last->stmts = $this->addImplicitReturn($last->stmts);
         }
 
         // Return a "no return value" for all non-expression statements, so that
@@ -81,7 +89,11 @@ class ImplicitReturnPass extends CodeCleanerPass
         // Note that statements special cased above (if/elseif/else, switch)
         // _might_ implicitly return a value before this catch-all return is
         // reached.
-        if ($last instanceof Stmt && !$last instanceof Return_) {
+        //
+        // We're not adding a fallback return after namespace statements,
+        // because code outside namespace statements doesn't really work, and
+        // there's already an implicit return in the namespace statement anyway.
+        if ($last instanceof Stmt && !$last instanceof Return_ && !$last instanceof Namespace_) {
             $nodes[] = new Return_(new New_(new FullyQualifiedName('Psy\CodeCleaner\NoReturnValue')));
         }
 
