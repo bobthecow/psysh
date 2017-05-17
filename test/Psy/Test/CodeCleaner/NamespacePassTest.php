@@ -34,10 +34,17 @@ class NamespacePassTest extends CodeCleanerTestCase
         $this->assertEquals(array('Alpha'), $this->cleaner->getNamespace());
 
         // A new non-block namespace statement should override the current namespace.
-        $this->process('namespace Beta');
+        $this->process('namespace Beta; class B {}');
         $this->assertEquals(array('Beta'), $this->cleaner->getNamespace());
 
+        // @todo Figure out if we can detect when the last namespace block is
+        // bracketed or unbracketed, because this should really clear the
+        // namespace at the end...
         $this->process('namespace Gamma { array_merge(); }');
+        $this->assertEquals(array('Gamma'), $this->cleaner->getNamespace());
+
+        // A null namespace clears out the current namespace.
+        $this->process('namespace { array_merge(); }');
         $this->assertNull($this->cleaner->getNamespace());
     }
 

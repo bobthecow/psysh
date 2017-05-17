@@ -179,8 +179,9 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
 
 ## As Seen On…
 
- * Cake: [`cake console`](http://book.cakephp.org/3.0/en/console-and-shells/repl.html)
+ * CakePHP: [`cake console`](http://book.cakephp.org/3.0/en/console-and-shells/repl.html)
  * CiviCRM: [`cv cli`](https://github.com/civicrm/cv)
+ * CodeIgniter: [`craftsman console`](https://ci-craftsman.github.io/documentation/)
  * Drupal: [`drush php`](http://drushcommands.com/drush-8x/core/core-cli/), [drush-psysh](https://github.com/grota/drush-psysh)
  * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
  * Grav: [`bin/plugin psysh shell`](https://github.com/akeif/grav-plugin-psysh)
@@ -188,9 +189,12 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * Laravel: [`artisan tinker`](https://github.com/laravel/tinker)
  * Lumen: [`artisan tinker`](https://github.com/vluzrmos/lumen-tinker)
  * Magento: [`magerun console`](https://github.com/netz98/n98-magerun/blob/develop/src/N98/Magento/Command/Developer/ConsoleCommand.php)
+ * MediaWiki: [`php maintenance/shell.php`](https://github.com/wikimedia/mediawiki/blob/master/maintenance/shell.php)
  * Pantheon CLI: [`terminus cli console`](https://github.com/pantheon-systems/terminus)
+ * SilverStripe: [`sliver`](https://github.com/littlegiant/sliver)
  * Symfony: [sf1-psysh-bootstrap](https://github.com/varas/sf1-psysh-bootstrap)
  * Symfony2: [`psymf`](https://github.com/navitronic/psymf), [sf2-psysh-bootstrap](https://github.com/varas/sf2-psysh-bootstrap), [symfony-repl](https://github.com/luxifer/symfony-repl), [PsyshBundle](https://github.com/theofidry/PsyshBundle)
  * WordPress: [`wp-cli shell`](https://github.com/wp-cli/wp-cli/blob/master/php/commands/shell.php)
  * Yii 2: [`yii shell`](https://github.com/yiisoft/yii2-shell)
+ * Zend Framework 1: [`zf1-psysh`](https://github.com/giorgiolucca/zf1-psysh)
  * Zend Framework 2: [PsyshModule](https://zfmodules.com/gianarb/zf2-psysh-module)

@@ -125,6 +125,11 @@ HELP
             $file     = isset($trace[$i]['file']) ? $this->replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
+            // Leave execution loop out of the `eval()'d code` lines
+            if (preg_match("#/Psy/ExecutionLoop/Loop.php\(\d+\) : eval\(\)'d code$#", $file)) {
+                $file = "eval()'d code";
+            }
+
             // Skip any lines that don't match our filter options
             if (!$this->filter->match(sprintf('%s%s%s() at %s:%s', $class, $type, $function, $file, $line))) {
                 continue;
