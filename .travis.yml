@@ -1,3 +1,4 @@
+sudo: false
 language: php
 
 php:
@@ -8,52 +9,27 @@ php:
   - 7.0
   - 7.1
   - hhvm
-
-env:
-  - COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-  - COMPOSER_FLAGS=
+  # - hhvm-nightly
 
 matrix:
   allow_failures:
-    - php: 5.3
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-    - php: 5.4
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-    - php: 5.5
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-    - php: 5.6
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-    - php: 7.0
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-    - php: 7.1
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
     - php: hhvm
-      env: COMPOSER_FLAGS="--prefer-lowest --prefer-stable"
-    - php: hhvm
-      env: COMPOSER_FLAGS=
+    - php: hhvm-nightly
 
-before_install:
-  - '[[ "$TRAVIS_PHP_VERSION" != hhvm* ]] && (php --ini | grep xdebug) && phpenv config-rm xdebug.ini || true'
+install: travis_retry composer update --no-interaction --prefer-source
 
-install:
-  - travis_retry composer update --no-interaction --prefer-source $COMPOSER_FLAGS
+script: vendor/bin/phpunit
 
-script:
-  - vendor/bin/phpunit
-#  - '[[ "$TRAVIS_PHP_VERSION" != 7.1* ]] || bin/build'
-
-before_deploy:
-  - bin/package -v $TRAVIS_TAG
+before_deploy: bin/package -v $TRAVIS_TAG
 
 deploy:
   provider: releases
   api_key:
     secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
-  file:
-    - dist/psysh-${PKG_VERSION}.tar.gz
-    - dist/psysh-${PKG_VERSION}-compat.tar.gz
+  file_glob: true
+  file: dist/psysh-*.tar.gz
   skip_cleanup: true
   on:
     tags: true
     repo: bobthecow/psysh
-    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.1*) && -z "$COMPOSER_FLAGS"
+    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.1*)

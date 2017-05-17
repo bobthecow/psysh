@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-set -ev
+set -e
 
 cd "${BASH_SOURCE%/*}/.."
 
 rm -rf build-vendor
 
-COMPOSER_VENDOR_DIR=build-vendor composer update --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose
+COMPOSER_VENDOR_DIR=build-vendor composer update \
+  --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose
