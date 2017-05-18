@@ -98,8 +98,8 @@ HELP
             return $GLOBALS[$matches[1]];
         } elseif (preg_match(self::INSTANCE, $target, $matches)) {
             return $this->getScopeVariable($matches[1]);
-        } else {
-            throw new RuntimeException('Unknown target: ' . $target);
         }
+
+        throw new RuntimeException('Unknown target: ' . $target);
     }
 }

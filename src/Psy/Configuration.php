@@ -547,7 +547,9 @@ class Configuration
         if ($this->useReadline()) {
             if (GNUReadline::isSupported()) {
                 return 'Psy\Readline\GNUReadline';
-            } elseif (Libedit::isSupported()) {
+            }
+
+            if (Libedit::isSupported()) {
                 return 'Psy\Readline\Libedit';
             } elseif (HoaConsole::isSupported()) {
                 return 'Psy\Readline\HoaConsole';
@@ -771,9 +773,13 @@ class Configuration
     {
         if ($this->colorMode() === self::COLOR_MODE_AUTO) {
             return;
-        } elseif ($this->colorMode() === self::COLOR_MODE_FORCED) {
+        }
+
+        if ($this->colorMode() === self::COLOR_MODE_FORCED) {
             return true;
-        } elseif ($this->colorMode() === self::COLOR_MODE_DISABLED) {
+        }
+
+        if ($this->colorMode() === self::COLOR_MODE_DISABLED) {
             return false;
         }
     }
@@ -989,9 +995,9 @@ class Configuration
                 } catch (\PDOException $e) {
                     if ($e->getMessage() === 'could not find driver') {
                         throw new RuntimeException('SQLite PDO driver not found', 0, $e);
-                    } else {
-                        throw $e;
                     }
+
+                    throw $e;
                 }
             }
         }
