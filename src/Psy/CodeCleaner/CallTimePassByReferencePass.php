@@ -37,10 +37,6 @@ class CallTimePassByReferencePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if (version_compare(PHP_VERSION, '5.4', '<')) {
-            return;
-        }
-
         if (!$node instanceof FuncCall && !$node instanceof MethodCall && !$node instanceof StaticCall) {
             return;
         }

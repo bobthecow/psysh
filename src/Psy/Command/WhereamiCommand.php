@@ -32,12 +32,7 @@ class WhereamiCommand extends Command
     public function __construct($colorMode = null)
     {
         $this->colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
-
-        if (version_compare(PHP_VERSION, '5.3.6', '>=')) {
-            $this->backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        } else {
-            $this->backtrace = debug_backtrace();
-        }
+        $this->backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         return parent::__construct();
     }
