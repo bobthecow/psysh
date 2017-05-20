@@ -664,10 +664,7 @@ class Shell extends Application
      */
     public function writeStdout($out, $phase = PHP_OUTPUT_HANDLER_END)
     {
-        $isCleaning = false;
-        if (version_compare(PHP_VERSION, '5.4', '>=')) {
-            $isCleaning = $phase & PHP_OUTPUT_HANDLER_CLEAN;
-        }
+        $isCleaning = $phase & PHP_OUTPUT_HANDLER_CLEAN;
 
         // Incremental flush
         if ($out !== '' && !$isCleaning) {

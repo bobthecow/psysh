@@ -98,7 +98,7 @@ class SignatureFormatter implements Formatter
             $chunks[] = $modifiers;
         }
 
-        if (version_compare(PHP_VERSION, '5.4', '>=') && $reflector->isTrait()) {
+        if ($reflector->isTrait()) {
             $chunks[] = 'trait';
         } else {
             $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
