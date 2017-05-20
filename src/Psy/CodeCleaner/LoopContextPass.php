@@ -30,10 +30,6 @@ class LoopContextPass extends CodeCleanerPass
 {
     private $loopDepth;
 
-    public function __construct()
-    {
-    }
-
     /**
      * {@inheritdoc}
      */
