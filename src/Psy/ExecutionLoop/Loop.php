@@ -71,10 +71,7 @@ class Loop
                     $__psysh__->getInput();
 
                     // evaluate the current code buffer
-                    ob_start(
-                        array($__psysh__, 'writeStdout'),
-                        version_compare(PHP_VERSION, '5.4', '>=') ? 1 : 2
-                    );
+                    ob_start(array($__psysh__, 'writeStdout'), 1);
 
                     // Let PsySH inject some magic variables back into the
                     // shell scope... things like $__class, and $__file set by
@@ -181,6 +178,6 @@ class Loop
             return version_compare(HHVM_VERSION, '3.5.0', '>=');
         }
 
-        return version_compare(PHP_VERSION, '5.4', '>=');
+        return true;
     }
 }

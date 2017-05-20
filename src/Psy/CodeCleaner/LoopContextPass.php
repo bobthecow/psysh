@@ -28,12 +28,10 @@ use Psy\Exception\FatalErrorException;
  */
 class LoopContextPass extends CodeCleanerPass
 {
-    private $isPHP54;
     private $loopDepth;
 
     public function __construct()
     {
-        $this->isPHP54 = version_compare(PHP_VERSION, '5.4.0', '>=');
     }
 
     /**
@@ -73,14 +71,14 @@ class LoopContextPass extends CodeCleanerPass
 
                 if ($node->num instanceof LNumber || $node->num instanceof DNumber) {
                     $num = $node->num->value;
-                    if ($this->isPHP54 && ($node->num instanceof DNumber || $num < 1)) {
+                    if ($node->num instanceof DNumber || $num < 1) {
                         throw new FatalErrorException(sprintf("'%s' operator accepts only positive numbers", $operator));
                     }
 
                     if ($num > $this->loopDepth) {
                         throw new FatalErrorException(sprintf("Cannot '%s' %d levels", $operator, $num));
                     }
-                } elseif ($node->num && $this->isPHP54) {
+                } elseif ($node->num) {
                     throw new FatalErrorException(sprintf(
                         "'%s' operator with non-constant operand is no longer supported",
                         $operator
