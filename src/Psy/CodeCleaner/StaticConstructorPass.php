@@ -31,10 +31,6 @@ class StaticConstructorPass extends CodeCleanerPass
 {
     private $namespace;
 
-    public function __construct()
-    {
-    }
-
     public function beforeTraverse(array $nodes)
     {
         $this->namespace = array();
