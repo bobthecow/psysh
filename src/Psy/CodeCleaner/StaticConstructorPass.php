@@ -48,7 +48,7 @@ class StaticConstructorPass extends CodeCleanerPass
         if ($node instanceof Namespace_) {
             $this->namespace = isset($node->name) ? $node->name->parts : array();
         } elseif ($node instanceof Class_) {
-            // Bail early if this is PHP 5.3.3 and we have a namespaced class
+            // Bail early if we have a namespaced class
             if (!empty($this->namespace)) {
                 return;
             }
