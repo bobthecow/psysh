@@ -53,7 +53,7 @@ class ShowCommand extends ReflectingCommand
             ->setName('show')
             ->setDefinition(array(
                 new InputArgument('value', InputArgument::OPTIONAL, 'Function, class, instance, constant, method or property to show.'),
-                new InputOption('ex', null,  InputOption::VALUE_OPTIONAL, 'Show last exception context. Optionally specify a stack index.', true),
+                new InputOption('ex', null,  InputOption::VALUE_OPTIONAL, 'Show last exception context. Optionally specify a stack index.', 1),
             ))
             ->setDescription('Show the code for an object, class, constant, method or property.')
             ->setHelp(
@@ -79,7 +79,17 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($input->getOption('ex') !== null) {
+        // n.b. As far as I can tell, InputInterface doesn't want to tell me
+        // whether an option with an optional value was actually passed. If you
+        // call $input->getOption('ex'), it will return the default, both when
+        // `--ex` is specified with no value, and when `--ex` isn't specified at
+        // all.
+        //
+        // So we're doing something sneaky here. If we call `getOptions`, it'll
+        // return the default value when `--ex` is not present, and `--null` if
+        // `--ex` is passed with no value. /shrug
+        $opts = $input->getOptions();
+        if ($opts['ex'] !== 1) {
             if ($input->getArgument('value')) {
                 throw new \InvalidArgumentException('Too many arguments (supply either "value" or "--ex")');
             }
@@ -117,15 +127,15 @@ HELP
             $this->lastExceptionIndex = null;
         }
 
-        $index = $input->getOption('ex');
-        if ($index === true) {
+        $opts = $input->getOptions();
+        if ($opts['ex'] === null) {
             if ($this->lastException && $this->lastExceptionIndex !== null) {
                 $index = $this->lastExceptionIndex + 1;
             } else {
                 $index = 0;
             }
         } else {
-            $index = max(0, intval($index) - 1);
+            $index = max(0, intval($input->getOption('ex')) - 1);
         }
 
         $trace = $exception->getTrace();
