@@ -81,14 +81,19 @@ HELP
     {
         // n.b. As far as I can tell, InputInterface doesn't want to tell me
         // whether an option with an optional value was actually passed. If you
-        // call $input->getOption('ex'), it will return the default, both when
+        // call `$input->getOption('ex')`, it will return the default, both when
         // `--ex` is specified with no value, and when `--ex` isn't specified at
         // all.
         //
         // So we're doing something sneaky here. If we call `getOptions`, it'll
-        // return the default value when `--ex` is not present, and `--null` if
+        // return the default value when `--ex` is not present, and `null` if
         // `--ex` is passed with no value. /shrug
         $opts = $input->getOptions();
+
+        // Strict comparison to `1` (the default value) here, because `--ex 1`
+        // will come in as `"1"`. Now we can tell the difference between
+        // "no --ex present", because it's the integer 1, "--ex with no value",
+        // because it's `null`, and "--ex 1", because it's the string "1".
         if ($opts['ex'] !== 1) {
             if ($input->getArgument('value')) {
                 throw new \InvalidArgumentException('Too many arguments (supply either "value" or "--ex")');
