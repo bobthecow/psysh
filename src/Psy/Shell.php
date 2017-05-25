@@ -16,6 +16,7 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
+use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
 use Psy\Output\ShellOutput;
@@ -65,7 +66,7 @@ class Shell extends Application
     private $outputWantsNewline = false;
     private $completion;
     private $tabCompletionMatchers = array();
-    private $listeners;
+    private $loopListeners;
 
     /**
      * Create a new Psy Shell.
@@ -74,14 +75,14 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
-        $this->config      = $config ?: new Configuration();
-        $this->cleaner     = $this->config->getCodeCleaner();
-        $this->loop        = $this->config->getLoop();
-        $this->context     = new Context();
-        $this->includes    = array();
-        $this->readline    = $this->config->getReadline();
-        $this->inputBuffer = array();
-        $this->listeners   = $this->getDefaultListeners();
+        $this->config        = $config ?: new Configuration();
+        $this->cleaner       = $this->config->getCodeCleaner();
+        $this->loop          = $this->config->getLoop();
+        $this->context       = new Context();
+        $this->includes      = array();
+        $this->readline      = $this->config->getReadline();
+        $this->inputBuffer   = array();
+        $this->loopListeners = $this->getDefaultLoopListeners();
 
         parent::__construct('Psy Shell', self::VERSION);
 
@@ -214,14 +215,14 @@ class Shell extends Application
     /**
      * Gets the default command loop listeners.
      *
-     * @return array An array of Listener instances
+     * @return array An array of ExecutionLoop Listener instances
      */
-    protected function getDefaultListeners()
+    protected function getDefaultLoopListeners()
     {
         $listeners = array();
 
-        if (Listener\Reloader::isSupported()) {
-            $listeners[] = new Listener\Reloader();
+        if (RunkitReloader::isSupported()) {
+            $listeners[] = new RunkitReloader();
         }
 
         return $listeners;
@@ -302,7 +303,9 @@ class Shell extends Application
         $this->writeStartupMessage();
 
         try {
+            $this->beforeRun();
             $this->loop->run($this);
+            $this->afterRun();
         } catch (ThrowUpException $e) {
             throw $e->getPrevious();
         }
@@ -347,7 +350,7 @@ class Shell extends Application
                 continue;
             }
 
-            $this->onInput($input);
+            $input = $this->onInput($input);
 
             if ($this->hasCommand($input)) {
                 $this->readline->addHistory($input);
@@ -360,13 +363,21 @@ class Shell extends Application
     }
 
     /**
-     * Run listeners, then pass the beforeLoop callback through to the Loop instance.
-     *
-     * @see Loop::beforeLoop
+     * Run execution loop listeners before the shell session.
+     */
+    protected function beforeRun()
+    {
+        foreach ($this->loopListeners as $listener) {
+            $listener->beforeRun($this);
+        }
+    }
+
+    /**
+     * Run execution loop listeners at the start of each loop.
      */
     public function beforeLoop()
     {
-        foreach ($this->listeners as $listener) {
+        foreach ($this->loopListeners as $listener) {
             $listener->beforeLoop($this);
         }
 
@@ -374,25 +385,47 @@ class Shell extends Application
     }
 
     /**
-     * Run listeners on input.
+     * Run execution loop listeners on user input.
      *
      * @param string $input
+     *
+     * @return string
      */
     public function onInput($input)
     {
-        foreach ($this->listeners as $listeners) {
-            $listeners->onInput($this, $input);
+        foreach ($this->loopListeners as $listeners) {
+            if (($return = $listeners->onInput($this, $input)) !== null) {
+                $input = $return;
+            }
         }
+
+        return $input;
     }
 
     /**
-     * Run listeners, then pass the afterLoop callback through to the Loop instance.
+     * Run execution loop listeners on code to be executed.
      *
-     * @see Loop::afterLoop
+     * @param string $code
+     *
+     * @return string
+     */
+    public function onExecute($code)
+    {
+        foreach ($this->loopListeners as $listener) {
+            if (($return = $listener->onExecute($this, $code)) !== null) {
+                $code = $return;
+            }
+        }
+
+        return $code;
+    }
+
+    /**
+     * Run execution loop listeners after each loop.
      */
     public function afterLoop()
     {
-        foreach ($this->listeners as $listener) {
+        foreach ($this->loopListeners as $listener) {
             $listener->afterLoop($this);
         }
 
@@ -400,17 +433,13 @@ class Shell extends Application
     }
 
     /**
-     * Pass next command to listeners.
-     *
-     * @see Loop::run
+     * Run execution loop listers after the shell session.
      */
-    public function onExecute($command)
+    protected function afterRun()
     {
-        foreach ($this->listeners as $listener) {
-            $listener->onExecute($this, $command);
+        foreach ($this->loopListeners as $listener) {
+            $listener->afterRun($this);
         }
-
-        return $command;
     }
 
     /**
