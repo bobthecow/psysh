@@ -16,6 +16,7 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
+use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
@@ -79,7 +80,7 @@ class Shell extends Application
     {
         $this->config        = $config ?: new Configuration();
         $this->cleaner       = $this->config->getCodeCleaner();
-        $this->loop          = $this->config->getLoop();
+        $this->loop          = new ExecutionLoop();
         $this->context       = new Context();
         $this->includes      = array();
         $this->readline      = $this->config->getReadline();
@@ -228,6 +229,10 @@ class Shell extends Application
     {
         $listeners = array();
 
+        if (ProcessForker::isSupported() && $this->config->usePcntl()) {
+            $listeners[] = new ProcessForker();
+        }
+
         if (RunkitReloader::isSupported()) {
             $listeners[] = new RunkitReloader();
         }
@@ -315,6 +320,9 @@ class Shell extends Application
             $this->afterRun();
         } catch (ThrowUpException $e) {
             throw $e->getPrevious();
+        } catch (BreakException $e) {
+            // The ProcessForker throws a BreakException to finish the main thread.
+            return;
         }
     }
 
@@ -388,8 +396,6 @@ class Shell extends Application
         foreach ($this->loopListeners as $listener) {
             $listener->beforeLoop($this);
         }
-
-        $this->loop->beforeLoop($this);
     }
 
     /**
@@ -436,8 +442,6 @@ class Shell extends Application
         foreach ($this->loopListeners as $listener) {
             $listener->afterLoop($this);
         }
-
-        $this->loop->afterLoop($this);
     }
 
     /**

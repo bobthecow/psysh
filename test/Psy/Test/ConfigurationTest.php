@@ -13,7 +13,6 @@ namespace Psy\Test;
 
 use Psy\CodeCleaner;
 use Psy\Configuration;
-use Psy\ExecutionLoop\Loop;
 use Psy\Output\PassthruPager;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -100,14 +99,12 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $config  = $this->getConfig();
         $cleaner = new CodeCleaner();
         $pager   = new PassthruPager(new ConsoleOutput());
-        $loop    = new Loop($config);
 
         $config->loadConfig(array(
             'useReadline'       => false,
             'usePcntl'          => false,
             'codeCleaner'       => $cleaner,
             'pager'             => $pager,
-            'loop'              => $loop,
             'requireSemicolons' => true,
             'errorLoggingLevel' => E_ERROR | E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
@@ -118,7 +115,6 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($config->usePcntl());
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
-        $this->assertSame($loop, $config->getLoop());
         $this->assertTrue($config->requireSemicolons());
         $this->assertEquals(E_ERROR | E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());

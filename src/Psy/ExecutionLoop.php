@@ -9,34 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\ExecutionLoop;
+namespace Psy;
 
-use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\ThrowUpException;
 use Psy\Exception\TypeErrorException;
-use Psy\Shell;
 
 /**
  * The Psy Shell execution loop.
  */
-class Loop
+class ExecutionLoop
 {
     const NOOP_INPUT = 'return null;';
-
-    /**
-     * Loop constructor.
-     *
-     * The non-forking loop doesn't have much use for Configuration, so we'll
-     * just ignore it.
-     *
-     * @param Configuration $config
-     */
-    public function __construct(Configuration $config)
-    {
-        // don't need this
-    }
 
     /**
      * Run the execution loop.
@@ -141,28 +126,6 @@ class Loop
         }
 
         $loop($shell);
-    }
-
-    /**
-     * A beforeLoop callback.
-     *
-     * This is executed at the start of each loop iteration. In the default
-     * (non-forking) loop implementation, this is a no-op.
-     */
-    public function beforeLoop(Shell $shell)
-    {
-        // no-op
-    }
-
-    /**
-     * A afterLoop callback.
-     *
-     * This is executed at the end of each loop iteration. In the default
-     * (non-forking) loop implementation, this is a no-op.
-     */
-    public function afterLoop(Shell $shell)
-    {
-        // no-op
     }
 
     /**
