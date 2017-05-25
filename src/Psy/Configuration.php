@@ -13,8 +13,6 @@ namespace Psy;
 
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
-use Psy\ExecutionLoop\ForkingLoop;
-use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Readline\GNUReadline;
@@ -41,7 +39,7 @@ class Configuration
 
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
-        'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
+        'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
         'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
         'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
         'colorMode', 'updateCheck', 'startupMessage',
@@ -78,7 +76,6 @@ class Configuration
     private $shell;
     private $cleaner;
     private $pager;
-    private $loop;
     private $manualDb;
     private $presenter;
     private $completer;
@@ -818,37 +815,6 @@ class Configuration
         }
 
         return $this->pager;
-    }
-
-    /**
-     * Set the Shell evaluation Loop service.
-     *
-     * @param Loop $loop
-     */
-    public function setLoop(Loop $loop)
-    {
-        $this->loop = $loop;
-    }
-
-    /**
-     * Get a Shell evaluation Loop service instance.
-     *
-     * If none has been explicitly defined, this will create a new instance.
-     * If Pcntl is available and enabled, the new instance will be a ForkingLoop.
-     *
-     * @return Loop
-     */
-    public function getLoop()
-    {
-        if (!isset($this->loop)) {
-            if ($this->usePcntl()) {
-                $this->loop = new ForkingLoop($this);
-            } else {
-                $this->loop = new Loop($this);
-            }
-        }
-
-        return $this->loop;
     }
 
     /**

@@ -15,25 +15,30 @@ use Psy\Context;
 use Psy\Shell;
 
 /**
- * A forking version of the Psy Shell execution loop.
+ * An execution loop listener that forks the process before executing code.
  *
- * This version is preferred, as it won't die prematurely if user input includes
+ * This is awesome, as the session won't die prematurely if user input includes
  * a fatal error, such as redeclaring a class or function.
  */
-class ForkingLoop extends Loop
+class ProcessForker extends AbstractListener
 {
     private $savegame;
+    private $up;
+
+    public static function isSupported()
+    {
+        return function_exists('pcntl_signal') && function_exists('posix_getpid');
+    }
 
     /**
-     * Run the execution loop.
+     * Forks into a master and a loop process.
      *
-     * Forks into a master and a loop process. The loop process will handle the
-     * evaluation of all instructions, then return its state via a socket upon
-     * completion.
+     * The loop process will handle the evaluation of all instructions, then
+     * return its state via a socket upon completion.
      *
      * @param Shell $shell
      */
-    public function run(Shell $shell)
+    public function beforeRun(Shell $shell)
     {
         list($up, $down) = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
 
@@ -76,14 +81,8 @@ class ForkingLoop extends Loop
         // We won't be needing this one.
         fclose($down);
 
-        // Let's do some processing.
-        parent::run($shell);
-
-        // Send the scope variables back up to the main thread
-        fwrite($up, $this->serializeReturn($shell->getScopeVariables(false)));
-        fclose($up);
-
-        posix_kill(posix_getpid(), SIGKILL);
+        // Save this; we'll need to close it in `afterRun`
+        $this->up = $up;
     }
 
     /**
@@ -103,6 +102,17 @@ class ForkingLoop extends Loop
         if (isset($this->savegame)) {
             posix_kill($this->savegame, SIGKILL);
             pcntl_signal_dispatch();
+        }
+    }
+
+    public function afterRun(Shell $shell)
+    {
+        // We're a child thread. Send the scope variables back up to the main thread.
+        if (isset($this->up)) {
+            fwrite($this->up, $this->serializeReturn($shell->getScopeVariables(false)));
+            fclose($this->up);
+
+            posix_kill(posix_getpid(), SIGKILL);
         }
     }
 
