@@ -21,11 +21,6 @@ abstract class AbstractListener implements Listener
     /**
      * {@inheritdoc}
      */
-    abstract public static function isSupported();
-
-    /**
-     * {@inheritdoc}
-     */
     public function beforeRun(Shell $shell)
     {
     }
