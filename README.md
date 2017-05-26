@@ -183,6 +183,7 @@ The PsySH `doc` command is great for documenting source code, but you'll need a 
  * CiviCRM: [`cv cli`](https://github.com/civicrm/cv)
  * CodeIgniter: [`craftsman console`](https://ci-craftsman.github.io/documentation/)
  * Drupal: [`drush php`](http://drushcommands.com/drush-8x/core/core-cli/), [drush-psysh](https://github.com/grota/drush-psysh)
+ * Emacs: [`psysh.el`](https://github.com/zonuexe/psysh.el)
  * eZ Publish: [`ezsh`](https://github.com/lolautruche/ezsh)
  * Grav: [`bin/plugin psysh shell`](https://github.com/akeif/grav-plugin-psysh)
  * Jupyter: [Jupyter-PHP](https://github.com/Litipk/Jupyter-PHP)
