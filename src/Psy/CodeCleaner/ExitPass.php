@@ -12,12 +12,9 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Exit_;
-use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Throw_;
 
 class ExitPass extends CodeCleanerPass
 {
@@ -29,9 +26,7 @@ class ExitPass extends CodeCleanerPass
     public function leaveNode(Node $node)
     {
         if ($node instanceof Exit_) {
-            $args = array(new Arg(new String_('Goodbye.')));
-
-            return new Throw_(new New_(new FullyQualifiedName('Psy\Exception\BreakException'), $args));
+            return new StaticCall(new FullyQualifiedName('Psy\Exception\BreakException'), 'exitShell');
         }
     }
 }

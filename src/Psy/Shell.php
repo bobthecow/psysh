@@ -207,7 +207,7 @@ class Shell extends Application
             new Command\DumpCommand(),
             new Command\DocCommand(),
             new Command\ShowCommand($this->config->colorMode()),
-            new Command\WtfCommand(),
+            new Command\WtfCommand($this->config->colorMode()),
             new Command\WhereamiCommand($this->config->colorMode()),
             new Command\ThrowUpCommand(),
             new Command\TraceCommand(),

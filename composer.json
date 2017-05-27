@@ -47,7 +47,7 @@
     "bin": ["bin/psysh"],
     "extra": {
         "branch-alias": {
-            "dev-develop": "0.9.x-dev"
+            "dev-develop": "0.8.x-dev"
         }
     }
 }
