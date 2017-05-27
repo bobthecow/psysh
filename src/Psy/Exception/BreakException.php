@@ -44,7 +44,7 @@ class BreakException extends \Exception implements Exception
      *
      * @throws BreakException
      */
-    public static function exit_()
+    public static function exitShell()
     {
         throw new self('Goodbye');
     }
