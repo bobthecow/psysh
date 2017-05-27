@@ -18,7 +18,7 @@ class ExitPassTest extends CodeCleanerTestCase
     /**
      * @var string
      */
-    private $expectedExceptionString = "\\Psy\\Exception\\BreakException::exit_();";
+    private $expectedExceptionString = "\\Psy\\Exception\\BreakException::exit_()";
 
     public function setUp()
     {
@@ -41,11 +41,15 @@ class ExitPassTest extends CodeCleanerTestCase
     public function dataProviderExitStatement()
     {
         return array(
-            array('exit;', $this->expectedExceptionString),
-            array('exit();', $this->expectedExceptionString),
-            array('die;', $this->expectedExceptionString),
-            array('if (true) { exit; }', "if (true) {\n    $this->expectedExceptionString\n}"),
-            array('if (false) { exit; }', "if (false) {\n    $this->expectedExceptionString\n}"),
+            array('exit;', "{$this->expectedExceptionString};"),
+            array('exit();', "{$this->expectedExceptionString};"),
+            array('die;', "{$this->expectedExceptionString};"),
+            array('exit(die(die));', "{$this->expectedExceptionString};"),
+            array('if (true) { exit; }', "if (true) {\n    {$this->expectedExceptionString};\n}"),
+            array('if (false) { exit; }', "if (false) {\n    {$this->expectedExceptionString};\n}"),
+            array('1 and exit();', "1 and {$this->expectedExceptionString};"),
+            array('foo() or die', "foo() or {$this->expectedExceptionString};"),
+            array('exit and 1;', "{$this->expectedExceptionString} and 1;"),
         );
     }
 }
