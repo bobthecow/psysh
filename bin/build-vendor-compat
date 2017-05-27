@@ -9,8 +9,8 @@ rm composer*.lock
 
 cp composer.json composer-compat.json
 
-if [[ $(php --version) = PHP\ 5.3* ]]; then
-  HOA_VERSION=^1.14
+if [[ $(php --version) = PHP\ 5.4* ]]; then
+  HOA_VERSION=^2.15
 fi
 
 COMPOSER=composer-compat.json COMPOSER_VENDOR_DIR=build-vendor \

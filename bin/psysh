@@ -98,6 +98,9 @@ if (!class_exists('Psy\Shell')) {
 
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
+//
+// Keep this PHP 5.3 code around for a while in case someone is using a globally
+// installed psysh as a bin launcher for older local versions.
 if (version_compare(PHP_VERSION, '5.3.6', '<')) {
     $trace = debug_backtrace();
 } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
