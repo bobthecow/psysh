@@ -23,7 +23,7 @@
     "require-dev": {
         "phpunit/phpunit": "~4.4|~5.0",
         "symfony/finder": "~2.1|~3.0|~4.0",
-        "hoa/console": "~1.14|~3.16"
+        "hoa/console": "~2.15|~3.16"
     },
     "suggest": {
         "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
