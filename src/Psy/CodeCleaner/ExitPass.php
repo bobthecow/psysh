@@ -26,7 +26,7 @@ class ExitPass extends CodeCleanerPass
     public function leaveNode(Node $node)
     {
         if ($node instanceof Exit_) {
-            return new StaticCall(new FullyQualifiedName('Psy\Exception\BreakException'), 'exit_');
+            return new StaticCall(new FullyQualifiedName('Psy\Exception\BreakException'), 'exitShell');
         }
     }
 }
