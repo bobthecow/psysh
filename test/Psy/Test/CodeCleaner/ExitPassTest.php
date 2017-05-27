@@ -50,7 +50,7 @@ class ExitPassTest extends CodeCleanerTestCase
             array('1 and exit();', "1 and {$this->expectedExceptionString};"),
             array('foo() or die', "foo() or {$this->expectedExceptionString};"),
             array('exit and 1;', "{$this->expectedExceptionString} and 1;"),
-            array('if (exit) { echo "wat"; }', "if ({$this->expectedExceptionString}) {\n    echo \"wat\";\n}"),
+            array('if (exit) { echo $wat; }', "if ({$this->expectedExceptionString}) {\n    echo \$wat;\n}"),
             array('exit or die;', "{$this->expectedExceptionString} or {$this->expectedExceptionString};"),
             array('switch (die) { }', "switch ({$this->expectedExceptionString}) {\n}"),
             array('for ($i = 1; $i < 10; die) {}', "for (\$i = 1; \$i < 10; {$this->expectedExceptionString}) {\n}"),
