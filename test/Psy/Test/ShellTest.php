@@ -337,11 +337,11 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function getExecuteValues()
     {
-        return array(
-            array('return 12', "=> \033[35m12\033[39m" . PHP_EOL),
-            array('"{{return value}}"', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL),
-            array('1', "=> \033[35m1\033[39m" . PHP_EOL),
-        );
+        return [
+            ['return 12', "=> \033[35m12\033[39m" . PHP_EOL],
+            ['"{{return value}}"', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL],
+            ['1', "=> \033[35m1\033[39m" . PHP_EOL],
+        ];
     }
 
     private function getOutput()

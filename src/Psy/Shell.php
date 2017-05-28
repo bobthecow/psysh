@@ -81,7 +81,7 @@ class Shell extends Application
     {
         $this->config        = $config ?: new Configuration();
         $this->cleaner       = $this->config->getCodeCleaner();
-        $this->loop          = new ExecutionLoop($this->cleaner);
+        $this->loop          = new ExecutionLoop();
         $this->context       = new Context();
         $this->includes      = [];
         $this->readline      = $this->config->getReadline();
@@ -900,6 +900,7 @@ class Shell extends Application
 
     /**
      * @param $code
+     *
      * @return mixed
      */
     public function execute($code)
