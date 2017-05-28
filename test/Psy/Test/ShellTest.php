@@ -321,6 +321,29 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider getExecuteValues
+     */
+    public function testShellExecute($input, $expected)
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell  = new Shell($this->getConfig());
+        $shell->setOutput($output);
+        $shell->execute($input);
+        rewind($stream);
+        $this->assertEquals($expected, stream_get_contents($stream));
+    }
+
+    public function getExecuteValues()
+    {
+        return array(
+            array('return 12', "=> \033[35m12\033[39m" . PHP_EOL),
+            array('"{{return value}}"', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL),
+            array('1', "=> \033[35m1\033[39m" . PHP_EOL),
+        );
+    }
+
     private function getOutput()
     {
         $stream = fopen('php://memory', 'w+');
@@ -344,16 +367,5 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         ];
 
         return new Configuration(array_merge($defaults, $config));
-    }
-
-    public function testShellExecute()
-    {
-        $output = $this->getOutput();
-        $stream = $output->getStream();
-        $shell  = new Shell($this->getConfig());
-        $shell->setOutput($output);
-        $shell->execute('return 12');
-        rewind($stream);
-        $this->assertEquals("=> \033[35m12\033[39m" . PHP_EOL, stream_get_contents($stream));
     }
 }
