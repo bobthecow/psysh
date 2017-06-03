@@ -142,6 +142,13 @@ class Shell extends Application
         $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
 
+        // Show a couple of lines of call context for the debug session.
+        //
+        // @todo come up with a better way of doing this which doesn't involve injecting input :-P
+        if ($sh->has('whereami')) {
+            $sh->addInput('whereami -n2', true);
+        }
+
         if ($boundObject !== null) {
             $sh->setBoundObject($boundObject);
         }
