@@ -10,11 +10,10 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
 [![Build status](https://img.shields.io/travis/bobthecow/psysh/master.svg?style=flat-square)](http://travis-ci.org/bobthecow/psysh)
 [![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
 
----
 
 <a id="downloading-the-manual"></a>
 
-# [PsySH manual](https://github.com/bobthecow/psysh/wiki/Home)
+## [PsySH manual](https://github.com/bobthecow/psysh/wiki/Home)
 
 ### [💾 Installation](https://github.com/bobthecow/psysh/wiki/Installation)
  * [📕 PHP manual installation](https://github.com/bobthecow/psysh/wiki/PHP-manual)
@@ -32,5 +31,3 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
  * [📄 Sample config file](https://github.com/bobthecow/psysh/wiki/Sample-config)
 
 ### [🔌 Integrations](https://github.com/bobthecow/psysh/wiki/Integrations)
-
----
