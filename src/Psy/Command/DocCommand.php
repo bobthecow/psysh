@@ -74,7 +74,7 @@ HELP
             if (empty($doc) && !$db) {
                 $output->writeln('<warning>PHP manual not found</warning>');
                 $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
-                $output->writeln('    https://github.com/bobthecow/psysh#downloading-the-manual');
+                $output->writeln('    https://github.com/bobthecow/dotfiles/wiki/PHP-manual');
             } else {
                 $output->writeln($doc);
             }
