@@ -28,6 +28,8 @@ use Psy\Exception\FatalErrorException;
  */
 class StrictTypesPass extends CodeCleanerPass
 {
+    const EXCEPTION_MESSAGE = 'strict_types declaration must have 0 or 1 as its value';
+
     private $strictTypes = false;
 
     /**
@@ -54,7 +56,7 @@ class StrictTypesPass extends CodeCleanerPass
                     if ($declare->key === 'strict_types') {
                         $value = $declare->value;
                         if (!$value instanceof LNumber || ($value->value !== 0 && $value->value !== 1)) {
-                            throw new FatalErrorException('strict_types declaration must have 0 or 1 as its value');
+                            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
                         }
 
                         $this->strictTypes = $value->value === 1;

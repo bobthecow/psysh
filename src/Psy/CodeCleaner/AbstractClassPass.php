@@ -40,7 +40,8 @@ class AbstractClassPass extends CodeCleanerPass
                 $this->abstractMethods[] = $name;
 
                 if ($node->stmts !== null) {
-                    throw new FatalErrorException(sprintf('Abstract function %s cannot contain body', $name));
+                    $msg = sprintf('Abstract function %s cannot contain body', $name);
+                    throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
                 }
             }
         }
@@ -56,13 +57,14 @@ class AbstractClassPass extends CodeCleanerPass
         if ($node instanceof Class_) {
             $count = count($this->abstractMethods);
             if ($count > 0 && !$node->isAbstract()) {
-                throw new FatalErrorException(sprintf(
+                $msg = sprintf(
                     'Class %s contains %d abstract method%s must therefore be declared abstract or implement the remaining methods (%s)',
                     $node->name,
                     $count,
-                    ($count === 0) ? '' : 's',
+                    ($count === 1) ? '' : 's',
                     implode(', ', $this->abstractMethods)
-                ));
+                );
+                throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
             }
         }
     }

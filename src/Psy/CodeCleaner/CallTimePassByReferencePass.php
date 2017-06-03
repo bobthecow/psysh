@@ -26,6 +26,8 @@ use Psy\Exception\FatalErrorException;
  */
 class CallTimePassByReferencePass extends CodeCleanerPass
 {
+    const EXCEPTION_MESSAGE = 'Call-time pass-by-reference has been removed';
+
     /**
      * Validate of use call-time pass-by-reference.
      *
@@ -45,7 +47,7 @@ class CallTimePassByReferencePass extends CodeCleanerPass
 
         foreach ($node->args as $arg) {
             if ($arg->byRef) {
-                throw new FatalErrorException('Call-time pass-by-reference has been removed');
+                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
             }
         }
     }

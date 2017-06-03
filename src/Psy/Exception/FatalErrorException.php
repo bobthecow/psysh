@@ -23,13 +23,18 @@ class FatalErrorException extends \ErrorException implements Exception
      *
      * @param string     $message  (default: "")
      * @param int        $code     (default: 0)
-     * @param int        $severity (default: 9000)
+     * @param int        $severity (default: 1)
      * @param string     $filename (default: null)
      * @param int        $lineno   (default: null)
      * @param \Exception $previous (default: null)
      */
-    public function __construct($message = '', $code = 0, $severity = 9000, $filename = null, $lineno = null, $previous = null)
+    public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
+        // Since these are basically always PHP Parser Node line numbers, treat -1 as null.
+        if ($lineno === -1) {
+            $lineno = null;
+        }
+
         $this->rawMessage = $message;
         $message = sprintf('PHP Fatal error:  %s in %s on line %d', $message, $filename ?: "eval()'d code", $lineno);
         parent::__construct($message, $code, $severity, $filename, $lineno, $previous);
