@@ -1,4 +1,4 @@
-#!/usr/bin/env php -d phar.readonly=Off
+#!/usr/bin/env php
 <?php
 
 /*

@@ -44,7 +44,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.8.5';
+    const VERSION = 'v0.8.6';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -142,6 +142,13 @@ class Shell extends Application
         $sh = new \Psy\Shell();
         $sh->setScopeVariables($vars);
 
+        // Show a couple of lines of call context for the debug session.
+        //
+        // @todo come up with a better way of doing this which doesn't involve injecting input :-P
+        if ($sh->has('whereami')) {
+            $sh->addInput('whereami -n2', true);
+        }
+
         if ($boundObject !== null) {
             $sh->setBoundObject($boundObject);
         }
@@ -207,7 +214,7 @@ class Shell extends Application
             new Command\DumpCommand(),
             new Command\DocCommand(),
             new Command\ShowCommand($this->config->colorMode()),
-            new Command\WtfCommand(),
+            new Command\WtfCommand($this->config->colorMode()),
             new Command\WhereamiCommand($this->config->colorMode()),
             new Command\ThrowUpCommand(),
             new Command\TraceCommand(),

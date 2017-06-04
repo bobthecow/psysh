@@ -52,7 +52,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
                 if (function_exists($name) ||
                     isset($this->currentScope[strtolower($name)])) {
                     $msg = sprintf('Cannot redeclare %s()', $name);
-                    throw new FatalErrorException($msg, 0, 1, null, $node->getLine());
+                    throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
                 }
             }
 
@@ -81,7 +81,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
                 $inScope = isset($this->currentScope[strtolower($fullName)]);
                 if (!$inScope && !function_exists($shortName) && !function_exists($fullName)) {
                     $message = sprintf('Call to undefined function %s()', $name);
-                    throw new FatalErrorException($message, 0, 1, null, $node->getLine());
+                    throw new FatalErrorException($message, 0, E_ERROR, null, $node->getLine());
                 }
             }
         }

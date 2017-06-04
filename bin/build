@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ev
+set -e
 
 cd "${BASH_SOURCE%/*}/.."
 

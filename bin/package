@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ev
+set -e
 
 cd "${BASH_SOURCE%/*}/.."
 
@@ -28,25 +28,28 @@ while getopts ":v:h" opt; do
   esac
 done
 
+if [ -z "$PKG_VERSION" ]; then
+  PKG_VERSION=$(git describe --tag --exact-match)
+fi
+
+if [[ $(php --version) = PHP\ 5.3* ]]; then
+  PKG_VERSION=${PKG_VERSION}-php53
+fi
+
+echo "Packaging $PKG_VERSION"
+
+mkdir -p dist || exit 1
+
 ./bin/build || exit 1
 chmod +x *.phar
 
 echo "Creating tarballs"
 
-mkdir -p dist || exit 1
-
-if [ -z "$PKG_VERSION" ]; then
-  PKG_VERSION=$(git describe --tag --exact-match)
-  if [[ $(php --version) = PHP\ 5.3* ]]; then
-    PKG_VERSION=${PKG_VERSION}-php53
-  fi
-fi
-
 # Support BSD tar because OS X :(
-TAR_FLAGS='--transform="flags=r;s/.*/psysh/"'
 if [[ $(tar --version) = bsdtar* ]]; then
-  TAR_FLAGS='-s /.*/psysh/'
+  tar -s "/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
+  tar -s "/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
+else
+  tar --transform "s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
+  tar --transform "s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
 fi
-
-tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
-tar $TAR_FLAGS -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
