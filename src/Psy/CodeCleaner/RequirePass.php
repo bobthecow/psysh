@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\Include_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\LNumber;
+use Psy\Exception\ErrorException;
 use Psy\Exception\FatalErrorException;
 use Psy\Shell;
 
@@ -59,6 +60,7 @@ class RequirePass extends CodeCleanerPass
      * If $file can be resolved, return $file. Otherwise throw a fatal error exception.
      *
      * @throws FatalErrorException when unable to resolve include path for $file
+     * @throws ErrorException      if $file is empty and E_WARNING is included in error_reporting level
      *
      * @param string $file
      * @param int    $lineNumber Line number of the original require expression
@@ -68,6 +70,19 @@ class RequirePass extends CodeCleanerPass
     public static function resolve($file, $lineNumber = null)
     {
         $file = (string) $file;
+
+        if ($file === '') {
+            // @todo Shell::handleError would be better here, because we could
+            // fake the file and line number, but we can't call it statically.
+            // So we're duplicating some of the logics here.
+            if (E_WARNING & error_reporting()) {
+                ErrorException::throwException(E_WARNING, 'Filename cannot be empty', null, $lineNumber);
+            } else {
+                // @todo trigger an error as fallback? this is pretty ugly…
+                // trigger_error('Filename cannot be empty', E_USER_WARNING);
+            }
+        }
+
         if ($file === '' || !stream_resolve_include_path($file)) {
             $msg = sprintf("Failed opening required '%s'", $file);
             throw new FatalErrorException($msg, 0, E_ERROR, null, $lineNumber);
