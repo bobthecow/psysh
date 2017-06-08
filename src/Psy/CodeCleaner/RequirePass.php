@@ -1,63 +1,83 @@
 <?php
 
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2017 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
+use PhpParser\Node\Expr\Include_;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
+use PhpParser\Node\Scalar\LNumber;
+use Psy\Exception\FatalErrorException;
+use Psy\Shell;
 
+/**
+ * Add runtime validation for `require` and `require_once` calls.
+ */
 class RequirePass extends CodeCleanerPass
 {
+    private static $requireTypes = array(Include_::TYPE_REQUIRE, Include_::TYPE_REQUIRE_ONCE);
+
+    /**
+     * {@inheritdoc}
+     */
     public function enterNode(Node $node)
     {
-        if ((
-            $node instanceof Node\Expr\Include_ &&
-            in_array($node->type, array(3, 4)) &&
-            !$node->getAttribute('included')
-        )) {
-            $injected = clone $node;
-            $injected->setAttribute('included', true);
-
-            return new Node\Expr\FuncCall(
-                new Node\Name('call_user_func'),
-                array(
-                    new Node\Arg(
-                        new Node\Expr\Closure(
-                            array(
-                                'params' => array(new Node\Param('class')),
-                                'stmts' => array(
-                                    new Node\Stmt\If_(
-                                        new Node\Expr\FuncCall(
-                                            new Node\Name('stream_resolve_include_path'),
-                                            array(new Node\Arg(new Node\Expr\Variable('class')))
-                                        ),
-                                        array(
-                                            'stmts' => array(new Node\Stmt\Return_($injected)),
-                                            'else' => new Node\Stmt\Else_(
-                                                array(
-                                                    new Node\Expr\FuncCall(
-                                                        new Node\Name('trigger_error'),
-                                                        array(
-                                                            new Node\Expr\FuncCall(
-                                                                new Node\Name('sprintf'),
-                                                                array(
-                                                                    new Node\Arg(new Node\Scalar\String('require(%s): failed to open stream: No such file or directory in php shell code on line %d')),
-                                                                    new Node\Arg(new Node\Expr\Variable('class')),
-                                                                    new Node\Arg(new Node\Scalar\DNumber($node->getLine())),
-                                                                )
-                                                            ),
-                                                        )
-                                                    ),
-                                                )
-                                            ),
-                                        )
-                                    ),
-                                ),
-                            )
-                        )
-                    ),
-                    new Node\Arg($node->expr),
-                ),
-                $node->getAttributes()
-            );
+        if (!$this->isRequireNode($node)) {
+            return;
         }
+
+        /*
+         * rewrite
+         *
+         *   $foo = require $bar
+         *
+         * to
+         *
+         *   $foo = Psy\CodeCleaner\RequirePass::resolve($bar)
+         */
+        return new StaticCall(
+            new FullyQualifiedName('Psy\CodeCleaner\RequirePass'),
+            'resolve',
+            array(new Arg($node->expr), new Arg(new LNumber($node->getLine()))),
+            $node->getAttributes()
+        );
+    }
+
+    /**
+     * Runtime validation that $file can be resolved as an include path.
+     *
+     * If $file can be resolved, return $file. Otherwise throw a fatal error exception.
+     *
+     * @throws FatalErrorException when unable to resolve include path for $file
+     *
+     * @param string $file
+     * @param int    $lineNumber Line number of the original require expression
+     *
+     * @return string Exactly the same as $file
+     */
+    public static function resolve($file, $lineNumber = null)
+    {
+        $file = (string) $file;
+        if ($file === '' || !stream_resolve_include_path($file)) {
+            $msg = sprintf("Failed opening required '%s'", $file);
+            throw new FatalErrorException($msg, 0, E_ERROR, null, $lineNumber);
+        }
+
+        return $file;
+    }
+
+    private function isRequireNode(Node $node)
+    {
+        return $node instanceof Include_ && in_array($node->type, self::$requireTypes);
     }
 }
