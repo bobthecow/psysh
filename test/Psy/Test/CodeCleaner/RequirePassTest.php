@@ -32,6 +32,13 @@ class RequirePassTest extends CodeCleanerTestCase
     {
         $resolve = '\\Psy\\CodeCleaner\\RequirePass::resolve';
 
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            return array(
+                array('require $foo', "$resolve(\$foo, 1);"),
+                array('$bar = require $baz', "\$bar = $resolve(\$baz, 1);"),
+            );
+        }
+
         return array(
             // The basics
             array('require "a"', "$resolve(\"a\", 1);"),
