@@ -61,4 +61,49 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             array('array_pop(Foo::qux)'),
         );
     }
+
+    /**
+     * @dataProvider validArrayMultisort
+     */
+    public function testArrayMultisort($code)
+    {
+        $stmts = $this->parse($code);
+        $this->traverser->traverse($stmts);
+    }
+
+    public function validArrayMultisort()
+    {
+        return array(
+            array('array_multisort($a)'),
+            array('array_multisort($a, $b)'),
+            array('array_multisort($a, SORT_NATURAL, $b)'),
+            array('array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, $b)'),
+            array('array_multisort($a, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $b)'),
+            array('array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, SORT_ASC, $b)'),
+            array('array_multisort($a, $b, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE)'),
+            array('array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, $b, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE)'),
+            array('array_multisort($a, 1, $b)'),
+            array('array_multisort($a, 1 + 2, $b)'),
+            array('array_multisort($a, getMultisortFlags(), $b)'),
+        );
+    }
+
+    /**
+     * @dataProvider invalidArrayMultisort
+     * @expectedException \Psy\Exception\FatalErrorException
+     */
+    public function testInvalidArrayMultisort($code)
+    {
+        $stmts = $this->parse($code);
+        $this->traverser->traverse($stmts);
+    }
+
+    public function invalidArrayMultisort()
+    {
+        return array(
+            array('array_multisort(1)'),
+            array('array_multisort(array(1, 2, 3))'),
+            array('array_multisort($a, SORT_NATURAL, SORT_ASC, SORT_NATURAL, $b)'),
+        );
+    }
 }
