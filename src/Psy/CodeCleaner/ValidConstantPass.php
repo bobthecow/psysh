@@ -74,10 +74,10 @@ class ValidConstantPass extends NamespaceAwarePass
             // if the class doesn't exist, don't throw an exception… it might be
             // defined in the same line it's used or something stupid like that.
             if (class_exists($className) || interface_exists($className)) {
-                $constName = sprintf('%s::%s', $className, $stmt->name);
-                if (!defined($constName)) {
+                $refl = new \ReflectionClass($className);
+                if (!$refl->hasConstant($stmt->name)) {
                     $constType = class_exists($className) ? 'Class' : 'Interface';
-                    $msg = sprintf('%s constant \'%s\' not found', $constType, $constName);
+                    $msg = sprintf('%s constant \'%s::%s\' not found', $constType, $className, $stmt->name);
                     throw new FatalErrorException($msg, 0, E_ERROR, null, $stmt->getLine());
                 }
             }
