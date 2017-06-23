@@ -17,7 +17,7 @@ matrix:
 
 install: travis_retry composer update --no-interaction
 
-script: vendor/bin/phpunit
+script: vendor/bin/phpunit --verbose
 
 before_deploy: bin/package -v $TRAVIS_TAG
 
