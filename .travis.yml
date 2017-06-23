@@ -16,7 +16,7 @@ matrix:
     - php: hhvm
     - php: hhvm-nightly
 
-install: travis_retry composer update --no-interaction --prefer-source
+install: travis_retry composer update --no-interaction
 
 script: vendor/bin/phpunit
 
