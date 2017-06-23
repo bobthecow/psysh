@@ -12,8 +12,6 @@ matrix:
     - php: 7.1
     - php: hhvm
       dist: trusty
-
-matrix:
   allow_failures:
     - php: hhvm
 
