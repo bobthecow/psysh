@@ -915,6 +915,16 @@ class Shell extends Application
     }
 
     /**
+     * Get a PHP constants database instance.
+     *
+     * @return \PDO|null
+     */
+    public function getConstantsDb()
+    {
+        return $this->config->getConstantsDb();
+    }
+
+    /**
      * Autocomplete variable names.
      *
      * This is used by `readline` for tab completion.
