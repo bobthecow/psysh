@@ -31,11 +31,13 @@ class RequirePass extends CodeCleanerPass
     /**
      * {@inheritdoc}
      */
-    public function enterNode(Node $node)
+    public function enterNode(Node $origNode)
     {
-        if (!$this->isRequireNode($node)) {
+        if (!$this->isRequireNode($origNode)) {
             return;
         }
+
+        $node = clone $origNode;
 
         /*
          * rewrite
@@ -44,14 +46,16 @@ class RequirePass extends CodeCleanerPass
          *
          * to
          *
-         *   $foo = Psy\CodeCleaner\RequirePass::resolve($bar)
+         *   $foo = require \Psy\CodeCleaner\RequirePass::resolve($bar)
          */
-        return new StaticCall(
+        $node->expr = new StaticCall(
             new FullyQualifiedName('Psy\CodeCleaner\RequirePass'),
             'resolve',
-            array(new Arg($node->expr), new Arg(new LNumber($node->getLine()))),
-            $node->getAttributes()
+            array(new Arg($origNode->expr), new Arg(new LNumber($origNode->getLine()))),
+            $origNode->getAttributes()
         );
+
+        return $node;
     }
 
     /**
