@@ -34,7 +34,9 @@ class RunkitReloader extends AbstractListener
     }
 
     /**
-     * Constructor.
+     * Construct a Runkit Reloader.
+     *
+     * @todo Pass in Parser Factory instance for dependency injection?
      */
     public function __construct()
     {
@@ -44,6 +46,9 @@ class RunkitReloader extends AbstractListener
 
     /**
      * Reload code on input.
+     *
+     * @param Shell  $shell
+     * @param string $input
      */
     public function onInput(Shell $shell, $input)
     {
@@ -52,6 +57,8 @@ class RunkitReloader extends AbstractListener
 
     /**
      * Look through included files and update anything with a new timestamp.
+     *
+     * @param Shell $shell
      */
     private function reload(Shell $shell)
     {

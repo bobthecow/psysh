@@ -223,7 +223,7 @@ class Shell extends Application
     /**
      * Gets the default command loop listeners.
      *
-     * @return array An array of ExecutionLoop Listener instances
+     * @return array An array of Execution Loop Listener instances
      */
     protected function getDefaultLoopListeners()
     {

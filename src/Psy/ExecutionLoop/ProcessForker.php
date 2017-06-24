@@ -25,6 +25,11 @@ class ProcessForker extends AbstractListener
     private $savegame;
     private $up;
 
+    /**
+     * Process forker is supported if pcntl and posix extensions are available.
+     *
+     * @return bool
+     */
     public static function isSupported()
     {
         return function_exists('pcntl_signal') && function_exists('posix_getpid');
@@ -87,6 +92,8 @@ class ProcessForker extends AbstractListener
 
     /**
      * Create a savegame at the start of each loop iteration.
+     *
+     * @param Shell $shell
      */
     public function beforeLoop(Shell $shell)
     {
@@ -95,6 +102,8 @@ class ProcessForker extends AbstractListener
 
     /**
      * Clean up old savegames at the end of each loop iteration.
+     *
+     * @param Shell $shell
      */
     public function afterLoop(Shell $shell)
     {
@@ -105,6 +114,12 @@ class ProcessForker extends AbstractListener
         }
     }
 
+    /**
+     * After the REPL session ends, send the scope variables back up to the main
+     * thread (if this is a child thread).
+     *
+     * @param Shell $shell
+     */
     public function afterRun(Shell $shell)
     {
         // We're a child thread. Send the scope variables back up to the main thread.
