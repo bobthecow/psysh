@@ -42,20 +42,28 @@ interface Listener
     /**
      * Called on user input.
      *
+     * Return a new string to override or rewrite user input.
+     *
      * @param Shell  $shell
      * @param string $input
      *
-     * @return string
+     * @return string|null User input override
      */
     public function onInput(Shell $shell, $input);
 
     /**
      * Called before executing user code.
      *
+     * Return a new string to override or rewrite user code.
+     *
+     * Note that this is run *after* the Code Cleaner, so if you return invalid
+     * or unsafe PHP here, it'll be executed without any of the safety Code
+     * Cleaner provides. This comes with the big kid warranty :)
+     *
      * @param Shell  $shell
      * @param string $code
      *
-     * @return string
+     * @return string|null User code override
      */
     public function onExecute(Shell $shell, $code);
 

@@ -14,7 +14,7 @@ namespace Psy\ExecutionLoop;
 use Psy\Shell;
 
 /**
- * Execution Loop Listener interface.
+ * Abstract Execution Loop Listener class.
  */
 abstract class AbstractListener implements Listener
 {
