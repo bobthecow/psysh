@@ -61,15 +61,16 @@ class Shell extends Application
     private $code;
     private $codeBuffer;
     private $codeBufferOpen;
+    private $stdoutBuffer;
     private $context;
     private $includes;
     private $loop;
     private $outputWantsNewline = false;
-    private $completion;
-    private $tabCompletionMatchers = array();
-    private $stdoutBuffer;
     private $prompt;
     private $loopListeners;
+    private $autoCompleter;
+    private $matchers = array();
+    private $commandsMatcher;
 
     /**
      * Create a new Psy Shell.
@@ -143,6 +144,10 @@ class Shell extends Application
             if ($ret instanceof PresenterAware) {
                 $ret->setPresenter($this->config->getPresenter());
             }
+
+            if (isset($this->commandsMatcher)) {
+                $this->commandsMatcher->setCommands($this->all());
+            }
         }
 
         return $ret;
@@ -197,27 +202,35 @@ class Shell extends Application
     /**
      * @return array
      */
+    protected function getDefaultMatchers()
+    {
+        // Store the Commands Matcher for later. If more commands are added,
+        // we'll update the Commands Matcher too.
+        $this->commandsMatcher = new Matcher\CommandsMatcher($this->all());
+
+        return array(
+            $this->commandsMatcher,
+            new Matcher\KeywordsMatcher(),
+            new Matcher\VariablesMatcher(),
+            new Matcher\ConstantsMatcher(),
+            new Matcher\FunctionsMatcher(),
+            new Matcher\ClassNamesMatcher(),
+            new Matcher\ClassMethodsMatcher(),
+            new Matcher\ClassAttributesMatcher(),
+            new Matcher\ObjectMethodsMatcher(),
+            new Matcher\ObjectAttributesMatcher(),
+            new Matcher\ClassMethodDefaultParametersMatcher(),
+            new Matcher\ObjectMethodDefaultParametersMatcher(),
+            new Matcher\FunctionDefaultParametersMatcher(),
+        );
+    }
+
+    /**
+     * @deprecated Nothing should use this anymore
+     */
     protected function getTabCompletionMatchers()
     {
-        if (empty($this->tabCompletionMatchers)) {
-            $this->tabCompletionMatchers = array(
-                new Matcher\CommandsMatcher($this->all()),
-                new Matcher\KeywordsMatcher(),
-                new Matcher\VariablesMatcher(),
-                new Matcher\ConstantsMatcher(),
-                new Matcher\FunctionsMatcher(),
-                new Matcher\ClassNamesMatcher(),
-                new Matcher\ClassMethodsMatcher(),
-                new Matcher\ClassAttributesMatcher(),
-                new Matcher\ObjectMethodsMatcher(),
-                new Matcher\ObjectAttributesMatcher(),
-                new Matcher\ClassMethodDefaultParametersMatcher(),
-                new Matcher\ObjectMethodDefaultParametersMatcher(),
-                new Matcher\FunctionDefaultParametersMatcher(),
-            );
-        }
-
-        return $this->tabCompletionMatchers;
+        trigger_error('getTabCompletionMatchers is no longer used', E_USER_DEPRECATED);
     }
 
     /**
@@ -241,11 +254,27 @@ class Shell extends Application
     }
 
     /**
+     * Add tab completion matchers.
+     *
+     * @param array $matchers
+     */
+    public function addMatchers(array $matchers)
+    {
+        $this->matchers = array_merge($this->matchers, $matchers);
+
+        if (isset($this->autoCompleter)) {
+            $this->addMatchersToAutoCompleter($matchers);
+        }
+    }
+
+    /**
+     * @deprecated Call `addMatchers` instead
+     *
      * @param array $matchers
      */
     public function addTabCompletionMatchers(array $matchers)
     {
-        $this->tabCompletionMatchers = array_merge($matchers, $this->getTabCompletionMatchers());
+        $this->addMatchers($matchers);
     }
 
     /**
@@ -1032,7 +1061,7 @@ class Shell extends Application
     }
 
     /**
-     * @deprecated Tab completion is provided by the AutoCompleter service.
+     * @deprecated Tab completion is provided by the AutoCompleter service
      */
     protected function autocomplete($text)
     {
@@ -1047,17 +1076,32 @@ class Shell extends Application
      */
     protected function initializeTabCompletion()
     {
-        // auto completer needs shell to be linked to configuration because of the context aware matchers
-        if ($this->config->getTabCompletion()) {
-            $this->completion = $this->config->getAutoCompleter();
-            $this->addTabCompletionMatchers($this->config->getTabCompletionMatchers());
-            foreach ($this->getTabCompletionMatchers() as $matcher) {
-                if ($matcher instanceof ContextAware) {
-                    $matcher->setContext($this->context);
-                }
-                $this->completion->addMatcher($matcher);
+        if (!$this->config->useTabCompletion()) {
+            return;
+        }
+
+        $this->autoCompleter = $this->config->getAutoCompleter();
+
+        // auto completer needs shell to be linked to configuration because of
+        // the context aware matchers
+        $this->addMatchersToAutoCompleter($this->getDefaultMatchers());
+        $this->addMatchersToAutoCompleter($this->matchers);
+
+        $this->autoCompleter->activate();
+    }
+
+    /**
+     * Add matchers to the auto completer, setting context if needed.
+     *
+     * @param array $matchers
+     */
+    private function addMatchersToAutoCompleter(array $matchers)
+    {
+        foreach ($matchers as $matcher) {
+            if ($matcher instanceof ContextAware) {
+                $matcher->setContext($this->context);
             }
-            $this->completion->activate();
+            $this->autoCompleter->addMatcher($matcher);
         }
     }
 
