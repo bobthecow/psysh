@@ -236,6 +236,16 @@ if (!function_exists('Psy\info')) {
             'bracketed paste'        => $config->useBracketedPaste(),
         );
 
+        // Shenanigans, but totally justified.
+        if ($shell = Sudo::fetchProperty($config, 'shell')) {
+            $core['loop listeners'] = array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
+            $core['commands']       = array_map('get_class', $shell->all());
+
+            $autocomplete['custom matchers'] = array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+        }
+
+        // @todo Show Presenter / custom casters.
+
         return array_merge($core, compact('updates', 'pcntl', 'readline', 'history', 'docs', 'autocomplete'));
     }
 }
