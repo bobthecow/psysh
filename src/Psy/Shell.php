@@ -306,10 +306,6 @@ class Shell extends Application
 
         $this->readline->readHistory();
 
-        // if ($this->config->useReadline()) {
-        //     readline_completion_function(array($this, 'autocomplete'));
-        // }
-
         $this->output->writeln($this->getHeader());
         $this->writeVersionInfo();
         $this->writeStartupMessage();
@@ -1036,28 +1032,11 @@ class Shell extends Application
     }
 
     /**
-     * Autocomplete variable names.
-     *
-     * This is used by `readline` for tab completion.
-     *
-     * @param string $text
-     *
-     * @return mixed Array possible completions for the given input, if any
+     * @deprecated Tab completion is provided by the AutoCompleter service.
      */
     protected function autocomplete($text)
     {
-        $info = readline_info();
-        // $line = substr($info['line_buffer'], 0, $info['end']);
-
-        // Check whether there's a command for this
-        // $words = explode(' ', $line);
-        // $firstWord = reset($words);
-
-        // check whether this is a variable...
-        $firstChar = substr($info['line_buffer'], max(0, $info['end'] - strlen($text) - 1), 1);
-        if ($firstChar === '$') {
-            return $this->getScopeVariableNames();
-        }
+        trigger_error('Tab completion is provided by the AutoCompleter service', E_USER_DEPRECATED);
     }
 
     /**
