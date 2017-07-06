@@ -142,8 +142,8 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadLocalConfigFile()
     {
-        $oldPwd = getenv('PWD');
-        putenv('PWD=' . realpath(__DIR__ . '/../../fixtures/project/'));
+        $oldPwd = getcwd();
+        chdir(realpath(__DIR__ . '/../../fixtures/project/'));
 
         $config = new Configuration();
 
@@ -157,7 +157,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($config->useReadline());
         $this->assertFalse($config->usePcntl());
 
-        putenv("PWD=$oldPwd");
+        chdir($oldPwd);
     }
 
     /**
