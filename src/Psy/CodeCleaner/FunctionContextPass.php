@@ -14,8 +14,6 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Stmt\Goto_;
-use PhpParser\Node\Stmt\Label;
 use Psy\Exception\FatalErrorException;
 
 class FunctionContextPass extends CodeCleanerPass
@@ -47,16 +45,6 @@ class FunctionContextPass extends CodeCleanerPass
         // It causes fatal error.
         if ($node instanceof Yield_) {
             $msg = 'The "yield" expression can only be used inside a function';
-            throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
-        }
-
-        // These statements are meaningless to interactive shell.
-        // PsySH does not have facilities for these statements.
-        if ($node instanceof Goto_) {
-            $msg = 'Can not goto label in PsySH top level.';
-            throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
-        } elseif ($node instanceof Label) {
-            $msg = 'Can not declare label in PsySH top level.';
             throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
         }
     }
