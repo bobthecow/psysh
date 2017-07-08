@@ -24,25 +24,6 @@ class FunctionContextPassTest extends CodeCleanerTestCase
     }
 
     /**
-     * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\FatalErrorException
-     */
-    public function testProcessStatementFails($code)
-    {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
-    }
-
-    public function invalidStatements()
-    {
-        return array(
-            array('label:'),
-            array('label: echo "foo"'),
-            array('goto unknown;'),
-        );
-    }
-
-    /**
      * @dataProvider validStatements
      */
     public function testProcessStatementPasses($code)
@@ -56,7 +37,6 @@ class FunctionContextPassTest extends CodeCleanerTestCase
         return array(
             array('function foo() { yield; }'),
             array('if (function(){ yield; })'),
-            array('function(){ $i = 0; begin: $i++; echo $i; goto begin;};'),
         );
     }
 
