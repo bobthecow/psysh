@@ -50,8 +50,6 @@ class FunctionContextPass extends CodeCleanerPass
     }
 
     /**
-     * Converts exit calls to BreakExceptions.
-     *
      * @param \PhpParser\Node $node
      */
     public function leaveNode(Node $node)
