@@ -37,7 +37,7 @@ class LabelContextPassTest extends CodeCleanerTestCase
         return array(
             array('function foo() { foo: "echo"; goto foo; }'),
             array('function foo() { "echo"; goto foo; }'),
-            array('begin: foreach (range(1, 5) as $i) { goto end; } end:'),
+            array('begin: foreach (range(1, 5) as $i) { goto end; } end: goto begin;'),
             array('bar: if (true) goto bar;'),
         );
     }
@@ -58,6 +58,25 @@ class LabelContextPassTest extends CodeCleanerTestCase
             array('goto bar;'),
             array('if (true) goto bar;'),
             array('buz: if (true) goto bar;'),
+        );
+    }
+
+    /**
+     * @dataProvider unreachableLabelStatements
+     * @expectedException \Psy\Exception\ErrorException
+     */
+    public function testUnreachedLabel($code)
+    {
+        $stmts = $this->parse($code);
+        $this->traverser->traverse($stmts);
+    }
+
+    public function unreachableLabelStatements()
+    {
+        return array(
+            array('buz:'),
+            array('foo: buz: goto foo;'),
+            array('foo: buz: goto buz;'),
         );
     }
 }
