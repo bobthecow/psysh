@@ -20,6 +20,7 @@ use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\ExitPass;
 use Psy\CodeCleaner\FinalClassPass;
+use Psy\CodeCleaner\FunctionContextPass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
@@ -87,6 +88,7 @@ class CodeCleaner
             new PassableByReferencePass(),
             new CalledClassPass(),
             new FinalClassPass(),
+            new FunctionContextPass(),
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
             new LegacyEmptyPass(),
