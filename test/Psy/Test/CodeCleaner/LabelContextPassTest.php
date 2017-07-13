@@ -39,6 +39,12 @@ class LabelContextPassTest extends CodeCleanerTestCase
             array('function foo() { "echo"; goto foo; }'),
             array('begin: foreach (range(1, 5) as $i) { goto end; } end: goto begin;'),
             array('bar: if (true) goto bar;'),
+
+            // False negative
+            // PHP Fatal error: 'goto' into loop or switch statement is disallowed
+            'false negative1' => array('while (true) { label: "error"; } goto label;'),
+            // PHP Fatal error:  'goto' to undefined label 'none'
+            'false negative2' => array('$f = function () { goto none; };'),
         );
     }
 
