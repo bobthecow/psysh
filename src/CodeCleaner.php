@@ -25,6 +25,7 @@ use Psy\CodeCleaner\FunctionContextPass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
+use Psy\CodeCleaner\LabelContextPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\ListPass;
 use Psy\CodeCleaner\LoopContextPass;
@@ -98,6 +99,7 @@ class CodeCleaner
             new FunctionContextPass(),
             new FunctionReturnInWriteContextPass(),
             new InstanceOfPass(),
+            new LabelContextPass(),
             new LeavePsyshAlonePass(),
             new ListPass(),
             new LoopContextPass(),
