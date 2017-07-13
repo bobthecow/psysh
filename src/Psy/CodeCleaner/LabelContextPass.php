@@ -18,6 +18,18 @@ use PhpParser\Node\Stmt\Label;
 use Psy\Exception\ErrorException;
 use Psy\Exception\FatalErrorException;
 
+/**
+ * CodeCleanerPass for label context.
+ *
+ * This class partially emulates the PHP label specification.
+ * PsySH can not declare labels by sequentially executing lines with eval,
+ * but since it is not a syntax error, no error is raised.
+ * This class warns before invalid goto causes a fatal error.
+ * Since this is a simple checker, it does not block real fatal error
+ * with complex syntax.  (ex. it does not parse inside function.)
+ *
+ * @see http://php.net/goto
+ */
 class LabelContextPass extends CodeCleanerPass
 {
     /** @var int */
