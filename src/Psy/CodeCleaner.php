@@ -127,7 +127,16 @@ class CodeCleaner
         // Catch fatal errors before they happen
         $stmts = $this->traverser->traverse($stmts);
 
-        return $this->printer->prettyPrint($stmts);
+        // Work around https://github.com/nikic/PHP-Parser/issues/399
+        $oldLocale = setlocale(LC_NUMERIC, 0);
+        setlocale(LC_NUMERIC, 'en_US');
+
+        $code = $this->printer->prettyPrint($stmts);
+
+        // Now put the locale back
+        setlocale(LC_NUMERIC, $oldLocale);
+
+        return $code;
     }
 
     /**
