@@ -129,7 +129,7 @@ class CodeCleaner
 
         // Work around https://github.com/nikic/PHP-Parser/issues/399
         $oldLocale = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_NUMERIC, 'en_US');
+        setlocale(LC_NUMERIC, 'C');
 
         $code = $this->printer->prettyPrint($stmts);
 

@@ -50,7 +50,7 @@ class Presenter
     {
         // Work around https://github.com/symfony/symfony/issues/23572
         $oldLocale = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_NUMERIC, 'en_US');
+        setlocale(LC_NUMERIC, 'C');
 
         $this->dumper = new Dumper($formatter);
         $this->dumper->setStyles($this->styles);
@@ -117,7 +117,7 @@ class Presenter
 
         // Work around https://github.com/symfony/symfony/issues/23572
         $oldLocale = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_NUMERIC, 'en_US');
+        setlocale(LC_NUMERIC, 'C');
 
         $output = '';
         $this->dumper->dump($data, function ($line, $depth) use (&$output) {
