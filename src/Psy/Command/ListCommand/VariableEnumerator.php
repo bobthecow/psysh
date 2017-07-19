@@ -22,7 +22,7 @@ class VariableEnumerator extends Enumerator
 {
     // n.b. this array is the order in which special variables will be listed
     private static $specialNames = array(
-        '_', '_e', '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
+        '_', '_e', '__out', '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
     );
 
     private $context;
