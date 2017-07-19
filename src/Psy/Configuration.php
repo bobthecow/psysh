@@ -42,7 +42,7 @@ class Configuration
     private static $AVAILABLE_OPTIONS = array(
         'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
         'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
+        'requireSemicolons', 'useUnicode', 'historyFile', 'historySize', 'eraseDuplicates',
         'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
         'colorMode', 'updateCheck', 'startupMessage',
     );
