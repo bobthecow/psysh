@@ -95,8 +95,7 @@ class VariableEnumerator extends Enumerator
                 return -1;
             }
 
-            // @todo this should be natcasesort
-            return strcasecmp($a, $b);
+            return strnatcasecmp($a, $b);
         });
 
         $ret = array();

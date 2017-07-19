@@ -77,8 +77,9 @@ class PropertyEnumerator extends Enumerator
             }
         }
 
-        // @todo this should be natcasesort
-        ksort($properties);
+        // @todo switch to ksort after we drop support for 5.3:
+        //     ksort($properties, SORT_NATURAL | SORT_FLAG_CASE);
+        uksort($properties, 'strnatcasecmp');
 
         return $properties;
     }
