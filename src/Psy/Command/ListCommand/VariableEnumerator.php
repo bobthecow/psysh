@@ -78,10 +78,13 @@ class VariableEnumerator extends Enumerator
      */
     protected function getVariables($showAll)
     {
+        // self:: doesn't work inside closures in PHP 5.3 :-/
+        $specialNames = self::$specialNames;
+
         $scopeVars = $this->context->getAll();
-        uksort($scopeVars, function ($a, $b) {
-            $aIndex = array_search($a, self::$specialNames);
-            $bIndex = array_search($b, self::$specialNames);
+        uksort($scopeVars, function ($a, $b) use ($specialNames) {
+            $aIndex = array_search($a, $specialNames);
+            $bIndex = array_search($b, $specialNames);
 
             if ($aIndex !== false) {
                 if ($bIndex !== false) {
