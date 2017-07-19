@@ -81,29 +81,34 @@ class CodeCleaner
     private function getDefaultPasses()
     {
         return array(
+            // Validation passes
             new AbstractClassPass(),
             new AssignThisVariablePass(),
-            new FunctionReturnInWriteContextPass(),
-            new CallTimePassByReferencePass(),
-            new PassableByReferencePass(),
             new CalledClassPass(),
+            new CallTimePassByReferencePass(),
             new FinalClassPass(),
             new FunctionContextPass(),
+            new FunctionReturnInWriteContextPass(),
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
             new LegacyEmptyPass(),
             new LoopContextPass(),
+            new PassableByReferencePass(),
+            new StaticConstructorPass(),
+
+            // Rewriting shenanigans
+            new UseStatementPass(),   // must run before the namespace pass
+            new ExitPass(),
             new ImplicitReturnPass(),
-            new UseStatementPass(),      // must run before namespace and validation passes
-            new NamespacePass($this),    // must run after the implicit return pass
+            new MagicConstantsPass(),
+            new NamespacePass($this), // must run after the implicit return pass
             new RequirePass(),
             new StrictTypesPass(),
-            new StaticConstructorPass(),
-            new ValidFunctionNamePass(),
+
+            // Namespace-aware validation (which depends on aforementioned shenanigans)
             new ValidClassNamePass(),
             new ValidConstantPass(),
-            new MagicConstantsPass(),
-            new ExitPass(),
+            new ValidFunctionNamePass(),
         );
     }
 
