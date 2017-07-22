@@ -6,8 +6,8 @@ cd "${BASH_SOURCE%/*}/.."
 
 echo "Building phar"
 ./bin/build-vendor
-./bin/build-phar
+php -d 'phar.readonly=0' ./bin/build-phar
 
 echo "Building compat phar"
 ./bin/build-vendor-compat
-./bin/build-phar --compat
+php -d 'phar.readonly=0' ./bin/build-phar --compat
