@@ -198,23 +198,8 @@ function find_type($xml, $paramName)
     }
 }
 
-$docs = array();
-foreach (glob($argv[1] . '/*/*/*.xml') as $function) {
-    $funcname = basename($function);
-    if ($funcname === 'main.xml' || strpos($funcname, 'entities.') === 0) {
-        continue;
-    }
-
-    $xmlstr = str_replace('&', '&amp;', file_get_contents($function));
-
-    $xml = new DOMDocument();
-    $xml->preserveWhiteSpace = false;
-
-    if (!@$xml->loadXml($xmlstr)) {
-        echo "XML Parse Error: $function\n";
-        continue;
-    }
-
+function format_function_doc($xml)
+{
     $doc = array();
     $refsect1s = $xml->getElementsByTagName('refsect1');
     foreach ($refsect1s as $refsect1) {
@@ -266,9 +251,52 @@ foreach (glob($argv[1] . '/*/*/*.xml') as $function) {
         $doc['description'] = trim($desc);
     }
 
-    $formatted = format_doc($doc);
+    $ids = array();
     foreach ($xml->getElementsByTagName('refname') as $ref) {
-        $docs[$ref->textContent] = $formatted;
+        $ids[] = $ref->textContent;
+    }
+
+    return array($ids, format_doc($doc));
+}
+
+function format_class_doc($xml)
+{
+    // @todo implement this
+    return array(array(), null);
+}
+
+$dir = new RecursiveDirectoryIterator($argv[1]);
+$filter = new RecursiveCallbackFilterIterator($dir, function ($current, $key, $iterator) {
+    return $current->getFilename()[0] !== '.' &&
+        ($current->isDir() || $current->getExtension() === 'xml') &&
+        strpos($current->getFilename(), 'entities.') !== 0 &&
+        $current->getFilename() !== 'pdo_4d'; // Temporarily blacklist this one, the docs are weird.
+});
+$iterator = new RecursiveIteratorIterator($filter);
+
+$docs = array();
+foreach ($iterator as $file) {
+    $xmlstr = str_replace('&', '&amp;', file_get_contents($file));
+
+    $xml = new DOMDocument();
+    $xml->preserveWhiteSpace = false;
+
+    if (!@$xml->loadXml($xmlstr)) {
+        echo "XML Parse Error: $file\n";
+        continue;
+    }
+
+    if ($xml->getElementsByTagName('refentry')->length !== 0) {
+        list($ids, $doc) = format_function_doc($xml);
+    } elseif ($xml->getElementsByTagName('classref')->length !== 0) {
+        list($ids, $doc) = format_class_doc($xml);
+    } else {
+        $ids = array();
+        $doc = null;
+    }
+
+    foreach ($ids as $id) {
+        $docs[$id] = $doc;
     }
 }
 

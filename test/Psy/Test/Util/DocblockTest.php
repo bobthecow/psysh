@@ -41,6 +41,10 @@ class DocblockTest extends \PHPUnit_Framework_TestCase
 
     public function comments()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('We have issues with PHPUnit mocks on HHVM.');
+        }
+
         return array(
             array('', '', array()),
             array(

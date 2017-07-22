@@ -44,7 +44,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.8.9';
+    const VERSION = 'v0.8.10';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -65,6 +65,7 @@ class Shell extends Application
     private $outputWantsNewline = false;
     private $completion;
     private $tabCompletionMatchers = array();
+    private $stdoutBuffer;
 
     /**
      * Create a new Psy Shell.
@@ -80,6 +81,7 @@ class Shell extends Application
         $this->includes = array();
         $this->readline = $this->config->getReadline();
         $this->inputBuffer = array();
+        $this->stdoutBuffer = '';
 
         parent::__construct('Psy Shell', self::VERSION);
 
@@ -664,12 +666,22 @@ class Shell extends Application
         if ($out !== '' && !$isCleaning) {
             $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
             $this->outputWantsNewline = (substr($out, -1) !== "\n");
+            $this->stdoutBuffer .= $out;
         }
 
         // Output buffering is done!
-        if ($this->outputWantsNewline && $phase & PHP_OUTPUT_HANDLER_END) {
-            $this->output->writeln(sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
-            $this->outputWantsNewline = false;
+        if ($phase & PHP_OUTPUT_HANDLER_END) {
+            // Write an extra newline if stdout didn't end with one
+            if ($this->outputWantsNewline) {
+                $this->output->writeln(sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
+                $this->outputWantsNewline = false;
+            }
+
+            // Save the stdout buffer as $__out
+            if ($this->stdoutBuffer !== '') {
+                $this->context->setLastStdout($this->stdoutBuffer);
+                $this->stdoutBuffer = '';
+            }
         }
     }
 
