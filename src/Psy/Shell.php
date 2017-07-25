@@ -66,6 +66,7 @@ class Shell extends Application
     private $completion;
     private $tabCompletionMatchers = array();
     private $stdoutBuffer;
+    private $prompt;
 
     /**
      * Create a new Psy Shell.
@@ -866,7 +867,11 @@ class Shell extends Application
      */
     protected function getPrompt()
     {
-        return $this->hasCode() ? static::BUFF_PROMPT : static::PROMPT;
+        if ($this->hasCode()) {
+            return static::BUFF_PROMPT;
+        }
+
+        return $this->config->getPrompt() ?: static::PROMPT;
     }
 
     /**
