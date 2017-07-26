@@ -72,6 +72,9 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
 
             array(array('// closed comment'),    false),
             array(array('function foo() { /**'), true),
+
+            array(array('var_dump(1, 2,'), true),
+            array(array('var_dump(1, 2,', '3)'), false),
         );
     }
 
@@ -123,6 +126,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array("echo '''"),
             array('$foo "bar'),
             array('$foo \'bar'),
+            array('var_dump(1,2,)'),
         );
     }
 }
