@@ -40,11 +40,27 @@ class Configuration
     const COLOR_MODE_DISABLED = 'disabled';
 
     private static $AVAILABLE_OPTIONS = array(
-        'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
-        'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
-        'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
-        'colorMode', 'updateCheck', 'startupMessage', 'useBracketedPaste',
+        'codeCleaner',
+        'colorMode',
+        'configDir',
+        'dataDir',
+        'defaultIncludes',
+        'eraseDuplicates',
+        'errorLoggingLevel',
+        'historySize',
+        'loop',
+        'manualDbFile',
+        'pager',
+        'requireSemicolons',
+        'runtimeDir',
+        'startupMessage',
+        'tabCompletion',
+        'updateCheck',
+        'useBracketedPaste',
+        'usePcntl',
+        'useReadline',
+        'useUnicode',
+        'warnOnMultipleConfigs',
     );
 
     private $defaultIncludes;
