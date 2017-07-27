@@ -891,7 +891,17 @@ class Shell extends Application
             return $line;
         }
 
-        return $this->readline->readline($this->getPrompt());
+        if ($bracketedPaste = $this->config->useBracketedPaste()) {
+            printf("\e[?2004h"); // Enable bracketed paste
+        }
+
+        $line = $this->readline->readline($this->getPrompt());
+
+        if ($bracketedPaste) {
+            printf("\e[?2004l"); // ... and disable it again
+        }
+
+        return $line;
     }
 
     /**
