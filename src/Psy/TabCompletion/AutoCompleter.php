@@ -45,9 +45,10 @@ class AutoCompleter
      * Handle readline completion.
      *
      * @param string $input Readline current word
-     * @param int $start Readline start match
-     * @param int $end Readline end match
-     * @param array $info readline_info() data
+     * @param int    $start Readline start match
+     * @param int    $end   Readline end match
+     * @param array  $info  readline_info() data
+     *
      * @return array
      */
     public function processCallback($input, $start, $end, $info = array())
@@ -63,7 +64,7 @@ class AutoCompleter
         }
 
         if ($this->shouldInsertOnlyTab($line, $start, $end)) {
-            return ["\t"];
+            return array("\t");
         }
 
         $tokens = token_get_all('<?php ' . $line);
@@ -86,10 +87,12 @@ class AutoCompleter
     }
 
     /**
-     * @param string $line Readline current line
-     * @param int $start The start of the readline input
-     * @param int $end The end of the readline input
+     * @param string $line  Readline current line
+     * @param int    $start The start of the readline input
+     * @param int    $end   The end of the readline input
+     *
      * @return bool true if the characters before $index are only whitespace
+     *
      * @internal param int $index Current word index
      */
     private function shouldInsertOnlyTab($line, $start, $end)
@@ -105,8 +108,9 @@ class AutoCompleter
      * @see processCallback
      *
      * @param string $input
-     * @param int $start
-     * @param int $end
+     * @param int    $start
+     * @param int    $end
+     *
      * @return array
      */
     public function callback($input, $start, $end)
