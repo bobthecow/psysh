@@ -45,12 +45,12 @@ class AutoCompleter
      * Handle readline completion.
      *
      * @param string $input Readline current word
-     * @param int    $index Current word index
-     * @param array  $info  readline_info() data
-     *
+     * @param int $start Readline start match
+     * @param int $end Readline end match
+     * @param array $info readline_info() data
      * @return array
      */
-    public function processCallback($input, $index, $info = array())
+    public function processCallback($input, $start, $end, $info = array())
     {
         // Some (Windows?) systems provide incomplete `readline_info`, so let's
         // try to work around it.
@@ -60,6 +60,10 @@ class AutoCompleter
         }
         if ($line === '' && $input !== '') {
             $line = $input;
+        }
+
+        if ($this->shouldInsertOnlyTab($line, $start, $end)) {
+            return ["\t"];
         }
 
         $tokens = token_get_all('<?php ' . $line);
@@ -82,18 +86,32 @@ class AutoCompleter
     }
 
     /**
+     * @param string $line Readline current line
+     * @param int $start The start of the readline input
+     * @param int $end The end of the readline input
+     * @return bool true if the characters before $index are only whitespace
+     * @internal param int $index Current word index
+     */
+    private function shouldInsertOnlyTab($line, $start, $end)
+    {
+        $precedingInput = substr($line, $start, $end-$start);
+
+        return empty(trim($precedingInput));
+    }
+
+    /**
      * The readline_completion_function callback handler.
      *
      * @see processCallback
      *
-     * @param $input
-     * @param $index
-     *
+     * @param string $input
+     * @param int $start
+     * @param int $end
      * @return array
      */
-    public function callback($input, $index)
+    public function callback($input, $start, $end)
     {
-        return $this->processCallback($input, $index, readline_info());
+        return $this->processCallback($input, $start, $end, readline_info());
     }
 
     /**
