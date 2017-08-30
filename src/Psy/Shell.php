@@ -185,7 +185,7 @@ class Shell extends Application
             $sudo,
             $hist,
             new Command\ExitCommand(),
-            new Command\ExternalEditorCommand(),
+            new Command\EditCommand(),
         );
     }
 

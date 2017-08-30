@@ -6,13 +6,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ExternalEditorCommand extends Command
+class EditCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('externaledit')
-            ->setAliases(array('edit'))
+            ->setName('edit')
             ->setDefinition(array(
                 new InputArgument('file', InputArgument::OPTIONAL, 'The file to open for editing. If this is not given, edits a temporary file.', null),
             ))
