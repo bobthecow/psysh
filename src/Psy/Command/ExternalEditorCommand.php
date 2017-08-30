@@ -28,6 +28,8 @@ class ExternalEditorCommand extends Command
             $filePath = tempnam(sys_get_temp_dir(), 'psysh');
         }
 
+        $filePath = escapeshellarg($filePath);
+
         $pipes = array();
         $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$filePath}", array(STDIN, STDOUT, STDERR), $pipes);
         proc_close($proc);
