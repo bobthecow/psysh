@@ -2,7 +2,6 @@
 
 namespace Psy\TabCompletion\Matcher;
 
-
 class ObjectMethodDefaultParametersMatcher extends AbstractContextAwareMatcher
 {
     public function getMatches(array $tokens, array $info = array())
@@ -29,32 +28,33 @@ class ObjectMethodDefaultParametersMatcher extends AbstractContextAwareMatcher
 
         $methods = $reflection->getMethods();
 
-        foreach($methods as $method) {
+        foreach ($methods as $method) {
             if ($method->getName() === $functionName[1]) {
                 $parameterString = $this->extractParameterString($method);
 
                 if (empty($parameterString)) {
-                    return [];
+                    return array();
                 }
 
-                return [$parameterString];
+                return array($parameterString);
             }
         }
 
-        return [];
+        return array();
     }
 
     /**
      * @param \ReflectionMethod $method
+     *
      * @return string
      */
     private function extractParameterString($method)
     {
         $parameters = $method->getParameters();
 
-        $parametersProcessed = [];
+        $parametersProcessed = array();
 
-        foreach($parameters as $parameter) {
+        foreach ($parameters as $parameter) {
             if (!$parameter->isDefaultValueAvailable()) {
                 return '';
             }

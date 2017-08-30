@@ -2,7 +2,6 @@
 
 namespace Psy\TabCompletion\Matcher;
 
-
 class FunctionDefaultParametersMatcher extends AbstractMatcher
 {
     public function getMatches(array $tokens, array $info = array())
@@ -21,7 +20,7 @@ class FunctionDefaultParametersMatcher extends AbstractMatcher
 
         $parametersProcessed = array();
 
-        foreach($parameters as $parameter) {
+        foreach ($parameters as $parameter) {
             if (!$parameter->isDefaultValueAvailable()) {
                 return array();
             }
@@ -38,7 +37,7 @@ class FunctionDefaultParametersMatcher extends AbstractMatcher
             return array();
         }
 
-        return [implode(',', $parametersProcessed) . ')'];
+        return array(implode(',', $parametersProcessed) . ')');
     }
 
     public function hasMatched(array $tokens)
