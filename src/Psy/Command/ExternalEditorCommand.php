@@ -2,7 +2,6 @@
 
 namespace Psy\Command;
 
-
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,8 +28,8 @@ class ExternalEditorCommand extends Command
             $filePath = tempnam(sys_get_temp_dir(), 'psysh');
         }
 
-        $pipes = [];
-        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$filePath}", [STDIN, STDOUT, STDERR], $pipes);
+        $pipes = array();
+        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$filePath}", array(STDIN, STDOUT, STDERR), $pipes);
         proc_close($proc);
 
         $editedContent = file_get_contents($filePath);

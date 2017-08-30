@@ -335,6 +335,7 @@ class Shell extends Application
             if ($this->hasCommand($input)) {
                 $this->readline->addHistory($input);
                 $this->runCommand($input);
+
                 continue;
             }
 
@@ -527,6 +528,7 @@ class Shell extends Application
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
+
             throw $e;
         }
     }
