@@ -169,6 +169,9 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
+        $edit = new Command\EditCommand();
+        $edit->setTemporaryDirectory($this->config->getRuntimeDir());
+
         return array(
             new Command\HelpCommand(),
             new Command\ListCommand(),
@@ -185,7 +188,7 @@ class Shell extends Application
             $sudo,
             $hist,
             new Command\ExitCommand(),
-            new Command\EditCommand(),
+            $edit,
         );
     }
 

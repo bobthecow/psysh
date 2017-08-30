@@ -8,6 +8,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EditCommand extends Command
 {
+    private $temporaryDirectory = '';
+
     protected function configure()
     {
         $this
@@ -24,7 +26,7 @@ class EditCommand extends Command
         $filePath = $input->getArgument('file');
 
         if ($filePath === null) {
-            $filePath = tempnam(sys_get_temp_dir(), 'psysh-edit-command');
+            $filePath = tempnam($this->temporaryDirectory, 'psysh-edit-command');
         }
 
         $filePath = escapeshellarg($filePath);
@@ -40,5 +42,10 @@ class EditCommand extends Command
         }
 
         $this->getApplication()->addInput($editedContent);
+    }
+
+    public function setTemporaryDirectory($tmpDir)
+    {
+        $this->temporaryDirectory = $tmpDir;
     }
 }
