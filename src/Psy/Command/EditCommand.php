@@ -33,11 +33,11 @@ class EditCommand extends Command
     {
         $filePath = $input->getArgument('file');
 
+        $execute = $input->getOption('exec') ?: 'false';
+
         if ($filePath === null) {
             $filePath = tempnam($this->temporaryDirectory, 'psysh-edit-command');
             $execute = $input->getOption('exec') ?: 'true';
-        } else {
-            $execute = $input->getOption('exec') ?: 'false';
         }
 
         $execute = $execute === 'true';
