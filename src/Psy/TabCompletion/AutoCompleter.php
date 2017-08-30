@@ -94,7 +94,7 @@ class AutoCompleter
      */
     private function shouldInsertOnlyTab($line, $start, $end)
     {
-        $precedingInput = substr($line, $start, $end-$start);
+        $precedingInput = substr($line, 0, $end);
 
         return empty(trim($precedingInput));
     }
