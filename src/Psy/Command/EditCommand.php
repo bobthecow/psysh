@@ -29,10 +29,10 @@ class EditCommand extends Command
             $filePath = tempnam($this->temporaryDirectory, 'psysh-edit-command');
         }
 
-        $filePath = escapeshellarg($filePath);
+        $escapedFilePath = escapeshellarg($filePath);
 
         $pipes = array();
-        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$filePath}", array(STDIN, STDOUT, STDERR), $pipes);
+        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$escapedFilePath}", array(STDIN, STDOUT, STDERR), $pipes);
         proc_close($proc);
 
         $editedContent = file_get_contents($filePath);
