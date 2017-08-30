@@ -99,7 +99,9 @@ class AutoCompleter
     {
         $precedingInput = substr($line, 0, $end);
 
-        return empty(trim($precedingInput));
+        $trimmedInput = trim($precedingInput);
+
+        return empty($trimmedInput);
     }
 
     /**
