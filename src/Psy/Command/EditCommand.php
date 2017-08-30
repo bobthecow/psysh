@@ -24,7 +24,7 @@ class EditCommand extends Command
         $filePath = $input->getArgument('file');
 
         if ($filePath === null) {
-            $filePath = tempnam(sys_get_temp_dir(), 'psysh');
+            $filePath = tempnam(sys_get_temp_dir(), 'psysh-edit-command');
         }
 
         $filePath = escapeshellarg($filePath);
