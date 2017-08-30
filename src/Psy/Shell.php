@@ -205,7 +205,8 @@ class Shell extends Application
                 new Matcher\ClassAttributesMatcher(),
                 new Matcher\ObjectMethodsMatcher(),
                 new Matcher\ObjectAttributesMatcher(),
-                new Matcher\ClassMethodParametersMatcher(),
+                new Matcher\ClassMethodDefaultParametersMatcher(),
+                new Matcher\ObjectMethodDefaultParametersMatcher(),
             );
         }
 

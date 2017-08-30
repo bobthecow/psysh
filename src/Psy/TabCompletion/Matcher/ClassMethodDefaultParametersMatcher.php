@@ -3,13 +3,14 @@
 namespace Psy\TabCompletion\Matcher;
 
 
-class ClassMethodParametersMatcher extends AbstractMatcher
+class ClassMethodDefaultParametersMatcher extends AbstractMatcher
 {
+
     public function getMatches(array $tokens, array $info = array())
     {
         $openBracket = array_pop($tokens);
         $functionName = array_pop($tokens);
-        $doubleColon = array_pop($tokens);
+        $methodOperator = array_pop($tokens);
 
         $class = $this->getNamespaceAndClass($tokens);
 
@@ -77,9 +78,9 @@ class ClassMethodParametersMatcher extends AbstractMatcher
             return false;
         }
 
-        $doubleColon = array_pop($tokens);
+        $operator = array_pop($tokens);
 
-        if (!self::tokenIs($doubleColon, self::T_DOUBLE_COLON)) {
+        if (!self::tokenIs($operator, self::T_DOUBLE_COLON)) {
             return false;
         }
 
