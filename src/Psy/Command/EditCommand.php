@@ -14,8 +14,8 @@ class EditCommand extends Command
     /**
      * Constructor.
      *
-     * @param string $runtimeDir The directory to use for temporary files
-     * @param string|null $name The name of the command; passing null means it must be set in configure()
+     * @param string      $runtimeDir The directory to use for temporary files
+     * @param string|null $name       The name of the command; passing null means it must be set in configure()
      *
      * @throws \Symfony\Component\Console\Exception\LogicException When the command name is empty
      */
