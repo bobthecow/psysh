@@ -2,10 +2,8 @@
 
 namespace Psy\TabCompletion\Matcher;
 
-
 class ClassDoubleColonMatcher extends AbstractMatcher
 {
-
     /**
      * {@inheritdoc}
      */
@@ -34,7 +32,7 @@ class ClassDoubleColonMatcher extends AbstractMatcher
     {
         $token = array_pop($tokens);
 
-        switch(true) {
+        switch (true) {
             case self::tokenIs($token, self::T_STRING):
                 return true;
         }

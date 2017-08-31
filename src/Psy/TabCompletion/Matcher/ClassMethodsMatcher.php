@@ -30,7 +30,7 @@ class ClassMethodsMatcher extends AbstractMatcher
 
         $firstToken = array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING) &&
-            self::tokenIs($tokens[count($tokens) -1], self::T_DOUBLE_COLON)) {
+            self::tokenIs($tokens[count($tokens) - 1], self::T_DOUBLE_COLON)) {
             array_pop($tokens);
         }
 
