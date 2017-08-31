@@ -9,7 +9,22 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EditCommand extends Command
 {
-    private $temporaryDirectory = '';
+    private $runtimeDir = '';
+
+    /**
+     * Constructor.
+     *
+     * @param string $runtimeDir The directory to use for temporary files
+     * @param string|null $name The name of the command; passing null means it must be set in configure()
+     *
+     * @throws \Symfony\Component\Console\Exception\LogicException When the command name is empty
+     */
+    public function __construct($runtimeDir, $name = null)
+    {
+        parent::__construct($name);
+
+        $this->runtimeDir = $runtimeDir;
+    }
 
     protected function configure()
     {
@@ -20,8 +35,15 @@ class EditCommand extends Command
                 new InputOption(
                     'exec',
                     'e',
-                    InputOption::VALUE_OPTIONAL,
-                    'Whether or not to execute the file content after editing. Defaults to true when no file was provided, defaults to false if a file was provided',
+                    InputOption::VALUE_NONE,
+                    'Execute the file content after editing. This is the default when a file name argument is not given.',
+                    null
+                ),
+                new InputOption(
+                    'no-exec',
+                    'E',
+                    InputOption::VALUE_NONE,
+                    'Do not execute the file content after editing. This is the default when a file name argument is given.',
                     null
                 ),
             ))
@@ -31,16 +53,22 @@ class EditCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $filePath = $input->getArgument('file');
-
-        $execute = $input->getOption('exec') ?: 'false';
-
-        if ($filePath === null) {
-            $filePath = tempnam($this->temporaryDirectory, 'psysh-edit-command');
-            $execute = $input->getOption('exec') ?: 'true';
+        if ($input->getOption('exec') && $input->getOption('no-exec')) {
+            throw new \InvalidArgumentException('The --exec and --no-exec flags are mutually exclusive.');
         }
 
-        $execute = $execute === 'true';
+        $filePath = $input->getArgument('file');
+        $execute = $filePath === null;
+
+        if ($filePath === null) {
+            $filePath = tempnam($this->runtimeDir, 'psysh-edit-command');
+        }
+
+        if ($input->getOption('exec')) {
+            $execute = true;
+        } elseif ($input->getOption('no-exec')) {
+            $execute = false;
+        }
 
         $escapedFilePath = escapeshellarg($filePath);
 
@@ -57,10 +85,5 @@ class EditCommand extends Command
         if ($execute) {
             $this->getApplication()->addInput($editedContent);
         }
-    }
-
-    public function setTemporaryDirectory($tmpDir)
-    {
-        $this->temporaryDirectory = $tmpDir;
     }
 }
