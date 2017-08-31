@@ -4,7 +4,6 @@ namespace Psy\Command;
 
 use Psy\Context;
 use Psy\ContextAware;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,8 +24,8 @@ class EditCommand extends Command implements ContextAware
     /**
      * Constructor.
      *
-     * @param string $runtimeDir The directory to use for temporary files
-     * @param string|null $name The name of the command; passing null means it must be set in configure()
+     * @param string      $runtimeDir The directory to use for temporary files
+     * @param string|null $name       The name of the command; passing null means it must be set in configure()
      *
      * @throws \Symfony\Component\Console\Exception\LogicException When the command name is empty
      */
@@ -92,8 +91,8 @@ class EditCommand extends Command implements ContextAware
     }
 
     /**
-     * @param bool $execOption
-     * @param bool $noExecOption
+     * @param bool        $execOption
+     * @param bool        $noExecOption
      * @param string|null $filePath
      *
      * @return bool
@@ -114,6 +113,7 @@ class EditCommand extends Command implements ContextAware
 
     /**
      * @param string|null $fileArgument
+     *
      * @return string|null The file path to edit, null if the input was null, or the value of the referenced variable
      *
      * @throws \InvalidArgumentException If the variable is not found in the current context
@@ -133,6 +133,7 @@ class EditCommand extends Command implements ContextAware
     /**
      * @param string $filePath
      * @param string $shouldRemoveFile
+     *
      * @return string
      *
      * @throws \UnexpectedValueException if file_get_contents on $filePath returns false instead of a string
