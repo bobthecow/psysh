@@ -29,8 +29,8 @@ class ClassAttributesMatcher extends AbstractMatcher
         $input = $this->getInput($tokens);
 
         $firstToken = array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the nekudotayim operator
+        if (self::tokenIs($firstToken, self::T_STRING) &&
+            self::tokenIs($tokens[count($tokens)-1], self::T_DOUBLE_COLON)) {
             array_pop($tokens);
         }
 

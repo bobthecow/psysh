@@ -31,8 +31,8 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
         $input = $this->getInput($tokens);
 
         $firstToken = array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the object operator
+        if (self::tokenIs($firstToken, self::T_STRING) &&
+            self::tokenIs($tokens[count($tokens) -1], self::T_OBJECT_OPERATOR)) {
             array_pop($tokens);
         }
         $objectToken = array_pop($tokens);
