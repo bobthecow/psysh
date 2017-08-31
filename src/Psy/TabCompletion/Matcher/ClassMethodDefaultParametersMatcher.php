@@ -41,7 +41,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractMatcher
      *
      * @return string
      */
-    private function extractParameterString($method)
+    private function extractParameterString(\ReflectionMethod $method)
     {
         $parameters = $method->getParameters();
 
@@ -52,10 +52,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractMatcher
                 return '';
             }
 
-            $defaultValue = $parameter->getDefaultValue();
-            if (is_string($defaultValue)) {
-                $defaultValue = "'{$defaultValue}'";
-            }
+            $defaultValue = var_export($parameter->getDefaultValue(), true);
 
             $parametersProcessed[] = "\${$parameter->getName()} = {$defaultValue}";
         }

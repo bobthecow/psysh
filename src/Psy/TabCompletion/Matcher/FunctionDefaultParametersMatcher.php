@@ -25,10 +25,7 @@ class FunctionDefaultParametersMatcher extends AbstractMatcher
                 return array();
             }
 
-            $defaultValue = $parameter->getDefaultValue();
-            if (is_string($defaultValue)) {
-                $defaultValue = "'{$defaultValue}'";
-            }
+            $defaultValue = var_export($parameter->getDefaultValue(), true);
 
             $parametersProcessed[] = "\${$parameter->getName()} = $defaultValue";
         }

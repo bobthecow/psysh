@@ -48,7 +48,7 @@ class ObjectMethodDefaultParametersMatcher extends AbstractContextAwareMatcher
      *
      * @return string
      */
-    private function extractParameterString($method)
+    private function extractParameterString(\ReflectionMethod $method)
     {
         $parameters = $method->getParameters();
 
@@ -59,11 +59,7 @@ class ObjectMethodDefaultParametersMatcher extends AbstractContextAwareMatcher
                 return '';
             }
 
-            $defaultValue = $parameter->getDefaultValue();
-            if (is_string($defaultValue)) {
-                $defaultValue = "'{$defaultValue}'";
-            }
-
+            $defaultValue = var_export($parameter->getDefaultValue(), true);
             $parametersProcessed[] = "\${$parameter->getName()} = {$defaultValue}";
         }
 
