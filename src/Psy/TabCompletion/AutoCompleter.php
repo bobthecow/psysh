@@ -45,13 +45,12 @@ class AutoCompleter
      * Handle readline completion.
      *
      * @param string $input Readline current word
-     * @param int    $start Readline start match
-     * @param int    $end   Readline end match
+     * @param int    $index Current word index
      * @param array  $info  readline_info() data
      *
      * @return array
      */
-    public function processCallback($input, $start, $end, $info = array())
+    public function processCallback($input, $index, $info = array())
     {
         // Some (Windows?) systems provide incomplete `readline_info`, so let's
         // try to work around it.
@@ -63,7 +62,7 @@ class AutoCompleter
             $line = $input;
         }
 
-        if ($this->shouldInsertOnlyTab($line, $start, $end)) {
+        if ($this->shouldInsertOnlyTab($line, $info['point'])) {
             return array("\t");
         }
 
@@ -88,20 +87,19 @@ class AutoCompleter
 
     /**
      * @param string $line  Readline current line
-     * @param int    $start The start of the readline input
-     * @param int    $end   The end of the readline input
+     * @param int    $point The cursor position on the line
      *
-     * @return bool true if the characters before $index are only whitespace
+     * @return bool true if the characters before $point are only whitespace
      *
      * @internal param int $index Current word index
      */
-    private function shouldInsertOnlyTab($line, $start, $end)
+    private function shouldInsertOnlyTab($line, $point)
     {
-        $precedingInput = substr($line, 0, $end);
+        $precedingInput = substr($line, 0, $point);
 
         $trimmedInput = trim($precedingInput);
 
-        return empty($trimmedInput);
+        return $trimmedInput === '';
     }
 
     /**
@@ -110,14 +108,13 @@ class AutoCompleter
      * @see processCallback
      *
      * @param string $input
-     * @param int    $start
-     * @param int    $end
+     * @param int    $index
      *
      * @return array
      */
-    public function callback($input, $start, $end)
+    public function callback($input, $index)
     {
-        return $this->processCallback($input, $start, $end, readline_info());
+        return $this->processCallback($input, $index, readline_info());
     }
 
     /**
