@@ -2,7 +2,7 @@
 
 namespace Psy\TabCompletion\Matcher;
 
-class ClassMethodDefaultParametersMatcher extends AbstractMatcher
+class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatcher
 {
     public function getMatches(array $tokens, array $info = array())
     {
@@ -23,41 +23,11 @@ class ClassMethodDefaultParametersMatcher extends AbstractMatcher
 
         foreach ($methods as $method) {
             if ($method->getName() === $functionName[1]) {
-                $parameterString = $this->extractParameterString($method);
-
-                if (empty($parameterString)) {
-                    return array();
-                }
-
-                return array($parameterString);
+                return $this->getDefaultParameterCompletion($method->getParameters());
             }
         }
 
         return array();
-    }
-
-    /**
-     * @param \ReflectionMethod $method
-     *
-     * @return string
-     */
-    private function extractParameterString(\ReflectionMethod $method)
-    {
-        $parameters = $method->getParameters();
-
-        $parametersProcessed = array();
-
-        foreach ($parameters as $parameter) {
-            if (!$parameter->isDefaultValueAvailable()) {
-                return '';
-            }
-
-            $defaultValue = var_export($parameter->getDefaultValue(), true);
-
-            $parametersProcessed[] = "\${$parameter->getName()} = {$defaultValue}";
-        }
-
-        return implode(',', $parametersProcessed) . ')';
     }
 
     public function hasMatched(array $tokens)
