@@ -51,6 +51,7 @@ class Configuration
         'loop',
         'manualDbFile',
         'pager',
+        'prompt',
         'requireSemicolons',
         'runtimeDir',
         'startupMessage',
@@ -100,6 +101,7 @@ class Configuration
     private $presenter;
     private $completer;
     private $checker;
+    private $prompt;
 
     /**
      * Construct a Configuration instance.
@@ -1250,5 +1252,25 @@ class Configuration
     public function getStartupMessage()
     {
         return $this->startupMessage;
+    }
+
+    /**
+     * Set the prompt.
+     *
+     * @param string $prompt
+     */
+    public function setPrompt($prompt)
+    {
+        $this->prompt = $prompt;
+    }
+
+    /**
+     * Get the prompt.
+     *
+     * @return string
+     */
+    public function getPrompt()
+    {
+        return $this->prompt;
     }
 }
