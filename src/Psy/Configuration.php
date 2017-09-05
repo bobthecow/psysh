@@ -1076,7 +1076,7 @@ class Configuration
     public function getPresenter()
     {
         if (!isset($this->presenter)) {
-            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->getForceArrayIndexes());
+            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
         }
 
         return $this->presenter;
@@ -1281,7 +1281,7 @@ class Configuration
      *
      * @return bool
      */
-    public function getForceArrayIndexes()
+    public function forceArrayIndexes()
     {
         return $this->forceArrayIndexes;
     }
