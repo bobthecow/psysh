@@ -47,6 +47,7 @@ class Configuration
         'defaultIncludes',
         'eraseDuplicates',
         'errorLoggingLevel',
+        'forceArrayIndexes',
         'historySize',
         'loop',
         'manualDbFile',
@@ -89,6 +90,7 @@ class Configuration
     private $colorMode;
     private $updateCheck;
     private $startupMessage;
+    private $forceArrayIndexes = false;
 
     // services
     private $readline;
@@ -1074,7 +1076,7 @@ class Configuration
     public function getPresenter()
     {
         if (!isset($this->presenter)) {
-            $this->presenter = new Presenter($this->getOutput()->getFormatter());
+            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
         }
 
         return $this->presenter;
@@ -1272,5 +1274,25 @@ class Configuration
     public function getPrompt()
     {
         return $this->prompt;
+    }
+
+    /**
+     * Get the force array indexes.
+     *
+     * @return bool
+     */
+    public function forceArrayIndexes()
+    {
+        return $this->forceArrayIndexes;
+    }
+
+    /**
+     * Set the force array indexes.
+     *
+     * @param bool $forceArrayIndexes
+     */
+    public function setForceArrayIndexes($forceArrayIndexes)
+    {
+        $this->forceArrayIndexes = $forceArrayIndexes;
     }
 }
