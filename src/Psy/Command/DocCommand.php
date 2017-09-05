@@ -19,7 +19,7 @@ use Psy\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use \Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\Output;
 
 /**
  * Read the documentation for an object, class, constant, method or property.
