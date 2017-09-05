@@ -20,6 +20,7 @@ use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 use Psy\CodeCleaner\ExitPass;
 use Psy\CodeCleaner\FinalClassPass;
+use Psy\CodeCleaner\FunctionContextPass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
@@ -80,28 +81,34 @@ class CodeCleaner
     private function getDefaultPasses()
     {
         return array(
+            // Validation passes
             new AbstractClassPass(),
             new AssignThisVariablePass(),
-            new FunctionReturnInWriteContextPass(),
-            new CallTimePassByReferencePass(),
-            new PassableByReferencePass(),
             new CalledClassPass(),
+            new CallTimePassByReferencePass(),
             new FinalClassPass(),
+            new FunctionContextPass(),
+            new FunctionReturnInWriteContextPass(),
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
             new LegacyEmptyPass(),
             new LoopContextPass(),
+            new PassableByReferencePass(),
+            new StaticConstructorPass(),
+
+            // Rewriting shenanigans
+            new UseStatementPass(),   // must run before the namespace pass
+            new ExitPass(),
             new ImplicitReturnPass(),
-            new UseStatementPass(),      // must run before namespace and validation passes
-            new NamespacePass($this),    // must run after the implicit return pass
+            new MagicConstantsPass(),
+            new NamespacePass($this), // must run after the implicit return pass
             new RequirePass(),
             new StrictTypesPass(),
-            new StaticConstructorPass(),
-            new ValidFunctionNamePass(),
+
+            // Namespace-aware validation (which depends on aforementioned shenanigans)
             new ValidClassNamePass(),
             new ValidConstantPass(),
-            new MagicConstantsPass(),
-            new ExitPass(),
+            new ValidFunctionNamePass(),
         );
     }
 
@@ -125,7 +132,16 @@ class CodeCleaner
         // Catch fatal errors before they happen
         $stmts = $this->traverser->traverse($stmts);
 
-        return $this->printer->prettyPrint($stmts);
+        // Work around https://github.com/nikic/PHP-Parser/issues/399
+        $oldLocale = setlocale(LC_NUMERIC, 0);
+        setlocale(LC_NUMERIC, 'C');
+
+        $code = $this->printer->prettyPrint($stmts);
+
+        // Now put the locale back
+        setlocale(LC_NUMERIC, $oldLocale);
+
+        return $code;
     }
 
     /**
@@ -173,6 +189,10 @@ class CodeCleaner
             }
 
             if ($this->parseErrorIsUnterminatedComment($e, $code)) {
+                return false;
+            }
+
+            if ($this->parseErrorIsTrailingComma($e, $code)) {
                 return false;
             }
 
@@ -230,5 +250,10 @@ class CodeCleaner
     private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, $code)
     {
         return $e->getRawMessage() === 'Unterminated comment';
+    }
+
+    private function parseErrorIsTrailingComma(\PhpParser\Error $e, $code)
+    {
+        return ($e->getRawMessage() === 'A trailing comma is not allowed here') && (substr(rtrim($code), -1) === ',');
     }
 }

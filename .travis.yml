@@ -1,24 +1,23 @@
-sudo: false
 language: php
 
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - 7.1
-  - hhvm
-  # - hhvm-nightly
+sudo: false
 
 matrix:
+  include:
+    - php: 5.3
+    - php: 5.4
+    - php: 5.5
+    - php: 5.6
+    - php: 7.0
+    - php: 7.1
+    - php: hhvm
+      dist: trusty
   allow_failures:
     - php: hhvm
-    - php: hhvm-nightly
 
-install: travis_retry composer update --no-interaction --prefer-source
+install: travis_retry composer update --no-interaction
 
-script: vendor/bin/phpunit
+script: vendor/bin/phpunit --verbose
 
 before_deploy: bin/package -v $TRAVIS_TAG
 

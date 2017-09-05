@@ -67,24 +67,28 @@ HELP
     }
 
     /**
-     * Obtains the correct trace in the full backtrace.
+     * Obtains the correct stack frame in the full backtrace.
      *
      * @return array
      */
     protected function trace()
     {
-        foreach ($this->backtrace as $i => $backtrace) {
-            if (!isset($backtrace['class'], $backtrace['function'])) {
-                continue;
-            }
-            $correctClass = $backtrace['class'] === 'Psy\Shell';
-            $correctFunction = $backtrace['function'] === 'debug';
-            if ($correctClass && $correctFunction) {
-                return $backtrace;
+        foreach (array_reverse($this->backtrace) as $stackFrame) {
+            if ($this->isDebugCall($stackFrame)) {
+                return $stackFrame;
             }
         }
 
         return end($this->backtrace);
+    }
+
+    private static function isDebugCall(array $stackFrame)
+    {
+        $class    = isset($stackFrame['class']) ? $stackFrame['class'] : null;
+        $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
+
+        return ($class === null && $function === 'Psy\debug') ||
+            ($class === 'Psy\Shell' && in_array($function, array('__construct', 'debug')));
     }
 
     /**
@@ -94,14 +98,14 @@ HELP
      */
     protected function fileInfo()
     {
-        $backtrace = $this->trace();
-        if (preg_match('/eval\(/', $backtrace['file'])) {
-            preg_match_all('/([^\(]+)\((\d+)/', $backtrace['file'], $matches);
+        $stackFrame = $this->trace();
+        if (preg_match('/eval\(/', $stackFrame['file'])) {
+            preg_match_all('/([^\(]+)\((\d+)/', $stackFrame['file'], $matches);
             $file = $matches[1][0];
             $line = (int) $matches[2][0];
         } else {
-            $file = $backtrace['file'];
-            $line = $backtrace['line'];
+            $file = $stackFrame['file'];
+            $line = $stackFrame['line'];
         }
 
         return compact('file', 'line');
