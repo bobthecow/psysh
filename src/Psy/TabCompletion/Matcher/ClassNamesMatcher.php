@@ -42,7 +42,7 @@ class ClassNamesMatcher extends AbstractMatcher
             array_filter(
                 get_declared_classes(),
                 function ($className) use ($quotedClass) {
-                    return AbstractMatcher::startsWith($quotedClass, $className);
+                    return $className !== $quotedClass && AbstractMatcher::startsWith($quotedClass, $className);
                 }
             )
         );

@@ -204,6 +204,7 @@ class Shell extends Application
                 new Matcher\VariablesMatcher(),
                 new Matcher\ConstantsMatcher(),
                 new Matcher\FunctionsMatcher(),
+                new Matcher\ClassDoubleColonMatcher(),
                 new Matcher\ClassNamesMatcher(),
                 new Matcher\ClassMethodsMatcher(),
                 new Matcher\ClassAttributesMatcher(),
