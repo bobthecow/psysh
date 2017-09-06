@@ -170,6 +170,8 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
+        $edit = new Command\EditCommand($this->config->getRuntimeDir());
+
         return array(
             new Command\HelpCommand(),
             new Command\ListCommand(),
@@ -186,6 +188,7 @@ class Shell extends Application
             $sudo,
             $hist,
             new Command\ExitCommand(),
+            $edit,
         );
     }
 
@@ -335,6 +338,7 @@ class Shell extends Application
             if ($this->hasCommand($input)) {
                 $this->readline->addHistory($input);
                 $this->runCommand($input);
+
                 continue;
             }
 
@@ -527,6 +531,7 @@ class Shell extends Application
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
+
             throw $e;
         }
     }
