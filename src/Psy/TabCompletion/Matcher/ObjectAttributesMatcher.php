@@ -47,6 +47,10 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
             return array();
         }
 
+        if (!is_object($object)) {
+            return array();
+        }
+
         return array_filter(
             array_keys(get_class_vars(get_class($object))),
             function ($var) use ($input) {

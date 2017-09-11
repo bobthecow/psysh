@@ -47,6 +47,10 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
             return array();
         }
 
+        if (!is_object($object)) {
+            return array();
+        }
+
         return array_filter(
             get_class_methods($object),
             function ($var) use ($input) {
