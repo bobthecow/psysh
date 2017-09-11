@@ -27,7 +27,7 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
             return array();
         }
 
-        return array(implode(',', $parametersProcessed) . ')');
+        return array(implode(', ', $parametersProcessed) . ')');
     }
 
     /**
@@ -45,15 +45,27 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
             return json_encode($value);
         }
 
-        $chunks = '';
+        $chunks = [];
+        $chunksSequential = [];
+
+        $lastKey = -1;
+        $allSequential = true;
 
         foreach ($value as $key => $item) {
+            if ($allSequential === true) {
+                $allSequential = is_numeric($key) && ($key === ($lastKey + 1));
+                $lastKey = $key;
+            }
+
             $keyString = $this->valueToShortString($key);
             $itemString = $this->valueToShortString($item);
 
-            $chunks .= "{$keyString} => {$itemString}, ";
+            $chunks[] = "{$keyString} => {$itemString}";
+            $chunksSequential[] = "{$itemString}";
         }
 
-        return '[ ' . $chunks . ' ]';
+        $chunksToImplode = $allSequential ? $chunksSequential : $chunks;
+
+        return '[ ' . implode(', ', $chunksToImplode) . ' ]';
     }
 }
