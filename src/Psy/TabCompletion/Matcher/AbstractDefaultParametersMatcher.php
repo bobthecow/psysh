@@ -33,9 +33,10 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
     /**
      * Takes in the default value of a parameter and turns it into a
      *  string representation that fits inline.
-     * This is not 100% true to the original (newlines are inlined, for example)
+     * This is not 100% true to the original (newlines are inlined, for example).
      *
      * @param mixed $value
+     *
      * @return string
      */
     private function valueToShortString($value)
@@ -46,7 +47,7 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
 
         $chunks = '';
 
-        foreach($value as $key => $item) {
+        foreach ($value as $key => $item) {
             $keyString = $this->valueToShortString($key);
             $itemString = $this->valueToShortString($item);
 
