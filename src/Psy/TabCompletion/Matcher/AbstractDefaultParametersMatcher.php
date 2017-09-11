@@ -18,7 +18,7 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
                 return array();
             }
 
-            $defaultValue = var_export($parameter->getDefaultValue(), true);
+            $defaultValue = $this->valueToShortString($parameter->getDefaultValue());
 
             $parametersProcessed[] = "\${$parameter->getName()} = $defaultValue";
         }
@@ -28,5 +28,31 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
         }
 
         return array(implode(',', $parametersProcessed) . ')');
+    }
+
+    /**
+     * Takes in the default value of a parameter and turns it into a
+     *  string representation that fits inline.
+     * This is not 100% true to the original (newlines are inlined, for example)
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private function valueToShortString($value)
+    {
+        if (!is_array($value)) {
+            return json_encode($value);
+        }
+
+        $chunks = '';
+
+        foreach($value as $key => $item) {
+            $keyString = $this->valueToShortString($key);
+            $itemString = $this->valueToShortString($item);
+
+            $chunks .= "{$keyString} => {$itemString}, ";
+        }
+
+        return '[ ' . $chunks . ' ]';
     }
 }
