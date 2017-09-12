@@ -45,8 +45,8 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
             return json_encode($value);
         }
 
-        $chunks = [];
-        $chunksSequential = [];
+        $chunks = array();
+        $chunksSequential = array();
 
         $lastKey = -1;
         $allSequential = true;
