@@ -48,24 +48,20 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
         $chunks = array();
         $chunksSequential = array();
 
-        $lastKey = -1;
         $allSequential = true;
 
         foreach ($value as $key => $item) {
-            if ($allSequential === true) {
-                $allSequential = is_numeric($key) && ($key === ($lastKey + 1));
-                $lastKey = $key;
-            }
+            $allSequential = $allSequential && is_numeric($key) && $key === count($chunksSequential);
 
             $keyString = $this->valueToShortString($key);
             $itemString = $this->valueToShortString($item);
 
             $chunks[] = "{$keyString} => {$itemString}";
-            $chunksSequential[] = "{$itemString}";
+            $chunksSequential[] = $itemString;
         }
 
         $chunksToImplode = $allSequential ? $chunksSequential : $chunks;
 
-        return '[ ' . implode(', ', $chunksToImplode) . ' ]';
+        return '[' . implode(', ', $chunksToImplode) . ']';
     }
 }
