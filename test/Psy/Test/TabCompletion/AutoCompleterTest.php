@@ -61,7 +61,8 @@ class AutoCompleterTest extends \PHPUnit_Framework_TestCase
 
         $code = $tabCompletion->processCallback('', 0, array(
            'line_buffer' => $line,
-           'point'       => 0,
+           'start'       => 0,
+           'point'       => strlen($line),
            'end'         => strlen($line),
         ));
 
