@@ -53,7 +53,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
         if ($node instanceof Array_ || $this->isCallNode($node)) {
             $items = $node instanceof Array_ ? $node->items : $node->args;
             foreach ($items as $item) {
-                if ($item->byRef && $this->isCallNode($item->value)) {
+                if ($item && $item->byRef && $this->isCallNode($item->value)) {
                     throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
                 }
             }
