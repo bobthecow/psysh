@@ -220,6 +220,7 @@ if (!function_exists('Psy\info')) {
         $autocomplete = array(
             'tab completion enabled' => $config->getTabCompletion(),
             'custom matchers'        => array_map('get_class', $config->getTabCompletionMatchers()),
+            'bracketed paste'        => $config->useBracketedPaste(),
         );
 
         return array_merge($core, compact('updates', 'pcntl', 'readline', 'history', 'docs', 'autocomplete'));
