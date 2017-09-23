@@ -112,7 +112,9 @@ abstract class AbstractMatcher
      */
     public static function startsWith($prefix, $word)
     {
-        if (empty($prefix)) return true;
+        if (empty($prefix)) {
+             return true;
+        }
 
         return strpos($word, $prefix) === 0;
     }
