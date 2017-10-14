@@ -186,6 +186,11 @@ if (!function_exists('Psy\info')) {
             'posix available' => function_exists('posix_getpid'),
         );
 
+        $disabledFuncs = array_map('trim', explode(',', ini_get('disable_functions')));
+        if (in_array('pcntl_signal', $disabledFuncs) || in_array('pcntl_fork', $disabledFuncs)) {
+            $pcntl['pcntl disabled'] = true;
+        }
+
         $history = array(
             'history file'     => $prettyPath($config->getHistoryFile()),
             'history size'     => $config->getHistorySize(),
