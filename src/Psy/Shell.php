@@ -748,7 +748,11 @@ class Shell extends Application
     {
         $message = $e->getMessage();
         if (!$e instanceof PsyException) {
-            $message = sprintf('%s with message \'%s\'', get_class($e), $message);
+            if ($message === '') {
+                $message = get_class($e);
+            } else {
+                $message = sprintf('%s with message \'%s\'', get_class($e), $message);
+            }
         }
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
