@@ -44,7 +44,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.8.11';
+    const VERSION = 'v0.8.12';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -66,6 +66,7 @@ class Shell extends Application
     private $completion;
     private $tabCompletionMatchers = array();
     private $stdoutBuffer;
+    private $prompt;
 
     /**
      * Create a new Psy Shell.
@@ -169,6 +170,8 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
+        $edit = new Command\EditCommand($this->config->getRuntimeDir());
+
         return array(
             new Command\HelpCommand(),
             new Command\ListCommand(),
@@ -185,6 +188,7 @@ class Shell extends Application
             $sudo,
             $hist,
             new Command\ExitCommand(),
+            $edit,
         );
     }
 
@@ -205,6 +209,9 @@ class Shell extends Application
                 new Matcher\ClassAttributesMatcher(),
                 new Matcher\ObjectMethodsMatcher(),
                 new Matcher\ObjectAttributesMatcher(),
+                new Matcher\ClassMethodDefaultParametersMatcher(),
+                new Matcher\ObjectMethodDefaultParametersMatcher(),
+                new Matcher\FunctionDefaultParametersMatcher(),
             );
         }
 
@@ -334,6 +341,7 @@ class Shell extends Application
             if ($this->hasCommand($input)) {
                 $this->readline->addHistory($input);
                 $this->runCommand($input);
+
                 continue;
             }
 
@@ -526,6 +534,7 @@ class Shell extends Application
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
+
             throw $e;
         }
     }
@@ -866,7 +875,11 @@ class Shell extends Application
      */
     protected function getPrompt()
     {
-        return $this->hasCode() ? static::BUFF_PROMPT : static::PROMPT;
+        if ($this->hasCode()) {
+            return static::BUFF_PROMPT;
+        }
+
+        return $this->config->getPrompt() ?: static::PROMPT;
     }
 
     /**

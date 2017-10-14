@@ -87,12 +87,18 @@ HELP
     private function getManualDoc($reflector)
     {
         switch (get_class($reflector)) {
+            case 'ReflectionClass':
+            case 'ReflectionObject':
             case 'ReflectionFunction':
                 $id = $reflector->name;
                 break;
 
             case 'ReflectionMethod':
                 $id = $reflector->class . '::' . $reflector->name;
+                break;
+
+            case 'ReflectionProperty':
+                $id = $reflector->class . '::$' . $reflector->name;
                 break;
 
             default:

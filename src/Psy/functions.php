@@ -144,9 +144,17 @@ if (!function_exists('Psy\info')) {
 
         // Use an explicit, fresh update check here, rather than relying on whatever is in $config.
         $checker = new GitHubChecker();
+        $updateAvailable = null;
+        $latest = null;
+        try {
+            $updateAvailable = $checker->isLatest();
+            $latest = $checker->getLatest();
+        } catch (\Exception $e) {
+        }
+
         $updates = array(
-            'update available'       => !$checker->isLatest(),
-            'latest release version' => $checker->getLatest(),
+            'update available'       => $updateAvailable,
+            'latest release version' => $latest,
             'update check interval'  => $config->getUpdateCheck(),
             'update cache file'      => $prettyPath($config->getUpdateCheckCacheFile()),
         );
@@ -220,6 +228,7 @@ if (!function_exists('Psy\info')) {
         $autocomplete = array(
             'tab completion enabled' => $config->getTabCompletion(),
             'custom matchers'        => array_map('get_class', $config->getTabCompletionMatchers()),
+            'bracketed paste'        => $config->useBracketedPaste(),
         );
 
         return array_merge($core, compact('updates', 'pcntl', 'readline', 'history', 'docs', 'autocomplete'));

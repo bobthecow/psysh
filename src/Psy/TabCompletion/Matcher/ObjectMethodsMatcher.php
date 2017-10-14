@@ -47,10 +47,16 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
             return array();
         }
 
+        if (!is_object($object)) {
+            return array();
+        }
+
         return array_filter(
             get_class_methods($object),
             function ($var) use ($input) {
-                return AbstractMatcher::startsWith($input, $var);
+                return AbstractMatcher::startsWith($input, $var) &&
+                    // also check that we do not suggest invoking a super method(__construct, __wakeup, …)
+                    !AbstractMatcher::startsWith('__', $var);
             }
         );
     }

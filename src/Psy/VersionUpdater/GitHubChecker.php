@@ -68,8 +68,22 @@ class GitHubChecker implements Checker
      */
     public function fetchLatestRelease()
     {
-        $context = stream_context_create(array('http' => array('user_agent' => 'PsySH/' . Shell::VERSION)));
+        $context = stream_context_create(array(
+            'http' => array(
+                'user_agent' => 'PsySH/' . Shell::VERSION,
+                'timeout'    => 3,
+            ),
+        ));
 
-        return json_decode(@file_get_contents(self::URL, false, $context));
+        set_error_handler(function () {
+            // Just ignore all errors with this. The checker will throw an exception
+            // if it doesn't work :)
+        });
+
+        $result = @file_get_contents(self::URL, false, $context);
+
+        restore_error_handler();
+
+        return json_decode($result);
     }
 }
