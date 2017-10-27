@@ -147,7 +147,7 @@ if (!function_exists('Psy\info')) {
         $updateAvailable = null;
         $latest = null;
         try {
-            $updateAvailable = $checker->isLatest();
+            $updateAvailable = !$checker->isLatest();
             $latest = $checker->getLatest();
         } catch (\Exception $e) {
         }
