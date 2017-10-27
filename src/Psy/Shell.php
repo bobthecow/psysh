@@ -170,8 +170,6 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
-        // $edit = new Command\EditCommand($this->config->getRuntimeDir());
-
         return array(
             new Command\HelpCommand(),
             new Command\ListCommand(),
@@ -184,11 +182,11 @@ class Shell extends Application
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
+            new Command\EditCommand($this->config->getRuntimeDir()),
             // new Command\PsyVersionCommand(),
             $sudo,
             $hist,
             new Command\ExitCommand(),
-            // $edit,
         );
     }
 
