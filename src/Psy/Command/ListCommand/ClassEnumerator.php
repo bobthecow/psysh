@@ -35,23 +35,66 @@ class ClassEnumerator extends Enumerator
             return;
         }
 
+        $user     = $input->getOption('user');
+        $internal = $input->getOption('internal');
+
         $ret = array();
 
         // only list classes, interfaces and traits if we are specifically asked
 
         if ($input->getOption('classes')) {
-            $ret['Classes'] = get_declared_classes();
+            $ret = array_merge($ret, $this->filterClasses('Classes', get_declared_classes(), $internal, $user));
         }
 
         if ($input->getOption('interfaces')) {
-            $ret['Interfaces'] = get_declared_interfaces();
+            $ret = array_merge($ret, $this->filterClasses('Interfaces', get_declared_interfaces(), $internal, $user));
         }
 
         if (function_exists('get_declared_traits') && $input->getOption('traits')) {
-            $ret['Traits'] = get_declared_traits();
+            $ret = array_merge($ret, $this->filterClasses('Traits', get_declared_traits(), $internal, $user));
         }
 
         return array_map(array($this, 'prepareClasses'), array_filter($ret));
+    }
+
+    /**
+     * Filter a list of classes, interfaces or traits.
+     *
+     * If $internal or $user is defined, results will be limited to internal or
+     * user-defined classes as appropriate.
+     *
+     * @param string $key
+     * @param array  $classes
+     * @param bool   $internal
+     * @param bool   $user
+     *
+     * @return array
+     */
+    protected function filterClasses($key, $classes, $internal, $user)
+    {
+        $ret = array();
+
+        if ($internal) {
+            $ret['Internal ' . $key] = array_filter($classes, function ($class) {
+                $refl = new \ReflectionClass($class);
+
+                return $refl->isInternal();
+            });
+        }
+
+        if ($user) {
+            $ret['User ' . $key] = array_filter($classes, function ($class) {
+                $refl = new \ReflectionClass($class);
+
+                return !$refl->isInternal();
+            });
+        }
+
+        if (!$user && !$internal) {
+            $ret[$key] = $classes;
+        }
+
+        return $ret;
     }
 
     /**
