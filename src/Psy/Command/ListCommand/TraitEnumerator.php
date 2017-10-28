@@ -11,13 +11,21 @@
 
 namespace Psy\Command\ListCommand;
 
+use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Trait Enumerator class.
+ *
+ * @deprecated Nothing should use this anymore
  */
 class TraitEnumerator extends Enumerator
 {
+    public function __construct(Presenter $presenter)
+    {
+        @trigger_error('TraitEnumerator is no longer used', E_USER_DEPRECATED);
+    }
+
     /**
      * {@inheritdoc}
      */

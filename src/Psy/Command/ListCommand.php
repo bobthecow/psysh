@@ -16,10 +16,8 @@ use Psy\Command\ListCommand\ClassEnumerator;
 use Psy\Command\ListCommand\ConstantEnumerator;
 use Psy\Command\ListCommand\FunctionEnumerator;
 use Psy\Command\ListCommand\GlobalVariableEnumerator;
-use Psy\Command\ListCommand\InterfaceEnumerator;
 use Psy\Command\ListCommand\MethodEnumerator;
 use Psy\Command\ListCommand\PropertyEnumerator;
-use Psy\Command\ListCommand\TraitEnumerator;
 use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
 use Psy\Input\FilterOptions;
@@ -159,10 +157,8 @@ HELP
                 new ConstantEnumerator($mgr),
                 new FunctionEnumerator($mgr),
                 new GlobalVariableEnumerator($mgr),
-                new InterfaceEnumerator($mgr),
                 new PropertyEnumerator($mgr),
                 new MethodEnumerator($mgr),
-                new TraitEnumerator($mgr),
                 new VariableEnumerator($mgr, $this->context),
             );
         }

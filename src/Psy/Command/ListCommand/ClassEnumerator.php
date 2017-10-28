@@ -35,20 +35,23 @@ class ClassEnumerator extends Enumerator
             return;
         }
 
-        // only list classes if we are specifically asked
-        if (!$input->getOption('classes')) {
-            return;
+        $ret = array();
+
+        // only list classes, interfaces and traits if we are specifically asked
+
+        if ($input->getOption('classes')) {
+            $ret['Classes'] = get_declared_classes();
         }
 
-        $classes = $this->prepareClasses(get_declared_classes());
-
-        if (empty($classes)) {
-            return;
+        if ($input->getOption('interfaces')) {
+            $ret['Interfaces'] = get_declared_interfaces();
         }
 
-        return array(
-            'Classes' => $classes,
-        );
+        if (function_exists('get_declared_traits') && $input->getOption('traits')) {
+            $ret['Traits'] = get_declared_traits();
+        }
+
+        return array_map(array($this, 'prepareClasses'), array_filter($ret));
     }
 
     /**
