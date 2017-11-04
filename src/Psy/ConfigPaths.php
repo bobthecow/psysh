@@ -136,6 +136,20 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
+        try {
+            // Check with XDG to see if there's an explicit one to return...
+            return $xdg->getRuntimeDir(true) . '/psysh';
+        } catch (\RuntimeException $e) {
+            // Well. That didn't work. One of the next ones should.
+        }
+
+        // Since we don't have an explicit XDG directory, and since the XDG
+        // library doesn't really work on Windows, let's throw the Windows users
+        // a bone here.
+        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            return strtr(sys_get_temp_dir(), '\\', '/') . '/psysh';
+        }
+
         return $xdg->getRuntimeDir(false) . '/psysh';
     }
 

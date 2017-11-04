@@ -39,24 +39,37 @@ class ConstantEnumerator extends Enumerator
             return;
         }
 
-        $category  = $input->getOption('user') ? 'user' : $input->getOption('category');
-        $label     = $category ? ucfirst($category) . ' Constants' : 'Constants';
-        $constants = $this->prepareConstants($this->getConstants($category));
-
-        if (empty($constants)) {
-            return;
-        }
+        $user     = $input->getOption('user');
+        $internal = $input->getOption('internal');
+        $category = $input->getOption('category');
 
         $ret = array();
-        $ret[$label] = $constants;
 
-        return $ret;
+        if ($user) {
+            $ret['User Constants'] = $this->getConstants('user');
+        }
+
+        if ($internal) {
+            $ret['Interal Constants'] = $this->getConstants('internal');
+        }
+
+        if ($category) {
+            $label = ucfirst($category) . ' Constants';
+            $ret[$label] = $this->getConstants($category);
+        }
+
+        if (!$user && !$internal && !$category) {
+            $ret['Constants'] = $this->getConstants();
+        }
+
+        return array_map(array($this, 'prepareConstants'), array_filter($ret));
     }
 
     /**
      * Get defined constants.
      *
-     * Optionally restrict constants to a given category, e.g. "date".
+     * Optionally restrict constants to a given category, e.g. "date". If the
+     * category is "internal", include all non-user-defined constants.
      *
      * @param string $category
      *
@@ -69,6 +82,12 @@ class ConstantEnumerator extends Enumerator
         }
 
         $consts = get_defined_constants(true);
+
+        if ($category === 'internal') {
+            unset($consts['user']);
+
+            return call_user_func_array('array_merge', $consts);
+        }
 
         return isset($consts[$category]) ? $consts[$category] : array();
     }

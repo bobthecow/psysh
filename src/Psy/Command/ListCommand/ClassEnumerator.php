@@ -35,20 +35,66 @@ class ClassEnumerator extends Enumerator
             return;
         }
 
-        // only list classes if we are specifically asked
-        if (!$input->getOption('classes')) {
-            return;
+        $user     = $input->getOption('user');
+        $internal = $input->getOption('internal');
+
+        $ret = array();
+
+        // only list classes, interfaces and traits if we are specifically asked
+
+        if ($input->getOption('classes')) {
+            $ret = array_merge($ret, $this->filterClasses('Classes', get_declared_classes(), $internal, $user));
         }
 
-        $classes = $this->prepareClasses(get_declared_classes());
-
-        if (empty($classes)) {
-            return;
+        if ($input->getOption('interfaces')) {
+            $ret = array_merge($ret, $this->filterClasses('Interfaces', get_declared_interfaces(), $internal, $user));
         }
 
-        return array(
-            'Classes' => $classes,
-        );
+        if (function_exists('get_declared_traits') && $input->getOption('traits')) {
+            $ret = array_merge($ret, $this->filterClasses('Traits', get_declared_traits(), $internal, $user));
+        }
+
+        return array_map(array($this, 'prepareClasses'), array_filter($ret));
+    }
+
+    /**
+     * Filter a list of classes, interfaces or traits.
+     *
+     * If $internal or $user is defined, results will be limited to internal or
+     * user-defined classes as appropriate.
+     *
+     * @param string $key
+     * @param array  $classes
+     * @param bool   $internal
+     * @param bool   $user
+     *
+     * @return array
+     */
+    protected function filterClasses($key, $classes, $internal, $user)
+    {
+        $ret = array();
+
+        if ($internal) {
+            $ret['Internal ' . $key] = array_filter($classes, function ($class) {
+                $refl = new \ReflectionClass($class);
+
+                return $refl->isInternal();
+            });
+        }
+
+        if ($user) {
+            $ret['User ' . $key] = array_filter($classes, function ($class) {
+                $refl = new \ReflectionClass($class);
+
+                return !$refl->isInternal();
+            });
+        }
+
+        if (!$user && !$internal) {
+            $ret[$key] = $classes;
+        }
+
+        return $ret;
     }
 
     /**
