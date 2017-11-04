@@ -17,6 +17,7 @@ disabled:
   - pre_increment
   - unalign_double_arrow
   - unalign_equals
+  - yoda_style
 
 finder:
   name:
