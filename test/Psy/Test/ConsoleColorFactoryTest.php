@@ -14,7 +14,7 @@ namespace Psy\Test;
 use Psy\Configuration;
 use Psy\ConsoleColorFactory;
 
-class ConsoleColorFactoryTest extends \PHPUnit_Framework_TestCase
+class ConsoleColorFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetConsoleColorAuto()
     {

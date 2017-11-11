@@ -18,7 +18,7 @@ use Psy\Context;
 use Psy\ContextAware;
 use Psy\TabCompletion\Matcher;
 
-class AutoCompleterTest extends \PHPUnit_Framework_TestCase
+class AutoCompleterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @param $line

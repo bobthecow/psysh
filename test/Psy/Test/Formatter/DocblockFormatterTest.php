@@ -13,7 +13,7 @@ namespace Psy\Test\Formatter;
 
 use Psy\Formatter\DocblockFormatter;
 
-class DocblockFormatterTest extends \PHPUnit_Framework_TestCase
+class DocblockFormatterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * This is a docblock!

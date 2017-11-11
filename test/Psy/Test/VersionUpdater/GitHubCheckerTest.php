@@ -13,7 +13,7 @@ namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
 
-class GitHubCheckerTest extends \PHPUnit_Framework_TestCase
+class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider malformedResults

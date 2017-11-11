@@ -14,7 +14,7 @@ namespace Psy\Test\Exception;
 use Psy\Exception\BreakException;
 use Psy\Exception\Exception;
 
-class BreakExceptionTest extends \PHPUnit_Framework_TestCase
+class BreakExceptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testInstance()
     {
