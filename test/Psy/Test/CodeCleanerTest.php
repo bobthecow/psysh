@@ -13,7 +13,7 @@ namespace Psy\Test;
 
 use Psy\CodeCleaner;
 
-class CodeCleanerTest extends \PHPUnit_Framework_TestCase
+class CodeCleanerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider semicolonCodeProvider

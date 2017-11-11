@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 
-class ShellInputTest extends \PHPUnit_Framework_TestCase
+class ShellInputTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider getTokenizeData

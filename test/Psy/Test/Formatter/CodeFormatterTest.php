@@ -13,7 +13,7 @@ namespace Psy\Test\Formatter;
 
 use Psy\Formatter\CodeFormatter;
 
-class CodeFormatterTest extends \PHPUnit_Framework_TestCase
+class CodeFormatterTest extends \PHPUnit\Framework\TestCase
 {
     private function ignoreThisMethod($arg)
     {

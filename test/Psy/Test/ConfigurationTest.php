@@ -18,7 +18,7 @@ use Psy\Output\PassthruPager;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
     private function getConfig($configFile = null)
     {

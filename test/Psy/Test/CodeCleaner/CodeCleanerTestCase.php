@@ -17,7 +17,7 @@ use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Exception\ParseErrorException;
 use Psy\ParserFactory;
 
-class CodeCleanerTestCase extends \PHPUnit_Framework_TestCase
+class CodeCleanerTestCase extends \PHPUnit\Framework\TestCase
 {
     protected $pass;
     protected $traverser;
