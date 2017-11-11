@@ -69,6 +69,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                     throw new RuntimeException('Unknown target: ' . $valueName);
                 }
 
+                // no break
             case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
                 return array($this->resolveName($matches[0], true), null, 0);
 
