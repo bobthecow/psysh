@@ -13,7 +13,7 @@ namespace Psy\Test\Readline;
 
 use Psy\Readline\Libedit;
 
-class LibeditTest extends \PHPUnit_Framework_TestCase
+class LibeditTest extends \PHPUnit\Framework\TestCase
 {
     private $historyFile;
 

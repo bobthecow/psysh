@@ -13,7 +13,7 @@ namespace Psy\Test\Util;
 
 use Psy\Util\Str;
 
-class StrTest extends \PHPUnit_Framework_TestCase
+class StrTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider testUnvisProvider

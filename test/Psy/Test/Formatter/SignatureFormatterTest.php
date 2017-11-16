@@ -14,7 +14,7 @@ namespace Psy\Test\Formatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
 
-class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
+class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
 {
     const FOO = 'foo value';
     private static $bar = 'bar value';
@@ -37,7 +37,7 @@ class SignatureFormatterTest extends \PHPUnit_Framework_TestCase
             array(
                 new \ReflectionClass($this),
                 "class Psy\Test\Formatter\SignatureFormatterTest "
-                . 'extends PHPUnit_Framework_TestCase implements '
+                . 'extends PHPUnit\Framework\TestCase implements '
                 . 'Countable, PHPUnit_Framework_SelfDescribing, '
                 . 'PHPUnit_Framework_Test',
             ),

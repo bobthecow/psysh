@@ -14,7 +14,7 @@ namespace Psy\Test\Exception;
 use Psy\Exception\Exception;
 use Psy\Exception\FatalErrorException;
 
-class FatalErrorExceptionTest extends \PHPUnit_Framework_TestCase
+class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testInstance()
     {

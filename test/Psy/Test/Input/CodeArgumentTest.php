@@ -14,7 +14,7 @@ namespace Psy\Tests\Input;
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\InputArgument;
 
-class CodeArgumentTest extends \PHPUnit_Framework_TestCase
+class CodeArgumentTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider getInvalidModes
