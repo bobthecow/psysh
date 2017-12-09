@@ -39,8 +39,8 @@ class PropertyEnumerator extends Enumerator
             return;
         }
 
-        $showAll = $input->getOption('all');
-        $noInherit = $input->getOption('no-inherit');
+        $showAll    = $input->getOption('all');
+        $noInherit  = $input->getOption('no-inherit');
         $properties = $this->prepareProperties($this->getProperties($showAll, $reflector, $noInherit), $target);
 
         if (empty($properties)) {

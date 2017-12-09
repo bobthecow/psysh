@@ -62,7 +62,7 @@ class ClassMethodsMatcher extends AbstractMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token = array_pop($tokens);
+        $token     = array_pop($tokens);
         $prevToken = array_pop($tokens);
 
         switch (true) {

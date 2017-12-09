@@ -75,13 +75,13 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
-        $this->config   = $config ?: new Configuration();
-        $this->cleaner  = $this->config->getCodeCleaner();
-        $this->loop     = $this->config->getLoop();
-        $this->context  = new Context();
-        $this->includes = array();
-        $this->readline = $this->config->getReadline();
-        $this->inputBuffer = array();
+        $this->config       = $config ?: new Configuration();
+        $this->cleaner      = $this->config->getCodeCleaner();
+        $this->loop         = $this->config->getLoop();
+        $this->context      = new Context();
+        $this->includes     = array();
+        $this->readline     = $this->config->getReadline();
+        $this->inputBuffer  = array();
         $this->stdoutBuffer = '';
 
         parent::__construct('Psy Shell', self::VERSION);

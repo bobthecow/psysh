@@ -250,7 +250,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function testSetCheckerValid()
     {
-        $config = $this->getConfig();
+        $config  = $this->getConfig();
         $checker = new GitHubChecker();
 
         $config->setChecker($checker);

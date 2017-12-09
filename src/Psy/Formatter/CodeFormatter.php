@@ -50,8 +50,8 @@ class CodeFormatter implements Formatter
             $start = $reflector->getStartLine();
             $end   = $reflector->getEndLine() - $start;
 
-            $factory = new ConsoleColorFactory($colorMode);
-            $colors = $factory->getConsoleColor();
+            $factory     = new ConsoleColorFactory($colorMode);
+            $colors      = $factory->getConsoleColor();
             $highlighter = new Highlighter($colors);
 
             return $highlighter->getCodeSnippet($file, $start, 0, $end);

@@ -24,9 +24,9 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
 
     public function __construct($function, $parameter, array $opts)
     {
-        $this->function = $function;
+        $this->function  = $function;
         $this->parameter = $parameter;
-        $this->opts = $opts;
+        $this->opts      = $opts;
     }
 
     /**

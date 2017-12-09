@@ -50,7 +50,7 @@ class ShellInput extends StringInput
         $hasCodeArgument = false;
 
         if ($definition->getArgumentCount() > 0) {
-            $args = $definition->getArguments();
+            $args    = $definition->getArguments();
             $lastArg = array_pop($args);
             foreach ($args as $arg) {
                 if ($arg instanceof CodeArgument) {
