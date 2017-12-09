@@ -241,7 +241,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->flushCode();
         $code = '$test()';
         $shell->addCode($code);
-        $shell->flushCode();
+        $this->assertEquals($shell->flushCode(), 'return $test();');
     }
 
     public function testWriteStdout()

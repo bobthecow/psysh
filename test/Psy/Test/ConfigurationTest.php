@@ -238,16 +238,14 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($colorMode, $config->colorMode());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage invalid color mode: some invalid mode
+     */
     public function testSetColorModeInvalid()
     {
         $config = $this->getConfig();
-        $colorMode = 'some invalid mode';
-
-        $this->setExpectedException(
-            '\InvalidArgumentException',
-            'invalid color mode: some invalid mode'
-        );
-        $config->setColorMode($colorMode);
+        $config->setColorMode('some invalid mode');
     }
 
     public function testSetCheckerValid()
