@@ -19,15 +19,14 @@ EOF;
 return PhpCsFixer\Config::create()
     ->setRules(array(
         '@Symfony' => true,
+        'array_syntax' => array('syntax' => 'long'),
+        'binary_operator_spaces' => false,
         'concat_space' => array('spacing' => 'one'),
         'header_comment' => array('header' => $header),
-        'array_syntax' => array('syntax' => 'long'),
-        'ordered_imports' => true,
+        'increment_style' => array('style' => 'post'),
         'method_argument_space' => array('keep_multiple_spaces_after_comma' => true),
+        'ordered_imports' => true,
         'pre_increment' => false,
-        'binary_operator_spaces' => array(
-            'align_double_arrow' => true,
-            'align_equals' => null,
-        ),
+        'yoda_style' => false,
     ))
     ->setFinder($finder);
