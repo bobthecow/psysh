@@ -35,13 +35,6 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
     {
         return array(
             array(
-                new \ReflectionClass($this),
-                "class Psy\Test\Formatter\SignatureFormatterTest "
-                . 'extends PHPUnit\Framework\TestCase implements '
-                . 'Countable, PHPUnit_Framework_SelfDescribing, '
-                . 'PHPUnit_Framework_Test',
-            ),
-            array(
                 new \ReflectionFunction('implode'),
                 defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
             ),

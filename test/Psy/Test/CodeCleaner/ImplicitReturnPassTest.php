@@ -37,7 +37,7 @@ class ImplicitReturnPassTest extends CodeCleanerTestCase
         );
 
         $from = 'if (true) { 1; } elseif (true) { 2; } else { 3; }';
-        $to = <<<'EOS'
+        $to   = <<<'EOS'
 if (true) {
     return 1;
 } elseif (true) {
@@ -50,7 +50,7 @@ EOS;
         $values[] = array($from, $to);
 
         $from = 'class A {}';
-        $to = <<<'EOS'
+        $to   = <<<'EOS'
 class A
 {
 }

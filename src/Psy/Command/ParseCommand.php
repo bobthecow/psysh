@@ -38,7 +38,7 @@ class ParseCommand extends Command implements PresenterAware
     public function __construct($name = null)
     {
         $this->parserFactory = new ParserFactory();
-        $this->parsers = array();
+        $this->parsers       = array();
 
         parent::__construct($name);
     }

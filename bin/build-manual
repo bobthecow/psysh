@@ -53,8 +53,7 @@ function htmlwrap($text, $width = null)
 
             case '>':
                 $inTag = false;
-
-            default:
+                break;
         }
 
         if ($inTag) {

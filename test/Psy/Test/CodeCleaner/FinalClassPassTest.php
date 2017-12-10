@@ -56,6 +56,9 @@ class FinalClassPassTest extends CodeCleanerTestCase
     {
         $stmts = $this->parse($code);
         $this->traverser->traverse($stmts);
+
+        // @todo a better thing to assert here?
+        $this->assertTrue(true);
     }
 
     public function validStatements()

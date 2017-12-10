@@ -14,16 +14,15 @@
     ],
     "require": {
         "php": ">=5.3.9",
-        "symfony/console": "~2.3.10|^2.4.2|~3.0",
-        "symfony/var-dumper": "~2.7|~3.0",
+        "symfony/console": "~2.3.10|^2.4.2|~3.0|~4.0",
+        "symfony/var-dumper": "~2.7|~3.0|~4.0",
         "nikic/php-parser": "~1.3|~2.0|~3.0",
         "dnoegel/php-xdg-base-dir": "0.1",
         "jakub-onderka/php-console-highlighter": "0.3.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8.35|^5.4.3",
-        "symfony/finder": "~2.1|~3.0",
-        "friendsofphp/php-cs-fixer": "~1.11",
+        "symfony/finder": "~2.1|~3.0|~4.0",
         "hoa/console": "~3.16|~1.14"
     },
     "suggest": {

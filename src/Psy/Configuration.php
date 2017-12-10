@@ -35,8 +35,8 @@ use XdgBaseDir\Xdg;
  */
 class Configuration
 {
-    const COLOR_MODE_AUTO = 'auto';
-    const COLOR_MODE_FORCED = 'forced';
+    const COLOR_MODE_AUTO     = 'auto';
+    const COLOR_MODE_FORCED   = 'forced';
     const COLOR_MODE_DISABLED = 'disabled';
 
     private static $AVAILABLE_OPTIONS = array(
@@ -80,12 +80,12 @@ class Configuration
     private $useBracketedPaste;
     private $hasPcntl;
     private $usePcntl;
-    private $newCommands = array();
+    private $newCommands       = array();
     private $requireSemicolons = false;
     private $useUnicode;
     private $tabCompletion;
     private $tabCompletionMatchers = array();
-    private $errorLoggingLevel = E_ALL;
+    private $errorLoggingLevel     = E_ALL;
     private $warnOnMultipleConfigs = false;
     private $colorMode;
     private $updateCheck;

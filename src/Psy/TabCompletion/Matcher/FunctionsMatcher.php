@@ -27,7 +27,7 @@ class FunctionsMatcher extends AbstractMatcher
     {
         $func = $this->getInput($tokens);
 
-        $functions = get_defined_functions();
+        $functions    = get_defined_functions();
         $allFunctions = array_merge($functions['user'], $functions['internal']);
 
         return array_filter($allFunctions, function ($function) use ($func) {
@@ -40,7 +40,7 @@ class FunctionsMatcher extends AbstractMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token = array_pop($tokens);
+        $token     = array_pop($tokens);
         $prevToken = array_pop($tokens);
 
         switch (true) {

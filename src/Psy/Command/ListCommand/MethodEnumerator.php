@@ -39,9 +39,9 @@ class MethodEnumerator extends Enumerator
             return;
         }
 
-        $showAll = $input->getOption('all');
+        $showAll   = $input->getOption('all');
         $noInherit = $input->getOption('no-inherit');
-        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
+        $methods   = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
 
         if (empty($methods)) {
             return;

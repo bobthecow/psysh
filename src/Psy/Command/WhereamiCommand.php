@@ -116,12 +116,12 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $info = $this->fileInfo();
-        $num = $input->getOption('num');
-        $factory = new ConsoleColorFactory($this->colorMode);
-        $colors = $factory->getConsoleColor();
+        $info        = $this->fileInfo();
+        $num         = $input->getOption('num');
+        $factory     = new ConsoleColorFactory($this->colorMode);
+        $colors      = $factory->getConsoleColor();
         $highlighter = new Highlighter($colors);
-        $contents = file_get_contents($info['file']);
+        $contents    = file_get_contents($info['file']);
 
         $output->startPaging();
         $output->writeln('');

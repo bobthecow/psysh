@@ -62,7 +62,7 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
         foreach ($value as $key => $item) {
             $allSequential = $allSequential && is_numeric($key) && $key === count($chunksSequential);
 
-            $keyString = $this->valueToShortString($key);
+            $keyString  = $this->valueToShortString($key);
             $itemString = $this->valueToShortString($item);
 
             $chunks[] = "{$keyString} => {$itemString}";

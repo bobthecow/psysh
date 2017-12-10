@@ -65,10 +65,9 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 // @todo maybe do something interesting with these at some point?
                 if (array_key_exists($matches[1], $GLOBALS)) {
                     throw new RuntimeException('Unable to inspect a non-object');
-                } else {
-                    throw new RuntimeException('Unknown target: ' . $valueName);
                 }
 
+                throw new RuntimeException('Unknown target: ' . $valueName);
             case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
                 return array($this->resolveName($matches[0], true), null, 0);
 
