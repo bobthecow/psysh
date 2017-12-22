@@ -29,10 +29,6 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        if (version_compare(PHP_VERSION, '5.4', '<')) {
-            $this->markTestSkipped();
-        }
-
         $stmts = $this->parse($code);
         $this->traverser->traverse($stmts);
     }
@@ -61,16 +57,10 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        $data = array(
+        return array(
             array('array(&$var)'),
             array('$a = &$b'),
             array('f(array(&$b))'),
         );
-
-        if (version_compare(PHP_VERSION, '5.4', '<')) {
-            $data = array_merge($data, $this->invalidStatements());
-        }
-
-        return $data;
     }
 }

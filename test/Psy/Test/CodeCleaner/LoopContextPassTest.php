@@ -74,10 +74,6 @@ class LoopContextPassTest extends CodeCleanerTestCase
      */
     public function testPHP54ProcessStatementFails($code)
     {
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $this->markTestSkipped();
-        }
-
         $stmts = $this->parse($code);
         $this->traverser->traverse($stmts);
     }

@@ -42,28 +42,20 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        $statements = array(
+        return array(
             array('class A { public static function A() {}}'),
             array('class A { private static function A() {}}'),
         );
-
-        if (version_compare(PHP_VERSION, '5.3.3', '<')) {
-            $statements[] = array('namespace B; class A { private static function A() {}}');
-        }
-
-        return $statements;
     }
 
     public function invalidParserStatements()
     {
-        $statements = array(
+        return array(
             array('class A { public static function __construct() {}}'),
             array('class A { private static function __construct() {}}'),
             array('class A { private static function __construct() {} public function A() {}}'),
             array('namespace B; class A { private static function __construct() {}}'),
         );
-
-        return $statements;
     }
 
     /**
@@ -80,15 +72,10 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        $statements = array(
+        return array(
             array('class A { public static function A() {} public function __construct() {}}'),
             array('class A { private function __construct() {} public static function A() {}}'),
+            array('namespace B; class A { private static function A() {}}'),
         );
-
-        if (version_compare(PHP_VERSION, '5.3.3', '>=')) {
-            $statements[] = array('namespace B; class A { private static function A() {}}');
-        }
-
-        return $statements;
     }
 }

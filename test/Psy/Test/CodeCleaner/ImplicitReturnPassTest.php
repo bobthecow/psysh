@@ -85,11 +85,7 @@ return new \Psy\CodeCleaner\NoReturnValue();
 EOS;
         $values[] = array($from, $to);
 
-        if (version_compare(PHP_VERSION, '5.4', '<')) {
-            $values[] = array('exit()', 'die;');
-        } else {
-            $values[] = array('exit()', 'exit;');
-        }
+        $values[] = array('exit()', 'exit;');
 
         return $values;
     }

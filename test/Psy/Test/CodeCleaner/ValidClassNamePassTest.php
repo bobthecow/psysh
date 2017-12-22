@@ -31,11 +31,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             $this->traverse($stmts);
             $this->fail();
         } catch (Exception $e) {
-            if ($php54 && version_compare(PHP_VERSION, '5.4', '<')) {
-                $this->assertInstanceOf('Psy\Exception\ParseErrorException', $e);
-            } else {
-                $this->assertInstanceOf('Psy\Exception\FatalErrorException', $e);
-            }
+            $this->assertInstanceOf('Psy\Exception\FatalErrorException', $e);
         }
     }
 
