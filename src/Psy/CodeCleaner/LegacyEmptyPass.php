@@ -22,6 +22,13 @@ use Psy\Exception\ParseErrorException;
  */
 class LegacyEmptyPass extends CodeCleanerPass
 {
+    private $atLeastPhp55;
+
+    public function __construct()
+    {
+        $this->atLeastPhp55 = version_compare(PHP_VERSION, '5.5', '>=');
+    }
+
     /**
      * Validate use of empty in PHP < 5.5.
      *
@@ -31,7 +38,7 @@ class LegacyEmptyPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if (version_compare(PHP_VERSION, '5.5', '>=')) {
+        if ($this->atLeastPhp55) {
             return;
         }
 
