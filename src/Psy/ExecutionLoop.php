@@ -35,7 +35,8 @@ class ExecutionLoop
     {
         $shell->addCode($code, true);
         $exec = $this->getExecutionClosure($shell);
-        $exec($shell);
+
+        return $exec($shell);
     }
 
     /**
@@ -153,6 +154,8 @@ class ExecutionLoop
                 }
                 $__psysh__->writeException($_e);
             }
+
+            return $_;
         };
 
         if (self::bindLoop()) {
