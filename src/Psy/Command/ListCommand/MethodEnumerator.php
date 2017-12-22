@@ -77,9 +77,7 @@ class MethodEnumerator extends Enumerator
             }
         }
 
-        // @todo switch to ksort after we drop support for 5.3:
-        //     ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
-        uksort($methods, 'strnatcasecmp');
+        ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $methods;
     }

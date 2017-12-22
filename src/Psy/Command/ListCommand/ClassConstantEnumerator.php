@@ -77,9 +77,7 @@ class ClassConstantEnumerator extends Enumerator
             $constants[$name] = $constReflector;
         }
 
-        // @todo switch to ksort after we drop support for 5.3:
-        //     ksort($constants, SORT_NATURAL | SORT_FLAG_CASE);
-        uksort($constants, 'strnatcasecmp');
+        ksort($constants, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $constants;
     }
