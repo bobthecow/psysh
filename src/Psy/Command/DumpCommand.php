@@ -47,7 +47,7 @@ class DumpCommand extends ReflectingCommand implements PresenterAware
             ->setName('dump')
             ->setDefinition(array(
                 new InputArgument('target', InputArgument::REQUIRED, 'A target object or primitive to dump.', null),
-                new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse', 10),
+                new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
                 new InputOption('all', 'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
             ))
             ->setDescription('Dump an object or primitive.')

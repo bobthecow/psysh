@@ -48,7 +48,7 @@ class ThrowUpCommand extends Command implements ContextAware
         $this
             ->setName('throw-up')
             ->setDefinition(array(
-                new InputArgument('exception', InputArgument::OPTIONAL, 'Exception to throw'),
+                new InputArgument('exception', InputArgument::OPTIONAL, 'Exception to throw.'),
             ))
             ->setDescription('Throw an exception out of the Psy Shell.')
             ->setHelp(

@@ -34,7 +34,7 @@ class HelpCommand extends Command
             ->setName('help')
             ->setAliases(array('?'))
             ->setDefinition(array(
-                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name', null),
+                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name.', null),
             ))
             ->setDescription('Show a list of commands. Type `help [foo]` for information about [foo].')
             ->setHelp('My. How meta.');

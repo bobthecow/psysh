@@ -53,7 +53,7 @@ class WtfCommand extends TraceCommand implements ContextAware
             ->setName('wtf')
             ->setAliases(array('last-exception', 'wtf?'))
             ->setDefinition(array(
-                new InputArgument('incredulity', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Number of lines to show'),
+                new InputArgument('incredulity', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Number of lines to show.'),
                 new InputOption('all', 'a',  InputOption::VALUE_NONE, 'Show entire backtrace.'),
 
                 $grep,

@@ -59,7 +59,7 @@ class HistoryCommand extends Command
             ->setName('history')
             ->setAliases(array('hist'))
             ->setDefinition(array(
-                new InputOption('show',        's', InputOption::VALUE_REQUIRED, 'Show the given range of lines'),
+                new InputOption('show',        's', InputOption::VALUE_REQUIRED, 'Show the given range of lines.'),
                 new InputOption('head',        'H', InputOption::VALUE_REQUIRED, 'Display the first N items.'),
                 new InputOption('tail',        'T', InputOption::VALUE_REQUIRED, 'Display the last N items.'),
 
@@ -70,7 +70,7 @@ class HistoryCommand extends Command
                 new InputOption('no-numbers',  'N', InputOption::VALUE_NONE,     'Omit line numbers.'),
 
                 new InputOption('save',        '',  InputOption::VALUE_REQUIRED, 'Save history to a file.'),
-                new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay'),
+                new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay.'),
                 new InputOption('clear',       '',  InputOption::VALUE_NONE,     'Clear the history.'),
             ))
             ->setDescription('Show the Psy Shell history.')
