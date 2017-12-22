@@ -93,17 +93,33 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function testAddMatchersViaConfig()
     {
-        $this->markTestSkipped('This needs to be updated for new-style matchers config.');
+        $matcher = new ClassMethodsMatcher();
+
+        $shell = $this->createMock('Psy\\Shell');
+        $shell
+            ->expects($this->once())
+            ->method('addMatchers')
+            ->with($this->equalTo([$matcher]));
 
         $config = $this->getConfig([
-            'tabCompletionMatchers' => [
-                new ClassMethodsMatcher(),
-            ],
+            'matchers' => [$matcher],
         ]);
+        $config->setShell($shell);
+    }
 
-        $matchers = $config->getTabCompletionMatchers();
+    public function testAddMatchersViaConfigAfterShell()
+    {
+        $matcher = new ClassMethodsMatcher();
 
-        $this->assertTrue(array_pop($matchers) instanceof ClassMethodsMatcher);
+        $shell = $this->createMock('Psy\\Shell');
+        $shell
+            ->expects($this->once())
+            ->method('addMatchers')
+            ->with($this->equalTo([$matcher]));
+
+        $config = $this->getConfig([]);
+        $config->setShell($shell);
+        $config->addMatchers([$matcher]);
     }
 
     public function testRenderingExceptions()

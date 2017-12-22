@@ -967,7 +967,7 @@ class Configuration
      */
     private function doAddMatchers()
     {
-        if (!empty($this->newCommands)) {
+        if (!empty($this->newMatchers)) {
             $this->shell->addMatchers($this->newMatchers);
             $this->newMatchers = [];
         }
@@ -1022,6 +1022,7 @@ class Configuration
     {
         $this->shell = $shell;
         $this->doAddCommands();
+        $this->doAddMatchers();
     }
 
     /**
