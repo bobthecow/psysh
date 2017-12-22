@@ -30,11 +30,11 @@ class Docblock
      *
      * @var array
      */
-    public static $vectors = array(
-        'throws' => array('type', 'desc'),
-        'param'  => array('type', 'var', 'desc'),
-        'return' => array('type', 'desc'),
-    );
+    public static $vectors = [
+        'throws' => ['type', 'desc'],
+        'param'  => ['type', 'var', 'desc'],
+        'return' => ['type', 'desc'],
+    ];
 
     protected $reflector;
 
@@ -85,7 +85,7 @@ class Docblock
     protected function setComment($comment)
     {
         $this->desc    = '';
-        $this->tags    = array();
+        $this->tags    = [];
         $this->comment = $comment;
 
         $this->parseComment($comment);
@@ -142,15 +142,15 @@ class Docblock
         }, $comment);
 
         // Group the lines together by @tags
-        $blocks = array();
+        $blocks = [];
         $b = -1;
         foreach ($comment as $line) {
             if (self::isTagged($line)) {
                 $b++;
-                $blocks[] = array();
+                $blocks[] = [];
             } elseif ($b === -1) {
                 $b = 0;
-                $blocks[] = array();
+                $blocks[] = [];
             }
             $blocks[$b][] = $line;
         }
@@ -173,7 +173,7 @@ class Docblock
                     if ($body) {
                         $parts = preg_split('/\s+/', $body, $count);
                     } else {
-                        $parts = array();
+                        $parts = [];
                     }
 
                     // Default the trailing values

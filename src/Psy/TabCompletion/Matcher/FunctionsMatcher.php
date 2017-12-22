@@ -23,7 +23,7 @@ class FunctionsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $func = $this->getInput($tokens);
 
@@ -46,7 +46,7 @@ class FunctionsMatcher extends AbstractMatcher
         switch (true) {
             case self::tokenIs($prevToken, self::T_NEW):
                 return false;
-            case self::hasToken(array(self::T_OPEN_TAG, self::T_STRING), $token):
+            case self::hasToken([self::T_OPEN_TAG, self::T_STRING], $token):
             case self::isOperator($token):
                 return true;
         }

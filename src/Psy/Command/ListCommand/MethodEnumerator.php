@@ -47,7 +47,7 @@ class MethodEnumerator extends Enumerator
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$this->getKindLabel($reflector)] = $methods;
 
         return $ret;
@@ -66,7 +66,7 @@ class MethodEnumerator extends Enumerator
     {
         $className = $reflector->getName();
 
-        $methods = array();
+        $methods = [];
         foreach ($reflector->getMethods() as $name => $method) {
             if ($noInherit && $method->getDeclaringClass()->getName() !== $className) {
                 continue;
@@ -92,15 +92,15 @@ class MethodEnumerator extends Enumerator
     protected function prepareMethods(array $methods)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($methods as $name => $method) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => $this->getVisibilityStyle($method),
                     'value' => $this->presentSignature($method),
-                );
+                ];
             }
         }
 

@@ -32,7 +32,7 @@ class ParserFactory
      */
     public static function getPossibleKinds()
     {
-        return array('ONLY_PHP5', 'ONLY_PHP7', 'PREFER_PHP5', 'PREFER_PHP7');
+        return ['ONLY_PHP5', 'ONLY_PHP7', 'PREFER_PHP5', 'PREFER_PHP7'];
     }
 
     /**

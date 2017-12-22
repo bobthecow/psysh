@@ -83,26 +83,26 @@ class ShellInput extends StringInput
      */
     private function tokenize($input)
     {
-        $tokens = array();
+        $tokens = [];
         $length = strlen($input);
         $cursor = 0;
         while ($cursor < $length) {
             if (preg_match('/\s+/A', $input, $match, null, $cursor)) {
             } elseif (preg_match('/([^="\'\s]+?)(=?)(' . StringInput::REGEX_QUOTED_STRING . '+)/A', $input, $match, null, $cursor)) {
-                $tokens[] = array(
-                    $match[1] . $match[2] . stripcslashes(str_replace(array('"\'', '\'"', '\'\'', '""'), '', substr($match[3], 1, strlen($match[3]) - 2))),
+                $tokens[] = [
+                    $match[1] . $match[2] . stripcslashes(str_replace(['"\'', '\'"', '\'\'', '""'], '', substr($match[3], 1, strlen($match[3]) - 2))),
                     substr($input, $cursor),
-                );
+                ];
             } elseif (preg_match('/' . StringInput::REGEX_QUOTED_STRING . '/A', $input, $match, null, $cursor)) {
-                $tokens[] = array(
+                $tokens[] = [
                     stripcslashes(substr($match[0], 1, strlen($match[0]) - 2)),
                     substr($input, $cursor),
-                );
+                ];
             } elseif (preg_match('/' . StringInput::REGEX_STRING . '/A', $input, $match, null, $cursor)) {
-                $tokens[] = array(
+                $tokens[] = [
                     stripcslashes($match[1]),
                     substr($input, $cursor),
-                );
+                ];
             } else {
                 // should never happen
                 throw new \InvalidArgumentException(sprintf('Unable to parse input near "... %s ..."', substr($input, $cursor, 10)));
@@ -159,10 +159,10 @@ class ShellInput extends StringInput
             if ($arg instanceof CodeArgument) {
                 // When we find a code argument, we're done parsing. Add the
                 // remaining input to the current argument and call it a day.
-                $this->parsed = array();
+                $this->parsed = [];
                 $this->arguments[$arg->getName()] = $rest;
             } else {
-                $this->arguments[$arg->getName()] = $arg->isArray() ? array($token) : $token;
+                $this->arguments[$arg->getName()] = $arg->isArray() ? [$token] : $token;
             }
 
             return;
@@ -250,7 +250,7 @@ class ShellInput extends StringInput
                 if (PHP_VERSION_ID < 70000 && false === $value) {
                     $value = '';
                 }
-                array_unshift($this->parsed, array($value, null));
+                array_unshift($this->parsed, [$value, null]);
             }
             $this->addLongOption(substr($name, 0, $pos), $value);
         } else {
@@ -295,12 +295,12 @@ class ShellInput extends StringInput
             throw new \RuntimeException(sprintf('The "--%s" option does not accept a value.', $name));
         }
 
-        if (in_array($value, array('', null), true) && $option->acceptValue() && count($this->parsed)) {
+        if (in_array($value, ['', null], true) && $option->acceptValue() && count($this->parsed)) {
             // if option accepts an optional or mandatory argument
             // let's see if there is one provided
             $next = array_shift($this->parsed);
             $nextToken = $next[0];
-            if ((isset($nextToken[0]) && '-' !== $nextToken[0]) || in_array($nextToken, array('', null), true)) {
+            if ((isset($nextToken[0]) && '-' !== $nextToken[0]) || in_array($nextToken, ['', null], true)) {
                 $value = $nextToken;
             } else {
                 array_unshift($this->parsed, $next);

@@ -35,12 +35,12 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('f(&$arg)'),
-            array('$object->method($first, &$arg)'),
-            array('$closure($first, &$arg, $last)'),
-            array('A::b(&$arg)'),
-        );
+        return [
+            ['f(&$arg)'],
+            ['$object->method($first, &$arg)'],
+            ['$closure($first, &$arg, $last)'],
+            ['A::b(&$arg)'],
+        ];
     }
 
     /**
@@ -57,10 +57,10 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('array(&$var)'),
-            array('$a = &$b'),
-            array('f(array(&$b))'),
-        );
+        return [
+            ['array(&$var)'],
+            ['$a = &$b'],
+            ['f(array(&$b))'],
+        ];
     }
 }

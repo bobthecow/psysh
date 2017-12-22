@@ -55,7 +55,7 @@ class NamespacePass extends CodeCleanerPass
 
         $last = end($nodes);
         if (!$last instanceof Namespace_) {
-            return $this->namespace ? array(new Namespace_($this->namespace, $nodes)) : $nodes;
+            return $this->namespace ? [new Namespace_($this->namespace, $nodes)] : $nodes;
         }
 
         $this->setNamespace($last->name);

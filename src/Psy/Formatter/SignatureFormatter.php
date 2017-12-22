@@ -92,7 +92,7 @@ class SignatureFormatter implements Formatter
      */
     private static function formatClass(\ReflectionClass $reflector)
     {
-        $chunks = array();
+        $chunks = [];
 
         if ($modifiers = self::formatModifiers($reflector)) {
             $chunks[] = $modifiers;
@@ -223,7 +223,7 @@ class SignatureFormatter implements Formatter
      */
     private static function formatFunctionParams(\ReflectionFunctionAbstract $reflector)
     {
-        $params = array();
+        $params = [];
         foreach ($reflector->getParameters() as $param) {
             $hint = '';
             try {

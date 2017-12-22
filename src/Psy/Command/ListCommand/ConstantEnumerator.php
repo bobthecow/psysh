@@ -43,7 +43,7 @@ class ConstantEnumerator extends Enumerator
         $internal = $input->getOption('internal');
         $category = $input->getOption('category');
 
-        $ret = array();
+        $ret = [];
 
         if ($user) {
             $ret['User Constants'] = $this->getConstants('user');
@@ -62,7 +62,7 @@ class ConstantEnumerator extends Enumerator
             $ret['Constants'] = $this->getConstants();
         }
 
-        return array_map(array($this, 'prepareConstants'), array_filter($ret));
+        return array_map([$this, 'prepareConstants'], array_filter($ret));
     }
 
     /**
@@ -89,7 +89,7 @@ class ConstantEnumerator extends Enumerator
             return call_user_func_array('array_merge', $consts);
         }
 
-        return isset($consts[$category]) ? $consts[$category] : array();
+        return isset($consts[$category]) ? $consts[$category] : [];
     }
 
     /**
@@ -102,18 +102,18 @@ class ConstantEnumerator extends Enumerator
     protected function prepareConstants(array $constants)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         $names = array_keys($constants);
         natcasesort($names);
 
         foreach ($names as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_CONSTANT,
                     'value' => $this->presentRef($constants[$name]),
-                );
+                ];
             }
         }
 

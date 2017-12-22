@@ -32,25 +32,25 @@ class RequirePassTest extends CodeCleanerTestCase
     {
         $resolve = '\\Psy\\CodeCleaner\\RequirePass::resolve';
 
-        return array(
+        return [
             // The basics
-            array('require "a"', "require $resolve(\"a\", 1);"),
-            array('require "b.php"', "require $resolve(\"b.php\", 1);"),
-            array('require_once "c"', "require_once $resolve(\"c\", 1);"),
-            array('require_once "d.php"', "require_once $resolve(\"d.php\", 1);"),
+            ['require "a"', "require $resolve(\"a\", 1);"],
+            ['require "b.php"', "require $resolve(\"b.php\", 1);"],
+            ['require_once "c"', "require_once $resolve(\"c\", 1);"],
+            ['require_once "d.php"', "require_once $resolve(\"d.php\", 1);"],
 
             // Ensure that line numbers work correctly
-            array("null;\nrequire \"e.php\"", "null;\nrequire $resolve(\"e.php\", 2);"),
-            array("null;\nrequire_once \"f.php\"", "null;\nrequire_once $resolve(\"f.php\", 2);"),
+            ["null;\nrequire \"e.php\"", "null;\nrequire $resolve(\"e.php\", 2);"],
+            ["null;\nrequire_once \"f.php\"", "null;\nrequire_once $resolve(\"f.php\", 2);"],
 
             // Things with expressions
-            array('require $foo', "require $resolve(\$foo, 1);"),
-            array('require_once $foo', "require_once $resolve(\$foo, 1);"),
-            array('require ($bar = "g.php")', "require $resolve(\$bar = \"g.php\", 1);"),
-            array('require_once ($bar = "h.php")', "require_once $resolve(\$bar = \"h.php\", 1);"),
-            array('$bar = require ($baz = "i.php")', "\$bar = (require $resolve(\$baz = \"i.php\", 1));"),
-            array('$bar = require_once ($baz = "j.php")', "\$bar = (require_once $resolve(\$baz = \"j.php\", 1));"),
-        );
+            ['require $foo', "require $resolve(\$foo, 1);"],
+            ['require_once $foo', "require_once $resolve(\$foo, 1);"],
+            ['require ($bar = "g.php")', "require $resolve(\$bar = \"g.php\", 1);"],
+            ['require_once ($bar = "h.php")', "require_once $resolve(\$bar = \"h.php\", 1);"],
+            ['$bar = require ($baz = "i.php")', "\$bar = (require $resolve(\$baz = \"i.php\", 1));"],
+            ['$bar = require_once ($baz = "j.php")', "\$bar = (require_once $resolve(\$baz = \"j.php\", 1));"],
+        ];
     }
 
     /**
@@ -79,10 +79,10 @@ class RequirePassTest extends CodeCleanerTestCase
 
     public function emptyWarnings()
     {
-        return array(
-            array(null),
-            array(false),
-            array(''),
-        );
+        return [
+            [null],
+            [false],
+            [''],
+        ];
     }
 }

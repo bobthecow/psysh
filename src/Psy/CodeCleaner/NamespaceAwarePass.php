@@ -32,8 +32,8 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      */
     public function beforeTraverse(array $nodes)
     {
-        $this->namespace    = array();
-        $this->currentScope = array();
+        $this->namespace    = [];
+        $this->currentScope = [];
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if ($node instanceof Namespace_) {
-            $this->namespace = isset($node->name) ? $node->name->parts : array();
+            $this->namespace = isset($node->name) ? $node->name->parts : [];
         }
     }
 
@@ -63,7 +63,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
         } elseif ($name instanceof Name) {
             $name = $name->parts;
         } elseif (!is_array($name)) {
-            $name = array($name);
+            $name = [$name];
         }
 
         return implode('\\', array_merge($this->namespace, $name));

@@ -263,7 +263,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         $this->ensureClassExists($class, $stmt);
 
         // let's pretend all calls to self, parent and static are valid
-        if (in_array(strtolower($class), array('self', 'parent', 'static'))) {
+        if (in_array(strtolower($class), ['self', 'parent', 'static'])) {
             return;
         }
 
@@ -333,7 +333,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         // Give `self`, `static` and `parent` a pass. This will actually let
         // some errors through, since we're not checking whether the keyword is
         // being used in a class scope.
-        if (in_array(strtolower($name), array('self', 'static', 'parent'))) {
+        if (in_array(strtolower($name), ['self', 'static', 'parent'])) {
             return true;
         }
 

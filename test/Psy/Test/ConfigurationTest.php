@@ -21,9 +21,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
     private function getConfig($configFile = null)
     {
-        return new Configuration(array(
+        return new Configuration([
             'configFile' => $configFile ?: __DIR__ . '/../../fixtures/empty.php',
-        ));
+        ]);
     }
 
     public function testDefaults()
@@ -72,26 +72,26 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     {
         $base = realpath(__DIR__ . '/../../fixtures');
 
-        return array(
-            array(
+        return [
+            [
                 $base . '/default',
                 $base . '/default/.config/psysh/config.php',
                 $base . '/default/.config/psysh/psysh_history',
                 $base . '/default/.local/share/psysh/php_manual.sqlite',
-            ),
-            array(
+            ],
+            [
                 $base . '/legacy',
                 $base . '/legacy/.psysh/rc.php',
                 $base . '/legacy/.psysh/history',
                 $base . '/legacy/.psysh/php_manual.sqlite',
-            ),
-            array(
+            ],
+            [
                 $base . '/mixed',
                 $base . '/mixed/.psysh/config.php',
                 $base . '/mixed/.psysh/psysh_history',
                 null,
-            ),
-        );
+            ],
+        ];
     }
 
     public function testLoadConfig()
@@ -100,7 +100,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $cleaner = new CodeCleaner();
         $pager   = new PassthruPager(new ConsoleOutput());
 
-        $config->loadConfig(array(
+        $config->loadConfig([
             'useReadline'       => false,
             'usePcntl'          => false,
             'codeCleaner'       => $cleaner,
@@ -109,7 +109,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             'errorLoggingLevel' => E_ERROR | E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
             'startupMessage'    => 'Psysh is awesome!',
-        ));
+        ]);
 
         $this->assertFalse($config->useReadline());
         $this->assertFalse($config->usePcntl());
@@ -147,7 +147,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($config->useReadline());
         $this->assertTrue($config->usePcntl());
 
-        $config = new Configuration(array('configFile' => __DIR__ . '/../../fixtures/config.php'));
+        $config = new Configuration(['configFile' => __DIR__ . '/../../fixtures/config.php']);
 
         // Defining a configuration file skips loading local project config
         $this->assertTrue($config->useReadline());
@@ -161,7 +161,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
      */
     public function testBaseDirConfigIsDeprecated()
     {
-        $config = new Configuration(array('baseDir' => 'fake'));
+        $config = new Configuration(['baseDir' => 'fake']);
     }
 
     private function joinPath()
@@ -171,10 +171,10 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function testConfigIncludes()
     {
-        $config = new Configuration(array(
-            'defaultIncludes' => array('/file.php'),
+        $config = new Configuration([
+            'defaultIncludes' => ['/file.php'],
             'configFile'      => __DIR__ . '/../../fixtures/empty.php',
-        ));
+        ]);
 
         $includes = $config->getDefaultIncludes();
         $this->assertCount(1, $includes);
@@ -191,20 +191,20 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function getOutputDecoratedProvider()
     {
-        return array(
-            'auto' => array(
+        return [
+            'auto' => [
                 null,
                 Configuration::COLOR_MODE_AUTO,
-            ),
-            'forced' => array(
+            ],
+            'forced' => [
                 true,
                 Configuration::COLOR_MODE_FORCED,
-            ),
-            'disabled' => array(
+            ],
+            'disabled' => [
                 false,
                 Configuration::COLOR_MODE_DISABLED,
-            ),
-        );
+            ],
+        ];
     }
 
     /** @dataProvider getOutputDecoratedProvider */
@@ -218,11 +218,11 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function setColorModeValidProvider()
     {
-        return array(
-            'auto'     => array(Configuration::COLOR_MODE_AUTO),
-            'forced'   => array(Configuration::COLOR_MODE_FORCED),
-            'disabled' => array(Configuration::COLOR_MODE_DISABLED),
-        );
+        return [
+            'auto'     => [Configuration::COLOR_MODE_AUTO],
+            'forced'   => [Configuration::COLOR_MODE_FORCED],
+            'disabled' => [Configuration::COLOR_MODE_DISABLED],
+        ];
     }
 
     /** @dataProvider setColorModeValidProvider */

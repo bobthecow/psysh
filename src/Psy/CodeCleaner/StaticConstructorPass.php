@@ -33,7 +33,7 @@ class StaticConstructorPass extends CodeCleanerPass
 
     public function beforeTraverse(array $nodes)
     {
-        $this->namespace = array();
+        $this->namespace = [];
     }
 
     /**
@@ -46,7 +46,7 @@ class StaticConstructorPass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if ($node instanceof Namespace_) {
-            $this->namespace = isset($node->name) ? $node->name->parts : array();
+            $this->namespace = isset($node->name) ? $node->name->parts : [];
         } elseif ($node instanceof Class_) {
             // Bail early if we have a namespaced class
             if (!empty($this->namespace)) {

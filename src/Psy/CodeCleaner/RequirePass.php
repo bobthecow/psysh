@@ -26,7 +26,7 @@ use Psy\Shell;
  */
 class RequirePass extends CodeCleanerPass
 {
-    private static $requireTypes = array(Include_::TYPE_REQUIRE, Include_::TYPE_REQUIRE_ONCE);
+    private static $requireTypes = [Include_::TYPE_REQUIRE, Include_::TYPE_REQUIRE_ONCE];
 
     /**
      * {@inheritdoc}
@@ -51,7 +51,7 @@ class RequirePass extends CodeCleanerPass
         $node->expr = new StaticCall(
             new FullyQualifiedName('Psy\CodeCleaner\RequirePass'),
             'resolve',
-            array(new Arg($origNode->expr), new Arg(new LNumber($origNode->getLine()))),
+            [new Arg($origNode->expr), new Arg(new LNumber($origNode->getLine()))],
             $origNode->getAttributes()
         );
 

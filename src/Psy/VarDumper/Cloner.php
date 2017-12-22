@@ -37,6 +37,6 @@ class Cloner extends VarCloner
      */
     protected function castResource(Stub $stub, $isNested)
     {
-        return Caster::EXCLUDE_VERBOSE & $this->filter ? array() : parent::castResource($stub, $isNested);
+        return Caster::EXCLUDE_VERBOSE & $this->filter ? [] : parent::castResource($stub, $isNested);
     }
 }

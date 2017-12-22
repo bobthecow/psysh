@@ -126,7 +126,7 @@ class ShellOutput extends ConsoleOutput
             $template = $this->isDecorated() ? "<aside>%{$pad}s</aside>: %s" : "%{$pad}s: %s";
 
             if ($type & self::OUTPUT_RAW) {
-                $messages = array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $messages);
+                $messages = array_map(['Symfony\Component\Console\Formatter\OutputFormatter', 'escape'], $messages);
             }
 
             foreach ($messages as $i => $line) {
@@ -175,20 +175,20 @@ class ShellOutput extends ConsoleOutput
         $formatter = $this->getFormatter();
 
         $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $formatter->setStyle('error',   new OutputFormatterStyle('black', 'red', array('bold')));
+        $formatter->setStyle('error',   new OutputFormatterStyle('black', 'red', ['bold']));
         $formatter->setStyle('aside',   new OutputFormatterStyle('blue'));
-        $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, array('bold')));
+        $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, ['bold']));
         $formatter->setStyle('return',  new OutputFormatterStyle('cyan'));
         $formatter->setStyle('urgent',  new OutputFormatterStyle('red'));
         $formatter->setStyle('hidden',  new OutputFormatterStyle('black'));
 
         // Visibility
-        $formatter->setStyle('public',    new OutputFormatterStyle(null, null, array('bold')));
+        $formatter->setStyle('public',    new OutputFormatterStyle(null, null, ['bold']));
         $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
         $formatter->setStyle('private',   new OutputFormatterStyle('red'));
-        $formatter->setStyle('global',    new OutputFormatterStyle('cyan', null, array('bold')));
+        $formatter->setStyle('global',    new OutputFormatterStyle('cyan', null, ['bold']));
         $formatter->setStyle('const',     new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, array('underscore')));
+        $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, ['underscore']));
         $formatter->setStyle('function',  new OutputFormatterStyle(null));
         $formatter->setStyle('default',   new OutputFormatterStyle(null));
 

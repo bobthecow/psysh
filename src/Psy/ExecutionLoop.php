@@ -34,7 +34,7 @@ class ExecutionLoop
     {
         $loop = function ($__psysh__) {
             // Load user-defined includes
-            set_error_handler(array($__psysh__, 'handleError'));
+            set_error_handler([$__psysh__, 'handleError']);
             try {
                 foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                     include $__psysh_include__;
@@ -56,7 +56,7 @@ class ExecutionLoop
                     $__psysh__->getInput();
 
                     // evaluate the current code buffer
-                    ob_start(array($__psysh__, 'writeStdout'), 1);
+                    ob_start([$__psysh__, 'writeStdout'], 1);
 
                     // Let PsySH inject some magic variables back into the
                     // shell scope... things like $__class, and $__file set by
@@ -68,7 +68,7 @@ class ExecutionLoop
                         unset($$__psysh_var_name__, $__psysh_var_name__);
                     }
 
-                    set_error_handler(array($__psysh__, 'handleError'));
+                    set_error_handler([$__psysh__, 'handleError']);
                     $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: Loop::NOOP_INPUT));
                     restore_error_handler();
 

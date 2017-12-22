@@ -62,7 +62,7 @@ class ProcessForker extends AbstractListener
             fclose($up);
 
             // Wait for a return value from the loop process.
-            $read   = array($down);
+            $read   = [$down];
             $write  = null;
             $except = null;
             if (stream_select($read, $write, $except, null) === false) {
@@ -175,7 +175,7 @@ class ProcessForker extends AbstractListener
      */
     private function serializeReturn(array $return)
     {
-        $serializable = array();
+        $serializable = [];
 
         foreach ($return as $key => $value) {
             // No need to return magic variables

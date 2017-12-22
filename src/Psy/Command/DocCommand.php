@@ -30,10 +30,10 @@ class DocCommand extends ReflectingCommand
     {
         $this
             ->setName('doc')
-            ->setAliases(array('rtfm', 'man'))
-            ->setDefinition(array(
+            ->setAliases(['rtfm', 'man'])
+            ->setDefinition([
                 new InputArgument('value', InputArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
-            ))
+            ])
             ->setDescription('Read the documentation for an object, class, constant, method or property.')
             ->setHelp(
                 <<<HELP

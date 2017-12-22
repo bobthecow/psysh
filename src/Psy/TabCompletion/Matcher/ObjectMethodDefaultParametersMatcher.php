@@ -13,7 +13,7 @@ namespace Psy\TabCompletion\Matcher;
 
 class ObjectMethodDefaultParametersMatcher extends AbstractDefaultParametersMatcher
 {
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $openBracket    = array_pop($tokens);
         $functionName   = array_pop($tokens);
@@ -21,7 +21,7 @@ class ObjectMethodDefaultParametersMatcher extends AbstractDefaultParametersMatc
 
         $objectToken = array_pop($tokens);
         if (!is_array($objectToken)) {
-            return array();
+            return [];
         }
 
         $objectName = str_replace('$', '', $objectToken[1]);
@@ -30,9 +30,9 @@ class ObjectMethodDefaultParametersMatcher extends AbstractDefaultParametersMatc
             $object = $this->getVariable($objectName);
             $reflection = new \ReflectionObject($object);
         } catch (InvalidArgumentException $e) {
-            return array();
+            return [];
         } catch (\ReflectionException $e) {
-            return array();
+            return [];
         }
 
         $methods = $reflection->getMethods();
@@ -43,7 +43,7 @@ class ObjectMethodDefaultParametersMatcher extends AbstractDefaultParametersMatc
             }
         }
 
-        return array();
+        return [];
     }
 
     public function hasMatched(array $tokens)

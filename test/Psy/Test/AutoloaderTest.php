@@ -18,6 +18,6 @@ class AutoloaderTest extends \PHPUnit\Framework\TestCase
     public function testRegister()
     {
         Autoloader::register();
-        $this->assertTrue(spl_autoload_unregister(array('Psy\Autoloader', 'autoload')));
+        $this->assertTrue(spl_autoload_unregister(['Psy\Autoloader', 'autoload']));
     }
 }

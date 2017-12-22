@@ -38,7 +38,7 @@ class ClassEnumerator extends Enumerator
         $user     = $input->getOption('user');
         $internal = $input->getOption('internal');
 
-        $ret = array();
+        $ret = [];
 
         // only list classes, interfaces and traits if we are specifically asked
 
@@ -54,7 +54,7 @@ class ClassEnumerator extends Enumerator
             $ret = array_merge($ret, $this->filterClasses('Traits', get_declared_traits(), $internal, $user));
         }
 
-        return array_map(array($this, 'prepareClasses'), array_filter($ret));
+        return array_map([$this, 'prepareClasses'], array_filter($ret));
     }
 
     /**
@@ -72,7 +72,7 @@ class ClassEnumerator extends Enumerator
      */
     protected function filterClasses($key, $classes, $internal, $user)
     {
-        $ret = array();
+        $ret = [];
 
         if ($internal) {
             $ret['Internal ' . $key] = array_filter($classes, function ($class) {
@@ -109,15 +109,15 @@ class ClassEnumerator extends Enumerator
         natcasesort($classes);
 
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($classes as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_CLASS,
                     'value' => $this->presentSignature($name),
-                );
+                ];
             }
         }
 

@@ -24,7 +24,7 @@ class ConsoleColorFactoryTest extends \PHPUnit\Framework\TestCase
         $themes    = $colors->getThemes();
 
         $this->assertFalse($colors->isStyleForced());
-        $this->assertEquals(array('blue'), $themes['line_number']);
+        $this->assertEquals(['blue'], $themes['line_number']);
     }
 
     public function testGetConsoleColorForced()
@@ -35,7 +35,7 @@ class ConsoleColorFactoryTest extends \PHPUnit\Framework\TestCase
         $themes    = $colors->getThemes();
 
         $this->assertTrue($colors->isStyleForced());
-        $this->assertEquals(array('blue'), $themes['line_number']);
+        $this->assertEquals(['blue'], $themes['line_number']);
     }
 
     public function testGetConsoleColorDisabled()
@@ -46,6 +46,6 @@ class ConsoleColorFactoryTest extends \PHPUnit\Framework\TestCase
         $themes    = $colors->getThemes();
 
         $this->assertFalse($colors->isStyleForced());
-        $this->assertEquals(array('none'), $themes['line_number']);
+        $this->assertEquals(['none'], $themes['line_number']);
     }
 }

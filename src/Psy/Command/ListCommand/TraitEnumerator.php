@@ -59,9 +59,9 @@ class TraitEnumerator extends Enumerator
             return;
         }
 
-        return array(
+        return [
             'Traits' => $traits,
-        );
+        ];
     }
 
     /**
@@ -76,15 +76,15 @@ class TraitEnumerator extends Enumerator
         natcasesort($traits);
 
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($traits as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_CLASS,
                     'value' => $this->presentSignature($name),
-                );
+                ];
             }
         }
 

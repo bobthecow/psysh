@@ -42,20 +42,20 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('class A { public static function A() {}}'),
-            array('class A { private static function A() {}}'),
-        );
+        return [
+            ['class A { public static function A() {}}'],
+            ['class A { private static function A() {}}'],
+        ];
     }
 
     public function invalidParserStatements()
     {
-        return array(
-            array('class A { public static function __construct() {}}'),
-            array('class A { private static function __construct() {}}'),
-            array('class A { private static function __construct() {} public function A() {}}'),
-            array('namespace B; class A { private static function __construct() {}}'),
-        );
+        return [
+            ['class A { public static function __construct() {}}'],
+            ['class A { private static function __construct() {}}'],
+            ['class A { private static function __construct() {} public function A() {}}'],
+            ['namespace B; class A { private static function __construct() {}}'],
+        ];
     }
 
     /**
@@ -72,10 +72,10 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('class A { public static function A() {} public function __construct() {}}'),
-            array('class A { private function __construct() {} public static function A() {}}'),
-            array('namespace B; class A { private static function A() {}}'),
-        );
+        return [
+            ['class A { public static function A() {} public function __construct() {}}'],
+            ['class A { private function __construct() {} public static function A() {}}'],
+            ['namespace B; class A { private static function A() {}}'],
+        ];
     }
 }

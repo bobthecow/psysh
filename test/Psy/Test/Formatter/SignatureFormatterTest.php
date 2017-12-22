@@ -33,30 +33,30 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
 
     public function signatureReflectors()
     {
-        return array(
-            array(
+        return [
+            [
                 new \ReflectionFunction('implode'),
                 defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
-            ),
-            array(
+            ],
+            [
                 new ReflectionConstant($this, 'FOO'),
                 'const FOO = "foo value"',
-            ),
-            array(
+            ],
+            [
                 new \ReflectionMethod($this, 'someFakeMethod'),
                 'private function someFakeMethod(array $one, $two = \'TWO\', Reflector $three = null)',
-            ),
-            array(
+            ],
+            [
                 new \ReflectionProperty($this, 'bar'),
                 'private static $bar',
-            ),
-            array(
+            ],
+            [
                 new \ReflectionClass('Psy\CodeCleaner\CodeCleanerPass'),
                 'abstract class Psy\CodeCleaner\CodeCleanerPass '
                 . 'extends PhpParser\NodeVisitorAbstract '
                 . 'implements PhpParser\NodeVisitor',
-            ),
-        );
+            ],
+        ];
     }
 
     /**

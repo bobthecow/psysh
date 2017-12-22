@@ -83,7 +83,7 @@ abstract class AbstractMatcher
     {
         $class = '';
         while (self::hasToken(
-            array(self::T_NS_SEPARATOR, self::T_STRING),
+            [self::T_NS_SEPARATOR, self::T_STRING],
             $token = array_pop($tokens)
         )) {
             $class = $token[1] . $class;
@@ -100,7 +100,7 @@ abstract class AbstractMatcher
      *
      * @return array The matches resulting from the query
      */
-    abstract public function getMatches(array $tokens, array $info = array());
+    abstract public function getMatches(array $tokens, array $info = []);
 
     /**
      * Check whether $word starts with $prefix.

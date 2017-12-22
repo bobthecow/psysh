@@ -59,7 +59,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     protected function getTarget($valueName, $classOnly = false)
     {
         $valueName = trim($valueName);
-        $matches   = array();
+        $matches   = [];
         switch (true) {
             case preg_match(self::SUPERGLOBAL, $valueName, $matches):
                 // @todo maybe do something interesting with these at some point?
@@ -69,16 +69,16 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
                 throw new RuntimeException('Unknown target: ' . $valueName);
             case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
-                return array($this->resolveName($matches[0], true), null, 0);
+                return [$this->resolveName($matches[0], true), null, 0];
 
             case preg_match(self::INSTANCE, $valueName, $matches):
-                return array($this->resolveInstance($matches[1]), null, 0);
+                return [$this->resolveInstance($matches[1]), null, 0];
 
             case !$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches):
-                return array($this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD);
+                return [$this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD];
 
             case !$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches):
-                return array($this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
+                return [$this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY];
 
             case !$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
                 if ($matches[2] === '->') {
@@ -87,10 +87,10 @@ abstract class ReflectingCommand extends Command implements ContextAware
                     $kind = Mirror::CONSTANT | Mirror::METHOD;
                 }
 
-                return array($this->resolveInstance($matches[1]), $matches[3], $kind);
+                return [$this->resolveInstance($matches[1]), $matches[3], $kind];
 
             case !$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches):
-                return array($this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY);
+                return [$this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY];
 
             default:
                 throw new RuntimeException('Unknown target: ' . $valueName);
@@ -134,7 +134,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     {
         list($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
 
-        return array($value, Mirror::get($value, $member, $kind));
+        return [$value, Mirror::get($value, $member, $kind)];
     }
 
     /**
@@ -187,7 +187,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function setCommandScopeVariables(\Reflector $reflector)
     {
-        $vars = array();
+        $vars = [];
 
         switch (get_class($reflector)) {
             case 'ReflectionClass':

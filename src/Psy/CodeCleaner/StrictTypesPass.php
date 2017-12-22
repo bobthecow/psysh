@@ -74,7 +74,7 @@ class StrictTypesPass extends CodeCleanerPass
         if ($prependStrictTypes) {
             $first = reset($nodes);
             if (!$first instanceof Declare_) {
-                $declare = new Declare_(array(new DeclareDeclare('strict_types', new LNumber(1))));
+                $declare = new Declare_([new DeclareDeclare('strict_types', new LNumber(1))]);
                 array_unshift($nodes, $declare);
             }
         }

@@ -35,11 +35,11 @@ class AbstractClassPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('class A { abstract function a(); }'),
-            array('abstract class B { abstract function b() {} }'),
-            array('abstract class B { abstract function b() { echo "yep"; } }'),
-        );
+        return [
+            ['class A { abstract function a(); }'],
+            ['abstract class B { abstract function b() {} }'],
+            ['abstract class B { abstract function b() { echo "yep"; } }'],
+        ];
     }
 
     /**
@@ -56,9 +56,9 @@ class AbstractClassPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('abstract class C { function c() {} }'),
-            array('abstract class D { abstract function d(); }'),
-        );
+        return [
+            ['abstract class C { function c() {} }'],
+            ['abstract class D { abstract function d(); }'],
+        ];
     }
 }

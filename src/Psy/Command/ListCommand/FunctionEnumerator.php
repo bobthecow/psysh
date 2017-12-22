@@ -57,7 +57,7 @@ class FunctionEnumerator extends Enumerator
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$label] = $functions;
 
         return $ret;
@@ -95,15 +95,15 @@ class FunctionEnumerator extends Enumerator
         natcasesort($functions);
 
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($functions as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_FUNCTION,
                     'value' => $this->presentSignature($name),
-                );
+                ];
             }
         }
 

@@ -26,16 +26,16 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
 
     public function semicolonCodeProvider()
     {
-        return array(
-            array(array('true'),  false, 'return true;'),
-            array(array('true;'), false, 'return true;'),
-            array(array('true;'), true,  'return true;'),
-            array(array('true'),  true,  false),
+        return [
+            [['true'],  false, 'return true;'],
+            [['true;'], false, 'return true;'],
+            [['true;'], true,  'return true;'],
+            [['true'],  true,  false],
 
-            array(array('echo "foo";', 'true'), true,  false),
+            [['echo "foo";', 'true'], true,  false],
 
-            array(array('echo "foo";', 'true'), false, "echo \"foo\";\nreturn true;"),
-        );
+            [['echo "foo";', 'true'], false, "echo \"foo\";\nreturn true;"],
+        ];
     }
 
     /**
@@ -55,21 +55,21 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
 
     public function unclosedStatementsProvider()
     {
-        return array(
-            array(array('echo "'),   true),
-            array(array('echo \''),  true),
-            array(array('if (1) {'), true),
+        return [
+            [['echo "'],   true],
+            [['echo \''],  true],
+            [['if (1) {'], true],
 
-            array(array('echo ""'),   false),
-            array(array("echo ''"),   false),
-            array(array('if (1) {}'), false),
+            [['echo ""'],   false],
+            [["echo ''"],   false],
+            [['if (1) {}'], false],
 
-            array(array('// closed comment'),    false),
-            array(array('function foo() { /**'), true),
+            [['// closed comment'],    false],
+            [['function foo() { /**'], true],
 
-            array(array('var_dump(1, 2,'), true),
-            array(array('var_dump(1, 2,', '3)'), false),
-        );
+            [['var_dump(1, 2,'], true],
+            [['var_dump(1, 2,', '3)'], false],
+        ];
     }
 
     /**
@@ -89,13 +89,13 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
 
     public function moreUnclosedStatementsProvider()
     {
-        return array(
-            array(array("\$content = <<<EOS\n")),
-            array(array("\$content = <<<'EOS'\n")),
+        return [
+            [["\$content = <<<EOS\n"]],
+            [["\$content = <<<'EOS'\n"]],
 
-            array(array('/* unclosed comment')),
-            array(array('/** unclosed comment')),
-        );
+            [['/* unclosed comment']],
+            [['/** unclosed comment']],
+        ];
     }
 
     /**
@@ -105,22 +105,22 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
     public function testInvalidStatementsThrowParseErrors($code)
     {
         $cc = new CodeCleaner();
-        $cc->clean(array($code));
+        $cc->clean([$code]);
     }
 
     public function invalidStatementsProvider()
     {
-        return array(
-            array('function "what'),
-            array("function 'what"),
-            array('echo }'),
-            array('echo {'),
-            array('if (1) }'),
-            array('echo """'),
-            array("echo '''"),
-            array('$foo "bar'),
-            array('$foo \'bar'),
-            array('var_dump(1,2,)'),
-        );
+        return [
+            ['function "what'],
+            ["function 'what"],
+            ['echo }'],
+            ['echo {'],
+            ['if (1) }'],
+            ['echo """'],
+            ["echo '''"],
+            ['$foo "bar'],
+            ['$foo \'bar'],
+            ['var_dump(1,2,)'],
+        ];
     }
 }

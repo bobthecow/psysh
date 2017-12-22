@@ -21,7 +21,7 @@ use Psy\Shell;
 class RunkitReloader extends AbstractListener
 {
     private $parser;
-    private $timestamps = array();
+    private $timestamps = [];
 
     /**
      * Only enabled if Runkit is installed.
@@ -63,7 +63,7 @@ class RunkitReloader extends AbstractListener
     private function reload(Shell $shell)
     {
         clearstatcache();
-        $modified = array();
+        $modified = [];
 
         foreach (get_included_files() as $file) {
             $timestamp = filemtime($file);

@@ -24,7 +24,7 @@ use Psy\Command\Command;
 class CommandsMatcher extends AbstractMatcher
 {
     /** @var string[] */
-    protected $commands = array();
+    protected $commands = [];
 
     /**
      * CommandsMatcher constructor.
@@ -43,9 +43,9 @@ class CommandsMatcher extends AbstractMatcher
      */
     public function setCommands(array $commands)
     {
-        $names = array();
+        $names = [];
         foreach ($commands as $command) {
-            $names = array_merge(array($command->getName()), $names);
+            $names = array_merge([$command->getName()], $names);
             $names = array_merge($command->getAliases(), $names);
         }
         $this->commands = $names;
@@ -84,7 +84,7 @@ class CommandsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
 

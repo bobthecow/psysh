@@ -60,6 +60,6 @@ EOS;
             $this->markTestSkipped('We have issues with PHPUnit mocks on HHVM.');
         }
 
-        return array(array(null), array('not a file'));
+        return [[null], ['not a file']];
     }
 }

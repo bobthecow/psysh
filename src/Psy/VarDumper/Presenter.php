@@ -24,14 +24,14 @@ class Presenter
 
     private $cloner;
     private $dumper;
-    private $exceptionsImportants = array(
+    private $exceptionsImportants = [
         "\0*\0message",
         "\0*\0code",
         "\0*\0file",
         "\0*\0line",
         "\0Exception\0previous",
-    );
-    private $styles = array(
+    ];
+    private $styles = [
         'num'       => 'number',
         'const'     => 'const',
         'str'       => 'string',
@@ -44,7 +44,7 @@ class Presenter
         'meta'      => 'comment',
         'key'       => 'comment',
         'index'     => 'number',
-    );
+    ];
 
     public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
     {
@@ -59,7 +59,7 @@ class Presenter
         setlocale(LC_NUMERIC, $oldLocale);
 
         $this->cloner = new Cloner();
-        $this->cloner->addCasters(array('*' => function ($obj, array $a, Stub $stub, $isNested, $filter = 0) {
+        $this->cloner->addCasters(['*' => function ($obj, array $a, Stub $stub, $isNested, $filter = 0) {
             if ($filter || $isNested) {
                 if ($obj instanceof \Exception) {
                     $a = Caster::filter($a, Caster::EXCLUDE_NOT_IMPORTANT | Caster::EXCLUDE_EMPTY, $this->exceptionsImportants);
@@ -69,7 +69,7 @@ class Presenter
             }
 
             return $a;
-        }));
+        }]);
     }
 
     /**

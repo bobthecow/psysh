@@ -43,14 +43,14 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('array_merge()'),
-            array('__psysh__()'),
-            array('$this'),
-            array('$psysh'),
-            array('$__psysh'),
-            array('$banana'),
-        );
+        return [
+            ['array_merge()'],
+            ['__psysh__()'],
+            ['$this'],
+            ['$psysh'],
+            ['$__psysh'],
+            ['$banana'],
+        ];
     }
 
     /**
@@ -65,11 +65,11 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('$__psysh__'),
-            array('var_dump($__psysh__)'),
-            array('$__psysh__ = "your mom"'),
-            array('$__psysh__->fakeFunctionCall()'),
-        );
+        return [
+            ['$__psysh__'],
+            ['var_dump($__psysh__)'],
+            ['$__psysh__ = "your mom"'],
+            ['$__psysh__->fakeFunctionCall()'],
+        ];
     }
 }

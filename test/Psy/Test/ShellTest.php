@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellTest extends \PHPUnit\Framework\TestCase
 {
-    private $streams = array();
+    private $streams = [];
 
     public function tearDown()
     {
@@ -42,20 +42,20 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
-        $this->assertEquals(array('one', 'two', 'three', '_'), $shell->getScopeVariableNames());
+        $this->assertEquals(['one', 'two', 'three', '_'], $shell->getScopeVariableNames());
         $this->assertEquals('banana', $shell->getScopeVariable('one'));
         $this->assertEquals(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));
         $this->assertNull($shell->getScopeVariable('_'));
 
-        $shell->setScopeVariables(array());
-        $this->assertEquals(array('_'), $shell->getScopeVariableNames());
+        $shell->setScopeVariables([]);
+        $this->assertEquals(['_'], $shell->getScopeVariableNames());
 
         $shell->setBoundObject($this);
-        $this->assertEquals(array('_', 'this'), $shell->getScopeVariableNames());
+        $this->assertEquals(['_', 'this'], $shell->getScopeVariableNames());
         $this->assertSame($this, $shell->getScopeVariable('this'));
-        $this->assertEquals(array('_' => null), $shell->getScopeVariables(false));
-        $this->assertEquals(array('_' => null, 'this' => $this), $shell->getScopeVariables());
+        $this->assertEquals(['_' => null], $shell->getScopeVariables(false));
+        $this->assertEquals(['_' => null, 'this' => $this], $shell->getScopeVariables());
     }
 
     /**
@@ -64,26 +64,26 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     public function testUnknownScopeVariablesThrowExceptions()
     {
         $shell = new Shell($this->getConfig());
-        $shell->setScopeVariables(array('foo' => 'FOO', 'bar' => 1));
+        $shell->setScopeVariables(['foo' => 'FOO', 'bar' => 1]);
         $shell->getScopeVariable('baz');
     }
 
     public function testIncludes()
     {
-        $config = $this->getConfig(array('configFile' => __DIR__ . '/../../fixtures/empty.php'));
+        $config = $this->getConfig(['configFile' => __DIR__ . '/../../fixtures/empty.php']);
 
         $shell = new Shell($config);
         $this->assertEmpty($shell->getIncludes());
-        $shell->setIncludes(array('foo', 'bar', 'baz'));
-        $this->assertEquals(array('foo', 'bar', 'baz'), $shell->getIncludes());
+        $shell->setIncludes(['foo', 'bar', 'baz']);
+        $this->assertEquals(['foo', 'bar', 'baz'], $shell->getIncludes());
     }
 
     public function testIncludesConfig()
     {
-        $config = $this->getConfig(array(
-            'defaultIncludes' => array('/file.php'),
+        $config = $this->getConfig([
+            'defaultIncludes' => ['/file.php'],
             'configFile'      => __DIR__ . '/../../fixtures/empty.php',
-        ));
+        ]);
 
         $shell = new Shell($config);
 
@@ -95,11 +95,11 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $this->markTestSkipped('This needs to be updated for new-style matchers config.');
 
-        $config = $this->getConfig(array(
-            'tabCompletionMatchers' => array(
+        $config = $this->getConfig([
+            'tabCompletionMatchers' => [
                 new ClassMethodsMatcher(),
-            ),
-        ));
+            ],
+        ]);
 
         $matchers = $config->getTabCompletionMatchers();
 
@@ -293,10 +293,10 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function getReturnValues()
     {
-        return array(
-            array('{{return value}}', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL),
-            array(1, "=> \033[35m1\033[39m" . PHP_EOL),
-        );
+        return [
+            ['{{return value}}', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL],
+            [1, "=> \033[35m1\033[39m" . PHP_EOL],
+        ];
     }
 
     /**
@@ -316,9 +316,9 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function getRenderedExceptions()
     {
-        return array(
-            array(new \Exception('{{message}}'), "Exception with message '{{message}}'" . PHP_EOL),
-        );
+        return [
+            [new \Exception('{{message}}'), "Exception with message '{{message}}'" . PHP_EOL],
+        ];
     }
 
     private function getOutput()
@@ -331,17 +331,17 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         return $output;
     }
 
-    private function getConfig(array $config = array())
+    private function getConfig(array $config = [])
     {
         // Mebbe there's a better way than this?
         $dir = tempnam(sys_get_temp_dir(), 'psysh_shell_test_');
         unlink($dir);
 
-        $defaults = array(
+        $defaults = [
             'configDir'  => $dir,
             'dataDir'    => $dir,
             'runtimeDir' => $dir,
-        );
+        ];
 
         return new Configuration(array_merge($defaults, $config));
     }

@@ -35,11 +35,11 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('array_pop(array())'),
-            array('array_pop(array($foo))'),
-            array('array_shift(array())'),
-        );
+        return [
+            ['array_pop(array())'],
+            ['array_pop(array($foo))'],
+            ['array_shift(array())'],
+        ];
     }
 
     /**
@@ -56,13 +56,13 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('array_pop(json_decode("[]"))'),
-            array('array_pop($foo)'),
-            array('array_pop($foo->bar)'),
-            array('array_pop($foo::baz)'),
-            array('array_pop(Foo::qux)'),
-        );
+        return [
+            ['array_pop(json_decode("[]"))'],
+            ['array_pop($foo)'],
+            ['array_pop($foo->bar)'],
+            ['array_pop($foo::baz)'],
+            ['array_pop(Foo::qux)'],
+        ];
     }
 
     /**
@@ -79,19 +79,19 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function validArrayMultisort()
     {
-        return array(
-            array('array_multisort($a)'),
-            array('array_multisort($a, $b)'),
-            array('array_multisort($a, SORT_NATURAL, $b)'),
-            array('array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, $b)'),
-            array('array_multisort($a, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $b)'),
-            array('array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, SORT_ASC, $b)'),
-            array('array_multisort($a, $b, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE)'),
-            array('array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, $b, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE)'),
-            array('array_multisort($a, 1, $b)'),
-            array('array_multisort($a, 1 + 2, $b)'),
-            array('array_multisort($a, getMultisortFlags(), $b)'),
-        );
+        return [
+            ['array_multisort($a)'],
+            ['array_multisort($a, $b)'],
+            ['array_multisort($a, SORT_NATURAL, $b)'],
+            ['array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, $b)'],
+            ['array_multisort($a, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $b)'],
+            ['array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, SORT_ASC, $b)'],
+            ['array_multisort($a, $b, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE)'],
+            ['array_multisort($a, SORT_NATURAL | SORT_FLAG_CASE, $b, SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE)'],
+            ['array_multisort($a, 1, $b)'],
+            ['array_multisort($a, 1 + 2, $b)'],
+            ['array_multisort($a, getMultisortFlags(), $b)'],
+        ];
     }
 
     /**
@@ -106,10 +106,10 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function invalidArrayMultisort()
     {
-        return array(
-            array('array_multisort(1)'),
-            array('array_multisort(array(1, 2, 3))'),
-            array('array_multisort($a, SORT_NATURAL, SORT_ASC, SORT_NATURAL, $b)'),
-        );
+        return [
+            ['array_multisort(1)'],
+            ['array_multisort(array(1, 2, 3))'],
+            ['array_multisort($a, SORT_NATURAL, SORT_ASC, SORT_NATURAL, $b)'],
+        ];
     }
 }

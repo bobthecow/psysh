@@ -27,11 +27,11 @@ class CodeArgumentTest extends \PHPUnit\Framework\TestCase
 
     public function getInvalidModes()
     {
-        return array(
-            array(InputArgument::IS_ARRAY),
-            array(InputArgument::IS_ARRAY | InputArgument::REQUIRED),
-            array(InputArgument::IS_ARRAY | InputArgument::OPTIONAL),
-        );
+        return [
+            [InputArgument::IS_ARRAY],
+            [InputArgument::IS_ARRAY | InputArgument::REQUIRED],
+            [InputArgument::IS_ARRAY | InputArgument::OPTIONAL],
+        ];
     }
 
     /**
@@ -44,9 +44,9 @@ class CodeArgumentTest extends \PHPUnit\Framework\TestCase
 
     public function getValidModes()
     {
-        return array(
-            array(InputArgument::REQUIRED),
-            array(InputArgument::OPTIONAL),
-        );
+        return [
+            [InputArgument::REQUIRED],
+            [InputArgument::OPTIONAL],
+        ];
     }
 }

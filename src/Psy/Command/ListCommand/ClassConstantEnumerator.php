@@ -48,7 +48,7 @@ class ClassConstantEnumerator extends Enumerator
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$this->getKindLabel($reflector)] = $constants;
 
         return $ret;
@@ -66,7 +66,7 @@ class ClassConstantEnumerator extends Enumerator
     {
         $className = $reflector->getName();
 
-        $constants = array();
+        $constants = [];
         foreach ($reflector->getConstants() as $name => $constant) {
             $constReflector = new ReflectionConstant($reflector, $name);
 
@@ -92,15 +92,15 @@ class ClassConstantEnumerator extends Enumerator
     protected function prepareConstants(array $constants)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($constants as $name => $constant) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_CONSTANT,
                     'value' => $this->presentRef($constant->getValue()),
-                );
+                ];
             }
         }
 

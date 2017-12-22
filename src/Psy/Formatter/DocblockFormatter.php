@@ -19,10 +19,10 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class DocblockFormatter implements Formatter
 {
-    private static $vectorParamTemplates = array(
+    private static $vectorParamTemplates = [
         'type' => 'info',
         'var'  => 'strong',
-    );
+    ];
 
     /**
      * Format a docblock.
@@ -34,7 +34,7 @@ class DocblockFormatter implements Formatter
     public static function format(\Reflector $reflector)
     {
         $docblock = new Docblock($reflector);
-        $chunks   = array();
+        $chunks   = [];
 
         if (!empty($docblock->desc)) {
             $chunks[] = '<comment>Description:</comment>';
@@ -73,7 +73,7 @@ class DocblockFormatter implements Formatter
      */
     private static function formatVector(array $vector, array $lines)
     {
-        $template = array(' ');
+        $template = [' '];
         foreach ($vector as $type) {
             $max = 0;
             foreach ($lines as $line) {
@@ -89,7 +89,7 @@ class DocblockFormatter implements Formatter
         $template = implode(' ', $template);
 
         return implode("\n", array_map(function ($line) use ($template) {
-            $escaped = array_map(array('Symfony\Component\Console\Formatter\OutputFormatter', 'escape'), $line);
+            $escaped = array_map(['Symfony\Component\Console\Formatter\OutputFormatter', 'escape'], $line);
 
             return rtrim(vsprintf($template, $escaped));
         }, $lines));
@@ -105,7 +105,7 @@ class DocblockFormatter implements Formatter
      */
     private static function formatTags(array $skip, array $tags)
     {
-        $chunks = array();
+        $chunks = [];
 
         foreach ($tags as $name => $values) {
             if (in_array($name, $skip)) {

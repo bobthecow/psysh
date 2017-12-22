@@ -45,11 +45,11 @@ abstract class Command extends BaseCommand
      */
     public function asText()
     {
-        $messages = array(
+        $messages = [
             '<comment>Usage:</comment>',
             ' ' . $this->getSynopsis(),
             '',
-        );
+        ];
 
         if ($this->getAliases()) {
             $messages[] = $this->aliasesAsText();
@@ -90,7 +90,7 @@ abstract class Command extends BaseCommand
      */
     protected function getHiddenArguments()
     {
-        return array('command');
+        return ['command'];
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class Command extends BaseCommand
      */
     protected function getHiddenOptions()
     {
-        return array('verbose');
+        return ['verbose'];
     }
 
     /**
@@ -133,7 +133,7 @@ abstract class Command extends BaseCommand
     private function argumentsAsText()
     {
         $max = $this->getMaxWidth();
-        $messages = array();
+        $messages = [];
 
         $arguments = $this->getArguments();
         if (!empty($arguments)) {
@@ -164,7 +164,7 @@ abstract class Command extends BaseCommand
     private function optionsAsText()
     {
         $max = $this->getMaxWidth();
-        $messages = array();
+        $messages = [];
 
         $options = $this->getOptions();
         if ($options) {
@@ -260,7 +260,7 @@ abstract class Command extends BaseCommand
         $table = new Table($output);
 
         return $table
-            ->setRows(array())
+            ->setRows([])
             ->setStyle($style);
     }
 
@@ -274,7 +274,7 @@ abstract class Command extends BaseCommand
         $table = $this->getApplication()->getHelperSet()->get('table');
 
         return $table
-            ->setRows(array())
+            ->setRows([])
             ->setLayout(TableHelper::LAYOUT_BORDERLESS)
             ->setHorizontalBorderChar('')
             ->setCrossingChar('');

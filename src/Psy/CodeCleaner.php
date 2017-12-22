@@ -80,7 +80,7 @@ class CodeCleaner
      */
     private function getDefaultPasses()
     {
-        return array(
+        return [
             // Validation passes
             new AbstractClassPass(),
             new AssignThisVariablePass(),
@@ -109,7 +109,7 @@ class CodeCleaner
             new ValidClassNamePass(),
             new ValidConstantPass(),
             new ValidFunctionNamePass(),
-        );
+        ];
     }
 
     /**

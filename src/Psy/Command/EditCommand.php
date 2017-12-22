@@ -49,7 +49,7 @@ class EditCommand extends Command implements ContextAware
     {
         $this
             ->setName('edit')
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputArgument('file', InputArgument::OPTIONAL, 'The file to open for editing. If this is not given, edits a temporary file.', null),
                 new InputOption(
                     'exec',
@@ -65,7 +65,7 @@ class EditCommand extends Command implements ContextAware
                     'Do not execute the file content after editing. This is the default when a file name argument is given.',
                     null
                 ),
-            ))
+            ])
             ->setDescription('Open an external editor. Afterwards, get produced code in input buffer.')
             ->setHelp('Set the EDITOR environment variable to something you\'d like to use.');
     }
@@ -158,8 +158,8 @@ class EditCommand extends Command implements ContextAware
     {
         $escapedFilePath = escapeshellarg($filePath);
 
-        $pipes = array();
-        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$escapedFilePath}", array(STDIN, STDOUT, STDERR), $pipes);
+        $pipes = [];
+        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$escapedFilePath}", [STDIN, STDOUT, STDERR], $pipes);
         proc_close($proc);
 
         $editedContent = @file_get_contents($filePath);

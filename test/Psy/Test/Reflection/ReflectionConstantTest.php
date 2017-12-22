@@ -51,10 +51,10 @@ class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
 
     public function notYetImplemented()
     {
-        return array(
-            array('getStartLine'),
-            array('getEndLine'),
-            array('export'),
-        );
+        return [
+            ['getStartLine'],
+            ['getEndLine'],
+            ['export'],
+        ];
     }
 }

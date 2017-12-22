@@ -19,16 +19,16 @@ namespace Psy;
  */
 class Context
 {
-    private static $specialNames = array('_', '_e', '__out', '__psysh__', 'this');
+    private static $specialNames = ['_', '_e', '__out', '__psysh__', 'this'];
 
     // Whitelist a very limited number of command-scope magic variable names.
     // This might be a bad idea, but future me can sort it out.
-    private static $commandScopeNames = array(
+    private static $commandScopeNames = [
         '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
-    );
+    ];
 
-    private $scopeVariables = array();
-    private $commandScopeVariables = array();
+    private $scopeVariables = [];
+    private $commandScopeVariables = [];
     private $returnValue;
     private $lastException;
     private $lastStdout;
@@ -106,9 +106,9 @@ class Context
      */
     public function getSpecialVariables()
     {
-        $vars = array(
+        $vars = [
             '_' => $this->returnValue,
-        );
+        ];
 
         if (isset($this->lastException)) {
             $vars['_e'] = $this->lastException;
@@ -245,7 +245,7 @@ class Context
      */
     public function setCommandScopeVariables(array $commandScopeVariables)
     {
-        $vars = array();
+        $vars = [];
         foreach ($commandScopeVariables as $key => $value) {
             // kind of type check
             if (is_scalar($value) && in_array($key, self::$commandScopeNames)) {

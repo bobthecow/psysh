@@ -44,9 +44,9 @@ class WhereamiCommand extends Command
     {
         $this
             ->setName('whereami')
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputOption('num', 'n', InputOption::VALUE_OPTIONAL, 'Number of lines before and after.', '5'),
-            ))
+            ])
             ->setDescription('Show where you are in the code.')
             ->setHelp(
                 <<<'HELP'
@@ -83,7 +83,7 @@ HELP
         $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
 
         return ($class === null && $function === 'Psy\debug') ||
-            ($class === 'Psy\Shell' && in_array($function, array('__construct', 'debug')));
+            ($class === 'Psy\Shell' && in_array($function, ['__construct', 'debug']));
     }
 
     /**

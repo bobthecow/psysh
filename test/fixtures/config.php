@@ -11,8 +11,8 @@
 
 $config->setRuntimeDir(sys_get_temp_dir() . '/psysh_test/withconfig/temp');
 
-return array(
+return [
     'useReadline'       => true,
     'usePcntl'          => false,
     'errorLoggingLevel' => E_ALL & ~E_NOTICE,
-);
+];

@@ -38,7 +38,7 @@ class AutoCompleter
      */
     public function activate()
     {
-        readline_completion_function(array(&$this, 'callback'));
+        readline_completion_function([&$this, 'callback']);
     }
 
     /**
@@ -50,7 +50,7 @@ class AutoCompleter
      *
      * @return array
      */
-    public function processCallback($input, $index, $info = array())
+    public function processCallback($input, $index, $info = [])
     {
         // Some (Windows?) systems provide incomplete `readline_info`, so let's
         // try to work around it.
@@ -69,7 +69,7 @@ class AutoCompleter
             return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
         });
 
-        $matches = array();
+        $matches = [];
         foreach ($this->matchers as $matcher) {
             if ($matcher->hasMatched($tokens)) {
                 $matches = array_merge($matcher->getMatches($tokens), $matches);
@@ -78,7 +78,7 @@ class AutoCompleter
 
         $matches = array_unique($matches);
 
-        return !empty($matches) ? $matches : array('');
+        return !empty($matches) ? $matches : [''];
     }
 
     /**

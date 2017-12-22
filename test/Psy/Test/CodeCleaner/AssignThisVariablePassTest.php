@@ -35,10 +35,10 @@ class AssignThisVariablePassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('$this = 3'),
-            array('strtolower($this = "this")'),
-        );
+        return [
+            ['$this = 3'],
+            ['strtolower($this = "this")'],
+        ];
     }
 
     /**
@@ -55,11 +55,11 @@ class AssignThisVariablePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('$this'),
-            array('$a = $this'),
-            array('$a = "this"; $$a = 3'),
-            array('$$this = "b"'),
-        );
+        return [
+            ['$this'],
+            ['$a = $this'],
+            ['$a = "this"; $$a = 3'],
+            ['$$this = "b"'],
+        ];
     }
 }

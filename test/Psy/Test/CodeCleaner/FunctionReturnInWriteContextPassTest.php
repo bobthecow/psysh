@@ -37,14 +37,14 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('f(&g())'),
-            array('array(& $object->method())'),
-            array('$a->method(& $closure())'),
-            array('array(& A::b())'),
-            array('f() = 5'),
-            array('unset(h())'),
-        );
+        return [
+            ['f(&g())'],
+            ['array(& $object->method())'],
+            ['$a->method(& $closure())'],
+            ['array(& A::b())'],
+            ['f() = 5'],
+            ['unset(h())'],
+        ];
     }
 
     public function testIsset()

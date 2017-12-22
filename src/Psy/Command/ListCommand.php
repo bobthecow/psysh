@@ -57,8 +57,8 @@ class ListCommand extends ReflectingCommand implements PresenterAware
 
         $this
             ->setName('ls')
-            ->setAliases(array('list', 'dir'))
-            ->setDefinition(array(
+            ->setAliases(['list', 'dir'])
+            ->setDefinition([
                 new InputArgument('target', InputArgument::OPTIONAL, 'A target class or object to list.', null),
 
                 new InputOption('vars',        '',  InputOption::VALUE_NONE,     'Display variables.'),
@@ -84,7 +84,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
 
                 new InputOption('all',         'a', InputOption::VALUE_NONE,     'Include private and protected methods and properties.'),
                 new InputOption('long',        'l', InputOption::VALUE_NONE,     'List in long format: includes class names and method signatures.'),
-            ))
+            ])
             ->setDescription('List local, instance or class variables, methods and constants.')
             ->setHelp(
                 <<<'HELP'
@@ -151,7 +151,7 @@ HELP
         if (!isset($this->enumerators)) {
             $mgr = $this->presenter;
 
-            $this->enumerators = array(
+            $this->enumerators = [
                 new ClassConstantEnumerator($mgr),
                 new ClassEnumerator($mgr),
                 new ConstantEnumerator($mgr),
@@ -160,7 +160,7 @@ HELP
                 new PropertyEnumerator($mgr),
                 new MethodEnumerator($mgr),
                 new VariableEnumerator($mgr, $this->context),
-            );
+            ];
         }
     }
 
@@ -177,7 +177,7 @@ HELP
         }
 
         foreach ($result as $label => $items) {
-            $names = array_map(array($this, 'formatItemName'), $items);
+            $names = array_map([$this, 'formatItemName'], $items);
             $output->writeln(sprintf('<strong>%s</strong>: %s', $label, implode(', ', $names)));
         }
     }
@@ -202,9 +202,9 @@ HELP
             $output->writeln('');
             $output->writeln(sprintf('<strong>%s:</strong>', $label));
 
-            $table->setRows(array());
+            $table->setRows([]);
             foreach ($items as $item) {
-                $table->addRow(array($this->formatItemName($item), $item['value']));
+                $table->addRow([$this->formatItemName($item), $item['value']]);
             }
 
             if ($table instanceof TableHelper) {
@@ -238,13 +238,13 @@ HELP
     {
         if (!$input->getArgument('target')) {
             // if no target is passed, there can be no properties or methods
-            foreach (array('properties', 'methods', 'no-inherit') as $option) {
+            foreach (['properties', 'methods', 'no-inherit'] as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--' . $option . ' does not make sense without a specified target');
                 }
             }
 
-            foreach (array('globals', 'vars', 'constants', 'functions', 'classes', 'interfaces', 'traits') as $option) {
+            foreach (['globals', 'vars', 'constants', 'functions', 'classes', 'interfaces', 'traits'] as $option) {
                 if ($input->getOption($option)) {
                     return;
                 }
@@ -254,13 +254,13 @@ HELP
             $input->setOption('vars', true);
         } else {
             // if a target is passed, classes, functions, etc don't make sense
-            foreach (array('vars', 'globals', 'functions', 'classes', 'interfaces', 'traits') as $option) {
+            foreach (['vars', 'globals', 'functions', 'classes', 'interfaces', 'traits'] as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--' . $option . ' does not make sense with a specified target');
                 }
             }
 
-            foreach (array('constants', 'properties', 'methods') as $option) {
+            foreach (['constants', 'properties', 'methods'] as $option) {
                 if ($input->getOption($option)) {
                     return;
                 }

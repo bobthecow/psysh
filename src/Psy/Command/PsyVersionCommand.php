@@ -26,7 +26,7 @@ class PsyVersionCommand extends Command
     {
         $this
             ->setName('version')
-            ->setDefinition(array())
+            ->setDefinition([])
             ->setDescription('Show Psy Shell version.')
             ->setHelp('Show Psy Shell version.');
     }

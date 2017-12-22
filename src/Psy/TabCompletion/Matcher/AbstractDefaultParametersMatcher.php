@@ -20,11 +20,11 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
      */
     public function getDefaultParameterCompletion(array $reflectionParameters)
     {
-        $parametersProcessed = array();
+        $parametersProcessed = [];
 
         foreach ($reflectionParameters as $parameter) {
             if (!$parameter->isDefaultValueAvailable()) {
-                return array();
+                return [];
             }
 
             $defaultValue = $this->valueToShortString($parameter->getDefaultValue());
@@ -33,10 +33,10 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
         }
 
         if (empty($parametersProcessed)) {
-            return array();
+            return [];
         }
 
-        return array(implode(', ', $parametersProcessed) . ')');
+        return [implode(', ', $parametersProcessed) . ')'];
     }
 
     /**
@@ -54,8 +54,8 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
             return json_encode($value);
         }
 
-        $chunks = array();
-        $chunksSequential = array();
+        $chunks = [];
+        $chunksSequential = [];
 
         $allSequential = true;
 

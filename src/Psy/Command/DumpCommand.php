@@ -45,11 +45,11 @@ class DumpCommand extends ReflectingCommand implements PresenterAware
     {
         $this
             ->setName('dump')
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputArgument('target', InputArgument::REQUIRED, 'A target object or primitive to dump.', null),
                 new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
                 new InputOption('all', 'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
-            ))
+            ])
             ->setDescription('Dump an object or primitive.')
             ->setHelp(
                 <<<'HELP'
@@ -89,7 +89,7 @@ HELP
      */
     protected function resolveTarget($target)
     {
-        $matches = array();
+        $matches = [];
         if (preg_match(self::SUPERGLOBAL, $target, $matches)) {
             if (!array_key_exists($matches[1], $GLOBALS)) {
                 throw new RuntimeException('Unknown target: ' . $target);

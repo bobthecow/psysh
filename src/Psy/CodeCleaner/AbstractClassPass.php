@@ -33,7 +33,7 @@ class AbstractClassPass extends CodeCleanerPass
     {
         if ($node instanceof Class_) {
             $this->class = $node;
-            $this->abstractMethods = array();
+            $this->abstractMethods = [];
         } elseif ($node instanceof ClassMethod) {
             if ($node->isAbstract()) {
                 $name = sprintf('%s::%s', $this->class->name, $node->name);

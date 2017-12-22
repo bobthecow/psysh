@@ -71,10 +71,10 @@ class MirrorTest extends \PHPUnit\Framework\TestCase
 
     public function invalidArguments()
     {
-        return array(
-            array('not_a_function_or_class'),
-            array(array()),
-            array(1),
-        );
+        return [
+            ['not_a_function_or_class'],
+            [[]],
+            [1],
+        ];
     }
 }

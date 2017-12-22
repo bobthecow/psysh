@@ -24,7 +24,7 @@ class ClassMethodsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
 
@@ -39,7 +39,7 @@ class ClassMethodsMatcher extends AbstractMatcher
         try {
             $reflection = new \ReflectionClass($class);
         } catch (\ReflectionException $re) {
-            return array();
+            return [];
         }
 
         $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);

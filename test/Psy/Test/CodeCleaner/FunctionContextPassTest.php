@@ -37,10 +37,10 @@ class FunctionContextPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('function foo() { yield; }'),
-            array('if (function(){ yield; })'),
-        );
+        return [
+            ['function foo() { yield; }'],
+            ['if (function(){ yield; })'],
+        ];
     }
 
     /**
@@ -55,9 +55,9 @@ class FunctionContextPassTest extends CodeCleanerTestCase
 
     public function invalidYieldStatements()
     {
-        return array(
-            array('yield'),
-            array('if (yield)'),
-        );
+        return [
+            ['yield'],
+            ['if (yield)'],
+        ];
     }
 }

@@ -26,7 +26,7 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
 
@@ -37,18 +37,18 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
         }
         $objectToken = array_pop($tokens);
         if (!is_array($objectToken)) {
-            return array();
+            return [];
         }
         $objectName = str_replace('$', '', $objectToken[1]);
 
         try {
             $object = $this->getVariable($objectName);
         } catch (InvalidArgumentException $e) {
-            return array();
+            return [];
         }
 
         if (!is_object($object)) {
-            return array();
+            return [];
         }
 
         return array_filter(

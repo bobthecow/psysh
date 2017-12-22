@@ -23,7 +23,7 @@ class ClassNamesMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $class = $this->getNamespaceAndClass($tokens);
         if (strlen($class) > 0 && $class[0] === '\\') {
@@ -56,18 +56,18 @@ class ClassNamesMatcher extends AbstractMatcher
         $token     = array_pop($tokens);
         $prevToken = array_pop($tokens);
 
-        $blacklistedTokens = array(
+        $blacklistedTokens = [
             self::T_INCLUDE, self::T_INCLUDE_ONCE, self::T_REQUIRE, self::T_REQUIRE_ONCE,
-        );
+        ];
 
         switch (true) {
-            case self::hasToken(array($blacklistedTokens), $token):
-            case self::hasToken(array($blacklistedTokens), $prevToken):
+            case self::hasToken([$blacklistedTokens], $token):
+            case self::hasToken([$blacklistedTokens], $prevToken):
             case is_string($token) && $token === '$':
                 return false;
-            case self::hasToken(array(self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR), $prevToken):
-            case self::hasToken(array(self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR), $token):
-            case self::hasToken(array(self::T_OPEN_TAG, self::T_VARIABLE), $token):
+            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $prevToken):
+            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $token):
+            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
             case self::isOperator($token):
                 return true;
         }

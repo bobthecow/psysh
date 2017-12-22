@@ -57,8 +57,8 @@ class HistoryCommand extends Command
 
         $this
             ->setName('history')
-            ->setAliases(array('hist'))
-            ->setDefinition(array(
+            ->setAliases(['hist'])
+            ->setDefinition([
                 new InputOption('show',        's', InputOption::VALUE_REQUIRED, 'Show the given range of lines.'),
                 new InputOption('head',        'H', InputOption::VALUE_REQUIRED, 'Display the first N items.'),
                 new InputOption('tail',        'T', InputOption::VALUE_REQUIRED, 'Display the last N items.'),
@@ -72,7 +72,7 @@ class HistoryCommand extends Command
                 new InputOption('save',        '',  InputOption::VALUE_REQUIRED, 'Save history to a file.'),
                 new InputOption('replay',      '',  InputOption::VALUE_NONE,     'Replay.'),
                 new InputOption('clear',       '',  InputOption::VALUE_NONE,     'Clear the history.'),
-            ))
+            ])
             ->setDescription('Show the Psy Shell history.')
             ->setHelp(
                 <<<'HELP'
@@ -92,8 +92,8 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->validateOnlyOne($input, array('show', 'head', 'tail'));
-        $this->validateOnlyOne($input, array('save', 'replay', 'clear'));
+        $this->validateOnlyOne($input, ['show', 'head', 'tail']);
+        $this->validateOnlyOne($input, ['save', 'replay', 'clear']);
 
         $history = $this->getHistorySlice(
             $input->getOption('show'),
@@ -104,13 +104,13 @@ HELP
 
         $this->filter->bind($input);
         if ($this->filter->hasFilter()) {
-            $matches     = array();
-            $highlighted = array();
+            $matches     = [];
+            $highlighted = [];
             foreach ($history as $i => $line) {
                 if ($this->filter->match($line, $matches)) {
                     if (isset($matches[0])) {
                         $chunks = explode($matches[0], $history[$i]);
-                        $chunks = array_map(array(__CLASS__, 'escape'), $chunks);
+                        $chunks = array_map([__CLASS__, 'escape'], $chunks);
                         $glue   = sprintf('<urgent>%s</urgent>', self::escape($matches[0]));
 
                         $highlighted[$i] = implode($glue, $chunks);
@@ -156,15 +156,15 @@ HELP
     private function extractRange($range)
     {
         if (preg_match('/^\d+$/', $range)) {
-            return array($range, $range + 1);
+            return [$range, $range + 1];
         }
 
-        $matches = array();
+        $matches = [];
         if ($range !== '..' && preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
             $start = $matches[1] ? intval($matches[1]) : 0;
             $end   = $matches[2] ? intval($matches[2]) + 1 : PHP_INT_MAX;
 
-            return array($start, $end);
+            return [$start, $end];
         }
 
         throw new \InvalidArgumentException('Unexpected range: ' . $range);

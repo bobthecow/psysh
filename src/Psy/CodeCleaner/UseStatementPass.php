@@ -30,8 +30,8 @@ use PhpParser\Node\Stmt\Use_;
  */
 class UseStatementPass extends CodeCleanerPass
 {
-    private $aliases       = array();
-    private $lastAliases   = array();
+    private $aliases       = [];
+    private $lastAliases   = [];
     private $lastNamespace = null;
 
     /**
@@ -76,10 +76,10 @@ class UseStatementPass extends CodeCleanerPass
             // Expand every "use" statement in the group into a full, standalone
             // "use" and store 'em with the others.
             foreach ($node->uses as $use) {
-                $this->aliases[strtolower($use->alias)] = Name::concat($node->prefix, $use->name, array(
+                $this->aliases[strtolower($use->alias)] = Name::concat($node->prefix, $use->name, [
                     'startLine' => $node->prefix->getAttribute('startLine'),
                     'endLine'   => $use->name->getAttribute('endLine'),
-                ));
+                ]);
             }
 
             return false;
@@ -87,7 +87,7 @@ class UseStatementPass extends CodeCleanerPass
             // Start fresh, since we're done with this namespace.
             $this->lastNamespace = $node->name;
             $this->lastAliases   = $this->aliases;
-            $this->aliases       = array();
+            $this->aliases       = [];
         } else {
             foreach ($node as $name => $subNode) {
                 if ($subNode instanceof Name) {

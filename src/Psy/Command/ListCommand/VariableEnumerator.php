@@ -21,9 +21,9 @@ use Symfony\Component\Console\Input\InputInterface;
 class VariableEnumerator extends Enumerator
 {
     // n.b. this array is the order in which special variables will be listed
-    private static $specialNames = array(
+    private static $specialNames = [
         '_', '_e', '__out', '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
-    );
+    ];
 
     private $context;
 
@@ -64,9 +64,9 @@ class VariableEnumerator extends Enumerator
             return;
         }
 
-        return array(
+        return [
             'Variables' => $variables,
-        );
+        ];
     }
 
     /**
@@ -98,7 +98,7 @@ class VariableEnumerator extends Enumerator
             return strnatcasecmp($a, $b);
         });
 
-        $ret = array();
+        $ret = [];
         foreach ($scopeVars as $name => $val) {
             if (!$showAll && in_array($name, self::$specialNames)) {
                 continue;
@@ -120,15 +120,15 @@ class VariableEnumerator extends Enumerator
     protected function prepareVariables(array $variables)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
         foreach ($variables as $name => $val) {
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
-                $ret[$fname] = array(
+                $ret[$fname] = [
                     'name'  => $fname,
                     'style' => in_array($name, self::$specialNames) ? self::IS_PRIVATE : self::IS_PUBLIC,
                     'value' => $this->presentRef($val),
-                );
+                ];
             }
         }
 

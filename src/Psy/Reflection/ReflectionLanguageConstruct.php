@@ -21,53 +21,53 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     /**
      * Language construct parameter definitions.
      */
-    private static $languageConstructs = array(
-        'isset' => array(
-            'var' => array(),
-            '...' => array(
+    private static $languageConstructs = [
+        'isset' => [
+            'var' => [],
+            '...' => [
                 'isOptional'   => true,
                 'defaultValue' => null,
-            ),
-        ),
+            ],
+        ],
 
-        'unset' => array(
-            'var' => array(),
-            '...' => array(
+        'unset' => [
+            'var' => [],
+            '...' => [
                 'isOptional'   => true,
                 'defaultValue' => null,
-            ),
-        ),
+            ],
+        ],
 
-        'empty' => array(
-            'var' => array(),
-        ),
+        'empty' => [
+            'var' => [],
+        ],
 
-        'echo' => array(
-            'arg1' => array(),
-            '...'  => array(
+        'echo' => [
+            'arg1' => [],
+            '...'  => [
                 'isOptional'   => true,
                 'defaultValue' => null,
-            ),
-        ),
+            ],
+        ],
 
-        'print' => array(
-            'arg' => array(),
-        ),
+        'print' => [
+            'arg' => [],
+        ],
 
-        'die' => array(
-            'status' => array(
+        'die' => [
+            'status' => [
                 'isOptional'   => true,
                 'defaultValue' => 0,
-            ),
-        ),
+            ],
+        ],
 
-        'exit' => array(
-            'status' => array(
+        'exit' => [
+            'status' => [
                 'isOptional'   => true,
                 'defaultValue' => 0,
-            ),
-        ),
-    );
+            ],
+        ],
+    ];
 
     /**
      * Construct a ReflectionLanguageConstruct object.
@@ -120,7 +120,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     public function getParameters()
     {
-        $params = array();
+        $params = [];
         foreach (self::$languageConstructs[$this->keyword] as $parameter => $opts) {
             array_push($params, new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts));
         }

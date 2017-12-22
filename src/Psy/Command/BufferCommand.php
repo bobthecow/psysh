@@ -30,10 +30,10 @@ class BufferCommand extends Command
     {
         $this
             ->setName('buffer')
-            ->setAliases(array('buf'))
-            ->setDefinition(array(
+            ->setAliases(['buf'])
+            ->setDefinition([
                 new InputOption('clear', '', InputOption::VALUE_NONE, 'Clear the current buffer.'),
-            ))
+            ])
             ->setDescription('Show (or clear) the contents of the code input buffer.')
             ->setHelp(
                 <<<'HELP'

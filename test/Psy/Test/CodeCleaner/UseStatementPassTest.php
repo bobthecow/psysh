@@ -30,23 +30,23 @@ class UseStatementPassTest extends CodeCleanerTestCase
 
     public function useStatements()
     {
-        return array(
-            array(
+        return [
+            [
                 "use StdClass as NotSoStd;\n\$std = new NotSoStd();",
                 '$std = new \\StdClass();',
-            ),
-            array(
+            ],
+            [
                 "namespace Foo;\n\nuse StdClass as S;\n\$std = new S();",
                 "namespace Foo;\n\n\$std = new \\StdClass();",
-            ),
-            array(
+            ],
+            [
                 "namespace Foo;\n\nuse \\StdClass as S;\n\$std = new S();",
                 "namespace Foo;\n\n\$std = new \\StdClass();",
-            ),
-            array(
+            ],
+            [
                 "use Foo\\Bar as fb;\n\$baz = new fb\\Baz();",
                 '$baz = new \\Foo\\Bar\\Baz();',
-            ),
-        );
+            ],
+        ];
     }
 }

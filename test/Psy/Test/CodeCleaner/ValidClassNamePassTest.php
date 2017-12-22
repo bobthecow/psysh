@@ -38,84 +38,84 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
     public function getInvalid()
     {
         // class declarations
-        return array(
+        return [
             // core class
-            array('class stdClass {}'),
+            ['class stdClass {}'],
             // capitalization
-            array('class stdClass {}'),
+            ['class stdClass {}'],
 
             // collisions with interfaces and traits
-            array('interface stdClass {}'),
-            array('trait stdClass {}', true),
+            ['interface stdClass {}'],
+            ['trait stdClass {}', true],
 
             // collisions inside the same code snippet
-            array('
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true),
-            array('
+            ', true],
+            ['
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true),
-            array('
+            ', true],
+            ['
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true),
-            array('
+            ', true],
+            ['
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true),
-            array('
+            ', true],
+            ['
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            '),
+            '],
 
             // namespaced collisions
-            array('
+            ['
                 namespace Psy\\Test\\CodeCleaner {
                     class ValidClassNamePassTest {}
                 }
-            '),
-            array('
+            '],
+            ['
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     class Beta {}
                 }
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     class Beta {}
                 }
-            '),
+            '],
 
             // extends and implements
-            array('class ValidClassNamePassTest extends NotAClass {}'),
-            array('class ValidClassNamePassTest extends ArrayAccess {}'),
-            array('class ValidClassNamePassTest implements stdClass {}'),
-            array('class ValidClassNamePassTest implements ArrayAccess, stdClass {}'),
-            array('interface ValidClassNamePassTest extends stdClass {}'),
-            array('interface ValidClassNamePassTest extends ArrayAccess, stdClass {}'),
+            ['class ValidClassNamePassTest extends NotAClass {}'],
+            ['class ValidClassNamePassTest extends ArrayAccess {}'],
+            ['class ValidClassNamePassTest implements stdClass {}'],
+            ['class ValidClassNamePassTest implements ArrayAccess, stdClass {}'],
+            ['interface ValidClassNamePassTest extends stdClass {}'],
+            ['interface ValidClassNamePassTest extends ArrayAccess, stdClass {}'],
 
             // class instantiations
-            array('new Psy_Test_CodeCleaner_ValidClassNamePass_Gamma();'),
-            array('
+            ['new Psy_Test_CodeCleaner_ValidClassNamePass_Gamma();'],
+            ['
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     new Psy_Test_CodeCleaner_ValidClassNamePass_Delta();
                 }
-            '),
+            '],
 
             // class constant fetch
-            array('Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::FOO'),
+            ['Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::FOO'],
 
             // static call
-            array('Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::foo()'),
-            array('Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::$foo()'),
-        );
+            ['Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::foo()'],
+            ['Psy\\Test\\CodeCleaner\\ValidClassNamePass\\NotAClass::$foo()'],
+        ];
     }
 
     /**
@@ -132,142 +132,142 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     public function getValid()
     {
-        $valid = array(
+        $valid = [
             // class declarations
-            array('class Psy_Test_CodeCleaner_ValidClassNamePass_Epsilon {}'),
-            array('namespace Psy\Test\CodeCleaner\ValidClassNamePass; class Zeta {}'),
-            array('
+            ['class Psy_Test_CodeCleaner_ValidClassNamePass_Epsilon {}'],
+            ['namespace Psy\Test\CodeCleaner\ValidClassNamePass; class Zeta {}'],
+            ['
                 namespace { class Psy_Test_CodeCleaner_ValidClassNamePass_Eta {}; }
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     class Psy_Test_CodeCleaner_ValidClassNamePass_Eta {}
                 }
-            '),
-            array('namespace Psy\Test\CodeCleaner\ValidClassNamePass { class stdClass {} }'),
+            '],
+            ['namespace Psy\Test\CodeCleaner\ValidClassNamePass { class stdClass {} }'],
 
             // class instantiations
-            array('new stdClass();'),
-            array('new stdClass();'),
-            array('
+            ['new stdClass();'],
+            ['new stdClass();'],
+            ['
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     class Theta {}
                 }
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     new Theta();
                 }
-            '),
-            array('
+            '],
+            ['
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     class Iota {}
                     new Iota();
                 }
-            '),
-            array('
+            '],
+            ['
                 namespace Psy\\Test\\CodeCleaner\\ValidClassNamePass {
                     class Kappa {}
                 }
                 namespace {
                     new \\Psy\\Test\\CodeCleaner\\ValidClassNamePass\\Kappa();
                 }
-            '),
+            '],
 
             // Class constant fetch (ValidConstantPassTest validates the actual constant)
-            array('class A {} A::FOO'),
-            array('$a = new DateTime; $a::ATOM'),
-            array('interface A { const B = 1; } A::B'),
+            ['class A {} A::FOO'],
+            ['$a = new DateTime; $a::ATOM'],
+            ['interface A { const B = 1; } A::B'],
 
             // static call
-            array('DateTime::createFromFormat()'),
-            array('DateTime::$someMethod()'),
-            array('Psy\Test\CodeCleaner\Fixtures\ClassWithStatic::doStuff()'),
-            array('Psy\Test\CodeCleaner\Fixtures\ClassWithCallStatic::doStuff()'),
+            ['DateTime::createFromFormat()'],
+            ['DateTime::$someMethod()'],
+            ['Psy\Test\CodeCleaner\Fixtures\ClassWithStatic::doStuff()'],
+            ['Psy\Test\CodeCleaner\Fixtures\ClassWithCallStatic::doStuff()'],
 
             // Allow `self` and `static` as class names.
-            array('
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function getInstance() {
                         return new self();
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function getInstance() {
                         return new SELF();
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function getInstance() {
                         return new self;
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function getInstance() {
                         return new static();
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function getInstance() {
                         return new Static();
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function getInstance() {
                         return new static;
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function foo() {
                         return parent::bar();
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function foo() {
                         return self::bar();
                     }
                 }
-            '),
-            array('
+            '],
+            ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_ClassWithStatic {
                     public static function foo() {
                         return static::bar();
                     }
                 }
-            '),
+            '],
 
-            array('class A { static function b() { return new A; } }'),
-            array('
+            ['class A { static function b() { return new A; } }'],
+            ['
                 class A {
                     const B = 123;
                     function c() {
                         return A::B;
                     }
                 }
-            '),
-            array('class A {} class B { function c() { return new A; } }'),
+            '],
+            ['class A {} class B { function c() { return new A; } }'],
 
             // recursion
-            array('class A { function a() { A::a(); } }'),
+            ['class A { function a() { A::a(); } }'],
 
             // conditionally defined classes
-            array('
+            ['
                 class A {}
                 if (false) {
                     class A {}
                 }
-            '),
-            array('
+            '],
+            ['
                 class A {}
                 if (true) {
                     class A {}
@@ -276,9 +276,9 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                 } else {
                     class A {}
                 }
-            '),
+            '],
             // ewww
-            array('
+            ['
                 class A {}
                 if (true):
                     class A {}
@@ -287,16 +287,16 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                 else:
                     class A {}
                 endif;
-            '),
-            array('
+            '],
+            ['
                 class A {}
                 while (false) { class A {} }
-            '),
-            array('
+            '],
+            ['
                 class A {}
                 do { class A {} } while (false);
-            '),
-            array('
+            '],
+            ['
                 class A {}
                 switch (1) {
                     case 0:
@@ -309,22 +309,22 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                         class A {}
                         break;
                 }
-            '),
-        );
+            '],
+        ];
 
         // Ugh. There's gotta be a better way to test for this.
         if (class_exists('PhpParser\ParserFactory')) {
             // PHP 7.0 anonymous classes, only supported by PHP Parser v2.x
-            $valid[] = array('$obj = new class() {}');
+            $valid[] = ['$obj = new class() {}'];
         }
 
         if (version_compare(PHP_VERSION, '5.5', '>=')) {
-            $valid[] = array('interface A {} A::class');
-            $valid[] = array('interface A {} A::CLASS');
-            $valid[] = array('class A {} A::class');
-            $valid[] = array('class A {} A::CLASS');
-            $valid[] = array('A::class');
-            $valid[] = array('A::CLASS');
+            $valid[] = ['interface A {} A::class'];
+            $valid[] = ['interface A {} A::CLASS'];
+            $valid[] = ['class A {} A::class'];
+            $valid[] = ['class A {} A::CLASS'];
+            $valid[] = ['A::class'];
+            $valid[] = ['A::CLASS'];
         }
 
         return $valid;

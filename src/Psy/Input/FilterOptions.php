@@ -32,11 +32,11 @@ class FilterOptions
      */
     public static function getOptions()
     {
-        return array(
+        return [
             new InputOption('grep',        'G', InputOption::VALUE_REQUIRED, 'Limit to items matching the given pattern (string or regex).'),
             new InputOption('insensitive', 'i', InputOption::VALUE_NONE,     'Case-insensitive search (requires --grep).'),
             new InputOption('invert',      'v', InputOption::VALUE_NONE,     'Inverted search (requires --grep).'),
-        );
+        ];
     }
 
     /**
@@ -103,7 +103,7 @@ class FilterOptions
     private function validateInput(InputInterface $input)
     {
         if (!$input->getOption('grep')) {
-            foreach (array('invert', 'insensitive') as $option) {
+            foreach (['invert', 'insensitive'] as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--' . $option . ' does not make sense without --grep');
                 }
@@ -132,7 +132,7 @@ class FilterOptions
      */
     private function validateRegex($pattern)
     {
-        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+        set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
         try {
             preg_match($pattern, '');
         } catch (ErrorException $e) {

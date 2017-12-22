@@ -13,7 +13,7 @@ namespace Psy\TabCompletion\Matcher;
 
 class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatcher
 {
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $openBracket    = array_pop($tokens);
         $functionName   = array_pop($tokens);
@@ -25,7 +25,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
             $reflection = new \ReflectionClass($class);
         } catch (\ReflectionException $e) {
             // In this case the class apparently does not exist, so we can do nothing
-            return array();
+            return [];
         }
 
         $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
@@ -36,7 +36,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
             }
         }
 
-        return array();
+        return [];
     }
 
     public function hasMatched(array $tokens)

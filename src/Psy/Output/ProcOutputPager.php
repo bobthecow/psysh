@@ -88,7 +88,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
     private function getPipe()
     {
         if (!isset($this->pipe) || !isset($this->proc)) {
-            $desc = array(array('pipe', 'r'), $this->stream, fopen('php://stderr', 'w'));
+            $desc = [['pipe', 'r'], $this->stream, fopen('php://stderr', 'w')];
             $this->proc = proc_open($this->cmd, $desc, $pipes);
 
             if (!is_resource($this->proc)) {

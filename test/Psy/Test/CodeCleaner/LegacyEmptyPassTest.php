@@ -33,19 +33,19 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
     public function invalidStatements()
     {
         if (version_compare(PHP_VERSION, '5.5', '>=')) {
-            return array(
-                array('empty()'),
-            );
+            return [
+                ['empty()'],
+            ];
         }
 
-        return array(
-            array('empty()'),
-            array('empty(null)'),
-            array('empty(PHP_EOL)'),
-            array('empty("wat")'),
-            array('empty(1.1)'),
-            array('empty(Foo::$bar)'),
-        );
+        return [
+            ['empty()'],
+            ['empty(null)'],
+            ['empty(PHP_EOL)'],
+            ['empty("wat")'],
+            ['empty(1.1)'],
+            ['empty(Foo::$bar)'],
+        ];
     }
 
     /**
@@ -63,18 +63,18 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
     public function validStatements()
     {
         if (version_compare(PHP_VERSION, '5.5', '<')) {
-            return array(
-                array('empty($foo)'),
-            );
+            return [
+                ['empty($foo)'],
+            ];
         }
 
-        return array(
-            array('empty($foo)'),
-            array('empty(null)'),
-            array('empty(PHP_EOL)'),
-            array('empty("wat")'),
-            array('empty(1.1)'),
-            array('empty(Foo::$bar)'),
-        );
+        return [
+            ['empty($foo)'],
+            ['empty(null)'],
+            ['empty(PHP_EOL)'],
+            ['empty("wat")'],
+            ['empty(1.1)'],
+            ['empty(Foo::$bar)'],
+        ];
     }
 }

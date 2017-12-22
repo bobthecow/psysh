@@ -27,7 +27,7 @@ class FinalClassPass extends CodeCleanerPass
      */
     public function beforeTraverse(array $nodes)
     {
-        $this->finalClasses = array();
+        $this->finalClasses = [];
     }
 
     /**

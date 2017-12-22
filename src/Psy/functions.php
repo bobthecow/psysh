@@ -67,7 +67,7 @@ if (!function_exists('Psy\debug')) {
      *
      * @return array Scope variables from the debugger session
      */
-    function debug(array $vars = array(), $boundObject = null)
+    function debug(array $vars = [], $boundObject = null)
     {
         echo PHP_EOL;
 
@@ -126,21 +126,21 @@ if (!function_exists('Psy\info')) {
 
         $config = $lastConfig ?: new Configuration();
 
-        $core = array(
+        $core = [
             'PsySH version'       => Shell::VERSION,
             'PHP version'         => PHP_VERSION,
             'default includes'    => $config->getDefaultIncludes(),
             'require semicolons'  => $config->requireSemicolons(),
             'error logging level' => $config->errorLoggingLevel(),
-            'config file'         => array(
+            'config file'         => [
                 'default config file' => $prettyPath($config->getConfigFile()),
                 'local config file'   => $prettyPath($config->getLocalConfigFile()),
                 'PSYSH_CONFIG env'    => $prettyPath(getenv('PSYSH_CONFIG')),
-            ),
+            ],
             // 'config dir'  => $config->getConfigDir(),
             // 'data dir'    => $config->getDataDir(),
             // 'runtime dir' => $config->getRuntimeDir(),
-        );
+        ];
 
         // Use an explicit, fresh update check here, rather than relying on whatever is in $config.
         $checker = new GitHubChecker();
@@ -152,21 +152,21 @@ if (!function_exists('Psy\info')) {
         } catch (\Exception $e) {
         }
 
-        $updates = array(
+        $updates = [
             'update available'       => $updateAvailable,
             'latest release version' => $latest,
             'update check interval'  => $config->getUpdateCheck(),
             'update cache file'      => $prettyPath($config->getUpdateCheckCacheFile()),
-        );
+        ];
 
         if ($config->hasReadline()) {
             $info = readline_info();
 
-            $readline = array(
+            $readline = [
                 'readline available' => true,
                 'readline enabled'   => $config->useReadline(),
                 'readline service'   => get_class($config->getReadline()),
-            );
+            ];
 
             if (isset($info['library_version'])) {
                 $readline['readline library'] = $info['library_version'];
@@ -176,31 +176,31 @@ if (!function_exists('Psy\info')) {
                 $readline['readline name'] = $info['readline_name'];
             }
         } else {
-            $readline = array(
+            $readline = [
                 'readline available' => false,
-            );
+            ];
         }
 
-        $pcntl = array(
+        $pcntl = [
             'pcntl available' => function_exists('pcntl_signal'),
             'posix available' => function_exists('posix_getpid'),
-        );
+        ];
 
         $disabledFuncs = array_map('trim', explode(',', ini_get('disable_functions')));
         if (in_array('pcntl_signal', $disabledFuncs) || in_array('pcntl_fork', $disabledFuncs)) {
             $pcntl['pcntl disabled'] = true;
         }
 
-        $history = array(
+        $history = [
             'history file'     => $prettyPath($config->getHistoryFile()),
             'history size'     => $config->getHistorySize(),
             'erase duplicates' => $config->getEraseDuplicates(),
-        );
+        ];
 
-        $docs = array(
+        $docs = [
             'manual db file'   => $prettyPath($config->getManualDbFile()),
             'sqlite available' => true,
-        );
+        ];
 
         try {
             if ($db = $config->getManualDb()) {
@@ -230,11 +230,11 @@ if (!function_exists('Psy\info')) {
             }
         }
 
-        $autocomplete = array(
+        $autocomplete = [
             'tab completion enabled' => $config->useTabCompletion(),
             'custom matchers'        => array_map('get_class', $config->getTabCompletionMatchers()),
             'bracketed paste'        => $config->useBracketedPaste(),
-        );
+        ];
 
         // Shenanigans, but totally justified.
         if ($shell = Sudo::fetchProperty($config, 'shell')) {
@@ -263,7 +263,7 @@ if (!function_exists('Psy\bin')) {
 
             $input = new ArgvInput();
             try {
-                $input->bind(new InputDefinition(array(
+                $input->bind(new InputDefinition([
                     new InputOption('help',     'h',  InputOption::VALUE_NONE),
                     new InputOption('config',   'c',  InputOption::VALUE_REQUIRED),
                     new InputOption('version',  'v',  InputOption::VALUE_NONE),
@@ -272,12 +272,12 @@ if (!function_exists('Psy\bin')) {
                     new InputOption('no-color', null, InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
-                )));
+                ]));
             } catch (\RuntimeException $e) {
                 $usageException = $e;
             }
 
-            $config = array();
+            $config = [];
 
             // Handle --config
             if ($configFile = $input->getOption('config')) {

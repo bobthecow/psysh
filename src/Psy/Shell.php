@@ -69,7 +69,7 @@ class Shell extends Application
     private $prompt;
     private $loopListeners;
     private $autoCompleter;
-    private $matchers = array();
+    private $matchers = [];
     private $commandsMatcher;
 
     /**
@@ -83,9 +83,9 @@ class Shell extends Application
         $this->cleaner       = $this->config->getCodeCleaner();
         $this->loop          = new ExecutionLoop();
         $this->context       = new Context();
-        $this->includes      = array();
+        $this->includes      = [];
         $this->readline      = $this->config->getReadline();
-        $this->inputBuffer   = array();
+        $this->inputBuffer   = [];
         $this->stdoutBuffer  = '';
         $this->loopListeners = $this->getDefaultLoopListeners();
 
@@ -106,7 +106,7 @@ class Shell extends Application
     public static function isIncluded(array $trace)
     {
         return isset($trace[0]['function']) &&
-          in_array($trace[0]['function'], array('require', 'include', 'require_once', 'include_once'));
+          in_array($trace[0]['function'], ['require', 'include', 'require_once', 'include_once']);
     }
 
     /**
@@ -120,7 +120,7 @@ class Shell extends Application
      *
      * @return array Scope variables from the debugger session
      */
-    public static function debug(array $vars = array(), $boundObject = null)
+    public static function debug(array $vars = [], $boundObject = null)
     {
         return \Psy\debug($vars, $boundObject);
     }
@@ -160,10 +160,10 @@ class Shell extends Application
      */
     protected function getDefaultInputDefinition()
     {
-        return new InputDefinition(array(
+        return new InputDefinition([
             new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
             new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Display this help message.'),
-        ));
+        ]);
     }
 
     /**
@@ -179,7 +179,7 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
-        return array(
+        return [
             new Command\HelpCommand(),
             new Command\ListCommand(),
             new Command\DumpCommand(),
@@ -196,7 +196,7 @@ class Shell extends Application
             $sudo,
             $hist,
             new Command\ExitCommand(),
-        );
+        ];
     }
 
     /**
@@ -208,7 +208,7 @@ class Shell extends Application
         // we'll update the Commands Matcher too.
         $this->commandsMatcher = new Matcher\CommandsMatcher($this->all());
 
-        return array(
+        return [
             $this->commandsMatcher,
             new Matcher\KeywordsMatcher(),
             new Matcher\VariablesMatcher(),
@@ -222,7 +222,7 @@ class Shell extends Application
             new Matcher\ClassMethodDefaultParametersMatcher(),
             new Matcher\ObjectMethodDefaultParametersMatcher(),
             new Matcher\FunctionDefaultParametersMatcher(),
-        );
+        ];
     }
 
     /**
@@ -240,7 +240,7 @@ class Shell extends Application
      */
     protected function getDefaultLoopListeners()
     {
-        $listeners = array();
+        $listeners = [];
 
         if (ProcessForker::isSupported() && $this->config->usePcntl()) {
             $listeners[] = new ProcessForker();
@@ -300,7 +300,7 @@ class Shell extends Application
         $this->initializeTabCompletion();
 
         if ($input === null && !isset($_SERVER['argv'])) {
-            $input = new ArgvInput(array());
+            $input = new ArgvInput([]);
         }
 
         if ($output === null) {
@@ -586,7 +586,7 @@ class Shell extends Application
      *
      * @param array $includes
      */
-    public function setIncludes(array $includes = array())
+    public function setIncludes(array $includes = [])
     {
         $this->includes = $includes;
     }
@@ -680,7 +680,7 @@ class Shell extends Application
 
         $input = new ShellInput(str_replace('\\', '\\\\', rtrim($input, " \t\n\r\0\x0B;")));
 
-        if ($input->hasParameterOption(array('--help', '-h'))) {
+        if ($input->hasParameterOption(['--help', '-h'])) {
             $helpCommand = $this->get('help');
             $helpCommand->setCommand($command);
 
@@ -698,7 +698,7 @@ class Shell extends Application
      */
     public function resetCodeBuffer()
     {
-        $this->codeBuffer = array();
+        $this->codeBuffer = [];
         $this->code       = false;
     }
 

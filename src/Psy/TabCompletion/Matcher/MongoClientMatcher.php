@@ -23,7 +23,7 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
 
@@ -37,7 +37,7 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
         $object      = $this->getVariable($objectName);
 
         if (!$object instanceof \MongoClient) {
-            return array();
+            return [];
         }
 
         $list = $object->listDBs();

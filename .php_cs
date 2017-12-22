@@ -19,7 +19,7 @@ EOF;
 return PhpCsFixer\Config::create()
     ->setRules(array(
         '@Symfony' => true,
-        'array_syntax' => array('syntax' => 'long'),
+        'array_syntax' => array('syntax' => 'short'),
         'binary_operator_spaces' => false,
         'concat_space' => array('spacing' => 'one'),
         'header_comment' => array('header' => $header),

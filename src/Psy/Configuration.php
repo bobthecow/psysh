@@ -37,7 +37,7 @@ class Configuration
     const COLOR_MODE_FORCED   = 'forced';
     const COLOR_MODE_DISABLED = 'disabled';
 
-    private static $AVAILABLE_OPTIONS = array(
+    private static $AVAILABLE_OPTIONS = [
         'codeCleaner',
         'colorMode',
         'configDir',
@@ -60,7 +60,7 @@ class Configuration
         'useTabCompletion',
         'useUnicode',
         'warnOnMultipleConfigs',
-    );
+    ];
 
     private $defaultIncludes;
     private $configDir;
@@ -77,11 +77,11 @@ class Configuration
     private $useBracketedPaste;
     private $hasPcntl;
     private $usePcntl;
-    private $newCommands       = array();
+    private $newCommands       = [];
     private $requireSemicolons = false;
     private $useUnicode;
     private $useTabCompletion;
-    private $newMatchers = array();
+    private $newMatchers = [];
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
     private $colorMode;
@@ -108,7 +108,7 @@ class Configuration
      *
      * @param array $config Optional array of configuration values
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $this->setColorMode(self::COLOR_MODE_AUTO);
 
@@ -178,7 +178,7 @@ class Configuration
             return $this->configFile;
         }
 
-        $files = ConfigPaths::getConfigFiles(array('config.php', 'rc.php'), $this->configDir);
+        $files = ConfigPaths::getConfigFiles(['config.php', 'rc.php'], $this->configDir);
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && count($files) > 1) {
@@ -228,7 +228,7 @@ class Configuration
             $this->setUseTabCompletion($options['tabCompletion']);
         }
 
-        foreach (array('commands', 'matchers', 'casters') as $option) {
+        foreach (['commands', 'matchers', 'casters'] as $option) {
             if (isset($options[$option])) {
                 $method = 'add' . ucfirst($option);
                 $this->$method($options[$option]);
@@ -279,7 +279,7 @@ class Configuration
      *
      * @param array $includes
      */
-    public function setDefaultIncludes(array $includes = array())
+    public function setDefaultIncludes(array $includes = [])
     {
         $this->defaultIncludes = $includes;
     }
@@ -291,7 +291,7 @@ class Configuration
      */
     public function getDefaultIncludes()
     {
-        return $this->defaultIncludes ?: array();
+        return $this->defaultIncludes ?: [];
     }
 
     /**
@@ -408,7 +408,7 @@ class Configuration
             return $this->historyFile;
         }
 
-        $files = ConfigPaths::getConfigFiles(array('psysh_history', 'history'), $this->configDir);
+        $files = ConfigPaths::getConfigFiles(['psysh_history', 'history'], $this->configDir);
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && count($files) > 1) {
@@ -940,7 +940,7 @@ class Configuration
      */
     public function getTabCompletionMatchers()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -969,7 +969,7 @@ class Configuration
     {
         if (!empty($this->newCommands)) {
             $this->shell->addMatchers($this->newMatchers);
-            $this->newMatchers = array();
+            $this->newMatchers = [];
         }
     }
 
@@ -1009,7 +1009,7 @@ class Configuration
     {
         if (!empty($this->newCommands)) {
             $this->shell->addCommands($this->newCommands);
-            $this->newCommands = array();
+            $this->newCommands = [];
         }
     }
 
@@ -1048,7 +1048,7 @@ class Configuration
             return $this->manualDbFile;
         }
 
-        $files = ConfigPaths::getDataFiles(array('php_manual.sqlite'), $this->dataDir);
+        $files = ConfigPaths::getDataFiles(['php_manual.sqlite'], $this->dataDir);
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && count($files) > 1) {
                 $msg = sprintf('Multiple manual database files found: %s. Using %s', implode($files, ', '), $files[0]);
@@ -1144,11 +1144,11 @@ class Configuration
      */
     public function setColorMode($colorMode)
     {
-        $validColorModes = array(
+        $validColorModes = [
             self::COLOR_MODE_AUTO,
             self::COLOR_MODE_FORCED,
             self::COLOR_MODE_DISABLED,
-        );
+        ];
 
         if (in_array($colorMode, $validColorModes)) {
             $this->colorMode = $colorMode;
@@ -1235,13 +1235,13 @@ class Configuration
      */
     public function setUpdateCheck($interval)
     {
-        $validIntervals = array(
+        $validIntervals = [
             Checker::ALWAYS,
             Checker::DAILY,
             Checker::WEEKLY,
             Checker::MONTHLY,
             Checker::NEVER,
-        );
+        ];
 
         if (!in_array($interval, $validIntervals)) {
             throw new \InvalidArgumentException('invalid update check interval: ' . $interval);

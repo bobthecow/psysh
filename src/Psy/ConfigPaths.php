@@ -49,7 +49,7 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
-        return self::getDirNames(array($xdg->getHomeConfigDir()));
+        return self::getDirNames([$xdg->getHomeConfigDir()]);
     }
 
     /**
@@ -86,7 +86,7 @@ class ConfigPaths
      */
     public static function getConfigFiles(array $names, $configDir = null)
     {
-        $dirs = ($configDir === null) ? self::getConfigDirs() : array($configDir);
+        $dirs = ($configDir === null) ? self::getConfigDirs() : [$configDir];
 
         return self::getRealFiles($dirs, $names);
     }
@@ -120,7 +120,7 @@ class ConfigPaths
      */
     public static function getDataFiles(array $names, $dataDir = null)
     {
-        $dirs = ($dataDir === null) ? self::getDataDirs() : array($dataDir);
+        $dirs = ($dataDir === null) ? self::getDataDirs() : [$dataDir];
 
         return self::getRealFiles($dirs, $names);
     }
@@ -136,7 +136,7 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
-        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+        set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
 
         try {
             // XDG doesn't really work on Windows, sometimes complains about
@@ -183,7 +183,7 @@ class ConfigPaths
 
     private static function getRealFiles(array $dirNames, array $fileNames)
     {
-        $files = array();
+        $files = [];
         foreach ($dirNames as $dir) {
             foreach ($fileNames as $name) {
                 $file = $dir . '/' . $name;

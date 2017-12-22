@@ -25,7 +25,7 @@ class Dumper extends CliDumper
 
     protected static $onlyControlCharsRx = '/^[\x00-\x1F\x7F]+$/';
     protected static $controlCharsRx     = '/([\x00-\x1F\x7F]+)/';
-    protected static $controlCharsMap    = array(
+    protected static $controlCharsMap    = [
         "\0"   => '\0',
         "\t"   => '\t',
         "\n"   => '\n',
@@ -33,7 +33,7 @@ class Dumper extends CliDumper
         "\f"   => '\f',
         "\r"   => '\r',
         "\033" => '\e',
-    );
+    ];
 
     public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
     {
@@ -64,7 +64,7 @@ class Dumper extends CliDumper
         }
     }
 
-    protected function style($style, $value, $attr = array())
+    protected function style($style, $value, $attr = [])
     {
         if ('ref' === $style) {
             $value = strtr($value, '@', '#');

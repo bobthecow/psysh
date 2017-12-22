@@ -38,7 +38,7 @@ class ParseCommand extends Command implements PresenterAware
     public function __construct($name = null)
     {
         $this->parserFactory = new ParserFactory();
-        $this->parsers       = array();
+        $this->parsers       = [];
 
         parent::__construct($name);
     }
@@ -51,12 +51,12 @@ class ParseCommand extends Command implements PresenterAware
     public function setPresenter(Presenter $presenter)
     {
         $this->presenter = clone $presenter;
-        $this->presenter->addCasters(array(
+        $this->presenter->addCasters([
             'PhpParser\Node' => function (Node $node, array $a) {
-                $a = array(
+                $a = [
                     Caster::PREFIX_VIRTUAL . 'type'       => $node->getType(),
                     Caster::PREFIX_VIRTUAL . 'attributes' => $node->getAttributes(),
-                );
+                ];
 
                 foreach ($node->getSubNodeNames() as $name) {
                     $a[Caster::PREFIX_VIRTUAL . $name] = $node->$name;
@@ -64,7 +64,7 @@ class ParseCommand extends Command implements PresenterAware
 
                 return $a;
             },
-        ));
+        ]);
     }
 
     /**
@@ -72,10 +72,10 @@ class ParseCommand extends Command implements PresenterAware
      */
     protected function configure()
     {
-        $definition = array(
+        $definition = [
             new CodeArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
             new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
-        );
+        ];
 
         if ($this->parserFactory->hasKindsSupport()) {
             $msg = 'One of PhpParser\\ParserFactory constants: '

@@ -39,9 +39,9 @@ class GlobalVariableEnumerator extends Enumerator
             return;
         }
 
-        return array(
+        return [
             'Global Variables' => $globals,
-        );
+        ];
     }
 
     /**
@@ -56,7 +56,7 @@ class GlobalVariableEnumerator extends Enumerator
         $names = array_keys($GLOBALS);
         natcasesort($names);
 
-        $ret = array();
+        $ret = [];
         foreach ($names as $name) {
             $ret[$name] = $GLOBALS[$name];
         }
@@ -74,16 +74,16 @@ class GlobalVariableEnumerator extends Enumerator
     protected function prepareGlobals($globals)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($globals as $name => $value) {
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
-                $ret[$fname] = array(
+                $ret[$fname] = [
                     'name'  => $fname,
                     'style' => self::IS_GLOBAL,
                     'value' => $this->presentRef($value),
-                );
+                ];
             }
         }
 

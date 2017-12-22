@@ -39,7 +39,7 @@ class Libedit extends GNUReadline
     {
         $history = file_get_contents($this->historyFile);
         if (!$history) {
-            return array();
+            return [];
         }
 
         // libedit doesn't seem to support non-unix line separators.
@@ -47,11 +47,11 @@ class Libedit extends GNUReadline
 
         // shift the history signature, ensure it's valid
         if (array_shift($history) !== '_HiStOrY_V2_') {
-            return array();
+            return [];
         }
 
         // decode the line
-        $history = array_map(array($this, 'parseHistoryLine'), $history);
+        $history = array_map([$this, 'parseHistoryLine'], $history);
         // filter empty lines & comments
         return array_values(array_filter($history));
     }

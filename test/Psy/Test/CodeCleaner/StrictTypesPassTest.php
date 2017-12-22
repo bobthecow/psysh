@@ -44,10 +44,10 @@ class StrictTypesPassTest extends CodeCleanerTestCase
 
     public function invalidDeclarations()
     {
-        return array(
-            array('declare(strict_types=-1)'),
-            array('declare(strict_types=2)'),
-            array('declare(strict_types="foo")'),
-        );
+        return [
+            ['declare(strict_types=-1)'],
+            ['declare(strict_types=2)'],
+            ['declare(strict_types="foo")'],
+        ];
     }
 }

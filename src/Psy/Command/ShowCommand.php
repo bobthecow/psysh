@@ -51,10 +51,10 @@ class ShowCommand extends ReflectingCommand
     {
         $this
             ->setName('show')
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputArgument('value', InputArgument::OPTIONAL, 'Function, class, instance, constant, method or property to show.'),
                 new InputOption('ex', null,  InputOption::VALUE_OPTIONAL, 'Show last exception context. Optionally specify a stack index.', 1),
-            ))
+            ])
             ->setDescription('Show the code for an object, class, constant, method or property.')
             ->setHelp(
                 <<<HELP
@@ -144,10 +144,10 @@ HELP
         }
 
         $trace = $exception->getTrace();
-        array_unshift($trace, array(
+        array_unshift($trace, [
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
-        ));
+        ]);
 
         if ($index >= count($trace)) {
             $index = 0;
@@ -231,7 +231,7 @@ HELP
 
     private function setCommandScopeVariablesFromContext(array $context)
     {
-        $vars = array();
+        $vars = [];
 
         // @todo __namespace?
         if (isset($context['class'])) {
@@ -266,7 +266,7 @@ HELP
     private function extractEvalFileAndLine($file)
     {
         if (preg_match('/(.*)\\((\\d+)\\) : eval\\(\\)\'d code$/', $file, $matches)) {
-            return array($matches[1], $matches[2]);
+            return [$matches[1], $matches[2]];
         }
     }
 }

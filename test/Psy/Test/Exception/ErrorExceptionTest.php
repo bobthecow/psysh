@@ -59,14 +59,14 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
 
     public function getLevels()
     {
-        return array(
-            array(E_WARNING,         'Warning'),
-            array(E_CORE_WARNING,    'Warning'),
-            array(E_COMPILE_WARNING, 'Warning'),
-            array(E_USER_WARNING,    'Warning'),
-            array(E_STRICT,          'Strict error'),
-            array(0,                 'Error'),
-        );
+        return [
+            [E_WARNING,         'Warning'],
+            [E_CORE_WARNING,    'Warning'],
+            [E_COMPILE_WARNING, 'Warning'],
+            [E_USER_WARNING,    'Warning'],
+            [E_STRICT,          'Strict error'],
+            [0,                 'Error'],
+        ];
     }
 
     /**
@@ -74,7 +74,7 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
      */
     public function testThrowExceptionAsErrorHandler($level, $type)
     {
-        set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+        set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
         try {
             trigger_error('{whot}', $level);
         } catch (ErrorException $e) {
@@ -86,12 +86,12 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
 
     public function getUserLevels()
     {
-        return array(
-            array(E_USER_ERROR,      'Error'),
-            array(E_USER_WARNING,    'Warning'),
-            array(E_USER_NOTICE,     'Notice'),
-            array(E_USER_DEPRECATED, 'Deprecated'),
-        );
+        return [
+            [E_USER_ERROR,      'Error'],
+            [E_USER_WARNING,    'Warning'],
+            [E_USER_NOTICE,     'Notice'],
+            [E_USER_DEPRECATED, 'Deprecated'],
+        ];
     }
 
     public function testIgnoreExecutionLoopFilename()

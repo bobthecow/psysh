@@ -25,7 +25,7 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
     public function testExceptionInvocation($input)
     {
         $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
-            ->setMethods(array('fetchLatestRelease'))
+            ->setMethods(['fetchLatestRelease'])
             ->getMock();
         $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);
         $checker->isLatest();
@@ -40,7 +40,7 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
     public function testDataSetResults($assertion, $input)
     {
         $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
-            ->setMethods(array('fetchLatestRelease'))
+            ->setMethods(['fetchLatestRelease'])
             ->getMock();
         $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);
         $this->assertSame($assertion, $checker->isLatest());
@@ -51,15 +51,15 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
      */
     public function jsonResults()
     {
-        return array(
-            array(false, json_decode('{"tag_name":"v9.0.0"}')),
-            array(true, json_decode('{"tag_name":"v' . Shell::VERSION . '"}')),
-            array(true, json_decode('{"tag_name":"v0.0.1"}')),
-            array(true, json_decode('{"tag_name":"v0.4.1-alpha"}')),
-            array(true, json_decode('{"tag_name":"v0.4.2-beta3"}')),
-            array(true, json_decode('{"tag_name":"v0.0.1"}')),
-            array(true, json_decode('{"tag_name":""}')),
-        );
+        return [
+            [false, json_decode('{"tag_name":"v9.0.0"}')],
+            [true, json_decode('{"tag_name":"v' . Shell::VERSION . '"}')],
+            [true, json_decode('{"tag_name":"v0.0.1"}')],
+            [true, json_decode('{"tag_name":"v0.4.1-alpha"}')],
+            [true, json_decode('{"tag_name":"v0.4.2-beta3"}')],
+            [true, json_decode('{"tag_name":"v0.0.1"}')],
+            [true, json_decode('{"tag_name":""}')],
+        ];
     }
 
     /**
@@ -67,16 +67,16 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
      */
     public function malformedResults()
     {
-        return array(
-            array(null),
-            array(false),
-            array(true),
-            array(json_decode('{"foo":"bar"}')),
-            array(json_decode('{}')),
-            array(json_decode('[]')),
-            array(array()),
-            array(json_decode('{"tag_name":false"}')),
-            array(json_decode('{"tag_name":true"}')),
-        );
+        return [
+            [null],
+            [false],
+            [true],
+            [json_decode('{"foo":"bar"}')],
+            [json_decode('{}')],
+            [json_decode('[]')],
+            [[]],
+            [json_decode('{"tag_name":false"}')],
+            [json_decode('{"tag_name":true"}')],
+        ];
     }
 }

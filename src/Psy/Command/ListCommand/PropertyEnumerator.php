@@ -47,7 +47,7 @@ class PropertyEnumerator extends Enumerator
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$this->getKindLabel($reflector)] = $properties;
 
         return $ret;
@@ -66,7 +66,7 @@ class PropertyEnumerator extends Enumerator
     {
         $className = $reflector->getName();
 
-        $properties = array();
+        $properties = [];
         foreach ($reflector->getProperties() as $property) {
             if ($noInherit && $property->getDeclaringClass()->getName() !== $className) {
                 continue;
@@ -92,16 +92,16 @@ class PropertyEnumerator extends Enumerator
     protected function prepareProperties(array $properties, $target = null)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($properties as $name => $property) {
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
-                $ret[$fname] = array(
+                $ret[$fname] = [
                     'name'  => $fname,
                     'style' => $this->getVisibilityStyle($property),
                     'value' => $this->presentValue($property, $target),
-                );
+                ];
             }
         }
 
