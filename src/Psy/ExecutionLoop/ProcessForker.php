@@ -12,6 +12,7 @@
 namespace Psy\ExecutionLoop;
 
 use Psy\Context;
+use Psy\Exception\BreakException;
 use Psy\Shell;
 
 /**
@@ -75,7 +76,7 @@ class ProcessForker extends AbstractListener
                 $shell->setScopeVariables(@unserialize($content));
             }
 
-            return;
+            throw new BreakException('Exiting main thread');
         }
 
         // This is the child process. It's going to do all the work.
