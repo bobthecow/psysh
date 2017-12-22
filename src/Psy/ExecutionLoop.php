@@ -33,7 +33,7 @@ class ExecutionLoop
      */
     public function execute(Shell &$shell, $code)
     {
-        $shell->addCode($code);
+        $shell->addCode($code, true);
         $exec = $this->getExecutionClosure($shell);
         $exec($shell);
     }
