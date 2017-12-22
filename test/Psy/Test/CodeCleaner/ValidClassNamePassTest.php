@@ -23,16 +23,12 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider getInvalid
+     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessInvalid($code, $php54 = false)
     {
-        try {
-            $stmts = $this->parse($code);
-            $this->traverse($stmts);
-            $this->fail();
-        } catch (Exception $e) {
-            $this->assertInstanceOf('Psy\Exception\FatalErrorException', $e);
-        }
+        $stmts = $this->parse($code);
+        $this->traverse($stmts);
     }
 
     public function getInvalid()
