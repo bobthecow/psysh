@@ -286,7 +286,7 @@ if (!function_exists('Psy\bin')) {
 
             // Handle --color and --no-color
             if ($input->getOption('color') && $input->getOption('no-color')) {
-                $usageException = new \RuntimeException('Using both "--color" and "--no-color" options is invalid.');
+                $usageException = new \RuntimeException('Using both "--color" and "--no-color" options is invalid');
             } elseif ($input->getOption('color')) {
                 $config['colorMode'] = Configuration::COLOR_MODE_FORCED;
             } elseif ($input->getOption('no-color')) {

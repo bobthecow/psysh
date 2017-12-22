@@ -49,12 +49,12 @@ class ProcessForker extends AbstractListener
         list($up, $down) = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
 
         if (!$up) {
-            throw new \RuntimeException('Unable to create socket pair.');
+            throw new \RuntimeException('Unable to create socket pair');
         }
 
         $pid = pcntl_fork();
         if ($pid < 0) {
-            throw new \RuntimeException('Unable to start execution loop.');
+            throw new \RuntimeException('Unable to start execution loop');
         } elseif ($pid > 0) {
             // This is the main thread. We'll just wait for a while.
 
@@ -66,7 +66,7 @@ class ProcessForker extends AbstractListener
             $write  = null;
             $except = null;
             if (stream_select($read, $write, $except, null) === false) {
-                throw new \RuntimeException('Error waiting for execution loop.');
+                throw new \RuntimeException('Error waiting for execution loop');
             }
 
             $content = stream_get_contents($down);
@@ -146,7 +146,7 @@ class ProcessForker extends AbstractListener
 
         $pid = pcntl_fork();
         if ($pid < 0) {
-            throw new \RuntimeException('Unable to create savegame fork.');
+            throw new \RuntimeException('Unable to create savegame fork');
         } elseif ($pid > 0) {
             // we're the savegame now... let's wait and see what happens
             pcntl_waitpid($pid, $status);

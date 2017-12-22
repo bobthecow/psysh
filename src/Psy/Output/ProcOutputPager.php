@@ -54,7 +54,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
         if (false === @fwrite($pipe, $message . ($newline ? PHP_EOL : ''))) {
             // @codeCoverageIgnoreStart
             // should never happen
-            throw new \RuntimeException('Unable to write output.');
+            throw new \RuntimeException('Unable to write output');
             // @codeCoverageIgnoreEnd
         }
 

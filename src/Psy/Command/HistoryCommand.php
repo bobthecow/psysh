@@ -127,7 +127,7 @@ HELP
             $output->writeln('<info>History saved.</info>');
         } elseif ($input->getOption('replay')) {
             if (!($input->getOption('show') || $input->getOption('head') || $input->getOption('tail'))) {
-                throw new \InvalidArgumentException('You must limit history via --head, --tail or --show before replaying.');
+                throw new \InvalidArgumentException('You must limit history via --head, --tail or --show before replaying');
             }
 
             $count = count($history);
@@ -191,14 +191,14 @@ HELP
             $length = $end - $start;
         } elseif ($head) {
             if (!preg_match('/^\d+$/', $head)) {
-                throw new \InvalidArgumentException('Please specify an integer argument for --head.');
+                throw new \InvalidArgumentException('Please specify an integer argument for --head');
             }
 
             $start  = 0;
             $length = intval($head);
         } elseif ($tail) {
             if (!preg_match('/^\d+$/', $tail)) {
-                throw new \InvalidArgumentException('Please specify an integer argument for --tail.');
+                throw new \InvalidArgumentException('Please specify an integer argument for --tail');
             }
 
             $start  = count($history) - $tail;

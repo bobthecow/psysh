@@ -106,7 +106,7 @@ HELP
             return $this->writeCodeContext($input, $output);
         }
 
-        throw new RuntimeException('Not enough arguments (missing: "value").');
+        throw new RuntimeException('Not enough arguments (missing: "value")');
     }
 
     private function writeCodeContext(InputInterface $input, OutputInterface $output)

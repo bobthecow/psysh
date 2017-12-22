@@ -70,7 +70,7 @@ class ShellOutput extends ConsoleOutput
         }
 
         if (!is_array($messages) && !is_callable($messages)) {
-            throw new \InvalidArgumentException('Paged output requires a string, array or callback.');
+            throw new \InvalidArgumentException('Paged output requires a string, array or callback');
         }
 
         $this->startPaging();

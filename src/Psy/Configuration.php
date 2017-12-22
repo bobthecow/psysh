@@ -121,8 +121,8 @@ class Configuration
 
         // legacy baseDir option
         if (isset($config['baseDir'])) {
-            $msg = "The 'baseDir' configuration option is deprecated. " .
-                "Please specify 'configDir' and 'dataDir' options instead.";
+            $msg = "The 'baseDir' configuration option is deprecated; " .
+                "please specify 'configDir' and 'dataDir' options instead";
             throw new DeprecatedException($msg);
         }
 
@@ -880,7 +880,7 @@ class Configuration
     public function setPager($pager)
     {
         if ($pager && !is_string($pager) && !$pager instanceof OutputPager) {
-            throw new \InvalidArgumentException('Unexpected pager instance.');
+            throw new \InvalidArgumentException('Unexpected pager instance');
         }
 
         $this->pager = $pager;

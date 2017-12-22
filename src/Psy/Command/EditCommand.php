@@ -81,7 +81,7 @@ class EditCommand extends Command implements ContextAware
     {
         if ($input->getOption('exec') &&
             $input->getOption('no-exec')) {
-            throw new \InvalidArgumentException('The --exec and --no-exec flags are mutually exclusive.');
+            throw new \InvalidArgumentException('The --exec and --no-exec flags are mutually exclusive');
         }
 
         $filePath = $this->extractFilePath($input->getArgument('file'));

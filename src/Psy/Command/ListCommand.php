@@ -240,7 +240,7 @@ HELP
             // if no target is passed, there can be no properties or methods
             foreach (array('properties', 'methods', 'no-inherit') as $option) {
                 if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense without a specified target.');
+                    throw new RuntimeException('--' . $option . ' does not make sense without a specified target');
                 }
             }
 
@@ -256,7 +256,7 @@ HELP
             // if a target is passed, classes, functions, etc don't make sense
             foreach (array('vars', 'globals', 'functions', 'classes', 'interfaces', 'traits') as $option) {
                 if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense with a specified target.');
+                    throw new RuntimeException('--' . $option . ' does not make sense with a specified target');
                 }
             }
 

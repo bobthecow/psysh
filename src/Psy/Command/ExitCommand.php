@@ -47,6 +47,6 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        throw new BreakException('Goodbye.');
+        throw new BreakException('Goodbye');
     }
 }

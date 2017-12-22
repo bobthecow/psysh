@@ -32,7 +32,7 @@ class CodeFormatter implements Formatter
     public static function format(\Reflector $reflector, $colorMode = null)
     {
         if (!self::isReflectable($reflector)) {
-            throw new RuntimeException('Source code unavailable.');
+            throw new RuntimeException('Source code unavailable');
         }
 
         $colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
@@ -43,7 +43,7 @@ class CodeFormatter implements Formatter
 
         if ($fileName = $reflector->getFileName()) {
             if (!is_file($fileName)) {
-                throw new RuntimeException('Source code unavailable.');
+                throw new RuntimeException('Source code unavailable');
             }
 
             $file  = file_get_contents($fileName);
@@ -56,7 +56,7 @@ class CodeFormatter implements Formatter
 
             return $highlighter->getCodeSnippet($file, $start, 0, $end);
         } else {
-            throw new RuntimeException('Source code unavailable.');
+            throw new RuntimeException('Source code unavailable');
         }
     }
 

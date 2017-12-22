@@ -88,7 +88,7 @@ HELP
 
         $incredulity = implode('', $input->getArgument('incredulity'));
         if (strlen(preg_replace('/[\\?!]/', '', $incredulity))) {
-            throw new \InvalidArgumentException('Incredulity must include only "?" and "!".');
+            throw new \InvalidArgumentException('Incredulity must include only "?" and "!"');
         }
 
         $exception = $this->context->getLastException();
