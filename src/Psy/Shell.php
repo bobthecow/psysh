@@ -627,8 +627,9 @@ class Shell extends Application
      * Add code to the code buffer.
      *
      * @param string $code
+     * @param bool   $silent
      */
-    public function addCode($code)
+    public function addCode($code, $silent = false)
     {
         try {
             // Code lines ending in \ keep the buffer open
@@ -639,7 +640,7 @@ class Shell extends Application
                 $this->codeBufferOpen = false;
             }
 
-            $this->codeBuffer[] = $code;
+            $this->codeBuffer[] = $silent ? new SilentInput($code) : $code;
             $this->code         = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
