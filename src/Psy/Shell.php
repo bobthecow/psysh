@@ -393,7 +393,7 @@ class Shell extends Application
             $input = $this->onInput($input);
 
             if ($this->hasCommand($input)) {
-                $this->readline->addHistory($input);
+                $this->addHistory($input);
                 $this->runCommand($input);
 
                 continue;
@@ -738,6 +738,30 @@ class Shell extends Application
     }
 
     /**
+     * (Possibly) add a line to the readline history.
+     *
+     * Like Bash, if the line starts with a space character, it will be omitted
+     * from history. Note that an entire block multi-line code input will be
+     * omitted iff the first line begins with a space.
+     *
+     * Additionally, if a line is "silent", i.e. it was initially added with the
+     * silent flag, it will also be omitted.
+     *
+     * @param string|SilentInput $line
+     */
+    private function addHistory($line)
+    {
+        if ($line instanceof SilentInput) {
+            return;
+        }
+
+        // Skip empty lines and lines starting with a space
+        if (trim($line) !== '' && substr($line, 0, 1) !== ' ') {
+            $this->readline->addHistory($line);
+        }
+    }
+
+    /**
      * Filter silent input from code buffer, write the rest to readline history.
      */
     private function addCodeBufferToHistory()
@@ -746,11 +770,7 @@ class Shell extends Application
             return !$line instanceof SilentInput;
         });
 
-        $code = implode("\n", $codeBuffer);
-
-        if (trim($code) !== '') {
-            $this->readline->addHistory($code);
-        }
+        $this->addHistory(implode("\n", $codeBuffer));
     }
 
     /**
