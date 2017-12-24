@@ -12,7 +12,6 @@
 namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ValidClassNamePass;
-use Psy\Exception\Exception;
 
 class ValidClassNamePassTest extends CodeCleanerTestCase
 {
