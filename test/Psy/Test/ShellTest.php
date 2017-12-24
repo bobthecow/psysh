@@ -93,33 +93,27 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function testAddMatchersViaConfig()
     {
+        $shell = new FakeShell();
         $matcher = new ClassMethodsMatcher();
-
-        $shell = $this->getMockBuilder('Psy\\Shell')->getMock();
-        $shell
-            ->expects($this->once())
-            ->method('addMatchers')
-            ->with($this->equalTo([$matcher]));
 
         $config = $this->getConfig([
             'matchers' => [$matcher],
         ]);
         $config->setShell($shell);
+
+        $this->assertEquals([$matcher], $shell->matchers);
     }
 
     public function testAddMatchersViaConfigAfterShell()
     {
+        $shell = new FakeShell();
         $matcher = new ClassMethodsMatcher();
-
-        $shell = $this->getMockBuilder('Psy\\Shell')->getMock();
-        $shell
-            ->expects($this->once())
-            ->method('addMatchers')
-            ->with($this->equalTo([$matcher]));
 
         $config = $this->getConfig([]);
         $config->setShell($shell);
         $config->addMatchers([$matcher]);
+
+        $this->assertEquals([$matcher], $shell->matchers);
     }
 
     public function testRenderingExceptions()
