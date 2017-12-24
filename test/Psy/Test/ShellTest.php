@@ -95,7 +95,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $matcher = new ClassMethodsMatcher();
 
-        $shell = $this->createMock('Psy\\Shell');
+        $shell = $this->getMockBuilder('Psy\\Shell')->getMock();
         $shell
             ->expects($this->once())
             ->method('addMatchers')
@@ -111,7 +111,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $matcher = new ClassMethodsMatcher();
 
-        $shell = $this->createMock('Psy\\Shell');
+        $shell = $this->getMockBuilder('Psy\\Shell')->getMock();
         $shell
             ->expects($this->once())
             ->method('addMatchers')
