@@ -233,14 +233,31 @@ HELP
     {
         $vars = [];
 
-        // @todo __namespace?
         if (isset($context['class'])) {
             $vars['__class'] = $context['class'];
             if (isset($context['function'])) {
                 $vars['__method'] = $context['function'];
             }
+
+            try {
+                $refl = new \ReflectionClass($context['class']);
+                if ($namespace = $refl->getNamespaceName()) {
+                    $vars['__namespace'] = $namespace;
+                }
+            } catch (\Exception $e) {
+                // oh well
+            }
         } elseif (isset($context['function'])) {
             $vars['__function'] = $context['function'];
+
+            try {
+                $refl = new \ReflectionFunction($context['function']);
+                if ($namespace = $refl->getNamespaceName()) {
+                    $vars['__namespace'] = $namespace;
+                }
+            } catch (\Exception $e) {
+                // oh well
+            }
         }
 
         if (isset($context['file'])) {
