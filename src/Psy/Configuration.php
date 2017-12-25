@@ -26,7 +26,6 @@ use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\IntervalChecker;
 use Psy\VersionUpdater\NoopChecker;
-use XdgBaseDir\Xdg;
 
 /**
  * The Psy Shell configuration.
@@ -386,25 +385,6 @@ class Configuration
     public function getHistoryFile()
     {
         if (isset($this->historyFile)) {
-            return $this->historyFile;
-        }
-
-        // Deprecation warning for incorrect psysh_history path.
-        // @todo remove this before v0.9.0
-        $xdg = new Xdg();
-        $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
-        if (@is_file($oldHistory)) {
-            $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-            $newHistory = $dir . '/psysh_history';
-
-            $msg = sprintf(
-                "PsySH history file found at '%s'. Please delete it or move it to '%s'.",
-                strtr($oldHistory, '\\', '/'),
-                $newHistory
-            );
-            @trigger_error($msg, E_USER_DEPRECATED);
-            $this->setHistoryFile($oldHistory);
-
             return $this->historyFile;
         }
 
