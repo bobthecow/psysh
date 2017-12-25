@@ -120,8 +120,6 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
     {
         $stmts = $this->parse($code);
         $this->traverse($stmts);
-
-        // @todo a better thing to assert here?
         $this->assertTrue(true);
     }
 

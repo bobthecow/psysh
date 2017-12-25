@@ -24,8 +24,6 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
     {
         $inline = $this->parse('not php at all!', '');
         $this->traverse($inline);
-
-        // @todo a better thing to assert here?
         $this->assertTrue(true);
     }
 
@@ -36,8 +34,6 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
     {
         $stmts = $this->parse($code);
         $this->traverse($stmts);
-
-        // @todo a better thing to assert here?
         $this->assertTrue(true);
     }
 
