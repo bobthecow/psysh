@@ -312,6 +312,8 @@ class Shell extends Application
         } catch (\Exception $e) {
             $this->writeException($e);
         }
+
+        return 1;
     }
 
     /**
