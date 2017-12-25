@@ -37,11 +37,17 @@ class NamespacePassTest extends CodeCleanerTestCase
         $this->process('namespace Beta; class B {}');
         $this->assertEquals(['Beta'], $this->cleaner->getNamespace());
 
-        // @todo Figure out if we can detect when the last namespace block is
-        // bracketed or unbracketed, because this should really clear the
-        // namespace at the end...
+        // A new block namespace clears out the current namespace...
         $this->process('namespace Gamma { array_merge(); }');
-        $this->assertEquals(['Gamma'], $this->cleaner->getNamespace());
+
+        if (defined('PhpParser\\Node\\Stmt\\Namespace_::KIND_SEMICOLON')) {
+            $this->assertNull($this->cleaner->getNamespace());
+        } else {
+            // But not for PHP-Parser < v3.1.2 :(
+            $this->assertEquals(['Gamma'], $this->cleaner->getNamespace());
+        }
+
+        $this->process('namespace Delta');
 
         // A null namespace clears out the current namespace.
         $this->process('namespace { array_merge(); }');
