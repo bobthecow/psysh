@@ -221,9 +221,10 @@ class Configuration
         }
 
         // legacy `tabCompletion` option
-        //
-        // @todo trigger a deprecated error: use `useTabCompletion` instead.
         if (isset($options['tabCompletion'])) {
+            $msg = '`tabCompletion` is deprecated; use `useTabCompletion` instead.';
+            @trigger_error($msg, E_USER_DEPRECATED);
+
             $this->setUseTabCompletion($options['tabCompletion']);
         }
 
@@ -235,9 +236,10 @@ class Configuration
         }
 
         // legacy `tabCompletionMatchers` option
-        //
-        // @todo trigger a deprecated error: use `matchers` instead.
         if (isset($options['tabCompletionMatchers'])) {
+            $msg = '`tabCompletionMatchers` is deprecated; use `matchers` instead.';
+            @trigger_error($msg, E_USER_DEPRECATED);
+
             $this->addMatchers($options['tabCompletionMatchers']);
         }
     }
