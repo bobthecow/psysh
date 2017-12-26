@@ -13,6 +13,7 @@ namespace Psy\Command;
 
 use Psy\Context;
 use Psy\ContextAware;
+use Psy\Exception\ErrorException;
 use Psy\Exception\ThrowUpException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,12 +49,12 @@ class ThrowUpCommand extends Command implements ContextAware
         $this
             ->setName('throw-up')
             ->setDefinition([
-                new InputArgument('exception', InputArgument::OPTIONAL, 'Exception to throw.'),
+                new InputArgument('exception', InputArgument::OPTIONAL, 'Exception or Error to throw.'),
             ])
-            ->setDescription('Throw an exception out of the Psy Shell.')
+            ->setDescription('Throw an exception or error out of the Psy Shell.')
             ->setHelp(
                 <<<'HELP'
-Throws an exception out of the current the Psy Shell instance.
+Throws an exception or error out of the current the Psy Shell instance.
 
 By default it throws the most recent exception.
 
@@ -76,6 +77,10 @@ HELP
             $orig = $this->context->get(preg_replace('/^\$/', '', $name));
         } else {
             $orig = $this->context->getLastException();
+        }
+
+        if ($orig instanceof \Error) {
+            $orig = ErrorException::fromError($orig);
         }
 
         if (!$orig instanceof \Exception) {
