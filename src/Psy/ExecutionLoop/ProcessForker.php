@@ -191,10 +191,11 @@ class ProcessForker extends AbstractListener
             try {
                 @serialize($value);
                 $serializable[$key] = $value;
-            } catch (\Exception $e) {
-                // we'll just ignore this one...
             } catch (\Throwable $e) {
+                // we'll just ignore this one...
+            } catch (\Exception $e) {
                 // and this one too...
+                // @todo remove this once we don't support PHP 5.x anymore :)
             }
         }
 

@@ -39,6 +39,8 @@ class ExecutionLoop
                 foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                     include $__psysh_include__;
                 }
+            } catch (\Error $_e) {
+                $__psysh__->writeException(ErrorException::fromError($_e));
             } catch (\Exception $_e) {
                 $__psysh__->writeException($_e);
             }
