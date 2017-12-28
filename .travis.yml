@@ -32,4 +32,4 @@ deploy:
   on:
     tags: true
     repo: bobthecow/psysh
-    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.1*)
+    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.0*)
