@@ -60,8 +60,6 @@ if (!function_exists('Psy\debug')) {
      *         }
      *     }
      *
-     * This only really works in PHP 5.4+ and HHVM 3.5+, so upgrade already.
-     *
      * @param array  $vars        Scope variables from the calling context (default: array())
      * @param object $boundObject Bound object ($this) value for the shell
      *
