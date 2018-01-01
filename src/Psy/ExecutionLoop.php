@@ -74,14 +74,14 @@ class ExecutionLoop
         // Load user-defined includes
         $load = function (Shell &$__psysh__) {
             set_error_handler([$__psysh__, 'handleError']);
-            try {
-                foreach ($__psysh__->getIncludes() as $__psysh_include__) {
+            foreach ($__psysh__->getIncludes() as $__psysh_include__) {
+                try {
                     include $__psysh_include__;
+                } catch (\Error $_e) {
+                    $__psysh__->writeException(ErrorException::fromError($_e));
+                } catch (\Exception $_e) {
+                    $__psysh__->writeException($_e);
                 }
-            } catch (\Error $_e) {
-                $__psysh__->writeException(ErrorException::fromError($_e));
-            } catch (\Exception $_e) {
-                $__psysh__->writeException($_e);
             }
             restore_error_handler();
             unset($__psysh_include__);
