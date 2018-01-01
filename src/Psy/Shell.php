@@ -662,6 +662,8 @@ class Shell extends Application
      * buffer is pushed onto a stack and will come back after this new code is
      * executed.
      *
+     * @throws \InvalidArgumentException if $code isn't a complete statement
+     *
      * @param string $code
      * @param bool   $silent
      */
@@ -672,7 +674,23 @@ class Shell extends Application
         }
 
         $this->resetCodeBuffer();
-        $this->addCode($code, $silent);
+        try {
+            $this->addCode($code, $silent);
+        } catch (\Throwable $e) {
+            $this->popCodeStack();
+
+            throw $e;
+        } catch (\Exception $e) {
+            $this->popCodeStack();
+
+            throw $e;
+        }
+
+        if (!$this->hasValidCode()) {
+            $this->popCodeStack();
+
+            throw new \InvalidArgumentException('Unexpected end of input');
+        }
     }
 
     /**
