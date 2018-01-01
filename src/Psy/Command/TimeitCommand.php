@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Configuration;
 use Psy\Input\CodeArgument;
 use Psy\Shell;
 use Symfony\Component\Console\Input\InputArgument;
@@ -50,15 +49,10 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $code = $input->getArgument('code');
-
-        /** @var Shell $shell */
         $shell = $this->getApplication();
-        $sh = new Shell(new Configuration());
-        $sh->setOutput($output);
-        $sh->setScopeVariables($shell->getScopeVariables());
 
         $start = microtime(true);
-        $_ = $sh->execute($code);
+        $_ = $shell->execute($code);
         $end = microtime(true);
 
         $shell->writeReturnValue($_);
