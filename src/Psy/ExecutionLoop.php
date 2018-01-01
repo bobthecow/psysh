@@ -26,7 +26,7 @@ class ExecutionLoop
     /**
      * Execute code in the execution loop context.
      *
-     * @todo Should this return Context::getReturnValue?
+     * @todo Should this write exceptions? Should it accept a $silent param to suppress them?
      *
      * @param Shell  &$shell
      * @param string $code
@@ -36,7 +36,15 @@ class ExecutionLoop
         $shell->addCode($code, true);
         $exec = $this->getExecutionClosure($shell);
 
-        return $exec($shell);
+        try {
+            return $exec($shell);
+        } catch (\TypeError $_e) {
+            $shell->writeException(TypeErrorException::fromTypeError($_e));
+        } catch (\Error $_e) {
+            $shell->writeException(ErrorException::fromError($_e));
+        } catch (\Exception $_e) {
+            $shell->writeException($_e);
+        }
     }
 
     /**
@@ -50,18 +58,33 @@ class ExecutionLoop
     {
         $exec = $this->getExecutionClosure($shell);
 
-        try {
-            $this->loadIncludes($shell);
+        $this->loadIncludes($shell);
 
-            do {
-                $shell->beforeLoop();
+        do {
+            $shell->beforeLoop();
+
+            try {
                 $shell->getInput();
-                $exec($shell);
-                $shell->afterLoop();
-            } while (true);
-        } catch (BreakException $e) {
-            $shell->writeException($e);
-        }
+                $_ = $exec($shell);
+                $shell->writeReturnValue($_);
+            } catch (BreakException $_e) {
+                $shell->writeException($_e);
+
+                return;
+            } catch (ThrowUpException $_e) {
+                $shell->writeException($_e);
+
+                throw $_e;
+            } catch (\TypeError $_e) {
+                $shell->writeException(TypeErrorException::fromTypeError($_e));
+            } catch (\Error $_e) {
+                $shell->writeException(ErrorException::fromError($_e));
+            } catch (\Exception $_e) {
+                $shell->writeException($_e);
+            }
+
+            $shell->afterLoop();
+        } while (true);
     }
 
     /**
@@ -113,43 +136,21 @@ class ExecutionLoop
 
                 ob_end_flush();
 
-                $__psysh__->writeReturnValue($_);
-
                 $__psysh__->setScopeVariables(get_defined_vars());
-            } catch (BreakException $_e) {
+            } catch (\Throwable $_e) {
                 restore_error_handler();
                 if (ob_get_level() > 0) {
                     ob_end_clean();
                 }
-                $__psysh__->writeException($_e);
 
                 throw $_e;
-            } catch (ThrowUpException $_e) {
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
-                }
-                $__psysh__->writeException($_e);
-
-                throw $_e;
-            } catch (\TypeError $_e) {
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
-                }
-                $__psysh__->writeException(TypeErrorException::fromTypeError($_e));
-            } catch (\Error $_e) {
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
-                }
-                $__psysh__->writeException(ErrorException::fromError($_e));
             } catch (\Exception $_e) {
                 restore_error_handler();
                 if (ob_get_level() > 0) {
                     ob_end_clean();
                 }
-                $__psysh__->writeException($_e);
+
+                throw $_e;
             }
 
             return $_;

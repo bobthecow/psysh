@@ -340,17 +340,17 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $stream = $output->getStream();
         $shell  = new Shell($this->getConfig());
         $shell->setOutput($output);
-        $shell->execute($input);
+        $this->assertEquals($expected, $shell->execute($input));
         rewind($stream);
-        $this->assertEquals($expected, stream_get_contents($stream));
+        $this->assertEquals('', stream_get_contents($stream));
     }
 
     public function getExecuteValues()
     {
         return [
-            ['return 12', "=> \033[35m12\033[39m" . PHP_EOL],
-            ['"{{return value}}"', "=> \"\033[32m{{return value}}\033[39m\"" . PHP_EOL],
-            ['1', "=> \033[35m1\033[39m" . PHP_EOL],
+            ['return 12', 12],
+            ['"{{return value}}"', '{{return value}}'],
+            ['1', '1'],
         ];
     }
 
