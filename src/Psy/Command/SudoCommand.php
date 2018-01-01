@@ -117,7 +117,8 @@ HELP
         $nodes = $this->traverser->traverse($this->parse($code));
 
         $sudoCode = $this->printer->prettyPrint($nodes);
-        $this->getApplication()->addCode($sudoCode, true);
+        $shell = $this->getApplication();
+        $shell->addCode($sudoCode, !$shell->hasCode());
     }
 
     /**
