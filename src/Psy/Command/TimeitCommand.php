@@ -58,9 +58,10 @@ HELP
         $sh->setScopeVariables($shell->getScopeVariables());
 
         $start = microtime(true);
-        $sh->execute($code);
+        $_ = $sh->execute($code);
         $end = microtime(true);
 
+        $shell->writeReturnValue($_);
         $output->writeln(sprintf('<info>Command took %.6f seconds to complete.</info>', $end - $start));
     }
 }
