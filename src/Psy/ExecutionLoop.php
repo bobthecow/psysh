@@ -104,16 +104,11 @@ class ExecutionLoop
                 // Restore execution scope variables
                 extract($__psysh__->getScopeVariables(false));
 
-                // Let PsySH inject some magic variables back into the
-                // shell scope... things like $__class, and $__file set by
-                // reflection commands
-                extract($__psysh__->getSpecialScopeVariables(false));
-
                 // evaluate the current code buffer
                 ob_start([$__psysh__, 'writeStdout'], 1);
 
                 set_error_handler([$__psysh__, 'handleError']);
-                $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: Loop::NOOP_INPUT));
+                $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: ExecutionLoop::NOOP_INPUT));
                 restore_error_handler();
 
                 ob_end_flush();
