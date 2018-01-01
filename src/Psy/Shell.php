@@ -61,6 +61,7 @@ class Shell extends Application
     private $code;
     private $codeBuffer;
     private $codeBufferOpen;
+    private $codeStack;
     private $stdoutBuffer;
     private $context;
     private $includes;
@@ -86,6 +87,7 @@ class Shell extends Application
         $this->includes      = [];
         $this->readline      = $this->config->getReadline();
         $this->inputBuffer   = [];
+        $this->codeStack     = [];
         $this->stdoutBuffer  = '';
         $this->loopListeners = $this->getDefaultLoopListeners();
 
@@ -653,6 +655,26 @@ class Shell extends Application
     }
 
     /**
+     * Set the code buffer.
+     *
+     * This is mostly used by `Shell::execute`. Any existing code in the input
+     * buffer is pushed onto a stack and will come back after this new code is
+     * executed.
+     *
+     * @param string $code
+     * @param bool   $silent
+     */
+    private function setCode($code, $silent = false)
+    {
+        if ($this->hasCode()) {
+            $this->codeStack[] = [$this->codeBuffer, $this->codeBufferOpen, $this->code];
+        }
+
+        $this->resetCodeBuffer();
+        $this->addCode($code, $silent);
+    }
+
+    /**
      * Get the current code buffer.
      *
      * This is useful for commands which manipulate the buffer.
@@ -733,10 +755,28 @@ class Shell extends Application
         if ($this->hasValidCode()) {
             $this->addCodeBufferToHistory();
             $code = $this->code;
-            $this->resetCodeBuffer();
+            $this->popCodeStack();
 
             return $code;
         }
+    }
+
+    /**
+     * Reset the code buffer and restore any code pushed during `execute` calls.
+     */
+    private function popCodeStack()
+    {
+        $this->resetCodeBuffer();
+
+        if (empty($this->codeStack)) {
+            return;
+        }
+
+        list($codeBuffer, $codeBufferOpen, $code) = array_pop($this->codeStack);
+
+        $this->codeBuffer     = $codeBuffer;
+        $this->codeBufferOpen = $codeBufferOpen;
+        $this->code           = $code;
     }
 
     /**
@@ -931,7 +971,7 @@ class Shell extends Application
      */
     public function execute($code)
     {
-        $this->addCode($code, true);
+        $this->setCode($code, true);
         $closure = new ExecutionClosure($this);
 
         try {
