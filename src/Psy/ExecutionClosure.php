@@ -30,17 +30,16 @@ class ExecutionClosure
                 // Restore execution scope variables
                 extract($__psysh__->getScopeVariables(false));
 
-                // evaluate the current code buffer
+                // Buffer stdout; we'll need it later
                 ob_start([$__psysh__, 'writeStdout'], 1);
 
+                // Convert all errors to exceptions
                 set_error_handler([$__psysh__, 'handleError']);
+
+                // Evaluate the current code buffer
                 $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: ExecutionClosure::NOOP_INPUT));
-                restore_error_handler();
-
-                ob_end_flush();
-
-                $__psysh__->setScopeVariables(get_defined_vars());
             } catch (\Throwable $_e) {
+                // Clean up on our way out.
                 restore_error_handler();
                 if (ob_get_level() > 0) {
                     ob_end_clean();
@@ -48,6 +47,7 @@ class ExecutionClosure
 
                 throw $_e;
             } catch (\Exception $_e) {
+                // Clean up on our way out.
                 restore_error_handler();
                 if (ob_get_level() > 0) {
                     ob_end_clean();
@@ -55,6 +55,15 @@ class ExecutionClosure
 
                 throw $_e;
             }
+
+            // Won't be needing this anymore
+            restore_error_handler();
+
+            // Flush stdout (write to shell output, plus save to magic variable)
+            ob_end_flush();
+
+            // Save execution scope variables for next time
+            $__psysh__->setScopeVariables(get_defined_vars());
 
             return $_;
         };
@@ -92,7 +101,7 @@ class ExecutionClosure
      */
     protected static function shouldBindClosure()
     {
-        // skip binding on HHVM <= 3.5.0
+        // skip binding on HHVM < 3.5.0
         // see https://github.com/facebook/hhvm/issues/1203
         if (defined('HHVM_VERSION')) {
             return version_compare(HHVM_VERSION, '3.5.0', '>=');
