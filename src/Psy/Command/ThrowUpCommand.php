@@ -13,9 +13,9 @@ namespace Psy\Command;
 
 use Psy\Context;
 use Psy\ContextAware;
-use Psy\Input\CodeArgument;
 use Psy\Exception\ErrorException;
 use Psy\Exception\ThrowUpException;
+use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
