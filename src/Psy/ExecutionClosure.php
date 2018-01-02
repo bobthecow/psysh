@@ -59,7 +59,7 @@ class ExecutionClosure
             return $_;
         };
 
-        if (self::bindClosure()) {
+        if (self::shouldBindClosure()) {
             $that = $__psysh__->getBoundObject();
             if (is_object($that)) {
                 $this->closure = $exec->bindTo($that, get_class($that));
@@ -90,7 +90,7 @@ class ExecutionClosure
      *
      * @return bool
      */
-    protected static function bindClosure()
+    protected static function shouldBindClosure()
     {
         // skip binding on HHVM <= 3.5.0
         // see https://github.com/facebook/hhvm/issues/1203
