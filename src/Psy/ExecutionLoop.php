@@ -26,9 +26,9 @@ class ExecutionLoop
      *
      * @throws ThrowUpException if thrown by the `throw-up` command
      *
-     * @param Shell &$shell
+     * @param Shell $shell
      */
-    public function run(Shell &$shell)
+    public function run(Shell $shell)
     {
         $this->loadIncludes($shell);
 
@@ -64,12 +64,12 @@ class ExecutionLoop
     /**
      * Load user-defined includes.
      *
-     * @param Shell &$shell
+     * @param Shell $shell
      */
-    protected function loadIncludes(Shell &$shell)
+    protected function loadIncludes(Shell $shell)
     {
         // Load user-defined includes
-        $load = function (Shell &$__psysh__) {
+        $load = function (Shell $__psysh__) {
             set_error_handler([$__psysh__, 'handleError']);
             foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                 try {
