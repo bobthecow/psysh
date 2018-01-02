@@ -21,11 +21,11 @@ class ExecutionClosure
     private $closure;
 
     /**
-     * @param Shell &$__psysh__
+     * @param Shell $__psysh__
      */
-    public function __construct(Shell &$__psysh__)
+    public function __construct(Shell $__psysh__)
     {
-        $exec = function () use (&$__psysh__) {
+        $exec = function () use ($__psysh__) {
             try {
                 // Restore execution scope variables
                 extract($__psysh__->getScopeVariables(false));
