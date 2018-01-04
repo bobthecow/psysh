@@ -61,6 +61,7 @@ By default it throws the most recent exception.
 e.g.
 <return>>>> throw-up</return>
 <return>>>> throw-up $e</return>
+<return>>>> throw-up new Exception('WHEEEEEE!')</return>
 HELP
             );
     }

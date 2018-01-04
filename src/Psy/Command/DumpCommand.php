@@ -59,6 +59,7 @@ This is like var_dump but <strong>way</strong> awesomer.
 e.g.
 <return>>>> dump $_</return>
 <return>>>> dump $someVar</return>
+<return>>>> dump $stuff->getAll()</return>
 HELP
             );
     }

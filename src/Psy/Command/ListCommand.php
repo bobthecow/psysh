@@ -104,6 +104,7 @@ e.g.
 <return>>>> ls -al ReflectionClass</return>
 <return>>>> ls --constants --category date</return>
 <return>>>> ls -l --functions --grep /^array_.*/</return>
+<return>>>> ls -l --properties new DateTime()</return>
 HELP
             );
     }

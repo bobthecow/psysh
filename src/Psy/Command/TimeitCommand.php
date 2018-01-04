@@ -37,6 +37,7 @@ class TimeitCommand extends Command
 Time profiling for functions and commands.
 
 e.g.
+<return>>>> timeit sleep(1)</return>
 <return>>>> timeit $closure()</return>
 HELP
             );
