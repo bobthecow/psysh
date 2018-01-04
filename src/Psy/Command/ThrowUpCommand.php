@@ -16,7 +16,6 @@ use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\ThrowUpException;
 use Psy\Input\CodeArgument;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -50,7 +49,7 @@ class ThrowUpCommand extends Command implements ContextAware
         $this
             ->setName('throw-up')
             ->setDefinition([
-                new CodeArgument('exception', InputArgument::OPTIONAL, 'Exception or Error to throw.'),
+                new CodeArgument('exception', CodeArgument::OPTIONAL, 'Exception or Error to throw.'),
             ])
             ->setDescription('Throw an exception or error out of the Psy Shell.')
             ->setHelp(

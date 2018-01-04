@@ -13,7 +13,6 @@ namespace Psy\Command;
 
 use Psy\Input\CodeArgument;
 use Psy\Shell;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -30,7 +29,7 @@ class TimeitCommand extends Command
         $this
             ->setName('timeit')
             ->setDefinition([
-                new CodeArgument('code', InputArgument::REQUIRED, 'Code to execute.'),
+                new CodeArgument('code', CodeArgument::REQUIRED, 'Code to execute.'),
             ])
             ->setDescription('Profiles with a timer.')
             ->setHelp(

@@ -17,7 +17,6 @@ use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
 use Psy\Readline\Readline;
 use Psy\Sudo\SudoVisitor;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -65,7 +64,7 @@ class SudoCommand extends Command
         $this
             ->setName('sudo')
             ->setDefinition([
-                new CodeArgument('code', InputArgument::REQUIRED, 'Code to execute.'),
+                new CodeArgument('code', CodeArgument::REQUIRED, 'Code to execute.'),
             ])
             ->setDescription('Evaluate PHP code, bypassing visibility restrictions.')
             ->setHelp(

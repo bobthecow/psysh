@@ -35,7 +35,7 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
     {
         $definition = new InputDefinition([
             new InputOption('foo', null, InputOption::VALUE_REQUIRED),
-            new CodeArgument('code', null, InputOption::VALUE_REQUIRED),
+            new CodeArgument('code', null, CodeArgument::REQUIRED),
         ]);
 
         $input = new ShellInput('--foo=bar echo "baz\n";');
@@ -48,8 +48,8 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
     {
         $definition = new InputDefinition([
             new InputOption('foo', null, InputOption::VALUE_REQUIRED),
-            new InputArgument('bar', null, InputOption::VALUE_REQUIRED),
-            new InputArgument('baz', null, InputOption::VALUE_REQUIRED),
+            new InputArgument('bar', null, InputArgument::REQUIRED),
+            new InputArgument('baz', null, InputArgument::REQUIRED),
         ]);
 
         $input = new ShellInput('--foo=foo bar "baz\n"');

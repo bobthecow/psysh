@@ -19,7 +19,6 @@ use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -92,7 +91,7 @@ class ParseCommand extends Command implements ContextAware, PresenterAware
     protected function configure()
     {
         $definition = [
-            new CodeArgument('code', InputArgument::REQUIRED, 'PHP code to parse.'),
+            new CodeArgument('code', CodeArgument::REQUIRED, 'PHP code to parse.'),
             new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
         ];
 
