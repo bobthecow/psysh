@@ -74,7 +74,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if ($code = $input->getArgument('exception')) {
-            $orig = $this->getApplication()->execute($code);
+            $orig = $this->getApplication()->execute($code, true);
         } else {
             $orig = $this->context->getLastException();
         }

@@ -982,16 +982,19 @@ class Shell extends Application
     /**
      * Execute code in the shell execution context.
      *
-     * @todo Should this write exceptions? Should it accept a $silent param to suppress them?
-     *
      * @param string $code
+     * @param bool   $throwExceptions
      *
      * @return mixed
      */
-    public function execute($code)
+    public function execute($code, $throwExceptions = false)
     {
         $this->setCode($code, true);
         $closure = new ExecutionClosure($this);
+
+        if ($throwExceptions) {
+            return $closure->execute();
+        }
 
         try {
             return $closure->execute();
