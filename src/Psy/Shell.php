@@ -16,6 +16,7 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
+use Psy\Exception\TypeErrorException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Input\ShellInput;
@@ -943,6 +944,12 @@ class Shell extends Application
                 $message = sprintf('%s with message \'%s\'', get_class($e), $message);
             }
         }
+
+        $message = preg_replace(
+            "#(\\w:)?(/\\w+)*/Psy/ExecutionClosure.php\(\d+\) : eval\(\)'d code#",
+            "eval()'d code",
+            str_replace('\\', '/', $message)
+        );
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
