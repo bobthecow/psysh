@@ -13,8 +13,8 @@ namespace Psy\Command;
 
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
+use Psy\Input\CodeArgument;
 use Psy\Reflection\ReflectionLanguageConstruct;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -32,7 +32,7 @@ class DocCommand extends ReflectingCommand
             ->setName('doc')
             ->setAliases(['rtfm', 'man'])
             ->setDefinition([
-                new InputArgument('value', InputArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
+                new CodeArgument('target', CodeArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
             ])
             ->setDescription('Read the documentation for an object, class, constant, method or property.')
             ->setHelp(
@@ -56,7 +56,7 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $value = $input->getArgument('value');
+        $value = $input->getArgument('target');
         if (ReflectionLanguageConstruct::isLanguageConstruct($value)) {
             $reflector = new ReflectionLanguageConstruct($value);
             $doc = $this->getManualDocById($value);

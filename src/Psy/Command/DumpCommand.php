@@ -11,10 +11,9 @@
 
 namespace Psy\Command;
 
-use Psy\Exception\RuntimeException;
+use Psy\Input\CodeArgument;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -46,7 +45,7 @@ class DumpCommand extends ReflectingCommand implements PresenterAware
         $this
             ->setName('dump')
             ->setDefinition([
-                new InputArgument('target', InputArgument::REQUIRED, 'A target object or primitive to dump.', null),
+                new CodeArgument('target', CodeArgument::REQUIRED, 'A target object or primitive to dump.'),
                 new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
                 new InputOption('all', 'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
             ])
@@ -70,7 +69,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $depth  = $input->getOption('depth');
-        $target = $this->resolveTarget($input->getArgument('target'));
+        $target = $this->resolveCode($input->getArgument('target'));
         $output->page($this->presenter->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
 
         if (is_object($target)) {
@@ -79,27 +78,16 @@ HELP
     }
 
     /**
-     * Resolve dump target name.
-     *
-     * @throws RuntimeException if target name does not exist in the current scope
+     * @deprecated Use `resolveCode` instead
      *
      * @param string $target
      *
      * @return mixed
      */
-    protected function resolveTarget($target)
+    protected function resolveTarget($name)
     {
-        $matches = [];
-        if (preg_match(self::SUPERGLOBAL, $target, $matches)) {
-            if (!array_key_exists($matches[1], $GLOBALS)) {
-                throw new RuntimeException('Unknown target: ' . $target);
-            }
+        @trigger_error('`resolveTarget` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
 
-            return $GLOBALS[$matches[1]];
-        } elseif (preg_match(self::INSTANCE, $target, $matches)) {
-            return $this->getScopeVariable($matches[1]);
-        } else {
-            throw new RuntimeException('Unknown target: ' . $target);
-        }
+        return $this->resolveCode($name);
     }
 }

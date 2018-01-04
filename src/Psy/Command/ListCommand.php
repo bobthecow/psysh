@@ -20,12 +20,12 @@ use Psy\Command\ListCommand\MethodEnumerator;
 use Psy\Command\ListCommand\PropertyEnumerator;
 use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
+use Psy\Input\CodeArgument;
 use Psy\Input\FilterOptions;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\TableHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -59,7 +59,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
             ->setName('ls')
             ->setAliases(['list', 'dir'])
             ->setDefinition([
-                new InputArgument('target', InputArgument::OPTIONAL, 'A target class or object to list.', null),
+                new CodeArgument('target', CodeArgument::OPTIONAL, 'A target class or object to list.'),
 
                 new InputOption('vars',        '',  InputOption::VALUE_NONE,     'Display variables.'),
                 new InputOption('constants',   'c', InputOption::VALUE_NONE,     'Display defined constants.'),
@@ -119,7 +119,7 @@ HELP
         $method = $input->getOption('long') ? 'writeLong' : 'write';
 
         if ($target = $input->getArgument('target')) {
-            list($target, $reflector) = $this->getTargetAndReflector($target, true);
+            list($target, $reflector) = $this->getTargetAndReflector($target);
         } else {
             $reflector = null;
         }

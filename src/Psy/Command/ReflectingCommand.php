@@ -22,12 +22,9 @@ use Psy\Util\Mirror;
 abstract class ReflectingCommand extends Command implements ContextAware
 {
     const CLASS_OR_FUNC   = '/^[\\\\\w]+$/';
-    const INSTANCE        = '/^\$(\w+)$/';
     const CLASS_MEMBER    = '/^([\\\\\w]+)::(\w+)$/';
     const CLASS_STATIC    = '/^([\\\\\w]+)::\$(\w+)$/';
-    const INSTANCE_MEMBER = '/^\$(\w+)(::|->)(\w+)$/';
-    const INSTANCE_STATIC = '/^\$(\w+)::\$(\w+)$/';
-    const SUPERGLOBAL     = '/^\$(GLOBALS|_(?:SERVER|ENV|FILES|COOKIE|POST|GET|SESSION))$/';
+    const INSTANCE_MEMBER = '/^(\$\w+)(::|->)(\w+)$/';
 
     /**
      * Context instance (for ContextAware interface).
@@ -52,48 +49,34 @@ abstract class ReflectingCommand extends Command implements ContextAware
      * @throws \InvalidArgumentException when the value specified can't be resolved
      *
      * @param string $valueName Function, class, variable, constant, method or property name
-     * @param bool   $classOnly True if the name should only refer to a class, function or instance
      *
      * @return array (class or instance name, member name, kind)
      */
-    protected function getTarget($valueName, $classOnly = false)
+    protected function getTarget($valueName)
     {
         $valueName = trim($valueName);
         $matches   = [];
         switch (true) {
-            case preg_match(self::SUPERGLOBAL, $valueName, $matches):
-                // @todo maybe do something interesting with these at some point?
-                if (array_key_exists($matches[1], $GLOBALS)) {
-                    throw new RuntimeException('Unable to inspect a non-object');
-                }
-
-                throw new RuntimeException('Unknown target: ' . $valueName);
             case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
                 return [$this->resolveName($matches[0], true), null, 0];
 
-            case preg_match(self::INSTANCE, $valueName, $matches):
-                return [$this->resolveInstance($matches[1]), null, 0];
-
-            case !$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches):
+            case preg_match(self::CLASS_MEMBER, $valueName, $matches):
                 return [$this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD];
 
-            case !$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches):
+            case preg_match(self::CLASS_STATIC, $valueName, $matches):
                 return [$this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY];
 
-            case !$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
+            case preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
                 if ($matches[2] === '->') {
                     $kind = Mirror::METHOD | Mirror::PROPERTY;
                 } else {
                     $kind = Mirror::CONSTANT | Mirror::METHOD;
                 }
 
-                return [$this->resolveInstance($matches[1]), $matches[3], $kind];
-
-            case !$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches):
-                return [$this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY];
+                return [$this->resolveObject($matches[1]), $matches[3], $kind];
 
             default:
-                throw new RuntimeException('Unknown target: ' . $valueName);
+                return [$this->resolveObject($valueName), null, 0];
         }
     }
 
@@ -126,21 +109,62 @@ abstract class ReflectingCommand extends Command implements ContextAware
      * Get a Reflector and documentation for a function, class or instance, constant, method or property.
      *
      * @param string $valueName Function, class, variable, constant, method or property name
-     * @param bool   $classOnly True if the name should only refer to a class, function or instance
      *
      * @return array (value, Reflector)
      */
-    protected function getTargetAndReflector($valueName, $classOnly = false)
+    protected function getTargetAndReflector($valueName)
     {
-        list($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
+        list($value, $member, $kind) = $this->getTarget($valueName);
 
         return [$value, Mirror::get($value, $member, $kind)];
     }
 
     /**
-     * Return a variable instance from the current scope.
+     * Resolve code to a value in the current scope.
      *
-     * @throws \InvalidArgumentException when the requested variable does not exist in the current scope
+     * @throws RuntimeException when the code does not return a value in the current scope
+     *
+     * @param string $code
+     *
+     * @return mixed Variable value
+     */
+    protected function resolveCode($code)
+    {
+        try {
+            $value = $this->getApplication()->execute($code, true);
+        } catch (\Exception $e) {
+            // Swallow all exceptions?
+        }
+
+        if (!isset($value)) {
+            throw new RuntimeException('Unknown target: ' . $code);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Resolve code to an object in the current scope.
+     *
+     * @throws RuntimeException when the code resolves to a non-object value
+     *
+     * @param string $code
+     *
+     * @return object Variable instance
+     */
+    private function resolveObject($code)
+    {
+        $value = $this->resolveCode($code);
+
+        if (!is_object($value)) {
+            throw new RuntimeException('Unable to inspect a non-object');
+        }
+
+        return $value;
+    }
+
+    /**
+     * @deprecated Use `resolveCode` instead
      *
      * @param string $name
      *
@@ -148,12 +172,9 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function resolveInstance($name)
     {
-        $value = $this->getScopeVariable($name);
-        if (!is_object($value)) {
-            throw new RuntimeException('Unable to inspect a non-object');
-        }
+        @trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
 
-        return $value;
+        return $this->resolveCode($name);
     }
 
     /**

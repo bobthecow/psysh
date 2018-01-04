@@ -17,9 +17,9 @@ use Psy\ConsoleColorFactory;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\SignatureFormatter;
+use Psy\Input\CodeArgument;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -52,7 +52,7 @@ class ShowCommand extends ReflectingCommand
         $this
             ->setName('show')
             ->setDefinition([
-                new InputArgument('value', InputArgument::OPTIONAL, 'Function, class, instance, constant, method or property to show.'),
+                new CodeArgument('target', CodeArgument::OPTIONAL, 'Function, class, instance, constant, method or property to show.'),
                 new InputOption('ex', null,  InputOption::VALUE_OPTIONAL, 'Show last exception context. Optionally specify a stack index.', 1),
             ])
             ->setDescription('Show the code for an object, class, constant, method or property.')
@@ -95,23 +95,23 @@ HELP
         // "no --ex present", because it's the integer 1, "--ex with no value",
         // because it's `null`, and "--ex 1", because it's the string "1".
         if ($opts['ex'] !== 1) {
-            if ($input->getArgument('value')) {
-                throw new \InvalidArgumentException('Too many arguments (supply either "value" or "--ex")');
+            if ($input->getArgument('target')) {
+                throw new \InvalidArgumentException('Too many arguments (supply either "target" or "--ex")');
             }
 
             return $this->writeExceptionContext($input, $output);
         }
 
-        if ($input->getArgument('value')) {
+        if ($input->getArgument('target')) {
             return $this->writeCodeContext($input, $output);
         }
 
-        throw new RuntimeException('Not enough arguments (missing: "value")');
+        throw new RuntimeException('Not enough arguments (missing: "target")');
     }
 
     private function writeCodeContext(InputInterface $input, OutputInterface $output)
     {
-        list($value, $reflector) = $this->getTargetAndReflector($input->getArgument('value'));
+        list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'));
 
         // Set some magic local variables
         $this->setCommandScopeVariables($reflector);
