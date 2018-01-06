@@ -80,6 +80,13 @@ class CodeCleaner
      */
     private function getDefaultPasses()
     {
+        $useStatementPass = new UseStatementPass();
+        $namespacePass    = new NamespacePass($this);
+
+        // Try to add implicit `use` statements and an implicit namespace,
+        // based on the file in which the `debug` call was made.
+        $this->addImplicitDebugContext([$useStatementPass, $namespacePass]);
+
         return [
             // Validation passes
             new AbstractClassPass(),
@@ -97,11 +104,11 @@ class CodeCleaner
             new StaticConstructorPass(),
 
             // Rewriting shenanigans
-            new UseStatementPass(),   // must run before the namespace pass
+            $useStatementPass,        // must run before the namespace pass
             new ExitPass(),
             new ImplicitReturnPass(),
             new MagicConstantsPass(),
-            new NamespacePass($this), // must run after the implicit return pass
+            $namespacePass,           // must run after the implicit return pass
             new RequirePass(),
             new StrictTypesPass(),
 
@@ -110,6 +117,87 @@ class CodeCleaner
             new ValidConstantPass(),
             new ValidFunctionNamePass(),
         ];
+    }
+
+    /**
+     * "Warm up" code cleaner passes when we're coming from a debug call.
+     *
+     * This is useful, for example, for `UseStatementPass` and `NamespacePass`
+     * which keep track of state between calls, to maintain the current
+     * namespace and a map of use statements.
+     *
+     * @param array $passes
+     */
+    private function addImplicitDebugContext(array $passes)
+    {
+        $file = $this->getDebugFile();
+        if ($file === null) {
+            return;
+        }
+
+        try {
+            $code = @file_get_contents($file);
+            if (!$code) {
+                return;
+            }
+
+            $stmts = $this->parse($code, true);
+            if ($stmts === false) {
+                return;
+            }
+
+            // Set up a clean traverser for just these code cleaner passes
+            $traverser = new NodeTraverser();
+            foreach ($passes as $pass) {
+                $traverser->addVisitor($pass);
+            }
+
+            $traverser->traverse($stmts);
+        } catch (\Throwable $e) {
+            // Don't care.
+        } catch (\Exception $e) {
+            // Still don't care.
+        }
+    }
+
+    /**
+     * Search the stack trace for a file in which the user called Psy\debug.
+     *
+     * @return string|null
+     */
+    private static function getDebugFile()
+    {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+        foreach (array_reverse($trace) as $stackFrame) {
+            if (!self::isDebugCall($stackFrame)) {
+                continue;
+            }
+
+            if (preg_match('/eval\(/', $stackFrame['file'])) {
+                preg_match_all('/([^\(]+)\((\d+)/', $stackFrame['file'], $matches);
+
+                return $matches[1][0];
+            }
+
+            return $stackFrame['file'];
+        }
+    }
+
+    /**
+     * Check whether a given backtrace frame is a call to Psy\debug.
+     *
+     * @param array $stackFrame
+     *
+     * @return bool
+     */
+    private static function isDebugCall(array $stackFrame)
+    {
+        $class    = isset($stackFrame['class']) ? $stackFrame['class'] : null;
+        $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
+
+        return ($class === null && $function === 'Psy\debug') ||
+            ($class === 'Psy\Shell' && $function === 'debug');
     }
 
     /**
