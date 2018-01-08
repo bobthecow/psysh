@@ -31,11 +31,11 @@ class NamespacePassTest extends CodeCleanerTestCase
 
         // A non-block namespace statement should set the current namespace.
         $this->process('namespace Alpha');
-        $this->assertEquals(['Alpha'], $this->cleaner->getNamespace());
+        $this->assertSame(['Alpha'], $this->cleaner->getNamespace());
 
         // A new non-block namespace statement should override the current namespace.
         $this->process('namespace Beta; class B {}');
-        $this->assertEquals(['Beta'], $this->cleaner->getNamespace());
+        $this->assertSame(['Beta'], $this->cleaner->getNamespace());
 
         // A new block namespace clears out the current namespace...
         $this->process('namespace Gamma { array_merge(); }');
@@ -44,7 +44,7 @@ class NamespacePassTest extends CodeCleanerTestCase
             $this->assertNull($this->cleaner->getNamespace());
         } else {
             // But not for PHP-Parser < v3.1.2 :(
-            $this->assertEquals(['Gamma'], $this->cleaner->getNamespace());
+            $this->assertSame(['Gamma'], $this->cleaner->getNamespace());
         }
 
         $this->process('namespace Delta');

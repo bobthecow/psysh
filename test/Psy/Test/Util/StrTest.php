@@ -20,7 +20,7 @@ class StrTest extends \PHPUnit\Framework\TestCase
      */
     public function testUnvis($input, $expected)
     {
-        $this->assertEquals($expected, Str::unvis($input));
+        $this->assertSame($expected, Str::unvis($input));
     }
 
     public function unvisProvider()

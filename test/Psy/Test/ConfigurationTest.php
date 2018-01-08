@@ -30,10 +30,10 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     {
         $config = $this->getConfig();
 
-        $this->assertEquals(function_exists('readline'), $config->hasReadline());
-        $this->assertEquals(function_exists('readline'), $config->useReadline());
-        $this->assertEquals(function_exists('pcntl_signal'), $config->hasPcntl());
-        $this->assertEquals(function_exists('pcntl_signal'), $config->usePcntl());
+        $this->assertSame(function_exists('readline'), $config->hasReadline());
+        $this->assertSame(function_exists('readline'), $config->useReadline());
+        $this->assertSame(function_exists('pcntl_signal'), $config->hasPcntl());
+        $this->assertSame(function_exists('pcntl_signal'), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());
@@ -45,11 +45,11 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
         $this->assertNull($config->getDataDir());
         $config->setDataDir('wheee');
-        $this->assertEquals('wheee', $config->getDataDir());
+        $this->assertSame('wheee', $config->getDataDir());
 
         $this->assertNull($config->getConfigDir());
         $config->setConfigDir('wheee');
-        $this->assertEquals('wheee', $config->getConfigDir());
+        $this->assertSame('wheee', $config->getConfigDir());
     }
 
     /**
@@ -61,9 +61,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         putenv("HOME=$home");
 
         $config = new Configuration();
-        $this->assertEquals(realpath($configFile),   realpath($config->getConfigFile()));
-        $this->assertEquals(realpath($historyFile),  realpath($config->getHistoryFile()));
-        $this->assertEquals(realpath($manualDbFile), realpath($config->getManualDbFile()));
+        $this->assertSame(realpath($configFile),   realpath($config->getConfigFile()));
+        $this->assertSame(realpath($historyFile),  realpath($config->getHistoryFile()));
+        $this->assertSame(realpath($manualDbFile), realpath($config->getManualDbFile()));
 
         putenv("HOME=$oldHome");
     }
@@ -116,7 +116,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
         $this->assertTrue($config->requireSemicolons());
-        $this->assertEquals(E_ERROR | E_WARNING, $config->errorLoggingLevel());
+        $this->assertSame(E_ERROR | E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
         $this->assertSame('Psysh is awesome!', $config->getStartupMessage());
     }
@@ -131,9 +131,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertStringStartsWith($runtimeDir, realpath(dirname($config->getPipe('pipe', 123))));
         $this->assertStringStartsWith($runtimeDir, realpath($config->getRuntimeDir()));
 
-        $this->assertEquals(function_exists('readline'), $config->useReadline());
+        $this->assertSame(function_exists('readline'), $config->useReadline());
         $this->assertFalse($config->usePcntl());
-        $this->assertEquals(E_ALL & ~E_NOTICE, $config->errorLoggingLevel());
+        $this->assertSame(E_ALL & ~E_NOTICE, $config->errorLoggingLevel());
     }
 
     public function testLoadLocalConfigFile()
@@ -178,7 +178,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
         $includes = $config->getDefaultIncludes();
         $this->assertCount(1, $includes);
-        $this->assertEquals('/file.php', $includes[0]);
+        $this->assertSame('/file.php', $includes[0]);
     }
 
     public function testGetOutput()
@@ -186,7 +186,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $config = $this->getConfig();
         $output = $config->getOutput();
 
-        $this->assertInstanceOf('\Psy\Output\ShellOutput', $output);
+        $this->assertInstanceOf('Psy\Output\ShellOutput', $output);
     }
 
     public function getOutputDecoratedProvider()
@@ -231,7 +231,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $config = $this->getConfig();
         $config->setColorMode($colorMode);
 
-        $this->assertEquals($colorMode, $config->colorMode());
+        $this->assertSame($colorMode, $config->colorMode());
     }
 
     /**

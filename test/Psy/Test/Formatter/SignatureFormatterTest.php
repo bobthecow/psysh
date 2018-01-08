@@ -28,7 +28,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
      */
     public function testFormat($reflector, $expected)
     {
-        $this->assertEquals($expected, strip_tags(SignatureFormatter::format($reflector)));
+        $this->assertSame($expected, strip_tags(SignatureFormatter::format($reflector)));
     }
 
     public function signatureReflectors()

@@ -20,11 +20,11 @@ class HoaConsoleTest extends \PHPUnit\Framework\TestCase
         $readline = new HoaConsole();
         $this->assertEmpty($readline->listHistory());
         $readline->addHistory('foo');
-        $this->assertEquals(['foo'], $readline->listHistory());
+        $this->assertSame(['foo'], $readline->listHistory());
         $readline->addHistory('bar');
-        $this->assertEquals(['foo', 'bar'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar'], $readline->listHistory());
         $readline->addHistory('baz');
-        $this->assertEquals(['foo', 'bar', 'baz'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar', 'baz'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }

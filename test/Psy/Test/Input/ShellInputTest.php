@@ -28,7 +28,7 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
         $r = new \ReflectionClass('Psy\Input\ShellInput');
         $p = $r->getProperty('tokenPairs');
         $p->setAccessible(true);
-        $this->assertEquals($tokens, $p->getValue($input), $message);
+        $this->assertSame($tokens, $p->getValue($input), $message);
     }
 
     public function testInputOptionWithGivenString()
@@ -40,8 +40,8 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
 
         $input = new ShellInput('--foo=bar echo "baz\n";');
         $input->bind($definition);
-        $this->assertEquals('bar', $input->getOption('foo'));
-        $this->assertEquals('echo "baz\n";', $input->getArgument('code'));
+        $this->assertSame('bar', $input->getOption('foo'));
+        $this->assertSame('echo "baz\n";', $input->getArgument('code'));
     }
 
     public function testInputOptionWithoutCodeArguments()
@@ -54,9 +54,9 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
 
         $input = new ShellInput('--foo=foo bar "baz\n"');
         $input->bind($definition);
-        $this->assertEquals('foo', $input->getOption('foo'));
-        $this->assertEquals('bar', $input->getArgument('bar'));
-        $this->assertEquals("baz\n", $input->getArgument('baz'));
+        $this->assertSame('foo', $input->getOption('foo'));
+        $this->assertSame('bar', $input->getArgument('bar'));
+        $this->assertSame("baz\n", $input->getArgument('baz'));
     }
 
     public function getTokenizeData()

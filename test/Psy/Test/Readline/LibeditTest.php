@@ -45,11 +45,11 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
         $readline = new Libedit($this->historyFile);
         $this->assertEmpty($readline->listHistory());
         $readline->addHistory('foo');
-        $this->assertEquals(['foo'], $readline->listHistory());
+        $this->assertSame(['foo'], $readline->listHistory());
         $readline->addHistory('bar');
-        $this->assertEquals(['foo', 'bar'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar'], $readline->listHistory());
         $readline->addHistory('baz');
-        $this->assertEquals(['foo', 'bar', 'baz'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar', 'baz'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }
@@ -63,11 +63,11 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
         $this->assertEmpty($readline->listHistory());
         $readline->addHistory('foo');
         $readline->addHistory('bar');
-        $this->assertEquals(['foo', 'bar'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar'], $readline->listHistory());
         $readline->addHistory('baz');
-        $this->assertEquals(['bar', 'baz'], $readline->listHistory());
+        $this->assertSame(['bar', 'baz'], $readline->listHistory());
         $readline->addHistory('w00t');
-        $this->assertEquals(['baz', 'w00t'], $readline->listHistory());
+        $this->assertSame(['baz', 'w00t'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }
@@ -82,11 +82,11 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
         $readline->addHistory('foo');
         $readline->addHistory('bar');
         $readline->addHistory('foo');
-        $this->assertEquals(['bar', 'foo'], $readline->listHistory());
+        $this->assertSame(['bar', 'foo'], $readline->listHistory());
         $readline->addHistory('baz');
         $readline->addHistory('w00t');
         $readline->addHistory('baz');
-        $this->assertEquals(['bar', 'foo', 'w00t', 'baz'], $readline->listHistory());
+        $this->assertSame(['bar', 'foo', 'w00t', 'baz'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }
@@ -99,7 +99,7 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
             "This is an entry\n\0This is a comment\nThis is an entry\0With a comment\n",
             FILE_APPEND
         );
-        $this->assertEquals([
+        $this->assertSame([
             'This is an entry',
             'This is an entry',
         ], $readline->listHistory());
@@ -118,7 +118,7 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
             "foo\rbar\nbaz\r\nw00t",
             FILE_APPEND
         );
-        $this->assertEquals([
+        $this->assertSame([
             "foo\rbar",
             "baz\r",
             'w00t',
