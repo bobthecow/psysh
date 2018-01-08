@@ -55,7 +55,7 @@ class DocblockFormatterTest extends \PHPUnit\Framework\TestCase
 <comment>Author:</comment> Justin Hileman \<justin@justinhileman.info>
 EOS;
 
-        $this->assertEquals(
+        $this->assertSame(
             $expected,
             DocblockFormatter::format(new \ReflectionMethod($this, 'methodWithDocblock'))
         );

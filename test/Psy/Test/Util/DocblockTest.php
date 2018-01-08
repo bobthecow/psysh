@@ -31,7 +31,7 @@ class DocblockTest extends \PHPUnit\Framework\TestCase
 
         $docblock = new Docblock($reflector);
 
-        $this->assertEquals($body, $docblock->desc);
+        $this->assertSame($body, $docblock->desc);
 
         foreach ($tags as $tag => $value) {
             $this->assertTrue($docblock->hasTag($tag));

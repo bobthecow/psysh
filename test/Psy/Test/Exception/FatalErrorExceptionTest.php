@@ -11,7 +11,6 @@
 
 namespace Psy\Test\Exception;
 
-use Psy\Exception\Exception;
 use Psy\Exception\FatalErrorException;
 
 class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
@@ -20,16 +19,16 @@ class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $e = new FatalErrorException();
 
-        $this->assertTrue($e instanceof Exception);
-        $this->assertTrue($e instanceof \ErrorException);
-        $this->assertTrue($e instanceof FatalErrorException);
+        $this->assertInstanceOf('Psy\Exception\Exception', $e);
+        $this->assertInstanceOf('ErrorException', $e);
+        $this->assertInstanceOf('Psy\Exception\FatalErrorException', $e);
     }
 
     public function testMessage()
     {
         $e = new FatalErrorException('{msg}', 0, 0, '{filename}', 13);
 
-        $this->assertEquals('{msg}', $e->getRawMessage());
+        $this->assertSame('{msg}', $e->getRawMessage());
         $this->assertContains('{msg}', $e->getMessage());
         $this->assertContains('{filename}', $e->getMessage());
         $this->assertContains('line 13', $e->getMessage());
@@ -39,7 +38,7 @@ class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $e = new FatalErrorException('{msg}');
 
-        $this->assertEquals('{msg}', $e->getRawMessage());
+        $this->assertSame('{msg}', $e->getRawMessage());
         $this->assertContains('{msg}', $e->getMessage());
         $this->assertContains('eval()\'d code', $e->getMessage());
     }

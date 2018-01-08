@@ -12,7 +12,6 @@
 namespace Psy\Test\Exception;
 
 use Psy\Exception\ErrorException;
-use Psy\Exception\Exception;
 
 class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
 {
@@ -20,9 +19,9 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $e = new ErrorException();
 
-        $this->assertTrue($e instanceof Exception);
-        $this->assertTrue($e instanceof \ErrorException);
-        $this->assertTrue($e instanceof ErrorException);
+        $this->assertInstanceOf('Psy\Exception\Exception', $e);
+        $this->assertInstanceOf('ErrorException', $e);
+        $this->assertInstanceOf('Psy\Exception\ErrorException', $e);
     }
 
     public function testMessage()
@@ -30,7 +29,7 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
         $e = new ErrorException('foo');
 
         $this->assertContains('foo', $e->getMessage());
-        $this->assertEquals('foo', $e->getRawMessage());
+        $this->assertSame('foo', $e->getRawMessage());
     }
 
     /**

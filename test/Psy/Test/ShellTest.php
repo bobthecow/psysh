@@ -42,20 +42,20 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
-        $this->assertEquals(['one', 'two', 'three', '_'], $shell->getScopeVariableNames());
-        $this->assertEquals('banana', $shell->getScopeVariable('one'));
-        $this->assertEquals(123, $shell->getScopeVariable('two'));
+        $this->assertSame(['one', 'two', 'three', '_'], $shell->getScopeVariableNames());
+        $this->assertSame('banana', $shell->getScopeVariable('one'));
+        $this->assertSame(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));
         $this->assertNull($shell->getScopeVariable('_'));
 
         $shell->setScopeVariables([]);
-        $this->assertEquals(['_'], $shell->getScopeVariableNames());
+        $this->assertSame(['_'], $shell->getScopeVariableNames());
 
         $shell->setBoundObject($this);
-        $this->assertEquals(['_', 'this'], $shell->getScopeVariableNames());
+        $this->assertSame(['_', 'this'], $shell->getScopeVariableNames());
         $this->assertSame($this, $shell->getScopeVariable('this'));
-        $this->assertEquals(['_' => null], $shell->getScopeVariables(false));
-        $this->assertEquals(['_' => null, 'this' => $this], $shell->getScopeVariables());
+        $this->assertSame(['_' => null], $shell->getScopeVariables(false));
+        $this->assertSame(['_' => null, 'this' => $this], $shell->getScopeVariables());
     }
 
     /**
@@ -75,7 +75,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell = new Shell($config);
         $this->assertEmpty($shell->getIncludes());
         $shell->setIncludes(['foo', 'bar', 'baz']);
-        $this->assertEquals(['foo', 'bar', 'baz'], $shell->getIncludes());
+        $this->assertSame(['foo', 'bar', 'baz'], $shell->getIncludes());
     }
 
     public function testIncludesConfig()
@@ -88,7 +88,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell = new Shell($config);
 
         $includes = $shell->getIncludes();
-        $this->assertEquals('/file.php', $includes[0]);
+        $this->assertSame('/file.php', $includes[0]);
     }
 
     public function testAddMatchersViaConfig()
@@ -101,7 +101,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         ]);
         $config->setShell($shell);
 
-        $this->assertEquals([$matcher], $shell->matchers);
+        $this->assertSame([$matcher], $shell->matchers);
     }
 
     public function testAddMatchersViaConfigAfterShell()
@@ -113,7 +113,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $config->setShell($shell);
         $config->addMatchers([$matcher]);
 
-        $this->assertEquals([$matcher], $shell->matchers);
+        $this->assertSame([$matcher], $shell->matchers);
     }
 
     public function testRenderingExceptions()
@@ -212,7 +212,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($shell->hasCode());
         $code = preg_replace('/\s+/', ' ', $code);
         $this->assertNotNull($code);
-        $this->assertEquals('class a { } return new \\Psy\\CodeCleaner\\NoReturnValue();', $code);
+        $this->assertSame('class a { } return new \\Psy\\CodeCleaner\\NoReturnValue();', $code);
     }
 
     public function testKeepCodeBufferOpen()
@@ -232,7 +232,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($shell->hasCode());
         $code = preg_replace('/\s+/', ' ', $code);
         $this->assertNotNull($code);
-        $this->assertEquals('return 1 + 1 + 1;', $code);
+        $this->assertSame('return 1 + 1 + 1;', $code);
     }
 
     /**
@@ -253,7 +253,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->flushCode();
         $code = '$test()';
         $shell->addCode($code);
-        $this->assertEquals($shell->flushCode(), 'return $test();');
+        $this->assertSame($shell->flushCode(), 'return $test();');
     }
 
     public function testWriteStdout()
@@ -268,7 +268,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
-        $this->assertEquals('{{stdout}}' . PHP_EOL, $streamContents);
+        $this->assertSame('{{stdout}}' . PHP_EOL, $streamContents);
     }
 
     public function testWriteStdoutWithoutNewline()
@@ -283,7 +283,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         rewind($stream);
         $streamContents = stream_get_contents($stream);
 
-        $this->assertEquals('{{stdout}}<aside>⏎</aside>' . PHP_EOL, $streamContents);
+        $this->assertSame('{{stdout}}<aside>⏎</aside>' . PHP_EOL, $streamContents);
     }
 
     /**
@@ -321,7 +321,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $shell->writeException($exception);
         rewind($stream);
-        $this->assertEquals($expected, stream_get_contents($stream));
+        $this->assertSame($expected, stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
@@ -342,7 +342,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->setOutput($output);
         $this->assertEquals($expected, $shell->execute($input));
         rewind($stream);
-        $this->assertEquals('', stream_get_contents($stream));
+        $this->assertSame('', stream_get_contents($stream));
     }
 
     public function getExecuteValues()

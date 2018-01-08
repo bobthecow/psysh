@@ -11,7 +11,6 @@
 
 namespace Psy\Test\Util;
 
-use Psy\Reflection\ReflectionConstant;
 use Psy\Util\Mirror;
 
 class MirrorTest extends \PHPUnit\Framework\TestCase
@@ -28,28 +27,28 @@ class MirrorTest extends \PHPUnit\Framework\TestCase
     public function testMirror()
     {
         $refl = Mirror::get('sort');
-        $this->assertTrue($refl instanceof \ReflectionFunction);
+        $this->assertInstanceOf('ReflectionFunction', $refl);
 
         $refl = Mirror::get('Psy\Test\Util\MirrorTest');
-        $this->assertTrue($refl instanceof \ReflectionClass);
+        $this->assertInstanceOf('ReflectionClass', $refl);
 
         $refl = Mirror::get($this);
-        $this->assertTrue($refl instanceof \ReflectionObject);
+        $this->assertInstanceOf('ReflectionObject', $refl);
 
         $refl = Mirror::get($this, 'FOO');
-        $this->assertTrue($refl instanceof ReflectionConstant);
+        $this->assertInstanceOf('Psy\Reflection\ReflectionConstant', $refl);
 
         $refl = Mirror::get($this, 'bar');
-        $this->assertTrue($refl instanceof \ReflectionProperty);
+        $this->assertInstanceOf('ReflectionProperty', $refl);
 
         $refl = Mirror::get($this, 'baz');
-        $this->assertTrue($refl instanceof \ReflectionProperty);
+        $this->assertInstanceOf('ReflectionProperty', $refl);
 
         $refl = Mirror::get($this, 'aPublicMethod');
-        $this->assertTrue($refl instanceof \ReflectionMethod);
+        $this->assertInstanceOf('ReflectionMethod', $refl);
 
         $refl = Mirror::get($this, 'baz', Mirror::STATIC_PROPERTY);
-        $this->assertTrue($refl instanceof \ReflectionProperty);
+        $this->assertInstanceOf('ReflectionProperty', $refl);
     }
 
     /**

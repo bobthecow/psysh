@@ -21,7 +21,7 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
     public function testAutomaticSemicolons(array $lines, $requireSemicolons, $expected)
     {
         $cc = new CodeCleaner();
-        $this->assertEquals($expected, $cc->clean($lines, $requireSemicolons));
+        $this->assertSame($expected, $cc->clean($lines, $requireSemicolons));
     }
 
     public function semicolonCodeProvider()

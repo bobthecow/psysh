@@ -20,11 +20,11 @@ class TransientTest extends \PHPUnit\Framework\TestCase
         $readline = new Transient();
         $this->assertEmpty($readline->listHistory());
         $readline->addHistory('foo');
-        $this->assertEquals(['foo'], $readline->listHistory());
+        $this->assertSame(['foo'], $readline->listHistory());
         $readline->addHistory('bar');
-        $this->assertEquals(['foo', 'bar'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar'], $readline->listHistory());
         $readline->addHistory('baz');
-        $this->assertEquals(['foo', 'bar', 'baz'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar', 'baz'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }
@@ -38,11 +38,11 @@ class TransientTest extends \PHPUnit\Framework\TestCase
         $this->assertEmpty($readline->listHistory());
         $readline->addHistory('foo');
         $readline->addHistory('bar');
-        $this->assertEquals(['foo', 'bar'], $readline->listHistory());
+        $this->assertSame(['foo', 'bar'], $readline->listHistory());
         $readline->addHistory('baz');
-        $this->assertEquals(['bar', 'baz'], $readline->listHistory());
+        $this->assertSame(['bar', 'baz'], $readline->listHistory());
         $readline->addHistory('w00t');
-        $this->assertEquals(['baz', 'w00t'], $readline->listHistory());
+        $this->assertSame(['baz', 'w00t'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }
@@ -57,11 +57,11 @@ class TransientTest extends \PHPUnit\Framework\TestCase
         $readline->addHistory('foo');
         $readline->addHistory('bar');
         $readline->addHistory('foo');
-        $this->assertEquals(['bar', 'foo'], $readline->listHistory());
+        $this->assertSame(['bar', 'foo'], $readline->listHistory());
         $readline->addHistory('baz');
         $readline->addHistory('w00t');
         $readline->addHistory('baz');
-        $this->assertEquals(['bar', 'foo', 'w00t', 'baz'], $readline->listHistory());
+        $this->assertSame(['bar', 'foo', 'w00t', 'baz'], $readline->listHistory());
         $readline->clearHistory();
         $this->assertEmpty($readline->listHistory());
     }

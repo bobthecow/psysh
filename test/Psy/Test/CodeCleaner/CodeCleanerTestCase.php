@@ -66,7 +66,7 @@ class CodeCleanerTestCase extends \PHPUnit\Framework\TestCase
     {
         $stmts = $this->parse($from);
         $stmts = $this->traverse($stmts);
-        $this->assertEquals($to, $this->prettyPrint($stmts));
+        $this->assertSame($to, $this->prettyPrint($stmts));
     }
 
     private function getParser()
