@@ -39,7 +39,7 @@ class Mirror
      * @param string $member Optional: property, constant or method name (default: null)
      * @param int    $filter (default: CONSTANT | METHOD | PROPERTY | STATIC_PROPERTY)
      *
-     * @return Reflector
+     * @return \Reflector
      */
     public static function get($value, $member = null, $filter = 15)
     {

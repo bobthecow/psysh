@@ -100,7 +100,7 @@ class ClassEnumerator extends Enumerator
     /**
      * Prepare formatted class array.
      *
-     * @param array $class
+     * @param array $classes
      *
      * @return array
      */

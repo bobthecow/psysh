@@ -18,6 +18,8 @@ use Symfony\Component\Finder\Finder;
  */
 class Compiler
 {
+    private $version;
+
     /**
      * Compiles psysh into a single phar file.
      *

@@ -41,7 +41,7 @@ class ShowCommand extends ReflectingCommand
     {
         $this->colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
 
-        return parent::__construct();
+        parent::__construct();
     }
 
     /**

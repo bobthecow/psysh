@@ -55,7 +55,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * presence and can validate constant fetches and static calls in class or
      * trait methods.
      *
-     * @param Node
+     * @param Node $node
      */
     public function enterNode(Node $node)
     {
@@ -287,8 +287,8 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @throws FatalErrorException
      *
-     * @param $interfaces
-     * @param Stmt $stmt
+     * @param Interface_[] $interfaces
+     * @param Stmt         $stmt
      */
     protected function ensureInterfacesExist($interfaces, $stmt)
     {

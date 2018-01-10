@@ -252,7 +252,7 @@ if (!function_exists('Psy\bin')) {
     /**
      * `psysh` command line executable.
      *
-     * @return Closure
+     * @return \Closure
      */
     function bin()
     {
@@ -331,7 +331,7 @@ EOL;
             try {
                 // And go!
                 $shell->run();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 echo $e->getMessage() . PHP_EOL;
 
                 // @todo this triggers the "exited unexpectedly" logic in the

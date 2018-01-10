@@ -29,7 +29,7 @@ class ObjectMethodDefaultParametersMatcher extends AbstractDefaultParametersMatc
         try {
             $object = $this->getVariable($objectName);
             $reflection = new \ReflectionObject($object);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             return [];
         } catch (\ReflectionException $e) {
             return [];

@@ -81,7 +81,7 @@ HELP
     /**
      * @deprecated Use `resolveCode` instead
      *
-     * @param string $target
+     * @param string $name
      *
      * @return mixed
      */

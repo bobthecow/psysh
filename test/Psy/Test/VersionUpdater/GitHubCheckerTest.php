@@ -20,7 +20,7 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Unable to check for updates
      *
-     * @param $input
+     * @param mixed $input
      */
     public function testExceptionInvocation($input)
     {
@@ -34,8 +34,8 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider jsonResults
      *
-     * @param $assertion
-     * @param $input
+     * @param bool  $assertion
+     * @param mixed $input
      */
     public function testDataSetResults($assertion, $input)
     {

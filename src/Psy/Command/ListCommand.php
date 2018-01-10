@@ -41,7 +41,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
     /**
      * PresenterAware interface.
      *
-     * @param Presenter $manager
+     * @param Presenter $presenter
      */
     public function setPresenter(Presenter $presenter)
     {

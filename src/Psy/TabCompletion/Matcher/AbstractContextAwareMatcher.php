@@ -44,7 +44,7 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
     /**
      * Get a Context variable by name.
      *
-     * @param $var Variable name
+     * @param string $var Variable name
      *
      * @return mixed
      */

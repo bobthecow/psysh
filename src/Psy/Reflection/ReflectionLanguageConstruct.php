@@ -72,7 +72,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     /**
      * Construct a ReflectionLanguageConstruct object.
      *
-     * @param string $name
+     * @param string $keyword
      */
     public function __construct($keyword)
     {
@@ -116,7 +116,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     /**
      * Get language construct params.
      *
-     * @return
+     * @return array
      */
     public function getParameters()
     {
@@ -141,7 +141,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     /**
      * Check whether keyword is a (known) language construct.
      *
-     * @param $keyword
+     * @param string $keyword
      *
      * @return bool
      */

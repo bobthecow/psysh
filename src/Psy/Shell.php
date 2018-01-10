@@ -915,8 +915,7 @@ class Shell extends Application
      *
      * Stores $e as the last Exception in the Shell Context.
      *
-     * @param \Exception      $e      An exception instance
-     * @param OutputInterface $output An OutputInterface instance
+     * @param \Exception $e An exception instance
      */
     public function writeException(\Exception $e)
     {
