@@ -11,6 +11,7 @@
 
 namespace Psy\Input;
 
+use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

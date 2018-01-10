@@ -21,6 +21,7 @@ class Transient implements Readline
     private $history;
     private $historySize;
     private $eraseDups;
+    private $stdin;
 
     /**
      * Transient Readline is always supported.

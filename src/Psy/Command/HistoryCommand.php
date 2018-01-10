@@ -27,6 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class HistoryCommand extends Command
 {
     private $filter;
+    private $readline;
 
     /**
      * {@inheritdoc}

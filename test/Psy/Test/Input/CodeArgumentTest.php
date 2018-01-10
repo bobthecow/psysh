@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\Tests\Input;
+namespace Psy\Test\Input;
 
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\InputArgument;

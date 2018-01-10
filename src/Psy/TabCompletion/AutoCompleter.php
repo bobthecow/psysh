@@ -86,8 +86,8 @@ class AutoCompleter
      *
      * @see processCallback
      *
-     * @param $input
-     * @param $index
+     * @param string $input
+     * @param int    $index
      *
      * @return array
      */

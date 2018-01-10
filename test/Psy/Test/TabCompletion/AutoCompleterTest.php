@@ -21,9 +21,9 @@ use Psy\TabCompletion\Matcher;
 class AutoCompleterTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @param $line
-     * @param $mustContain
-     * @param $mustNotContain
+     * @param string $line
+     * @param array  $mustContain
+     * @param array  $mustNotContain
      * @dataProvider classesInput
      */
     public function testClassesCompletion($line, $mustContain, $mustNotContain)

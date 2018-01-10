@@ -25,6 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class WhereamiCommand extends Command
 {
     private $colorMode;
+    private $backtrace;
 
     /**
      * @param null|string $colorMode (default: null)
@@ -34,7 +35,7 @@ class WhereamiCommand extends Command
         $this->colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
         $this->backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        return parent::__construct();
+        parent::__construct();
     }
 
     /**

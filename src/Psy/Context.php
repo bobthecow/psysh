@@ -179,9 +179,9 @@ class Context
     /**
      * Get the most recent Exception.
      *
-     * @throws InvalidArgumentException If no Exception has been caught
+     * @throws \InvalidArgumentException If no Exception has been caught
      *
-     * @return null|Exception
+     * @return null|\Exception
      */
     public function getLastException()
     {
@@ -205,7 +205,7 @@ class Context
     /**
      * Get the most recent output from evaluated code.
      *
-     * @throws InvalidArgumentException If no output has happened yet
+     * @throws \InvalidArgumentException If no output has happened yet
      *
      * @return null|string
      */

@@ -219,7 +219,7 @@ class SignatureFormatter implements Formatter
      *
      * @param \ReflectionFunctionAbstract $reflector
      *
-     * @return string
+     * @return array
      */
     private static function formatFunctionParams(\ReflectionFunctionAbstract $reflector)
     {
