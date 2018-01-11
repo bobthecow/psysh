@@ -83,7 +83,7 @@ class ParserFactory
                 throw new \InvalidArgumentException('Install PHP Parser v2.x to specify parser kind');
             }
 
-            $parser = new Parser(new Lexer());
+            $parser = (new OriginalParserFactory())->create(new Lexer());
         }
 
         return $parser;
