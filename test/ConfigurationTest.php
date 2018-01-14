@@ -144,14 +144,14 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $config = new Configuration();
 
         // When no configuration file is specified local project config is merged
-        $this->assertFalse($config->useReadline());
-        $this->assertTrue($config->usePcntl());
+        $this->assertTrue($config->requireSemicolons());
+        $this->assertFalse($config->useUnicode());
 
         $config = new Configuration(['configFile' => __DIR__ . '/fixtures/config.php']);
 
         // Defining a configuration file skips loading local project config
-        $this->assertTrue($config->useReadline());
-        $this->assertFalse($config->usePcntl());
+        $this->assertFalse($config->requireSemicolons());
+        $this->assertTrue($config->useUnicode());
 
         chdir($oldPwd);
     }
