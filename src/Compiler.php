@@ -43,7 +43,7 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->notName('Compiler.php')
-            ->in(__DIR__ . '/..');
+            ->in(__DIR__);
 
         foreach ($finder as $file) {
             $this->addFile($phar, $file);
@@ -57,7 +57,7 @@ class Compiler
             ->exclude('tests')
             ->exclude('Test')
             ->exclude('test')
-            ->in(__DIR__ . '/../../build-vendor');
+            ->in(dirname(__DIR__) . '/build-vendor');
 
         foreach ($finder as $file) {
             $this->addFile($phar, $file);
@@ -80,7 +80,7 @@ class Compiler
      */
     private function addFile($phar, $file, $strip = true)
     {
-        $path = str_replace(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR, '', $file->getRealPath());
+        $path = str_replace(dirname(__DIR__) . DIRECTORY_SEPARATOR, '', $file->getRealPath());
 
         $content = file_get_contents($file);
         if ($strip) {
@@ -129,7 +129,7 @@ class Compiler
 
     private static function getStubLicense()
     {
-        $license = file_get_contents(__DIR__ . '/../../LICENSE');
+        $license = file_get_contents(dirname(__DIR__) . '/LICENSE');
         $license = str_replace('The MIT License (MIT)', '', $license);
         $license = str_replace("\n", "\n * ", trim($license));
 
@@ -150,7 +150,7 @@ EOS;
      */
     private function getStub()
     {
-        $content = file_get_contents(__DIR__ . '/../../bin/psysh');
+        $content = file_get_contents(dirname(__DIR__) . '/bin/psysh');
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', self::STUB_AUTOLOAD, $content);
         $content = preg_replace('/\\(c\\) .*?with this source code./sm', self::getStubLicense(), $content);
 

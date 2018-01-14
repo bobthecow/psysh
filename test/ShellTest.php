@@ -70,7 +70,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function testIncludes()
     {
-        $config = $this->getConfig(['configFile' => __DIR__ . '/../../fixtures/empty.php']);
+        $config = $this->getConfig(['configFile' => __DIR__ . '/fixtures/empty.php']);
 
         $shell = new Shell($config);
         $this->assertEmpty($shell->getIncludes());
@@ -82,7 +82,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $config = $this->getConfig([
             'defaultIncludes' => ['/file.php'],
-            'configFile'      => __DIR__ . '/../../fixtures/empty.php',
+            'configFile'      => __DIR__ . '/fixtures/empty.php',
         ]);
 
         $shell = new Shell($config);

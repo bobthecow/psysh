@@ -22,7 +22,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     private function getConfig($configFile = null)
     {
         return new Configuration([
-            'configFile' => $configFile ?: __DIR__ . '/../../fixtures/empty.php',
+            'configFile' => $configFile ?: __DIR__ . '/fixtures/empty.php',
         ]);
     }
 
@@ -70,7 +70,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function directories()
     {
-        $base = realpath(__DIR__ . '/../../fixtures');
+        $base = realpath(__DIR__ . '/fixtures');
 
         return [
             [
@@ -123,7 +123,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadConfigFile()
     {
-        $config = $this->getConfig(__DIR__ . '/../../fixtures/config.php');
+        $config = $this->getConfig(__DIR__ . '/fixtures/config.php');
 
         $runtimeDir = $this->joinPath(realpath(sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
 
@@ -139,7 +139,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     public function testLoadLocalConfigFile()
     {
         $oldPwd = getcwd();
-        chdir(realpath(__DIR__ . '/../../fixtures/project/'));
+        chdir(realpath(__DIR__ . '/fixtures/project/'));
 
         $config = new Configuration();
 
@@ -147,7 +147,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($config->useReadline());
         $this->assertTrue($config->usePcntl());
 
-        $config = new Configuration(['configFile' => __DIR__ . '/../../fixtures/config.php']);
+        $config = new Configuration(['configFile' => __DIR__ . '/fixtures/config.php']);
 
         // Defining a configuration file skips loading local project config
         $this->assertTrue($config->useReadline());
@@ -173,7 +173,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     {
         $config = new Configuration([
             'defaultIncludes' => ['/file.php'],
-            'configFile'      => __DIR__ . '/../../fixtures/empty.php',
+            'configFile'      => __DIR__ . '/fixtures/empty.php',
         ]);
 
         $includes = $config->getDefaultIncludes();

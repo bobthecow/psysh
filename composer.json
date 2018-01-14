@@ -33,14 +33,14 @@
         "hoa/console": "A pure PHP readline implementation. You'll want this if your PHP install doesn't already support readline or libedit."
     },
     "autoload": {
-        "files": ["src/Psy/functions.php"],
+        "files": ["src/functions.php"],
         "psr-4": {
-            "Psy\\": "src/Psy/"
+            "Psy\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Psy\\Test\\": "test/Psy/Test/"
+            "Psy\\Test\\": "test/"
         }
     },
     "bin": ["bin/psysh"],
