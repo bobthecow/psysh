@@ -28,8 +28,8 @@ class ReloadCommand extends Command
     {
         $this
             ->setName('reload')
-            ->setAliases(array('reload!'))
-            ->setDefinition(array())
+            ->setAliases(['reload!'])
+            ->setDefinition([])
             ->setDescription('Reload the current session.')
             ->setHelp(
                 <<<'HELP'
@@ -48,13 +48,13 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ( !function_exists('pcntl_exec') ) {
+        if (!function_exists('pcntl_exec')) {
             throw new RuntimeException('Unable to reload session (PCNTL is required).');
         }
 
         $output->writeln('<info>Reloading...</info>');
 
-        if ( !defined('PHP_BINARY') ) {
+        if (!defined('PHP_BINARY')) {
             throw new RuntimeException('Unable to identify PHP binary path.');
         }
 
