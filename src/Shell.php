@@ -196,6 +196,7 @@ class Shell extends Application
             new Command\BufferCommand(),
             new Command\ClearCommand(),
             new Command\EditCommand($this->config->getRuntimeDir()),
+            new Command\ReloadCommand(),
             // new Command\PsyVersionCommand(),
             $sudo,
             $hist,
