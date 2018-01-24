@@ -11,10 +11,9 @@
 
 namespace Psy\Command;
 
-use Psy\Exception\BreakException;
+use Psy\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Psy\Exception\RuntimeException;
 
 /**
  * Reload the Psy Shell.
