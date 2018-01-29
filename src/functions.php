@@ -127,6 +127,7 @@ if (!function_exists('Psy\info')) {
         $core = [
             'PsySH version'       => Shell::VERSION,
             'PHP version'         => PHP_VERSION,
+            'OS'                  => PHP_OS,
             'default includes'    => $config->getDefaultIncludes(),
             'require semicolons'  => $config->requireSemicolons(),
             'error logging level' => $config->errorLoggingLevel(),
