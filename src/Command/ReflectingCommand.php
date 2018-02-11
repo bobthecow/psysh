@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\CodeCleaner\NoReturnValue;
 use Psy\Context;
 use Psy\ContextAware;
 use Psy\Exception\RuntimeException;
@@ -136,7 +137,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
             // Swallow all exceptions?
         }
 
-        if (!isset($value)) {
+        if (!isset($value) || $value instanceof NoReturnValue) {
             throw new RuntimeException('Unknown target: ' . $code);
         }
 
