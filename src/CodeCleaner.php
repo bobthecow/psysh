@@ -31,11 +31,11 @@ use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\PassableByReferencePass;
 use Psy\CodeCleaner\RequirePass;
-use Psy\CodeCleaner\StaticConstructorPass;
 use Psy\CodeCleaner\StrictTypesPass;
 use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidConstantPass;
+use Psy\CodeCleaner\ValidConstructorPass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\Exception\ParseErrorException;
 
@@ -101,7 +101,7 @@ class CodeCleaner
             new LegacyEmptyPass(),
             new LoopContextPass(),
             new PassableByReferencePass(),
-            new StaticConstructorPass(),
+            new ValidConstructorPass(),
 
             // Rewriting shenanigans
             $useStatementPass,        // must run before the namespace pass

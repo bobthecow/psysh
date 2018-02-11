@@ -11,13 +11,13 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use Psy\CodeCleaner\StaticConstructorPass;
+use Psy\CodeCleaner\ValidConstructorPass;
 
-class StaticConstructorPassTest extends CodeCleanerTestCase
+class ValidConstructorPassTest extends CodeCleanerTestCase
 {
     protected function setUp()
     {
-        $this->setPass(new StaticConstructorPass());
+        $this->setPass(new ValidConstructorPass());
     }
 
     /**
@@ -42,10 +42,19 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return [
+        $stmts = [
             ['class A { public static function A() {}}'],
+            ['class A { public static function a() {}}'],
             ['class A { private static function A() {}}'],
+            ['class A { private static function a() {}}'],
         ];
+
+        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+            $stmts[] = ['class A { public function A(): ?array {}}'];
+            $stmts[] = ['class A { public function a(): ?array {}}'];
+        }
+
+        return $stmts;
     }
 
     public function invalidParserStatements()
@@ -70,10 +79,18 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return [
+        $stmts = [
             ['class A { public static function A() {} public function __construct() {}}'],
             ['class A { private function __construct() {} public static function A() {}}'],
             ['namespace B; class A { private static function A() {}}'],
         ];
+
+        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+            $stmts[] = ['class A { public static function A() {} public function __construct() {}}'];
+            $stmts[] = ['class A { private function __construct() {} public static function A(): ?array {}}'];
+            $stmts[] = ['namespace B; class A { private static function A(): ?array {}}'];
+        }
+
+        return $stmts;
     }
 }
