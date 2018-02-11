@@ -950,6 +950,8 @@ class Shell extends Application
             str_replace('\\', '/', $message)
         );
 
+        $message = str_replace(" in eval()'d code", ' in Psy Shell code', $message);
+
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
         return sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity);
