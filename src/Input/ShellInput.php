@@ -91,17 +91,17 @@ class ShellInput extends StringInput
             } elseif (preg_match('/([^="\'\s]+?)(=?)(' . StringInput::REGEX_QUOTED_STRING . '+)/A', $input, $match, null, $cursor)) {
                 $tokens[] = [
                     $match[1] . $match[2] . stripcslashes(str_replace(['"\'', '\'"', '\'\'', '""'], '', substr($match[3], 1, strlen($match[3]) - 2))),
-                    substr($input, $cursor),
+                    stripcslashes(substr($input, $cursor)),
                 ];
             } elseif (preg_match('/' . StringInput::REGEX_QUOTED_STRING . '/A', $input, $match, null, $cursor)) {
                 $tokens[] = [
                     stripcslashes(substr($match[0], 1, strlen($match[0]) - 2)),
-                    substr($input, $cursor),
+                    stripcslashes(substr($input, $cursor)),
                 ];
             } elseif (preg_match('/' . StringInput::REGEX_STRING . '/A', $input, $match, null, $cursor)) {
                 $tokens[] = [
                     stripcslashes($match[1]),
-                    substr($input, $cursor),
+                    stripcslashes(substr($input, $cursor)),
                 ];
             } else {
                 // should never happen
