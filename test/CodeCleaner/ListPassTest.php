@@ -43,23 +43,22 @@ class ListPassTest extends CodeCleanerTestCase
         $error_empty_list = 'Cannot use empty list';
         $error_assoc_list_assign = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
         $error_non_variable_assign = 'Assignments can only happen to writable values';
-        $error_php_parser_syntax_paren = 'Syntax error, unexpected \')\'';
-        $error_php_parser_syntax_encapsed = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING';
+        $error_php_parser_syntax = 'PHP Parse error: Syntax error, unexpected';
 
         $invalid_expr = [
             ['list() = array()', $error_empty_list],
-            ['list("a") = array(1)', $error_php_parser_syntax_paren],
+            ['list("a") = array(1)', $error_php_parser_syntax],
         ];
 
         $invalid_before_71 = [
-            ['list("a" => _) = array("a" => 1)', $error_php_parser_syntax_encapsed],
+            ['list("a" => _) = array("a" => 1)', $error_php_parser_syntax],
             ['[] = []', $error_short_list_assign],
             ['[$a] = [1]', $error_short_list_assign],
             ['list("a" => $a) = array("a" => 1)', $error_assoc_list_assign],
         ];
 
         $invalid_after_71 = [
-            ['list("a" => _) = array("a" => 1)', $error_php_parser_syntax_paren],
+            ['list("a" => _) = array("a" => 1)', $error_php_parser_syntax],
             ['[] = []', $error_empty_list],
         ];
 
