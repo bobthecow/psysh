@@ -13,6 +13,7 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\Variable;
@@ -47,23 +48,29 @@ class ListPass extends CodeCleanerPass
             throw new ParseErrorException($msg, $node->expr->getLine());
         }
 
-        if ($node->var->items === [] || $node->var->items === [null]) {
+        // Polyfill for PHP-Parser 2.x
+        $items = isset($node->var->items) ? $node->var->items : $node->var->vars;
+
+        if ($items === [] || $items === [null]) {
             throw new ParseErrorException('Cannot use empty list', $node->var->getLine());
         }
 
-        foreach ($node->var->items as $item) {
+        foreach ($items as $item) {
             if ($item === null) {
                 throw new ParseErrorException('Cannot use empty list', $item->getLine());
             }
 
-            if ($before_php71 && $item->key !== null) {
-                $msg = 'syntax error, unexpected \'\'x\'\' (T_CONSTANT_ENCAPSED_STRING), expecting \',\' or \')\'';
+            // List_->$vars in PHP-Parser 2.x is Variable instead of ArrayItem.
+            if ($before_php71 && $item instanceof ArrayItem && $item->key !== null) {
+                $msg = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
                 throw new ParseErrorException($msg, $item->key->getLine());
             }
 
-            if (!$item->value instanceof Variable) {
+            $value = ($item instanceof ArrayItem) ? $item->value : $item;
+
+            if (!$value instanceof Variable) {
                 $msg = 'Assignments can only happen to writable values';
-                throw new ParseErrorException($msg, $item->value->getLine());
+                throw new ParseErrorException($msg, $item->getLine());
             }
         }
     }
