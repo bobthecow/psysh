@@ -41,7 +41,7 @@ class ListPassTest extends CodeCleanerTestCase
         // Not typo.  It is ambiguous whether "Syntax" or "syntax".
         $error_short_list_assign = "yntax error, unexpected '='";
         $error_empty_list = 'Cannot use empty list';
-        $error_assoc_list_assign = 'syntax error, unexpected \'\'x\'\' (T_CONSTANT_ENCAPSED_STRING), expecting \',\' or \')\'';
+        $error_assoc_list_assign = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
         $error_non_variable_assign = 'Assignments can only happen to writable values';
         $error_php_parser_syntax_paren = 'Syntax error, unexpected \')\'';
         $error_php_parser_syntax_encapsed = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING';
