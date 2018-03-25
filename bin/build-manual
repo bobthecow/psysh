@@ -27,7 +27,7 @@ function htmlwrap($text, $width = null)
 
     $len = strlen($text);
 
-    $return = array();
+    $return = [];
     $lastSpace = null;
     $inTag = false;
     $i = $tagWidth = 0;
@@ -80,7 +80,7 @@ function htmlwrap($text, $width = null)
 
 function extract_paragraphs($element)
 {
-    $paragraphs = array();
+    $paragraphs = [];
     foreach ($element->getElementsByTagName('para') as $p) {
         $text = '';
         foreach ($p->childNodes as $child) {
@@ -107,7 +107,7 @@ function extract_paragraphs($element)
 
 function format_doc($doc)
 {
-    $chunks   = array();
+    $chunks   = [];
 
     if (!empty($doc['description'])) {
         $chunks[] = '<comment>Description:</comment>';
@@ -161,20 +161,20 @@ function format_doc($doc)
 
 function thunk_tags($text)
 {
-    $tagMap = array(
+    $tagMap = [
         'parameter>' => 'strong>',
         'function>'  => 'strong>',
         'literal>'   => 'return>',
         'type>'      => 'info>',
         'constant>'  => 'info>',
-    );
+    ];
 
-    $andBack = array(
+    $andBack = [
         '&amp;'       => '&',
         '&amp;true;'  => '<return>true</return>',
         '&amp;false;' => '<return>false</return>',
         '&amp;null;'  => '<return>null</return>',
-    );
+    ];
 
     return strtr(strip_tags(strtr($text, $tagMap), '<strong><return><info>'), $andBack);
 }
@@ -199,7 +199,7 @@ function find_type($xml, $paramName)
 
 function format_function_doc($xml)
 {
-    $doc = array();
+    $doc = [];
     $refsect1s = $xml->getElementsByTagName('refsect1');
     foreach ($refsect1s as $refsect1) {
         $role = $refsect1->getAttribute('role');
@@ -223,15 +223,15 @@ function format_function_doc($xml)
                 break;
 
             case 'parameters':
-                $params = array();
+                $params = [];
                 $vars = $refsect1->getElementsByTagName('varlistentry');
                 foreach ($vars as $var) {
                     if ($name = $var->getElementsByTagName('parameter')->item(0)) {
-                        $params[] = array(
+                        $params[] = [
                             'name'        => '$' . $name->textContent,
                             'type'        => find_type($xml, $name->textContent),
                             'description' => extract_paragraphs($var),
-                        );
+                        ];
                     }
                 }
 
@@ -250,18 +250,18 @@ function format_function_doc($xml)
         $doc['description'] = trim($desc);
     }
 
-    $ids = array();
+    $ids = [];
     foreach ($xml->getElementsByTagName('refname') as $ref) {
         $ids[] = $ref->textContent;
     }
 
-    return array($ids, format_doc($doc));
+    return [$ids, format_doc($doc)];
 }
 
 function format_class_doc($xml)
 {
     // @todo implement this
-    return array(array(), null);
+    return [[], null];
 }
 
 $dir = new RecursiveDirectoryIterator($argv[1]);
@@ -273,7 +273,7 @@ $filter = new RecursiveCallbackFilterIterator($dir, function ($current, $key, $i
 });
 $iterator = new RecursiveIteratorIterator($filter);
 
-$docs = array();
+$docs = [];
 foreach ($iterator as $file) {
     $xmlstr = str_replace('&', '&amp;', file_get_contents($file));
 
@@ -290,7 +290,7 @@ foreach ($iterator as $file) {
     } elseif ($xml->getElementsByTagName('classref')->length !== 0) {
         list($ids, $doc) = format_class_doc($xml);
     } else {
-        $ids = array();
+        $ids = [];
         $doc = null;
     }
 
@@ -308,5 +308,5 @@ $db = new PDO('sqlite:' . $argv[2]);
 $db->query('CREATE TABLE php_manual (id char(256) PRIMARY KEY, doc TEXT)');
 $cmd = $db->prepare('INSERT INTO php_manual (id, doc) VALUES (?, ?)');
 foreach ($docs as $id => $doc) {
-    $cmd->execute(array($id, $doc));
+    $cmd->execute([$id, $doc]);
 }

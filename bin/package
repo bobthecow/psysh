@@ -32,8 +32,8 @@ if [ -z "$PKG_VERSION" ]; then
   PKG_VERSION=$(git describe --tag --exact-match)
 fi
 
-if [[ $(php --version) = PHP\ 5.3* ]]; then
-  PKG_VERSION=${PKG_VERSION}-php53
+if [[ $(php --version) = PHP\ 5.4* ]]; then
+  PKG_VERSION=${PKG_VERSION}-php54
 fi
 
 echo "Packaging $PKG_VERSION"
