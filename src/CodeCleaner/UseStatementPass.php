@@ -17,6 +17,7 @@ use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
+use PhpParser\NodeTraverser;
 
 /**
  * Provide implicit use statements for subsequent execution.
@@ -71,7 +72,13 @@ class UseStatementPass extends CodeCleanerPass
                 $this->aliases[strtolower($use->alias)] = $use->name;
             }
 
-            return false;
+            // As of PHP Parser 4.x, we need to return REMOVE_NODE rather than
+            // false to remove the current node.
+            if (defined('\\PhpParser\\NodeTraverser::REMOVE_NODE')) {
+                return NodeTraverser::REMOVE_NODE;
+            } else {
+                return false;
+            }
         } elseif ($node instanceof GroupUse) {
             // Expand every "use" statement in the group into a full, standalone
             // "use" and store 'em with the others.
@@ -82,7 +89,13 @@ class UseStatementPass extends CodeCleanerPass
                 ]);
             }
 
-            return false;
+            // As of PHP Parser 4.x, we need to return REMOVE_NODE rather than
+            // false to remove the current node.
+            if (defined('\\PhpParser\\NodeTraverser::REMOVE_NODE')) {
+                return NodeTraverser::REMOVE_NODE;
+            } else {
+                return false;
+            }
         } elseif ($node instanceof Namespace_) {
             // Start fresh, since we're done with this namespace.
             $this->lastNamespace = $node->name;

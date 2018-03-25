@@ -15,6 +15,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Identifier;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -62,8 +63,11 @@ class ValidConstantPass extends NamespaceAwarePass
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
+        // For PHP Parser 4.x
+        $constName = $stmt->name instanceof Identifier ? $stmt->name->toString() : $stmt->name;
+
         // give the `class` pseudo-constant a pass
-        if ($stmt->name === 'class') {
+        if ($constName === 'class') {
             return;
         }
 
@@ -75,9 +79,9 @@ class ValidConstantPass extends NamespaceAwarePass
             // defined in the same line it's used or something stupid like that.
             if (class_exists($className) || interface_exists($className)) {
                 $refl = new \ReflectionClass($className);
-                if (!$refl->hasConstant($stmt->name)) {
+                if (!$refl->hasConstant($constName)) {
                     $constType = class_exists($className) ? 'Class' : 'Interface';
-                    $msg = sprintf('%s constant \'%s::%s\' not found', $constType, $className, $stmt->name);
+                    $msg = sprintf('%s constant \'%s::%s\' not found', $constType, $className, $constName);
                     throw new FatalErrorException($msg, 0, E_ERROR, null, $stmt->getLine());
                 }
             }

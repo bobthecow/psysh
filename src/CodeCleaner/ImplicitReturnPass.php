@@ -11,12 +11,14 @@
 
 namespace Psy\CodeCleaner;
 
+use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Exit_;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Break_;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Return_;
@@ -79,6 +81,12 @@ class ImplicitReturnPass extends CodeCleanerPass
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
             ]);
+        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
+            // For PHP Parser 4.x
+            $nodes[count($nodes) - 1] = new Return_($last->expr, [
+                'startLine' => $last->getLine(),
+                'endLine'   => $last->getLine(),
+            ]);
         } elseif ($last instanceof Namespace_) {
             $last->stmts = $this->addImplicitReturn($last->stmts);
         }
@@ -93,10 +101,28 @@ class ImplicitReturnPass extends CodeCleanerPass
         // We're not adding a fallback return after namespace statements,
         // because code outside namespace statements doesn't really work, and
         // there's already an implicit return in the namespace statement anyway.
-        if ($last instanceof Stmt && !$last instanceof Return_ && !$last instanceof Namespace_) {
+        if (self::isNonExpressionStmt($last)) {
             $nodes[] = new Return_(new New_(new FullyQualifiedName('Psy\CodeCleaner\NoReturnValue')));
         }
 
         return $nodes;
+    }
+
+    /**
+     * Check whether a given node is a non-expression statement.
+     *
+     * As of PHP Parser 4.x, Expressions are now instances of Stmt as well, so
+     * we'll exclude them here.
+     *
+     * @param Node $node
+     *
+     * @return boolean
+     */
+    private static function isNonExpressionStmt(Node $node)
+    {
+        return $node instanceof Stmt &&
+            !$node instanceof Expression &&
+            !$node instanceof Return_ &&
+            !$node instanceof Namespace_;
     }
 }
