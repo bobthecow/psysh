@@ -74,7 +74,7 @@ e.g.
 To see the entire backtrace, pass the -a/--all flag:
 
 e.g.
-<return>>>> wtf -v</return>
+<return>>>> wtf -a</return>
 HELP
             );
     }
