@@ -18,6 +18,8 @@ disabled:
   - unalign_double_arrow
   - unalign_equals
   - yoda_style
+  - property_separation
+  - const_separation
 
 finder:
   name:
