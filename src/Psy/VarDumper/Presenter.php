@@ -58,11 +58,13 @@ class Presenter
         // Now put the locale back
         setlocale(LC_NUMERIC, $oldLocale);
 
+        $exceptionsImportants = $this->exceptionsImportants;
+
         $this->cloner = new Cloner();
-        $this->cloner->addCasters(array('*' => function ($obj, array $a, Stub $stub, $isNested, $filter = 0) {
+        $this->cloner->addCasters(array('*' => function ($obj, array $a, Stub $stub, $isNested, $filter = 0) use ($exceptionsImportants) {
             if ($filter || $isNested) {
                 if ($obj instanceof \Exception) {
-                    $a = Caster::filter($a, Caster::EXCLUDE_NOT_IMPORTANT | Caster::EXCLUDE_EMPTY, $this->exceptionsImportants);
+                    $a = Caster::filter($a, Caster::EXCLUDE_NOT_IMPORTANT | Caster::EXCLUDE_EMPTY, $exceptionsImportants);
                 } else {
                     $a = Caster::filter($a, Caster::EXCLUDE_PROTECTED | Caster::EXCLUDE_PRIVATE);
                 }
