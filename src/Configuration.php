@@ -82,7 +82,7 @@ class Configuration
     private $useTabCompletion;
     private $newMatchers = [];
     private $errorLoggingLevel = E_ALL;
-    private $warnOnMultipleConfigs = true;
+    private $warnOnMultipleConfigs = false;
     private $colorMode;
     private $updateCheck;
     private $startupMessage;
@@ -1110,6 +1110,8 @@ class Configuration
      * silently ignore all others. With this enabled, a warning will be emitted
      * (but not an exception thrown) if multiple configuration or data files
      * are found.
+     *
+     * This will default to true in a future release, but is false for now.
      *
      * @return bool
      */
