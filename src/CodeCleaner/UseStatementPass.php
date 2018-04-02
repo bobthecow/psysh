@@ -72,13 +72,7 @@ class UseStatementPass extends CodeCleanerPass
                 $this->aliases[strtolower($use->alias)] = $use->name;
             }
 
-            // As of PHP Parser 4.x, we need to return REMOVE_NODE rather than
-            // false to remove the current node.
-            if (defined('\\PhpParser\\NodeTraverser::REMOVE_NODE')) {
-                return NodeTraverser::REMOVE_NODE;
-            } else {
-                return false;
-            }
+            return NodeTraverser::REMOVE_NODE;
         } elseif ($node instanceof GroupUse) {
             // Expand every "use" statement in the group into a full, standalone
             // "use" and store 'em with the others.
@@ -89,13 +83,7 @@ class UseStatementPass extends CodeCleanerPass
                 ]);
             }
 
-            // As of PHP Parser 4.x, we need to return REMOVE_NODE rather than
-            // false to remove the current node.
-            if (defined('\\PhpParser\\NodeTraverser::REMOVE_NODE')) {
-                return NodeTraverser::REMOVE_NODE;
-            } else {
-                return false;
-            }
+            return NodeTraverser::REMOVE_NODE;
         } elseif ($node instanceof Namespace_) {
             // Start fresh, since we're done with this namespace.
             $this->lastNamespace = $node->name;
