@@ -38,7 +38,9 @@ class ThrowUpException extends \Exception implements Exception
     /**
      * Create a ThrowUpException from a Throwable.
      *
-     * @param Throwable $throwable
+     * @param \Throwable $throwable
+     *
+     * @return ThrowUpException
      */
     public static function fromThrowable($throwable)
     {
