@@ -24,6 +24,7 @@ class TraitEnumerator extends Enumerator
     public function __construct(Presenter $presenter)
     {
         @trigger_error('TraitEnumerator is no longer used', E_USER_DEPRECATED);
+        parent::__construct($presenter);
     }
 
     /**
