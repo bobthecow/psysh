@@ -5,7 +5,7 @@ set -e
 cd "${BASH_SOURCE%/*}/.."
 
 rm -rf build-vendor
-rm composer-*.lock
+rm -f composer-*.lock
 
 cp composer.json composer-compat.json
 
