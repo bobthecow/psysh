@@ -13,16 +13,36 @@ namespace Psy\Command;
 
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
+use Psy\Output\ShellOutput;
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Psy\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\Output;
 
 /**
  * Read the documentation for an object, class, constant, method or property.
  */
 class DocCommand extends ReflectingCommand
 {
+    /**
+     * We define these here since like PHP language constructs there isn't reflection that
+     * we can use to manage magic constants.
+     *
+     * @var array
+     */
+    private static $magicConstants = array(
+        '__LINE__',
+        '__FILE__',
+        '__DIR__',
+        '__FUNCTION__',
+        '__CLASS__',
+        '__TRAIT__',
+        '__METHOD__',
+        '__NAMESPACE__',
+        '__COMPILER_HALT_OFFSET__');
+
     /**
      * {@inheritdoc}
      */
@@ -57,6 +77,31 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $value = $input->getArgument('value');
+
+        if (self::isLanguageConstant($value)) {
+            $doc = $this->getConstantsDocById($value);
+
+            /**
+             * @var ShellOutput $output
+             */
+            $output->page(function (Output $output) use ($doc, $value) {
+                if (empty($doc)) {
+                    $output->writeln('<warning>PHP constants documentation not found</warning>');
+                } else {
+                    if (substr($value, 0, 2) === '__') {
+                        $constValue = '{magic constant}';
+                    } else {
+                        $constValue = constant($value);
+                    }
+
+                    $output->writeLn("<keyword>const</keyword> <const>$value</const> = <info>$constValue</info>");
+                    $output->writeln('');
+                    $output->writeln($doc);
+                }
+            });
+            return;
+        }
+
         if (ReflectionLanguageConstruct::isLanguageConstruct($value)) {
             $reflector = new ReflectionLanguageConstruct($value);
             $doc = $this->getManualDocById($value);
@@ -115,5 +160,36 @@ HELP
                 ->query(sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)))
                 ->fetchColumn(0);
         }
+    }
+
+    /**
+     * Get the documentation text from the php_constants database given the id (constant's name)
+     *
+     * @param string $id
+     * @return string | null
+     */
+    private function getConstantsDocById($id)
+    {
+        /** @var \PDO $db */
+        if ($db = $this->getApplication()->getConstantsDb()) {
+            if ($query = $db->query(
+                sprintf('SELECT doc FROM php_constant WHERE id = %s', $db->quote(strtoupper($id))))
+            ) {
+                return $query->fetchColumn(0);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check whether keyword is a (known) core language constant.
+     *
+     * @param string $keyword
+     * @return bool
+     */
+    protected static function isLanguageConstant($keyword)
+    {
+        return in_array(strtoupper($keyword), self::$magicConstants, false) ||
+            array_key_exists(strtoupper($keyword), get_defined_constants(true)['Core']);
     }
 }

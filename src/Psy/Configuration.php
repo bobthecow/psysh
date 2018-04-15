@@ -43,6 +43,7 @@ class Configuration
         'codeCleaner',
         'colorMode',
         'configDir',
+        'constantsDbFile',
         'dataDir',
         'defaultIncludes',
         'eraseDuplicates',
@@ -62,7 +63,7 @@ class Configuration
         'usePcntl',
         'useReadline',
         'useUnicode',
-        'warnOnMultipleConfigs',
+        'warnOnMultipleConfigs'
     );
 
     private $defaultIncludes;
@@ -75,6 +76,7 @@ class Configuration
     private $historySize;
     private $eraseDuplicates;
     private $manualDbFile;
+    private $constantsDbFile;
     private $hasReadline;
     private $useReadline;
     private $useBracketedPaste;
@@ -100,6 +102,7 @@ class Configuration
     private $pager;
     private $loop;
     private $manualDb;
+    private $constantsDb;
     private $presenter;
     private $completer;
     private $checker;
@@ -1056,6 +1059,70 @@ class Configuration
         }
 
         return $this->manualDb;
+    }
+
+    /**
+     * Set the PHP constants database file.
+     *
+     * This file should be a SQLite database.
+     * Default English database is found at src/db/php_constants.sqlite
+     *
+     * @param string $filename
+     */
+    public function setConstantsDbFile($filename)
+    {
+        $this->constantsDbFile = (string) $filename;
+    }
+
+    /**
+     * Get the current PHP constants database file.
+     *
+     * @return string | null
+     */
+    public function getConstantsDbFile()
+    {
+        if (isset($this->constantsDbFile)) {
+            return $this->constantsDbFile;
+        }
+
+        $files = ConfigPaths::getDataFiles(array('php_constants.sqlite'), $this->dataDir);
+        if (empty($files)) {
+            // If a custom php_constants.sqlite file can not be found then use the built-in English db.
+            $file = __DIR__ . '/../../db/php_constants.sqlite';
+            return file_exists($file) ? $file : null;
+        }
+
+        if ($this->warnOnMultipleConfigs && count($files) > 1) {
+            $msg = sprintf('Multiple constants database files found: %s. Using %s', implode($files, ', '), $files[0]);
+            trigger_error($msg, E_USER_NOTICE);
+        }
+
+        return $this->constantsDbFile = $files[0];
+    }
+
+    /**
+     * Get a PHP constants database connection.
+     *
+     * @return \PDO
+     */
+    public function getConstantsDb()
+    {
+        if (!isset($this->constantsDb)) {
+            $dbFile = $this->getConstantsDbFile();
+            if (is_file($dbFile)) {
+                try {
+                    $this->constantsDb = new \PDO('sqlite:' . $dbFile);
+                } catch (\PDOException $e) {
+                    if ($e->getMessage() === 'could not find driver') {
+                        throw new RuntimeException('SQLite PDO driver not found', 0, $e);
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+        }
+
+        return $this->constantsDb;
     }
 
     /**
