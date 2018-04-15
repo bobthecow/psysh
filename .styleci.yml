@@ -3,7 +3,7 @@ preset: symfony
 enabled:
   - align_double_arrow
   - concat_with_spaces
-  - long_array_syntax
+  - short_array_syntax
   - ordered_use
   - strict
 

@@ -10,7 +10,7 @@ $finder = PhpCsFixer\Finder::create()
 $header = <<<EOF
 This file is part of Psy Shell.
 
-(c) 2012-2017 Justin Hileman
+(c) 2012-2018 Justin Hileman
 
 For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
@@ -19,7 +19,7 @@ EOF;
 return PhpCsFixer\Config::create()
     ->setRules(array(
         '@Symfony' => true,
-        'array_syntax' => array('syntax' => 'long'),
+        'array_syntax' => array('syntax' => 'short'),
         'binary_operator_spaces' => false,
         'concat_space' => array('spacing' => 'one'),
         'header_comment' => array('header' => $header),
