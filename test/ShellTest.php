@@ -68,6 +68,30 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->getScopeVariable('baz');
     }
 
+    public function testIncludesWithScopeVariables()
+    {
+        $one       = 'banana';
+        $two       = 123;
+        $three     = new \StdClass();
+        $__psysh__ = 'ignore this';
+        $_         = 'ignore this';
+        $_e        = 'ignore this';
+
+        $shell = new Shell($this->getConfig());
+        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
+        $shell->addInput('exit');
+
+        // This is super slow and we shouldn't do this :(
+        $shell->run(null, $this->getOutput());
+
+        $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
+        $this->assertSame(['one', 'two', 'three', '_', '_e'], $shell->getScopeVariableNames());
+        $this->assertSame('banana', $shell->getScopeVariable('one'));
+        $this->assertSame(123, $shell->getScopeVariable('two'));
+        $this->assertSame($three, $shell->getScopeVariable('three'));
+        $this->assertNull($shell->getScopeVariable('_'));
+    }
+
     public function testIncludes()
     {
         $config = $this->getConfig(['configFile' => __DIR__ . '/fixtures/empty.php']);

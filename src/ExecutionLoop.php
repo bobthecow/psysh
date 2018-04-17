@@ -83,6 +83,10 @@ class ExecutionLoop
             restore_error_handler();
             unset($__psysh_include__);
 
+            // Override any new local variables with pre-defined scope variables
+            extract($__psysh__->getScopeVariables(false));
+
+            // ... then add the whole mess of variables back.
             $__psysh__->setScopeVariables(get_defined_vars());
         };
 
