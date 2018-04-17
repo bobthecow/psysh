@@ -77,7 +77,9 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $_         = 'ignore this';
         $_e        = 'ignore this';
 
-        $shell = new Shell($this->getConfig());
+        $config = $this->getConfig(['usePcntl' => false]);
+
+        $shell = new Shell($config);
         $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
         $shell->addInput('exit', true);
 
@@ -85,6 +87,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->run(null, $this->getOutput());
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
+        $this->assertSame(['one', 'two', 'three', '_', '_e'], $shell->getScopeVariableNames());
         $this->assertSame('banana', $shell->getScopeVariable('one'));
         $this->assertSame(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));
