@@ -18,6 +18,7 @@ matrix:
     - php: 5.4
       env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
     - php: hhvm
+  fast_finish: true
 
 install: travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
