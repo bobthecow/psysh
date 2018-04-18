@@ -11,16 +11,13 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\FinalClassPass;
 
 class FinalClassPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new FinalClassPass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new FinalClassPass());
     }
 
     /**
@@ -29,13 +26,12 @@ class FinalClassPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
     {
-        $stmts = [
+        $data = [
             ['final class A {} class B extends A {}'],
             ['class A {} final class B extends A {} class C extends B {}'],
             // array('namespace A { final class B {} } namespace C { class D extends \\A\\B {} }'),
@@ -43,10 +39,10 @@ class FinalClassPassTest extends CodeCleanerTestCase
 
         if (!defined('HHVM_VERSION')) {
             // For some reason Closure isn't final in HHVM?
-            $stmts[] = ['class A extends \\Closure {}'];
+            $data[] = ['class A extends \\Closure {}'];
         }
 
-        return $stmts;
+        return $data;
     }
 
     /**
@@ -54,8 +50,7 @@ class FinalClassPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 

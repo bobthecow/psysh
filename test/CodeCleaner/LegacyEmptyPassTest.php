@@ -26,8 +26,7 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
      */
     public function testProcessInvalidStatement($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
@@ -53,8 +52,7 @@ class LegacyEmptyPassTest extends CodeCleanerTestCase
      */
     public function testProcessValidStatement($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 

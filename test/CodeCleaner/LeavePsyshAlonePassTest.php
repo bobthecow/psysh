@@ -32,8 +32,7 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 
@@ -55,8 +54,7 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()

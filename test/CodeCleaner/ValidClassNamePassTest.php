@@ -24,10 +24,9 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
      * @dataProvider getInvalid
      * @expectedException \Psy\Exception\FatalErrorException
      */
-    public function testProcessInvalid($code, $php54 = false)
+    public function testProcessInvalid($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function getInvalid()
@@ -41,7 +40,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
             // collisions with interfaces and traits
             ['interface stdClass {}'],
-            ['trait stdClass {}', true],
+            ['trait stdClass {}'],
 
             // collisions inside the same code snippet
             ['
@@ -51,19 +50,19 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             ['
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true],
+            '],
             ['
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true],
+            '],
             ['
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true],
+            '],
             ['
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 trait Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
-            ', true],
+            '],
             ['
                 interface Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
                 class Psy_Test_CodeCleaner_ValidClassNamePass_Alpha {}
@@ -118,8 +117,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
      */
     public function testProcessValid($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 

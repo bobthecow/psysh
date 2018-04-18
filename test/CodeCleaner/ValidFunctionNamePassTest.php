@@ -26,8 +26,7 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
      */
     public function testProcessInvalidFunctionCallsAndDeclarations($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function getInvalidFunctions()
@@ -67,8 +66,7 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
      */
     public function testProcessValidFunctionCallsAndDeclarations($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 

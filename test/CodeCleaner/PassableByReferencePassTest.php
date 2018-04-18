@@ -11,16 +11,13 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\PassableByReferencePass;
 
 class PassableByReferencePassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new PassableByReferencePass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new PassableByReferencePass());
     }
 
     /**
@@ -29,8 +26,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
@@ -47,8 +43,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 
@@ -68,8 +63,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
      */
     public function testArrayMultisort($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 
@@ -96,8 +90,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
      */
     public function testInvalidArrayMultisort($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidArrayMultisort()

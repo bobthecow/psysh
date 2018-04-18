@@ -57,6 +57,11 @@ class CodeCleanerTestCase extends \PHPUnit\Framework\TestCase
         return $this->traverser->traverse($stmts);
     }
 
+    protected function parseAndTraverse($code, $prefix = '<?php ')
+    {
+        return $this->traverse($this->parse($code, $prefix));
+    }
+
     protected function prettyPrint(array $stmts)
     {
         return $this->getPrinter()->prettyPrint($stmts);
