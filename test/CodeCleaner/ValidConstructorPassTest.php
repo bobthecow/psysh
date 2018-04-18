@@ -26,8 +26,7 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
      */
     public function testProcessInvalidStatement($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     /**
@@ -36,13 +35,12 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
      */
     public function testProcessInvalidStatementCatchedByParser($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
     {
-        $stmts = [
+        $data = [
             ['class A { public static function A() {}}'],
             ['class A { public static function a() {}}'],
             ['class A { private static function A() {}}'],
@@ -50,11 +48,11 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
         ];
 
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
-            $stmts[] = ['class A { public function A(): ?array {}}'];
-            $stmts[] = ['class A { public function a(): ?array {}}'];
+            $data[] = ['class A { public function A(): ?array {}}'];
+            $data[] = ['class A { public function a(): ?array {}}'];
         }
 
-        return $stmts;
+        return $data;
     }
 
     public function invalidParserStatements()
@@ -72,25 +70,24 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
      */
     public function testProcessValidStatement($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 
     public function validStatements()
     {
-        $stmts = [
+        $data = [
             ['class A { public static function A() {} public function __construct() {}}'],
             ['class A { private function __construct() {} public static function A() {}}'],
             ['namespace B; class A { private static function A() {}}'],
         ];
 
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
-            $stmts[] = ['class A { public static function A() {} public function __construct() {}}'];
-            $stmts[] = ['class A { private function __construct() {} public static function A(): ?array {}}'];
-            $stmts[] = ['namespace B; class A { private static function A(): ?array {}}'];
+            $data[] = ['class A { public static function A() {} public function __construct() {}}'];
+            $data[] = ['class A { private function __construct() {} public static function A(): ?array {}}'];
+            $data[] = ['namespace B; class A { private static function A(): ?array {}}'];
         }
 
-        return $stmts;
+        return $data;
     }
 }

@@ -11,7 +11,6 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\Exception\FatalErrorException;
 
@@ -19,9 +18,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new FunctionReturnInWriteContextPass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new FunctionReturnInWriteContextPass());
     }
 
     /**
@@ -31,8 +28,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()

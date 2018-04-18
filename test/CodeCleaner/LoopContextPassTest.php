@@ -11,16 +11,13 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\LoopContextPass;
 
 class LoopContextPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new LoopContextPass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new LoopContextPass());
     }
 
     /**
@@ -29,8 +26,7 @@ class LoopContextPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
@@ -74,8 +70,7 @@ class LoopContextPassTest extends CodeCleanerTestCase
      */
     public function testPHP54ProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidPHP54Statements()
@@ -100,8 +95,7 @@ class LoopContextPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 

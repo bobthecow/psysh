@@ -11,16 +11,13 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\CalledClassPass;
 
 class CalledClassPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new CalledClassPass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new CalledClassPass());
     }
 
     /**
@@ -29,8 +26,7 @@ class CalledClassPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementFails($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
@@ -52,8 +48,7 @@ class CalledClassPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 
@@ -79,8 +74,7 @@ class CalledClassPassTest extends CodeCleanerTestCase
      */
     public function testProcessTraitStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }
 

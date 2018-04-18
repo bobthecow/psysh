@@ -30,7 +30,7 @@ class ImplicitReturnPassTest extends CodeCleanerTestCase
 
     public function implicitReturns()
     {
-        $values = [
+        $data = [
             ['4',        'return 4;'],
             ['foo()',    'return foo();'],
             ['return 1', 'return 1;'],
@@ -47,7 +47,7 @@ if (true) {
 }
 return new \Psy\CodeCleaner\NoReturnValue();
 EOS;
-        $values[] = [$from, $to];
+        $data[] = [$from, $to];
 
         $from = 'class A {}';
         $to   = <<<'EOS'
@@ -56,7 +56,7 @@ class A
 }
 return new \Psy\CodeCleaner\NoReturnValue();
 EOS;
-        $values[] = [$from, $to];
+        $data[] = [$from, $to];
 
         $from = <<<'EOS'
 switch (false) {
@@ -83,10 +83,10 @@ switch (false) {
 }
 return new \Psy\CodeCleaner\NoReturnValue();
 EOS;
-        $values[] = [$from, $to];
+        $data[] = [$from, $to];
 
-        $values[] = ['exit()', 'exit;'];
+        $data[] = ['exit()', 'exit;'];
 
-        return $values;
+        return $data;
     }
 }
