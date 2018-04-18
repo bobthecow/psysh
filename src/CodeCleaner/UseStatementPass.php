@@ -69,7 +69,8 @@ class UseStatementPass extends CodeCleanerPass
             // Store a reference to every "use" statement, because we'll need
             // them in a bit.
             foreach ($node->uses as $use) {
-                $this->aliases[strtolower($use->alias)] = $use->name;
+                $alias = $use->alias ?: end($use->name->parts);
+                $this->aliases[strtolower($alias)] = $use->name;
             }
 
             return NodeTraverser::REMOVE_NODE;
@@ -77,7 +78,8 @@ class UseStatementPass extends CodeCleanerPass
             // Expand every "use" statement in the group into a full, standalone
             // "use" and store 'em with the others.
             foreach ($node->uses as $use) {
-                $this->aliases[strtolower($use->alias)] = Name::concat($node->prefix, $use->name, [
+                $alias = $use->alias ?: end($use->name->parts);
+                $this->aliases[strtolower($alias)] = Name::concat($node->prefix, $use->name, [
                     'startLine' => $node->prefix->getAttribute('startLine'),
                     'endLine'   => $use->name->getAttribute('endLine'),
                 ]);
