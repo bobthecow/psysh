@@ -55,6 +55,48 @@ class UseStatementPassTest extends CodeCleanerTestCase
                 "namespace Foo;\nuse Bar;\n\$baz = new Bar\\Baz();",
                 "namespace Foo;\n\n\$baz = new \\Bar\\Baz();",
             ],
+            [
+                "namespace Foo;\n\nuse \\StdClass as S;\n\$std = new S();\nnamespace Foo;\n\n\$std = new S();",
+                "namespace Foo;\n\n\$std = new \\StdClass();\nnamespace Foo;\n\n\$std = new \\StdClass();",
+            ],
+            [
+                "namespace Foo;\n\nuse \\StdClass as S;\n\$std = new S();\nnamespace Bar;\n\n\$std = new S();",
+                "namespace Foo;\n\n\$std = new \\StdClass();\nnamespace Bar;\n\n\$std = new S();",
+            ],
+            [
+                "use Foo\\Bar as fb, Qux as Q;\n\$baz = new fb\\Baz();\n\$qux = new Q();",
+                "\$baz = new \\Foo\\Bar\\Baz();\n\$qux = new \\Qux();",
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider groupUseStatements
+     */
+    public function testGroupUseProcess($from, $to)
+    {
+        $this->assertProcessesAs($from, $to);
+    }
+
+    public function groupUseStatements()
+    {
+        if (version_compare(PHP_VERSION, '7.0', '<')) {
+            $this->markTestSkipped();
+        }
+
+        return [
+            [
+                "use Foo\\{Bar, Baz, Qux as Q};\n\$bar = new Bar();\n\$baz = new Baz();\n\$qux = new Q();",
+                "\$bar = new \\Foo\\Bar();\n\$baz = new \\Foo\\Baz();\n\$qux = new \\Foo\\Qux();",
+            ],
+            [
+                "use X\\{Foo, Bar as B};\n\$foo = new Foo();\n\$baz = new B\\Baz();",
+                "\$foo = new \\X\\Foo();\n\$baz = new \\X\\Bar\\Baz();",
+            ],
+            [
+                "use X\\{Foo, Bar as B};\n\$foo = new Foo();\n\$bar = new Bar();\n\$baz = new B\\Baz();",
+                "\$foo = new \\X\\Foo();\n\$bar = new Bar();\n\$baz = new \\X\\Bar\\Baz();",
+            ],
         ];
     }
 }
