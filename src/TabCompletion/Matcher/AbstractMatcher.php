@@ -86,7 +86,7 @@ abstract class AbstractMatcher
             [self::T_NS_SEPARATOR, self::T_STRING],
             $token = array_pop($tokens)
         )) {
-            if ($token[1] === 'doc') {
+            if (self::needCompleteClass($token)) {
                 continue;
             }
 
@@ -169,6 +169,11 @@ abstract class AbstractMatcher
         }
 
         return strpos(self::MISC_OPERATORS, $token) !== false;
+    }
+
+    public static function needCompleteClass($token)
+    {
+        return in_array($token[1], ['doc', 'ls', 'show']);
     }
 
     /**

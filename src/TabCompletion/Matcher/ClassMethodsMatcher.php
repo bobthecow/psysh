@@ -42,7 +42,7 @@ class ClassMethodsMatcher extends AbstractMatcher
             return [];
         }
 
-        if ($tokens[1][1] === 'doc') {
+        if (self::needCompleteClass($tokens[1])) {
             $methods = $reflection->getMethods();
         } else {
             $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
