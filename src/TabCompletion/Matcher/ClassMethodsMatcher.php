@@ -42,7 +42,12 @@ class ClassMethodsMatcher extends AbstractMatcher
             return [];
         }
 
-        $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        if ($tokens[1][1] == 'doc') {
+            $methods = $reflection->getMethods();
+        } else {
+            $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        }
+
         $methods = array_map(function (\ReflectionMethod $method) {
             return $method->getName();
         }, $methods);
