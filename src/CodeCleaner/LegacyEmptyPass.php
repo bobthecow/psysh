@@ -19,6 +19,8 @@ use Psy\Exception\ParseErrorException;
 /**
  * Validate that the user did not call the language construct `empty()` on a
  * statement in PHP < 5.5.
+ *
+ * @codeCoverageIgnore
  */
 class LegacyEmptyPass extends CodeCleanerPass
 {
