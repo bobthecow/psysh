@@ -86,7 +86,7 @@ abstract class AbstractMatcher
             [self::T_NS_SEPARATOR, self::T_STRING],
             $token = array_pop($tokens)
         )) {
-            if ($token[1] == 'doc') {
+            if ($token[1] === 'doc') {
                 continue;
             }
 
