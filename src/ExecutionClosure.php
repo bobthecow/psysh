@@ -73,7 +73,7 @@ class ExecutionClosure
             if (is_object($that)) {
                 $this->closure = $exec->bindTo($that, get_class($that));
             } else {
-                $this->closure = $exec->bindTo(null, null);
+                $this->closure = $exec->bindTo(null, $__psysh__->getBoundClass());
             }
 
             return;

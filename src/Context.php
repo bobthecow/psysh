@@ -33,6 +33,7 @@ class Context
     private $lastException;
     private $lastStdout;
     private $boundObject;
+    private $boundClass;
 
     /**
      * Get a context variable.
@@ -221,11 +222,14 @@ class Context
     /**
      * Set the bound object ($this variable) for the interactive shell.
      *
+     * Note that this unsets the bound class, if any exists.
+     *
      * @param object|null $boundObject
      */
     public function setBoundObject($boundObject)
     {
         $this->boundObject = is_object($boundObject) ? $boundObject : null;
+        $this->boundClass = null;
     }
 
     /**
@@ -236,6 +240,29 @@ class Context
     public function getBoundObject()
     {
         return $this->boundObject;
+    }
+
+    /**
+     * Set the bound class (self) for the interactive shell.
+     *
+     * Note that this unsets the bound object, if any exists.
+     *
+     * @param string|null $boundClass
+     */
+    public function setBoundClass($boundClass)
+    {
+        $this->boundClass = (is_string($boundClass) && $boundClass !== '') ? $boundClass : null;
+        $this->boundObject = null;
+    }
+
+    /**
+     * Get the bound class (self) for the interactive shell.
+     *
+     * @return string|null
+     */
+    public function getBoundClass()
+    {
+        return $this->boundClass;
     }
 
     /**

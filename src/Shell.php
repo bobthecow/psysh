@@ -118,8 +118,8 @@ class Shell extends Application
      * @see Psy\debug
      * @deprecated will be removed in 1.0. Use \Psy\debug instead
      *
-     * @param array  $vars        Scope variables from the calling context (default: array())
-     * @param object $boundObject Bound object ($this) value for the shell
+     * @param array         $vars        Scope variables from the calling context (default: array())
+     * @param object|string $boundObject Bound object ($this) or class (self) value for the shell
      *
      * @return array Scope variables from the debugger session
      */
@@ -585,6 +585,26 @@ class Shell extends Application
     public function getBoundObject()
     {
         return $this->context->getBoundObject();
+    }
+
+    /**
+     * Set the bound class (self) for the interactive shell.
+     *
+     * @param string|null $boundClass
+     */
+    public function setBoundClass($boundClass)
+    {
+        $this->context->setBoundClass($boundClass);
+    }
+
+    /**
+     * Get the bound class (self) for the interactive shell.
+     *
+     * @return string|null
+     */
+    public function getBoundClass()
+    {
+        return $this->context->getBoundClass();
     }
 
     /**

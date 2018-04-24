@@ -28,7 +28,7 @@ if (!function_exists('Psy\sh')) {
      */
     function sh()
     {
-        return 'extract(\Psy\debug(get_defined_vars(), isset($this) ? $this : null));';
+        return 'extract(\Psy\debug(get_defined_vars(), isset($this) ? $this : @get_called_class()));';
     }
 }
 
@@ -60,8 +60,8 @@ if (!function_exists('Psy\debug')) {
      *         }
      *     }
      *
-     * @param array  $vars        Scope variables from the calling context (default: array())
-     * @param object $boundObject Bound object ($this) value for the shell
+     * @param array         $vars        Scope variables from the calling context (default: array())
+     * @param object|string $boundObject Bound object ($this) or class (self) value for the shell
      *
      * @return array Scope variables from the debugger session
      */
@@ -79,7 +79,9 @@ if (!function_exists('Psy\debug')) {
             $sh->addInput('whereami -n2', true);
         }
 
-        if ($boundObject !== null) {
+        if (is_string($boundObject) && $boundObject !== '') {
+            $sh->setBoundClass($boundObject);
+        } elseif ($boundObject !== null) {
             $sh->setBoundObject($boundObject);
         }
 
