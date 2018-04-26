@@ -9,3 +9,4 @@ __pycache__
 .php_cs.cache
 psysh.phar
 psysh-compat.phar
+/vendor-bin/*/vendor/
