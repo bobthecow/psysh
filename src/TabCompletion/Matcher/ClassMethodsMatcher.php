@@ -42,7 +42,12 @@ class ClassMethodsMatcher extends AbstractMatcher
             return [];
         }
 
-        $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        if (self::needCompleteClass($tokens[1])) {
+            $methods = $reflection->getMethods();
+        } else {
+            $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        }
+
         $methods = array_map(function (\ReflectionMethod $method) {
             return $method->getName();
         }, $methods);
