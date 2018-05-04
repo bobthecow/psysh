@@ -127,17 +127,17 @@ class AutoCompleterTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 'Psy\Test\TabCompletion\StaticSample::CO',
-                ['Psy\Test\TabCompletion\StaticSample::CONSTANT_VALUE'],
+                ['StaticSample::CONSTANT_VALUE'],
                 [],
             ],
             [
                 'Psy\Test\TabCompletion\StaticSample::',
-                ['Psy\Test\TabCompletion\StaticSample::$staticVariable'],
+                ['StaticSample::$staticVariable'],
                 [],
             ],
             [
                 'Psy\Test\TabCompletion\StaticSample::',
-                ['Psy\Test\TabCompletion\StaticSample::staticFunction'],
+                ['StaticSample::staticFunction'],
                 [],
             ],
         ];

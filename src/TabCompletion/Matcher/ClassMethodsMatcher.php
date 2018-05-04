@@ -49,7 +49,10 @@ class ClassMethodsMatcher extends AbstractMatcher
 
         return array_map(
             function ($name) use ($class) {
-                return $class . '::' . $name;
+                $chunks = explode('\\', $class);
+                $className = array_pop($chunks);
+
+                return $className . '::' . $name;
             },
             array_filter($methods, function ($method) use ($input) {
                 return AbstractMatcher::startsWith($input, $method);
