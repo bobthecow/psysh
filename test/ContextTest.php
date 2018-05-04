@@ -41,27 +41,27 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $context->setBoundObject($obj);
 
         $context->setCommandScopeVariables([
-            '__function' => 'function',
-            '__method' => 'method',
-            '__class' => 'class',
+            '__function'  => 'function',
+            '__method'    => 'method',
+            '__class'     => 'class',
             '__namespace' => 'namespace',
-            '__file' => 'file',
-            '__line' => 'line',
-            '__dir' => 'dir',
+            '__file'      => 'file',
+            '__line'      => 'line',
+            '__dir'       => 'dir',
         ]);
 
         $expected = [
-            '_' => null,
-            '_e' => $e,
-            '__out' => 'out',
-            'this' => $obj,
-            '__function' => 'function',
-            '__method' => 'method',
-            '__class' => 'class',
+            '_'           => null,
+            '_e'          => $e,
+            '__out'       => 'out',
+            'this'        => $obj,
+            '__function'  => 'function',
+            '__method'    => 'method',
+            '__class'     => 'class',
             '__namespace' => 'namespace',
-            '__file' => 'file',
-            '__line' => 'line',
-            '__dir' => 'dir',
+            '__file'      => 'file',
+            '__line'      => 'line',
+            '__dir'       => 'dir',
         ];
 
         $this->assertEquals($expected, $context->getAll());
@@ -77,19 +77,19 @@ class ContextTest extends \PHPUnit\Framework\TestCase
             'bar' => 123,
             'baz' => $baz,
 
-            '_' => 'fail',
-            '_e' => 'fail',
-            '__out' => 'fail',
-            'this' => 'fail',
+            '_'         => 'fail',
+            '_e'        => 'fail',
+            '__out'     => 'fail',
+            'this'      => 'fail',
             '__psysh__' => 'fail',
 
-            '__function' => 'fail',
-            '__method' => 'fail',
-            '__class' => 'fail',
+            '__function'  => 'fail',
+            '__method'    => 'fail',
+            '__class'     => 'fail',
             '__namespace' => 'fail',
-            '__file' => 'fail',
-            '__line' => 'fail',
-            '__dir' => 'fail',
+            '__file'      => 'fail',
+            '__line'      => 'fail',
+            '__dir'       => 'fail',
         ];
 
         $context->setAll($vars);
@@ -249,11 +249,11 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         );
 
         $context->setCommandScopeVariables([
-            '__function' => 'foo',
+            '__function'  => 'foo',
             '__namespace' => 'bar',
-            '__file' => 'baz',
-            '__line' => 123,
-            '__dir' => 'qux',
+            '__file'      => 'baz',
+            '__line'      => 123,
+            '__dir'       => 'qux',
         ]);
 
         $this->assertEquals(
