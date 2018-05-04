@@ -1089,9 +1089,8 @@ class Shell extends Application
      */
     protected function hasCommand($input)
     {
-        $input = new StringInput($input);
-        if ($name = $input->getFirstArgument()) {
-            return $this->has($name);
+        if (preg_match('/([^\s]+?)(?:\s|$)/A', ltrim($input), $match)) {
+            return $this->has($match[1]);
         }
 
         return false;
