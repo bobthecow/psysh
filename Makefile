@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-PHPNOGC=php -d zend.enable_gc=0
+PSYSH_SRC = bin src box.json.dist composer.json composer.lock build/stub
 
 .PHONY: help
 help:
@@ -14,12 +14,12 @@ help:
 clean: 	 ## Clean all created artifacts
 .PHONY: clean
 clean:
-	git clean --exclude=.idea/ -ffdx
+	rm -rf build/
 
 
 build: ## Compile the application into the PHAR
 .PHONY: build
-build: bin/psysh.phar
+build: build/psysh.phar build/psysh-compat.phar build/psysh-php54.phar build/psysh-php54-compat.phar
 
 
 #
@@ -27,7 +27,7 @@ build: bin/psysh.phar
 #---------------------------------------------------------------------------
 
 composer.lock: composer.json
-	composer install
+	@echo The composer.lock file is not synchronized with the composer.json file
 
 vendor: composer.lock
 	composer install
@@ -38,5 +38,49 @@ vendor/bamarni: composer.lock
 vendor-bin/box/vendor: vendor/bamarni
 	composer bin box install
 
-bin/psysh.phar: bin/psysh src vendor box.json.dist vendor-bin/box/vendor
-	vendor/bin/box compile
+build/stub: bin/build-stub bin/psysh LICENSE
+	bin/build-stub
+
+build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
+	rm -rf build/psysh || true
+	mkdir build/psysh
+	cp -R $(PSYSH_SRC) build/psysh/
+	composer update --working-dir build/psysh --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose --prefer-dist
+
+build/psysh.phar: build/psysh
+	vendor/bin/box compile --working-dir build/psysh
+	cp build/psysh/bin/psysh.phar build/psysh.phar
+
+build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist build/stub
+	rm -rf build/psysh-compat || true
+	mkdir build/psysh-compat
+	cp -R $(PSYSH_SRC) build/psysh-compat/
+	composer require --working-dir build/psysh-compat symfony/intl hoa/console --no-progress --no-update --no-interaction --verbose
+	composer update --working-dir build/psysh-compat --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose --prefer-dist
+
+build/psysh-compat.phar: build/psysh-compat
+	vendor/bin/box compile --working-dir build/psysh-compat
+	cp build/psysh-compat/bin/psysh.phar build/psysh-compat.phar
+
+build/psysh-php54: bin/psysh src composer.json composer.lock box.json.dist build/stub
+	rm -rf build/psysh-php54 || true
+	mkdir build/psysh-php54
+	cp -R $(PSYSH_SRC) build/psysh-php54/
+	composer config --working-dir build/psysh-php54 platform.php 5.4
+	composer update --working-dir build/psysh-php54 --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose --prefer-dist
+
+build/psysh-php54.phar: build/psysh-php54
+	vendor/bin/box compile --working-dir build/psysh-php54
+	cp build/psysh-php54/bin/psysh.phar build/psysh-php54.phar
+
+build/psysh-php54-compat: bin/psysh src composer.json composer.lock box.json.dist build/stub
+	rm -rf build/psysh-php54-compat || true
+	mkdir build/psysh-php54-compat
+	cp -R $(PSYSH_SRC) build/psysh-php54-compat/
+	composer config --working-dir build/psysh-php54-compat platform.php 5.4
+	composer require --working-dir build/psysh-php54-compat symfony/intl hoa/console:^2.15 --no-progress --no-update --no-interaction --verbose
+	composer update --working-dir build/psysh-php54-compat --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose --prefer-dist
+
+build/psysh-php54-compat.phar: build/psysh-php54-compat
+	vendor/bin/box compile --working-dir build/psysh-php54-compat
+	cp build/psysh-php54-compat/bin/psysh.phar build/psysh-php54-compat.phar

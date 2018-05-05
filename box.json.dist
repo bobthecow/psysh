@@ -1,3 +1,8 @@
 {
-    "chmod": "0755"
+    "stub": "stub",
+    "compactors": [
+        "KevinGH\\Box\\Compactor\\Php"
+    ],
+    "chmod": "0755",
+    "compression": "GZ"
 }
