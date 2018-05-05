@@ -47,10 +47,5 @@
         "branch-alias": {
             "dev-develop": "0.9.x-dev"
         }
-    },
-    "config": {
-        "platform": {
-            "php": "7.1"
-        }
     }
 }

@@ -3,6 +3,5 @@
     "compactors": [
         "KevinGH\\Box\\Compactor\\Php"
     ],
-    "chmod": "0755",
-    "compression": "GZ"
+    "chmod": "0755"
 }

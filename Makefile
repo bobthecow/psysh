@@ -45,6 +45,7 @@ build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	rm -rf build/psysh || true
 	mkdir build/psysh
 	cp -R $(PSYSH_SRC) build/psysh/
+	composer config --working-dir build/psysh-php54-compat platform.php 7.1
 	composer update --working-dir build/psysh --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose --prefer-dist
 
 build/psysh.phar: build/psysh
@@ -55,6 +56,7 @@ build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist buil
 	rm -rf build/psysh-compat || true
 	mkdir build/psysh-compat
 	cp -R $(PSYSH_SRC) build/psysh-compat/
+	composer config --working-dir build/psysh-php54-compat platform.php 7.1
 	composer require --working-dir build/psysh-compat symfony/intl hoa/console --no-progress --no-update --no-interaction --verbose
 	composer update --working-dir build/psysh-compat --prefer-stable --no-dev --no-progress --classmap-authoritative --no-interaction --verbose --prefer-dist
 
