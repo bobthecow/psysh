@@ -48,6 +48,6 @@ fi
 echo "Creating tarballs"
 
 tar -czf dist/psysh-${PKG_VERSION}.tar.gz build/psysh.phar
-tar -czf dist/psysh-compat-${PKG_VERSION}.tar.gz build/psysh-compat.phar
-tar -czf dist/psysh-php54-${PKG_VERSION}.tar.gz build/psysh-php54.phar
-tar -czf dist/psysh-php54-compat-${PKG_VERSION}.tar.gz build/psysh-php54-compat.phar
+tar -czf dist/psysh-${PKG_VERSION}-compat.tar.gz build/psysh-compat.phar
+tar -czf dist/psysh-${PKG_VERSION}-php54.tar.gz build/psysh-php54.phar
+tar -czf dist/psysh-${PKG_VERSION}-php54-compat.tar.gz build/psysh-php54-compat.phar
