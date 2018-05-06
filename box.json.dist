@@ -1,0 +1,12 @@
+{
+    "stub": "stub",
+    "compactors": [
+        "KevinGH\\Box\\Compactor\\Php"
+    ],
+    "chmod": "0755",
+    "blacklist": [
+        "grammar",
+        "test_old",
+        "Documentation"
+    ]
+}

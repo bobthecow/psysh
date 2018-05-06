@@ -38,18 +38,16 @@ fi
 
 echo "Packaging $PKG_VERSION"
 
+rm -rf dist || true
 mkdir -p dist || exit 1
 
-./bin/build || exit 1
-chmod +x *.phar
+if [ ! -d "build" ]; then
+  exit 1
+fi
 
 echo "Creating tarballs"
 
-# Support BSD tar because OS X :(
-if [[ $(tar --version) = bsdtar* ]]; then
-  tar -s "/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
-  tar -s "/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
-else
-  tar --transform "s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}.tar.gz psysh.phar
-  tar --transform "s/.*/psysh/" -czf dist/psysh-${PKG_VERSION}-compat.tar.gz psysh-compat.phar
-fi
+tar -czf dist/psysh-${PKG_VERSION}.tar.gz build/psysh.phar
+tar -czf dist/psysh-${PKG_VERSION}-compat.tar.gz build/psysh-compat.phar
+tar -czf dist/psysh-${PKG_VERSION}-php54.tar.gz build/psysh-php54.phar
+tar -czf dist/psysh-${PKG_VERSION}-php54-compat.tar.gz build/psysh-php54-compat.phar
