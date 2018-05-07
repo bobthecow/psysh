@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := help
 
 PSYSH_SRC = bin src box.json.dist composer.json build/stub
+VERSION = $(shell git describe --tag --always --dirty=-dev)
 
 COMPOSER_OPTS = --no-interaction --no-progress --verbose
 COMPOSER_REQUIRE_OPTS = $(COMPOSER_OPTS) --no-update
@@ -19,12 +20,18 @@ clean:  ## Clean all created artifacts
 .PHONY: clean
 clean:
 	rm -rf build/*
+	rm -rf dist/*
 	rm -rf vendor-bin/*/vendor/
 
 
 build:  ## Compile PHARs
 .PHONY: build
 build: build/psysh/psysh build/psysh-compat/psysh build/psysh-php54/psysh build/psysh-php54-compat/psysh
+
+
+dist:   ## Build tarballs for distribution
+.PHONY: dist
+dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psysh-$(VERSION)-php54.tar.gz dist/psysh-$(VERSION)-php54-compat.tar.gz
 
 
 #
@@ -89,3 +96,20 @@ build/psysh-php54-compat: bin/psysh src composer.json composer.lock box.json.dis
 
 build/psysh-php54-compat/psysh: vendor-bin/box/vendor build/psysh-php54-compat
 	vendor/bin/box compile --working-dir build/psysh-php54-compat
+
+
+#
+# Rules for dist packages
+#---------------------------------------------------------------------------
+
+dist/psysh-$(VERSION).tar.gz: build/psysh/psysh
+	tar -czf dist/psysh-$(VERSION).tar.gz build/psysh/psysh
+
+dist/psysh-$(VERSION)-compat.tar.gz: build/psysh-compat/psysh
+	tar -czf dist/psysh-$(VERSION)-compat.tar.gz build/psysh-compat/psysh
+
+dist/psysh-$(VERSION)-php54.tar.gz: build/psysh-php54/psysh
+	tar -czf dist/psysh-$(VERSION)-php54.tar.gz build/psysh-php54/psysh
+
+dist/psysh-$(VERSION)-php54-compat.tar.gz: build/psysh-php54-compat/psysh
+	tar -czf dist/psysh-$(VERSION)-php54-compat.tar.gz build/psysh-php54-compat/psysh
