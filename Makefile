@@ -8,21 +8,21 @@ COMPOSER_INSTALL_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-aut
 
 .PHONY: help
 help:
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## *//'
 
 
 ##
 ## Commands
 ##---------------------------------------------------------------------------
 
-clean: 	 ## Clean all created artifacts
+clean:  ## Clean all created artifacts
 .PHONY: clean
 clean:
 	rm -rf build/
 	rm -rf vendor-bin/*/vendor/
 
 
-build: ## Compile the application into the PHAR
+build:  ## Compile PHARs
 .PHONY: build
 build: build/psysh.phar build/psysh-compat.phar build/psysh-php54.phar build/psysh-php54-compat.phar
 
