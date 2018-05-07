@@ -50,8 +50,8 @@ build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	rm -rf build/psysh || true
 	mkdir build/psysh
 	cp -R $(PSYSH_SRC) build/psysh/
-	sed -i '' 's/"php": ".*"/"php": ">=7.0.0"/g' build/psysh/composer.json
 	composer config --working-dir build/psysh platform.php 7.0
+	composer require --working-dir build/psysh $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
 	composer update --working-dir build/psysh $(COMPOSER_INSTALL_OPTS)
 
 build/psysh.phar: vendor-bin/box/vendor build/psysh
@@ -62,8 +62,8 @@ build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist buil
 	rm -rf build/psysh-compat || true
 	mkdir build/psysh-compat
 	cp -R $(PSYSH_SRC) build/psysh-compat/
-	sed -i '' 's/"php": ".*"/"php": ">=7.0.0"/g' build/psysh-compat/composer.json
 	composer config --working-dir build/psysh-compat platform.php 7.0
+	composer require --working-dir build/psysh-compat $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
 	composer require --working-dir build/psysh-compat $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
 	composer update --working-dir build/psysh-compat $(COMPOSER_INSTALL_OPTS)
 
