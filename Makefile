@@ -18,7 +18,7 @@ help:
 clean:  ## Clean all created artifacts
 .PHONY: clean
 clean:
-	rm -rf build/
+	rm -rf build/*
 	rm -rf vendor-bin/*/vendor/
 
 
