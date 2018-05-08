@@ -5,7 +5,7 @@ VERSION = $(shell git describe --tag --always --dirty=-dev)
 
 COMPOSER_OPTS = --no-interaction --no-progress --verbose
 COMPOSER_REQUIRE_OPTS = $(COMPOSER_OPTS) --no-update
-COMPOSER_INSTALL_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-authoritative --prefer-dist
+COMPOSER_UPDATE_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-authoritative --prefer-dist
 
 .PHONY: help
 help:
@@ -59,7 +59,7 @@ build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	cp -R $(PSYSH_SRC) build/psysh/
 	composer config --working-dir build/psysh platform.php 7.0
 	composer require --working-dir build/psysh $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
-	composer update --working-dir build/psysh $(COMPOSER_INSTALL_OPTS)
+	composer update --working-dir build/psysh $(COMPOSER_UPDATE_OPTS)
 
 build/psysh/psysh: vendor-bin/box/vendor build/psysh
 	vendor/bin/box compile --working-dir build/psysh
@@ -71,7 +71,7 @@ build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist buil
 	composer config --working-dir build/psysh-compat platform.php 7.0
 	composer require --working-dir build/psysh-compat $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
 	composer require --working-dir build/psysh-compat $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
-	composer update --working-dir build/psysh-compat $(COMPOSER_INSTALL_OPTS)
+	composer update --working-dir build/psysh-compat $(COMPOSER_UPDATE_OPTS)
 
 build/psysh-compat/psysh: vendor-bin/box/vendor build/psysh-compat
 	vendor/bin/box compile --working-dir build/psysh-compat
@@ -81,7 +81,7 @@ build/psysh-php54: bin/psysh src composer.json composer.lock box.json.dist build
 	mkdir build/psysh-php54
 	cp -R $(PSYSH_SRC) build/psysh-php54/
 	composer config --working-dir build/psysh-php54 platform.php 5.4
-	composer update --working-dir build/psysh-php54 $(COMPOSER_INSTALL_OPTS)
+	composer update --working-dir build/psysh-php54 $(COMPOSER_UPDATE_OPTS)
 
 build/psysh-php54/psysh: vendor-bin/box/vendor build/psysh-php54
 	vendor/bin/box compile --working-dir build/psysh-php54
@@ -92,7 +92,7 @@ build/psysh-php54-compat: bin/psysh src composer.json composer.lock box.json.dis
 	cp -R $(PSYSH_SRC) build/psysh-php54-compat/
 	composer config --working-dir build/psysh-php54-compat platform.php 5.4
 	composer require --working-dir build/psysh-php54-compat $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console:^2.15
-	composer update --working-dir build/psysh-php54-compat $(COMPOSER_INSTALL_OPTS)
+	composer update --working-dir build/psysh-php54-compat $(COMPOSER_UPDATE_OPTS)
 
 build/psysh-php54-compat/psysh: vendor-bin/box/vendor build/psysh-php54-compat
 	vendor/bin/box compile --working-dir build/psysh-php54-compat
