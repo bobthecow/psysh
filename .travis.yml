@@ -24,7 +24,7 @@ install: travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
 script:
  - vendor/bin/phpunit --verbose
- - [[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build || true
+ - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build || true'
 
 before_deploy: make dist
 
