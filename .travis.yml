@@ -22,9 +22,11 @@ matrix:
 
 install: travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
-script: vendor/bin/phpunit --verbose
+script:
+ - vendor/bin/phpunit --verbose
+ - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build || true'
 
-before_deploy: bin/package -v $TRAVIS_TAG
+before_deploy: make dist
 
 deploy:
   provider: releases
@@ -36,4 +38,4 @@ deploy:
   on:
     tags: true
     repo: bobthecow/psysh
-    condition: (($TRAVIS_PHP_VERSION = 5.4* && -z "$COMPOSER_FLAGS") || $TRAVIS_PHP_VERSION = 7.0*)
+    condition: $TRAVIS_PHP_VERSION = 7.2*
