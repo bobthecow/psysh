@@ -98,13 +98,7 @@ build/psysh-php54-compat/psysh: vendor-bin/box/vendor build/psysh-php54-compat
 # Dist packages
 
 dist/psysh-$(VERSION).tar.gz: build/psysh/psysh
-	tar -czf dist/psysh-$(VERSION).tar.gz build/psysh/psysh
+	tar -czf $@ $<
 
-dist/psysh-$(VERSION)-compat.tar.gz: build/psysh-compat/psysh
-	tar -czf dist/psysh-$(VERSION)-compat.tar.gz build/psysh-compat/psysh
-
-dist/psysh-$(VERSION)-php54.tar.gz: build/psysh-php54/psysh
-	tar -czf dist/psysh-$(VERSION)-php54.tar.gz build/psysh-php54/psysh
-
-dist/psysh-$(VERSION)-php54-compat.tar.gz: build/psysh-php54-compat/psysh
-	tar -czf dist/psysh-$(VERSION)-php54-compat.tar.gz build/psysh-php54-compat/psysh
+dist/psysh-$(VERSION)-%.tar.gz: build/psysh-%/psysh
+	tar -czf $@ $<
