@@ -34,16 +34,16 @@ dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psys
 # All the composer stuffs
 
 composer.lock: composer.json
-	@echo The composer.lock file is not synchronized with the composer.json file
-
-vendor: composer.lock
 	composer install
+	touch $@
 
-vendor/bamarni: composer.lock
+vendor/autoload.php: composer.lock
 	composer install
+	touch $@
 
-vendor-bin/box/vendor: vendor/bamarni
+vendor/bin/box: vendor/autoload.php
 	composer bin box install
+	touch $@
 
 
 # Lots of PHARs
@@ -83,7 +83,7 @@ build/psysh-php54-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console:^2.15
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/%/psysh: vendor-bin/box/vendor build/%
+build/%/psysh: vendor/bin/box build/%
 	vendor/bin/box compile --working-dir $(dir $@)
 
 
