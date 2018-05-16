@@ -2,6 +2,7 @@
 .PHONY: help clean build dist
 
 PSYSH_SRC = bin src box.json.dist composer.json build/stub
+PSYSH_SRC_FILES = $(shell find src -type f -name "*.php")
 VERSION = $(shell git describe --tag --always --dirty=-dev)
 
 COMPOSER_OPTS = --no-interaction --no-progress --verbose
@@ -50,7 +51,7 @@ vendor-bin/box/vendor: vendor/bamarni
 build/stub: bin/build-stub bin/psysh LICENSE
 	bin/build-stub
 
-build/psysh: $(PSYSH_SRC)
+build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
@@ -58,7 +59,7 @@ build/psysh: $(PSYSH_SRC)
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-compat: $(PSYSH_SRC)
+build/psysh-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
@@ -67,14 +68,14 @@ build/psysh-compat: $(PSYSH_SRC)
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54: $(PSYSH_SRC)
+build/psysh-php54: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
 	composer config --working-dir $@ platform.php 5.4
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54-compat: $(PSYSH_SRC)
+build/psysh-php54-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
