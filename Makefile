@@ -8,14 +8,15 @@ COMPOSER_OPTS = --no-interaction --no-progress --verbose
 COMPOSER_REQUIRE_OPTS = $(COMPOSER_OPTS) --no-update
 COMPOSER_UPDATE_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-authoritative --prefer-dist
 
+
+# Help
+
 help:
 	@echo "\033[33mUsage:\033[0m\n  make TARGET\n\n\033[33mTargets:\033[0m"
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-7s\033[0m %s\n", $$1, $$2}'
 
 
-##
-## Commands
-##---------------------------------------------------------------------------
+# Commands
 
 clean: ## Clean all created artifacts
 	rm -rf build/*
@@ -29,9 +30,7 @@ dist: ## Build tarballs for distribution
 dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psysh-$(VERSION)-php54.tar.gz dist/psysh-$(VERSION)-php54-compat.tar.gz
 
 
-#
-# Rules from files
-#---------------------------------------------------------------------------
+# All the composer stuffs
 
 composer.lock: composer.json
 	@echo The composer.lock file is not synchronized with the composer.json file
@@ -44,6 +43,9 @@ vendor/bamarni: composer.lock
 
 vendor-bin/box/vendor: vendor/bamarni
 	composer bin box install
+
+
+# Lots of PHARs
 
 build/stub: bin/build-stub bin/psysh LICENSE
 	bin/build-stub
@@ -93,9 +95,7 @@ build/psysh-php54-compat/psysh: vendor-bin/box/vendor build/psysh-php54-compat
 	vendor/bin/box compile --working-dir build/psysh-php54-compat
 
 
-#
-# Rules for dist packages
-#---------------------------------------------------------------------------
+# Dist packages
 
 dist/psysh-$(VERSION).tar.gz: build/psysh/psysh
 	tar -czf dist/psysh-$(VERSION).tar.gz build/psysh/psysh
