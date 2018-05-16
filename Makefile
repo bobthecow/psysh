@@ -58,9 +58,6 @@ build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	composer require --working-dir build/psysh $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
 	composer update --working-dir build/psysh $(COMPOSER_UPDATE_OPTS)
 
-build/psysh/psysh: vendor-bin/box/vendor build/psysh
-	vendor/bin/box compile --working-dir build/psysh
-
 build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	rm -rf build/psysh-compat || true
 	mkdir build/psysh-compat
@@ -70,18 +67,12 @@ build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist buil
 	composer require --working-dir build/psysh-compat $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
 	composer update --working-dir build/psysh-compat $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-compat/psysh: vendor-bin/box/vendor build/psysh-compat
-	vendor/bin/box compile --working-dir build/psysh-compat
-
 build/psysh-php54: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	rm -rf build/psysh-php54 || true
 	mkdir build/psysh-php54
 	cp -R $(PSYSH_SRC) build/psysh-php54/
 	composer config --working-dir build/psysh-php54 platform.php 5.4
 	composer update --working-dir build/psysh-php54 $(COMPOSER_UPDATE_OPTS)
-
-build/psysh-php54/psysh: vendor-bin/box/vendor build/psysh-php54
-	vendor/bin/box compile --working-dir build/psysh-php54
 
 build/psysh-php54-compat: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	rm -rf build/psysh-php54-compat || true
@@ -91,8 +82,8 @@ build/psysh-php54-compat: bin/psysh src composer.json composer.lock box.json.dis
 	composer require --working-dir build/psysh-php54-compat $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console:^2.15
 	composer update --working-dir build/psysh-php54-compat $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54-compat/psysh: vendor-bin/box/vendor build/psysh-php54-compat
-	vendor/bin/box compile --working-dir build/psysh-php54-compat
+build/%/psysh: vendor-bin/box/vendor build/%
+	vendor/bin/box compile --working-dir $(dir $@)
 
 
 # Dist packages
