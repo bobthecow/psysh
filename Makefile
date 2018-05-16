@@ -9,25 +9,23 @@ COMPOSER_REQUIRE_OPTS = $(COMPOSER_OPTS) --no-update
 COMPOSER_UPDATE_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-authoritative --prefer-dist
 
 help:
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## *//'
+	@echo "\033[33mUsage:\033[0m\n  make TARGET\n\n\033[33mTargets:\033[0m"
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-7s\033[0m %s\n", $$1, $$2}'
 
 
 ##
 ## Commands
 ##---------------------------------------------------------------------------
 
-clean:  ## Clean all created artifacts
-clean:
+clean: ## Clean all created artifacts
 	rm -rf build/*
 	rm -rf dist/*
 	rm -rf vendor-bin/*/vendor/
 
-
-build:  ## Compile PHARs
+build: ## Compile PHARs
 build: build/psysh/psysh build/psysh-compat/psysh build/psysh-php54/psysh build/psysh-php54-compat/psysh
 
-
-dist:   ## Build tarballs for distribution
+dist: ## Build tarballs for distribution
 dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psysh-$(VERSION)-php54.tar.gz dist/psysh-$(VERSION)-php54-compat.tar.gz
 
 
