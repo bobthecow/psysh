@@ -50,7 +50,7 @@ vendor-bin/box/vendor: vendor/bamarni
 build/stub: bin/build-stub bin/psysh LICENSE
 	bin/build-stub
 
-build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
+build/psysh: $(PSYSH_SRC)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
@@ -58,7 +58,7 @@ build/psysh: bin/psysh src composer.json composer.lock box.json.dist build/stub
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist build/stub
+build/psysh-compat: $(PSYSH_SRC)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
@@ -67,14 +67,14 @@ build/psysh-compat: bin/psysh src composer.json composer.lock box.json.dist buil
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54: bin/psysh src composer.json composer.lock box.json.dist build/stub
+build/psysh-php54: $(PSYSH_SRC)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
 	composer config --working-dir $@ platform.php 5.4
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54-compat: bin/psysh src composer.json composer.lock box.json.dist build/stub
+build/psysh-php54-compat: $(PSYSH_SRC)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
