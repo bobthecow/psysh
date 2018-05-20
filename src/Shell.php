@@ -988,7 +988,7 @@ class Shell extends Application
         }
 
         $message = preg_replace(
-            "#(\\w:)?(/\\w+)*/src/ExecutionClosure.php\(\d+\) : eval\(\)'d code#",
+            "#(\\w:)?(/\\w+)*/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code#",
             "eval()'d code",
             str_replace('\\', '/', $message)
         );
