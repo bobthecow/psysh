@@ -37,10 +37,6 @@ class CodeFormatter implements Formatter
 
         $colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
 
-        if ($reflector instanceof \ReflectionGenerator) {
-            $reflector = $reflector->getFunction();
-        }
-
         if ($fileName = $reflector->getFileName()) {
             if (!is_file($fileName)) {
                 throw new RuntimeException('Source code unavailable');
@@ -70,7 +66,6 @@ class CodeFormatter implements Formatter
     private static function isReflectable(\Reflector $reflector)
     {
         return $reflector instanceof \ReflectionClass ||
-            $reflector instanceof \ReflectionFunctionAbstract ||
-            $reflector instanceof \ReflectionGenerator;
+            $reflector instanceof \ReflectionFunctionAbstract;
     }
 }
