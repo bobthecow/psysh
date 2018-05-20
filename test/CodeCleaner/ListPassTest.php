@@ -61,6 +61,7 @@ class ListPassTest extends CodeCleanerTestCase
 
         return array_merge($invalidExpr, [
             ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
+            ['["a"] = [1]', $errorNonVariableAssign],
             ['[] = []', $errorEmptyList],
         ]);
     }
