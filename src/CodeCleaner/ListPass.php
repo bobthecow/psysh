@@ -24,6 +24,13 @@ use Psy\Exception\ParseErrorException;
  */
 class ListPass extends CodeCleanerPass
 {
+    private $atLeastPhp71;
+
+    public function __construct()
+    {
+        $this->atLeastPhp71 = version_compare(PHP_VERSION, '7.1', '>=');
+    }
+
     /**
      * Validate use of list assignment.
      *
@@ -41,9 +48,7 @@ class ListPass extends CodeCleanerPass
             return;
         }
 
-        $before_php71 = version_compare(PHP_VERSION, '7.1', '<');
-
-        if ($node->var instanceof Array_ && $before_php71) {
+        if (!$this->atLeastPhp71 && $node->var instanceof Array_) {
             $msg = "syntax error, unexpected '='";
             throw new ParseErrorException($msg, $node->expr->getLine());
         }
@@ -61,7 +66,7 @@ class ListPass extends CodeCleanerPass
             }
 
             // List_->$vars in PHP-Parser 2.x is Variable instead of ArrayItem.
-            if ($before_php71 && $item instanceof ArrayItem && $item->key !== null) {
+            if (!$this->atLeastPhp71 && $item instanceof ArrayItem && $item->key !== null) {
                 $msg = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
                 throw new ParseErrorException($msg, $item->key->getLine());
             }

@@ -24,12 +24,12 @@ class ListPassTest extends CodeCleanerTestCase
      * @dataProvider invalidStatements
      * @expectedException \Psy\Exception\ParseErrorException
      */
-    public function testProcessInvalidStatement($code, $expected_message)
+    public function testProcessInvalidStatement($code, $expectedMessage)
     {
         if (method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException('Psy\Exception\ParseErrorException', $expected_message);
+            $this->setExpectedException('Psy\Exception\ParseErrorException', $expectedMessage);
         } else {
-            $this->expectExceptionMessage($expected_message);
+            $this->expectExceptionMessage($expectedMessage);
         }
 
         $stmts = $this->parse($code);
@@ -39,36 +39,30 @@ class ListPassTest extends CodeCleanerTestCase
     public function invalidStatements()
     {
         // Not typo.  It is ambiguous whether "Syntax" or "syntax".
-        $error_short_list_assign = "yntax error, unexpected '='";
-        $error_empty_list = 'Cannot use empty list';
-        $error_assoc_list_assign = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
-        $error_non_variable_assign = 'Assignments can only happen to writable values';
-        $error_php_parser_syntax = 'PHP Parse error: Syntax error, unexpected';
+        $errorShortListAssign = "yntax error, unexpected '='";
+        $errorEmptyList = 'Cannot use empty list';
+        $errorAssocListAssign = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
+        $errorNonVariableAssign = 'Assignments can only happen to writable values';
+        $errorPhpParserSyntax = 'PHP Parse error: Syntax error, unexpected';
 
-        $invalid_expr = [
-            ['list() = array()', $error_empty_list],
-            ['list("a") = array(1)', $error_php_parser_syntax],
-        ];
-
-        $invalid_before_71 = [
-            ['list("a" => _) = array("a" => 1)', $error_php_parser_syntax],
-            ['[] = []', $error_short_list_assign],
-            ['[$a] = [1]', $error_short_list_assign],
-            ['list("a" => $a) = array("a" => 1)', $error_assoc_list_assign],
-        ];
-
-        $invalid_after_71 = [
-            ['list("a" => _) = array("a" => 1)', $error_php_parser_syntax],
-            ['[] = []', $error_empty_list],
+        $invalidExpr = [
+            ['list() = array()', $errorEmptyList],
+            ['list("a") = array(1)', $errorPhpParserSyntax],
         ];
 
         if (version_compare(PHP_VERSION, '7.1', '<')) {
-            $invalid_expr = array_merge($invalid_expr, $invalid_before_71);
-        } else {
-            $invalid_expr = array_merge($invalid_expr, $invalid_after_71);
+            return array_merge($invalidExpr, [
+                ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
+                ['[] = []', $errorShortListAssign],
+                ['[$a] = [1]', $errorShortListAssign],
+                ['list("a" => $a) = array("a" => 1)', $errorAssocListAssign],
+            ]);
         }
 
-        return $invalid_expr;
+        return array_merge($invalidExpr, [
+            ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
+            ['[] = []', $errorEmptyList],
+        ]);
     }
 
     /**
@@ -83,13 +77,13 @@ class ListPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        $valid_expr = [
+        $validExpr = [
             ['list($a) = array(1)'],
             ['list($x, $y) = array(1, 2)'],
         ];
 
         if (version_compare(PHP_VERSION, '7.1', '>=')) {
-            return array_merge($valid_expr, [
+            return array_merge($validExpr, [
                 ['[$a] = array(1)'],
                 ['list($b) = [2]'],
                 ['[$x, $y] = array(1, 2)'],
@@ -99,6 +93,6 @@ class ListPassTest extends CodeCleanerTestCase
             ]);
         }
 
-        return $valid_expr;
+        return $validExpr;
     }
 }
