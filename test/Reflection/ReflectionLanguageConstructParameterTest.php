@@ -27,6 +27,7 @@ class ReflectionLanguageConstructParameterTest extends \PHPUnit\Framework\TestCa
             'isPassedByReference' => false,
         ]);
 
+        $this->assertNull($refl->getClass());
         $this->assertEquals('one', $refl->getName());
         $this->assertFalse($refl->isArray());
         $this->assertTrue($refl->isDefaultValueAvailable());
@@ -40,6 +41,7 @@ class ReflectionLanguageConstructParameterTest extends \PHPUnit\Framework\TestCa
             'isPassedByReference' => true,
         ]);
 
+        $this->assertNull($refl->getClass());
         $this->assertEquals('two', $reflTwo->getName());
         $this->assertTrue($reflTwo->isArray());
         $this->assertFalse($reflTwo->isDefaultValueAvailable());
@@ -51,6 +53,7 @@ class ReflectionLanguageConstructParameterTest extends \PHPUnit\Framework\TestCa
             'defaultValue' => 3,
         ]);
 
+        $this->assertNull($refl->getClass());
         $this->assertEquals('three', $refl->getName());
         $this->assertFalse($refl->isArray());
         $this->assertTrue($refl->isDefaultValueAvailable());
