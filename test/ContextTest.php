@@ -210,6 +210,30 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $context->get('this');
     }
 
+    public function testBoundClass()
+    {
+        $context = new Context();
+        $this->assertNull($context->getBoundClass());
+
+        $context->setBoundClass('');
+        $this->assertNull($context->getBoundClass());
+
+        $context->setBoundClass('Psy\Shell');
+        $this->assertEquals('Psy\Shell', $context->getBoundClass());
+
+        $context->setBoundObject(new \StdClass());
+        $this->assertNotNull($context->getBoundObject());
+        $this->assertNull($context->getBoundClass());
+
+        $context->setBoundClass('Psy\Shell');
+        $this->assertEquals('Psy\Shell', $context->getBoundClass());
+        $this->assertNull($context->getBoundObject());
+
+        $context->setBoundClass(null);
+        $this->assertNull($context->getBoundClass());
+        $this->assertNull($context->getBoundObject());
+    }
+
     public function testCommandScopeVariables()
     {
         $__function  = 'donkey';
