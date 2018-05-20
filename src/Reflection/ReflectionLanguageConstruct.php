@@ -76,7 +76,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     public function __construct($keyword)
     {
-        if (self::isLanguageConstruct($keyword)) {
+        if (!self::isLanguageConstruct($keyword)) {
             throw new \InvalidArgumentException('Unknown language construct: ' . $keyword);
         }
 
@@ -126,6 +126,18 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
         }
 
         return $params;
+    }
+
+    /**
+     * Gets the file name from a language construct.
+     *
+     * (Hint: it always returns false)
+     *
+     * @return bool false
+     */
+    public function getFileName()
+    {
+        return false;
     }
 
     /**
