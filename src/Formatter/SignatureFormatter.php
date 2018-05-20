@@ -161,7 +161,7 @@ class SignatureFormatter implements Formatter
         } elseif (is_bool($value) || is_null($value)) {
             return 'bool';
         } else {
-            return 'strong';
+            return 'strong'; // @codeCoverageIgnore
         }
     }
 
@@ -238,11 +238,14 @@ class SignatureFormatter implements Formatter
                 // come to think of it, the only time I've seen this is with the intl extension.
 
                 // Hax: we'll try to extract it :P
+
+                // @codeCoverageIgnoreStart
                 $chunks = explode('$' . $param->getName(), (string) $param);
                 $chunks = explode(' ', trim($chunks[0]));
                 $guess  = end($chunks);
 
                 $hint = sprintf('<urgent>%s</urgent> ', $guess);
+                // @codeCoverageIgnoreEnd
             }
 
             if ($param->isOptional()) {
