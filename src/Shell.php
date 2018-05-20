@@ -398,7 +398,8 @@ class Shell extends Application
 
             $input = $this->onInput($input);
 
-            if ($this->hasCommand($input)) {
+            // If the input isn't in an open string or comment, check for commands to run.
+            if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
                 $this->addHistory($input);
                 $this->runCommand($input);
 
@@ -407,6 +408,28 @@ class Shell extends Application
 
             $this->addCode($input);
         } while (!$this->hasValidCode());
+    }
+
+    /**
+     * Check whether the code buffer (plus current input) is in an open string or comment.
+     *
+     * @param string $input current line of input
+     *
+     * @return bool true if the input is in an open string or comment
+     */
+    private function inputInOpenStringOrComment($input)
+    {
+        if (!$this->hasCode()) {
+            return;
+        }
+
+        $code = $this->codeBuffer;
+        array_push($code, $input);
+        $tokens = @token_get_all('<?php ' . implode("\n", $code));
+        $last = array_pop($tokens);
+
+        return $last === '"' || $last === '`' ||
+            (is_array($last) && in_array($last[0], [T_ENCAPSED_AND_WHITESPACE, T_START_HEREDOC, T_COMMENT]));
     }
 
     /**
