@@ -21,9 +21,9 @@ class ReflectionLanguageConstructParameterTest extends \PHPUnit\Framework\TestCa
         $keyword = new ReflectionLanguageConstruct('die');
 
         $refl = new ReflectionLanguageConstructParameter($keyword, 'one', [
-            'isArray' => false,
-            'defaultValue' => null,
-            'isOptional' => false,
+            'isArray'             => false,
+            'defaultValue'        => null,
+            'isOptional'          => false,
             'isPassedByReference' => false,
         ]);
 
@@ -36,8 +36,8 @@ class ReflectionLanguageConstructParameterTest extends \PHPUnit\Framework\TestCa
         $this->assertFalse($refl->isPassedByReference());
 
         $reflTwo = new ReflectionLanguageConstructParameter($keyword, 'two', [
-            'isArray' => true,
-            'isOptional' => true,
+            'isArray'             => true,
+            'isOptional'          => true,
             'isPassedByReference' => true,
         ]);
 
