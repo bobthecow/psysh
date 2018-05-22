@@ -78,6 +78,14 @@ class SignatureFormatter implements Formatter
      */
     private static function formatModifiers(\Reflector $reflector)
     {
+        if ($reflector instanceof \ReflectionClass && $reflector->isTrait()) {
+            // For some reason, PHP 5.x returns `abstract public` modifiers for
+            // traits. Let's just ignore that business entirely.
+            if (version_compare(PHP_VERSION, '7.0.0', '<')) {
+                return [];
+            }
+        }
+
         return implode(' ', array_map(function ($modifier) {
             return sprintf('<keyword>%s</keyword>', $modifier);
         }, \Reflection::getModifierNames($reflector->getModifiers())));
@@ -161,7 +169,7 @@ class SignatureFormatter implements Formatter
         } elseif (is_bool($value) || is_null($value)) {
             return 'bool';
         } else {
-            return 'strong';
+            return 'strong'; // @codeCoverageIgnore
         }
     }
 
@@ -238,11 +246,14 @@ class SignatureFormatter implements Formatter
                 // come to think of it, the only time I've seen this is with the intl extension.
 
                 // Hax: we'll try to extract it :P
+
+                // @codeCoverageIgnoreStart
                 $chunks = explode('$' . $param->getName(), (string) $param);
                 $chunks = explode(' ', trim($chunks[0]));
                 $guess  = end($chunks);
 
                 $hint = sprintf('<urgent>%s</urgent> ', $guess);
+                // @codeCoverageIgnoreEnd
             }
 
             if ($param->isOptional()) {

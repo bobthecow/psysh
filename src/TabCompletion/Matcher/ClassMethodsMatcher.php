@@ -42,14 +42,22 @@ class ClassMethodsMatcher extends AbstractMatcher
             return [];
         }
 
-        $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        if (self::needCompleteClass($tokens[1])) {
+            $methods = $reflection->getMethods();
+        } else {
+            $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+        }
+
         $methods = array_map(function (\ReflectionMethod $method) {
             return $method->getName();
         }, $methods);
 
         return array_map(
             function ($name) use ($class) {
-                return $class . '::' . $name;
+                $chunks = explode('\\', $class);
+                $className = array_pop($chunks);
+
+                return $className . '::' . $name;
             },
             array_filter($methods, function ($method) use ($input) {
                 return AbstractMatcher::startsWith($input, $method);

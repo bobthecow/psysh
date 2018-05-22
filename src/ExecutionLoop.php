@@ -11,10 +11,7 @@
 
 namespace Psy;
 
-use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
-use Psy\Exception\ThrowUpException;
-use Psy\Exception\TypeErrorException;
 
 /**
  * The Psy Shell execution loop.
@@ -32,33 +29,8 @@ class ExecutionLoop
     {
         $this->loadIncludes($shell);
 
-        $closure = new ExecutionClosure($shell);
-
-        do {
-            $shell->beforeLoop();
-
-            try {
-                $shell->getInput();
-                $_ = $closure->execute();
-                $shell->writeReturnValue($_);
-            } catch (BreakException $_e) {
-                $shell->writeException($_e);
-
-                return;
-            } catch (ThrowUpException $_e) {
-                $shell->writeException($_e);
-
-                throw $_e;
-            } catch (\TypeError $_e) {
-                $shell->writeException(TypeErrorException::fromTypeError($_e));
-            } catch (\Error $_e) {
-                $shell->writeException(ErrorException::fromError($_e));
-            } catch (\Exception $_e) {
-                $shell->writeException($_e);
-            }
-
-            $shell->afterLoop();
-        } while (true);
+        $closure = new ExecutionLoopClosure($shell);
+        $closure->execute();
     }
 
     /**

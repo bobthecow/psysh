@@ -68,7 +68,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                 throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
             }
         } elseif ($node instanceof Empty_ && !$this->atLeastPhp55 && $this->isCallNode($node->expr)) {
-            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
+            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine()); // @codeCoverageIgnore
         } elseif ($node instanceof Assign && $this->isCallNode($node->var)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
         }

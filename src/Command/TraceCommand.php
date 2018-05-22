@@ -126,7 +126,7 @@ HELP
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
             // Leave execution loop out of the `eval()'d code` lines
-            if (preg_match("#/src/ExecutionClosure.php\(\d+\) : eval\(\)'d code$#", str_replace('\\', '/', $file))) {
+            if (preg_match("#/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code$#", str_replace('\\', '/', $file))) {
                 $file = "eval()'d code";
             }
 

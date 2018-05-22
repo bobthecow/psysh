@@ -47,7 +47,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.9.3';
+    const VERSION = 'v0.9.4';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -118,14 +118,14 @@ class Shell extends Application
      * @see Psy\debug
      * @deprecated will be removed in 1.0. Use \Psy\debug instead
      *
-     * @param array  $vars        Scope variables from the calling context (default: array())
-     * @param object $boundObject Bound object ($this) value for the shell
+     * @param array         $vars   Scope variables from the calling context (default: array())
+     * @param object|string $bindTo Bound object ($this) or class (self) value for the shell
      *
      * @return array Scope variables from the debugger session
      */
-    public static function debug(array $vars = [], $boundObject = null)
+    public static function debug(array $vars = [], $bindTo = null)
     {
-        return \Psy\debug($vars, $boundObject);
+        return \Psy\debug($vars, $bindTo);
     }
 
     /**
@@ -392,13 +392,14 @@ class Shell extends Application
             }
 
             // handle empty input
-            if (trim($input) === '') {
+            if (trim($input) === '' && !$this->codeBufferOpen) {
                 continue;
             }
 
             $input = $this->onInput($input);
 
-            if ($this->hasCommand($input)) {
+            // If the input isn't in an open string or comment, check for commands to run.
+            if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
                 $this->addHistory($input);
                 $this->runCommand($input);
 
@@ -407,6 +408,28 @@ class Shell extends Application
 
             $this->addCode($input);
         } while (!$this->hasValidCode());
+    }
+
+    /**
+     * Check whether the code buffer (plus current input) is in an open string or comment.
+     *
+     * @param string $input current line of input
+     *
+     * @return bool true if the input is in an open string or comment
+     */
+    private function inputInOpenStringOrComment($input)
+    {
+        if (!$this->hasCode()) {
+            return;
+        }
+
+        $code = $this->codeBuffer;
+        array_push($code, $input);
+        $tokens = @token_get_all('<?php ' . implode("\n", $code));
+        $last = array_pop($tokens);
+
+        return $last === '"' || $last === '`' ||
+            (is_array($last) && in_array($last[0], [T_ENCAPSED_AND_WHITESPACE, T_START_HEREDOC, T_COMMENT]));
     }
 
     /**
@@ -585,6 +608,26 @@ class Shell extends Application
     public function getBoundObject()
     {
         return $this->context->getBoundObject();
+    }
+
+    /**
+     * Set the bound class (self) for the interactive shell.
+     *
+     * @param string|null $boundClass
+     */
+    public function setBoundClass($boundClass)
+    {
+        $this->context->setBoundClass($boundClass);
+    }
+
+    /**
+     * Get the bound class (self) for the interactive shell.
+     *
+     * @return string|null
+     */
+    public function getBoundClass()
+    {
+        return $this->context->getBoundClass();
     }
 
     /**
@@ -945,7 +988,7 @@ class Shell extends Application
         }
 
         $message = preg_replace(
-            "#(\\w:)?(/\\w+)*/src/ExecutionClosure.php\(\d+\) : eval\(\)'d code#",
+            "#(\\w:)?(/\\w+)*/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code#",
             "eval()'d code",
             str_replace('\\', '/', $message)
         );
@@ -1089,9 +1132,8 @@ class Shell extends Application
      */
     protected function hasCommand($input)
     {
-        $input = new StringInput($input);
-        if ($name = $input->getFirstArgument()) {
-            return $this->has($name);
+        if (preg_match('/([^\s]+?)(?:\s|$)/A', ltrim($input), $match)) {
+            return $this->has($match[1]);
         }
 
         return false;

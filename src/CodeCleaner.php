@@ -26,6 +26,7 @@ use Psy\CodeCleaner\ImplicitReturnPass;
 use Psy\CodeCleaner\InstanceOfPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 use Psy\CodeCleaner\LegacyEmptyPass;
+use Psy\CodeCleaner\ListPass;
 use Psy\CodeCleaner\LoopContextPass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
@@ -99,6 +100,7 @@ class CodeCleaner
             new InstanceOfPass(),
             new LeavePsyshAlonePass(),
             new LegacyEmptyPass(),
+            new ListPass(),
             new LoopContextPass(),
             new PassableByReferencePass(),
             new ValidConstructorPass(),

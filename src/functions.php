@@ -28,7 +28,7 @@ if (!function_exists('Psy\sh')) {
      */
     function sh()
     {
-        return 'extract(\Psy\debug(get_defined_vars(), isset($this) ? $this : null));';
+        return 'extract(\Psy\debug(get_defined_vars(), isset($this) ? $this : @get_called_class()));';
     }
 }
 
@@ -50,9 +50,9 @@ if (!function_exists('Psy\debug')) {
      *         var_dump($item); // will be whatever you set $item to in Psy Shell
      *     }
      *
-     * Optionally, supply an object as the `$boundObject` parameter. This
-     * determines the value `$this` will have in the shell, and sets up class
-     * scope so that private and protected members are accessible:
+     * Optionally, supply an object as the `$bindTo` parameter. This determines
+     * the value `$this` will have in the shell, and sets up class scope so that
+     * private and protected members are accessible:
      *
      *     class Foo {
      *         function bar() {
@@ -60,12 +60,22 @@ if (!function_exists('Psy\debug')) {
      *         }
      *     }
      *
-     * @param array  $vars        Scope variables from the calling context (default: array())
-     * @param object $boundObject Bound object ($this) value for the shell
+     * For the static equivalent, pass a class name as the `$bindTo` parameter.
+     * This makes `self` work in the shell, and sets up static scope so that
+     * private and protected static members are accessible:
+     *
+     *     class Foo {
+     *         static function bar() {
+     *             \Psy\debug(get_defined_vars(), get_called_class());
+     *         }
+     *     }
+     *
+     * @param array         $vars   Scope variables from the calling context (default: array())
+     * @param object|string $bindTo Bound object ($this) or class (self) value for the shell
      *
      * @return array Scope variables from the debugger session
      */
-    function debug(array $vars = [], $boundObject = null)
+    function debug(array $vars = [], $bindTo = null)
     {
         echo PHP_EOL;
 
@@ -79,8 +89,10 @@ if (!function_exists('Psy\debug')) {
             $sh->addInput('whereami -n2', true);
         }
 
-        if ($boundObject !== null) {
-            $sh->setBoundObject($boundObject);
+        if (is_string($bindTo)) {
+            $sh->setBoundClass($bindTo);
+        } elseif ($bindTo !== null) {
+            $sh->setBoundObject($bindTo);
         }
 
         $sh->run();

@@ -77,10 +77,12 @@ class ImplicitReturnPass extends CodeCleanerPass
                 }
             }
         } elseif ($last instanceof Expr && !($last instanceof Exit_)) {
+            // @codeCoverageIgnoreStart
             $nodes[count($nodes) - 1] = new Return_($last, [
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
             ]);
+        // @codeCoverageIgnoreEnd
         } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
             // For PHP Parser 4.x
             $nodes[count($nodes) - 1] = new Return_($last->expr, [

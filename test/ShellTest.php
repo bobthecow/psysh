@@ -380,6 +380,38 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    /**
+     * @dataProvider commandsToHas
+     */
+    public function testHasCommand($command, $has)
+    {
+        $shell = new Shell($this->getConfig());
+
+        // :-/
+        $refl = new \ReflectionClass('Psy\\Shell');
+        $method = $refl->getMethod('hasCommand');
+        $method->setAccessible(true);
+
+        $this->assertEquals($method->invokeArgs($shell, [$command]), $has);
+    }
+
+    public function commandsToHas()
+    {
+        return [
+            ['help', true],
+            ['help help', true],
+            ['"help"', false],
+            ['"help help"', false],
+            ['ls -al ', true],
+            ['ls "-al" ', true],
+            ['ls"-al"', false],
+            [' q', true],
+            ['   q  --help', true],
+            ['"q"', false],
+            ['"q",', false],
+        ];
+    }
+
     private function getOutput()
     {
         $stream = fopen('php://memory', 'w+');

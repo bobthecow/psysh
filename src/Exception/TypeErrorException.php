@@ -50,6 +50,6 @@ class TypeErrorException extends \Exception implements Exception
      */
     public static function fromTypeError(\TypeError $e)
     {
-        return new self($e->getMessage(), $e->getLine());
+        return new self($e->getMessage(), $e->getCode());
     }
 }

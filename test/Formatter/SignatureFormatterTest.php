@@ -56,6 +56,18 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
                 . 'extends PhpParser\NodeVisitorAbstract '
                 . 'implements PhpParser\NodeVisitor',
             ],
+            [
+                new \ReflectionFunction('array_chunk'),
+                'function array_chunk($arg, $size, $preserve_keys = unknown)',
+            ],
+            [
+                new \ReflectionClass('Psy\Test\Formatter\Fixtures\BoringTrait'),
+                'trait Psy\Test\Formatter\Fixtures\BoringTrait',
+            ],
+            [
+                new \ReflectionMethod('Psy\Test\Formatter\Fixtures\BoringTrait', 'boringMethod'),
+                'public function boringMethod($one = 1)',
+            ],
         ];
     }
 
