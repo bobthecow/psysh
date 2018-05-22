@@ -87,7 +87,9 @@ build/%/psysh: vendor/bin/box build/%
 # Dist packages
 
 dist/psysh-$(VERSION).tar.gz: build/psysh/psysh
+	@mkdir -p $(@D)
 	tar -czf $@ $<
 
 dist/psysh-$(VERSION)-%.tar.gz: build/psysh-%/psysh
+	@mkdir -p $(@D)
 	tar -czf $@ $<
