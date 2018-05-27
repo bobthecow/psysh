@@ -50,7 +50,7 @@ class ClassEnumerator extends Enumerator
             $ret = array_merge($ret, $this->filterClasses('Interfaces', get_declared_interfaces(), $internal, $user));
         }
 
-        if (function_exists('get_declared_traits') && $input->getOption('traits')) {
+        if ($input->getOption('traits')) {
             $ret = array_merge($ret, $this->filterClasses('Traits', get_declared_traits(), $internal, $user));
         }
 

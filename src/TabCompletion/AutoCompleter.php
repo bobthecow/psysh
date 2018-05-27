@@ -103,8 +103,6 @@ class AutoCompleter
     {
         // PHP didn't implement the whole readline API when they first switched
         // to libedit. And they still haven't.
-        //
-        // So this is a thing to make PsySH work on 5.3.x:
         if (function_exists('readline_callback_handler_remove')) {
             readline_callback_handler_remove();
         }

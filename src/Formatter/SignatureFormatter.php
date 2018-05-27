@@ -70,8 +70,6 @@ class SignatureFormatter implements Formatter
     /**
      * Print the method, property or class modifiers.
      *
-     * Technically this should be a trait. Can't wait for 5.4 :)
-     *
      * @param \Reflector $reflector
      *
      * @return string Formatted modifiers
