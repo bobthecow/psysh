@@ -282,6 +282,12 @@ abstract class ReflectingCommand extends Command implements ContextAware
                     $vars['__dir']  = dirname($fileName);
                 }
                 break;
+
+            case 'Psy\Reflection\ReflectionConstant_':
+                if ($reflector->inNamespace()) {
+                    $vars['__namespace'] = $reflector->getNamespaceName();
+                }
+                break;
         }
 
         if ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionFunctionAbstract) {

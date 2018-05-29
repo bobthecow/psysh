@@ -39,6 +39,14 @@ class ReflectionClassConstantTest extends \PHPUnit\Framework\TestCase
         new ReflectionClassConstant($this, 'UNKNOWN_CONSTANT');
     }
 
+    public function testExport()
+    {
+        $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
+        $ret = ReflectionClassConstant::export($this, 'CONSTANT_ONE', true);
+
+        $this->assertEquals($ret, 'Constant [ public string CONSTANT_ONE ] { one }');
+    }
+
     /**
      * @expectedException \RuntimeException
      * @dataProvider notYetImplemented
@@ -54,7 +62,6 @@ class ReflectionClassConstantTest extends \PHPUnit\Framework\TestCase
         return [
             ['getStartLine'],
             ['getEndLine'],
-            ['export'],
         ];
     }
 }
