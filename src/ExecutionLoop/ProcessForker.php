@@ -65,9 +65,21 @@ class ProcessForker extends AbstractListener
             $read   = [$down];
             $write  = null;
             $except = null;
-            if (stream_select($read, $write, $except, null) === false) {
-                throw new \RuntimeException('Error waiting for execution loop');
-            }
+
+            do {
+                $n = stream_select($read, $write, $except, null);
+
+                if ($n === 0) {
+                    throw new \RuntimeException('Process timed out waiting for execution loop');
+                }
+
+                if ($n === false) {
+                    $err = error_get_last();
+                    if (!isset($err['message']) || stripos($err['message'], 'interrupted system call') === false) {
+                        throw new \RuntimeException('Error waiting for execution loop');
+                    }
+                }
+            } while ($n < 1);
 
             $content = stream_get_contents($down);
             fclose($down);
