@@ -12,7 +12,7 @@
 namespace Psy\Util;
 
 use Psy\Exception\RuntimeException;
-use Psy\Reflection\ReflectionConstant;
+use Psy\Reflection\ReflectionClassConstant;
 
 /**
  * A utility class for getting Reflectors.
@@ -52,7 +52,7 @@ class Mirror
         if ($member === null) {
             return $class;
         } elseif ($filter & self::CONSTANT && $class->hasConstant($member)) {
-            return new ReflectionConstant($class, $member);
+            return ReflectionClassConstant::create($value, $member);
         } elseif ($filter & self::METHOD && $class->hasMethod($member)) {
             return $class->getMethod($member);
         } elseif ($filter & self::PROPERTY && $class->hasProperty($member)) {

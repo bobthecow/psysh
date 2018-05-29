@@ -36,7 +36,11 @@ class MirrorTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf('ReflectionObject', $refl);
 
         $refl = Mirror::get($this, 'FOO');
-        $this->assertInstanceOf('Psy\Reflection\ReflectionConstant', $refl);
+        if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
+            $this->assertInstanceOf('ReflectionClassConstant', $refl);
+        } else {
+            $this->assertInstanceOf('Psy\Reflection\ReflectionClassConstant', $refl);
+        }
 
         $refl = Mirror::get($this, 'bar');
         $this->assertInstanceOf('ReflectionProperty', $refl);

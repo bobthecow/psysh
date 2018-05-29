@@ -12,7 +12,7 @@
 namespace Psy\Test\Formatter;
 
 use Psy\Formatter\SignatureFormatter;
-use Psy\Reflection\ReflectionConstant;
+use Psy\Reflection\ReflectionClassConstant;
 
 class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
 {
@@ -39,7 +39,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
                 defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
             ],
             [
-                new ReflectionConstant($this, 'FOO'),
+                ReflectionClassConstant::create($this, 'FOO'),
                 'const FOO = "foo value"',
             ],
             [

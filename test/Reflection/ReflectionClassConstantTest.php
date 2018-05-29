@@ -11,19 +11,19 @@
 
 namespace Psy\Test\Reflection;
 
-use Psy\Reflection\ReflectionConstant;
+use Psy\Reflection\ReflectionClassConstant;
 
-class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
+class ReflectionClassConstantTest extends \PHPUnit\Framework\TestCase
 {
     const CONSTANT_ONE = 'one';
 
     public function testConstruction()
     {
-        $refl  = new ReflectionConstant($this, 'CONSTANT_ONE');
+        $refl  = new ReflectionClassConstant($this, 'CONSTANT_ONE');
         $class = $refl->getDeclaringClass();
 
         $this->assertInstanceOf('ReflectionClass', $class);
-        $this->assertSame('Psy\Test\Reflection\ReflectionConstantTest', $class->getName());
+        $this->assertSame('Psy\Test\Reflection\ReflectionClassConstantTest', $class->getName());
         $this->assertSame('CONSTANT_ONE', $refl->getName());
         $this->assertSame('CONSTANT_ONE', (string) $refl);
         $this->assertSame('one', $refl->getValue());
@@ -36,7 +36,7 @@ class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
      */
     public function testUnknownConstantThrowsException()
     {
-        new ReflectionConstant($this, 'UNKNOWN_CONSTANT');
+        new ReflectionClassConstant($this, 'UNKNOWN_CONSTANT');
     }
 
     /**
@@ -45,7 +45,7 @@ class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
      */
     public function testNotYetImplemented($method)
     {
-        $refl = new ReflectionConstant($this, 'CONSTANT_ONE');
+        $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
         $refl->$method();
     }
 

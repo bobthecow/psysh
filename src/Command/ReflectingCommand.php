@@ -269,7 +269,8 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 break;
 
             case 'ReflectionProperty':
-            case 'Psy\Reflection\ReflectionConstant':
+            case 'ReflectionClassConstant':
+            case 'Psy\Reflection\ReflectionClassConstant':
                 $classReflector = $reflector->getDeclaringClass();
                 $vars['__class'] = $classReflector->name;
                 if ($classReflector->inNamespace()) {
