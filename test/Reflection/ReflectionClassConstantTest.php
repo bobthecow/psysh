@@ -41,10 +41,24 @@ class ReflectionClassConstantTest extends \PHPUnit\Framework\TestCase
 
     public function testExport()
     {
-        $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
         $ret = ReflectionClassConstant::export($this, 'CONSTANT_ONE', true);
-
         $this->assertEquals($ret, 'Constant [ public string CONSTANT_ONE ] { one }');
+    }
+
+    public function testExportOutput()
+    {
+        $this->expectOutputString("Constant [ public string CONSTANT_ONE ] { one }\n");
+        ReflectionClassConstant::export($this, 'CONSTANT_ONE', false);
+    }
+
+    public function testModifiers()
+    {
+        $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
+
+        $this->assertEquals(\ReflectionMethod::IS_PUBLIC, $refl->getModifiers());
+        $this->assertFalse($refl->isPrivate());
+        $this->assertFalse($refl->isProtected());
+        $this->assertTrue($refl->isPublic());
     }
 
     /**
