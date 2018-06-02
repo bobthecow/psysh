@@ -14,6 +14,7 @@ namespace Psy\Command;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
+use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -99,6 +100,18 @@ HELP
 
             case 'ReflectionProperty':
                 $id = $reflector->class . '::$' . $reflector->name;
+                break;
+
+            case 'ReflectionClassConstant':
+            case 'Psy\Reflection\ReflectionClassConstant':
+                // @todo this is going to collide with ReflectionMethod ids
+                // someday... start running the query by id + type if the DB
+                // supports it.
+                $id = $reflector->class . '::' . $reflector->name;
+                break;
+
+            case 'Psy\Reflection\ReflectionConstant_':
+                $id = $reflector->name;
                 break;
 
             default:

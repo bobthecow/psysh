@@ -880,7 +880,7 @@ class Configuration
     {
         if (!isset($this->pager) && $this->usePcntl()) {
             if ($pager = ini_get('cli.pager')) {
-                // use the default pager (5.4+)
+                // use the default pager
                 $this->pager = $pager;
             } elseif ($less = exec('which less 2>/dev/null')) {
                 // check for the presence of less...

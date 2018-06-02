@@ -53,29 +53,6 @@ class LoopContextPassTest extends CodeCleanerTestCase
             ['while (true) { break 2; }'],
             ['while (true) { continue 2; }'],
 
-            // invalid in 5.4+ because they're floats
-            // ... in 5.3 because the number is too big
-            ['while (true) { break 2.0; }'],
-            ['while (true) { continue 2.0; }'],
-
-            // and once with nested loops, just for good measure
-            ['while (true) { while (true) { break 3; } }'],
-            ['while (true) { while (true) { continue 3; } }'],
-        ];
-    }
-
-    /**
-     * @dataProvider invalidPHP54Statements
-     * @expectedException \Psy\Exception\FatalErrorException
-     */
-    public function testPHP54ProcessStatementFails($code)
-    {
-        $this->parseAndTraverse($code);
-    }
-
-    public function invalidPHP54Statements()
-    {
-        return [
             // In PHP 5.4+, only positive literal integers are allowed
             ['while (true) { break $n; }'],
             ['while (true) { continue $n; }'],
@@ -87,6 +64,12 @@ class LoopContextPassTest extends CodeCleanerTestCase
             ['while (true) { continue -1; }'],
             ['while (true) { break 1.0; }'],
             ['while (true) { continue 1.0; }'],
+            ['while (true) { break 2.0; }'],
+            ['while (true) { continue 2.0; }'],
+
+            // and once with nested loops, just for good measure
+            ['while (true) { while (true) { break 3; } }'],
+            ['while (true) { while (true) { continue 3; } }'],
         ];
     }
 

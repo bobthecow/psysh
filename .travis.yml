@@ -24,12 +24,12 @@ install: travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
 script:
  - vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
- - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build || true'
+ - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build -j 4 || true'
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-before_deploy: make dist
+before_deploy: make dist -j 4
 
 deploy:
   provider: releases
