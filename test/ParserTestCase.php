@@ -21,6 +21,13 @@ class ParserTestCase extends \PHPUnit\Framework\TestCase
     private $parser;
     private $printer;
 
+    public function tearDown()
+    {
+        $this->traverser = null;
+        $this->parser = null;
+        $this->printer = null;
+    }
+
     protected function parse($code, $prefix = '<?php ')
     {
         $code = $prefix . $code;
