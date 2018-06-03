@@ -12,12 +12,12 @@
 namespace Psy\Command;
 
 use PhpParser\Node\Arg;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
-use PhpParser\Node\Stmt\Throw_;
 use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Stmt\Throw_;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Context;
 use Psy\ContextAware;

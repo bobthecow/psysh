@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the Symfony package.
+ * This file is part of Psy Shell.
  *
- * (c) Fabien Potencier <fabien@symfony.com>
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,9 +11,9 @@
 
 namespace Symfony\Component\Console\Tests\Command;
 
-use Symfony\Component\Console\Tester\CommandTester;
 use Psy\Command\ThrowUpCommand;
 use Psy\Shell;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
 {
