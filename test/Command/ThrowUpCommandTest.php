@@ -20,7 +20,7 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider executeThis
      */
-    public function testExecute($args, $hasCode, $expect)
+    public function testExecute($args, $hasCode, $expect, $addSilent = true)
     {
         $shell = $this->getMockBuilder('Psy\\Shell')
             ->setMethods(['hasCode', 'addCode'])
@@ -29,7 +29,7 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
         $shell->expects($this->once())->method('hasCode')->willReturn($hasCode);
         $shell->expects($this->once())
             ->method('addCode')
-            ->with($this->equalTo($expect), $this->equalTo(!$hasCode));
+            ->with($this->equalTo($expect), $this->equalTo($addSilent));
 
         $command = new ThrowUpCommand();
         $command->setApplication($shell);
@@ -44,14 +44,46 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
 
         return [
             [[], false, $throw . '($_e);'],
-            [[], true, $throw . '($_e);'],
 
-            [['exception' => '$ex'], true, $throw . '($ex);'],
-            [['exception' => 'getException()'], true, $throw . '(getException());'],
-            [['exception' => 'new \\Exception("WAT")'], true, $throw . '(new \\Exception("WAT"));'],
+            [['exception' => '$ex'], false, $throw . '($ex);'],
+            [['exception' => 'getException()'], false, $throw . '(getException());'],
+            [['exception' => 'new \\Exception("WAT")'], false, $throw . '(new \\Exception("WAT"));'],
 
-            [['exception' => '\'some string\''], true, $throw . '(new \\Exception(\'some string\'));'],
-            [['exception' => '"WHEEEEEEE!"'], true, $throw . '(new \\Exception("WHEEEEEEE!"));'],
+            [['exception' => '\'some string\''], false, $throw . '(new \\Exception(\'some string\'));'],
+            [['exception' => '"WHEEEEEEE!"'], false, $throw . '(new \\Exception("WHEEEEEEE!"));'],
+
+            // Everything should work with or without semicolons.
+            [['exception' => '$ex;'], false, $throw . '($ex);'],
+            [['exception' => '"WHEEEEEEE!";'], false, $throw . '(new \\Exception("WHEEEEEEE!"));'],
+
+            // Don't add as silent code if we've already got code.
+            [[], true, $throw . '($_e);', false],
+            [['exception' => 'getException()'], true, $throw . '(getException());', false],
+            [['exception' => '\'some string\''], true, $throw . '(new \\Exception(\'some string\'));', false],
         ];
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage No idea how to throw this
+     */
+    public function testMultipleArgsThrowsException()
+    {
+        $command = new ThrowUpCommand();
+        $command->setApplication(new Shell());
+        $tester = new CommandTester($command);
+        $tester->execute(['exception' => 'foo(); bar()']);
+    }
+
+    /**
+     * @expectedException \PhpParser\Error
+     * @expectedExceptionMessage Syntax error, unexpected ')' on line 1
+     */
+    public function testParseErrorThrowsException()
+    {
+        $command = new ThrowUpCommand();
+        $command->setApplication(new Shell());
+        $tester = new CommandTester($command);
+        $tester->execute(['exception' => 'foo)']);
     }
 }
