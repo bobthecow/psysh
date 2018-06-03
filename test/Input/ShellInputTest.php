@@ -64,6 +64,19 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('baz\\n', $input->getArgument('baz'));
     }
 
+    public function testInputWithDashDash()
+    {
+        $definition = new InputDefinition([
+            new InputOption('foo', null, InputOption::VALUE_REQUIRED),
+            new CodeArgument('code', null, CodeArgument::REQUIRED),
+        ]);
+
+        $input = new ShellInput('-- echo --foo::$bar');
+        $input->bind($definition);
+        $this->assertNull($input->getOption('foo'));
+        $this->assertSame('echo --foo::$bar', $input->getArgument('code'));
+    }
+
     /**
      * @dataProvider getTokenizeData
      */
