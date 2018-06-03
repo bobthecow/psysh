@@ -126,13 +126,15 @@ HELP
             $code = '<?php ' . $code;
         }
 
-        $expr = $this->parse($code);
-
-        if (count($expr) !== 1) {
+        $nodes = $this->parse($code);
+        if (count($nodes) !== 1) {
             throw new \InvalidArgumentException('No idea how to throw this');
         }
 
-        return [new Arg($expr[0])];
+        $node = $nodes[0];
+        $args = [new Arg($node->expr, false, false, $node->getAttributes())];
+
+        return $args;
     }
 
     /**
