@@ -77,6 +77,18 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('echo --foo::$bar', $input->getArgument('code'));
     }
 
+    public function testInputWithEmptyString()
+    {
+        $definition = new InputDefinition([
+            new InputOption('foo', null, InputOption::VALUE_REQUIRED),
+            new CodeArgument('code', null, CodeArgument::REQUIRED),
+        ]);
+
+        $input = new ShellInput('"" --foo bar');
+        $input->bind($definition);
+        $this->assertSame('"" --foo bar', $input->getArgument('code'));
+    }
+
     /**
      * @dataProvider getTokenizeData
      */
