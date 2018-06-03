@@ -31,6 +31,21 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($tokens, $p->getValue($input), $message);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Unexpected CodeArgument before the final position: a
+     */
+    public function testThrowsWhenCodeArgumentNotInFinalPosition()
+    {
+        $definition = new InputDefinition([
+            new CodeArgument('a', null, CodeArgument::REQUIRED),
+            new InputArgument('b', null, InputArgument::REQUIRED),
+        ]);
+
+        $input = new ShellInput('foo bar');
+        $input->bind($definition);
+    }
+
     public function testInputOptionWithGivenString()
     {
         $definition = new InputDefinition([
