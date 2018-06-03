@@ -135,10 +135,14 @@ HELP
         }
 
         $node = $nodes[0];
-        $args = [new Arg($node->expr, false, false, $node->getAttributes())];
+
+        // Make this work for PHP Parser v3.x
+        $expr = isset($node->expr) ? $node->expr : $node;
+
+        $args = [new Arg($expr, false, false, $node->getAttributes())];
 
         // Allow throwing via a string, e.g. `throw-up "SUP"`
-        if ($node->expr instanceof String_) {
+        if ($expr instanceof String_) {
             return [new New_(new FullyQualifiedName('Exception'), $args)];
         }
 
