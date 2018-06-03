@@ -87,6 +87,7 @@ e.g.
 <return>>>> throw-up</return>
 <return>>>> throw-up $e</return>
 <return>>>> throw-up new Exception('WHEEEEEE!')</return>
+<return>>>> throw-up "bye!"</return>
 HELP
             );
     }
