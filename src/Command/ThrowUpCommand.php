@@ -16,6 +16,8 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt\Throw_;
+use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Expr\New_;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Context;
 use Psy\ContextAware;
@@ -133,6 +135,11 @@ HELP
 
         $node = $nodes[0];
         $args = [new Arg($node->expr, false, false, $node->getAttributes())];
+
+        // Allow throwing via a string, e.g. `throw-up "SUP"`
+        if ($node->expr instanceof String_) {
+            return [new New_(new FullyQualifiedName('Exception'), $args)];
+        }
 
         return $args;
     }

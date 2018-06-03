@@ -49,6 +49,9 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
             [['exception' => '$ex'], true, $throw . '($ex);'],
             [['exception' => 'getException()'], true, $throw . '(getException());'],
             [['exception' => 'new \\Exception("WAT")'], true, $throw . '(new \\Exception("WAT"));'],
+
+            [['exception' => '\'some string\''], true, $throw . '(new \\Exception(\'some string\'));'],
+            [['exception' => '"WHEEEEEEE!"'], true, $throw . '(new \\Exception("WHEEEEEEE!"));'],
         ];
     }
 }
