@@ -105,7 +105,9 @@ class ShellInput extends StringInput
                 ];
             } else {
                 // should never happen
+                // @codeCoverageIgnoreStart
                 throw new \InvalidArgumentException(sprintf('Unable to parse input near "... %s ..."', substr($input, $cursor, 10)));
+                // @codeCoverageIgnoreEnd
             }
 
             $cursor += strlen($match[0]);
@@ -186,6 +188,7 @@ class ShellInput extends StringInput
     }
 
     // Everything below this is copypasta from ArgvInput private methods
+    // @codeCoverageIgnoreStart
 
     /**
      * Parses a short option.
@@ -323,4 +326,6 @@ class ShellInput extends StringInput
             $this->options[$name] = $value;
         }
     }
+
+    // @codeCoverageIgnoreEnd
 }
