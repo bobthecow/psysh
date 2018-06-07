@@ -65,7 +65,8 @@ class ParserTestCase extends \PHPUnit\Framework\TestCase
     {
         $stmts = $this->parse($from);
         $stmts = $this->traverse($stmts);
-        $this->assertSame($to, $this->prettyPrint($stmts));
+        $toStmts = $this->parse($to);
+        $this->assertSame($this->prettyPrint($toStmts), $this->prettyPrint($stmts));
     }
 
     private function getParser()
