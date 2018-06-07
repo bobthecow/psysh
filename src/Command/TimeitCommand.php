@@ -152,7 +152,6 @@ HELP
     private function ensureEndMarked()
     {
         if (self::$start !== null) {
-            dump('YEP');
             self::markEnd();
         }
     }
