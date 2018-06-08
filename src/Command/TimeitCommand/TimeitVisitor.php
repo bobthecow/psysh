@@ -75,17 +75,20 @@ class TimeitVisitor extends NodeVisitorAbstract
     public function afterTraverse(array $nodes)
     {
         // prepend a `markStart` call
-        array_unshift($nodes, new Expression($this->getStartCall()));
+        array_unshift($nodes, $this->maybeExpression($this->getStartCall()));
 
         // append a `markEnd` call (wrapping the final node, if it's an expression)
         $last = $nodes[count($nodes) - 1];
-        if ($last instanceof Expression) {
+        if ($last instanceof Expr) {
+            array_pop($nodes);
+            $nodes[] = $this->getEndCall($last);
+        } elseif ($last instanceof Expression) {
             array_pop($nodes);
             $nodes[] = new Expression($this->getEndCall($last->expr), $last->getAttributes());
         } elseif ($last instanceof Return_) {
             // nothing to do here, we're already ending with a return call
         } else {
-            $nodes[] = new Expression($this->getEndCall());
+            $nodes[] = $this->maybeExpression($this->getEndCall());
         }
 
         return $nodes;
@@ -117,5 +120,20 @@ class TimeitVisitor extends NodeVisitorAbstract
         }
 
         return new StaticCall(new FullyQualifiedName('Psy\Command\TimeitCommand'), 'markEnd', [new Arg($arg)]);
+    }
+
+    /**
+     * Compatibility shim for PHP Parser 3.x.
+     *
+     * Wrap $expr in a PhpParser\Node\Stmt\Expression if the class exists.
+     *
+     * @param PhpParser\Node $expr
+     * @param array          $attrs
+     *
+     * @return PhpParser\Node\Expr|PhpParser\Node\Stmt\Expression
+     */
+    private function maybeExpression($expr, $attrs = [])
+    {
+        return class_exists('PhpParser\Node\Stmt\Expression') ? new Expression($expr, $attrs) : $expr;
     }
 }
