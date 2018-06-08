@@ -24,14 +24,14 @@ class TimeitVisitorTest extends ParserTestCase
     }
 
     /**
-     * @dataProvider testCases
+     * @dataProvider codez
      */
     public function testProcess($from, $to)
     {
         $this->assertProcessesAs($from, $to);
     }
 
-    public function testCases()
+    public function codez()
     {
         $start = '\Psy\Command\TimeitCommand::markStart';
         $end = '\Psy\Command\TimeitCommand::markEnd';
