@@ -63,6 +63,7 @@ class ListPassTest extends CodeCleanerTestCase
             ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
             ['["a"] = [1]', $errorNonVariableAssign],
             ['[] = []', $errorEmptyList],
+            ['[,] = [1,2]', $errorEmptyList],
         ]);
     }
 
@@ -91,6 +92,10 @@ class ListPassTest extends CodeCleanerTestCase
                 ['[$a] = [1]'],
                 ['[$x, $y] = [1, 2]'],
                 ['["_" => $v] = ["_" => 1]'],
+                ['[$a,] = [1,2,3]'],
+                ['[,$b] = [1,2,3]'],
+                ['[$a,,$c] = [1,2,3]'],
+                ['[$a,,,] = [1,2,3]'],
             ]);
         }
 
