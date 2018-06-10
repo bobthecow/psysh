@@ -11,6 +11,9 @@
 
 namespace Psy\CodeCleaner;
 
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
+
 /**
  * A class used internally by CodeCleaner to represent input, such as
  * non-expression statements, with no return value.
@@ -20,5 +23,13 @@ namespace Psy\CodeCleaner;
  */
 class NoReturnValue
 {
-    // this space intentionally left blank
+    /**
+     * Get PhpParser AST expression for creating a new NoReturnValue.
+     *
+     * @return PhpParser\Node\Expr\New_
+     */
+    public static function create()
+    {
+        return new New_(new FullyQualifiedName('Psy\CodeCleaner\NoReturnValue'));
+    }
 }

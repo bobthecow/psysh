@@ -20,15 +20,18 @@ use Symfony\Component\Console\Input\InputOption;
 class ShellInputTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @dataProvider getTokenizeData
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Unexpected CodeArgument before the final position: a
      */
-    public function testTokenize($input, $tokens, $message)
+    public function testThrowsWhenCodeArgumentNotInFinalPosition()
     {
-        $input = new ShellInput($input);
-        $r = new \ReflectionClass('Psy\Input\ShellInput');
-        $p = $r->getProperty('tokenPairs');
-        $p->setAccessible(true);
-        $this->assertSame($tokens, $p->getValue($input), $message);
+        $definition = new InputDefinition([
+            new CodeArgument('a', null, CodeArgument::REQUIRED),
+            new InputArgument('b', null, InputArgument::REQUIRED),
+        ]);
+
+        $input = new ShellInput('foo bar');
+        $input->bind($definition);
     }
 
     public function testInputOptionWithGivenString()
@@ -48,15 +51,54 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
     {
         $definition = new InputDefinition([
             new InputOption('foo', null, InputOption::VALUE_REQUIRED),
+            new InputOption('qux', 'q', InputOption::VALUE_REQUIRED),
             new InputArgument('bar', null, InputArgument::REQUIRED),
             new InputArgument('baz', null, InputArgument::REQUIRED),
         ]);
 
-        $input = new ShellInput('--foo=foo bar "baz\\\\n"');
+        $input = new ShellInput('--foo=foo -q qux bar "baz\\\\n"');
         $input->bind($definition);
         $this->assertSame('foo', $input->getOption('foo'));
+        $this->assertSame('qux', $input->getOption('qux'));
         $this->assertSame('bar', $input->getArgument('bar'));
         $this->assertSame('baz\\n', $input->getArgument('baz'));
+    }
+
+    public function testInputWithDashDash()
+    {
+        $definition = new InputDefinition([
+            new InputOption('foo', null, InputOption::VALUE_REQUIRED),
+            new CodeArgument('code', null, CodeArgument::REQUIRED),
+        ]);
+
+        $input = new ShellInput('-- echo --foo::$bar');
+        $input->bind($definition);
+        $this->assertNull($input->getOption('foo'));
+        $this->assertSame('echo --foo::$bar', $input->getArgument('code'));
+    }
+
+    public function testInputWithEmptyString()
+    {
+        $definition = new InputDefinition([
+            new InputOption('foo', null, InputOption::VALUE_REQUIRED),
+            new CodeArgument('code', null, CodeArgument::REQUIRED),
+        ]);
+
+        $input = new ShellInput('"" --foo bar');
+        $input->bind($definition);
+        $this->assertSame('"" --foo bar', $input->getArgument('code'));
+    }
+
+    /**
+     * @dataProvider getTokenizeData
+     */
+    public function testTokenize($input, $tokens, $message)
+    {
+        $input = new ShellInput($input);
+        $r = new \ReflectionClass('Psy\Input\ShellInput');
+        $p = $r->getProperty('tokenPairs');
+        $p->setAccessible(true);
+        $this->assertSame($tokens, $p->getValue($input), $message);
     }
 
     public function getTokenizeData()
