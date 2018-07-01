@@ -222,7 +222,7 @@ class Docblock
      */
     public static function isTagged($str)
     {
-        return isset($str[1]) && $str[0] === '@' && ctype_alpha($str[1]);
+        return isset($str[1]) && $str[0] === '@' && !preg_match('/[^A-Za-z]/', $str[1]);
     }
 
     /**
