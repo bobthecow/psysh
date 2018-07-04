@@ -217,8 +217,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $this->assertInstanceOf('Symfony\Component\Console\Application', $shell);
         $this->assertContains(Shell::VERSION, $shell->getVersion());
-        $this->assertContains(\phpversion(), $shell->getVersion());
-        $this->assertContains(\php_sapi_name(), $shell->getVersion());
+        $this->assertContains(PHP_VERSION, $shell->getVersion());
+        $this->assertContains(PHP_SAPI, $shell->getVersion());
     }
 
     public function testCodeBuffer()

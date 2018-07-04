@@ -1207,7 +1207,7 @@ class Shell extends Application
     {
         $separator = $this->config->useUnicode() ? '—' : '-';
 
-        return \sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, \phpversion(), $separator, \php_sapi_name());
+        return \sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, PHP_VERSION, $separator, PHP_SAPI);
     }
 
     /**
