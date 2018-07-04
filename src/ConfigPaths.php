@@ -68,7 +68,7 @@ class ConfigPaths
     {
         $configDirs = self::getHomeConfigDirs();
         foreach ($configDirs as $configDir) {
-            if (@is_dir($configDir)) {
+            if (@\is_dir($configDir)) {
                 return $configDir;
             }
         }
@@ -136,7 +136,7 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
-        set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
+        \set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
 
         try {
             // XDG doesn't really work on Windows, sometimes complains about
@@ -146,34 +146,34 @@ class ConfigPaths
         } catch (\Exception $e) {
             // Well. That didn't work. Fall back to a boring old folder in the
             // system temp dir.
-            $runtimeDir = sys_get_temp_dir();
+            $runtimeDir = \sys_get_temp_dir();
         }
 
-        restore_error_handler();
+        \restore_error_handler();
 
-        return strtr($runtimeDir, '\\', '/') . '/psysh';
+        return \strtr($runtimeDir, '\\', '/') . '/psysh';
     }
 
     private static function getDirNames(array $baseDirs)
     {
-        $dirs = array_map(function ($dir) {
-            return strtr($dir, '\\', '/') . '/psysh';
+        $dirs = \array_map(function ($dir) {
+            return \strtr($dir, '\\', '/') . '/psysh';
         }, $baseDirs);
 
         // Add ~/.psysh
-        if ($home = getenv('HOME')) {
-            $dirs[] = strtr($home, '\\', '/') . '/.psysh';
+        if ($home = \getenv('HOME')) {
+            $dirs[] = \strtr($home, '\\', '/') . '/.psysh';
         }
 
         // Add some Windows specific ones :)
-        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            if ($appData = getenv('APPDATA')) {
+        if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            if ($appData = \getenv('APPDATA')) {
                 // AppData gets preference
-                array_unshift($dirs, strtr($appData, '\\', '/') . '/PsySH');
+                \array_unshift($dirs, \strtr($appData, '\\', '/') . '/PsySH');
             }
 
-            $dir = strtr(getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH'), '\\', '/') . '/.psysh';
-            if (!in_array($dir, $dirs)) {
+            $dir = \strtr(\getenv('HOMEDRIVE') . '/' . \getenv('HOMEPATH'), '\\', '/') . '/.psysh';
+            if (!\in_array($dir, $dirs)) {
                 $dirs[] = $dir;
             }
         }
@@ -187,7 +187,7 @@ class ConfigPaths
         foreach ($dirNames as $dir) {
             foreach ($fileNames as $name) {
                 $file = $dir . '/' . $name;
-                if (@is_file($file)) {
+                if (@\is_file($file)) {
                     $files[] = $file;
                 }
             }
@@ -207,30 +207,30 @@ class ConfigPaths
      */
     public static function touchFileWithMkdir($file)
     {
-        if (file_exists($file)) {
-            if (is_writable($file)) {
+        if (\file_exists($file)) {
+            if (\is_writable($file)) {
                 return $file;
             }
 
-            trigger_error(sprintf('Writing to %s is not allowed.', $file), E_USER_NOTICE);
+            \trigger_error(\sprintf('Writing to %s is not allowed.', $file), E_USER_NOTICE);
 
             return false;
         }
 
-        $dir = dirname($file);
+        $dir = \dirname($file);
 
-        if (!is_dir($dir)) {
+        if (!\is_dir($dir)) {
             // Just try making it and see if it works
-            @mkdir($dir, 0700, true);
+            @\mkdir($dir, 0700, true);
         }
 
-        if (!is_dir($dir) || !is_writable($dir)) {
-            trigger_error(sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
+        if (!\is_dir($dir) || !\is_writable($dir)) {
+            \trigger_error(\sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
 
             return false;
         }
 
-        touch($file);
+        \touch($file);
 
         return $file;
     }

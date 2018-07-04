@@ -22,7 +22,7 @@ class CodeFormatterTest extends \PHPUnit\Framework\TestCase
     public function testFormat($reflector, $expected)
     {
         $formatted = CodeFormatter::format($reflector);
-        $formattedWithoutColors = preg_replace('#' . chr(27) . '\[\d\d?m#', '', $formatted);
+        $formattedWithoutColors = \preg_replace('#' . \chr(27) . '\[\d\d?m#', '', $formatted);
 
         $this->assertEquals($expected, self::trimLines($formattedWithoutColors));
         $this->assertNotEquals($expected, self::trimLines($formatted));
@@ -88,7 +88,7 @@ EOS;
             [new \ReflectionProperty('Psy\Test\Formatter\Fixtures\SomeClass', 'someProp')],
         ];
 
-        if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
+        if (\version_compare(PHP_VERSION, '7.1.0', '>=')) {
             $reflectors[] = [new \ReflectionClassConstant('Psy\Test\Formatter\Fixtures\SomeClass', 'SOME_CONST')];
         }
 
@@ -115,7 +115,7 @@ EOS;
 
     public function filenames()
     {
-        if (defined('HHVM_VERSION')) {
+        if (\defined('HHVM_VERSION')) {
             $this->markTestSkipped('We have issues with PHPUnit mocks on HHVM.');
         }
 
@@ -124,6 +124,6 @@ EOS;
 
     private static function trimLines($code)
     {
-        return rtrim(implode("\n", array_map('rtrim', explode("\n", $code))));
+        return \rtrim(\implode("\n", \array_map('rtrim', \explode("\n", $code))));
     }
 }

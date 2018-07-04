@@ -77,7 +77,7 @@ class MethodEnumerator extends Enumerator
             }
         }
 
-        ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $methods;
     }
@@ -118,7 +118,7 @@ class MethodEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Methods';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Methods';
         } else {
             return 'Class Methods';

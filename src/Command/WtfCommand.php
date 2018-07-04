@@ -86,26 +86,26 @@ HELP
     {
         $this->filter->bind($input);
 
-        $incredulity = implode('', $input->getArgument('incredulity'));
-        if (strlen(preg_replace('/[\\?!]/', '', $incredulity))) {
+        $incredulity = \implode('', $input->getArgument('incredulity'));
+        if (\strlen(\preg_replace('/[\\?!]/', '', $incredulity))) {
             throw new \InvalidArgumentException('Incredulity must include only "?" and "!"');
         }
 
         $exception = $this->context->getLastException();
-        $count     = $input->getOption('all') ? PHP_INT_MAX : max(3, pow(2, strlen($incredulity) + 1));
+        $count     = $input->getOption('all') ? PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
         $shell = $this->getApplication();
         $output->startPaging();
         do {
-            $traceCount = count($exception->getTrace());
+            $traceCount = \count($exception->getTrace());
             $showLines  = $count;
             // Show the whole trace if we'd only be hiding a few lines
-            if ($traceCount < max($count * 1.2, $count + 2)) {
+            if ($traceCount < \max($count * 1.2, $count + 2)) {
                 $showLines = PHP_INT_MAX;
             }
 
             $trace     = $this->getBacktrace($exception, $showLines);
-            $moreLines = $traceCount - count($trace);
+            $moreLines = $traceCount - \count($trace);
 
             $output->writeln($shell->formatException($exception));
             $output->writeln('--');
@@ -113,7 +113,7 @@ HELP
             $output->writeln('');
 
             if ($moreLines > 0) {
-                $output->writeln(sprintf(
+                $output->writeln(\sprintf(
                     '<aside>Use <return>wtf -a</return> to see %d more lines</aside>',
                     $moreLines
                 ));

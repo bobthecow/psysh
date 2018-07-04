@@ -25,9 +25,9 @@ class VariablesMatcher extends AbstractContextAwareMatcher
      */
     public function getMatches(array $tokens, array $info = [])
     {
-        $var = str_replace('$', '', $this->getInput($tokens));
+        $var = \str_replace('$', '', $this->getInput($tokens));
 
-        return array_filter(array_keys($this->getVariables()), function ($variable) use ($var) {
+        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($var) {
             return AbstractMatcher::startsWith($var, $variable);
         });
     }
@@ -37,11 +37,11 @@ class VariablesMatcher extends AbstractContextAwareMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token = array_pop($tokens);
+        $token = \array_pop($tokens);
 
         switch (true) {
             case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-            case is_string($token) && $token === '$':
+            case \is_string($token) && $token === '$':
             case self::isOperator($token):
                 return true;
         }

@@ -95,7 +95,7 @@ class EditCommand extends Command implements ContextAware
         $shouldRemoveFile = false;
 
         if ($filePath === null) {
-            $filePath = tempnam($this->runtimeDir, 'psysh-edit-command');
+            $filePath = \tempnam($this->runtimeDir, 'psysh-edit-command');
             $shouldRemoveFile = true;
         }
 
@@ -138,9 +138,9 @@ class EditCommand extends Command implements ContextAware
     {
         // If the file argument was a variable, get it from the context
         if ($fileArgument !== null &&
-            strlen($fileArgument) > 0 &&
+            \strlen($fileArgument) > 0 &&
             $fileArgument[0] === '$') {
-            $fileArgument = $this->context->get(preg_replace('/^\$/', '', $fileArgument));
+            $fileArgument = $this->context->get(\preg_replace('/^\$/', '', $fileArgument));
         }
 
         return $fileArgument;
@@ -156,16 +156,16 @@ class EditCommand extends Command implements ContextAware
      */
     private function editFile($filePath, $shouldRemoveFile)
     {
-        $escapedFilePath = escapeshellarg($filePath);
+        $escapedFilePath = \escapeshellarg($filePath);
 
         $pipes = [];
-        $proc = proc_open((getenv('EDITOR') ?: 'nano') . " {$escapedFilePath}", [STDIN, STDOUT, STDERR], $pipes);
-        proc_close($proc);
+        $proc = \proc_open((\getenv('EDITOR') ?: 'nano') . " {$escapedFilePath}", [STDIN, STDOUT, STDERR], $pipes);
+        \proc_close($proc);
 
-        $editedContent = @file_get_contents($filePath);
+        $editedContent = @\file_get_contents($filePath);
 
         if ($shouldRemoveFile) {
-            @unlink($filePath);
+            @\unlink($filePath);
         }
 
         if ($editedContent === false) {

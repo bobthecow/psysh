@@ -17,7 +17,7 @@ class SudoTest extends \PHPUnit\Framework\TestCase
 {
     public function setUp()
     {
-        if (version_compare(PHP_VERSION, '7.1.0', '<')) {
+        if (\version_compare(PHP_VERSION, '7.1.0', '<')) {
             $this->markTestSkipped('YOLO');
         }
     }

@@ -20,7 +20,7 @@ class NoReturnValueTest extends ParserTestCase
     public function testCreate()
     {
         $stmt = NoReturnValue::create();
-        if (class_exists('PhpParser\Node\Stmt\Expression')) {
+        if (\class_exists('PhpParser\Node\Stmt\Expression')) {
             $stmt = new Expression($stmt);
         }
 

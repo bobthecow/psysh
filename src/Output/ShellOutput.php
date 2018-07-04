@@ -41,7 +41,7 @@ class ShellOutput extends ConsoleOutput
 
         if ($pager === null) {
             $this->pager = new PassthruPager($this);
-        } elseif (is_string($pager)) {
+        } elseif (\is_string($pager)) {
             $this->pager = new ProcOutputPager($this, $pager);
         } elseif ($pager instanceof OutputPager) {
             $this->pager = $pager;
@@ -65,17 +65,17 @@ class ShellOutput extends ConsoleOutput
      */
     public function page($messages, $type = 0)
     {
-        if (is_string($messages)) {
+        if (\is_string($messages)) {
             $messages = (array) $messages;
         }
 
-        if (!is_array($messages) && !is_callable($messages)) {
+        if (!\is_array($messages) && !\is_callable($messages)) {
             throw new \InvalidArgumentException('Paged output requires a string, array or callback');
         }
 
         $this->startPaging();
 
-        if (is_callable($messages)) {
+        if (\is_callable($messages)) {
             $messages($this);
         } else {
             $this->write($messages, true, $type);
@@ -122,15 +122,15 @@ class ShellOutput extends ConsoleOutput
         $messages = (array) $messages;
 
         if ($type & self::NUMBER_LINES) {
-            $pad = strlen((string) count($messages));
+            $pad = \strlen((string) \count($messages));
             $template = $this->isDecorated() ? "<aside>%{$pad}s</aside>: %s" : "%{$pad}s: %s";
 
             if ($type & self::OUTPUT_RAW) {
-                $messages = array_map(['Symfony\Component\Console\Formatter\OutputFormatter', 'escape'], $messages);
+                $messages = \array_map(['Symfony\Component\Console\Formatter\OutputFormatter', 'escape'], $messages);
             }
 
             foreach ($messages as $i => $line) {
-                $messages[$i] = sprintf($template, $i, $line);
+                $messages[$i] = \sprintf($template, $i, $line);
             }
 
             // clean this up for super.

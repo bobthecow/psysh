@@ -56,7 +56,7 @@ class PassableByReferencePass extends CodeCleanerPass
             }
 
             foreach ($refl->getParameters() as $key => $param) {
-                if (array_key_exists($key, $node->args)) {
+                if (\array_key_exists($key, $node->args)) {
                     $arg = $node->args[$key];
                     if ($param->isPassedByReference() && !$this->isPassableByReference($arg)) {
                         throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());

@@ -57,14 +57,14 @@ class ValidConstructorPass extends CodeCleanerPass
             foreach ($node->stmts as $stmt) {
                 if ($stmt instanceof ClassMethod) {
                     // If we find a new-style constructor, no need to look for the old-style
-                    if ('__construct' === strtolower($stmt->name)) {
+                    if ('__construct' === \strtolower($stmt->name)) {
                         $this->validateConstructor($stmt, $node);
 
                         return;
                     }
 
                     // We found a possible old-style constructor (unless there is also a __construct method)
-                    if (empty($this->namespace) && strtolower($node->name) === strtolower($stmt->name)) {
+                    if (empty($this->namespace) && \strtolower($node->name) === \strtolower($stmt->name)) {
                         $constructor = $stmt;
                     }
                 }
@@ -89,21 +89,21 @@ class ValidConstructorPass extends CodeCleanerPass
             // For PHP Parser 4.x
             $className = $classNode->name instanceof Identifier ? $classNode->name->toString() : $classNode->name;
 
-            $msg = sprintf(
+            $msg = \sprintf(
                 'Constructor %s::%s() cannot be static',
-                implode('\\', array_merge($this->namespace, (array) $className)),
+                \implode('\\', \array_merge($this->namespace, (array) $className)),
                 $constructor->name
             );
             throw new FatalErrorException($msg, 0, E_ERROR, null, $classNode->getLine());
         }
 
-        if (method_exists($constructor, 'getReturnType') && $constructor->getReturnType()) {
+        if (\method_exists($constructor, 'getReturnType') && $constructor->getReturnType()) {
             // For PHP Parser 4.x
             $className = $classNode->name instanceof Identifier ? $classNode->name->toString() : $classNode->name;
 
-            $msg = sprintf(
+            $msg = \sprintf(
                 'Constructor %s::%s() cannot declare a return type',
-                implode('\\', array_merge($this->namespace, (array) $className)),
+                \implode('\\', \array_merge($this->namespace, (array) $className)),
                 $constructor->name
             );
             throw new FatalErrorException($msg, 0, E_ERROR, null, $classNode->getLine());

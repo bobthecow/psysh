@@ -54,7 +54,7 @@ class ConstantEnumerator extends Enumerator
         }
 
         if ($category) {
-            $label = ucfirst($category) . ' Constants';
+            $label = \ucfirst($category) . ' Constants';
             $ret[$label] = $this->getConstants($category);
         }
 
@@ -62,7 +62,7 @@ class ConstantEnumerator extends Enumerator
             $ret['Constants'] = $this->getConstants();
         }
 
-        return array_map([$this, 'prepareConstants'], array_filter($ret));
+        return \array_map([$this, 'prepareConstants'], \array_filter($ret));
     }
 
     /**
@@ -78,15 +78,15 @@ class ConstantEnumerator extends Enumerator
     protected function getConstants($category = null)
     {
         if (!$category) {
-            return get_defined_constants();
+            return \get_defined_constants();
         }
 
-        $consts = get_defined_constants(true);
+        $consts = \get_defined_constants(true);
 
         if ($category === 'internal') {
             unset($consts['user']);
 
-            return call_user_func_array('array_merge', $consts);
+            return \call_user_func_array('array_merge', $consts);
         }
 
         return isset($consts[$category]) ? $consts[$category] : [];
@@ -104,8 +104,8 @@ class ConstantEnumerator extends Enumerator
         // My kingdom for a generator.
         $ret = [];
 
-        $names = array_keys($constants);
-        natcasesort($names);
+        $names = \array_keys($constants);
+        \natcasesort($names);
 
         foreach ($names as $name) {
             if ($this->showItem($name)) {

@@ -16,7 +16,6 @@ use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Command\TimeitCommand\TimeitVisitor;
 use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
-use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -99,13 +98,13 @@ HELP
         self::$times = [];
 
         if ($num === 1) {
-            $output->writeln(sprintf(self::RESULT_MSG, $times[0]));
+            $output->writeln(\sprintf(self::RESULT_MSG, $times[0]));
         } else {
-            $total = array_sum($times);
-            rsort($times);
-            $median = $times[round($num / 2)];
+            $total = \array_sum($times);
+            \rsort($times);
+            $median = $times[\round($num / 2)];
 
-            $output->writeln(sprintf(self::AVG_RESULT_MSG, $total / $num, $median, $total));
+            $output->writeln(\sprintf(self::AVG_RESULT_MSG, $total / $num, $median, $total));
         }
     }
 
@@ -118,7 +117,7 @@ HELP
      */
     public static function markStart()
     {
-        self::$start = microtime(true);
+        self::$start = \microtime(true);
     }
 
     /**
@@ -137,7 +136,7 @@ HELP
      */
     public static function markEnd($ret = null)
     {
-        self::$times[] = microtime(true) - self::$start;
+        self::$times[] = \microtime(true) - self::$start;
         self::$start = null;
 
         return $ret;
@@ -185,7 +184,7 @@ HELP
         try {
             return $this->parser->parse($code);
         } catch (\PhpParser\Error $e) {
-            if (strpos($e->getMessage(), 'unexpected EOF') === false) {
+            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
 

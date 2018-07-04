@@ -92,6 +92,6 @@ class ParserTestCase extends \PHPUnit\Framework\TestCase
     {
         $msg = $e->getRawMessage();
 
-        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
+        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }

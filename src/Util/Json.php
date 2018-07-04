@@ -28,6 +28,6 @@ class Json
     {
         $opt |= JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
-        return json_encode($val, $opt);
+        return \json_encode($val, $opt);
     }
 }

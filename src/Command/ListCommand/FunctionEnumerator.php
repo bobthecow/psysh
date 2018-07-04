@@ -74,12 +74,12 @@ class FunctionEnumerator extends Enumerator
      */
     protected function getFunctions($type = null)
     {
-        $funcs = get_defined_functions();
+        $funcs = \get_defined_functions();
 
         if ($type) {
             return $funcs[$type];
         } else {
-            return array_merge($funcs['internal'], $funcs['user']);
+            return \array_merge($funcs['internal'], $funcs['user']);
         }
     }
 
@@ -92,7 +92,7 @@ class FunctionEnumerator extends Enumerator
      */
     protected function prepareFunctions(array $functions)
     {
-        natcasesort($functions);
+        \natcasesort($functions);
 
         // My kingdom for a generator.
         $ret = [];

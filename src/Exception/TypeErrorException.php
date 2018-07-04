@@ -27,8 +27,8 @@ class TypeErrorException extends \Exception implements Exception
     public function __construct($message = '', $code = 0)
     {
         $this->rawMessage = $message;
-        $message = preg_replace('/, called in .*?: eval\\(\\)\'d code/', '', $message);
-        parent::__construct(sprintf('TypeError: %s', $message), $code);
+        $message = \preg_replace('/, called in .*?: eval\\(\\)\'d code/', '', $message);
+        parent::__construct(\sprintf('TypeError: %s', $message), $code);
     }
 
     /**

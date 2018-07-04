@@ -45,8 +45,8 @@ class CommandsMatcher extends AbstractMatcher
     {
         $names = [];
         foreach ($commands as $command) {
-            $names = array_merge([$command->getName()], $names);
-            $names = array_merge($command->getAliases(), $names);
+            $names = \array_merge([$command->getName()], $names);
+            $names = \array_merge($command->getAliases(), $names);
         }
         $this->commands = $names;
     }
@@ -60,7 +60,7 @@ class CommandsMatcher extends AbstractMatcher
      */
     protected function isCommand($name)
     {
-        return in_array($name, $this->commands);
+        return \in_array($name, $this->commands);
     }
 
     /**
@@ -88,7 +88,7 @@ class CommandsMatcher extends AbstractMatcher
     {
         $input = $this->getInput($tokens);
 
-        return array_filter($this->commands, function ($command) use ($input) {
+        return \array_filter($this->commands, function ($command) use ($input) {
             return AbstractMatcher::startsWith($input, $command);
         });
     }
@@ -98,8 +98,8 @@ class CommandsMatcher extends AbstractMatcher
      */
     public function hasMatched(array $tokens)
     {
-        /* $openTag */ array_shift($tokens);
-        $command = array_shift($tokens);
+        /* $openTag */ \array_shift($tokens);
+        $command = \array_shift($tokens);
 
         switch (true) {
             case self::tokenIs($command, self::T_STRING) &&

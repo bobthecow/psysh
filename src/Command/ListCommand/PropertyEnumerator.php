@@ -77,7 +77,7 @@ class PropertyEnumerator extends Enumerator
             }
         }
 
-        ksort($properties, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($properties, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $properties;
     }
@@ -119,7 +119,7 @@ class PropertyEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Properties';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Properties';
         } else {
             return 'Class Properties';
@@ -156,11 +156,11 @@ class PropertyEnumerator extends Enumerator
     {
         // If $target is a class, trait or interface (try to) get the default
         // value for the property.
-        if (!is_object($target)) {
+        if (!\is_object($target)) {
             try {
                 $refl = new \ReflectionClass($target);
                 $props = $refl->getDefaultProperties();
-                if (array_key_exists($property->name, $props)) {
+                if (\array_key_exists($property->name, $props)) {
                     $suffix = $property->isStatic() ? '' : ' <aside>(default)</aside>';
 
                     return $this->presentRef($props[$property->name]) . $suffix;

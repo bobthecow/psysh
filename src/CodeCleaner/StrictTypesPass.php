@@ -36,7 +36,7 @@ class StrictTypesPass extends CodeCleanerPass
 
     public function __construct()
     {
-        $this->atLeastPhp7 = version_compare(PHP_VERSION, '7.0', '>=');
+        $this->atLeastPhp7 = \version_compare(PHP_VERSION, '7.0', '>=');
     }
 
     /**
@@ -75,10 +75,10 @@ class StrictTypesPass extends CodeCleanerPass
         }
 
         if ($prependStrictTypes) {
-            $first = reset($nodes);
+            $first = \reset($nodes);
             if (!$first instanceof Declare_) {
                 $declare = new Declare_([new DeclareDeclare('strict_types', new LNumber(1))]);
-                array_unshift($nodes, $declare);
+                \array_unshift($nodes, $declare);
             }
         }
 

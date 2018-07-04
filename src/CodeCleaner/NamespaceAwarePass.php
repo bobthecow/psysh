@@ -59,13 +59,13 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     protected function getFullyQualifiedName($name)
     {
         if ($name instanceof FullyQualifiedName) {
-            return implode('\\', $name->parts);
+            return \implode('\\', $name->parts);
         } elseif ($name instanceof Name) {
             $name = $name->parts;
-        } elseif (!is_array($name)) {
+        } elseif (!\is_array($name)) {
             $name = [$name];
         }
 
-        return implode('\\', array_merge($this->namespace, $name));
+        return \implode('\\', \array_merge($this->namespace, $name));
     }
 }

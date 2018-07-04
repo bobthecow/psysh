@@ -90,8 +90,8 @@ HELP
      */
     protected function getBacktrace(\Exception $e, $count = null, $includePsy = true)
     {
-        if ($cwd = getcwd()) {
-            $cwd = rtrim($cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if ($cwd = \getcwd()) {
+            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         }
 
         if ($count === null) {
@@ -101,7 +101,7 @@ HELP
         $lines = [];
 
         $trace = $e->getTrace();
-        array_unshift($trace, [
+        \array_unshift($trace, [
             'function' => '',
             'file'     => $e->getFile() !== null ? $e->getFile() : 'n/a',
             'line'     => $e->getLine() !== null ? $e->getLine() : 'n/a',
@@ -109,16 +109,16 @@ HELP
         ]);
 
         if (!$includePsy) {
-            for ($i = count($trace) - 1; $i >= 0; $i--) {
+            for ($i = \count($trace) - 1; $i >= 0; $i--) {
                 $thing = isset($trace[$i]['class']) ? $trace[$i]['class'] : $trace[$i]['function'];
-                if (preg_match('/\\\\?Psy\\\\/', $thing)) {
-                    $trace = array_slice($trace, $i + 1);
+                if (\preg_match('/\\\\?Psy\\\\/', $thing)) {
+                    $trace = \array_slice($trace, $i + 1);
                     break;
                 }
             }
         }
 
-        for ($i = 0, $count = min($count, count($trace)); $i < $count; $i++) {
+        for ($i = 0, $count = \min($count, \count($trace)); $i < $count; $i++) {
             $class    = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
             $type     = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
             $function = $trace[$i]['function'];
@@ -126,16 +126,16 @@ HELP
             $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
             // Leave execution loop out of the `eval()'d code` lines
-            if (preg_match("#/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code$#", str_replace('\\', '/', $file))) {
+            if (\preg_match("#/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code$#", \str_replace('\\', '/', $file))) {
                 $file = "eval()'d code";
             }
 
             // Skip any lines that don't match our filter options
-            if (!$this->filter->match(sprintf('%s%s%s() at %s:%s', $class, $type, $function, $file, $line))) {
+            if (!$this->filter->match(\sprintf('%s%s%s() at %s:%s', $class, $type, $function, $file, $line))) {
                 continue;
             }
 
-            $lines[] = sprintf(
+            $lines[] = \sprintf(
                 ' <class>%s</class>%s%s() at <info>%s:%s</info>',
                 OutputFormatter::escape($class),
                 OutputFormatter::escape($type),
@@ -161,7 +161,7 @@ HELP
         if ($cwd === false) {
             return $file;
         } else {
-            return preg_replace('/^' . preg_quote($cwd, '/') . '/', '', $file);
+            return \preg_replace('/^' . \preg_quote($cwd, '/') . '/', '', $file);
         }
     }
 }

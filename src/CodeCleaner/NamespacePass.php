@@ -53,7 +53,7 @@ class NamespacePass extends CodeCleanerPass
             return $nodes;
         }
 
-        $last = end($nodes);
+        $last = \end($nodes);
 
         if ($last instanceof Namespace_) {
             $kind = $last->getAttribute('kind');

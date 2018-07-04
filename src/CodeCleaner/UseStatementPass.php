@@ -49,7 +49,7 @@ class UseStatementPass extends CodeCleanerPass
         if ($node instanceof Namespace_) {
             // If this is the same namespace as last namespace, let's do ourselves
             // a favor and reload all the aliases...
-            if (strtolower($node->name) === strtolower($this->lastNamespace)) {
+            if (\strtolower($node->name) === \strtolower($this->lastNamespace)) {
                 $this->aliases = $this->lastAliases;
             }
         }
@@ -69,8 +69,8 @@ class UseStatementPass extends CodeCleanerPass
             // Store a reference to every "use" statement, because we'll need
             // them in a bit.
             foreach ($node->uses as $use) {
-                $alias = $use->alias ?: end($use->name->parts);
-                $this->aliases[strtolower($alias)] = $use->name;
+                $alias = $use->alias ?: \end($use->name->parts);
+                $this->aliases[\strtolower($alias)] = $use->name;
             }
 
             return NodeTraverser::REMOVE_NODE;
@@ -78,8 +78,8 @@ class UseStatementPass extends CodeCleanerPass
             // Expand every "use" statement in the group into a full, standalone
             // "use" and store 'em with the others.
             foreach ($node->uses as $use) {
-                $alias = $use->alias ?: end($use->name->parts);
-                $this->aliases[strtolower($alias)] = Name::concat($node->prefix, $use->name, [
+                $alias = $use->alias ?: \end($use->name->parts);
+                $this->aliases[\strtolower($alias)] = Name::concat($node->prefix, $use->name, [
                     'startLine' => $node->prefix->getAttribute('startLine'),
                     'endLine'   => $use->name->getAttribute('endLine'),
                 ]);
@@ -114,12 +114,12 @@ class UseStatementPass extends CodeCleanerPass
      */
     private function findAlias(Name $name)
     {
-        $that = strtolower($name);
+        $that = \strtolower($name);
         foreach ($this->aliases as $alias => $prefix) {
             if ($that === $alias) {
                 return new FullyQualifiedName($prefix->toString());
-            } elseif (substr($that, 0, strlen($alias) + 1) === $alias . '\\') {
-                return new FullyQualifiedName($prefix->toString() . substr($name, strlen($alias)));
+            } elseif (\substr($that, 0, \strlen($alias) + 1) === $alias . '\\') {
+                return new FullyQualifiedName($prefix->toString() . \substr($name, \strlen($alias)));
             }
         }
     }

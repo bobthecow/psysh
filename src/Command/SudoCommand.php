@@ -103,13 +103,13 @@ HELP
         // special case for !!
         if ($code === '!!') {
             $history = $this->readline->listHistory();
-            if (count($history) < 2) {
+            if (\count($history) < 2) {
                 throw new \InvalidArgumentException('No previous command to replay');
             }
-            $code = $history[count($history) - 2];
+            $code = $history[\count($history) - 2];
         }
 
-        if (strpos('<?', $code) === false) {
+        if (\strpos('<?', $code) === false) {
             $code = '<?php ' . $code;
         }
 
@@ -132,7 +132,7 @@ HELP
         try {
             return $this->parser->parse($code);
         } catch (\PhpParser\Error $e) {
-            if (strpos($e->getMessage(), 'unexpected EOF') === false) {
+            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
 

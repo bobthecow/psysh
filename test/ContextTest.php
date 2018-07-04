@@ -244,7 +244,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $__line      = 'dixie';
         $__dir       = 'wrinkly';
 
-        $vars = compact('__function', '__method', '__class', '__namespace', '__file', '__line', '__dir');
+        $vars = \compact('__function', '__method', '__class', '__namespace', '__file', '__line', '__dir');
 
         $context = new Context();
         $context->setCommandScopeVariables($vars);
@@ -259,7 +259,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($__line, $context->get('__line'));
         $this->assertEquals($__dir, $context->get('__dir'));
 
-        $someVars = compact('__function', '__namespace', '__file', '__line', '__dir');
+        $someVars = \compact('__function', '__namespace', '__file', '__line', '__dir');
         $context->setCommandScopeVariables($someVars);
     }
 
@@ -282,7 +282,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals(
             ['__method', '__class'],
-            array_values($context->getUnusedCommandScopeVariableNames())
+            \array_values($context->getUnusedCommandScopeVariableNames())
         );
     }
 

@@ -53,8 +53,8 @@ class GlobalVariableEnumerator extends Enumerator
     {
         global $GLOBALS;
 
-        $names = array_keys($GLOBALS);
-        natcasesort($names);
+        $names = \array_keys($GLOBALS);
+        \natcasesort($names);
 
         $ret = [];
         foreach ($names as $name) {
