@@ -48,6 +48,9 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($three, $shell->getScopeVariable('three'));
         $this->assertNull($shell->getScopeVariable('_'));
 
+        $diff = $shell->getScopeVariablesDiff(['one' => $one, 'two' => 'not two']);
+        $this->assertSame(['two' => $two, 'three' => $three, '_' => null], $diff);
+
         $shell->setScopeVariables([]);
         $this->assertSame(['_'], $shell->getScopeVariableNames());
 

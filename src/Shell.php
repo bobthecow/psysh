@@ -559,6 +559,30 @@ class Shell extends Application
     }
 
     /**
+     * Return the set of variables currently in scope which differ from the
+     * values passed as $currentVars.
+     *
+     * This is used inside the Execution Loop Closure to pick up scope variable
+     * changes made by commands while the loop is running.
+     *
+     * @param array $currentVars
+     *
+     * @return array Associative array of scope variables which differ from $currentVars
+     */
+    public function getScopeVariablesDiff(array $currentVars)
+    {
+        $newVars = [];
+
+        foreach ($this->getScopeVariables(false) as $key => $value) {
+            if (!array_key_exists($key, $currentVars) || $currentVars[$key] !== $value) {
+                $newVars[$key] = $value;
+            }
+        }
+
+        return $newVars;
+    }
+
+    /**
      * Get the set of unused command-scope variable names.
      *
      * @return array Array of unused variable names
