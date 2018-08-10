@@ -68,7 +68,7 @@ class ClassConstantEnumerator extends Enumerator
 
         $constants = [];
         foreach ($reflector->getConstants() as $name => $constant) {
-            $constReflector = ReflectionClassConstant::create($reflector, $name);
+            $constReflector = ReflectionClassConstant::create($reflector->name, $name);
 
             if ($noInherit && $constReflector->getDeclaringClass()->getName() !== $className) {
                 continue;
