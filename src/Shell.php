@@ -1233,7 +1233,7 @@ class Shell extends Application
 
         return \sprintf('Psy Shell %s (PHP %s %s %s%s)', self::VERSION, PHP_VERSION, $separator, PHP_SAPI, $this->getRootCwd());
     }
-    
+
     /**
      * Get the current working directory of the root script calling Psy Shell.
      *
@@ -1242,7 +1242,7 @@ class Shell extends Application
     public function getRootCwd()
     {
         $dir = dirname($_SERVER['PHP_SELF']);
-        
+
         return $dir ? sprintf(' in %s', basename($dir)) : '';
     }
 
