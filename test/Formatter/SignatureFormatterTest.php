@@ -29,7 +29,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
      */
     public function testFormat($reflector, $expected)
     {
-        $this->assertSame($expected, strip_tags(SignatureFormatter::format($reflector)));
+        $this->assertSame($expected, \strip_tags(SignatureFormatter::format($reflector)));
     }
 
     public function signatureReflectors()
@@ -37,7 +37,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 new \ReflectionFunction('implode'),
-                defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
+                \defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
             ],
             [
                 ReflectionClassConstant::create($this, 'FOO'),

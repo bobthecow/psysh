@@ -41,13 +41,13 @@ class FinalClassPass extends CodeCleanerPass
             if ($node->extends) {
                 $extends = (string) $node->extends;
                 if ($this->isFinalClass($extends)) {
-                    $msg = sprintf('Class %s may not inherit from final class (%s)', $node->name, $extends);
+                    $msg = \sprintf('Class %s may not inherit from final class (%s)', $node->name, $extends);
                     throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
                 }
             }
 
             if ($node->isFinal()) {
-                $this->finalClasses[strtolower($node->name)] = true;
+                $this->finalClasses[\strtolower($node->name)] = true;
             }
         }
     }
@@ -59,8 +59,8 @@ class FinalClassPass extends CodeCleanerPass
      */
     private function isFinalClass($name)
     {
-        if (!class_exists($name)) {
-            return isset($this->finalClasses[strtolower($name)]);
+        if (!\class_exists($name)) {
+            return isset($this->finalClasses[\strtolower($name)]);
         }
 
         $refl = new \ReflectionClass($name);

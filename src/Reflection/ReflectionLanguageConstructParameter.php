@@ -44,7 +44,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isArray()
     {
-        return array_key_exists('isArray', $this->opts) && $this->opts['isArray'];
+        return \array_key_exists('isArray', $this->opts) && $this->opts['isArray'];
     }
 
     /**
@@ -76,7 +76,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isOptional()
     {
-        return array_key_exists('isOptional', $this->opts) && $this->opts['isOptional'];
+        return \array_key_exists('isOptional', $this->opts) && $this->opts['isOptional'];
     }
 
     /**
@@ -86,7 +86,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isDefaultValueAvailable()
     {
-        return array_key_exists('defaultValue', $this->opts);
+        return \array_key_exists('defaultValue', $this->opts);
     }
 
     /**
@@ -98,6 +98,6 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isPassedByReference()
     {
-        return array_key_exists('isPassedByReference', $this->opts) && $this->opts['isPassedByReference'];
+        return \array_key_exists('isPassedByReference', $this->opts) && $this->opts['isPassedByReference'];
     }
 }

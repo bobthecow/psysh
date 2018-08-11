@@ -75,15 +75,15 @@ class TimeitVisitor extends NodeVisitorAbstract
     public function afterTraverse(array $nodes)
     {
         // prepend a `markStart` call
-        array_unshift($nodes, $this->maybeExpression($this->getStartCall()));
+        \array_unshift($nodes, $this->maybeExpression($this->getStartCall()));
 
         // append a `markEnd` call (wrapping the final node, if it's an expression)
-        $last = $nodes[count($nodes) - 1];
+        $last = $nodes[\count($nodes) - 1];
         if ($last instanceof Expr) {
-            array_pop($nodes);
+            \array_pop($nodes);
             $nodes[] = $this->getEndCall($last);
         } elseif ($last instanceof Expression) {
-            array_pop($nodes);
+            \array_pop($nodes);
             $nodes[] = new Expression($this->getEndCall($last->expr), $last->getAttributes());
         } elseif ($last instanceof Return_) {
             // nothing to do here, we're already ending with a return call
@@ -134,6 +134,6 @@ class TimeitVisitor extends NodeVisitorAbstract
      */
     private function maybeExpression($expr, $attrs = [])
     {
-        return class_exists('PhpParser\Node\Stmt\Expression') ? new Expression($expr, $attrs) : $expr;
+        return \class_exists('PhpParser\Node\Stmt\Expression') ? new Expression($expr, $attrs) : $expr;
     }
 }

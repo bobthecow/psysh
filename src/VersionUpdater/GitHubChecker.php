@@ -24,7 +24,7 @@ class GitHubChecker implements Checker
      */
     public function isLatest()
     {
-        return version_compare(Shell::VERSION, $this->getLatest(), '>=');
+        return \version_compare(Shell::VERSION, $this->getLatest(), '>=');
     }
 
     /**
@@ -68,22 +68,22 @@ class GitHubChecker implements Checker
      */
     public function fetchLatestRelease()
     {
-        $context = stream_context_create([
+        $context = \stream_context_create([
             'http' => [
                 'user_agent' => 'PsySH/' . Shell::VERSION,
                 'timeout'    => 3,
             ],
         ]);
 
-        set_error_handler(function () {
+        \set_error_handler(function () {
             // Just ignore all errors with this. The checker will throw an exception
             // if it doesn't work :)
         });
 
-        $result = @file_get_contents(self::URL, false, $context);
+        $result = @\file_get_contents(self::URL, false, $context);
 
-        restore_error_handler();
+        \restore_error_handler();
 
-        return json_decode($result);
+        return \json_decode($result);
     }
 }

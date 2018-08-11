@@ -36,7 +36,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
 
     public function __construct()
     {
-        $this->atLeastPhp55 = version_compare(PHP_VERSION, '5.5', '>=');
+        $this->atLeastPhp55 = \version_compare(PHP_VERSION, '5.5', '>=');
     }
 
     /**

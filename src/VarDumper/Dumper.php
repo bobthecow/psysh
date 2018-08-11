@@ -67,20 +67,20 @@ class Dumper extends CliDumper
     protected function style($style, $value, $attr = [])
     {
         if ('ref' === $style) {
-            $value = strtr($value, '@', '#');
+            $value = \strtr($value, '@', '#');
         }
 
         $styled = '';
         $map = self::$controlCharsMap;
         $cchr = $this->styles['cchr'];
 
-        $chunks = preg_split(self::$controlCharsRx, $value, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $chunks = \preg_split(self::$controlCharsRx, $value, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
         foreach ($chunks as $chunk) {
-            if (preg_match(self::$onlyControlCharsRx, $chunk)) {
+            if (\preg_match(self::$onlyControlCharsRx, $chunk)) {
                 $chars = '';
                 $i = 0;
                 do {
-                    $chars .= isset($map[$chunk[$i]]) ? $map[$chunk[$i]] : sprintf('\x%02X', ord($chunk[$i]));
+                    $chars .= isset($map[$chunk[$i]]) ? $map[$chunk[$i]] : \sprintf('\x%02X', \ord($chunk[$i]));
                 } while (isset($chunk[++$i]));
 
                 $chars = $this->formatter->escape($chars);

@@ -70,7 +70,7 @@ class RequirePassTest extends CodeCleanerTestCase
      */
     public function testResolveEmptyWarnings($file)
     {
-        if (!E_WARNING & error_reporting()) {
+        if (!E_WARNING & \error_reporting()) {
             $this->markTestSkipped();
         }
 

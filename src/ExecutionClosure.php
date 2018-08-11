@@ -28,42 +28,42 @@ class ExecutionClosure
         $this->setClosure($__psysh__, function () use ($__psysh__) {
             try {
                 // Restore execution scope variables
-                extract($__psysh__->getScopeVariables(false));
+                \extract($__psysh__->getScopeVariables(false));
 
                 // Buffer stdout; we'll need it later
-                ob_start([$__psysh__, 'writeStdout'], 1);
+                \ob_start([$__psysh__, 'writeStdout'], 1);
 
                 // Convert all errors to exceptions
-                set_error_handler([$__psysh__, 'handleError']);
+                \set_error_handler([$__psysh__, 'handleError']);
 
                 // Evaluate the current code buffer
                 $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: ExecutionClosure::NOOP_INPUT));
             } catch (\Throwable $_e) {
                 // Clean up on our way out.
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
+                \restore_error_handler();
+                if (\ob_get_level() > 0) {
+                    \ob_end_clean();
                 }
 
                 throw $_e;
             } catch (\Exception $_e) {
                 // Clean up on our way out.
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
+                \restore_error_handler();
+                if (\ob_get_level() > 0) {
+                    \ob_end_clean();
                 }
 
                 throw $_e;
             }
 
             // Won't be needing this anymore
-            restore_error_handler();
+            \restore_error_handler();
 
             // Flush stdout (write to shell output, plus save to magic variable)
-            ob_end_flush();
+            \ob_end_flush();
 
             // Save execution scope variables for next time
-            $__psysh__->setScopeVariables(get_defined_vars());
+            $__psysh__->setScopeVariables(\get_defined_vars());
 
             return $_;
         });
@@ -79,8 +79,8 @@ class ExecutionClosure
     {
         if (self::shouldBindClosure()) {
             $that = $shell->getBoundObject();
-            if (is_object($that)) {
-                $closure = $closure->bindTo($that, get_class($that));
+            if (\is_object($that)) {
+                $closure = $closure->bindTo($that, \get_class($that));
             } else {
                 $closure = $closure->bindTo(null, $shell->getBoundClass());
             }
@@ -110,8 +110,8 @@ class ExecutionClosure
     {
         // skip binding on HHVM < 3.5.0
         // see https://github.com/facebook/hhvm/issues/1203
-        if (defined('HHVM_VERSION')) {
-            return version_compare(HHVM_VERSION, '3.5.0', '>=');
+        if (\defined('HHVM_VERSION')) {
+            return \version_compare(HHVM_VERSION, '3.5.0', '>=');
         }
 
         return true;

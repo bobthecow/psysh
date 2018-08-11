@@ -30,16 +30,16 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
     {
         $input = $this->getInput($tokens);
 
-        $firstToken = array_pop($tokens);
+        $firstToken = \array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING)) {
             // second token is the object operator
-            array_pop($tokens);
+            \array_pop($tokens);
         }
-        $objectToken = array_pop($tokens);
-        if (!is_array($objectToken)) {
+        $objectToken = \array_pop($tokens);
+        if (!\is_array($objectToken)) {
             return [];
         }
-        $objectName = str_replace('$', '', $objectToken[1]);
+        $objectName = \str_replace('$', '', $objectToken[1]);
 
         try {
             $object = $this->getVariable($objectName);
@@ -47,12 +47,12 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
             return [];
         }
 
-        if (!is_object($object)) {
+        if (!\is_object($object)) {
             return [];
         }
 
-        return array_filter(
-            array_keys(get_class_vars(get_class($object))),
+        return \array_filter(
+            \array_keys(\get_class_vars(\get_class($object))),
             function ($var) use ($input) {
                 return AbstractMatcher::startsWith($input, $var);
             }
@@ -64,8 +64,8 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token     = array_pop($tokens);
-        $prevToken = array_pop($tokens);
+        $token     = \array_pop($tokens);
+        $prevToken = \array_pop($tokens);
 
         switch (true) {
             case self::tokenIs($token, self::T_OBJECT_OPERATOR):

@@ -23,7 +23,7 @@ class InterfaceEnumerator extends Enumerator
 {
     public function __construct(Presenter $presenter)
     {
-        @trigger_error('InterfaceEnumerator is no longer used', E_USER_DEPRECATED);
+        @\trigger_error('InterfaceEnumerator is no longer used', E_USER_DEPRECATED);
         parent::__construct($presenter);
     }
 
@@ -49,7 +49,7 @@ class InterfaceEnumerator extends Enumerator
             return;
         }
 
-        $interfaces = $this->prepareInterfaces(get_declared_interfaces());
+        $interfaces = $this->prepareInterfaces(\get_declared_interfaces());
 
         if (empty($interfaces)) {
             return;
@@ -69,7 +69,7 @@ class InterfaceEnumerator extends Enumerator
      */
     protected function prepareInterfaces(array $interfaces)
     {
-        natcasesort($interfaces);
+        \natcasesort($interfaces);
 
         // My kingdom for a generator.
         $ret = [];

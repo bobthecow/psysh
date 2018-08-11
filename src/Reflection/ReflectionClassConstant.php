@@ -38,7 +38,7 @@ class ReflectionClassConstant implements \Reflector
         $this->name  = $name;
 
         $constants = $class->getConstants();
-        if (!array_key_exists($name, $constants)) {
+        if (!\array_key_exists($name, $constants)) {
             throw new \InvalidArgumentException('Unknown constant: ' . $name);
         }
 
@@ -59,7 +59,7 @@ class ReflectionClassConstant implements \Reflector
         $refl = new self($class, $name);
         $value = $refl->getValue();
 
-        $str = sprintf('Constant [ public %s %s ] { %s }', gettype($value), $refl->getName(), $value);
+        $str = \sprintf('Constant [ public %s %s ] { %s }', \gettype($value), $refl->getName(), $value);
 
         if ($return) {
             return $str;
@@ -219,7 +219,7 @@ class ReflectionClassConstant implements \Reflector
      */
     public static function create($class, $name)
     {
-        if (class_exists('\\ReflectionClassConstant')) {
+        if (\class_exists('\\ReflectionClassConstant')) {
             return new \ReflectionClassConstant($class, $name);
         }
 

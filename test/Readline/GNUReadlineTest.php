@@ -23,8 +23,8 @@ class GNUReadlineTest extends \PHPUnit\Framework\TestCase
             $this->markTestSkipped('GNUReadline not enabled');
         }
 
-        $this->historyFile = tempnam(sys_get_temp_dir(), 'psysh_test_history');
-        file_put_contents($this->historyFile, "_HiStOrY_V2_\n");
+        $this->historyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history');
+        \file_put_contents($this->historyFile, "_HiStOrY_V2_\n");
     }
 
     public function testHistory()

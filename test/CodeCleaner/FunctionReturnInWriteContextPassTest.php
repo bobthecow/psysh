@@ -49,7 +49,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
             $this->traverser->traverse($this->parse('isset(strtolower("A"))'));
             $this->fail();
         } catch (FatalErrorException $e) {
-            if (version_compare(PHP_VERSION, '5.5', '>=')) {
+            if (\version_compare(PHP_VERSION, '5.5', '>=')) {
                 $this->assertContains(
                     'Cannot use isset() on the result of a function call (you can use "null !== func()" instead)',
                     $e->getMessage()
@@ -66,7 +66,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
      */
     public function testEmpty()
     {
-        if (version_compare(PHP_VERSION, '5.5', '>=')) {
+        if (\version_compare(PHP_VERSION, '5.5', '>=')) {
             $this->markTestSkipped();
         }
 

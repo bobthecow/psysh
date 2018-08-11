@@ -25,7 +25,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     public function tearDown()
     {
         foreach ($this->streams as $stream) {
-            fclose($stream);
+            \fclose($stream);
         }
     }
 
@@ -39,7 +39,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $_e        = 'ignore this';
 
         $shell = new Shell($this->getConfig());
-        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
+        $shell->setScopeVariables(\compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
         $this->assertSame(['one', 'two', 'three', '_'], $shell->getScopeVariableNames());
@@ -47,6 +47,9 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));
         $this->assertNull($shell->getScopeVariable('_'));
+
+        $diff = $shell->getScopeVariablesDiff(['one' => $one, 'two' => 'not two']);
+        $this->assertSame(['two' => $two, 'three' => $three, '_' => null], $diff);
 
         $shell->setScopeVariables([]);
         $this->assertSame(['_'], $shell->getScopeVariableNames());
@@ -80,7 +83,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $config = $this->getConfig(['usePcntl' => false]);
 
         $shell = new Shell($config);
-        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
+        $shell->setScopeVariables(\compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
         $shell->addInput('exit', true);
 
         // This is super slow and we shouldn't do this :(
@@ -160,8 +163,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($shell->hasCode());
         $this->assertEmpty($shell->getCodeBuffer());
 
-        rewind($stream);
-        $streamContents = stream_get_contents($stream);
+        \rewind($stream);
+        $streamContents = \stream_get_contents($stream);
 
         $this->assertContains('PHP Parse error', $streamContents);
         $this->assertContains('message', $streamContents);
@@ -175,19 +178,19 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $stream = $output->getStream();
         $shell->setOutput($output);
 
-        $oldLevel = error_reporting();
-        error_reporting($oldLevel & ~E_USER_NOTICE);
+        $oldLevel = \error_reporting();
+        \error_reporting($oldLevel & ~E_USER_NOTICE);
 
         try {
             $shell->handleError(E_USER_NOTICE, 'wheee', null, 13);
         } catch (ErrorException $e) {
-            error_reporting($oldLevel);
+            \error_reporting($oldLevel);
             $this->fail('Unexpected error exception');
         }
-        error_reporting($oldLevel);
+        \error_reporting($oldLevel);
 
-        rewind($stream);
-        $streamContents = stream_get_contents($stream);
+        \rewind($stream);
+        $streamContents = \stream_get_contents($stream);
 
         $this->assertContains('PHP Notice:', $streamContents);
         $this->assertContains('wheee',       $streamContents);
@@ -200,13 +203,13 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     public function testNotHandlingErrors()
     {
         $shell    = new Shell($this->getConfig());
-        $oldLevel = error_reporting();
-        error_reporting($oldLevel | E_USER_NOTICE);
+        $oldLevel = \error_reporting();
+        \error_reporting($oldLevel | E_USER_NOTICE);
 
         try {
             $shell->handleError(E_USER_NOTICE, 'wheee', null, 13);
         } catch (ErrorException $e) {
-            error_reporting($oldLevel);
+            \error_reporting($oldLevel);
             throw $e;
         }
     }
@@ -217,8 +220,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $this->assertInstanceOf('Symfony\Component\Console\Application', $shell);
         $this->assertContains(Shell::VERSION, $shell->getVersion());
-        $this->assertContains(phpversion(), $shell->getVersion());
-        $this->assertContains(php_sapi_name(), $shell->getVersion());
+        $this->assertContains(PHP_VERSION, $shell->getVersion());
+        $this->assertContains(PHP_SAPI, $shell->getVersion());
     }
 
     public function testCodeBuffer()
@@ -236,7 +239,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->addCode('{}');
         $code = $shell->flushCode();
         $this->assertFalse($shell->hasCode());
-        $code = preg_replace('/\s+/', ' ', $code);
+        $code = \preg_replace('/\s+/', ' ', $code);
         $this->assertNotNull($code);
         $this->assertSame('class a { } return new \\Psy\\CodeCleaner\\NoReturnValue();', $code);
     }
@@ -256,7 +259,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->addCode('+ 1');
         $code = $shell->flushCode();
         $this->assertFalse($shell->hasCode());
-        $code = preg_replace('/\s+/', ' ', $code);
+        $code = \preg_replace('/\s+/', ' ', $code);
         $this->assertNotNull($code);
         $this->assertSame('return 1 + 1 + 1;', $code);
     }
@@ -291,8 +294,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $shell->writeStdout("{{stdout}}\n");
 
-        rewind($stream);
-        $streamContents = stream_get_contents($stream);
+        \rewind($stream);
+        $streamContents = \stream_get_contents($stream);
 
         $this->assertSame('{{stdout}}' . PHP_EOL, $streamContents);
     }
@@ -306,8 +309,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $shell->writeStdout('{{stdout}}');
 
-        rewind($stream);
-        $streamContents = stream_get_contents($stream);
+        \rewind($stream);
+        $streamContents = \stream_get_contents($stream);
 
         $this->assertSame('{{stdout}}<aside>⏎</aside>' . PHP_EOL, $streamContents);
     }
@@ -323,8 +326,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->setOutput($output);
 
         $shell->writeReturnValue($input);
-        rewind($stream);
-        $this->assertEquals($expected, stream_get_contents($stream));
+        \rewind($stream);
+        $this->assertEquals($expected, \stream_get_contents($stream));
     }
 
     public function getReturnValues()
@@ -346,8 +349,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->setOutput($output);
 
         $shell->writeException($exception);
-        rewind($stream);
-        $this->assertSame($expected, stream_get_contents($stream));
+        \rewind($stream);
+        $this->assertSame($expected, \stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
@@ -367,8 +370,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell  = new Shell($this->getConfig());
         $shell->setOutput($output);
         $this->assertEquals($expected, $shell->execute($input));
-        rewind($stream);
-        $this->assertSame('', stream_get_contents($stream));
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
     }
 
     public function getExecuteValues()
@@ -414,7 +417,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     private function getOutput()
     {
-        $stream = fopen('php://memory', 'w+');
+        $stream = \fopen('php://memory', 'w+');
         $this->streams[] = $stream;
 
         $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
@@ -425,8 +428,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     private function getConfig(array $config = [])
     {
         // Mebbe there's a better way than this?
-        $dir = tempnam(sys_get_temp_dir(), 'psysh_shell_test_');
-        unlink($dir);
+        $dir = \tempnam(\sys_get_temp_dir(), 'psysh_shell_test_');
+        \unlink($dir);
 
         $defaults = [
             'configDir'  => $dir,
@@ -434,6 +437,6 @@ class ShellTest extends \PHPUnit\Framework\TestCase
             'runtimeDir' => $dir,
         ];
 
-        return new Configuration(array_merge($defaults, $config));
+        return new Configuration(\array_merge($defaults, $config));
     }
 }

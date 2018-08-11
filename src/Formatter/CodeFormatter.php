@@ -38,11 +38,11 @@ class CodeFormatter implements Formatter
         $colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
 
         if ($fileName = $reflector->getFileName()) {
-            if (!is_file($fileName)) {
+            if (!\is_file($fileName)) {
                 throw new RuntimeException('Source code unavailable');
             }
 
-            $file  = file_get_contents($fileName);
+            $file  = \file_get_contents($fileName);
             $start = $reflector->getStartLine();
             $end   = $reflector->getEndLine() - $start;
 

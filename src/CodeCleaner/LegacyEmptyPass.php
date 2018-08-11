@@ -28,7 +28,7 @@ class LegacyEmptyPass extends CodeCleanerPass
 
     public function __construct()
     {
-        $this->atLeastPhp55 = version_compare(PHP_VERSION, '5.5', '>=');
+        $this->atLeastPhp55 = \version_compare(PHP_VERSION, '5.5', '>=');
     }
 
     /**
@@ -49,7 +49,7 @@ class LegacyEmptyPass extends CodeCleanerPass
         }
 
         if (!$node->expr instanceof Variable) {
-            $msg = sprintf('syntax error, unexpected %s', $this->getUnexpectedThing($node->expr));
+            $msg = \sprintf('syntax error, unexpected %s', $this->getUnexpectedThing($node->expr));
 
             throw new ParseErrorException($msg, $node->expr->getLine());
         }
@@ -61,7 +61,7 @@ class LegacyEmptyPass extends CodeCleanerPass
             case 'Scalar_String':
             case 'Scalar_LNumber':
             case 'Scalar_DNumber':
-                return json_encode($node->value);
+                return \json_encode($node->value);
 
             case 'Expr_ConstFetch':
                 return (string) $node->name;

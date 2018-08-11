@@ -13,7 +13,7 @@ namespace Psy\Test\Reflection;
 
 use Psy\Reflection\ReflectionConstant_;
 
-define('Psy\\Test\\Reflection\\SOME_CONSTANT', 'yep');
+\define('Psy\\Test\\Reflection\\SOME_CONSTANT', 'yep');
 
 class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
 {

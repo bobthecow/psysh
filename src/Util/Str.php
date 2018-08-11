@@ -61,9 +61,9 @@ EOS;
      */
     public static function unvis($input)
     {
-        $output = preg_replace_callback(self::UNVIS_RX, 'self::unvisReplace', $input);
+        $output = \preg_replace_callback(self::UNVIS_RX, 'self::unvisReplace', $input);
         // other escapes & octal are handled by stripcslashes
-        return stripcslashes($output);
+        return \stripcslashes($output);
     }
 
     /**
@@ -88,27 +88,27 @@ EOS;
             $chr = $match[3];
             // unvis S_META1
             $cp = 0200;
-            $cp |= ord($chr);
+            $cp |= \ord($chr);
 
-            return chr($cp);
+            return \chr($cp);
         }
         // \M^(.)
         if (isset($match[4]) && $match[4] !== '') {
             $chr = $match[4];
             // unvis S_META | S_CTRL
             $cp = 0200;
-            $cp |= ($chr === '?') ? 0177 : ord($chr) & 037;
+            $cp |= ($chr === '?') ? 0177 : \ord($chr) & 037;
 
-            return chr($cp);
+            return \chr($cp);
         }
         // \^(.)
         if (isset($match[5]) && $match[5] !== '') {
             $chr = $match[5];
             // unvis S_CTRL
             $cp = 0;
-            $cp |= ($chr === '?') ? 0177 : ord($chr) & 037;
+            $cp |= ($chr === '?') ? 0177 : \ord($chr) & 037;
 
-            return chr($cp);
+            return \chr($cp);
         }
     }
 }

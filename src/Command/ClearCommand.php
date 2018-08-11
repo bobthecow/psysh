@@ -44,6 +44,6 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->write(sprintf('%c[2J%c[0;0f', 27, 27));
+        $output->write(\sprintf('%c[2J%c[0;0f', 27, 27));
     }
 }

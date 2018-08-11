@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-$config->setRuntimeDir(sys_get_temp_dir() . '/psysh_test/withconfig/temp');
+$config->setRuntimeDir(\sys_get_temp_dir() . '/psysh_test/withconfig/temp');
 
 return [
     'useReadline'       => true,

@@ -27,7 +27,7 @@ class HoaConsole implements Readline
      */
     public static function isSupported()
     {
-        return class_exists('\Hoa\Console\Console', true);
+        return \class_exists('\Hoa\Console\Console', true);
     }
 
     public function __construct()

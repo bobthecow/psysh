@@ -26,7 +26,7 @@ class ListPassTest extends CodeCleanerTestCase
      */
     public function testProcessInvalidStatement($code, $expectedMessage)
     {
-        if (method_exists($this, 'setExpectedException')) {
+        if (\method_exists($this, 'setExpectedException')) {
             $this->setExpectedException('Psy\Exception\ParseErrorException', $expectedMessage);
         } else {
             $this->expectExceptionMessage($expectedMessage);
@@ -50,8 +50,8 @@ class ListPassTest extends CodeCleanerTestCase
             ['list("a") = array(1)', $errorPhpParserSyntax],
         ];
 
-        if (version_compare(PHP_VERSION, '7.1', '<')) {
-            return array_merge($invalidExpr, [
+        if (\version_compare(PHP_VERSION, '7.1', '<')) {
+            return \array_merge($invalidExpr, [
                 ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
                 ['[] = []', $errorShortListAssign],
                 ['[$a] = [1]', $errorShortListAssign],
@@ -59,7 +59,7 @@ class ListPassTest extends CodeCleanerTestCase
             ]);
         }
 
-        return array_merge($invalidExpr, [
+        return \array_merge($invalidExpr, [
             ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
             ['["a"] = [1]', $errorNonVariableAssign],
             ['[] = []', $errorEmptyList],
@@ -84,8 +84,8 @@ class ListPassTest extends CodeCleanerTestCase
             ['list($x, $y) = array(1, 2)'],
         ];
 
-        if (version_compare(PHP_VERSION, '7.1', '>=')) {
-            return array_merge($validExpr, [
+        if (\version_compare(PHP_VERSION, '7.1', '>=')) {
+            return \array_merge($validExpr, [
                 ['[$a] = array(1)'],
                 ['list($b) = [2]'],
                 ['[$x, $y] = array(1, 2)'],

@@ -56,19 +56,19 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function getTarget($valueName)
     {
-        $valueName = trim($valueName);
+        $valueName = \trim($valueName);
         $matches   = [];
         switch (true) {
-            case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
+            case \preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
                 return [$this->resolveName($matches[0], true), null, 0];
 
-            case preg_match(self::CLASS_MEMBER, $valueName, $matches):
+            case \preg_match(self::CLASS_MEMBER, $valueName, $matches):
                 return [$this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD];
 
-            case preg_match(self::CLASS_STATIC, $valueName, $matches):
+            case \preg_match(self::CLASS_STATIC, $valueName, $matches):
                 return [$this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY];
 
-            case preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
+            case \preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
                 if ($matches[2] === '->') {
                     $kind = Mirror::METHOD | Mirror::PROPERTY;
                 } else {
@@ -97,27 +97,27 @@ abstract class ReflectingCommand extends Command implements ContextAware
         $shell = $this->getApplication();
 
         // While not *technically* 100% accurate, let's treat `self` and `static` as equivalent.
-        if (in_array(strtolower($name), ['self', 'static'])) {
+        if (\in_array(\strtolower($name), ['self', 'static'])) {
             if ($boundClass = $shell->getBoundClass()) {
                 return $boundClass;
             }
 
             if ($boundObject = $shell->getBoundObject()) {
-                return get_class($boundObject);
+                return \get_class($boundObject);
             }
 
-            $msg = sprintf('Cannot use "%s" when no class scope is active', strtolower($name));
+            $msg = \sprintf('Cannot use "%s" when no class scope is active', \strtolower($name));
             throw new ErrorException($msg, 0, E_USER_ERROR, "eval()'d code", 1);
         }
 
-        if (substr($name, 0, 1) === '\\') {
+        if (\substr($name, 0, 1) === '\\') {
             return $name;
         }
 
         if ($namespace = $shell->getNamespace()) {
             $fullName = $namespace . '\\' . $name;
 
-            if (class_exists($fullName) || interface_exists($fullName) || ($includeFunctions && function_exists($fullName))) {
+            if (\class_exists($fullName) || \interface_exists($fullName) || ($includeFunctions && \function_exists($fullName))) {
                 return $fullName;
             }
         }
@@ -176,7 +176,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     {
         $value = $this->resolveCode($code);
 
-        if (!is_object($value)) {
+        if (!\is_object($value)) {
             throw new RuntimeException('Unable to inspect a non-object');
         }
 
@@ -192,7 +192,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function resolveInstance($name)
     {
-        @trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
+        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
 
         return $this->resolveCode($name);
     }
@@ -230,7 +230,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     {
         $vars = [];
 
-        switch (get_class($reflector)) {
+        switch (\get_class($reflector)) {
             case 'ReflectionClass':
             case 'ReflectionObject':
                 $vars['__class'] = $reflector->name;
@@ -240,7 +240,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 break;
 
             case 'ReflectionMethod':
-                $vars['__method'] = sprintf('%s::%s', $reflector->class, $reflector->name);
+                $vars['__method'] = \sprintf('%s::%s', $reflector->class, $reflector->name);
                 $vars['__class'] = $reflector->class;
                 $classReflector = $reflector->getDeclaringClass();
                 if ($classReflector->inNamespace()) {
@@ -264,7 +264,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 if ($fileName = $reflector->getExecutingFile()) {
                     $vars['__file'] = $fileName;
                     $vars['__line'] = $reflector->getExecutingLine();
-                    $vars['__dir']  = dirname($fileName);
+                    $vars['__dir']  = \dirname($fileName);
                 }
                 break;
 
@@ -279,7 +279,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 // no line for these, but this'll do
                 if ($fileName = $reflector->getDeclaringClass()->getFileName()) {
                     $vars['__file'] = $fileName;
-                    $vars['__dir']  = dirname($fileName);
+                    $vars['__dir']  = \dirname($fileName);
                 }
                 break;
 
@@ -294,7 +294,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
             if ($fileName = $reflector->getFileName()) {
                 $vars['__file'] = $fileName;
                 $vars['__line'] = $reflector->getStartLine();
-                $vars['__dir']  = dirname($fileName);
+                $vars['__dir']  = \dirname($fileName);
             }
         }
 

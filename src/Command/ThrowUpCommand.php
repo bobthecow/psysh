@@ -125,12 +125,12 @@ HELP
             return [new Arg(new Variable('_e'))];
         }
 
-        if (strpos('<?', $code) === false) {
+        if (\strpos('<?', $code) === false) {
             $code = '<?php ' . $code;
         }
 
         $nodes = $this->parse($code);
-        if (count($nodes) !== 1) {
+        if (\count($nodes) !== 1) {
             throw new \InvalidArgumentException('No idea how to throw this');
         }
 
@@ -161,7 +161,7 @@ HELP
         try {
             return $this->parser->parse($code);
         } catch (\PhpParser\Error $e) {
-            if (strpos($e->getMessage(), 'unexpected EOF') === false) {
+            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
 

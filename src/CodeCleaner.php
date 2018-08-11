@@ -138,7 +138,7 @@ class CodeCleaner
         }
 
         try {
-            $code = @file_get_contents($file);
+            $code = @\file_get_contents($file);
             if (!$code) {
                 return;
             }
@@ -169,15 +169,15 @@ class CodeCleaner
      */
     private static function getDebugFile()
     {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        foreach (array_reverse($trace) as $stackFrame) {
+        foreach (\array_reverse($trace) as $stackFrame) {
             if (!self::isDebugCall($stackFrame)) {
                 continue;
             }
 
-            if (preg_match('/eval\(/', $stackFrame['file'])) {
-                preg_match_all('/([^\(]+)\((\d+)/', $stackFrame['file'], $matches);
+            if (\preg_match('/eval\(/', $stackFrame['file'])) {
+                \preg_match_all('/([^\(]+)\((\d+)/', $stackFrame['file'], $matches);
 
                 return $matches[1][0];
             }
@@ -214,7 +214,7 @@ class CodeCleaner
      */
     public function clean(array $codeLines, $requireSemicolons = false)
     {
-        $stmts = $this->parse('<?php ' . implode(PHP_EOL, $codeLines) . PHP_EOL, $requireSemicolons);
+        $stmts = $this->parse('<?php ' . \implode(PHP_EOL, $codeLines) . PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
             return false;
         }
@@ -223,13 +223,13 @@ class CodeCleaner
         $stmts = $this->traverser->traverse($stmts);
 
         // Work around https://github.com/nikic/PHP-Parser/issues/399
-        $oldLocale = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_NUMERIC, 'C');
+        $oldLocale = \setlocale(LC_NUMERIC, 0);
+        \setlocale(LC_NUMERIC, 'C');
 
         $code = $this->printer->prettyPrint($stmts);
 
         // Now put the locale back
-        setlocale(LC_NUMERIC, $oldLocale);
+        \setlocale(LC_NUMERIC, $oldLocale);
 
         return $code;
     }
@@ -307,7 +307,7 @@ class CodeCleaner
     {
         $msg = $e->getRawMessage();
 
-        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
+        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 
     /**
@@ -344,6 +344,6 @@ class CodeCleaner
 
     private function parseErrorIsTrailingComma(\PhpParser\Error $e, $code)
     {
-        return ($e->getRawMessage() === 'A trailing comma is not allowed here') && (substr(rtrim($code), -1) === ',');
+        return ($e->getRawMessage() === 'A trailing comma is not allowed here') && (\substr(\rtrim($code), -1) === ',');
     }
 }

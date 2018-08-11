@@ -52,7 +52,7 @@ class SudoVisitor extends NodeVisitorAbstract
             $name = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
             $args = [
                 $node->var,
-                is_string($name) ? new String_($name) : $name,
+                \is_string($name) ? new String_($name) : $name,
             ];
 
             return $this->prepareCall(self::PROPERTY_FETCH, $args);
@@ -61,7 +61,7 @@ class SudoVisitor extends NodeVisitorAbstract
             $name   = $target->name instanceof Identifier ? $target->name->toString() : $target->name;
             $args   = [
                 $target->var,
-                is_string($name) ? new String_($name) : $name,
+                \is_string($name) ? new String_($name) : $name,
                 $node->expr,
             ];
 
@@ -69,8 +69,8 @@ class SudoVisitor extends NodeVisitorAbstract
         } elseif ($node instanceof MethodCall) {
             $name = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
             $args = $node->args;
-            array_unshift($args, new Arg(is_string($name) ? new String_($name) : $name));
-            array_unshift($args, new Arg($node->var));
+            \array_unshift($args, new Arg(\is_string($name) ? new String_($name) : $name));
+            \array_unshift($args, new Arg($node->var));
 
             // not using prepareCall because the $node->args we started with are already Arg instances
             return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), self::METHOD_CALL, $args);
@@ -78,8 +78,8 @@ class SudoVisitor extends NodeVisitorAbstract
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;
             $name = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
             $args  = [
-                is_string($class) ? new String_($class) : $class,
-                is_string($name) ? new String_($name) : $name,
+                \is_string($class) ? new String_($class) : $class,
+                \is_string($name) ? new String_($name) : $name,
             ];
 
             return $this->prepareCall(self::STATIC_PROPERTY_FETCH, $args);
@@ -88,8 +88,8 @@ class SudoVisitor extends NodeVisitorAbstract
             $class  = $target->class instanceof Name ? $target->class->toString() : $target->class;
             $name   = $target->name instanceof Identifier ? $target->name->toString() : $target->name;
             $args   = [
-                is_string($class) ? new String_($class) : $class,
-                is_string($name) ? new String_($name) : $name,
+                \is_string($class) ? new String_($class) : $class,
+                \is_string($name) ? new String_($name) : $name,
                 $node->expr,
             ];
 
@@ -98,8 +98,8 @@ class SudoVisitor extends NodeVisitorAbstract
             $args  = $node->args;
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;
             $name  = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
-            array_unshift($args, new Arg(is_string($name) ? new String_($name) : $name));
-            array_unshift($args, new Arg(is_string($class) ? new String_($class) : $class));
+            \array_unshift($args, new Arg(\is_string($name) ? new String_($name) : $name));
+            \array_unshift($args, new Arg(\is_string($class) ? new String_($class) : $class));
 
             // not using prepareCall because the $node->args we started with are already Arg instances
             return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), self::STATIC_CALL, $args);
@@ -107,8 +107,8 @@ class SudoVisitor extends NodeVisitorAbstract
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;
             $name  = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
             $args  = [
-                is_string($class) ? new String_($class) : $class,
-                is_string($name) ? new String_($name) : $name,
+                \is_string($class) ? new String_($class) : $class,
+                \is_string($name) ? new String_($name) : $name,
             ];
 
             return $this->prepareCall(self::CLASS_CONST_FETCH, $args);
@@ -117,7 +117,7 @@ class SudoVisitor extends NodeVisitorAbstract
 
     private function prepareCall($method, $args)
     {
-        return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), $method, array_map(function ($arg) {
+        return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), $method, \array_map(function ($arg) {
             return new Arg($arg);
         }, $args));
     }

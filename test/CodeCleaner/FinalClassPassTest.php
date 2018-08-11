@@ -37,7 +37,7 @@ class FinalClassPassTest extends CodeCleanerTestCase
             // array('namespace A { final class B {} } namespace C { class D extends \\A\\B {} }'),
         ];
 
-        if (!defined('HHVM_VERSION')) {
+        if (!\defined('HHVM_VERSION')) {
             // For some reason Closure isn't final in HHVM?
             $data[] = ['class A extends \\Closure {}'];
         }

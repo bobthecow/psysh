@@ -76,14 +76,14 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
      */
     public function testThrowExceptionAsErrorHandler($level, $type)
     {
-        set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
+        \set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
         try {
-            trigger_error('{whot}', $level);
+            \trigger_error('{whot}', $level);
         } catch (ErrorException $e) {
             $this->assertContains('PHP ' . $type, $e->getMessage());
             $this->assertContains('{whot}', $e->getMessage());
         }
-        restore_error_handler();
+        \restore_error_handler();
     }
 
     public function getUserLevels()
@@ -110,7 +110,7 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
 
     public function testFromError()
     {
-        if (version_compare(PHP_VERSION, '7.0.0', '<')) {
+        if (\version_compare(PHP_VERSION, '7.0.0', '<')) {
             $this->markTestSkipped();
         }
 

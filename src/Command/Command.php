@@ -65,10 +65,10 @@ abstract class Command extends BaseCommand
 
         if ($help = $this->getProcessedHelp()) {
             $messages[] = '<comment>Help:</comment>';
-            $messages[] = ' ' . str_replace("\n", "\n ", $help) . "\n";
+            $messages[] = ' ' . \str_replace("\n", "\n ", $help) . "\n";
         }
 
-        return implode("\n", $messages);
+        return \implode("\n", $messages);
     }
 
     /**
@@ -78,8 +78,8 @@ abstract class Command extends BaseCommand
     {
         $hidden = $this->getHiddenArguments();
 
-        return array_filter($this->getNativeDefinition()->getArguments(), function ($argument) use ($hidden) {
-            return !in_array($argument->getName(), $hidden);
+        return \array_filter($this->getNativeDefinition()->getArguments(), function ($argument) use ($hidden) {
+            return !\in_array($argument->getName(), $hidden);
         });
     }
 
@@ -100,8 +100,8 @@ abstract class Command extends BaseCommand
     {
         $hidden = $this->getHiddenOptions();
 
-        return array_filter($this->getNativeDefinition()->getOptions(), function ($option) use ($hidden) {
-            return !in_array($option->getName(), $hidden);
+        return \array_filter($this->getNativeDefinition()->getOptions(), function ($option) use ($hidden) {
+            return !\in_array($option->getName(), $hidden);
         });
     }
 
@@ -122,7 +122,7 @@ abstract class Command extends BaseCommand
      */
     private function aliasesAsText()
     {
-        return '<comment>Aliases:</comment> <info>' . implode(', ', $this->getAliases()) . '</info>' . PHP_EOL;
+        return '<comment>Aliases:</comment> <info>' . \implode(', ', $this->getAliases()) . '</info>' . PHP_EOL;
     }
 
     /**
@@ -139,21 +139,21 @@ abstract class Command extends BaseCommand
         if (!empty($arguments)) {
             $messages[] = '<comment>Arguments:</comment>';
             foreach ($arguments as $argument) {
-                if (null !== $argument->getDefault() && (!is_array($argument->getDefault()) || count($argument->getDefault()))) {
-                    $default = sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($argument->getDefault()));
+                if (null !== $argument->getDefault() && (!\is_array($argument->getDefault()) || \count($argument->getDefault()))) {
+                    $default = \sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($argument->getDefault()));
                 } else {
                     $default = '';
                 }
 
-                $description = str_replace("\n", "\n" . str_pad('', $max + 2, ' '), $argument->getDescription());
+                $description = \str_replace("\n", "\n" . \str_pad('', $max + 2, ' '), $argument->getDescription());
 
-                $messages[] = sprintf(" <info>%-${max}s</info> %s%s", $argument->getName(), $description, $default);
+                $messages[] = \sprintf(" <info>%-${max}s</info> %s%s", $argument->getName(), $description, $default);
             }
 
             $messages[] = '';
         }
 
-        return implode(PHP_EOL, $messages);
+        return \implode(PHP_EOL, $messages);
     }
 
     /**
@@ -171,20 +171,20 @@ abstract class Command extends BaseCommand
             $messages[] = '<comment>Options:</comment>';
 
             foreach ($options as $option) {
-                if ($option->acceptValue() && null !== $option->getDefault() && (!is_array($option->getDefault()) || count($option->getDefault()))) {
-                    $default = sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($option->getDefault()));
+                if ($option->acceptValue() && null !== $option->getDefault() && (!\is_array($option->getDefault()) || \count($option->getDefault()))) {
+                    $default = \sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($option->getDefault()));
                 } else {
                     $default = '';
                 }
 
                 $multiple = $option->isArray() ? '<comment> (multiple values allowed)</comment>' : '';
-                $description = str_replace("\n", "\n" . str_pad('', $max + 2, ' '), $option->getDescription());
+                $description = \str_replace("\n", "\n" . \str_pad('', $max + 2, ' '), $option->getDescription());
 
-                $optionMax = $max - strlen($option->getName()) - 2;
-                $messages[] = sprintf(
+                $optionMax = $max - \strlen($option->getName()) - 2;
+                $messages[] = \sprintf(
                     " <info>%s</info> %-${optionMax}s%s%s%s",
                     '--' . $option->getName(),
-                    $option->getShortcut() ? sprintf('(-%s) ', $option->getShortcut()) : '',
+                    $option->getShortcut() ? \sprintf('(-%s) ', $option->getShortcut()) : '',
                     $description,
                     $default,
                     $multiple
@@ -194,7 +194,7 @@ abstract class Command extends BaseCommand
             $messages[] = '';
         }
 
-        return implode(PHP_EOL, $messages);
+        return \implode(PHP_EOL, $messages);
     }
 
     /**
@@ -207,16 +207,16 @@ abstract class Command extends BaseCommand
         $max = 0;
 
         foreach ($this->getOptions() as $option) {
-            $nameLength = strlen($option->getName()) + 2;
+            $nameLength = \strlen($option->getName()) + 2;
             if ($option->getShortcut()) {
-                $nameLength += strlen($option->getShortcut()) + 3;
+                $nameLength += \strlen($option->getShortcut()) + 3;
             }
 
-            $max = max($max, $nameLength);
+            $max = \max($max, $nameLength);
         }
 
         foreach ($this->getArguments() as $argument) {
-            $max = max($max, strlen($argument->getName()));
+            $max = \max($max, \strlen($argument->getName()));
         }
 
         return ++$max;
@@ -231,11 +231,11 @@ abstract class Command extends BaseCommand
      */
     private function formatDefaultValue($default)
     {
-        if (is_array($default) && $default === array_values($default)) {
-            return sprintf("array('%s')", implode("', '", $default));
+        if (\is_array($default) && $default === \array_values($default)) {
+            return \sprintf("array('%s')", \implode("', '", $default));
         }
 
-        return str_replace("\n", '', var_export($default, true));
+        return \str_replace("\n", '', \var_export($default, true));
     }
 
     /**
@@ -247,7 +247,7 @@ abstract class Command extends BaseCommand
      */
     protected function getTable(OutputInterface $output)
     {
-        if (!class_exists('Symfony\Component\Console\Helper\Table')) {
+        if (!\class_exists('Symfony\Component\Console\Helper\Table')) {
             return $this->getTableHelper();
         }
 

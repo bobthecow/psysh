@@ -79,7 +79,7 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
      */
     public function testMoreUnclosedStatements(array $lines)
     {
-        if (defined('HHVM_VERSION')) {
+        if (\defined('HHVM_VERSION')) {
             $this->markTestSkipped('HHVM not supported.');
         }
 

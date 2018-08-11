@@ -68,7 +68,7 @@ class ClassConstantEnumerator extends Enumerator
 
         $constants = [];
         foreach ($reflector->getConstants() as $name => $constant) {
-            $constReflector = ReflectionClassConstant::create($reflector, $name);
+            $constReflector = ReflectionClassConstant::create($reflector->name, $name);
 
             if ($noInherit && $constReflector->getDeclaringClass()->getName() !== $className) {
                 continue;
@@ -77,7 +77,7 @@ class ClassConstantEnumerator extends Enumerator
             $constants[$name] = $constReflector;
         }
 
-        ksort($constants, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($constants, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $constants;
     }
@@ -118,7 +118,7 @@ class ClassConstantEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Constants';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Constants';
         } else {
             return 'Class Constants';

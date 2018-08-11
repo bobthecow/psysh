@@ -23,20 +23,20 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
             $this->markTestSkipped('Libedit not enabled');
         }
 
-        $this->historyFile = tempnam(sys_get_temp_dir(), 'psysh_test_history');
-        if (false === file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
+        $this->historyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history');
+        if (false === \file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
             $this->fail('Unable to write history file: ' . $this->historyFile);
         }
         // Calling readline_read_history before readline_clear_history
         // avoids segfault with PHP 5.5.7 & libedit v3.1
-        readline_read_history($this->historyFile);
-        readline_clear_history();
+        \readline_read_history($this->historyFile);
+        \readline_clear_history();
     }
 
     public function tearDown()
     {
-        if (is_file($this->historyFile)) {
-            unlink($this->historyFile);
+        if (\is_file($this->historyFile)) {
+            \unlink($this->historyFile);
         }
     }
 
@@ -94,7 +94,7 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
     public function testListHistory()
     {
         $readline = new Libedit($this->historyFile);
-        file_put_contents(
+        \file_put_contents(
             $this->historyFile,
             "This is an entry\n\0This is a comment\nThis is an entry\0With a comment\n",
             FILE_APPEND
@@ -113,7 +113,7 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
     public function testLinebreaksSupport()
     {
         $readline = new Libedit($this->historyFile);
-        file_put_contents(
+        \file_put_contents(
             $this->historyFile,
             "foo\rbar\nbaz\r\nw00t",
             FILE_APPEND

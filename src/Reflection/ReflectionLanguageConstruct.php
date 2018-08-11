@@ -122,7 +122,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     {
         $params = [];
         foreach (self::$languageConstructs[$this->keyword] as $parameter => $opts) {
-            array_push($params, new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts));
+            \array_push($params, new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts));
         }
 
         return $params;
@@ -159,6 +159,6 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     public static function isLanguageConstruct($keyword)
     {
-        return array_key_exists($keyword, self::$languageConstructs);
+        return \array_key_exists($keyword, self::$languageConstructs);
     }
 }

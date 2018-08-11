@@ -74,13 +74,13 @@ class HelpCommand extends Command
                 }
 
                 if ($command->getAliases()) {
-                    $aliases = sprintf('<comment>Aliases:</comment> %s', implode(', ', $command->getAliases()));
+                    $aliases = \sprintf('<comment>Aliases:</comment> %s', \implode(', ', $command->getAliases()));
                 } else {
                     $aliases = '';
                 }
 
                 $table->addRow([
-                    sprintf('<info>%s</info>', $name),
+                    \sprintf('<info>%s</info>', $name),
                     $command->getDescription(),
                     $aliases,
                 ]);

@@ -27,7 +27,7 @@ class ConstantsMatcher extends AbstractMatcher
     {
         $const = $this->getInput($tokens);
 
-        return array_filter(array_keys(get_defined_constants()), function ($constant) use ($const) {
+        return \array_filter(\array_keys(\get_defined_constants()), function ($constant) use ($const) {
             return AbstractMatcher::startsWith($const, $constant);
         });
     }
@@ -37,8 +37,8 @@ class ConstantsMatcher extends AbstractMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token     = array_pop($tokens);
-        $prevToken = array_pop($tokens);
+        $token     = \array_pop($tokens);
+        $prevToken = \array_pop($tokens);
 
         switch (true) {
             case self::tokenIs($prevToken, self::T_NEW):
