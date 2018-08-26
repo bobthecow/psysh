@@ -64,6 +64,7 @@ class ListPassTest extends CodeCleanerTestCase
             ['["a"] = [1]', $errorNonVariableAssign],
             ['[] = []', $errorEmptyList],
             ['[,] = [1,2]', $errorEmptyList],
+            ['[,,] = [1,2,3]', $errorEmptyList],
         ]);
     }
 

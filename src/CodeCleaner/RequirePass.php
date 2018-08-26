@@ -81,10 +81,9 @@ class RequirePass extends CodeCleanerPass
             // So we're duplicating some of the logics here.
             if (E_WARNING & \error_reporting()) {
                 ErrorException::throwException(E_WARNING, 'Filename cannot be empty', null, $lineNumber);
-            } else {
-                // @todo trigger an error as fallback? this is pretty ugly…
-                // trigger_error('Filename cannot be empty', E_USER_WARNING);
             }
+            // @todo trigger an error as fallback? this is pretty ugly…
+            // trigger_error('Filename cannot be empty', E_USER_WARNING);
         }
 
         if ($file === '' || !\stream_resolve_include_path($file)) {
