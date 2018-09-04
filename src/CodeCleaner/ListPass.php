@@ -93,7 +93,7 @@ class ListPass extends CodeCleanerPass
      *
      * @param Expr $item
      *
-     * @return boolean
+     * @return bool
      */
     private static function isValidArrayItem(Expr $item)
     {
