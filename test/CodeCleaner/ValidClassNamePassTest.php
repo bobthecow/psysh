@@ -172,6 +172,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             ['DateTime::$someMethod()'],
             ['Psy\Test\CodeCleaner\Fixtures\ClassWithStatic::doStuff()'],
             ['Psy\Test\CodeCleaner\Fixtures\ClassWithCallStatic::doStuff()'],
+            ['Psy\Test\CodeCleaner\Fixtures\TraitWithStatic::doStuff()'],
 
             // Allow `self` and `static` as class names.
             ['
