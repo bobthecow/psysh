@@ -106,6 +106,7 @@ class ListPassTest extends CodeCleanerTestCase
                 ['[$a[0]->b[0], $a[0]->c[1]] = [1, 2]'],
                 ['[$a[$b->c + $b->d]] = [1]'],
                 ['[$a->c()->d, $a->c()->e] = [1, 2]'],
+                ['[x()->a, x()->b] = [1, 2]'],
             ]);
         }
 
