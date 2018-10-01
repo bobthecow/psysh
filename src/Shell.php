@@ -73,6 +73,7 @@ class Shell extends Application
     private $autoCompleter;
     private $matchers = [];
     private $commandsMatcher;
+    private $lastExecSuccess = true;
 
     /**
      * Create a new Psy Shell.
@@ -963,6 +964,8 @@ class Shell extends Application
      */
     public function writeReturnValue($ret)
     {
+        $this->lastExecSuccess = true;
+
         if ($ret instanceof NoReturnValue) {
             return;
         }
@@ -986,9 +989,22 @@ class Shell extends Application
      */
     public function writeException(\Exception $e)
     {
+        $this->lastExecSuccess = false;
         $this->context->setLastException($e);
         $this->output->writeln($this->formatException($e));
         $this->resetCodeBuffer();
+    }
+
+    /**
+     * Check whether the last exec was successful.
+     *
+     * Returns true if a return value was logged rather than an exception.
+     *
+     * @return bool
+     */
+    public function getLastExecSuccess()
+    {
+        return $this->lastExecSuccess;
     }
 
     /**
