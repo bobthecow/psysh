@@ -20,7 +20,7 @@
         "symfony/var-dumper": "~2.7|~3.0|~4.0",
         "nikic/php-parser": "~1.3|~2.0|~3.0|~4.0",
         "dnoegel/php-xdg-base-dir": "0.1",
-        "jakub-onderka/php-console-highlighter": "0.3.*"
+        "jakub-onderka/php-console-highlighter": "0.3.*|0.4.*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8.35|~5.0|~6.0|~7.0",
