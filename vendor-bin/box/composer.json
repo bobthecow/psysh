@@ -2,6 +2,6 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "humbug/box": "^3.0@alpha"
+        "humbug/box": "^3.1"
     }
 }

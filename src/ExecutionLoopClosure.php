@@ -41,7 +41,9 @@ class ExecutionLoopClosure extends ExecutionClosure
 
                     try {
                         // Pull in any new execution scope variables
-                        \extract($__psysh__->getScopeVariablesDiff(\get_defined_vars()));
+                        if ($__psysh__->getLastExecSuccess()) {
+                            \extract($__psysh__->getScopeVariablesDiff(\get_defined_vars()));
+                        }
 
                         // Buffer stdout; we'll need it later
                         \ob_start([$__psysh__, 'writeStdout'], 1);

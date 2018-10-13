@@ -106,7 +106,7 @@ class Transient implements Readline
     {
         echo $prompt;
 
-        return \rtrim(\fgets($this->getStdin(), 1024));
+        return \rtrim(\fgets($this->getStdin()), "\n\r");
     }
 
     /**
