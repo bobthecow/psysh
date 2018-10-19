@@ -12,6 +12,9 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\BinaryOp;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Scalar;
@@ -40,7 +43,12 @@ class InstanceOfPass extends CodeCleanerPass
             return;
         }
 
-        if (($node->expr instanceof Scalar && !$node->expr instanceof Encapsed) || $node->expr instanceof ConstFetch) {
+        if (($node->expr instanceof Scalar && !$node->expr instanceof Encapsed) ||
+            $node->expr instanceof BinaryOp ||
+            $node->expr instanceof Array_ ||
+            $node->expr instanceof ConstFetch ||
+            $node->expr instanceof ClassConstFetch
+        ) {
             throw new FatalErrorException(self::EXCEPTION_MSG, 0, E_ERROR, null, $node->getLine());
         }
     }

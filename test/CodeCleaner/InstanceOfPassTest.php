@@ -43,6 +43,9 @@ class InstanceOfPassTest extends CodeCleanerTestCase
             ['true && false instanceof stdClass'],
             ['"a"."b" instanceof stdClass'],
             ['!5 instanceof stdClass'],
+            ['array(1) instanceof stdClass'],
+            ['(1+1) instanceof stdClass'],
+            ['DateTime::ISO8601 instanceof stdClass'],
         ];
     }
 
@@ -60,11 +63,8 @@ class InstanceOfPassTest extends CodeCleanerTestCase
         $data = [
             ['$a instanceof stdClass'],
             ['strtolower("foo") instanceof stdClass'],
-            ['array(1) instanceof stdClass'],
             ['(string) "foo" instanceof stdClass'],
-            ['(1+1) instanceof stdClass'],
             ['"foo ${foo} $bar" instanceof stdClass'],
-            ['DateTime::ISO8601 instanceof stdClass'],
         ];
 
         return $data;
