@@ -24,7 +24,7 @@ install: travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
 script:
  - vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
- - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build -j 4 || true'
+ - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build -j 4 && cp build/psysh/bin/psysh dist/psysh.phar || true'
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
@@ -36,7 +36,9 @@ deploy:
   api_key:
     secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
   file_glob: true
-  file: dist/psysh-*.tar.gz
+  file:
+    - dist/psysh-*.tar.gz
+    - dist/psysh.phar
   skip_cleanup: true
   on:
     tags: true
