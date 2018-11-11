@@ -97,7 +97,7 @@ class TimeitVisitor extends NodeVisitorAbstract
     /**
      * Get PhpParser AST nodes for a `markStart` call.
      *
-     * @return PhpParser\Node\Expr\StaticCall
+     * @return \PhpParser\Node\Expr\StaticCall
      */
     private function getStartCall()
     {
@@ -111,7 +111,7 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * @param Expr|null $arg
      *
-     * @return PhpParser\Node\Expr\StaticCall
+     * @return \PhpParser\Node\Expr\StaticCall
      */
     private function getEndCall(Expr $arg = null)
     {
@@ -127,10 +127,10 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * Wrap $expr in a PhpParser\Node\Stmt\Expression if the class exists.
      *
-     * @param PhpParser\Node $expr
-     * @param array          $attrs
+     * @param \PhpParser\Node $expr
+     * @param array           $attrs
      *
-     * @return PhpParser\Node\Expr|PhpParser\Node\Stmt\Expression
+     * @return \PhpParser\Node\Expr|\PhpParser\Node\Stmt\Expression
      */
     private function maybeExpression($expr, $attrs = [])
     {
