@@ -33,7 +33,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $one       = 'banana';
         $two       = 123;
-        $three     = new \StdClass();
+        $three     = new \stdClass();
         $__psysh__ = 'ignore this';
         $_         = 'ignore this';
         $_e        = 'ignore this';
@@ -75,7 +75,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $one       = 'banana';
         $two       = 123;
-        $three     = new \StdClass();
+        $three     = new \stdClass();
         $__psysh__ = 'ignore this';
         $_         = 'ignore this';
         $_e        = 'ignore this';
