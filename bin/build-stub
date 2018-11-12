@@ -7,7 +7,7 @@ $license = str_replace("\n", "\n * ", trim($license));
 
 $autoload = <<<'EOS'
     Phar::mapPhar('psysh.phar');
-    require 'phar://psysh.phar/.box/check_requirements.php';
+    require 'phar://psysh.phar/.box/bin/check-requirements.php';
     require 'phar://psysh.phar/vendor/autoload.php';
 EOS;
 
