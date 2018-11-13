@@ -1556,16 +1556,16 @@
         },
         {
             "name": "humbug/box",
-            "version": "3.3.0",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/humbug/box.git",
-                "reference": "f8ddc6d0a91dae7e85dac4fa676ca2a7f8fbadee"
+                "reference": "d2a2a7f5947086371ff0c46dab534fff36c3bfc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/humbug/box/zipball/f8ddc6d0a91dae7e85dac4fa676ca2a7f8fbadee",
-                "reference": "f8ddc6d0a91dae7e85dac4fa676ca2a7f8fbadee",
+                "url": "https://api.github.com/repos/humbug/box/zipball/d2a2a7f5947086371ff0c46dab534fff36c3bfc5",
+                "reference": "d2a2a7f5947086371ff0c46dab534fff36c3bfc5",
                 "shasum": ""
             },
             "require": {
@@ -1643,20 +1643,20 @@
             "keywords": [
                 "phar"
             ],
-            "time": "2018-11-12T21:50:37+00:00"
+            "time": "2018-11-13T09:08:00+00:00"
         },
         {
             "name": "humbug/php-scoper",
-            "version": "0.11.3",
+            "version": "0.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/humbug/php-scoper.git",
-                "reference": "c09b336d36d0d9a530eba806d87c901cf0c64355"
+                "reference": "6fcb3ce7dce5b96e17fac2af17e801741f387df5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/humbug/php-scoper/zipball/c09b336d36d0d9a530eba806d87c901cf0c64355",
-                "reference": "c09b336d36d0d9a530eba806d87c901cf0c64355",
+                "url": "https://api.github.com/repos/humbug/php-scoper/zipball/6fcb3ce7dce5b96e17fac2af17e801741f387df5",
+                "reference": "6fcb3ce7dce5b96e17fac2af17e801741f387df5",
                 "shasum": ""
             },
             "require": {
@@ -1716,7 +1716,7 @@
                 }
             ],
             "description": "Prefixes all PHP namespaces in a file or directory.",
-            "time": "2018-11-11T18:10:41+00:00"
+            "time": "2018-11-13T08:46:34+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
