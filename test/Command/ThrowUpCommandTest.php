@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Console\Tests\Command;
+namespace Psy\Test\Command;
 
 use Psy\Command\ThrowUpCommand;
 use Psy\Shell;

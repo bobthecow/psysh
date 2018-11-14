@@ -60,7 +60,7 @@ class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
      */
     public function testFromThrowableThrowsError()
     {
-        $notThrowable = new \StdClass();
+        $notThrowable = new \stdClass();
         ThrowUpException::fromThrowable($notThrowable);
     }
 }
