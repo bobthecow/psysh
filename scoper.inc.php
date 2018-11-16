@@ -11,11 +11,12 @@ return [
             if ('vendor/hoa/stream/Stream.php' !== $filePath) {
                 return $contents;
             }
+
             return preg_replace(
                 '/Hoa\\\\Consistency::registerShutdownFunction\(xcallable\(\'(.*)\'\)\)/',
                 sprintf(
                     'Hoa\\Consistency::registerShutdownFunction(xcallable(\'%s$1\'))',
-                    $prefix.'\\\\\\\\'
+                    $prefix . '\\\\\\\\'
                 ),
                 $contents
             );
@@ -41,7 +42,8 @@ return [
                 ),
                 $contents
             );
+
             return $contents;
         },
-    ]
+    ],
 ];
