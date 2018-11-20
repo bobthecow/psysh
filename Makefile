@@ -1,4 +1,4 @@
-PSYSH_SRC = bin src box.json.dist composer.json build/stub
+PSYSH_SRC = bin src box.json.dist composer.json build/stub scoper.inc.php
 PSYSH_SRC_FILES = $(shell find src -type f -name "*.php")
 VERSION = $(shell git describe --tag --always --dirty=-dev)
 

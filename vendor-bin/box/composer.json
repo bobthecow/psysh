@@ -1,7 +1,5 @@
 {
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
-        "humbug/box": "^3.1"
+        "humbug/box": "^3.3.1"
     }
 }
