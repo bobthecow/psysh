@@ -174,13 +174,13 @@ class ShellOutput extends ConsoleOutput
     {
         $formatter = $this->getFormatter();
 
-        $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $formatter->setStyle('error',   new OutputFormatterStyle('black', 'red', ['bold']));
+        $formatter->setStyle('warning', new OutputFormatterStyle(null, 'yellow'));
+        $formatter->setStyle('error',   new OutputFormatterStyle(null, 'red', ['bold']));
         $formatter->setStyle('aside',   new OutputFormatterStyle('blue'));
         $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, ['bold']));
         $formatter->setStyle('return',  new OutputFormatterStyle('cyan'));
         $formatter->setStyle('urgent',  new OutputFormatterStyle('red'));
-        $formatter->setStyle('hidden',  new OutputFormatterStyle('black'));
+        $formatter->setStyle('hidden',  new OutputFormatterStyle(null));
 
         // Visibility
         $formatter->setStyle('public',    new OutputFormatterStyle(null, null, ['bold']));
