@@ -7,3 +7,7 @@ PsySH follows [PSR-1](http://php-fig.org/psr/psr-1/) and [PSR-2](http://php-fig.
 ## Branching model
 
 Please branch off and send pull requests to the `develop` branch.
+
+## Running tests
+
+1. Run `make test` to run tests!
