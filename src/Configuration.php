@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -836,7 +836,7 @@ class Configuration
     /**
      * Get the decoration (i.e. color) setting for the Shell Output service.
      *
-     * @return null|bool 3-state boolean corresponding to the current color mode
+     * @return bool|null 3-state boolean corresponding to the current color mode
      */
     public function getOutputDecorated()
     {

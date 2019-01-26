@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -78,7 +78,7 @@ class NamespacePass extends CodeCleanerPass
      * Remember the namespace and (re)set the namespace on the CodeCleaner as
      * well.
      *
-     * @param null|Name $namespace
+     * @param Name|null $namespace
      */
     private function setNamespace($namespace)
     {

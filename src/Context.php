@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -182,7 +182,7 @@ class Context
      *
      * @throws \InvalidArgumentException If no Exception has been caught
      *
-     * @return null|\Exception
+     * @return \Exception|null
      */
     public function getLastException()
     {
@@ -208,7 +208,7 @@ class Context
      *
      * @throws \InvalidArgumentException If no output has happened yet
      *
-     * @return null|string
+     * @return string|null
      */
     public function getLastStdout()
     {

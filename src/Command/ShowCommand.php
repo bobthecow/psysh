@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -35,7 +35,7 @@ class ShowCommand extends ReflectingCommand
     private $lastExceptionIndex;
 
     /**
-     * @param null|string $colorMode (default: null)
+     * @param string|null $colorMode (default: null)
      */
     public function __construct($colorMode = null)
     {
