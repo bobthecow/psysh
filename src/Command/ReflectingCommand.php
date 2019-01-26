@@ -114,6 +114,14 @@ abstract class ReflectingCommand extends Command implements ContextAware
             return $name;
         }
 
+        // Check $name against the current namespace and use statements.
+        if (\version_compare(PHP_VERSION, '5.5', '>=')) {
+            $maybeAlias = $this->resolveCode($name . '::class');
+            if ($maybeAlias !== $name) {
+                return $maybeAlias;
+            }
+        }
+
         if ($namespace = $shell->getNamespace()) {
             $fullName = $namespace . '\\' . $name;
 
