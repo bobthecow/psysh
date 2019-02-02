@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -112,6 +112,14 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
         if (\substr($name, 0, 1) === '\\') {
             return $name;
+        }
+
+        // Check $name against the current namespace and use statements.
+        if (\version_compare(PHP_VERSION, '5.5', '>=')) {
+            $maybeAlias = $this->resolveCode($name . '::class');
+            if ($maybeAlias !== $name) {
+                return $maybeAlias;
+            }
         }
 
         if ($namespace = $shell->getNamespace()) {

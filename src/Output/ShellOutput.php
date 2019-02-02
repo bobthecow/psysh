@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,7 +31,7 @@ class ShellOutput extends ConsoleOutput
      * @param mixed                    $verbosity (default: self::VERBOSITY_NORMAL)
      * @param bool                     $decorated (default: null)
      * @param OutputFormatterInterface $formatter (default: null)
-     * @param null|string|OutputPager  $pager     (default: null)
+     * @param string|OutputPager|null  $pager     (default: null)
      */
     public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null)
     {
