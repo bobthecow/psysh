@@ -95,13 +95,31 @@ build/psysh-php54-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 build/%/psysh: vendor/bin/box build/%
 	vendor/bin/box compile --working-dir $(dir $@)
 
+# Signatures
+
+build/%/psysh.asc: build/%/psysh
+	echo $$DECRYPT_KEY | gpg --batch --yes --passphrase-fd 0 .github/keys.asc.gpg
+	gpg --batch --yes --import .github/keys.asc
+	
+	echo $$SIGN_KEY |\
+		gpg --passphrase-fd 0 \
+		-u $$KEY_ID \
+		--armor \
+		--detach-sig $(echo $@ | sed 's/.asc//') >\
+		$@
+	
+	gpg --fingerprint --with-colons $$KEY_ID |\
+		grep "^fpr" |\
+		sed -n 's/^fpr:::::::::\([[:alnum:]]\+\):/\1/p' |\
+		xargs gpg --batch --delete-secret-keys
+	rm -rf .github/keys.asc
 
 # Dist packages
 
-dist/psysh-$(VERSION).tar.gz: build/psysh/psysh
+dist/psysh-$(VERSION).tar.gz: build/psysh/psysh build/psysh/psysh.asc
 	@mkdir -p $(@D)
 	tar -C $(dir $<) -czf $@ $(notdir $<)
 
-dist/psysh-$(VERSION)-%.tar.gz: build/psysh-%/psysh
+dist/psysh-$(VERSION)-%.tar.gz: build/psysh-%/psysh build/psysh-%/psysh.asc
 	@mkdir -p $(@D)
 	tar -C $(dir $<) -czf $@ $(notdir $<)
