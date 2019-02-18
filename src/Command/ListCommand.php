@@ -57,7 +57,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
 
         $this
             ->setName('ls')
-            ->setAliases(['list', 'dir'])
+            ->setAliases(['dir'])
             ->setDefinition([
                 new CodeArgument('target', CodeArgument::OPTIONAL, 'A target class or object to list.'),
 
