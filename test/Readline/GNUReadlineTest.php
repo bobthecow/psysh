@@ -27,6 +27,12 @@ class GNUReadlineTest extends \PHPUnit\Framework\TestCase
         \file_put_contents($this->historyFile, "_HiStOrY_V2_\n");
     }
 
+    public function testReadlineName()
+    {
+        $readline = new GNUReadline($this->historyFile);
+        $this->assertEquals(\readline_info('readline_name'), 'psysh');
+    }
+
     public function testHistory()
     {
         $readline = new GNUReadline($this->historyFile);
