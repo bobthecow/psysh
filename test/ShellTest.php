@@ -453,6 +453,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     private function getInput($input)
     {
         $input = new StringInput($input);
+
         return $input;
     }
 
