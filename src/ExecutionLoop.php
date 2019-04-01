@@ -29,8 +29,10 @@ class ExecutionLoop
     {
         $this->loadIncludes($shell);
 
-        $closure = new ExecutionLoopClosure($shell);
-        $closure->execute();
+        if ($shell->isInteractive()) {
+            $closure = new ExecutionLoopClosure($shell);
+            $closure->execute();
+        }
     }
 
     /**

@@ -57,6 +57,8 @@ class Shell extends Application
     private $config;
     private $cleaner;
     private $output;
+    private $originalVerbosity;
+    private $interactive;
     private $readline;
     private $inputBuffer;
     private $code;
@@ -290,6 +292,7 @@ class Shell extends Application
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+        $this->originalVerbosity = $output->getVerbosity();
     }
 
     /**
@@ -333,6 +336,7 @@ class Shell extends Application
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
+        $this->interactive = $input->isInteractive();
         $this->setOutput($output);
 
         $this->resetCodeBuffer();
@@ -359,6 +363,26 @@ class Shell extends Application
     }
 
     /**
+     * Get whether or not the shell is interactive.
+     *
+     * @return bool
+     */
+    public function isInteractive()
+    {
+        return $this->interactive;
+    }
+
+    /**
+     * Set interactivity flag of the shell.
+     *
+     * @param bool $interactive true if the shell is accepting commandline input, false otherwise
+     */
+    public function setInteractive($interactive)
+    {
+        $this->interactive = $interactive;
+    }
+
+    /**
      * Read user input.
      *
      * This will continue fetching user input until the code buffer contains
@@ -372,7 +396,7 @@ class Shell extends Application
 
         do {
             // reset output verbosity (in case it was altered by a subcommand)
-            $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
+            $this->output->setVerbosity($this->originalVerbosity);
 
             $input = $this->readline();
 
@@ -1215,13 +1239,14 @@ class Shell extends Application
             return $line;
         }
 
-        if ($bracketedPaste = $this->config->useBracketedPaste()) {
+        $isQuiet = $this->output->isQuiet();
+        if (!$isQuiet && $bracketedPaste = $this->config->useBracketedPaste()) {
             \printf("\e[?2004h"); // Enable bracketed paste
         }
 
-        $line = $this->readline->readline($this->getPrompt());
+        $line = $this->readline->readline($isQuiet ? null : $this->getPrompt());
 
-        if ($bracketedPaste) {
+        if (!$isQuiet && $bracketedPaste) {
             \printf("\e[?2004l"); // ... and disable it again
         }
 

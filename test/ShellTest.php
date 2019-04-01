@@ -16,6 +16,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
 use Psy\Shell;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellTest extends \PHPUnit\Framework\TestCase
@@ -95,6 +96,24 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));
         $this->assertNull($shell->getScopeVariable('_'));
+    }
+
+    public function testNonInteractiveDoesNotUseInput()
+    {
+        $config = $this->getConfig(['usePcntl' => false]);
+
+        $shell = new Shell($config);
+        $input = $this->getInput('');
+        $shell->addInput('$var=5;', true);
+
+        // fail-safe to exit the shell if interactivity flag handling is broken
+        $shell->addInput('exit', true);
+        $input->setInteractive(false);
+
+        // This is still super slow and we shouldn't do this :(
+        $shell->run($input, $this->getOutput());
+
+        $this->assertNotContains('var', $shell->getScopeVariableNames());
     }
 
     public function testIncludes()
@@ -330,6 +349,22 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, \stream_get_contents($stream));
     }
 
+    /**
+     * @dataProvider getReturnValues
+     */
+    public function testDoNotWriteReturnValueWhenQuiet($input, $expected)
+    {
+        $output = $this->getOutput();
+        $output->setVerbosity(StreamOutput::VERBOSITY_QUIET);
+        $stream = $output->getStream();
+        $shell  = new Shell($this->getConfig());
+        $shell->setOutput($output);
+
+        $shell->writeReturnValue($input);
+        \rewind($stream);
+        $this->assertEquals('', \stream_get_contents($stream));
+    }
+
     public function getReturnValues()
     {
         return [
@@ -413,6 +448,12 @@ class ShellTest extends \PHPUnit\Framework\TestCase
             ['"q"', false],
             ['"q",', false],
         ];
+    }
+
+    private function getInput($input)
+    {
+        $input = new StringInput($input);
+        return $input;
     }
 
     private function getOutput()
