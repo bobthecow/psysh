@@ -58,7 +58,6 @@ class Shell extends Application
     private $cleaner;
     private $output;
     private $originalVerbosity;
-    private $interactive;
     private $readline;
     private $inputBuffer;
     private $code;
@@ -336,7 +335,6 @@ class Shell extends Application
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        $this->interactive = $input->isInteractive();
         $this->setOutput($output);
 
         $this->resetCodeBuffer();
@@ -360,26 +358,6 @@ class Shell extends Application
             // The ProcessForker throws a BreakException to finish the main thread.
             return;
         }
-    }
-
-    /**
-     * Get whether or not the shell is interactive.
-     *
-     * @return bool
-     */
-    public function isInteractive()
-    {
-        return $this->interactive;
-    }
-
-    /**
-     * Set interactivity flag of the shell.
-     *
-     * @param bool $interactive true if the shell is accepting commandline input, false otherwise
-     */
-    public function setInteractive($interactive)
-    {
-        $this->interactive = $interactive;
     }
 
     /**
