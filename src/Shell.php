@@ -1206,10 +1206,14 @@ class Shell extends Application
     /**
      * Get the current input prompt.
      *
-     * @return string
+     * @return string | null
      */
     protected function getPrompt()
     {
+        if ($this->output->isQuiet()) {
+            return null;
+        }
+
         if ($this->hasCode()) {
             return static::BUFF_PROMPT;
         }
@@ -1239,14 +1243,13 @@ class Shell extends Application
             return $line;
         }
 
-        $isQuiet = $this->output->isQuiet();
-        if (!$isQuiet && $bracketedPaste = $this->config->useBracketedPaste()) {
+        if ($bracketedPaste = $this->config->useBracketedPaste()) {
             \printf("\e[?2004h"); // Enable bracketed paste
         }
 
-        $line = $this->readline->readline($isQuiet ? null : $this->getPrompt());
+        $line = $this->readline->readline($this->getPrompt());
 
-        if (!$isQuiet && $bracketedPaste) {
+        if ($bracketedPaste) {
             \printf("\e[?2004l"); // ... and disable it again
         }
 
