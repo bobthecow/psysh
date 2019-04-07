@@ -295,7 +295,7 @@ class Shell extends Application
     }
 
     /**
-     * Runs the current application.
+     * Runs PsySH.
      *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
@@ -304,8 +304,6 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
-        $this->initializeTabCompletion();
-
         if ($input === null && !isset($_SERVER['argv'])) {
             $input = new ArgvInput([]);
         }
@@ -324,7 +322,7 @@ class Shell extends Application
     }
 
     /**
-     * Runs the current application.
+     * Runs PsySH.
      *
      * @throws Exception if thrown via the `throw-up` command
      *
@@ -338,15 +336,34 @@ class Shell extends Application
         $this->setOutput($output);
 
         $this->resetCodeBuffer();
-
         $this->setAutoExit(false);
         $this->setCatchExceptions(false);
-
-        $this->readline->readHistory();
 
         $this->output->writeln($this->getHeader());
         $this->writeVersionInfo();
         $this->writeStartupMessage();
+
+        if ($input->isInteractive()) {
+            return $this->doInteractiveRun($input);
+        } else {
+            return $this->doNonInteractiveRun($input);
+        }
+    }
+
+    /**
+     * Run PsySH in interactive mode.
+     *
+     * Initializes tab completion and readline history, then spins up the
+     * execution loop.
+     *
+     * @throws Exception if thrown via the `throw-up` command
+     *
+     * @param InputInterface $input An Input instance
+     */
+    private function doInteractiveRun(InputInterface $input)
+    {
+        $this->initializeTabCompletion();
+        $this->readline->readHistory();
 
         try {
             $this->beforeRun();
@@ -359,6 +376,22 @@ class Shell extends Application
             // The ProcessForker throws a BreakException to finish the main thread.
             return;
         }
+    }
+
+    /**
+     * Run PsySH in non-interactive mode.
+     *
+     * Note that this isn't very useful unless you supply "include" arguments at
+     * the command line.
+     *
+     * @param InputInterface $input An Input instance
+     */
+    private function doNonInteractiveRun(InputInterface $input)
+    {
+        $this->beforeRun();
+        $this->loadIncludes();
+        // TODO: execute stdin
+        $this->afterRun();
     }
 
     /**
