@@ -277,10 +277,14 @@ if (!\function_exists('Psy\bin')) {
                 $input->bind(new InputDefinition([
                     new InputOption('help',     'h',  InputOption::VALUE_NONE),
                     new InputOption('config',   'c',  InputOption::VALUE_REQUIRED),
-                    new InputOption('version',  'v',  InputOption::VALUE_NONE),
+                    new InputOption('version',  'V',  InputOption::VALUE_NONE),
                     new InputOption('cwd',      null, InputOption::VALUE_REQUIRED),
                     new InputOption('color',    null, InputOption::VALUE_NONE),
                     new InputOption('no-color', null, InputOption::VALUE_NONE),
+
+                    new InputOption('quiet',          'q',        InputOption::VALUE_NONE),
+                    new InputOption('verbose',        'v|vv|vvv', InputOption::VALUE_NONE),
+                    new InputOption('no-interaction', 'n',        InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ]));
@@ -324,7 +328,7 @@ Options:
   --help     -h Display this help message.
   --config   -c Use an alternate PsySH config file location.
   --cwd         Use an alternate working directory.
-  --version  -v Display the PsySH version.
+  --version  -V Display the PsySH version.
   --color       Force colors in output.
   --no-color    Disable colors in output.
 
