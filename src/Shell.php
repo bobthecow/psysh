@@ -67,7 +67,6 @@ class Shell extends Application
     private $stdoutBuffer;
     private $context;
     private $includes;
-    private $loop;
     private $outputWantsNewline = false;
     private $prompt;
     private $loopListeners;
@@ -85,7 +84,6 @@ class Shell extends Application
     {
         $this->config        = $config ?: new Configuration();
         $this->cleaner       = $this->config->getCodeCleaner();
-        $this->loop          = new ExecutionLoop();
         $this->context       = new Context();
         $this->includes      = [];
         $this->readline      = $this->config->getReadline();
@@ -368,7 +366,8 @@ class Shell extends Application
         try {
             $this->beforeRun();
             $this->loadIncludes();
-            $this->loop->run($this);
+            $loop = new ExecutionLoopClosure($this);
+            $loop->execute();
             $this->afterRun();
         } catch (ThrowUpException $e) {
             throw $e->getPrevious();
