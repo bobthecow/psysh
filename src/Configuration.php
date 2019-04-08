@@ -49,6 +49,7 @@ class Configuration
         'manualDbFile',
         'pager',
         'prompt',
+        'rawOutput',
         'requireSemicolons',
         'runtimeDir',
         'startupMessage',
@@ -76,7 +77,8 @@ class Configuration
     private $useBracketedPaste;
     private $hasPcntl;
     private $usePcntl;
-    private $newCommands       = [];
+    private $newCommands = [];
+    private $rawOutput = false;
     private $requireSemicolons = false;
     private $useUnicode;
     private $useTabCompletion;
@@ -639,6 +641,29 @@ class Configuration
     public function usePcntl()
     {
         return isset($this->usePcntl) ? ($this->hasPcntl && $this->usePcntl) : $this->hasPcntl;
+    }
+
+    /**
+     * Check whether to use raw output.
+     *
+     * This is set by the --raw-output (-r) flag, and really only makes sense
+     * when non-interactive, e.g. executing stdin.
+     *
+     * @return bool true if raw output is enabled
+     */
+    public function rawOutput()
+    {
+        return $this->rawOutput;
+    }
+
+    /**
+     * Enable or disable raw output.
+     *
+     * @param bool $rawOutput
+     */
+    public function setRawOutput($rawOutput)
+    {
+        $this->rawOutput = (bool) $rawOutput;
     }
 
     /**

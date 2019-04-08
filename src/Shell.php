@@ -337,14 +337,10 @@ class Shell extends Application
         $this->setAutoExit(false);
         $this->setCatchExceptions(false);
 
-        $this->output->writeln($this->getHeader());
-        $this->writeVersionInfo();
-        $this->writeStartupMessage();
-
         if ($input->isInteractive()) {
             return $this->doInteractiveRun($input);
         } else {
-            return $this->doNonInteractiveRun($input);
+            return $this->doNonInteractiveRun($input, $this->config->rawOutput());
         }
     }
 
@@ -362,6 +358,10 @@ class Shell extends Application
     {
         $this->initializeTabCompletion();
         $this->readline->readHistory();
+
+        $this->output->writeln($this->getHeader());
+        $this->writeVersionInfo();
+        $this->writeStartupMessage();
 
         try {
             $this->beforeRun();
@@ -381,15 +381,28 @@ class Shell extends Application
      * Run PsySH in non-interactive mode.
      *
      * Note that this isn't very useful unless you supply "include" arguments at
-     * the command line.
+     * the command line, or code via stdin.
      *
      * @param InputInterface $input An Input instance
      */
-    private function doNonInteractiveRun(InputInterface $input)
+    private function doNonInteractiveRun(InputInterface $input, $rawOutput)
     {
+        // If raw output is enabled, we don't want startup messages.
+        if (!$rawOutput) {
+            $this->output->writeln($this->getHeader());
+            $this->writeVersionInfo();
+            $this->writeStartupMessage();
+        }
+
         $this->beforeRun();
         $this->loadIncludes();
-        // TODO: execute stdin
+        $this->getInput(false);
+
+        if ($this->hasCode()) {
+            $ret = $this->execute($this->flushCode());
+            $this->writeReturnValue($ret, $rawOutput);
+        }
+
         $this->afterRun();
     }
 
@@ -430,8 +443,10 @@ class Shell extends Application
      * valid code.
      *
      * @throws BreakException if user hits Ctrl+D
+     *
+     * @param bool $interactive
      */
-    public function getInput()
+    public function getInput($interactive = true)
     {
         $this->codeBufferOpen = false;
 
@@ -446,8 +461,13 @@ class Shell extends Application
              *
              *   1) In an expression, like a function or "if" block, clear the input buffer
              *   2) At top-level session, behave like the exit command
+             *   3) When non-interactive, return, because that's the end of stdin
              */
             if ($input === false) {
+                if (!$interactive) {
+                    return;
+                }
+
                 $this->output->writeln('');
 
                 if ($this->hasCode()) {
@@ -473,7 +493,7 @@ class Shell extends Application
             }
 
             $this->addCode($input);
-        } while (!$this->hasValidCode());
+        } while (!$interactive || !$this->hasValidCode());
     }
 
     /**
@@ -1026,8 +1046,9 @@ class Shell extends Application
      * @see self::presentValue
      *
      * @param mixed $ret
+     * @param bool  $rawOutput Write raw var_export-style values
      */
-    public function writeReturnValue($ret)
+    public function writeReturnValue($ret, $rawOutput = false)
     {
         $this->lastExecSuccess = true;
 
@@ -1036,10 +1057,16 @@ class Shell extends Application
         }
 
         $this->context->setReturnValue($ret);
-        $ret    = $this->presentValue($ret);
-        $indent = \str_repeat(' ', \strlen(static::RETVAL));
 
-        $this->output->writeln(static::RETVAL . \str_replace(PHP_EOL, PHP_EOL . $indent, $ret));
+        if ($rawOutput) {
+            $formatted = \var_export($ret, true);
+        } else {
+            $indent = \str_repeat(' ', \strlen(static::RETVAL));
+            $formatted = $this->presentValue($ret);
+            $formatted = static::RETVAL . \str_replace(PHP_EOL, PHP_EOL . $indent, $formatted);
+        }
+
+        $this->output->writeln($formatted);
     }
 
     /**
@@ -1271,9 +1298,11 @@ class Shell extends Application
      * If readline is enabled, this delegates to readline. Otherwise, it's an
      * ugly `fgets` call.
      *
+     * @param bool $interactive
+     *
      * @return string One line of user input
      */
-    protected function readline()
+    protected function readline($interactive = true)
     {
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
@@ -1284,7 +1313,9 @@ class Shell extends Application
             return $line;
         }
 
-        if ($bracketedPaste = $this->config->useBracketedPaste()) {
+        $bracketedPaste = $interactive && $this->config->useBracketedPaste();
+
+        if ($bracketedPaste) {
             \printf("\e[?2004h"); // Enable bracketed paste
         }
 

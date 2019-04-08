@@ -285,6 +285,7 @@ if (!\function_exists('Psy\bin')) {
                     new InputOption('quiet',          'q',        InputOption::VALUE_NONE),
                     new InputOption('verbose',        'v|vv|vvv', InputOption::VALUE_NONE),
                     new InputOption('no-interaction', 'n',        InputOption::VALUE_NONE),
+                    new InputOption('raw-output',     'r',        InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ]));
@@ -306,6 +307,11 @@ if (!\function_exists('Psy\bin')) {
                 $config['colorMode'] = Configuration::COLOR_MODE_FORCED;
             } elseif ($input->getOption('no-color')) {
                 $config['colorMode'] = Configuration::COLOR_MODE_DISABLED;
+            }
+
+            // Handle --raw-output
+            if ($input->getOption('raw-output')) {
+                $config['rawOutput'] = true;
             }
 
             $shell = new Shell(new Configuration($config));

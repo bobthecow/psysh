@@ -98,22 +98,51 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($shell->getScopeVariable('_'));
     }
 
-    public function testNonInteractiveDoesNotUseInput()
+    public function testNonInteractiveDoesNotUpdateContext()
     {
         $config = $this->getConfig(['usePcntl' => false]);
-
         $shell = new Shell($config);
-        $input = $this->getInput('');
-        $shell->addInput('$var=5;', true);
 
-        // fail-safe to exit the shell if interactivity flag handling is broken
-        $shell->addInput('exit', true);
+        $input = $this->getInput('');
         $input->setInteractive(false);
+
+        $shell->addInput('$var=5;', true);
+        $shell->addInput('exit', true);
 
         // This is still super slow and we shouldn't do this :(
         $shell->run($input, $this->getOutput());
 
         $this->assertNotContains('var', $shell->getScopeVariableNames());
+    }
+
+    public function testNonInteractiveRawOutput()
+    {
+        $config = $this->getConfig(['usePcntl' => false, 'rawOutput' => true]);
+        $shell = new Shell($config);
+
+        $input = $this->getInput('');
+        $input->setInteractive(false);
+
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell->setOutput($output);
+
+        $shell->addInput('$foo = "bar"', true);
+        $shell->addInput('exit', true);
+
+        // Sigh
+        $shell->run($input, $output);
+
+        \rewind($stream);
+        $streamContents = \stream_get_contents($stream);
+
+        // There shouldn't be a welcome message with raw output
+        $this->assertNotContains('Justin Hileman', $streamContents);
+        $this->assertNotContains(PHP_VERSION, $streamContents);
+        $this->assertNotContains(Shell::VERSION, $streamContents);
+
+        // @todo prolly shouldn't have an exit message with raw output, either
+        $this->assertContains('Goodbye', $streamContents);
     }
 
     public function testIncludes()
