@@ -49,13 +49,19 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return [
+        $stmts = [
             ['array_pop(json_decode("[]"))'],
             ['array_pop($foo)'],
             ['array_pop($foo->bar)'],
             ['array_pop($foo::baz)'],
             ['array_pop(Foo::qux)'],
         ];
+
+        if (\version_compare(PHP_VERSION, '5.6', '>=')) {
+            $stmts[] = ['end(...[$a])'];
+        }
+
+        return $stmts;
     }
 
     /**

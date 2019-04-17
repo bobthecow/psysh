@@ -13,6 +13,7 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
@@ -68,6 +69,11 @@ class PassableByReferencePass extends CodeCleanerPass
 
     private function isPassableByReference(Node $arg)
     {
+        // Unpacked arrays can be passed by reference
+        if ($arg->value instanceof Array_) {
+            return $arg->unpack;
+        }
+
         // FuncCall, MethodCall and StaticCall are all PHP _warnings_ not fatal errors, so we'll let
         // PHP handle those ones :)
         return $arg->value instanceof ClassConstFetch ||
