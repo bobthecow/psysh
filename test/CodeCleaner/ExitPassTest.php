@@ -45,15 +45,15 @@ class ExitPassTest extends CodeCleanerTestCase
             ['exit();', "{$this->expectedExceptionString};"],
             ['die;', "{$this->expectedExceptionString};"],
             ['exit(die(die));', "{$this->expectedExceptionString};"],
-            ['if (true) { exit; }', "if (true) {\n    {$this->expectedExceptionString};\n}"],
-            ['if (false) { exit; }', "if (false) {\n    {$this->expectedExceptionString};\n}"],
+            ['if (true) { exit; }', "if (true) { {$this->expectedExceptionString}; }"],
+            ['if (false) { exit; }', "if (false) { {$this->expectedExceptionString}; }"],
             ['1 and exit();', "1 and {$this->expectedExceptionString};"],
             ['foo() or die', "foo() or {$this->expectedExceptionString};"],
             ['exit and 1;', "{$this->expectedExceptionString} and 1;"],
-            ['if (exit) { echo $wat; }', "if ({$this->expectedExceptionString}) {\n    echo \$wat;\n}"],
+            ['if (exit) { echo $wat; }', "if ({$this->expectedExceptionString}) { echo \$wat; }"],
             ['exit or die;', "{$this->expectedExceptionString} or {$this->expectedExceptionString};"],
-            ['switch (die) { }', "switch ({$this->expectedExceptionString}) {\n}"],
-            ['for ($i = 1; $i < 10; die) {}', "for (\$i = 1; \$i < 10; {$this->expectedExceptionString}) {\n}"],
+            ['switch (die) { }', "switch ({$this->expectedExceptionString}) {}"],
+            ['for ($i = 1; $i < 10; die) {}', "for (\$i = 1; \$i < 10; {$this->expectedExceptionString}) {}"],
         ];
     }
 }
