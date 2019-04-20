@@ -197,6 +197,31 @@ class ConfigPaths
     }
 
     /**
+     * Ensure that $dir exists and is writable.
+     *
+     * Generates E_USER_NOTICE error if the directory is not writable or creatable.
+     *
+     * @param string $dir
+     *
+     * @return bool False if directory exists but is not writeable, or cannot be created
+     */
+    public static function ensureDir($dir)
+    {
+        if (!\is_dir($dir)) {
+            // Just try making it and see if it works
+            @\mkdir($dir, 0700, true);
+        }
+
+        if (!\is_dir($dir) || !\is_writable($dir)) {
+            \trigger_error(\sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Ensure that $file exists and is writable, make the parent directory if necessary.
      *
      * Generates E_USER_NOTICE error if either $file or its directory is not writable.
@@ -217,16 +242,7 @@ class ConfigPaths
             return false;
         }
 
-        $dir = \dirname($file);
-
-        if (!\is_dir($dir)) {
-            // Just try making it and see if it works
-            @\mkdir($dir, 0700, true);
-        }
-
-        if (!\is_dir($dir) || !\is_writable($dir)) {
-            \trigger_error(\sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
-
+        if (!self::ensureDir(\dirname($file))) {
             return false;
         }
 
