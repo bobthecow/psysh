@@ -159,7 +159,7 @@ class EditCommand extends Command implements ContextAware
         $escapedFilePath = \escapeshellarg($filePath);
 
         $pipes = [];
-        $proc = \proc_open((\getenv('EDITOR') ?: 'nano') . " {$escapedFilePath}", [STDIN, STDOUT, STDERR], $pipes);
+        $proc = \proc_open((\getenv('EDITOR') ?: 'vi') . " {$escapedFilePath}", [STDIN, STDOUT, STDERR], $pipes);
         \proc_close($proc);
 
         $editedContent = @\file_get_contents($filePath);
