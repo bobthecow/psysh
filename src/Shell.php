@@ -1197,11 +1197,10 @@ class Shell extends Application
      *
      *     set_error_handler(array($psysh, 'handleError'));
      *
-     * Unlike ErrorException::throwException, this error handler respects the
-     * current error_reporting level; i.e. it logs warnings and notices, but
-     * doesn't throw an exception unless it's above the current error_reporting
-     * threshold. This should probably only be used in the inner execution loop
-     * of the shell, as most of the time a thrown exception is much more useful.
+     * Unlike ErrorException::throwException, this error handler respects error
+     * levels; i.e. it logs warnings and notices, but doesn't throw exceptions.
+     * This should probably only be used in the inner execution loop of the
+     * shell, as most of the time a thrown exception is much more useful.
      *
      * If the error type matches the `errorLoggingLevel` config, it will be
      * logged as well, regardless of the `error_reporting` level.
@@ -1209,7 +1208,7 @@ class Shell extends Application
      * @see \Psy\Exception\ErrorException::throwException
      * @see \Psy\Shell::writeException
      *
-     * @throws \Psy\Exception\ErrorException depending on the current error_reporting level
+     * @throws \Psy\Exception\ErrorException depending on the error level
      *
      * @param int    $errno   Error type
      * @param string $errstr  Message
@@ -1218,10 +1217,16 @@ class Shell extends Application
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {
-        if ($errno & \error_reporting()) {
+        // This is an error worth throwing.
+        //
+        // n.b. Technically we can't handle all of these in userland code, but
+        // we'll list 'em all for good measure
+        if ($errno & (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
             ErrorException::throwException($errno, $errstr, $errfile, $errline);
-        } elseif ($errno & $this->config->errorLoggingLevel()) {
-            // log it and continue...
+        }
+
+        // Otherwise log it and continue.
+        if ($errno & \error_reporting() || $errno & $this->config->errorLoggingLevel()) {
             $this->writeException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
         }
     }

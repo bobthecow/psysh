@@ -12,7 +12,6 @@
 namespace Psy\Test;
 
 use Psy\Configuration;
-use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
 use Psy\Shell;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
@@ -219,47 +218,64 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertContains('line 13', $streamContents);
     }
 
-    public function testHandlingErrors()
+    /**
+     * @dataProvider notSoBadErrors
+     */
+    public function testReportsErrors($errno, $label)
     {
         $shell  = new Shell($this->getConfig());
         $output = $this->getOutput();
         $stream = $output->getStream();
         $shell->setOutput($output);
 
-        $oldLevel = \error_reporting();
-        \error_reporting($oldLevel & ~E_USER_NOTICE);
+        $oldLevel = \error_reporting(E_ALL);
 
-        try {
-            $shell->handleError(E_USER_NOTICE, 'wheee', null, 13);
-        } catch (ErrorException $e) {
-            \error_reporting($oldLevel);
-            $this->fail('Unexpected error exception');
-        }
+        $shell->handleError($errno, 'wheee', null, 13);
+
         \error_reporting($oldLevel);
 
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertContains('PHP Notice:', $streamContents);
-        $this->assertContains('wheee',       $streamContents);
-        $this->assertContains('line 13',     $streamContents);
+        $this->assertContains($label, $streamContents);
+        $this->assertContains('wheee', $streamContents);
+        $this->assertContains('line 13', $streamContents);
+    }
+
+    public function notSoBadErrors()
+    {
+        return [
+            [E_WARNING, 'PHP Warning:'],
+            [E_NOTICE, 'PHP Notice:'],
+            [E_CORE_WARNING, 'PHP Warning:'],
+            [E_COMPILE_WARNING, 'PHP Warning:'],
+            [E_USER_WARNING, 'PHP Warning:'],
+            [E_USER_NOTICE, 'PHP Notice:'],
+            [E_DEPRECATED, 'PHP Deprecated:'],
+            [E_USER_DEPRECATED, 'PHP Deprecated:'],
+        ];
     }
 
     /**
+     * @dataProvider badErrors
      * @expectedException \Psy\Exception\ErrorException
      */
-    public function testNotHandlingErrors()
+    public function testThrowsBadErrors($errno)
     {
-        $shell    = new Shell($this->getConfig());
-        $oldLevel = \error_reporting();
-        \error_reporting($oldLevel | E_USER_NOTICE);
+        $shell = new Shell($this->getConfig());
+        $shell->handleError($errno, 'wheee', null, 13);
+    }
 
-        try {
-            $shell->handleError(E_USER_NOTICE, 'wheee', null, 13);
-        } catch (ErrorException $e) {
-            \error_reporting($oldLevel);
-            throw $e;
-        }
+    public function badErrors()
+    {
+        return [
+            [E_ERROR],
+            [E_PARSE],
+            [E_CORE_ERROR],
+            [E_COMPILE_ERROR],
+            [E_USER_ERROR],
+            [E_RECOVERABLE_ERROR],
+        ];
     }
 
     public function testVersion()

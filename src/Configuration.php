@@ -739,8 +739,7 @@ class Configuration
      * Get the current error logging level.
      *
      * By default, PsySH will automatically log all errors, regardless of the
-     * current `error_reporting` level. Additionally, if the `error_reporting`
-     * level warrants, an ErrorException will be thrown.
+     * current `error_reporting` level.
      *
      * Set `errorLoggingLevel` to 0 to prevent logging non-thrown errors. Set it
      * to any valid error_reporting value to log only errors which match that
