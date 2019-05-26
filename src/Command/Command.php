@@ -252,15 +252,16 @@ abstract class Command extends BaseCommand
         }
 
         $style = new TableStyle();
-        $style
-            ->setHorizontalBorderChar('')
-            ->setCrossingChar('');
 
-        // Symfony 4.1 deprecated setVerticalBorderChar.
+        // Symfony 4.1 deprecated single-argument style setters.
         if (\method_exists($style, 'setVerticalBorderChars')) {
             $style->setVerticalBorderChars(' ');
+            $style->setHorizontalBorderChars('');
+            $style->setCrossingChars('', '', '', '', '', '', '', '', '');
         } else {
             $style->setVerticalBorderChar(' ');
+            $style->setHorizontalBorderChar('');
+            $style->setCrossingChar('');
         }
 
         $table = new Table($output);
