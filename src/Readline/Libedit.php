@@ -22,6 +22,8 @@ use Psy\Util\Str;
  */
 class Libedit extends GNUReadline
 {
+    private $hasWarnedOwnership = false;
+
     /**
      * Let's emulate GNU Readline by manually reading and parsing the history file!
      *
@@ -54,6 +56,28 @@ class Libedit extends GNUReadline
         $history = \array_map([$this, 'parseHistoryLine'], $history);
         // filter empty lines & comments
         return \array_values(\array_filter($history));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeHistory()
+    {
+        $res = parent::writeHistory();
+
+        // Libedit apparently refuses to save history if the history file is not
+        // owned by the user, even if it is writable. Warn when this happens.
+        //
+        // See https://github.com/bobthecow/psysh/issues/552
+        if ($res === false && !$this->hasWarnedOwnership) {
+            if (\is_file($this->historyFile) && \is_writable($this->historyFile)) {
+                $this->hasWarnedOwnership = true;
+                $msg = \sprintf('Error writing history file, check file ownership: %s', $this->historyFile);
+                \trigger_error($msg, E_USER_NOTICE);
+            }
+        }
+
+        return $res;
     }
 
     /**
