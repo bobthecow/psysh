@@ -24,6 +24,10 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
     {
     }
 
+    private function anotherFakeMethod(array $one = [], $two = 2, $three = null)
+    {
+    }
+
     /**
      * @dataProvider signatureReflectors
      */
@@ -80,6 +84,10 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
             [
                 new ReflectionConstant_('__LINE__'),
                 'define("__LINE__", null)', // @todo show this as `unknown` in red or something?
+            ],
+            [
+                new \ReflectionMethod($this, 'anotherFakeMethod'),
+                'private function anotherFakeMethod(array $one = array(), $two = 2, $three = null)',
             ],
         ];
     }

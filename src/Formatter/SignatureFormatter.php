@@ -287,7 +287,7 @@ class SignatureFormatter implements Formatter
                 } else {
                     $value     = $param->getDefaultValue();
                     $typeStyle = self::getTypeStyle($value);
-                    $value     = \is_array($value) ? 'array()' : \is_null($value) ? 'null' : \var_export($value, true);
+                    $value     = \is_array($value) ? 'array()' : (\is_null($value) ? 'null' : \var_export($value, true));
                 }
                 $default = \sprintf(' = <%s>%s</%s>', $typeStyle, OutputFormatter::escape($value), $typeStyle);
             } else {
