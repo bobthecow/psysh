@@ -70,7 +70,7 @@ if (!\function_exists('Psy\debug')) {
      *         }
      *     }
      *
-     * @param array         $vars   Scope variables from the calling context (default: array())
+     * @param array         $vars   Scope variables from the calling context (default: [])
      * @param object|string $bindTo Bound object ($this) or class (self) value for the shell
      *
      * @return array Scope variables from the debugger session

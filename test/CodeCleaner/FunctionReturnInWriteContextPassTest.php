@@ -35,9 +35,9 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
     {
         return [
             ['f(&g())'],
-            ['array(& $object->method())'],
+            ['[& $object->method()]'],
             ['$a->method(& $closure())'],
-            ['array(& A::b())'],
+            ['[& A::b()]'],
             ['f() = 5'],
             ['unset(h())'],
         ];

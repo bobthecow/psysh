@@ -32,9 +32,9 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
     public function invalidStatements()
     {
         return [
-            ['array_pop(array())'],
-            ['array_pop(array($foo))'],
-            ['array_shift(array())'],
+            ['array_pop([])'],
+            ['array_pop([$foo])'],
+            ['array_shift([])'],
         ];
     }
 
@@ -103,7 +103,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
     {
         return [
             ['array_multisort(1)'],
-            ['array_multisort(array(1, 2, 3))'],
+            ['array_multisort([1, 2, 3])'],
             ['array_multisort($a, SORT_NATURAL, SORT_ASC, SORT_NATURAL, $b)'],
         ];
     }

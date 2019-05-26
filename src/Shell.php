@@ -118,7 +118,7 @@ class Shell extends Application
      * @see Psy\debug
      * @deprecated will be removed in 1.0. Use \Psy\debug instead
      *
-     * @param array         $vars   Scope variables from the calling context (default: array())
+     * @param array         $vars   Scope variables from the calling context (default: [])
      * @param object|string $bindTo Bound object ($this) or class (self) value for the shell
      *
      * @return array Scope variables from the debugger session

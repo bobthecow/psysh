@@ -34,7 +34,7 @@ class FinalClassPassTest extends CodeCleanerTestCase
         $data = [
             ['final class A {} class B extends A {}'],
             ['class A {} final class B extends A {} class C extends B {}'],
-            // array('namespace A { final class B {} } namespace C { class D extends \\A\\B {} }'),
+            // ['namespace A { final class B {} } namespace C { class D extends \\A\\B {} }'],
         ];
 
         if (!\defined('HHVM_VERSION')) {

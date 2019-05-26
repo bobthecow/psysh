@@ -232,7 +232,7 @@ abstract class Command extends BaseCommand
     private function formatDefaultValue($default)
     {
         if (\is_array($default) && $default === \array_values($default)) {
-            return \sprintf("array('%s')", \implode("', '", $default));
+            return \sprintf("['%s']", \implode("', '", $default));
         }
 
         return \str_replace("\n", '', \var_export($default, true));

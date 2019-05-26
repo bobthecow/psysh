@@ -114,11 +114,11 @@ class AutoCompleterTest extends \PHPUnit\Framework\TestCase
             ['ls ', [], ['ls']],
             ['sho', ['show'], []],
             ['12 + clone $', ['foo'], []],
-            // array(
+            // [
             //   '$foo ',
-            //   array('+', 'clone'),
-            //   array('$foo', 'DOMDocument', 'array_map')
-            // ), requires a operator matcher?
+            //   ['+', 'clone'],
+            //   ['$foo', 'DOMDocument', 'array_map']
+            // ], requires a operator matcher?
             ['$', ['foo', 'bar'], ['require', 'array_search', 'T_OPEN_TAG', 'Psy']],
             [
                 'Psy\\',

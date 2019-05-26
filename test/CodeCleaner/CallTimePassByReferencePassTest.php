@@ -51,9 +51,9 @@ class CallTimePassByReferencePassTest extends CodeCleanerTestCase
     public function validStatements()
     {
         return [
-            ['array(&$var)'],
+            ['[&$var]'],
             ['$a = &$b'],
-            ['f(array(&$b))'],
+            ['f([&$b])'],
         ];
     }
 }

@@ -46,23 +46,23 @@ class ListPassTest extends CodeCleanerTestCase
         $errorPhpParserSyntax = 'PHP Parse error: Syntax error, unexpected';
 
         $invalidExpr = [
-            ['list() = array()', $errorEmptyList],
-            ['list("a") = array(1)', $errorPhpParserSyntax],
+            ['list() = []', $errorEmptyList],
+            ['list("a") = [1]', $errorPhpParserSyntax],
         ];
 
         if (\version_compare(PHP_VERSION, '7.1', '<')) {
             return \array_merge($invalidExpr, [
-                ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
+                ['list("a" => _) = ["a" => 1]', $errorPhpParserSyntax],
                 ['[] = []', $errorShortListAssign],
                 ['[$a] = [1]', $errorShortListAssign],
-                ['list("a" => $a) = array("a" => 1)', $errorAssocListAssign],
+                ['list("a" => $a) = ["a" => 1]', $errorAssocListAssign],
                 ['[$a[0], $a[1]] = [1, 2]', $errorShortListAssign],
                 ['[$a->b, $a->c] = [1, 2]', $errorShortListAssign],
             ]);
         }
 
         return \array_merge($invalidExpr, [
-            ['list("a" => _) = array("a" => 1)', $errorPhpParserSyntax],
+            ['list("a" => _) = ["a" => 1]', $errorPhpParserSyntax],
             ['["a"] = [1]', $errorNonVariableAssign],
             ['[] = []', $errorEmptyList],
             ['[,] = [1,2]', $errorEmptyList],
@@ -83,15 +83,15 @@ class ListPassTest extends CodeCleanerTestCase
     public function validStatements()
     {
         $validExpr = [
-            ['list($a) = array(1)'],
-            ['list($x, $y) = array(1, 2)'],
+            ['list($a) = [1]'],
+            ['list($x, $y) = [1, 2]'],
         ];
 
         if (\version_compare(PHP_VERSION, '7.1', '>=')) {
             return \array_merge($validExpr, [
-                ['[$a] = array(1)'],
+                ['[$a] = [1]'],
                 ['list($b) = [2]'],
-                ['[$x, $y] = array(1, 2)'],
+                ['[$x, $y] = [1, 2]'],
                 ['[$a] = [1]'],
                 ['[$x, $y] = [1, 2]'],
                 ['["_" => $v] = ["_" => 1]'],

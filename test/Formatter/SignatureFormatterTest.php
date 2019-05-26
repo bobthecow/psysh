@@ -87,7 +87,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 new \ReflectionMethod($this, 'anotherFakeMethod'),
-                'private function anotherFakeMethod(array $one = array(), $two = 2, $three = null)',
+                'private function anotherFakeMethod(array $one = [], $two = 2, $three = null)',
             ],
         ];
     }
