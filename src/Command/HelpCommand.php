@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Helper\TableHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -86,13 +87,19 @@ class HelpCommand extends Command
                 ]);
             }
 
-            $output->startPaging();
+            if ($output instanceof ShellOutput) {
+                $output->startPaging();
+            }
+
             if ($table instanceof TableHelper) {
                 $table->render($output);
             } else {
                 $table->render();
             }
-            $output->stopPaging();
+
+            if ($output instanceof ShellOutput) {
+                $output->stopPaging();
+            }
         }
     }
 }

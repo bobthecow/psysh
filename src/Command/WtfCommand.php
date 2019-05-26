@@ -95,7 +95,11 @@ HELP
         $count     = $input->getOption('all') ? PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
         $shell = $this->getApplication();
-        $output->startPaging();
+
+        if ($output instanceof ShellOutput) {
+            $output->startPaging();
+        }
+
         do {
             $traceCount = \count($exception->getTrace());
             $showLines  = $count;
@@ -120,6 +124,9 @@ HELP
                 $output->writeln('');
             }
         } while ($exception = $exception->getPrevious());
-        $output->stopPaging();
+
+        if ($output instanceof ShellOutput) {
+            $output->stopPaging();
+        }
     }
 }

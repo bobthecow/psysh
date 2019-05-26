@@ -119,12 +119,18 @@ HELP
         $highlighter = new Highlighter($colors);
         $contents    = \file_get_contents($info['file']);
 
-        $output->startPaging();
+        if ($output instanceof ShellOutput) {
+            $output->startPaging();
+        }
+
         $output->writeln('');
         $output->writeln(\sprintf('From <info>%s:%s</info>:', $this->replaceCwd($info['file']), $info['line']));
         $output->writeln('');
         $output->write($highlighter->getCodeSnippet($contents, $info['line'], $num, $num), ShellOutput::OUTPUT_RAW);
-        $output->stopPaging();
+
+        if ($output instanceof ShellOutput) {
+            $output->stopPaging();
+        }
     }
 
     /**

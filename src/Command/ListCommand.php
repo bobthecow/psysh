@@ -22,6 +22,7 @@ use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
 use Psy\Input\CodeArgument;
 use Psy\Input\FilterOptions;
+use Psy\Output\ShellOutput;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -126,7 +127,7 @@ HELP
         }
 
         // @todo something cleaner than this :-/
-        if ($input->getOption('long')) {
+        if ($output instanceof ShellOutput && $input->getOption('long')) {
             $output->startPaging();
         }
 
@@ -134,7 +135,7 @@ HELP
             $this->$method($output, $enumerator->enumerate($input, $reflector, $target));
         }
 
-        if ($input->getOption('long')) {
+        if ($output instanceof ShellOutput && $input->getOption('long')) {
             $output->stopPaging();
         }
 
