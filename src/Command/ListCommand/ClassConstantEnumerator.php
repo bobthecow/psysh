@@ -25,7 +25,6 @@ class ClassConstantEnumerator extends Enumerator
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
     {
         // only list constants when a Reflector is present.
-
         if ($reflector === null) {
             return [];
         }
@@ -118,8 +117,6 @@ class ClassConstantEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Constants';
-        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
-            return 'Trait Constants';
         } else {
             return 'Class Constants';
         }
