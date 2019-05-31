@@ -126,7 +126,7 @@ class SignatureFormatter implements Formatter
         if (!empty($interfaces)) {
             \sort($interfaces);
 
-            $chunks[] = 'implements';
+            $chunks[] = $reflector->isInterface() ? 'extends' : 'implements';
             $chunks[] = \implode(', ', \array_map(function ($name) {
                 return \sprintf('<class>%s</class>', $name);
             }, $interfaces));
