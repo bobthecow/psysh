@@ -18,6 +18,33 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class ConstantEnumerator extends Enumerator
 {
+    // Because `Json` is ugly.
+    private static $categoryLabels = [
+        'libxml' => 'libxml',
+        'openssl' => 'OpenSSL',
+        'pcre' => 'PCRE',
+        'sqlite3' => 'SQLite3',
+        'curl' => 'cURL',
+        'dom' => 'DOM',
+        'ftp' => 'FTP',
+        'gd' => 'GD',
+        'gmp' => 'GMP',
+        'iconv' => 'iconv',
+        'json' => 'JSON',
+        'ldap' => 'LDAP',
+        'mbstring' => 'mbstring',
+        'odbc' => 'ODBC',
+        'pcntl' => 'PCNTL',
+        'pgsql' => 'pgsql',
+        'posix' => 'POSIX',
+        'mysqli' => 'mysqli',
+        'soap' => 'SOAP',
+        'exif' => 'EXIF',
+        'sysvmsg' => 'sysvmsg',
+        'xml' => 'XML',
+        'xsl' => 'XSL',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -43,6 +70,18 @@ class ConstantEnumerator extends Enumerator
         $internal = $input->getOption('internal');
         $category = $input->getOption('category');
 
+        if ($category) {
+            $category = \strtolower($category);
+
+            if ($category === 'internal') {
+                $internal = true;
+                $category = null;
+            } elseif ($category === 'user') {
+                $user = true;
+                $category = null;
+            }
+        }
+
         $ret = [];
 
         if ($user) {
@@ -50,11 +89,12 @@ class ConstantEnumerator extends Enumerator
         }
 
         if ($internal) {
-            $ret['Interal Constants'] = $this->getConstants('internal');
+            $ret['Internal Constants'] = $this->getConstants('internal');
         }
 
         if ($category) {
-            $label = \ucfirst($category) . ' Constants';
+            $caseCategory = \array_key_exists($category, self::$categoryLabels) ? self::$categoryLabels[$category] : \ucfirst($category);
+            $label = $caseCategory . ' Constants';
             $ret[$label] = $this->getConstants($category);
         }
 
@@ -89,7 +129,13 @@ class ConstantEnumerator extends Enumerator
             return \call_user_func_array('array_merge', $consts);
         }
 
-        return isset($consts[$category]) ? $consts[$category] : [];
+        foreach ($consts as $key => $value) {
+            if (\strtolower($key) === $category) {
+                return $value;
+            }
+        }
+
+        return [];
     }
 
     /**
