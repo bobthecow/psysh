@@ -32,12 +32,12 @@ class FunctionEnumerator extends Enumerator
         // ... for listing functions in the Foo namespace
 
         if ($reflector !== null || $target !== null) {
-            return;
+            return [];
         }
 
         // only list functions if we are specifically asked
         if (!$input->getOption('functions')) {
-            return;
+            return [];
         }
 
         if ($input->getOption('user')) {
@@ -54,7 +54,7 @@ class FunctionEnumerator extends Enumerator
         $functions = $this->prepareFunctions($functions);
 
         if (empty($functions)) {
-            return;
+            return [];
         }
 
         $ret = [];

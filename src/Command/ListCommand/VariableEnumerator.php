@@ -49,19 +49,19 @@ class VariableEnumerator extends Enumerator
     {
         // only list variables when no Reflector is present.
         if ($reflector !== null || $target !== null) {
-            return;
+            return [];
         }
 
         // only list variables if we are specifically asked
         if (!$input->getOption('vars')) {
-            return;
+            return [];
         }
 
         $showAll   = $input->getOption('all');
         $variables = $this->prepareVariables($this->getVariables($showAll));
 
         if (empty($variables)) {
-            return;
+            return [];
         }
 
         return [

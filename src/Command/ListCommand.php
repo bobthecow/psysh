@@ -170,11 +170,11 @@ HELP
      * Write the list items to $output.
      *
      * @param OutputInterface $output
-     * @param array|null      $result List of enumerated items
+     * @param array           $result List of enumerated items
      */
-    protected function write(OutputInterface $output, array $result = null)
+    protected function write(OutputInterface $output, array $result)
     {
-        if ($result === null) {
+        if (\count($result) == 0) {
             return;
         }
 
@@ -190,11 +190,11 @@ HELP
      * Items are listed one per line, and include the item signature.
      *
      * @param OutputInterface $output
-     * @param array|null      $result List of enumerated items
+     * @param array           $result List of enumerated items
      */
-    protected function writeLong(OutputInterface $output, array $result = null)
+    protected function writeLong(OutputInterface $output, array $result)
     {
-        if ($result === null) {
+        if (\count($result) == 0) {
             return;
         }
 

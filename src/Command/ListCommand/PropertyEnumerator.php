@@ -26,17 +26,17 @@ class PropertyEnumerator extends Enumerator
         // only list properties when a Reflector is present.
 
         if ($reflector === null) {
-            return;
+            return [];
         }
 
         // We can only list properties on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
-            return;
+            return [];
         }
 
         // only list properties if we are specifically asked
         if (!$input->getOption('properties')) {
-            return;
+            return [];
         }
 
         $showAll    = $input->getOption('all');
@@ -44,7 +44,7 @@ class PropertyEnumerator extends Enumerator
         $properties = $this->prepareProperties($this->getProperties($showAll, $reflector, $noInherit), $target);
 
         if (empty($properties)) {
-            return;
+            return [];
         }
 
         $ret = [];

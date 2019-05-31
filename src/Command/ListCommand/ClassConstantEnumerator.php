@@ -27,25 +27,25 @@ class ClassConstantEnumerator extends Enumerator
         // only list constants when a Reflector is present.
 
         if ($reflector === null) {
-            return;
+            return [];
         }
 
         // We can only list constants on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
             // @todo handle ReflectionExtension as well
-            return;
+            return [];
         }
 
         // only list constants if we are specifically asked
         if (!$input->getOption('constants')) {
-            return;
+            return [];
         }
 
         $noInherit = $input->getOption('no-inherit');
         $constants = $this->prepareConstants($this->getConstants($reflector, $noInherit));
 
         if (empty($constants)) {
-            return;
+            return [];
         }
 
         $ret = [];

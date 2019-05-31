@@ -32,7 +32,7 @@ class ClassEnumerator extends Enumerator
         // ... for listing classes in the Foo namespace
 
         if ($reflector !== null || $target !== null) {
-            return;
+            return [];
         }
 
         $user     = $input->getOption('user');

@@ -25,18 +25,18 @@ class GlobalVariableEnumerator extends Enumerator
     {
         // only list globals when no Reflector is present.
         if ($reflector !== null || $target !== null) {
-            return;
+            return [];
         }
 
         // only list globals if we are specifically asked
         if (!$input->getOption('globals')) {
-            return;
+            return [];
         }
 
         $globals = $this->prepareGlobals($this->getGlobals());
 
         if (empty($globals)) {
-            return;
+            return [];
         }
 
         return [

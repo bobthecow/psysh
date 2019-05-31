@@ -31,12 +31,12 @@ class ConstantEnumerator extends Enumerator
         //
         // ... for listing constants in the Foo namespace
         if ($reflector !== null || $target !== null) {
-            return;
+            return [];
         }
 
         // only list constants if we are specifically asked
         if (!$input->getOption('constants')) {
-            return;
+            return [];
         }
 
         $user     = $input->getOption('user');
