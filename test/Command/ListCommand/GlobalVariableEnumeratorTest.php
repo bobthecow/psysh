@@ -12,8 +12,6 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\GlobalVariableEnumerator;
-use Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta;
-use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
 
 class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 {
@@ -32,8 +30,8 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerate()

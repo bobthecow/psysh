@@ -13,6 +13,7 @@ namespace Psy\Test\Util;
 
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionNamespace;
 use Psy\Util\Mirror;
 
 class MirrorTest extends \PHPUnit\Framework\TestCase
@@ -58,6 +59,13 @@ class MirrorTest extends \PHPUnit\Framework\TestCase
 
         $refl = Mirror::get($this, 'baz', Mirror::STATIC_PROPERTY);
         $this->assertInstanceOf(\ReflectionProperty::class, $refl);
+
+        $refl = Mirror::get('Psy\\Test\\Util');
+        $this->assertInstanceOf(ReflectionNamespace::class, $refl);
+
+        // This is both a namespace and a class, so let's make sure it gets the class:
+        $refl = Mirror::get('Psy\\CodeCleaner');
+        $this->assertInstanceOf(\ReflectionClass::class, $refl);
     }
 
     /**

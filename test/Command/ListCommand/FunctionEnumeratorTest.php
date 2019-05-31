@@ -13,8 +13,9 @@ namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\FunctionEnumerator;
 use Psy\Formatter\SignatureFormatter;
-use Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta;
-use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
+use Psy\Reflection\ReflectionNamespace;
+
+require_once __DIR__ . '/Fixtures/functions.php';
 
 class FunctionEnumeratorTest extends EnumeratorTestCase
 {
@@ -33,8 +34,8 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateInternalFunctions()
@@ -81,5 +82,54 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
             $signature = SignatureFormatter::format(new \ReflectionFunction($name));
             $this->assertEquals(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
         }
+    }
+
+    public function testEnumerateNamespaceFunctions()
+    {
+        $enumerator = new FunctionEnumerator($this->getPresenter());
+        $input = $this->getInput('--functions');
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand\\Fixtures'));
+
+        $this->assertArrayHasKey('Functions', $res);
+
+        $expected = [
+            'psy\\test\\command\\listcommand\\fixtures\\bar' => [
+                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\bar',
+                'style' => 'function',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\bar</function>()',
+            ],
+            'psy\\test\\command\\listcommand\\fixtures\\foo' => [
+                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\foo',
+                'style' => 'function',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\foo</function>()',
+            ],
+        ];
+
+        $this->assertEquals($expected, $res['Functions']);
+    }
+
+    public function testEnumerateUserAndInternalNamespaceFunctions()
+    {
+        $enumerator = new FunctionEnumerator($this->getPresenter());
+        $input = $this->getInput('--functions --user --internal');
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand\\Fixtures'));
+
+        $this->assertArrayHasKey('User Functions', $res);
+        $this->assertArrayNotHasKey('Internal Functions', $res);
+
+        $expected = [
+            'psy\\test\\command\\listcommand\\fixtures\\bar' => [
+                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\bar',
+                'style' => 'function',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\bar</function>()',
+            ],
+            'psy\\test\\command\\listcommand\\fixtures\\foo' => [
+                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\foo',
+                'style' => 'function',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\foo</function>()',
+            ],
+        ];
+
+        $this->assertEquals($expected, $res['User Functions']);
     }
 }

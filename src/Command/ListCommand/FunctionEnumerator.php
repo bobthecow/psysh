@@ -11,6 +11,7 @@
 
 namespace Psy\Command\ListCommand;
 
+use Psy\Reflection\ReflectionNamespace;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -23,14 +24,8 @@ class FunctionEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
     {
-        // only list functions when no Reflector is present.
-        //
-        // @todo make a NamespaceReflector and pass that in for commands like:
-        //
-        //     ls --functions Foo
-        //
-        // ... for listing functions in the Foo namespace
-        if ($reflector !== null || $target !== null) {
+        // if we have a reflector, ensure that it's a namespace reflector
+        if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
             return [];
         }
 
@@ -50,7 +45,8 @@ class FunctionEnumerator extends Enumerator
             $functions = $this->getFunctions();
         }
 
-        $functions = $this->prepareFunctions($functions);
+        $prefix = $reflector === null ? null : \strtolower($reflector->getName()) . '\\';
+        $functions = $this->prepareFunctions($functions, $prefix);
 
         if (empty($functions)) {
             return [];
@@ -85,11 +81,12 @@ class FunctionEnumerator extends Enumerator
     /**
      * Prepare formatted function array.
      *
-     * @param array $functions
+     * @param array  $functions
+     * @param string $prefix
      *
      * @return array
      */
-    protected function prepareFunctions(array $functions)
+    protected function prepareFunctions(array $functions, $prefix = null)
     {
         \natcasesort($functions);
 
@@ -97,6 +94,10 @@ class FunctionEnumerator extends Enumerator
         $ret = [];
 
         foreach ($functions as $name) {
+            if ($prefix !== null && \strpos(\strtolower($name), $prefix) !== 0) {
+                continue;
+            }
+
             if ($this->showItem($name)) {
                 try {
                     $ret[$name] = [

@@ -12,8 +12,7 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ConstantEnumerator;
-use Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta;
-use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
+use Psy\Reflection\ReflectionNamespace;
 
 \define('Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT', 42);
 
@@ -34,8 +33,8 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateInternalConstants()
@@ -114,5 +113,42 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
         }
 
         return $ret;
+    }
+
+    public function testEnumerateNamespaceConstants()
+    {
+        $enumerator = new ConstantEnumerator($this->getPresenter());
+        $input = $this->getInput('--constants');
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand'));
+        $this->assertArrayHasKey('Constants', $res);
+
+        $expected = [
+            'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT' => [
+                'name'  => 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT',
+                'style' => 'const',
+                'value' => '\\<number>42\\</number>',
+            ],
+        ];
+
+        $this->assertEquals($expected, $res['Constants']);
+    }
+
+    public function testEnumerateInternalAndUserNamespaceConstants()
+    {
+        $enumerator = new ConstantEnumerator($this->getPresenter());
+        $input = $this->getInput('--constants --internal --user');
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand'));
+        $this->assertArrayHasKey('User Constants', $res);
+        $this->assertArrayNotHasKey('Internal Constants', $res);
+
+        $expected = [
+            'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT' => [
+                'name'  => 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT',
+                'style' => 'const',
+                'value' => '\\<number>42\\</number>',
+            ],
+        ];
+
+        $this->assertEquals($expected, $res['User Constants']);
     }
 }

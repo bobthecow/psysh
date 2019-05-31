@@ -117,9 +117,15 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         // Check $name against the current namespace and use statements.
-        $maybeAlias = $this->resolveCode($name . '::class');
-        if ($maybeAlias !== $name) {
-            return $maybeAlias;
+        if (self::couldBeClassName($name)) {
+            try {
+                $maybeAlias = $this->resolveCode($name . '::class');
+                if ($maybeAlias !== $name) {
+                    return $maybeAlias;
+                }
+            } catch (RuntimeException $e) {
+                // /shrug
+            }
         }
 
         if ($namespace = $shell->getNamespace()) {
@@ -131,6 +137,15 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         return $name;
+    }
+
+    /**
+     * Check whether a given name could be a class name.
+     */
+    protected function couldBeClassName($name)
+    {
+        // Regex based on https://www.php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class
+        return \preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(\\[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)*$/', $name);
     }
 
     /**

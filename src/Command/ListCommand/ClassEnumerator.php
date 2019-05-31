@@ -11,6 +11,7 @@
 
 namespace Psy\Command\ListCommand;
 
+use Psy\Reflection\ReflectionNamespace;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -23,34 +24,29 @@ class ClassEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
     {
-        // only list classes when no Reflector is present.
-        //
-        // @todo make a NamespaceReflector and pass that in for commands like:
-        //
-        //     ls --classes Foo
-        //
-        // ... for listing classes in the Foo namespace
-        if ($reflector !== null || $target !== null) {
+        // if we have a reflector, ensure that it's a namespace reflector
+        if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
             return [];
         }
 
-        $user     = $input->getOption('user');
         $internal = $input->getOption('internal');
+        $user     = $input->getOption('user');
+        $prefix   = $reflector === null ? null : \strtolower($reflector->getName()) . '\\';
 
         $ret = [];
 
         // only list classes, interfaces and traits if we are specifically asked
 
         if ($input->getOption('classes')) {
-            $ret = \array_merge($ret, $this->filterClasses('Classes', \get_declared_classes(), $internal, $user));
+            $ret = \array_merge($ret, $this->filterClasses('Classes', \get_declared_classes(), $internal, $user, $prefix));
         }
 
         if ($input->getOption('interfaces')) {
-            $ret = \array_merge($ret, $this->filterClasses('Interfaces', \get_declared_interfaces(), $internal, $user));
+            $ret = \array_merge($ret, $this->filterClasses('Interfaces', \get_declared_interfaces(), $internal, $user, $prefix));
         }
 
         if ($input->getOption('traits')) {
-            $ret = \array_merge($ret, $this->filterClasses('Traits', \get_declared_traits(), $internal, $user));
+            $ret = \array_merge($ret, $this->filterClasses('Traits', \get_declared_traits(), $internal, $user, $prefix));
         }
 
         return \array_map([$this, 'prepareClasses'], \array_filter($ret));
@@ -66,15 +62,20 @@ class ClassEnumerator extends Enumerator
      * @param array  $classes
      * @param bool   $internal
      * @param bool   $user
+     * @param string $prefix
      *
      * @return array
      */
-    protected function filterClasses($key, $classes, $internal, $user)
+    protected function filterClasses($key, $classes, $internal, $user, $prefix = null)
     {
         $ret = [];
 
         if ($internal) {
-            $ret['Internal ' . $key] = \array_filter($classes, function ($class) {
+            $ret['Internal ' . $key] = \array_filter($classes, function ($class) use ($prefix) {
+                if ($prefix !== null && \strpos(\strtolower($class), $prefix) !== 0) {
+                    return false;
+                }
+
                 $refl = new \ReflectionClass($class);
 
                 return $refl->isInternal();
@@ -82,7 +83,11 @@ class ClassEnumerator extends Enumerator
         }
 
         if ($user) {
-            $ret['User ' . $key] = \array_filter($classes, function ($class) {
+            $ret['User ' . $key] = \array_filter($classes, function ($class) use ($prefix) {
+                if ($prefix !== null && \strpos(\strtolower($class), $prefix) !== 0) {
+                    return false;
+                }
+
                 $refl = new \ReflectionClass($class);
 
                 return !$refl->isInternal();
@@ -90,7 +95,9 @@ class ClassEnumerator extends Enumerator
         }
 
         if (!$user && !$internal) {
-            $ret[$key] = $classes;
+            $ret[$key] = \array_filter($classes, function ($class) use ($prefix) {
+                return $prefix === null || \strpos(\strtolower($class), $prefix) === 0;
+            });
         }
 
         return $ret;

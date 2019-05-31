@@ -12,13 +12,7 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ClassEnumerator;
-use Psy\Test\Command\ListCommand\Fixtures\ClassAlfa;
-use Psy\Test\Command\ListCommand\Fixtures\ClassBravo;
-use Psy\Test\Command\ListCommand\Fixtures\ClassCharlie;
-use Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta;
-use Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho;
-use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
-use Psy\Test\Command\ListCommand\Fixtures\TraitGolf;
+use Psy\Reflection\ReflectionNamespace;
 
 class ClassEnumeratorTest extends EnumeratorTestCase
 {
@@ -30,8 +24,8 @@ class ClassEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateClasses()
@@ -44,19 +38,19 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $fixtureClasses = \array_filter($res['Classes'], [$this, 'isFixtureClass']);
 
         $expected = [
-            ClassAlfa::class => [
-                'name'  => ClassAlfa::class,
+            Fixtures\ClassAlfa::class => [
+                'name'  => Fixtures\ClassAlfa::class,
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassAlfa</class>',
             ],
-            ClassBravo::class => [
-                'name'  => ClassBravo::class,
+            Fixtures\ClassBravo::class => [
+                'name'  => Fixtures\ClassBravo::class,
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
-            ClassCharlie::class => [
-                'name'  => ClassCharlie::class,
+            Fixtures\ClassCharlie::class => [
+                'name'  => Fixtures\ClassCharlie::class,
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
@@ -79,13 +73,13 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $prefix = PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
 
         $expected = [
-            InterfaceDelta::class => [
-                'name'  => InterfaceDelta::class,
+            Fixtures\InterfaceDelta::class => [
+                'name'  => Fixtures\InterfaceDelta::class,
                 'style' => 'class',
                 'value' => 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
-            InterfaceEcho::class => [
-                'name'  => InterfaceEcho::class,
+            Fixtures\InterfaceEcho::class => [
+                'name'  => Fixtures\InterfaceEcho::class,
                 'style' => 'class',
                 'value' => $prefix . 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
@@ -105,19 +99,161 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $fixtureClasses = \array_filter($res['Traits'], [$this, 'isFixtureClass']);
 
         $expected = [
-            TraitFoxtrot::class => [
-                'name'  => TraitFoxtrot::class,
+            Fixtures\TraitFoxtrot::class => [
+                'name'  => Fixtures\TraitFoxtrot::class,
                 'style' => 'class',
                 'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot</class>',
             ],
-            TraitGolf::class => [
-                'name'  => TraitGolf::class,
+            Fixtures\TraitGolf::class => [
+                'name'  => Fixtures\TraitGolf::class,
                 'style' => 'class',
                 'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitGolf</class>',
             ],
         ];
 
         $this->assertEquals($expected, $fixtureClasses);
+    }
+
+    public function testEnumerateNamespace()
+    {
+        $enumerator = new ClassEnumerator($this->getPresenter());
+        $input = $this->getInput('--classes --interfaces --traits');
+
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand\\Fixtures'), null);
+
+        $expectedClasses = [
+            Fixtures\ClassAlfa::class => [
+                'name'  => Fixtures\ClassAlfa::class,
+                'style' => 'class',
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassAlfa</class>',
+            ],
+            Fixtures\ClassBravo::class => [
+                'name'  => Fixtures\ClassBravo::class,
+                'style' => 'class',
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
+                    'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
+            ],
+            Fixtures\ClassCharlie::class => [
+                'name'  => Fixtures\ClassCharlie::class,
+                'style' => 'class',
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> ' .
+                    'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
+                    'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
+            ],
+        ];
+
+        $this->assertArrayHasKey('Classes', $res);
+        $this->assertEquals($expectedClasses, $res['Classes']);
+
+        $prefix = PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
+        $expectedInterfaces = [
+            Fixtures\InterfaceDelta::class => [
+                'name'  => Fixtures\InterfaceDelta::class,
+                'style' => 'class',
+                'value' => 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
+            ],
+            Fixtures\InterfaceEcho::class => [
+                'name'  => Fixtures\InterfaceEcho::class,
+                'style' => 'class',
+                'value' => $prefix . 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
+                    'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
+            ],
+        ];
+        $this->assertArrayHasKey('Interfaces', $res);
+        $this->assertEquals($expectedInterfaces, $res['Interfaces']);
+
+        $expectedTraits = [
+            Fixtures\TraitFoxtrot::class => [
+                'name'  => Fixtures\TraitFoxtrot::class,
+                'style' => 'class',
+                'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot</class>',
+            ],
+            Fixtures\TraitGolf::class => [
+                'name'  => Fixtures\TraitGolf::class,
+                'style' => 'class',
+                'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitGolf</class>',
+            ],
+        ];
+        $this->assertArrayHasKey('Traits', $res);
+        $this->assertEquals($expectedTraits, $res['Traits']);
+    }
+
+    public function testEnumerateParentNamespace()
+    {
+        $enumerator = new ClassEnumerator($this->getPresenter());
+        $input = $this->getInput('--classes --interfaces --traits');
+
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand'), null);
+
+        $this->assertArrayHasKey('Classes', $res);
+        $this->assertArrayHasKey('Interfaces', $res);
+        $this->assertArrayHasKey('Traits', $res);
+
+        foreach ([Fixtures\ClassAlfa::class, Fixtures\ClassBravo::class, Fixtures\ClassCharlie::class, self::class] as $className) {
+            $this->assertArrayHasKey($className, $res['Classes']);
+        }
+        $this->assertGreaterThanOrEqual(4, \count($res['Classes']));
+
+        foreach ([Fixtures\InterfaceDelta::class, Fixtures\InterfaceEcho::class] as $interfaceName) {
+            $this->assertArrayHasKey($interfaceName, $res['Interfaces']);
+        }
+        $this->assertGreaterThanOrEqual(2, \count($res['Interfaces']));
+
+        foreach ([Fixtures\TraitFoxtrot::class, Fixtures\TraitGolf::class] as $traitName) {
+            $this->assertArrayHasKey($traitName, $res['Traits']);
+        }
+        $this->assertGreaterThanOrEqual(2, \count($res['Traits']));
+    }
+
+    public function testEnumerateUserClasses()
+    {
+        $enumerator = new ClassEnumerator($this->getPresenter());
+        $input = $this->getInput('--classes --user');
+
+        $res = $enumerator->enumerate($input, null, null);
+
+        $this->assertArrayHasKey('User Classes', $res);
+        $this->assertArrayNotHasKey('Internal Classes', $res);
+
+        foreach ([Fixtures\ClassAlfa::class, self::class, 'Psy\\Shell'] as $className) {
+            $this->assertArrayHasKey($className, $res['User Classes']);
+        }
+
+        foreach (['stdClass', 'DateTime'] as $className) {
+            $this->assertArrayNotHasKey($className, $res['User Classes']);
+        }
+    }
+
+    public function testEnumerateInternalClasses()
+    {
+        $enumerator = new ClassEnumerator($this->getPresenter());
+        $input = $this->getInput('--classes --internal');
+
+        $res = $enumerator->enumerate($input, null, null);
+
+        $this->assertArrayHasKey('Internal Classes', $res);
+        $this->assertArrayNotHasKey('User Classes', $res);
+
+        foreach (['stdClass', 'DateTime'] as $className) {
+            $this->assertArrayHasKey($className, $res['Internal Classes']);
+        }
+
+        foreach ([Fixtures\ClassAlfa::class, self::class, 'Psy\\Shell'] as $className) {
+            $this->assertArrayNotHasKey($className, $res['Internal Classes']);
+        }
+    }
+
+    public function testNamespacedInternalAndUserClasses()
+    {
+        $enumerator = new ClassEnumerator($this->getPresenter());
+        $input = $this->getInput('--classes --internal --user');
+
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand\\Fixtures'), null);
+
+        $this->assertArrayHasKey('User Classes', $res);
+        $this->assertArrayHasKey(Fixtures\ClassAlfa::class, $res['User Classes']);
+
+        $this->assertArrayNotHasKey('Internal Classes', $res);
     }
 
     private function isFixtureClass($info)

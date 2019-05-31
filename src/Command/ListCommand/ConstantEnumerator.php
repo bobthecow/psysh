@@ -11,6 +11,7 @@
 
 namespace Psy\Command\ListCommand;
 
+use Psy\Reflection\ReflectionNamespace;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -50,14 +51,8 @@ class ConstantEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
     {
-        // only list constants when no Reflector is present.
-        //
-        // @todo make a NamespaceReflector and pass that in for commands like:
-        //
-        //     ls --constants Foo
-        //
-        // ... for listing constants in the Foo namespace
-        if ($reflector !== null || $target !== null) {
+        // if we have a reflector, ensure that it's a namespace reflector
+        if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
             return [];
         }
 
@@ -100,6 +95,18 @@ class ConstantEnumerator extends Enumerator
 
         if (!$user && !$internal && !$category) {
             $ret['Constants'] = $this->getConstants();
+        }
+
+        if ($reflector !== null) {
+            $prefix = \strtolower($reflector->getName()) . '\\';
+
+            foreach ($ret as $key => $names) {
+                foreach (\array_keys($names) as $name) {
+                    if (\strpos(\strtolower($name), $prefix) !== 0) {
+                        unset($ret[$key][$name]);
+                    }
+                }
+            }
         }
 
         return \array_map([$this, 'prepareConstants'], \array_filter($ret));
