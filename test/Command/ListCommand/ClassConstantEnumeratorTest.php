@@ -153,15 +153,30 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     ],
                 ],
             ]],
-            ['--constants --no-inherit', new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho'), null, [
-                'Interface Constants' => [
-                    'E' => [
-                        'name'  => 'E',
-                        'style' => 'const',
-                        'value' => '"\<string>eee\</string>"',
-                    ],
-                ],
-            ]],
+
+            // TODO: move `testEnumerateExcludeInherited` into here after PHP 7.1
         ];
+    }
+
+    public function testEnumerateExcludeInherited()
+    {
+        // PHP < 7.1 does the wrong thing with interface constant inheritance, so let's skip for now
+        if (\version_compare(PHP_VERSION, '7.1', '<')) {
+            return $this->markTestSkipped();
+        }
+
+        $enumerator = new ClassConstantEnumerator($this->getPresenter());
+        $input = $this->getInput('--constants --no-inherit');
+        $reflector = new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho');
+
+        $this->assertEquals([
+            'Interface Constants' => [
+                'E' => [
+                    'name'  => 'E',
+                    'style' => 'const',
+                    'value' => '"\<string>eee\</string>"',
+                ],
+            ],
+        ], $enumerator->enumerate($input, $reflector));
     }
 }
