@@ -13,6 +13,10 @@ namespace Psy\Test\Command\ListCommand\Fixtures;
 
 class ClassAlfa
 {
+    public $foo = 1;
+    protected $bar = 'two';
+    private $baz = [];
+
     public function foo()
     {
     }

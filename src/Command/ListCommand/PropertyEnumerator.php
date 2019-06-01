@@ -117,9 +117,7 @@ class PropertyEnumerator extends Enumerator
      */
     protected function getKindLabel(\ReflectionClass $reflector)
     {
-        if ($reflector->isInterface()) {
-            return 'Interface Properties';
-        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        if (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Properties';
         } else {
             return 'Class Properties';
@@ -154,7 +152,7 @@ class PropertyEnumerator extends Enumerator
      */
     protected function presentValue(\ReflectionProperty $property, $target)
     {
-        // If $target is a class, trait or interface (try to) get the default
+        // If $target is a class or trait (try to) get the default
         // value for the property.
         if (!\is_object($target)) {
             try {

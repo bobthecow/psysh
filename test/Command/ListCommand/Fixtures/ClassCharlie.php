@@ -15,6 +15,8 @@ class ClassCharlie extends ClassBravo
 {
     const C = 'cee';
 
+    public $qux;
+
     public function qux()
     {
     }

@@ -15,6 +15,10 @@ class ClassBravo implements InterfaceDelta
 {
     const B = 'bee';
 
+    public $foo;
+    protected $bar;
+    private $baz;
+
     public function foo()
     {
     }

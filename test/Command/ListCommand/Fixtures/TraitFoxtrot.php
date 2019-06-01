@@ -13,6 +13,8 @@ namespace Psy\Test\Command\ListCommand\Fixtures;
 
 trait TraitFoxtrot
 {
+    public $someFoxtrot;
+
     public function doFoxtrot()
     {
         // dance
