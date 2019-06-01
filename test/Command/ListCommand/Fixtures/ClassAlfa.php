@@ -13,5 +13,15 @@ namespace Psy\Test\Command\ListCommand\Fixtures;
 
 class ClassAlfa
 {
-    // nothing for now
+    public function foo()
+    {
+    }
+
+    protected function bar()
+    {
+    }
+
+    private function baz()
+    {
+    }
 }

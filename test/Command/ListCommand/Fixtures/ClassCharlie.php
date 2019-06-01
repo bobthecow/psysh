@@ -14,4 +14,8 @@ namespace Psy\Test\Command\ListCommand\Fixtures;
 class ClassCharlie extends ClassBravo
 {
     const C = 'cee';
+
+    public function qux()
+    {
+    }
 }

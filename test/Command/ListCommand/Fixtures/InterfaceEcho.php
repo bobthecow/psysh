@@ -14,4 +14,6 @@ namespace Psy\Test\Command\ListCommand\Fixtures;
 interface InterfaceEcho extends InterfaceDelta
 {
     const E = 'eee';
+
+    public function doEcho();
 }

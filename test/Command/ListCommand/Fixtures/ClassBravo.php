@@ -14,4 +14,16 @@ namespace Psy\Test\Command\ListCommand\Fixtures;
 class ClassBravo implements InterfaceDelta
 {
     const B = 'bee';
+
+    public function foo()
+    {
+    }
+
+    protected function bar()
+    {
+    }
+
+    private function baz()
+    {
+    }
 }
