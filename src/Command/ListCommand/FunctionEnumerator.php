@@ -30,7 +30,6 @@ class FunctionEnumerator extends Enumerator
         //     ls --functions Foo
         //
         // ... for listing functions in the Foo namespace
-
         if ($reflector !== null || $target !== null) {
             return [];
         }
