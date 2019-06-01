@@ -882,7 +882,7 @@ class Shell extends Application
             $helpCommand = $this->get('help');
             $helpCommand->setCommand($command);
 
-            return $helpCommand->run($input, $this->output);
+            return $helpCommand->run(new StringInput(''), $this->output);
         }
 
         return $command->run($input, $this->output);
