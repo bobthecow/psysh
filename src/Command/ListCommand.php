@@ -174,7 +174,7 @@ HELP
      */
     protected function write(OutputInterface $output, array $result)
     {
-        if (\count($result) == 0) {
+        if (\count($result) === 0) {
             return;
         }
 
@@ -194,7 +194,7 @@ HELP
      */
     protected function writeLong(OutputInterface $output, array $result)
     {
-        if (\count($result) == 0) {
+        if (\count($result) === 0) {
             return;
         }
 

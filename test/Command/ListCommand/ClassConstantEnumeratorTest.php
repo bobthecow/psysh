@@ -37,12 +37,12 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants', new \ReflectionClass($bravo), null, [
                 'Class Constants' => [
                     'B' => [
-                        'name' => 'B',
+                        'name'  => 'B',
                         'style' => 'const',
                         'value' => '"\<string>bee\</string>"',
                     ],
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
@@ -51,12 +51,12 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants', new \ReflectionClass($bravo), $bravo, [
                 'Class Constants' => [
                     'B' => [
-                        'name' => 'B',
+                        'name'  => 'B',
                         'style' => 'const',
                         'value' => '"\<string>bee\</string>"',
                     ],
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
@@ -65,17 +65,17 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants', new \ReflectionClass($charlie), $charlie, [
                 'Class Constants' => [
                     'B' => [
-                        'name' => 'B',
+                        'name'  => 'B',
                         'style' => 'const',
                         'value' => '"\<string>bee\</string>"',
                     ],
                     'C' => [
-                        'name' => 'C',
+                        'name'  => 'C',
                         'style' => 'const',
                         'value' => '"\<string>cee\</string>"',
                     ],
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
@@ -84,7 +84,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants', new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta'), null, [
                 'Interface Constants' => [
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
@@ -93,12 +93,12 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants', new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho'), null, [
                 'Interface Constants' => [
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
                     'E' => [
-                        'name' => 'E',
+                        'name'  => 'E',
                         'style' => 'const',
                         'value' => '"\<string>eee\</string>"',
                     ],
@@ -117,17 +117,17 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants --methods --classes', new \ReflectionClass($charlie), $charlie, [
                 'Class Constants' => [
                     'B' => [
-                        'name' => 'B',
+                        'name'  => 'B',
                         'style' => 'const',
                         'value' => '"\<string>bee\</string>"',
                     ],
                     'C' => [
-                        'name' => 'C',
+                        'name'  => 'C',
                         'style' => 'const',
                         'value' => '"\<string>cee\</string>"',
                     ],
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
@@ -136,7 +136,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants --methods', new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta'), null, [
                 'Interface Constants' => [
                     'D' => [
-                        'name' => 'D',
+                        'name'  => 'D',
                         'style' => 'const',
                         'value' => '"\<string>dee\</string>"',
                     ],
@@ -147,7 +147,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants --no-inherit', new \ReflectionClass($charlie), $charlie, [
                 'Class Constants' => [
                     'C' => [
-                        'name' => 'C',
+                        'name'  => 'C',
                         'style' => 'const',
                         'value' => '"\<string>cee\</string>"',
                     ],
@@ -156,7 +156,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ['--constants --no-inherit', new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho'), null, [
                 'Interface Constants' => [
                     'E' => [
-                        'name' => 'E',
+                        'name'  => 'E',
                         'style' => 'const',
                         'value' => '"\<string>eee\</string>"',
                     ],

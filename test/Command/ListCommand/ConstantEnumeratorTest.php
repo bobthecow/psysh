@@ -46,11 +46,11 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
         $constants = $res['Internal Constants'];
 
         $expected = [
-            'DATE_ISO8601' => '"\<string>Y-m-d\TH:i:sO\</string>"',
-            'E_USER_WARNING' => '\<number>512\</number>',
-            'FALSE' => '\<const>false\</const>',
+            'DATE_ISO8601'           => '"\<string>Y-m-d\TH:i:sO\</string>"',
+            'E_USER_WARNING'         => '\<number>512\</number>',
+            'FALSE'                  => '\<const>false\</const>',
             'JSON_UNESCAPED_SLASHES' => '\<number>64\</number>',
-            'PHP_VERSION' => '"\<string>' . PHP_VERSION . '\</string>"',
+            'PHP_VERSION'            => '"\<string>' . PHP_VERSION . '\</string>"',
         ];
 
         foreach ($expected as $name => $value) {

@@ -43,7 +43,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             'foo' => [
-                'name' => 'foo',
+                'name'  => 'foo',
                 'style' => 'public',
                 'value' => '<keyword>public</keyword> <keyword>function</keyword> <function>foo</function>()',
             ],
@@ -63,17 +63,17 @@ class MethodEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             'foo' => [
-                'name' => 'foo',
+                'name'  => 'foo',
                 'style' => 'public',
                 'value' => '<keyword>public</keyword> <keyword>function</keyword> <function>foo</function>()',
             ],
             'bar' => [
-                'name' => 'bar',
+                'name'  => 'bar',
                 'style' => 'protected',
                 'value' => '<keyword>protected</keyword> <keyword>function</keyword> <function>bar</function>()',
             ],
             'baz' => [
-                'name' => 'baz',
+                'name'  => 'baz',
                 'style' => 'private',
                 'value' => '<keyword>private</keyword> <keyword>function</keyword> <function>baz</function>()',
             ],
@@ -93,17 +93,17 @@ class MethodEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             'foo' => [
-                'name' => 'foo',
+                'name'  => 'foo',
                 'style' => 'public',
                 'value' => '<keyword>public</keyword> <keyword>function</keyword> <function>foo</function>()',
             ],
             'bar' => [
-                'name' => 'bar',
+                'name'  => 'bar',
                 'style' => 'protected',
                 'value' => '<keyword>protected</keyword> <keyword>function</keyword> <function>bar</function>()',
             ],
             'qux' => [
-                'name' => 'qux',
+                'name'  => 'qux',
                 'style' => 'public',
                 'value' => '<keyword>public</keyword> <keyword>function</keyword> <function>qux</function>()',
             ],
@@ -123,7 +123,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             'qux' => [
-                'name' => 'qux',
+                'name'  => 'qux',
                 'style' => 'public',
                 'value' => '<keyword>public</keyword> <keyword>function</keyword> <function>qux</function>()',
             ],
@@ -142,7 +142,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             'doEcho' => [
-                'name' => 'doEcho',
+                'name'  => 'doEcho',
                 'style' => 'public',
                 'value' => '<keyword>abstract</keyword> <keyword>public</keyword> <keyword>function</keyword> <function>doEcho</function>()',
             ],
@@ -161,7 +161,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             'doFoxtrot' => [
-                'name' => 'doFoxtrot',
+                'name'  => 'doFoxtrot',
                 'style' => 'public',
                 'value' => '<keyword>public</keyword> <keyword>function</keyword> <function>doFoxtrot</function>()',
             ],

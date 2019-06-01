@@ -43,7 +43,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$foo' => [
-                'name' => '$foo',
+                'name'  => '$foo',
                 'style' => 'public',
                 'value' => '',
             ],
@@ -63,17 +63,17 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$foo' => [
-                'name' => '$foo',
+                'name'  => '$foo',
                 'style' => 'public',
                 'value' => '',
             ],
             '$bar' => [
-                'name' => '$bar',
+                'name'  => '$bar',
                 'style' => 'protected',
                 'value' => '',
             ],
             '$baz' => [
-                'name' => '$baz',
+                'name'  => '$baz',
                 'style' => 'private',
                 'value' => '',
             ],
@@ -93,17 +93,17 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$foo' => [
-                'name' => '$foo',
+                'name'  => '$foo',
                 'style' => 'public',
                 'value' => '',
             ],
             '$bar' => [
-                'name' => '$bar',
+                'name'  => '$bar',
                 'style' => 'protected',
                 'value' => '',
             ],
             '$qux' => [
-                'name' => '$qux',
+                'name'  => '$qux',
                 'style' => 'public',
                 'value' => '',
             ],
@@ -123,7 +123,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$qux' => [
-                'name' => '$qux',
+                'name'  => '$qux',
                 'style' => 'public',
                 'value' => '',
             ],
@@ -151,7 +151,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$someFoxtrot' => [
-                'name' => '$someFoxtrot',
+                'name'  => '$someFoxtrot',
                 'style' => 'public',
                 'value' => '',
             ],

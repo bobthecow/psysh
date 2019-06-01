@@ -20,8 +20,8 @@ class VariableEnumeratorTest extends EnumeratorTestCase
     {
         $context = new Context();
         $context->setAll([
-            'one' => 1,
-            'two' => 'two',
+            'one'   => 1,
+            'two'   => 'two',
             'three' => [true, false, null],
         ]);
 
@@ -34,8 +34,8 @@ class VariableEnumeratorTest extends EnumeratorTestCase
     {
         $context = new Context();
         $context->setAll([
-            'one' => 1,
-            'two' => 'two',
+            'one'   => 1,
+            'two'   => 'two',
             'three' => [true, false, null],
         ]);
 
@@ -53,8 +53,8 @@ class VariableEnumeratorTest extends EnumeratorTestCase
     {
         $context = new Context();
         $context->setAll([
-            'one' => 1,
-            'two' => 'two',
+            'one'   => 1,
+            'two'   => 'two',
             'three' => [true, false, null],
         ]);
 
@@ -67,17 +67,17 @@ class VariableEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$one' => [
-                'name' => '$one',
+                'name'  => '$one',
                 'style' => 'public',
                 'value' => '\<number>1\</number>',
             ],
             '$two' => [
-                'name' => '$two',
+                'name'  => '$two',
                 'style' => 'public',
                 'value' => '"\<string>two\</string>"',
             ],
             '$three' => [
-                'name' => '$three',
+                'name'  => '$three',
                 'style' => 'public',
                 'value' => '[ …3]',
             ],
@@ -88,8 +88,8 @@ class VariableEnumeratorTest extends EnumeratorTestCase
     {
         $context = new Context();
         $context->setAll([
-            'one' => 1,
-            'two' => 'two',
+            'one'   => 1,
+            'two'   => 'two',
             'three' => [true, false, null],
         ]);
 
@@ -107,32 +107,32 @@ class VariableEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([
             '$one' => [
-                'name' => '$one',
+                'name'  => '$one',
                 'style' => 'public',
                 'value' => '\<number>1\</number>',
             ],
             '$two' => [
-                'name' => '$two',
+                'name'  => '$two',
                 'style' => 'public',
                 'value' => '"\<string>two\</string>"',
             ],
             '$three' => [
-                'name' => '$three',
+                'name'  => '$three',
                 'style' => 'public',
                 'value' => '[ …3]',
             ],
             '$_' => [
-                'name' => '$_',
+                'name'  => '$_',
                 'style' => 'private',
                 'value' => '\<const>null\</const>',
             ],
             '$_e' => [
-                'name' => '$_e',
+                'name'  => '$_e',
                 'style' => 'private',
                 'value' => $this->getPresenter()->presentRef($exception),
             ],
             '$__out' => [
-                'name' => '$__out',
+                'name'  => '$__out',
                 'style' => 'private',
                 'value' => '"\<string>last stdout\</string>"',
             ],

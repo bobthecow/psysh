@@ -38,18 +38,18 @@ class ClassEnumeratorTest extends EnumeratorTestCase
 
         $expected = [
             'Psy\Test\Command\ListCommand\Fixtures\ClassAlfa' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\ClassAlfa',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\ClassAlfa',
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassAlfa</class>',
             ],
             'Psy\Test\Command\ListCommand\Fixtures\ClassBravo' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\ClassBravo',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\ClassBravo',
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
             'Psy\Test\Command\ListCommand\Fixtures\ClassCharlie' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\ClassCharlie',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\ClassCharlie',
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
@@ -71,12 +71,12 @@ class ClassEnumeratorTest extends EnumeratorTestCase
 
         $expected = [
             'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta',
                 'style' => 'class',
                 'value' => 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
             'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho',
                 'style' => 'class',
                 'value' => 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
@@ -97,12 +97,12 @@ class ClassEnumeratorTest extends EnumeratorTestCase
 
         $expected = [
             'Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot',
                 'style' => 'class',
                 'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot</class>',
             ],
             'Psy\Test\Command\ListCommand\Fixtures\TraitGolf' => [
-                'name' => 'Psy\Test\Command\ListCommand\Fixtures\TraitGolf',
+                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\TraitGolf',
                 'style' => 'class',
                 'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitGolf</class>',
             ],
