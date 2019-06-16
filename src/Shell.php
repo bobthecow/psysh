@@ -412,7 +412,7 @@ class Shell extends Application
     private function loadIncludes()
     {
         // Load user-defined includes
-        $load = function (Shell $__psysh__) {
+        $load = function (self $__psysh__) {
             \set_error_handler([$__psysh__, 'handleError']);
             foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                 try {
