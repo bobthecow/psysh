@@ -67,6 +67,10 @@ class UseStatementPassTest extends CodeCleanerTestCase
                 "use Foo\\Bar as fb, Qux as Q;\n\$baz = new fb\\Baz();\n\$qux = new Q();",
                 "\$baz = new \\Foo\\Bar\\Baz();\n\$qux = new \\Qux();",
             ],
+            [
+                "use Foo\\Bar;\nuse Bar\\Baz;\n\$baz = new Baz();",
+                '$baz = new \\Bar\\Baz();',
+            ],
         ];
     }
 
