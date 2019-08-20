@@ -32,3 +32,4 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
  * [📄 Sample config file](https://github.com/bobthecow/psysh/wiki/Sample-config)
 
 ### [🔌 Integrations](https://github.com/bobthecow/psysh/wiki/Integrations)
+ * [:ox: native vim readline support](https://github.com/ardagnir/athame)
