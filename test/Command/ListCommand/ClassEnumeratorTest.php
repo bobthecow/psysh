@@ -69,6 +69,8 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Interfaces', $res);
         $fixtureClasses = \array_filter($res['Interfaces'], [$this, 'isFixtureClass']);
 
+        $prefix = \version_compare(PHP_VERSION, '7.4', '>=') ? '<keyword>static</keyword> ' : '';
+
         $expected = [
             'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta' => [
                 'name'  => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta',
@@ -78,7 +80,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho' => [
                 'name'  => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho',
                 'style' => 'class',
-                'value' => 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
+                'value' => $prefix . 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
         ];
