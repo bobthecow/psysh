@@ -128,5 +128,7 @@ HELP
         if ($output instanceof ShellOutput) {
             $output->stopPaging();
         }
+
+        return 0;
     }
 }

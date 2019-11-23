@@ -76,6 +76,8 @@ HELP
         if (\is_object($target)) {
             $this->setCommandScopeVariables(new \ReflectionObject($target));
         }
+
+        return 0;
     }
 
     /**

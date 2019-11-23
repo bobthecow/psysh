@@ -143,6 +143,8 @@ HELP
         if ($reflector !== null) {
             $this->setCommandScopeVariables($reflector);
         }
+
+        return 0;
     }
 
     /**

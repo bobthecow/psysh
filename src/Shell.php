@@ -21,7 +21,6 @@ use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
-use Psy\Output\ShellOutput;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
@@ -1016,7 +1015,7 @@ class Shell extends Application
 
         // Incremental flush
         if ($out !== '' && !$isCleaning) {
-            $this->output->write($out, false, ShellOutput::OUTPUT_RAW);
+            $this->output->write($out, false, OutputInterface::OUTPUT_RAW);
             $this->outputWantsNewline = (\substr($out, -1) !== "\n");
             $this->stdoutBuffer .= $out;
         }
