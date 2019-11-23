@@ -121,5 +121,7 @@ HELP
             }
         } while ($exception = $exception->getPrevious());
         $output->stopPaging();
+
+        return 0;
     }
 }

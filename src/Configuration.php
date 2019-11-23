@@ -19,13 +19,13 @@ use Psy\Readline\GNUReadline;
 use Psy\Readline\HoaConsole;
 use Psy\Readline\Libedit;
 use Psy\Readline\Readline;
-use Psy\Readline\Transient;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\IntervalChecker;
 use Psy\VersionUpdater\NoopChecker;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * The Psy Shell configuration.
@@ -823,7 +823,7 @@ class Configuration
     {
         if (!isset($this->output)) {
             $this->output = new ShellOutput(
-                ShellOutput::VERBOSITY_NORMAL,
+                OutputInterface::VERBOSITY_NORMAL,
                 $this->getOutputDecorated(),
                 null,
                 $this->getPager()

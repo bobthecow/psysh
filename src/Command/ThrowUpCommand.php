@@ -105,6 +105,8 @@ HELP
 
         $shell = $this->getApplication();
         $shell->addCode($throwCode, !$shell->hasCode());
+
+        return 0;
     }
 
     /**
