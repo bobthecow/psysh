@@ -371,7 +371,7 @@ class Shell extends Application
 
         do {
             // reset output verbosity (in case it was altered by a subcommand)
-            $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
+            $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
 
             $input = $this->readline();
 
