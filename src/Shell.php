@@ -46,7 +46,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.9.10';
+    const VERSION = 'v0.9.11';
 
     const PROMPT      = '>>> ';
     const BUFF_PROMPT = '... ';
@@ -371,7 +371,7 @@ class Shell extends Application
 
         do {
             // reset output verbosity (in case it was altered by a subcommand)
-            $this->output->setVerbosity(ShellOutput::VERBOSITY_VERBOSE);
+            $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
 
             $input = $this->readline();
 
