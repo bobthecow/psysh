@@ -118,6 +118,8 @@ HELP
         $sudoCode = $this->printer->prettyPrint($nodes);
         $shell = $this->getApplication();
         $shell->addCode($sudoCode, !$shell->hasCode());
+
+        return 0;
     }
 
     /**

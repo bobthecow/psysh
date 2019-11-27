@@ -94,5 +94,7 @@ class HelpCommand extends Command
             }
             $output->stopPaging();
         }
+
+        return 0;
     }
 }
