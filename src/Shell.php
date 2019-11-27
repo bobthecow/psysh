@@ -20,6 +20,7 @@ use Psy\Exception\TypeErrorException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Input\ShellInput;
+use Psy\Output\ShellOutput;
 use Psy\Input\SilentInput;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
