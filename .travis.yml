@@ -32,7 +32,7 @@ script:
 after_success:
     - bash <(curl -s https://codecov.io/bash)
 
-before_deploy: make dist -j 4 && cp build/psysh/psysh dist/psysh.phar && cp build/psysh/psysh.asc dist/psysh.asc
+before_deploy: make dist -j 4
 
 deploy:
     provider: releases

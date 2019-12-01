@@ -30,6 +30,8 @@ clean: ## Clean all created artifacts
 
 dist: ## Build tarballs for distribution
 dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psysh-$(VERSION)-php54.tar.gz dist/psysh-$(VERSION)-php54-compat.tar.gz
+	cp build/psysh/psysh dist/psysh.phar
+	cp build/psysh/psysh.asc dist/psysh.asc
 
 test: ## Run unit tests
 test: vendor/bin/phpunit
