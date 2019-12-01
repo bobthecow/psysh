@@ -202,6 +202,8 @@ if (!\function_exists('Psy\info')) {
             $pcntl['pcntl disabled'] = true;
         }
 
+        $pcntl['use pcntl'] = $config->usePcntl();
+
         $history = [
             'history file'     => $prettyPath($config->getHistoryFile()),
             'history size'     => $config->getHistorySize(),
