@@ -42,7 +42,7 @@ deploy:
     file:
         - dist/psysh-*.tar.gz
         - dist/psysh.phar
-        - dist/psysh.asc
+        - dist/psysh.phar.asc
     skip_cleanup: true
     on:
         tags: true
