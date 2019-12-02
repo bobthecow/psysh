@@ -97,7 +97,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($shell->getScopeVariable('_'));
     }
 
-    protected function assertArrayEquals(array $expected, array $actual, $message = null)
+    protected function assertArrayEquals(array $expected, array $actual, $message = '')
     {
         if (\method_exists($this, 'assertEqualsCanonicalizing')) {
             return $this->assertEqualsCanonicalizing($expected, $actual, $message);
