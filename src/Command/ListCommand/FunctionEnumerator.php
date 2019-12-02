@@ -98,11 +98,15 @@ class FunctionEnumerator extends Enumerator
 
         foreach ($functions as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = [
-                    'name'  => $name,
-                    'style' => self::IS_FUNCTION,
-                    'value' => $this->presentSignature($name),
-                ];
+                try {
+                    $ret[$name] = [
+                        'name'  => $name,
+                        'style' => self::IS_FUNCTION,
+                        'value' => $this->presentSignature($name),
+                    ];
+                } catch (\Exception $e) {
+                    // Ignore failures. HHVM does this sometimes for internal functions.
+                }
             }
         }
 
