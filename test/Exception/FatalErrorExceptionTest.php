@@ -45,6 +45,10 @@ class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
 
     public function testNegativeOneLineNumberIgnored()
     {
+        if (\defined('HHVM_VERSION')) {
+            $this->markTestSkipped('HHVM does not support the line number argument, apparently.');
+        }
+
         $e = new FatalErrorException('{msg}', 0, 1, null, -1);
         $this->assertEquals(0, $e->getLine());
     }
