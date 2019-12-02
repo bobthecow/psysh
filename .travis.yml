@@ -41,7 +41,7 @@ install:
 script:
     - make test
     - |
-      if [ $TRAVIS_PHP_VERSION = 7.2* ]; then
+      if [[ $TRAVIS_PHP_VERSION = 7.2* ]]; then
         make build -j 4
       fi
 
