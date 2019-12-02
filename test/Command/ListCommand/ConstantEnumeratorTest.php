@@ -100,12 +100,17 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
 
     public function categoryConstants()
     {
-        return [
+        $ret = [
             ['core', 'Core Constants', ['E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE'], ['Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT']],
             ['internal', 'Internal Constants', ['JSON_UNESCAPED_SLASHES', 'E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE'], ['Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT']],
-            ['date', 'Date Constants', ['DATE_ISO8601', 'DATE_COOKIE'], ['E_USER_ERROR', 'JSON_UNESCAPED_SLASHES', 'FALSE']],
-            ['json', 'JSON Constants', ['JSON_UNESCAPED_SLASHES'], ['E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE']],
             ['user', 'User Constants', ['Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT'], ['JSON_UNESCAPED_SLASHES', 'E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE']],
         ];
+
+        if (!\defined('HHVM_VERSION')) {
+            $ret[] = ['date', 'Date Constants', ['DATE_ISO8601', 'DATE_COOKIE'], ['E_USER_ERROR', 'JSON_UNESCAPED_SLASHES', 'FALSE']];
+            $ret[] = ['json', 'JSON Constants', ['JSON_UNESCAPED_SLASHES'], ['E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE']];
+        }
+
+        return $ret;
     }
 }
