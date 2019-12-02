@@ -22,6 +22,19 @@ return [
     ],
 
     'patchers' => [
+        // Un-patch overly enthusiastic internal constant patching.
+        // https://github.com/humbug/php-scoper/issues/356
+        static function (string $filePath, string $prefix, string $contents): string {
+            if ('src/Reflection/ReflectionClassConstant.php' !== $filePath) {
+                return $contents;
+            }
+
+            return str_replace(
+                sprintf("'%s\\\\ReflectionClassConstant'", $prefix),
+                "'\\\\ReflectionClassConstant'",
+                $contents
+            );
+        },
         // Hoa patches
         static function (string $filePath, string $prefix, string $contents): string {
             if ('vendor/hoa/stream/Stream.php' !== $filePath) {
