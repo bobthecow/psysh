@@ -33,11 +33,17 @@ matrix:
 
 install:
     - travis_retry composer update --no-interaction $COMPOSER_FLAGS
-    - php -r 'version_compare(PHP_VERSION, "7.1", "<") || exit(1);' && composer bin phpunit update || true
+    - |
+      if php -r 'version_compare(PHP_VERSION, "7.1", "<") || exit(1);'; then
+        composer bin phpunit update
+      fi
 
 script:
     - make test
-    - "[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build -j 4 || true"
+    - |
+      if [ $TRAVIS_PHP_VERSION = 7.2* ]; then
+        make build -j 4
+      fi
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
