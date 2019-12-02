@@ -63,7 +63,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 new \ReflectionFunction('array_chunk'),
-                'function array_chunk($arg, $size, $preserve_keys = unknown)',
+                \defined('HHVM_VERSION') ? 'function array_chunk($input, $size, $preserve_keys = false)' : 'function array_chunk($arg, $size, $preserve_keys = unknown)',
             ],
             [
                 new \ReflectionClass('Psy\Test\Formatter\Fixtures\BoringTrait'),
