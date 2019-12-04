@@ -5,6 +5,7 @@
 /.php_cs export-ignore
 /.styleci.yml export-ignore
 /.travis.yml export-ignore
+/bin/build-stub export-ignore
 /box.json.dist export-ignore
 /Makefile export-ignore
 /phpunit.xml.dist export-ignore
