@@ -1,4 +1,5 @@
 /.editorconfig export-ignore
+/.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
 /.php_cs export-ignore
@@ -7,4 +8,6 @@
 /box.json.dist export-ignore
 /Makefile export-ignore
 /phpunit.xml.dist export-ignore
+/scoper.inc.php export-ignore
 /test export-ignore
+/vendor-bin export-ignore
