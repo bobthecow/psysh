@@ -1,10 +1,10 @@
-/box.json.dist export-ignore
 /.editorconfig export-ignore
-/.gitignore export-ignore
 /.github export-ignore
-/Makefile export-ignore
+/.gitignore export-ignore
 /.php_cs export-ignore
-/phpunit.xml.dist export-ignore
 /.styleci.yml export-ignore
 /.travis.yml export-ignore
+/box.json.dist export-ignore
+/Makefile export-ignore
+/phpunit.xml.dist export-ignore
 /test export-ignore
