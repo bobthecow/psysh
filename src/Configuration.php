@@ -181,7 +181,7 @@ class Configuration
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode($files, ', '), $files[0]);
+                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode(', ', $files), $files[0]);
                 \trigger_error($msg, E_USER_NOTICE);
             }
 
@@ -394,7 +394,7 @@ class Configuration
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode($files, ', '), $files[0]);
+                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode(', ', $files), $files[0]);
                 \trigger_error($msg, E_USER_NOTICE);
             }
 
@@ -1034,7 +1034,7 @@ class Configuration
         $files = ConfigPaths::getDataFiles(['php_manual.sqlite'], $this->dataDir);
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode($files, ', '), $files[0]);
+                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $files), $files[0]);
                 \trigger_error($msg, E_USER_NOTICE);
             }
 
