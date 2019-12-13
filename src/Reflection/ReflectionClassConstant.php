@@ -219,7 +219,7 @@ class ReflectionClassConstant implements \Reflector
      */
     public static function create($class, $name)
     {
-        if (\class_exists('ReflectionClassConstant')) {
+        if (\class_exists(\ReflectionClassConstant::class)) {
             return new \ReflectionClassConstant($class, $name);
         }
 
