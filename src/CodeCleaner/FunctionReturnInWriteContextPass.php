@@ -14,7 +14,6 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\MethodCall;

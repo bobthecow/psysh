@@ -12,7 +12,6 @@
 namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
-use Psy\Exception\FatalErrorException;
 
 class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 {
