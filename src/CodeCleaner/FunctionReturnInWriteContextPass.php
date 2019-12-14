@@ -28,6 +28,7 @@ use Psy\Exception\FatalErrorException;
  */
 class FunctionReturnInWriteContextPass extends CodeCleanerPass
 {
+    const ISSET_MESSAGE = 'Cannot use isset() on the result of a function call (you can use "null !== func()" instead)';
     const EXCEPTION_MESSAGE = "Can't use function return value in write context";
 
     /**
@@ -54,7 +55,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                     continue;
                 }
 
-                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
+                throw new FatalErrorException(self::ISSET_MESSAGE, 0, E_ERROR, null, $node->getLine());
             }
         } elseif ($node instanceof Assign && $this->isCallNode($node->var)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
