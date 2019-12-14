@@ -303,21 +303,27 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                         break;
                 }
             '],
+            ['
+                interface A {} A::class
+            '],
+            ['
+                interface A {} A::CLASS
+            '],
+            ['
+                class A {} A::class
+            '],
+            ['
+                A::class
+            '],
+            ['
+                A::CLASS
+            '],
         ];
 
         // Ugh. There's gotta be a better way to test for this.
         if (\class_exists('PhpParser\ParserFactory')) {
             // PHP 7.0 anonymous classes, only supported by PHP Parser v2.x
             $valid[] = ['$obj = new class() {}'];
-        }
-
-        if (\version_compare(PHP_VERSION, '5.5', '>=')) {
-            $valid[] = ['interface A {} A::class'];
-            $valid[] = ['interface A {} A::CLASS'];
-            $valid[] = ['class A {} A::class'];
-            $valid[] = ['class A {} A::CLASS'];
-            $valid[] = ['A::class'];
-            $valid[] = ['A::CLASS'];
         }
 
         return $valid;

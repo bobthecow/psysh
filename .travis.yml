@@ -4,9 +4,7 @@ sudo: false
 
 matrix:
     include:
-        - php: 5.4
-          dist: trusty
-        - php: 5.4
+        - php: 5.5.9
           env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
           dist: trusty
         - php: 5.5
@@ -26,7 +24,7 @@ matrix:
         - php: hhvm-3.18
           dist: trusty
     allow_failures:
-        - php: 5.4
+        - php: 5.5.9
           env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
         - php: hhvm-3.18
     fast_finish: true
