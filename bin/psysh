@@ -10,6 +10,15 @@
  * file that was distributed with this source code.
  */
 
+if (defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
+    fwrite(STDERR, 'HHVM 3.18 or higher is required.' . PHP_EOL);
+    exit(1);
+}
+
+if (\PHP_VERSION_ID < 50509) {
+    fwrite(STDERR, 'PHP 5.5.9 or higher is required' . PHP_EOL);
+}
+
 // Try to find an autoloader for a local psysh version.
 // We'll wrap this whole mess in a Closure so it doesn't leak any globals.
 call_user_func(function () {
@@ -20,7 +29,7 @@ call_user_func(function () {
     foreach ($argv as $i => $arg) {
         if ($arg === '--cwd') {
             if ($i >= count($argv) - 1) {
-                echo 'Missing --cwd argument.' . PHP_EOL;
+                fwrite(STDERR, 'Missing --cwd argument.' . PHP_EOL);
                 exit(1);
             }
             $cwd = $argv[$i + 1];
@@ -89,8 +98,8 @@ if (!class_exists('Psy\Shell')) {
     } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
         require __DIR__ . '/../../../autoload.php';
     } else {
-        echo 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL;
-        echo 'See https://getcomposer.org to get Composer.' . PHP_EOL;
+        fwrite(STDERR, 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL);
+        fwrite(STDERR, 'See https://getcomposer.org to get Composer.' . PHP_EOL);
         exit(1);
     }
 /* >>> */
@@ -98,18 +107,7 @@ if (!class_exists('Psy\Shell')) {
 
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
-//
-// Keep this PHP 5.3 code around for a while in case someone is using a globally
-// installed psysh as a bin launcher for older local versions.
-if (version_compare(PHP_VERSION, '5.3.6', '<')) {
-    $trace = debug_backtrace();
-} elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-} else {
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-}
-
-if (Psy\Shell::isIncluded($trace)) {
+if (Psy\Shell::isIncluded(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1))) {
     unset($trace);
 
     return;
@@ -127,10 +125,10 @@ if (!function_exists('Psy\bin')) {
     }
     array_unshift($argv, 'vendor/bin/psysh');
 
-    echo 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL;
-    echo 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL;
-    echo PHP_EOL;
-    echo '    ' . implode(' ', $argv) . PHP_EOL;
+    fwrite(STDERR, 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL);
+    fwrite(STDERR, 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL);
+    fwrite(STDERR, PHP_EOL);
+    fwrite(STDERR, '    ' . implode(' ', $argv) . PHP_EOL);
     exit(1);
 }
 
