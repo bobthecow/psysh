@@ -362,7 +362,9 @@ class Configuration
         }
 
         if (!\is_dir($this->runtimeDir)) {
-            \mkdir($this->runtimeDir, 0700, true);
+            if (!@\mkdir($this->runtimeDir, 0700, true)) {
+                throw new RuntimeException(sprintf('Unable to create PsySH runtime directory. Make sure PHP is able to write to %s in order to continue.', dirname($this->runtimeDir));
+            }
         }
 
         return $this->runtimeDir;
