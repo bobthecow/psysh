@@ -41,7 +41,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 new \ReflectionFunction('implode'),
-                \defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : 'function implode($glue, $pieces)',
+                \defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : (\version_compare(PHP_VERSION, '8.0', '>=') ? 'function implode($glue, array $pieces = unknown)' : 'function implode($glue, $pieces)'),
             ],
             [
                 ReflectionClassConstant::create($this, 'FOO'),
@@ -63,7 +63,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 new \ReflectionFunction('array_chunk'),
-                \defined('HHVM_VERSION') ? 'function array_chunk($input, $size, $preserve_keys = false)' : 'function array_chunk($arg, $size, $preserve_keys = unknown)',
+                \defined('HHVM_VERSION') ? 'function array_chunk($input, $size, $preserve_keys = false)' : (\version_compare(PHP_VERSION, '8.0', '>=') ? 'function array_chunk(array $arg, $size, $preserve_keys = unknown)' : 'function array_chunk($arg, $size, $preserve_keys = unknown)'),
             ],
             [
                 new \ReflectionClass('Psy\Test\Formatter\Fixtures\BoringTrait'),
