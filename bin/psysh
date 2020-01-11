@@ -10,15 +10,6 @@
  * file that was distributed with this source code.
  */
 
-if (defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
-    fwrite(STDERR, 'HHVM 3.18 or higher is required.' . PHP_EOL);
-    exit(1);
-}
-
-if (\PHP_VERSION_ID < 50509) {
-    fwrite(STDERR, 'PHP 5.5.9 or higher is required' . PHP_EOL);
-}
-
 // Try to find an autoloader for a local psysh version.
 // We'll wrap this whole mess in a Closure so it doesn't leak any globals.
 call_user_func(function () {
@@ -107,7 +98,18 @@ if (!class_exists('Psy\Shell')) {
 
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
-if (Psy\Shell::isIncluded(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1))) {
+//
+// Keep this PHP 5.3 and 5.4 code around for a while in case someone is using a
+// globally installed psysh as a bin launcher for older local versions.
+if (version_compare(PHP_VERSION, '5.3.6', '<')) {
+    $trace = debug_backtrace();
+} elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+} else {
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+}
+
+if (Psy\Shell::isIncluded($trace)) {
     unset($trace);
 
     return;
