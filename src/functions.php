@@ -272,6 +272,38 @@ if (!\function_exists('Psy\bin')) {
     function bin()
     {
         return function () {
+            if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {
+                if (defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
+                    fwrite(STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    exit(1);
+                }
+
+                if (defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID > 39999) {
+                    fwrite(STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    exit(1);
+                }
+
+                if (\PHP_VERSION_ID < 50509) {
+                    fwrite(STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    exit(1);
+                }
+
+                if (\PHP_VERSION_ID > 89999) {
+                    fwrite(STDERR, 'PHP 9 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    exit(1);
+                }
+
+                if (!function_exists('json_encode')) {
+                    fwrite(STDERR, 'The JSON extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    exit(1);
+                }
+
+                if (!function_exists('token_get_all')) {
+                    fwrite(STDERR, 'The Tokenizer extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    exit(1);
+                }
+            }
+
             $usageException = null;
 
             $input = new ArgvInput();
@@ -357,7 +389,7 @@ EOL;
                 // And go!
                 $shell->run();
             } catch (\Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
+                fwrite(STDERR, $e->getMessage() . PHP_EOL);
 
                 // @todo this triggers the "exited unexpectedly" logic in the
                 // ForkingLoop, so we can't exit(1) after starting the shell...

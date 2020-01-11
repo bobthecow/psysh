@@ -39,12 +39,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     const TRAIT_TYPE     = 'trait';
 
     private $conditionalScopes = 0;
-    private $atLeastPhp55;
-
-    public function __construct()
-    {
-        $this->atLeastPhp55 = \version_compare(PHP_VERSION, '5.5', '>=');
-    }
 
     /**
      * Validate class, interface and trait definitions.
@@ -163,8 +157,8 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
     {
-        // there is no need to check exists for ::class const for php 5.5 or newer
-        if (\strtolower($stmt->name) === 'class' && $this->atLeastPhp55) {
+        // there is no need to check exists for ::class const
+        if (\strtolower($stmt->name) === 'class') {
             return;
         }
 

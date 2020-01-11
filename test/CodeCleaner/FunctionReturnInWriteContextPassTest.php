@@ -12,7 +12,6 @@
 namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
-use Psy\Exception\FatalErrorException;
 
 class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 {
@@ -43,21 +42,14 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
         ];
     }
 
+    /**
+     * @expectedException \Psy\Exception\FatalErrorException
+     * @expectedExceptionMessage Cannot use isset() on the result of an expression (you can use "null !== expression" instead)
+     */
     public function testIsset()
     {
-        try {
-            $this->traverser->traverse($this->parse('isset(strtolower("A"))'));
-            $this->fail();
-        } catch (FatalErrorException $e) {
-            if (\version_compare(PHP_VERSION, '5.5', '>=')) {
-                $this->assertContains(
-                    'Cannot use isset() on the result of a function call (you can use "null !== func()" instead)',
-                    $e->getMessage()
-                );
-            } else {
-                $this->assertContains("Can't use function return value in write context", $e->getMessage());
-            }
-        }
+        $this->traverser->traverse($this->parse('isset(strtolower("A"))'));
+        $this->fail();
     }
 
     /**

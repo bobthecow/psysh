@@ -20,7 +20,7 @@ call_user_func(function () {
     foreach ($argv as $i => $arg) {
         if ($arg === '--cwd') {
             if ($i >= count($argv) - 1) {
-                echo 'Missing --cwd argument.' . PHP_EOL;
+                fwrite(STDERR, 'Missing --cwd argument.' . PHP_EOL);
                 exit(1);
             }
             $cwd = $argv[$i + 1];
@@ -89,8 +89,8 @@ if (!class_exists('Psy\Shell')) {
     } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
         require __DIR__ . '/../../../autoload.php';
     } else {
-        echo 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL;
-        echo 'See https://getcomposer.org to get Composer.' . PHP_EOL;
+        fwrite(STDERR, 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL);
+        fwrite(STDERR, 'See https://getcomposer.org to get Composer.' . PHP_EOL);
         exit(1);
     }
 /* >>> */
@@ -99,8 +99,8 @@ if (!class_exists('Psy\Shell')) {
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
 //
-// Keep this PHP 5.3 code around for a while in case someone is using a globally
-// installed psysh as a bin launcher for older local versions.
+// Keep this PHP 5.3 and 5.4 code around for a while in case someone is using a
+// globally installed psysh as a bin launcher for older local versions.
 if (version_compare(PHP_VERSION, '5.3.6', '<')) {
     $trace = debug_backtrace();
 } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
@@ -127,10 +127,10 @@ if (!function_exists('Psy\bin')) {
     }
     array_unshift($argv, 'vendor/bin/psysh');
 
-    echo 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL;
-    echo 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL;
-    echo PHP_EOL;
-    echo '    ' . implode(' ', $argv) . PHP_EOL;
+    fwrite(STDERR, 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL);
+    fwrite(STDERR, 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL);
+    fwrite(STDERR, PHP_EOL);
+    fwrite(STDERR, '    ' . implode(' ', $argv) . PHP_EOL);
     exit(1);
 }
 

@@ -21,7 +21,7 @@ help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-7s\033[0m %s\n", $$1, $$2}'
 
 build: ## Compile PHARs
-build: build/psysh/psysh build/psysh-compat/psysh build/psysh-php54/psysh build/psysh-php54-compat/psysh
+build: build/psysh/psysh build/psysh-compat/psysh build/psysh-php55/psysh build/psysh-php55-compat/psysh
 
 clean: ## Clean all created artifacts
 	rm -rf build/*
@@ -29,7 +29,7 @@ clean: ## Clean all created artifacts
 	rm -rf vendor-bin/*/vendor/
 
 dist: ## Build tarballs for distribution
-dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psysh-$(VERSION)-php54.tar.gz dist/psysh-$(VERSION)-php54-compat.tar.gz
+dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-compat.tar.gz dist/psysh-$(VERSION)-php55.tar.gz dist/psysh-$(VERSION)-php55-compat.tar.gz
 
 test: ## Run unit tests
 test: vendor/bin/phpunit
@@ -51,7 +51,7 @@ vendor/bin/box: vendor/autoload.php
 	touch $@
 
 vendor/bin/phpunit: vendor/autoload.php
-	composer bin phpunit install
+	composer bin phpunit install --ignore-platform-reqs
 	touch $@
 
 
@@ -64,31 +64,31 @@ build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
-	composer config --working-dir $@ platform.php 7.0
-	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
+	composer config --working-dir $@ platform.php 7.2.5
+	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.2.5'
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
 build/psysh-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
-	composer config --working-dir $@ platform.php 7.0
-	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.0.0'
+	composer config --working-dir $@ platform.php 7.2.5
+	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.2.5'
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
+build/psysh-php55: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
-	composer config --working-dir $@ platform.php 5.4
+	composer config --working-dir $@ platform.php 5.5.9
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
-build/psysh-php54-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
+build/psysh-php55-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
-	composer config --working-dir $@ platform.php 5.4
+	composer config --working-dir $@ platform.php 5.5.9
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console:^2.15
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 

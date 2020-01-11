@@ -77,16 +77,13 @@ class ExecutionClosure
      */
     protected function setClosure(Shell $shell, \Closure $closure)
     {
-        if (self::shouldBindClosure()) {
-            $that = $shell->getBoundObject();
-            if (\is_object($that)) {
-                $closure = $closure->bindTo($that, \get_class($that));
-            } else {
-                $closure = $closure->bindTo(null, $shell->getBoundClass());
-            }
-        }
+        $that = $shell->getBoundObject();
 
-        $this->closure = $closure;
+        if (\is_object($that)) {
+            $this->closure = $closure->bindTo($that, \get_class($that));
+        } else {
+            $this->closure = $closure->bindTo(null, $shell->getBoundClass());
+        }
     }
 
     /**
@@ -99,21 +96,5 @@ class ExecutionClosure
         $closure = $this->closure;
 
         return $closure();
-    }
-
-    /**
-     * Decide whether to bind the execution closure.
-     *
-     * @return bool
-     */
-    protected static function shouldBindClosure()
-    {
-        // skip binding on HHVM < 3.5.0
-        // see https://github.com/facebook/hhvm/issues/1203
-        if (\defined('HHVM_VERSION')) {
-            return \version_compare(HHVM_VERSION, '3.5.0', '>=');
-        }
-
-        return true;
     }
 }
