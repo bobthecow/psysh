@@ -23,7 +23,7 @@ matrix:
           dist: bionic
         - php: nightly
           dist: bionic
-          env: 'COMPOSER_FLAGS="--ignore-platform-reqs" PHPUNIT_COMPOSER_FLAGS="--ignore-platform-reqs"'
+          env: 'COMPOSER_FLAGS="--ignore-platform-reqs"'
         - php: hhvm-3.18
           dist: trusty
     allow_failures:
@@ -35,7 +35,7 @@ install:
     - travis_retry composer update --no-interaction $COMPOSER_FLAGS
     - |
       if php -r 'version_compare(PHP_VERSION, "7.1", "<") || exit(1);'; then
-        composer bin phpunit update $PHPUNIT_COMPOSER_FLAGS
+        composer bin phpunit update
       fi
 
 script:
