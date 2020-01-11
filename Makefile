@@ -51,7 +51,7 @@ vendor/bin/box: vendor/autoload.php
 	touch $@
 
 vendor/bin/phpunit: vendor/autoload.php
-	composer bin phpunit install
+	composer bin phpunit install --ignore-platform-reqs
 	touch $@
 
 
