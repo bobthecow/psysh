@@ -14,6 +14,7 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\MethodCall;
@@ -28,7 +29,7 @@ use Psy\Exception\FatalErrorException;
  */
 class FunctionReturnInWriteContextPass extends CodeCleanerPass
 {
-    const ISSET_MESSAGE = 'Cannot use isset() on the result of a function call (you can use "null !== func()" instead)';
+    const ISSET_MESSAGE = 'Cannot use isset() on the result of an expression (you can use "null !== expression" instead)';
     const EXCEPTION_MESSAGE = "Can't use function return value in write context";
 
     /**
@@ -55,7 +56,8 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                     continue;
                 }
 
-                throw new FatalErrorException(self::ISSET_MESSAGE, 0, E_ERROR, null, $node->getLine());
+                $msg = $node instanceof Isset_ ? self::ISSET_MESSAGE : self::EXCEPTION_MESSAGE;
+                throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
             }
         } elseif ($node instanceof Assign && $this->isCallNode($node->var)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());

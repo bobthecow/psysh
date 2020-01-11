@@ -44,7 +44,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 
     /**
      * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage Cannot use isset() on the result of a function call (you can use "null !== func()" instead)
+     * @expectedExceptionMessage Cannot use isset() on the result of an expression (you can use "null !== expression" instead)
      */
     public function testIsset()
     {
