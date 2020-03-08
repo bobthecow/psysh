@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Formatter;
 
+use Psy\Configuration;
 use Psy\Formatter\CodeFormatter;
 use Psy\Test\Formatter\Fixtures\SomeClass;
 
@@ -21,7 +22,7 @@ class CodeFormatterTest extends \PHPUnit\Framework\TestCase
      */
     public function testFormat($reflector, $expected)
     {
-        $formatted = CodeFormatter::format($reflector);
+        $formatted = CodeFormatter::format($reflector, Configuration::COLOR_MODE_FORCED);
         $formattedWithoutColors = \preg_replace('#' . \chr(27) . '\[\d\d?m#', '', $formatted);
 
         $this->assertEquals($expected, self::trimLines($formattedWithoutColors));
