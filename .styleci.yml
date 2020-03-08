@@ -13,6 +13,7 @@ disabled:
   - blank_line_before_throw
   - blank_line_before_try
   - concat_without_spaces
+  - method_argument_space
   - pre_increment
   - unalign_double_arrow
   - unalign_equals
