@@ -18,6 +18,7 @@ use Psy\CodeCleaner\AbstractClassPass;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Psy\CodeCleaner\CalledClassPass;
 use Psy\CodeCleaner\CallTimePassByReferencePass;
+use Psy\CodeCleaner\EmptyArrayDimFetchPass;
 use Psy\CodeCleaner\ExitPass;
 use Psy\CodeCleaner\FinalClassPass;
 use Psy\CodeCleaner\FunctionContextPass;
@@ -101,6 +102,7 @@ class CodeCleaner
             new ListPass(),
             new LoopContextPass(),
             new PassableByReferencePass(),
+            new EmptyArrayDimFetchPass(),
             new ValidConstructorPass(),
 
             // Rewriting shenanigans
