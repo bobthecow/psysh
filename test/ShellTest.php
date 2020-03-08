@@ -534,6 +534,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
             'configDir'  => $dir,
             'dataDir'    => $dir,
             'runtimeDir' => $dir,
+            'colorMode'  => Configuration::COLOR_MODE_FORCED,
         ];
 
         return new Configuration(\array_merge($defaults, $config));
