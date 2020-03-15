@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2017 Justin Hileman
+ * (c) 2012-2019 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,18 +34,18 @@ class LabelContextPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return array(
-            array('function foo() { foo: "echo"; goto foo; }'),
-            array('function foo() { "echo"; goto foo; }'),
-            array('begin: foreach (range(1, 5) as $i) { goto end; } end: goto begin;'),
-            array('bar: if (true) goto bar;'),
+        return [
+            ['function foo() { foo: "echo"; goto foo; }'],
+            ['function foo() { "echo"; goto foo; }'],
+            ['begin: foreach (range(1, 5) as $i) { goto end; } end: goto begin;'],
+            ['bar: if (true) goto bar;'],
 
             // False negative
             // PHP Fatal error: 'goto' into loop or switch statement is disallowed
-            'false negative1' => array('while (true) { label: "error"; } goto label;'),
+            'false negative1' => ['while (true) { label: "error"; } goto label;'],
             // PHP Fatal error:  'goto' to undefined label 'none'
-            'false negative2' => array('$f = function () { goto none; };'),
-        );
+            'false negative2' => ['$f = function () { goto none; };'],
+        ];
     }
 
     /**
@@ -60,11 +60,11 @@ class LabelContextPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return array(
-            array('goto bar;'),
-            array('if (true) goto bar;'),
-            array('buz: if (true) goto bar;'),
-        );
+        return [
+            ['goto bar;'],
+            ['if (true) goto bar;'],
+            ['buz: if (true) goto bar;'],
+        ];
     }
 
     /**
@@ -79,10 +79,10 @@ class LabelContextPassTest extends CodeCleanerTestCase
 
     public function unreachableLabelStatements()
     {
-        return array(
-            array('buz:'),
-            array('foo: buz: goto foo;'),
-            array('foo: buz: goto buz;'),
-        );
+        return [
+            ['buz:'],
+            ['foo: buz: goto foo;'],
+            ['foo: buz: goto buz;'],
+        ];
     }
 }
