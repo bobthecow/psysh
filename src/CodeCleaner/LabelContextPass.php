@@ -15,7 +15,6 @@ use PhpParser\Node;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Stmt\Goto_;
 use PhpParser\Node\Stmt\Label;
-use Psy\Exception\ErrorException;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -77,28 +76,15 @@ class LabelContextPass extends CodeCleanerPass
     {
         if ($node instanceof FunctionLike) {
             $this->functionDepth--;
-
-            return;
         }
     }
 
     public function afterTraverse(array $nodes)
     {
-        $reached = [];
-
         foreach ($this->labelGotos as $name => $line) {
             if (!isset($this->labelDeclarations[$name])) {
                 $msg = "'goto' to undefined label '{$name}'";
                 throw new FatalErrorException($msg, 0, E_ERROR, null, $line);
-            }
-
-            $reached[$name] = true;
-        }
-
-        foreach ($this->labelDeclarations as $name => $line) {
-            if (empty($reached[$name])) {
-                $msg = "Label '{$name}' can not be reached";
-                throw new ErrorException($msg, 0, E_USER_WARNING, null, $line);
             }
         }
     }
