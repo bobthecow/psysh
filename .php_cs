@@ -25,6 +25,7 @@ return PhpCsFixer\Config::create()
         'header_comment' => ['header' => $header],
         'increment_style' => ['style' => 'post'],
         'method_argument_space' => ['keep_multiple_spaces_after_comma' => true],
+        'no_superfluous_phpdoc_tags' => false,
         'ordered_imports' => true,
         'pre_increment' => false,
         'yoda_style' => false,
