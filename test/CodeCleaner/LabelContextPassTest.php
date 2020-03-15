@@ -11,16 +11,13 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\NodeTraverser;
 use Psy\CodeCleaner\LabelContextPass;
 
 class LabelContextPassTest extends CodeCleanerTestCase
 {
     public function setUp()
     {
-        $this->pass      = new LabelContextPass();
-        $this->traverser = new NodeTraverser();
-        $this->traverser->addVisitor($this->pass);
+        $this->setPass(new LabelContextPass());
     }
 
     /**
@@ -28,8 +25,8 @@ class LabelContextPassTest extends CodeCleanerTestCase
      */
     public function testProcessStatementPasses($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
+        $this->assertTrue(true);
     }
 
     public function validStatements()
@@ -54,8 +51,7 @@ class LabelContextPassTest extends CodeCleanerTestCase
      */
     public function testInvalid($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function invalidStatements()
@@ -73,8 +69,7 @@ class LabelContextPassTest extends CodeCleanerTestCase
      */
     public function testUnreachedLabel($code)
     {
-        $stmts = $this->parse($code);
-        $this->traverser->traverse($stmts);
+        $this->parseAndTraverse($code);
     }
 
     public function unreachableLabelStatements()
