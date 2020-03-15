@@ -26,6 +26,19 @@ class ProcessForker extends AbstractListener
     private $savegame;
     private $up;
 
+    private static $pcntlFunctions = [
+        'pcntl_fork',
+        'pcntl_signal_dispatch',
+        'pcntl_signal',
+        'pcntl_waitpid',
+        'pcntl_wexitstatus',
+    ];
+
+    private static $posixFunctions = [
+        'posix_getpid',
+        'posix_kill',
+    ];
+
     /**
      * Process forker is supported if pcntl and posix extensions are available.
      *
@@ -33,7 +46,56 @@ class ProcessForker extends AbstractListener
      */
     public static function isSupported()
     {
-        return \function_exists('pcntl_signal') && \function_exists('posix_getpid');
+        return self::isPcntlSupported() && !self::disabledPcntlFunctions() && self::isPosixSupported() && !self::disabledPosixFunctions();
+    }
+
+    /**
+     * Verify that all required pcntl functions are, in fact, available.
+     */
+    public static function isPcntlSupported()
+    {
+        foreach (self::$pcntlFunctions as $func) {
+            if (!\function_exists($func)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether required pcntl functions are disabled.
+     */
+    public static function disabledPcntlFunctions()
+    {
+        return self::checkDisabledFunctions(self::$pcntlFunctions);
+    }
+
+    /**
+     * Verify that all required posix functions are, in fact, available.
+     */
+    public static function isPosixSupported()
+    {
+        foreach (self::$posixFunctions as $func) {
+            if (!\function_exists($func)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether required posix functions are disabled.
+     */
+    public static function disabledPosixFunctions()
+    {
+        return self::checkDisabledFunctions(self::$posixFunctions);
+    }
+
+    private static function checkDisabledFunctions(array $functions)
+    {
+        return \array_values(\array_intersect($functions, \array_map('strtolower', \array_map('trim', \explode(',', \ini_get('disable_functions'))))));
     }
 
     /**

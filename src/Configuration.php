@@ -13,6 +13,7 @@ namespace Psy;
 
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
+use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Readline\GNUReadline;
@@ -148,7 +149,7 @@ class Configuration
     {
         // feature detection
         $this->hasReadline = \function_exists('readline');
-        $this->hasPcntl    = \function_exists('pcntl_signal') && \function_exists('posix_getpid');
+        $this->hasPcntl    = ProcessForker::isSupported();
 
         if ($configFile = $this->getConfigFile()) {
             $this->loadConfigFile($configFile);

@@ -13,6 +13,7 @@ namespace Psy\Test;
 
 use Psy\CodeCleaner;
 use Psy\Configuration;
+use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\PassthruPager;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -32,8 +33,8 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame(\function_exists('readline'), $config->hasReadline());
         $this->assertSame(\function_exists('readline'), $config->useReadline());
-        $this->assertSame(\function_exists('pcntl_signal'), $config->hasPcntl());
-        $this->assertSame(\function_exists('pcntl_signal'), $config->usePcntl());
+        $this->assertSame(ProcessForker::isSupported(), $config->hasPcntl());
+        $this->assertSame($config->hasPcntl(), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());

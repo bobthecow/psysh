@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use Psy\ExecutionLoop\ProcessForker;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -193,13 +194,16 @@ if (!\function_exists('Psy\info')) {
         }
 
         $pcntl = [
-            'pcntl available' => \function_exists('pcntl_signal'),
-            'posix available' => \function_exists('posix_getpid'),
+            'pcntl available' => ProcessForker::isPcntlSupported(),
+            'posix available' => ProcessForker::isPosixSupported(),
         ];
 
-        $disabledFuncs = \array_map('trim', \explode(',', \ini_get('disable_functions')));
-        if (\in_array('pcntl_signal', $disabledFuncs) || \in_array('pcntl_fork', $disabledFuncs)) {
-            $pcntl['pcntl disabled'] = true;
+        if ($disabledPcntl = ProcessForker::disabledPcntlFunctions()) {
+            $pcntl['disabled pcntl functions'] = $disabledPcntl;
+        }
+
+        if ($disabledPosix = ProcessForker::disabledPosixFunctions()) {
+            $pcntl['disabled posix functions'] = $disabledPosix;
         }
 
         $pcntl['use pcntl'] = $config->usePcntl();
