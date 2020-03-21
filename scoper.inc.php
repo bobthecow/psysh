@@ -37,13 +37,13 @@ return [
         },
         // https://github.com/bobthecow/psysh/issues/610
         static function (string $filePath, string $prefix, string $contents): string {
-            if ('vendor/symfony/var-dumper/Cloner/VarCloner.php' !== $filePath) {
+            if (!in_array($filePath, ['vendor/symfony/var-dumper/Cloner/VarCloner.php', 'vendor/symfony/var-dumper/Caster/ReflectionCaster.php'], true)) {
                 return $contents;
             }
 
             return str_replace(
-                sprintf("'%s\\\\ReflectionReference'", $prefix),
-                "'\\\\ReflectionReference'",
+                sprintf('\\%s\\ReflectionReference', $prefix),
+                '\\ReflectionReference',
                 $contents
             );
         },
