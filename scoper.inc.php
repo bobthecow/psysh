@@ -35,6 +35,18 @@ return [
                 $contents
             );
         },
+        // https://github.com/bobthecow/psysh/issues/610
+        static function (string $filePath, string $prefix, string $contents): string {
+            if ('vendor/symfony/var-dumper/Cloner/VarCloner.php' !== $filePath) {
+                return $contents;
+            }
+
+            return str_replace(
+                sprintf("'%s\\\\ReflectionReference'", $prefix),
+                "'\\\\ReflectionReference'",
+                $contents
+            );
+        },
         // Hoa patches
         static function (string $filePath, string $prefix, string $contents): string {
             if ('vendor/hoa/stream/Stream.php' !== $filePath) {
