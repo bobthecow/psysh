@@ -23,7 +23,7 @@ class HoaConsole implements Readline
     /** @var HoaReadline */
     private $hoaReadline;
 
-    /** @var string */
+    /** @var string|null */
     private $lastPrompt;
 
     /**
