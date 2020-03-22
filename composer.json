@@ -23,7 +23,7 @@
         "jakub-onderka/php-console-highlighter": "0.4.*|0.3.*"
     },
     "require-dev": {
-        "hoa/console": "~3.16|~2.15",
+        "hoa/console": "3.17.*",
         "bamarni/composer-bin-plugin": "^1.2"
     },
     "suggest": {
