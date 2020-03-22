@@ -11,9 +11,7 @@
 
 namespace Psy\Command;
 
-use JakubOnderka\PhpConsoleHighlighter\Highlighter;
-use Psy\Configuration;
-use Psy\ConsoleColorFactory;
+use Psy\Formatter\CodeFormatter;
 use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,15 +22,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class WhereamiCommand extends Command
 {
-    private $colorMode;
     private $backtrace;
 
     /**
-     * @param string|null $colorMode (default: null)
+     * @param string|null $colorMode (deprecated and ignored)
      */
     public function __construct($colorMode = null)
     {
-        $this->colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
         $this->backtrace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         parent::__construct();
@@ -112,21 +108,19 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $info        = $this->fileInfo();
-        $num         = $input->getOption('num');
-        $factory     = new ConsoleColorFactory($this->colorMode);
-        $colors      = $factory->getConsoleColor();
-        $highlighter = new Highlighter($colors);
-        $contents    = \file_get_contents($info['file']);
+        $info      = $this->fileInfo();
+        $num       = $input->getOption('num');
+        $lineNum   = $info['line'];
+        $startLine = \max($lineNum - $num, 1);
+        $endLine   = $lineNum + $num;
+        $code      = \file_get_contents($info['file']);
 
         if ($output instanceof ShellOutput) {
             $output->startPaging();
         }
 
-        $output->writeln('');
-        $output->writeln(\sprintf('From <info>%s:%s</info>:', $this->replaceCwd($info['file']), $info['line']));
-        $output->writeln('');
-        $output->write($highlighter->getCodeSnippet($contents, $info['line'], $num, $num), false, OutputInterface::OUTPUT_RAW);
+        $output->writeln(\sprintf('From <info>%s:%s</info>:', $this->replaceCwd($info['file']), $lineNum));
+        $output->write(CodeFormatter::formatCode($code, $startLine, $endLine, $lineNum), false);
 
         if ($output instanceof ShellOutput) {
             $output->stopPaging();

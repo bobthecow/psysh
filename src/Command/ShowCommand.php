@@ -11,9 +11,6 @@
 
 namespace Psy\Command;
 
-use JakubOnderka\PhpConsoleHighlighter\Highlighter;
-use Psy\Configuration;
-use Psy\ConsoleColorFactory;
 use Psy\Exception\RuntimeException;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\SignatureFormatter;
@@ -28,18 +25,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ShowCommand extends ReflectingCommand
 {
-    private $colorMode;
-    private $highlighter;
     private $lastException;
     private $lastExceptionIndex;
 
     /**
-     * @param string|null $colorMode (default: null)
+     * @param string|null $colorMode (deprecated and ignored)
      */
     public function __construct($colorMode = null)
     {
-        $this->colorMode = $colorMode ?: Configuration::COLOR_MODE_AUTO;
-
         parent::__construct();
     }
 
@@ -120,7 +113,7 @@ HELP
         $this->setCommandScopeVariables($reflector);
 
         try {
-            $output->page(CodeFormatter::format($reflector, $this->colorMode), OutputInterface::OUTPUT_RAW);
+            $output->page(CodeFormatter::format($reflector));
         } catch (RuntimeException $e) {
             $output->writeln(SignatureFormatter::format($reflector));
             throw $e;
@@ -173,7 +166,7 @@ HELP
         $line = isset($trace[$index]['line']) ? $trace[$index]['line'] : 'n/a';
 
         $output->writeln(\sprintf(
-            'From <info>%s:%d</info> at <strong>level %d</strong> of backtrace (of %d).',
+            'From <info>%s:%d</info> at <strong>level %d</strong> of backtrace (of %d):',
             OutputFormatter::escape($file),
             OutputFormatter::escape($line),
             $index + 1,
@@ -219,17 +212,10 @@ HELP
             return;
         }
 
-        $output->write($this->getHighlighter()->getCodeSnippet($code, $line, 5, 5), false, OutputInterface::OUTPUT_RAW);
-    }
+        $startLine = \max($line - 5, 0);
+        $endLine = $line + 5;
 
-    private function getHighlighter()
-    {
-        if (!$this->highlighter) {
-            $factory = new ConsoleColorFactory($this->colorMode);
-            $this->highlighter = new Highlighter($factory->getConsoleColor());
-        }
-
-        return $this->highlighter;
+        $output->write(CodeFormatter::formatCode($code, $startLine, $endLine, $line), false);
     }
 
     private function setCommandScopeVariablesFromContext(array $context)
