@@ -314,7 +314,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
      */
     public function testSetFormatterStylesInvalid($styles, $msg)
     {
-        if (method_exists($this, 'expectException') {
+        if (method_exists($this, 'expectException')) {
             $this->expectException('InvalidArgumentException');
             $this->expectExceptionMessage($msg);
         } else {
