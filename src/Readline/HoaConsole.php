@@ -37,7 +37,11 @@ class HoaConsole implements Readline
     public function __construct()
     {
         $this->hoaReadline = new HoaReadline();
-        $this->hoaReadline->addMapping('\C-l', [$this, '_redisplay']);
+        $this->hoaReadline->addMapping('\C-l', function () {
+            $this->redisplay();
+
+            return HoaReadline::STATE_NO_ECHO;
+        });
     }
 
     /**
