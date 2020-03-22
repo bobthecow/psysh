@@ -96,6 +96,7 @@ class AutoCompleterTest extends \PHPUnit\Framework\TestCase
             // input, must had, must not had
             ['T_OPE', ['T_OPEN_TAG'], []],
             ['st', ['stdClass'], []],
+            ['DateT', ['DateTime', 'DateTimeImmutable', 'DateTimeInterface', 'DateTimeZone'], []],
             ['stdCla', ['stdClass'], []],
             ['new s', ['stdClass'], []],
             [
