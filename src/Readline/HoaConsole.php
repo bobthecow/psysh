@@ -109,9 +109,9 @@ class HoaConsole implements Readline
      */
     public function _redisplay()
     {
-        $current_line = $this->hoaReadline->getLine();
+        $currentLine = $this->hoaReadline->getLine();
         Cursor::clear('all');
-        echo $this->lastPrompt, $current_line;
+        echo $this->lastPrompt, $currentLine;
 
         return HoaReadline::STATE_NO_ECHO;
     }
