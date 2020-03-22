@@ -85,7 +85,7 @@ class CodeFormatter implements Formatter
     {
         if (self::isReflectable($reflector)) {
             if ($code = @\file_get_contents($reflector->getFileName())) {
-                return self::formatCode($code, $reflector->getStartLine(), $reflector->getEndLine());
+                return self::formatCode($code, self::getStartLine($reflector), $reflector->getEndLine());
             }
         }
 
@@ -112,6 +112,28 @@ class CodeFormatter implements Formatter
         $lines = self::numberLines($lines, $markLine);
 
         return \implode('', \iterator_to_array($lines));
+    }
+
+    /**
+     * Get the start line for a given Reflector.
+     *
+     * Tries to incorporate doc comments if possible.
+     *
+     * This is typehinted as \Reflector but we've narrowed the input via self::isReflectable already.
+     *
+     * @param \ReflectionClass|\ReflectionFunctionAbstract $reflector
+     *
+     * @return number
+     */
+    private static function getStartLine(\Reflector $reflector)
+    {
+        $startLine = $reflector->getStartLine();
+
+        if ($docComment = $reflector->getDocComment()) {
+            $startLine -= \preg_match_all('/(\r\n?|\n)/', $docComment) + 1;
+        }
+
+        return \max($startLine, 1);
     }
 
     /**
