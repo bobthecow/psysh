@@ -311,11 +311,15 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider invalidStyles
-     * @expectedException \InvalidArgumentException
      */
     public function testSetFormatterStylesInvalid($styles, $msg)
     {
-        $this->expectExceptionMessage($msg);
+        if (method_exists($this, 'expectException') {
+            $this->expectException('InvalidArgumentException');
+            $this->expectExceptionMessage($msg);
+        } else {
+            $this->setExpectedException('InvalidArgumentException', $msg);
+        }
 
         $config = $this->getConfig();
         $config->setFormatterStyles($styles);
