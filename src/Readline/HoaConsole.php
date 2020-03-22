@@ -98,12 +98,16 @@ class HoaConsole implements Readline
 
     /**
      * {@inheritdoc}
+     *
+     * @return int
      */
     public function redisplay()
     {
         $current_line = $this->hoaReadline->getLine();
         Cursor::clear('all');
         echo $this->lastPrompt, $current_line;
+
+        return HoaReadline::STATE_NO_ECHO;
     }
 
     /**
