@@ -1,8 +1,6 @@
 language: php
 
-sudo: false
-
-matrix:
+jobs:
     include:
         - php: 5.5.9
           env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
@@ -52,7 +50,7 @@ before_deploy: make dist -j 4
 
 deploy:
     provider: releases
-    api_key:
+    token:
         secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
     file_glob: true
     file: dist/psysh-*.tar.gz
