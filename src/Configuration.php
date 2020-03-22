@@ -26,6 +26,7 @@ use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\IntervalChecker;
 use Psy\VersionUpdater\NoopChecker;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -46,6 +47,7 @@ class Configuration
         'eraseDuplicates',
         'errorLoggingLevel',
         'forceArrayIndexes',
+        'formatterStyles',
         'historySize',
         'manualDbFile',
         'pager',
@@ -90,6 +92,7 @@ class Configuration
     private $updateCheck;
     private $startupMessage;
     private $forceArrayIndexes = false;
+    private $formatterStyles = [];
 
     // services
     private $readline;
@@ -855,6 +858,8 @@ class Configuration
                 null,
                 $this->getPager()
             );
+
+            $this->applyFormatterStyles();
         }
 
         return $this->output;
@@ -1330,5 +1335,47 @@ class Configuration
     public function setForceArrayIndexes($forceArrayIndexes)
     {
         $this->forceArrayIndexes = $forceArrayIndexes;
+    }
+
+    /**
+     * Set the shell output formatter styles.
+     *
+     * Accepts a map from style name to [fg, bg, options], for example:
+     *
+     *     [
+     *         'error' => ['white', 'red', ['bold']],
+     *         'warning' => ['black', 'yellow'],
+     *     ]
+     *
+     * Foreground, background or options can be null, or even omitted entirely.
+     *
+     * @see ShellOutput::initFormatters
+     *
+     * @param array $formatterStyles
+     */
+    public function setFormatterStyles(array $formatterStyles)
+    {
+        foreach ($formatterStyles as $name => $style) {
+            list($fg, $bg, $opts) = \array_pad($style, 3, null);
+            $this->formatterStyles[$name] = new OutputFormatterStyle($fg ?: null, $bg ?: null, $opts ?: []);
+        }
+
+        if (isset($this->output)) {
+            $this->applyFormatterStyles();
+        }
+    }
+
+    /**
+     * Internal method for applying output formatter style customization.
+     *
+     * This is called on initialization of the shell output, and again if the
+     * formatter styles config is updated.
+     */
+    private function applyFormatterStyles()
+    {
+        $formatter = $this->output->getFormatter();
+        foreach ($this->formatterStyles as $name => $style) {
+            $formatter->setStyle($name, $style);
+        }
     }
 }

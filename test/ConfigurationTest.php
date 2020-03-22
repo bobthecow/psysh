@@ -254,4 +254,88 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame($checker, $config->getChecker());
     }
+
+    public function testSetFormatterStyles()
+    {
+        $config = $this->getConfig();
+        $config->setFormatterStyles([
+            'mario' => ['white', 'red'],
+            'luigi' => ['white', 'green'],
+        ]);
+
+        $formatter = $config->getOutput()->getFormatter();
+
+        $this->assertTrue($formatter->hasStyle('mario'));
+        $this->assertTrue($formatter->hasStyle('luigi'));
+
+        $mario = $formatter->getStyle('mario');
+        $this->assertEquals("\e[37;41mwheee\e[39;49m", $mario->apply('wheee'));
+
+        $luigi = $formatter->getStyle('luigi');
+        $this->assertEquals("\e[37;42mwheee\e[39;49m", $luigi->apply('wheee'));
+    }
+
+    public function testSetFormatterStylesRuntimeUpdates()
+    {
+        $config = $this->getConfig();
+        $formatter = $config->getOutput()->getFormatter();
+
+        $this->assertFalse($formatter->hasStyle('mario'));
+        $this->assertFalse($formatter->hasStyle('luigi'));
+
+        $config->setFormatterStyles([
+            'mario' => ['white', 'red'],
+            'luigi' => ['white', 'green'],
+        ]);
+
+        $this->assertTrue($formatter->hasStyle('mario'));
+        $this->assertTrue($formatter->hasStyle('luigi'));
+
+        $mario = $formatter->getStyle('mario');
+        $this->assertEquals("\e[37;41mwheee\e[39;49m", $mario->apply('wheee'));
+
+        $luigi = $formatter->getStyle('luigi');
+        $this->assertEquals("\e[37;42mwheee\e[39;49m", $luigi->apply('wheee'));
+
+        $config->setFormatterStyles([
+            'mario' => ['red', 'white'],
+            'luigi' => ['green', 'white'],
+        ]);
+
+        $mario = $formatter->getStyle('mario');
+        $this->assertEquals("\e[31;47mwheee\e[39;49m", $mario->apply('wheee'));
+
+        $luigi = $formatter->getStyle('luigi');
+        $this->assertEquals("\e[32;47mwheee\e[39;49m", $luigi->apply('wheee'));
+    }
+
+    /**
+     * @dataProvider invalidStyles
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetFormatterStylesInvalid($styles, $msg)
+    {
+        $this->expectExceptionMessage($msg);
+
+        $config = $this->getConfig();
+        $config->setFormatterStyles($styles);
+    }
+
+    public function invalidStyles()
+    {
+        return [
+            [
+                ['error' => ['burgundy', null, ['bold']]],
+                'Invalid foreground color specified: "burgundy". Expected one of',
+            ],
+            [
+                ['error' => ['red', 'ink', ['bold']]],
+                'Invalid background color specified: "ink". Expected one of',
+            ],
+            [
+                ['error' => ['black', 'red', ['marquee']]],
+                'Invalid option specified: "marquee". Expected one of',
+            ],
+        ];
+    }
 }
