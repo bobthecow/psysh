@@ -40,7 +40,7 @@ class ClassNamesMatcher extends AbstractMatcher
                 return \implode('\\', \array_slice($pieces, $nsPos, \count($pieces)));
             },
             \array_filter(
-                \get_declared_classes(),
+                \array_merge(\get_declared_classes(), \get_declared_interfaces()),
                 function ($className) use ($quotedClass) {
                     return AbstractMatcher::startsWith($quotedClass, $className);
                 }
