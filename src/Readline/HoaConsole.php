@@ -37,7 +37,7 @@ class HoaConsole implements Readline
     public function __construct()
     {
         $this->hoaReadline = new HoaReadline();
-        $this->hoaReadline->addMapping('\C-l', [$this, 'redisplay']);
+        $this->hoaReadline->addMapping('\C-l', [$this, '_redisplay']);
     }
 
     /**
@@ -98,10 +98,16 @@ class HoaConsole implements Readline
 
     /**
      * {@inheritdoc}
-     *
-     * @return int
      */
     public function redisplay()
+    {
+        $this->_redisplay();
+    }
+
+    /**
+     * @return int
+     */
+    public function _redisplay()
     {
         $current_line = $this->hoaReadline->getLine();
         Cursor::clear('all');
