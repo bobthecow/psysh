@@ -30,6 +30,6 @@ class NoReturnValue
      */
     public static function create()
     {
-        return new New_(new FullyQualifiedName(NoReturnValue::class));
+        return new New_(new FullyQualifiedName(self::class));
     }
 }

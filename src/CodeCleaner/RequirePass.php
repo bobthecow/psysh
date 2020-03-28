@@ -49,7 +49,7 @@ class RequirePass extends CodeCleanerPass
          *   $foo = require \Psy\CodeCleaner\RequirePass::resolve($bar)
          */
         $node->expr = new StaticCall(
-            new FullyQualifiedName(RequirePass::class),
+            new FullyQualifiedName(self::class),
             'resolve',
             [new Arg($origNode->expr), new Arg(new LNumber($origNode->getLine()))],
             $origNode->getAttributes()
