@@ -32,10 +32,10 @@ class ValidConstantPassTest extends CodeCleanerTestCase
     public function getInvalidReferences()
     {
         return [
-            ['Foo\BAR'],
+            ['Foo\\BAR'],
 
             // class constant fetch
-            ['Psy\Test\CodeCleaner\ValidConstantPassTest::FOO'],
+            ['Psy\\Test\\CodeCleaner\\ValidConstantPassTest::FOO'],
             ['DateTime::BACON'],
         ];
     }

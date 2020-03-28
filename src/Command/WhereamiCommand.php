@@ -83,7 +83,7 @@ HELP
         $class    = isset($stackFrame['class']) ? $stackFrame['class'] : null;
         $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
 
-        return ($class === null && $function === 'Psy\debug') ||
+        return ($class === null && $function === 'Psy\\debug') ||
             ($class === Shell::class && \in_array($function, ['__construct', 'debug']));
     }
 

@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use XdgBaseDir\Xdg;
 
-if (!\function_exists('Psy\sh')) {
+if (!\function_exists('Psy\\sh')) {
     /**
      * Command to return the eval-able code to startup PsySH.
      *
@@ -33,7 +33,7 @@ if (!\function_exists('Psy\sh')) {
     }
 }
 
-if (!\function_exists('Psy\debug')) {
+if (!\function_exists('Psy\\debug')) {
     /**
      * Invoke a Psy Shell from the current context.
      *
@@ -102,7 +102,7 @@ if (!\function_exists('Psy\debug')) {
     }
 }
 
-if (!\function_exists('Psy\info')) {
+if (!\function_exists('Psy\\info')) {
     /**
      * Get a bunch of debugging info about the current PsySH environment and
      * configuration.
@@ -267,7 +267,7 @@ if (!\function_exists('Psy\info')) {
     }
 }
 
-if (!\function_exists('Psy\bin')) {
+if (!\function_exists('Psy\\bin')) {
     /**
      * `psysh` command line executable.
      *

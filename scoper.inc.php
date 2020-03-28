@@ -126,7 +126,7 @@ return [
                 sprintf(
                     '\'%s\\%s\'',
                     $prefix,
-                    'Symfony\Component\Console\Formatter\OutputFormatter'
+                    'Symfony\\Component\\Console\\Formatter\\OutputFormatter'
                 ),
                 $contents
             );
