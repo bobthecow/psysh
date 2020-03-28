@@ -55,7 +55,6 @@ class ExecutionLoopClosure extends ExecutionClosure
                         $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: ExecutionClosure::NOOP_INPUT));
                     } catch (\Throwable $_e) {
                         // Clean up on our way out.
-                        \restore_error_handler();
                         if (\ob_get_level() > 0) {
                             \ob_end_clean();
                         }
@@ -63,16 +62,15 @@ class ExecutionLoopClosure extends ExecutionClosure
                         throw $_e;
                     } catch (\Exception $_e) {
                         // Clean up on our way out.
-                        \restore_error_handler();
                         if (\ob_get_level() > 0) {
                             \ob_end_clean();
                         }
 
                         throw $_e;
+                    } finally {
+                        // Won't be needing this anymore
+                        \restore_error_handler();
                     }
-
-                    // Won't be needing this anymore
-                    \restore_error_handler();
 
                     // Flush stdout (write to shell output, plus save to magic variable)
                     \ob_end_flush();

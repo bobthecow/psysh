@@ -137,9 +137,9 @@ class FilterOptions
         try {
             \preg_match($pattern, '');
         } catch (ErrorException $e) {
-            \restore_error_handler();
             throw new RuntimeException(\str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));
+        } finally {
+            \restore_error_handler();
         }
-        \restore_error_handler();
     }
 }
