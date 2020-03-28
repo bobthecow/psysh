@@ -1194,7 +1194,7 @@ class Shell extends Application
      *
      * This allows us to:
      *
-     *     set_error_handler(array($psysh, 'handleError'));
+     *     set_error_handler([$psysh, 'handleError']);
      *
      * Unlike ErrorException::throwException, this error handler respects error
      * levels; i.e. it logs warnings and notices, but doesn't throw exceptions.

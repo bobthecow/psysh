@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-return array(
+return [
     'useReadline'       => false,
     'usePcntl'          => true,
     'requireSemicolons' => true,
     'useUnicode'        => false,
-);
+];
