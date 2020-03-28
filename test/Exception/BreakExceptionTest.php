@@ -12,6 +12,7 @@
 namespace Psy\Test\Exception;
 
 use Psy\Exception\BreakException;
+use Psy\Exception\Exception;
 
 class BreakExceptionTest extends \PHPUnit\Framework\TestCase
 {
@@ -19,8 +20,8 @@ class BreakExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $e = new BreakException();
 
-        $this->assertInstanceOf('Psy\Exception\Exception', $e);
-        $this->assertInstanceOf('Psy\Exception\BreakException', $e);
+        $this->assertInstanceOf(Exception::class, $e);
+        $this->assertInstanceOf(BreakException::class, $e);
     }
 
     public function testMessage()

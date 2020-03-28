@@ -21,7 +21,7 @@ class DocblockTest extends \PHPUnit\Framework\TestCase
     public function testDocblockParsing($comment, $body, $tags)
     {
         $reflector = $this
-            ->getMockBuilder('ReflectionClass')
+            ->getMockBuilder(\ReflectionClass::class)
             ->disableOriginalConstructor()
             ->getMock();
 

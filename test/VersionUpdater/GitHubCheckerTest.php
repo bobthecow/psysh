@@ -12,6 +12,7 @@
 namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
+use Psy\VersionUpdater\GitHubChecker;
 
 class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
 {
@@ -24,7 +25,7 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
      */
     public function testExceptionInvocation($input)
     {
-        $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
+        $checker = $this->getMockBuilder(GitHubChecker::class)
             ->setMethods(['fetchLatestRelease'])
             ->getMock();
         $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);
@@ -39,7 +40,7 @@ class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
      */
     public function testDataSetResults($assertion, $input)
     {
-        $checker = $this->getMockBuilder('Psy\\VersionUpdater\\GitHubChecker')
+        $checker = $this->getMockBuilder(GitHubChecker::class)
             ->setMethods(['fetchLatestRelease'])
             ->getMock();
         $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);

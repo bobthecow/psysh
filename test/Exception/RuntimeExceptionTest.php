@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Exception;
 
+use Psy\Exception\Exception;
 use Psy\Exception\RuntimeException;
 
 class RuntimeExceptionTest extends \PHPUnit\Framework\TestCase
@@ -20,9 +21,9 @@ class RuntimeExceptionTest extends \PHPUnit\Framework\TestCase
         $msg = 'bananas';
         $e   = new RuntimeException($msg);
 
-        $this->assertInstanceOf('Psy\Exception\Exception', $e);
-        $this->assertInstanceOf('RuntimeException', $e);
-        $this->assertInstanceOf('Psy\Exception\RuntimeException', $e);
+        $this->assertInstanceOf(Exception::class, $e);
+        $this->assertInstanceOf(\RuntimeException::class, $e);
+        $this->assertInstanceOf(RuntimeException::class, $e);
 
         $this->assertSame($msg, $e->getMessage());
         $this->assertSame($msg, $e->getRawMessage());

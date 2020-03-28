@@ -11,6 +11,7 @@
 
 namespace Psy\Test\CodeCleaner;
 
+use PhpParser\ParserFactory as OriginalParserFactory;
 use Psy\CodeCleaner\ValidClassNamePass;
 
 class ValidClassNamePassTest extends CodeCleanerTestCase
@@ -321,7 +322,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
         ];
 
         // Ugh. There's gotta be a better way to test for this.
-        if (\class_exists('PhpParser\ParserFactory')) {
+        if (\class_exists(OriginalParserFactory::class)) {
             // PHP 7.0 anonymous classes, only supported by PHP Parser v2.x
             $valid[] = ['$obj = new class() {}'];
         }

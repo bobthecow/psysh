@@ -201,7 +201,7 @@ class CodeCleaner
         $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
 
         return ($class === null && $function === 'Psy\debug') ||
-            ($class === 'Psy\Shell' && $function === 'debug');
+            ($class === Shell::class && $function === 'debug');
     }
 
     /**

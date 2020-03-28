@@ -12,6 +12,8 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\PropertyEnumerator;
+use Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho;
+use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
 
 class PropertyEnumeratorTest extends EnumeratorTestCase
 {
@@ -135,7 +137,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho'), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(InterfaceEcho::class), null);
         $this->assertEquals([], $res);
     }
 
@@ -144,7 +146,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot'), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), null);
 
         $this->assertArrayHasKey('Trait Properties', $res);
         $properties = $res['Trait Properties'];

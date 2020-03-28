@@ -89,7 +89,7 @@ class DocblockFormatter implements Formatter
         $template = \implode(' ', $template);
 
         return \implode("\n", \array_map(function ($line) use ($template) {
-            $escaped = \array_map(['Symfony\Component\Console\Formatter\OutputFormatter', 'escape'], $line);
+            $escaped = \array_map([OutputFormatter::class, 'escape'], $line);
 
             return \rtrim(\vsprintf($template, $escaped));
         }, $lines));

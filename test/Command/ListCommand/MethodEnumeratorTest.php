@@ -12,6 +12,8 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\MethodEnumerator;
+use Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho;
+use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
 
 class MethodEnumeratorTest extends EnumeratorTestCase
 {
@@ -135,7 +137,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho'), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(InterfaceEcho::class), null);
 
         $this->assertArrayHasKey('Interface Methods', $res);
         $methods = $res['Interface Methods'];
@@ -154,7 +156,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot'), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), null);
 
         $this->assertArrayHasKey('Trait Methods', $res);
         $methods = $res['Trait Methods'];

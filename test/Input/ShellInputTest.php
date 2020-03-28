@@ -95,7 +95,7 @@ class ShellInputTest extends \PHPUnit\Framework\TestCase
     public function testTokenize($input, $tokens, $message)
     {
         $input = new ShellInput($input);
-        $r = new \ReflectionClass('Psy\Input\ShellInput');
+        $r = new \ReflectionClass(ShellInput::class);
         $p = $r->getProperty('tokenPairs');
         $p->setAccessible(true);
         $this->assertSame($tokens, $p->getValue($input), $message);

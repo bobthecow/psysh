@@ -24,6 +24,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\NodeVisitorAbstract;
+use Psy\Sudo;
 
 /**
  * A PHP Parser node visitor which rewrites property and method access to use
@@ -33,8 +34,6 @@ use PhpParser\NodeVisitorAbstract;
  */
 class SudoVisitor extends NodeVisitorAbstract
 {
-    const SUDO_CLASS = 'Psy\Sudo';
-
     const PROPERTY_FETCH         = 'fetchProperty';
     const PROPERTY_ASSIGN        = 'assignProperty';
     const METHOD_CALL            = 'callMethod';
@@ -73,7 +72,7 @@ class SudoVisitor extends NodeVisitorAbstract
             \array_unshift($args, new Arg($node->var));
 
             // not using prepareCall because the $node->args we started with are already Arg instances
-            return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), self::METHOD_CALL, $args);
+            return new StaticCall(new FullyQualifiedName(Sudo::class), self::METHOD_CALL, $args);
         } elseif ($node instanceof StaticPropertyFetch) {
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;
             $name = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
@@ -102,7 +101,7 @@ class SudoVisitor extends NodeVisitorAbstract
             \array_unshift($args, new Arg(\is_string($class) ? new String_($class) : $class));
 
             // not using prepareCall because the $node->args we started with are already Arg instances
-            return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), self::STATIC_CALL, $args);
+            return new StaticCall(new FullyQualifiedName(Sudo::class), self::STATIC_CALL, $args);
         } elseif ($node instanceof ClassConstFetch) {
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;
             $name  = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
@@ -117,7 +116,7 @@ class SudoVisitor extends NodeVisitorAbstract
 
     private function prepareCall($method, $args)
     {
-        return new StaticCall(new FullyQualifiedName(self::SUDO_CLASS), $method, \array_map(function ($arg) {
+        return new StaticCall(new FullyQualifiedName(Sudo::class), $method, \array_map(function ($arg) {
             return new Arg($arg);
         }, $args));
     }

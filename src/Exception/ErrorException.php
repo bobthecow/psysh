@@ -86,7 +86,7 @@ class ErrorException extends \ErrorException implements Exception
      *
      * This allows us to:
      *
-     *     set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
+     *     set_error_handler([ErrorException::class, 'throwException']);
      *
      * @throws ErrorException
      *

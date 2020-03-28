@@ -11,6 +11,7 @@
 
 namespace Psy\Output;
 
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -126,7 +127,7 @@ class ShellOutput extends ConsoleOutput
             $template = $this->isDecorated() ? "<aside>%{$pad}s</aside>: %s" : "%{$pad}s: %s";
 
             if ($type & self::OUTPUT_RAW) {
-                $messages = \array_map(['Symfony\Component\Console\Formatter\OutputFormatter', 'escape'], $messages);
+                $messages = \array_map([OutputFormatter::class, 'escape'], $messages);
             }
 
             foreach ($messages as $i => $line) {

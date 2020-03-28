@@ -14,6 +14,7 @@ namespace Psy\Command;
 use JakubOnderka\PhpConsoleHighlighter\Highlighter;
 use Psy\Configuration;
 use Psy\ConsoleColorFactory;
+use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -83,7 +84,7 @@ HELP
         $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
 
         return ($class === null && $function === 'Psy\debug') ||
-            ($class === 'Psy\Shell' && \in_array($function, ['__construct', 'debug']));
+            ($class === Shell::class && \in_array($function, ['__construct', 'debug']));
     }
 
     /**

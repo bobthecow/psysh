@@ -15,6 +15,7 @@ use Psy\Configuration;
 use Psy\Exception\ParseErrorException;
 use Psy\Shell;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -294,7 +295,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     {
         $shell = new Shell($this->getConfig());
 
-        $this->assertInstanceOf('Symfony\Component\Console\Application', $shell);
+        $this->assertInstanceOf(Application::class, $shell);
         $this->assertContains(Shell::VERSION, $shell->getVersion());
         $this->assertContains(PHP_VERSION, $shell->getVersion());
         $this->assertContains(PHP_SAPI, $shell->getVersion());
@@ -483,7 +484,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell = new Shell($this->getConfig());
 
         // :-/
-        $refl = new \ReflectionClass('Psy\\Shell');
+        $refl = new \ReflectionClass(Shell::class);
         $method = $refl->getMethod('hasCommand');
         $method->setAccessible(true);
 

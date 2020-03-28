@@ -12,6 +12,8 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ConstantEnumerator;
+use Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta;
+use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
 
 \define('Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT', 42);
 
@@ -32,8 +34,8 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta'), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot'), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateInternalConstants()

@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Reflection;
 
+use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant;
 
 class ReflectionConstantBCTest extends \PHPUnit\Framework\TestCase
@@ -20,7 +21,7 @@ class ReflectionConstantBCTest extends \PHPUnit\Framework\TestCase
     public function testConstruction()
     {
         $refl = new ReflectionConstant($this, 'CONSTANT_ONE');
-        $this->assertInstanceOf('Psy\Reflection\ReflectionConstant', $refl);
-        $this->assertInstanceOf('Psy\Reflection\ReflectionClassConstant', $refl);
+        $this->assertInstanceOf(ReflectionConstant::class, $refl);
+        $this->assertInstanceOf(ReflectionClassConstant::class, $refl);
     }
 }

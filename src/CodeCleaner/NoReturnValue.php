@@ -30,6 +30,6 @@ class NoReturnValue
      */
     public static function create()
     {
-        return new New_(new FullyQualifiedName('Psy\CodeCleaner\NoReturnValue'));
+        return new New_(new FullyQualifiedName(NoReturnValue::class));
     }
 }

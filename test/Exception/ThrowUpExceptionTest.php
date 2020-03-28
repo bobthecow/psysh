@@ -11,6 +11,8 @@
 
 namespace Psy\Test\Exception;
 
+use Psy\Exception\ErrorException;
+use Psy\Exception\Exception;
 use Psy\Exception\ThrowUpException;
 
 class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
@@ -20,8 +22,8 @@ class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
         $previous = new \Exception('{{message}}', 123);
         $e = new ThrowUpException($previous);
 
-        $this->assertInstanceOf('Psy\Exception\Exception', $e);
-        $this->assertInstanceOf('Psy\Exception\ThrowUpException', $e);
+        $this->assertInstanceOf(Exception::class, $e);
+        $this->assertInstanceOf(ThrowUpException::class, $e);
 
         $this->assertEquals("Throwing Exception with message '{{message}}'", $e->getMessage());
         $this->assertEquals('{{message}}', $e->getRawMessage());
@@ -34,7 +36,7 @@ class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
         $previous = new \Exception('{{message}}');
         $e = ThrowUpException::fromThrowable($previous);
 
-        $this->assertInstanceOf('Psy\Exception\ThrowUpException', $e);
+        $this->assertInstanceOf(ThrowUpException::class, $e);
         $this->assertSame($previous, $e->getPrevious());
     }
 
@@ -47,8 +49,8 @@ class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
         $previous = new \Error('{{message}}');
         $e = ThrowUpException::fromThrowable($previous);
 
-        $this->assertInstanceOf('Psy\Exception\ThrowUpException', $e);
-        $this->assertInstanceOf('Psy\Exception\ErrorException', $e->getPrevious());
+        $this->assertInstanceOf(ThrowUpException::class, $e);
+        $this->assertInstanceOf(ErrorException::class, $e->getPrevious());
 
         $this->assertNotSame($previous, $e->getPrevious());
         $this->assertSame($previous, $e->getPrevious()->getPrevious());

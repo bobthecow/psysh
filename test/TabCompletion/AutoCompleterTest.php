@@ -101,7 +101,7 @@ class AutoCompleterTest extends \PHPUnit\Framework\TestCase
             ['new s', ['stdClass'], []],
             [
                 'new ',
-                ['stdClass', 'Psy\\Context', 'Psy\\Configuration'],
+                ['stdClass', Context::class, Configuration::class],
                 ['require', 'array_search', 'T_OPEN_TAG', '$foo'],
             ],
             ['new Psy\\C', ['Context'], ['CASE_LOWER']],

@@ -11,9 +11,11 @@
 
 namespace Psy\Test\Formatter;
 
+use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
+use Psy\Test\Formatter\Fixtures\BoringTrait;
 
 class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
 {
@@ -56,7 +58,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
                 'private static $bar',
             ],
             [
-                new \ReflectionClass('Psy\CodeCleaner\CodeCleanerPass'),
+                new \ReflectionClass(CodeCleanerPass::class),
                 'abstract class Psy\CodeCleaner\CodeCleanerPass '
                 . 'extends PhpParser\NodeVisitorAbstract '
                 . 'implements PhpParser\NodeVisitor',
@@ -66,11 +68,11 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
                 \defined('HHVM_VERSION') ? 'function array_chunk($input, $size, $preserve_keys = false)' : (\version_compare(PHP_VERSION, '8.0', '>=') ? 'function array_chunk(array $arg, $size, $preserve_keys = unknown)' : 'function array_chunk($arg, $size, $preserve_keys = unknown)'),
             ],
             [
-                new \ReflectionClass('Psy\Test\Formatter\Fixtures\BoringTrait'),
+                new \ReflectionClass(BoringTrait::class),
                 'trait Psy\Test\Formatter\Fixtures\BoringTrait',
             ],
             [
-                new \ReflectionMethod('Psy\Test\Formatter\Fixtures\BoringTrait', 'boringMethod'),
+                new \ReflectionMethod(BoringTrait::class, 'boringMethod'),
                 'public function boringMethod($one = 1)',
             ],
             [
@@ -97,7 +99,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
      */
     public function testSignatureFormatterThrowsUnknownReflectorExpeption()
     {
-        $refl = $this->getMockBuilder('Reflector')->getMock();
+        $refl = $this->getMockBuilder(\Reflector::class)->getMock();
         SignatureFormatter::format($refl);
     }
 }

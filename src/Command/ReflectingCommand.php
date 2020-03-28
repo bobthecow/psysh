@@ -16,6 +16,8 @@ use Psy\Context;
 use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
+use Psy\Reflection\ReflectionClassConstant;
+use Psy\Reflection\ReflectionConstant_;
 use Psy\Util\Mirror;
 
 /**
@@ -237,15 +239,15 @@ abstract class ReflectingCommand extends Command implements ContextAware
         $vars = [];
 
         switch (\get_class($reflector)) {
-            case 'ReflectionClass':
-            case 'ReflectionObject':
+            case \ReflectionClass::class:
+            case \ReflectionObject::class:
                 $vars['__class'] = $reflector->name;
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }
                 break;
 
-            case 'ReflectionMethod':
+            case \ReflectionMethod::class:
                 $vars['__method'] = \sprintf('%s::%s', $reflector->class, $reflector->name);
                 $vars['__class'] = $reflector->class;
                 $classReflector = $reflector->getDeclaringClass();
@@ -254,14 +256,14 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case 'ReflectionFunction':
+            case \ReflectionFunction::class:
                 $vars['__function'] = $reflector->name;
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }
                 break;
 
-            case 'ReflectionGenerator':
+            case \ReflectionGenerator::class:
                 $funcReflector = $reflector->getFunction();
                 $vars['__function'] = $funcReflector->name;
                 if ($funcReflector->inNamespace()) {
@@ -274,9 +276,9 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case 'ReflectionProperty':
-            case 'ReflectionClassConstant':
-            case 'Psy\Reflection\ReflectionClassConstant':
+            case \ReflectionProperty::class:
+            case \ReflectionClassConstant::class:
+            case ReflectionClassConstant::class:
                 $classReflector = $reflector->getDeclaringClass();
                 $vars['__class'] = $classReflector->name;
                 if ($classReflector->inNamespace()) {
@@ -289,7 +291,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case 'Psy\Reflection\ReflectionConstant_':
+            case ReflectionConstant_::class:
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }

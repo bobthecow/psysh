@@ -14,6 +14,8 @@ namespace Psy\Command;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
+use Psy\Reflection\ReflectionClassConstant;
+use Psy\Reflection\ReflectionConstant_;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -89,29 +91,29 @@ HELP
     private function getManualDoc($reflector)
     {
         switch (\get_class($reflector)) {
-            case 'ReflectionClass':
-            case 'ReflectionObject':
-            case 'ReflectionFunction':
+            case \ReflectionClass::class:
+            case \ReflectionObject::class:
+            case \ReflectionFunction::class:
                 $id = $reflector->name;
                 break;
 
-            case 'ReflectionMethod':
+            case \ReflectionMethod::class:
                 $id = $reflector->class . '::' . $reflector->name;
                 break;
 
-            case 'ReflectionProperty':
+            case \ReflectionProperty::class:
                 $id = $reflector->class . '::$' . $reflector->name;
                 break;
 
-            case 'ReflectionClassConstant':
-            case 'Psy\Reflection\ReflectionClassConstant':
+            case \ReflectionClassConstant::class:
+            case ReflectionClassConstant::class:
                 // @todo this is going to collide with ReflectionMethod ids
                 // someday... start running the query by id + type if the DB
                 // supports it.
                 $id = $reflector->class . '::' . $reflector->name;
                 break;
 
-            case 'Psy\Reflection\ReflectionConstant_':
+            case ReflectionConstant_::class:
                 $id = $reflector->name;
                 break;
 

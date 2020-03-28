@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Exception;
 
+use Psy\Exception\Exception;
 use Psy\Exception\TypeErrorException;
 
 class TypeErrorExceptionTest extends \PHPUnit\Framework\TestCase
@@ -19,8 +20,8 @@ class TypeErrorExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $e = new TypeErrorException('{{message}}', 13);
 
-        $this->assertInstanceOf('Psy\Exception\Exception', $e);
-        $this->assertInstanceOf('Psy\Exception\TypeErrorException', $e);
+        $this->assertInstanceOf(Exception::class, $e);
+        $this->assertInstanceOf(TypeErrorException::class, $e);
 
         $this->assertEquals('TypeError: {{message}}', $e->getMessage());
         $this->assertEquals('{{message}}', $e->getRawMessage());
@@ -44,7 +45,7 @@ class TypeErrorExceptionTest extends \PHPUnit\Framework\TestCase
         $previous = new \TypeError('{{message}}', 13);
         $e = TypeErrorException::fromTypeError($previous);
 
-        $this->assertInstanceOf('Psy\Exception\TypeErrorException', $e);
+        $this->assertInstanceOf(TypeErrorException::class, $e);
         $this->assertEquals('TypeError: {{message}}', $e->getMessage());
         $this->assertEquals('{{message}}', $e->getRawMessage());
         $this->assertEquals(13, $e->getCode());

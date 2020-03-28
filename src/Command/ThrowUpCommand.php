@@ -21,6 +21,7 @@ use PhpParser\Node\Stmt\Throw_;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Context;
 use Psy\ContextAware;
+use Psy\Exception\ThrowUpException;
 use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,8 +32,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ThrowUpCommand extends Command implements ContextAware
 {
-    const THROW_CLASS = 'Psy\Exception\ThrowUpException';
-
     private $parser;
     private $printer;
 
@@ -100,7 +99,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $args = $this->prepareArgs($input->getArgument('exception'));
-        $throwStmt = new Throw_(new StaticCall(new FullyQualifiedName(self::THROW_CLASS), 'fromThrowable', $args));
+        $throwStmt = new Throw_(new StaticCall(new FullyQualifiedName(ThrowUpException::class), 'fromThrowable', $args));
         $throwCode = $this->printer->prettyPrint([$throwStmt]);
 
         $shell = $this->getApplication();
@@ -145,7 +144,7 @@ HELP
 
         // Allow throwing via a string, e.g. `throw-up "SUP"`
         if ($expr instanceof String_) {
-            return [new New_(new FullyQualifiedName('Exception'), $args)];
+            return [new New_(new FullyQualifiedName(\Exception::class), $args)];
         }
 
         return $args;

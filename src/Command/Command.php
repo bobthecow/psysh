@@ -247,7 +247,7 @@ abstract class Command extends BaseCommand
      */
     protected function getTable(OutputInterface $output)
     {
-        if (!\class_exists('Symfony\Component\Console\Helper\Table')) {
+        if (!\class_exists(Table::class)) {
             return $this->getTableHelper();
         }
 

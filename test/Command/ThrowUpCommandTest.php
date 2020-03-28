@@ -22,7 +22,7 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
      */
     public function testExecute($args, $hasCode, $expect, $addSilent = true)
     {
-        $shell = $this->getMockBuilder('Psy\\Shell')
+        $shell = $this->getMockBuilder(Shell::class)
             ->setMethods(['hasCode', 'addCode'])
             ->getMock();
 

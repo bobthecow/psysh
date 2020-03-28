@@ -12,6 +12,7 @@
 namespace Psy\Test;
 
 use Psy\Context;
+use Psy\Shell;
 
 class ContextTest extends \PHPUnit\Framework\TestCase
 {
@@ -218,15 +219,15 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $context->setBoundClass('');
         $this->assertNull($context->getBoundClass());
 
-        $context->setBoundClass('Psy\Shell');
-        $this->assertEquals('Psy\Shell', $context->getBoundClass());
+        $context->setBoundClass(Shell::class);
+        $this->assertEquals(Shell::class, $context->getBoundClass());
 
         $context->setBoundObject(new \stdClass());
         $this->assertNotNull($context->getBoundObject());
         $this->assertNull($context->getBoundClass());
 
-        $context->setBoundClass('Psy\Shell');
-        $this->assertEquals('Psy\Shell', $context->getBoundClass());
+        $context->setBoundClass(Shell::class);
+        $this->assertEquals(Shell::class, $context->getBoundClass());
         $this->assertNull($context->getBoundObject());
 
         $context->setBoundClass(null);

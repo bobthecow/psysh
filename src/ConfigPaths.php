@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use Psy\Exception\ErrorException;
 use XdgBaseDir\Xdg;
 
 /**
@@ -136,7 +137,7 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
-        \set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
+        \set_error_handler([ErrorException::class, 'throwException']);
 
         try {
             // XDG doesn't really work on Windows, sometimes complains about

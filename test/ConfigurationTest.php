@@ -15,6 +15,7 @@ use Psy\CodeCleaner;
 use Psy\Configuration;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\PassthruPager;
+use Psy\Output\ShellOutput;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -187,7 +188,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $config = $this->getConfig();
         $output = $config->getOutput();
 
-        $this->assertInstanceOf('Psy\Output\ShellOutput', $output);
+        $this->assertInstanceOf(ShellOutput::class, $output);
     }
 
     public function getOutputDecoratedProvider()
@@ -315,10 +316,10 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     public function testSetFormatterStylesInvalid($styles, $msg)
     {
         if (method_exists($this, 'expectException')) {
-            $this->expectException('InvalidArgumentException');
+            $this->expectException(\InvalidArgumentException::class);
             $this->expectExceptionMessage($msg);
         } else {
-            $this->setExpectedException('InvalidArgumentException', $msg);
+            $this->setExpectedException(\InvalidArgumentException::class, $msg);
         }
 
         $config = $this->getConfig();

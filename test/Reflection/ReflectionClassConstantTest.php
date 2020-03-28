@@ -22,8 +22,8 @@ class ReflectionClassConstantTest extends \PHPUnit\Framework\TestCase
         $refl  = new ReflectionClassConstant($this, 'CONSTANT_ONE');
         $class = $refl->getDeclaringClass();
 
-        $this->assertInstanceOf('ReflectionClass', $class);
-        $this->assertSame('Psy\Test\Reflection\ReflectionClassConstantTest', $class->getName());
+        $this->assertInstanceOf(\ReflectionClass::class, $class);
+        $this->assertSame(self::class, $class->getName());
         $this->assertSame('CONSTANT_ONE', $refl->getName());
         $this->assertSame('CONSTANT_ONE', (string) $refl);
         $this->assertSame('one', $refl->getValue());

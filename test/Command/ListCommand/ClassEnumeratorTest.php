@@ -12,6 +12,13 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ClassEnumerator;
+use Psy\Test\Command\ListCommand\Fixtures\ClassAlfa;
+use Psy\Test\Command\ListCommand\Fixtures\ClassBravo;
+use Psy\Test\Command\ListCommand\Fixtures\ClassCharlie;
+use Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta;
+use Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho;
+use Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot;
+use Psy\Test\Command\ListCommand\Fixtures\TraitGolf;
 
 class ClassEnumeratorTest extends EnumeratorTestCase
 {
@@ -23,8 +30,8 @@ class ClassEnumeratorTest extends EnumeratorTestCase
 
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta'), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass('Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot'), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
+        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateClasses()
@@ -37,19 +44,19 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $fixtureClasses = \array_filter($res['Classes'], [$this, 'isFixtureClass']);
 
         $expected = [
-            'Psy\Test\Command\ListCommand\Fixtures\ClassAlfa' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\ClassAlfa',
+            ClassAlfa::class => [
+                'name'  => ClassAlfa::class,
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassAlfa</class>',
             ],
-            'Psy\Test\Command\ListCommand\Fixtures\ClassBravo' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\ClassBravo',
+            ClassBravo::class => [
+                'name'  => ClassBravo::class,
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
-            'Psy\Test\Command\ListCommand\Fixtures\ClassCharlie' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\ClassCharlie',
+            ClassCharlie::class => [
+                'name'  => ClassCharlie::class,
                 'style' => 'class',
                 'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
@@ -72,13 +79,13 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $prefix = PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
 
         $expected = [
-            'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta',
+            InterfaceDelta::class => [
+                'name'  => InterfaceDelta::class,
                 'style' => 'class',
                 'value' => 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
-            'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho',
+            InterfaceEcho::class => [
+                'name'  => InterfaceEcho::class,
                 'style' => 'class',
                 'value' => $prefix . 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
@@ -98,13 +105,13 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $fixtureClasses = \array_filter($res['Traits'], [$this, 'isFixtureClass']);
 
         $expected = [
-            'Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot',
+            TraitFoxtrot::class => [
+                'name'  => TraitFoxtrot::class,
                 'style' => 'class',
                 'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitFoxtrot</class>',
             ],
-            'Psy\Test\Command\ListCommand\Fixtures\TraitGolf' => [
-                'name'  => 'Psy\Test\Command\ListCommand\Fixtures\TraitGolf',
+            TraitGolf::class => [
+                'name'  => TraitGolf::class,
                 'style' => 'class',
                 'value' => 'trait <class>Psy\Test\Command\ListCommand\Fixtures\TraitGolf</class>',
             ],

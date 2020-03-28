@@ -16,10 +16,6 @@ use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
-use Psy\Readline\GNUReadline;
-use Psy\Readline\HoaConsole;
-use Psy\Readline\Libedit;
-use Psy\Readline\Readline;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
@@ -566,16 +562,16 @@ class Configuration
     private function getReadlineClass()
     {
         if ($this->useReadline()) {
-            if (GNUReadline::isSupported()) {
-                return 'Psy\Readline\GNUReadline';
-            } elseif (Libedit::isSupported()) {
-                return 'Psy\Readline\Libedit';
-            } elseif (HoaConsole::isSupported()) {
-                return 'Psy\Readline\HoaConsole';
+            if (Readline\GNUReadline::isSupported()) {
+                return Readline\GNUReadline::class;
+            } elseif (Readline\Libedit::isSupported()) {
+                return Readline\Libedit::class;
+            } elseif (Readline\HoaConsole::isSupported()) {
+                return Readline\HoaConsole::class;
             }
         }
 
-        return 'Psy\Readline\Transient';
+        return Readline\Transient::class;
     }
 
     /**
@@ -608,7 +604,7 @@ class Configuration
     public function useBracketedPaste()
     {
         // For now, only the GNU readline implementation supports bracketed paste.
-        $supported = ($this->getReadlineClass() === 'Psy\Readline\GNUReadline');
+        $supported = ($this->getReadlineClass() === Readline\GNUReadline::class);
 
         return $supported && $this->useBracketedPaste;
 

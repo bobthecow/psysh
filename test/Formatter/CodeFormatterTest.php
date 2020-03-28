@@ -65,9 +65,9 @@ EOS;
 EOS;
 
         return [
-            [new \ReflectionClass('Psy\Test\Formatter\Fixtures\SomeClass'), $expectClass],
+            [new \ReflectionClass(SomeClass::class), $expectClass],
             [new \ReflectionObject(new SomeClass()), $expectClass],
-            [new \ReflectionMethod('Psy\Test\Formatter\Fixtures\SomeClass', 'someMethod'), $expectMethod],
+            [new \ReflectionMethod(SomeClass::class, 'someMethod'), $expectMethod],
             [new \ReflectionFunction(SomeClass::someClosure()), $expectClosure],
         ];
     }
@@ -85,12 +85,12 @@ EOS;
     {
         $reflectors = [
             [new \ReflectionExtension('json')],
-            [new \ReflectionParameter(['Psy\Test\Formatter\Fixtures\SomeClass', 'someMethod'], 'someParam')],
-            [new \ReflectionProperty('Psy\Test\Formatter\Fixtures\SomeClass', 'someProp')],
+            [new \ReflectionParameter([SomeClass::class, 'someMethod'], 'someParam')],
+            [new \ReflectionProperty(SomeClass::class, 'someProp')],
         ];
 
         if (\version_compare(PHP_VERSION, '7.1.0', '>=')) {
-            $reflectors[] = [new \ReflectionClassConstant('Psy\Test\Formatter\Fixtures\SomeClass', 'SOME_CONST')];
+            $reflectors[] = [new \ReflectionClassConstant(SomeClass::class, 'SOME_CONST')];
         }
 
         return $reflectors;
@@ -102,7 +102,7 @@ EOS;
      */
     public function testCodeFormatterThrowsExceptionForMissingFile($filename)
     {
-        $reflector = $this->getMockBuilder('ReflectionClass')
+        $reflector = $this->getMockBuilder(\ReflectionClass::class)
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -39,7 +39,7 @@ class CodeArgumentTest extends \PHPUnit\Framework\TestCase
      */
     public function testValidModes($mode)
     {
-        $this->assertInstanceOf('Psy\Input\CodeArgument', new CodeArgument('yeah', $mode));
+        $this->assertInstanceOf(CodeArgument::class, new CodeArgument('yeah', $mode));
     }
 
     public function getValidModes()

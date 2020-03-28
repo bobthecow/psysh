@@ -133,7 +133,7 @@ class FilterOptions
      */
     private function validateRegex($pattern)
     {
-        \set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
+        \set_error_handler([ErrorException::class, 'throwException']);
         try {
             \preg_match($pattern, '');
         } catch (ErrorException $e) {

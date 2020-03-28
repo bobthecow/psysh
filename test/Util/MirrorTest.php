@@ -11,6 +11,8 @@
 
 namespace Psy\Test\Util;
 
+use Psy\Reflection\ReflectionClassConstant;
+use Psy\Reflection\ReflectionConstant_;
 use Psy\Util\Mirror;
 
 class MirrorTest extends \PHPUnit\Framework\TestCase
@@ -27,35 +29,35 @@ class MirrorTest extends \PHPUnit\Framework\TestCase
     public function testMirror()
     {
         $refl = Mirror::get('sort');
-        $this->assertInstanceOf('ReflectionFunction', $refl);
+        $this->assertInstanceOf(\ReflectionFunction::class, $refl);
 
-        $refl = Mirror::get('Psy\Test\Util\MirrorTest');
-        $this->assertInstanceOf('ReflectionClass', $refl);
+        $refl = Mirror::get(self::class);
+        $this->assertInstanceOf(\ReflectionClass::class, $refl);
 
         $refl = Mirror::get($this);
-        $this->assertInstanceOf('ReflectionObject', $refl);
+        $this->assertInstanceOf(\ReflectionObject::class, $refl);
 
         $refl = Mirror::get($this, 'FOO');
         if (\version_compare(PHP_VERSION, '7.1.0', '>=')) {
-            $this->assertInstanceOf('ReflectionClassConstant', $refl);
+            $this->assertInstanceOf(\ReflectionClassConstant::class, $refl);
         } else {
-            $this->assertInstanceOf('Psy\Reflection\ReflectionClassConstant', $refl);
+            $this->assertInstanceOf(ReflectionClassConstant::class, $refl);
         }
 
         $refl = Mirror::get('PHP_VERSION');
-        $this->assertInstanceOf('Psy\Reflection\ReflectionConstant_', $refl);
+        $this->assertInstanceOf(ReflectionConstant_::class, $refl);
 
         $refl = Mirror::get($this, 'bar');
-        $this->assertInstanceOf('ReflectionProperty', $refl);
+        $this->assertInstanceOf(\ReflectionProperty::class, $refl);
 
         $refl = Mirror::get($this, 'baz');
-        $this->assertInstanceOf('ReflectionProperty', $refl);
+        $this->assertInstanceOf(\ReflectionProperty::class, $refl);
 
         $refl = Mirror::get($this, 'aPublicMethod');
-        $this->assertInstanceOf('ReflectionMethod', $refl);
+        $this->assertInstanceOf(\ReflectionMethod::class, $refl);
 
         $refl = Mirror::get($this, 'baz', Mirror::STATIC_PROPERTY);
-        $this->assertInstanceOf('ReflectionProperty', $refl);
+        $this->assertInstanceOf(\ReflectionProperty::class, $refl);
     }
 
     /**

@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Exception;
 
+use Psy\Exception\Exception;
 use Psy\Exception\FatalErrorException;
 
 class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
@@ -19,9 +20,9 @@ class FatalErrorExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $e = new FatalErrorException();
 
-        $this->assertInstanceOf('Psy\Exception\Exception', $e);
-        $this->assertInstanceOf('ErrorException', $e);
-        $this->assertInstanceOf('Psy\Exception\FatalErrorException', $e);
+        $this->assertInstanceOf(Exception::class, $e);
+        $this->assertInstanceOf(\ErrorException::class, $e);
+        $this->assertInstanceOf(FatalErrorException::class, $e);
     }
 
     public function testMessage()

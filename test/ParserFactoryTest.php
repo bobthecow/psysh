@@ -11,6 +11,7 @@
 
 namespace Psy\Test;
 
+use PhpParser\ParserFactory as OriginalParserFactory;
 use Psy\ParserFactory;
 
 class ParserFactoryTest extends \PhpUnit\Framework\TestCase
@@ -27,14 +28,14 @@ class ParserFactoryTest extends \PhpUnit\Framework\TestCase
     public function testHasKindsSupport()
     {
         $factory = new ParserFactory();
-        $this->assertEquals(class_exists('PhpParser\ParserFactory'), $factory->hasKindsSupport());
+        $this->assertEquals(class_exists(OriginalParserFactory::class), $factory->hasKindsSupport());
     }
 
     public function testGetDefaultKind()
     {
         $factory = new ParserFactory();
 
-        if (!class_exists('PhpParser\ParserFactory')) {
+        if (!class_exists(OriginalParserFactory::class)) {
             $this->assertNull($factory->getDefaultKind());
 
             return;
@@ -53,9 +54,9 @@ class ParserFactoryTest extends \PhpUnit\Framework\TestCase
 
         $parser = $factory->createParser();
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
-            $this->assertInstanceOf('PhpParser\Parser\Php7', $parser);
+            $this->assertInstanceOf(\PhpParser\Parser\Php7::class, $parser);
         } else {
-            $this->assertInstanceOf('PhpParser\Parser\Php5', $parser);
+            $this->assertInstanceOf(\PhpParser\Parser\Php5::class, $parser);
         }
     }
 }

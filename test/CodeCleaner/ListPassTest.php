@@ -12,6 +12,7 @@
 namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ListPass;
+use Psy\Exception\ParseErrorException;
 
 class ListPassTest extends CodeCleanerTestCase
 {
@@ -27,7 +28,7 @@ class ListPassTest extends CodeCleanerTestCase
     public function testProcessInvalidStatement($code, $expectedMessage)
     {
         if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException('Psy\Exception\ParseErrorException', $expectedMessage);
+            $this->setExpectedException(ParseErrorException::class, $expectedMessage);
         } else {
             $this->expectExceptionMessage($expectedMessage);
         }
