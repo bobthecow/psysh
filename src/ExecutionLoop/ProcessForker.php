@@ -157,8 +157,11 @@ class ProcessForker extends AbstractListener
         }
 
         // This is the child process. It's going to do all the work.
-        if (\function_exists('setproctitle')) {
-            setproctitle('psysh (loop)');
+        if (!@\cli_set_process_title('psysh (loop)')) {
+            // Fall back to `setproctitle` if that wasn't succesful.
+            if (\function_exists('setproctitle')) {
+                @\setproctitle('psysh (loop)');
+            }
         }
 
         // We won't be needing this one.
