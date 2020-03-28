@@ -7,6 +7,7 @@
 /.travis.yml export-ignore
 /bin/build-stub export-ignore
 /box.json.dist export-ignore
+/codecov.yml export-ignore
 /Makefile export-ignore
 /phpunit.xml.dist export-ignore
 /scoper.inc.php export-ignore
