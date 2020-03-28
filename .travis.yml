@@ -27,6 +27,9 @@ jobs:
     allow_failures:
         - php: 5.5.9
           env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
+        - php: nightly
+          dist: bionic
+          env: 'COMPOSER_FLAGS="--ignore-platform-reqs"'
     fast_finish: true
 
 install:
