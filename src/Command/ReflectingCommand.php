@@ -16,6 +16,7 @@ use Psy\Context;
 use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
+use Psy\Exception\UnexpectedTargetException;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Util\Mirror;
@@ -189,7 +190,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     /**
      * Resolve code to an object in the current scope.
      *
-     * @throws RuntimeException when the code resolves to a non-object value
+     * @throws UnexpectedTargetException when the code resolves to a non-object value
      *
      * @param string $code
      *
@@ -200,7 +201,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
         $value = $this->resolveCode($code);
 
         if (!\is_object($value)) {
-            throw new RuntimeException('Unable to inspect a non-object');
+            throw new UnexpectedTargetException($value, 'Unable to inspect a non-object');
         }
 
         return $value;

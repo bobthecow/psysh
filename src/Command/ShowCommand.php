@@ -12,6 +12,7 @@
 namespace Psy\Command;
 
 use Psy\Exception\RuntimeException;
+use Psy\Exception\UnexpectedTargetException;
 use Psy\Formatter\CodeFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
@@ -107,7 +108,18 @@ HELP
 
     private function writeCodeContext(InputInterface $input, OutputInterface $output)
     {
-        list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'));
+        try {
+            list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'));
+        } catch (UnexpectedTargetException $e) {
+            // If we didn't get a target and Reflector, maybe we got a filename?
+            $target = $e->getTarget();
+            if (\is_string($target) && \is_file($target) && $code = @\file_get_contents($target)) {
+                // @todo maybe set $__file to $target?
+                return $output->page(CodeFormatter::formatCode($code));
+            } else {
+                throw $e;
+            }
+        }
 
         // Set some magic local variables
         $this->setCommandScopeVariables($reflector);
