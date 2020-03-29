@@ -154,7 +154,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                 ],
             ]],
 
-            // TODO: move `testEnumerateExcludeInherited` into here after PHP 7.1
+            // @todo move `testEnumerateExcludeInherited` into here after PHP 7.1
         ];
     }
 

@@ -75,7 +75,7 @@ class AutoCompleterTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * TODO
+     * @todo
      * ====
      * draft, open to modifications
      * - [ ] if the variable is an array, return the square bracket for completion
