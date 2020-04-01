@@ -8,6 +8,8 @@
     "blacklist": [
         "grammar",
         "test_old",
-        "Documentation"
+        "Documentation",
+        "php-parse",
+        "var-dump-server"
     ]
 }
