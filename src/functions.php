@@ -317,6 +317,7 @@ if (!\function_exists('Psy\\bin')) {
                     new InputOption('config',   'c',  InputOption::VALUE_REQUIRED),
                     new InputOption('version',  'V',  InputOption::VALUE_NONE),
                     new InputOption('cwd',      null, InputOption::VALUE_REQUIRED),
+
                     new InputOption('color',    null, InputOption::VALUE_NONE),
                     new InputOption('no-color', null, InputOption::VALUE_NONE),
 
@@ -369,12 +370,16 @@ Usage:
   $name [--version] [--help] [files...]
 
 Options:
-  --help     -h Display this help message.
-  --config   -c Use an alternate PsySH config file location.
-  --cwd         Use an alternate working directory.
-  --version  -V Display the PsySH version.
-  --color       Force colors in output.
-  --no-color    Disable colors in output.
+  -h, --help            Display this help message.
+  -c, --config FILE     Use an alternate PsySH config file location.
+      --cwd PATH        Use an alternate working directory.
+  -V, --version         Display the PsySH version.
+      --color           Force colors in output.
+      --no-color        Disable colors in output.
+  -n, --no-interaction  Run PsySH without interaction. Requires input from stdin.
+  -r, --raw-output      Print var_export-style return values (for non-interactive input)
+  -q, --quiet           Shhhhhh.
+  -v|vv|vvv, --verbose  Increase the verbosity of messages.
 
 EOL;
                 exit($usageException === null ? 0 : 1);
