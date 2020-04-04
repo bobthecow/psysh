@@ -337,9 +337,10 @@ class Shell extends Application
         $this->setCatchExceptions(false);
 
         if ($input->isInteractive()) {
-            return $this->doInteractiveRun($input);
+            // @todo should it be possible to have raw output in an interactive run?
+            return $this->doInteractiveRun();
         } else {
-            return $this->doNonInteractiveRun($input, $this->config->rawOutput());
+            return $this->doNonInteractiveRun($this->config->rawOutput());
         }
     }
 
@@ -350,10 +351,8 @@ class Shell extends Application
      * execution loop.
      *
      * @throws Exception if thrown via the `throw-up` command
-     *
-     * @param InputInterface $input An Input instance
      */
-    private function doInteractiveRun(InputInterface $input)
+    private function doInteractiveRun()
     {
         $this->initializeTabCompletion();
         $this->readline->readHistory();
@@ -382,9 +381,9 @@ class Shell extends Application
      * Note that this isn't very useful unless you supply "include" arguments at
      * the command line, or code via stdin.
      *
-     * @param InputInterface $input An Input instance
+     * @param bool $rawOutput
      */
-    private function doNonInteractiveRun(InputInterface $input, $rawOutput)
+    private function doNonInteractiveRun($rawOutput)
     {
         // If raw output is enabled, we don't want startup messages.
         if (!$rawOutput) {
