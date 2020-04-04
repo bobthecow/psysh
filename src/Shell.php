@@ -386,8 +386,8 @@ class Shell extends Application
      */
     private function doNonInteractiveRun($rawOutput)
     {
-        // If raw output is enabled, we don't want startup messages.
-        if (!$rawOutput) {
+        // If raw output is enabled (or output is piped) we don't want startup messages.
+        if (!$rawOutput && !$this->config->outputIsPiped()) {
             $this->output->writeln($this->getHeader());
             $this->writeVersionInfo();
             $this->writeStartupMessage();
@@ -1024,7 +1024,11 @@ class Shell extends Application
         if ($phase & PHP_OUTPUT_HANDLER_END) {
             // Write an extra newline if stdout didn't end with one
             if ($this->outputWantsNewline) {
-                $this->output->writeln(\sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
+                if (!$this->config->rawOutput() && !$this->config->outputIsPiped()) {
+                    $this->output->writeln(\sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
+                } else {
+                    $this->output->writeln('');
+                }
                 $this->outputWantsNewline = false;
             }
 
