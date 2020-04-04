@@ -309,6 +309,9 @@ class Shell extends Application
             $output = $this->config->getOutput();
         }
 
+        $this->setAutoExit(false);
+        $this->setCatchExceptions(false);
+
         try {
             return parent::run($input, $output);
         } catch (\Exception $e) {
@@ -331,10 +334,7 @@ class Shell extends Application
     public function doRun(InputInterface $input, OutputInterface $output)
     {
         $this->setOutput($output);
-
         $this->resetCodeBuffer();
-        $this->setAutoExit(false);
-        $this->setCatchExceptions(false);
 
         if ($input->isInteractive()) {
             // @todo should it be possible to have raw output in an interactive run?
