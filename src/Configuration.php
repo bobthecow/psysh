@@ -34,6 +34,10 @@ class Configuration
     const COLOR_MODE_FORCED   = 'forced';
     const COLOR_MODE_DISABLED = 'disabled';
 
+    const INTERACTIVE_MODE_AUTO     = 'auto';
+    const INTERACTIVE_MODE_FORCED   = 'forced';
+    const INTERACTIVE_MODE_DISABLED = 'disabled';
+
     const VERBOSITY_QUIET        = 'quiet';
     const VERBOSITY_NORMAL       = 'normal';
     const VERBOSITY_VERBOSE      = 'verbose';
@@ -51,6 +55,7 @@ class Configuration
         'forceArrayIndexes',
         'formatterStyles',
         'historySize',
+        'interactiveMode',
         'manualDbFile',
         'pager',
         'prompt',
@@ -94,6 +99,7 @@ class Configuration
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
     private $colorMode = self::COLOR_MODE_AUTO;
+    private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
     private $updateCheck;
     private $startupMessage;
     private $forceArrayIndexes = false;
@@ -896,6 +902,23 @@ class Configuration
     }
 
     /**
+     * Get the interactive setting for shell input.
+     *
+     * @return bool
+     */
+    public function getInputInteractive()
+    {
+        switch ($this->interactiveMode()) {
+            case self::INTERACTIVE_MODE_AUTO:
+                return !$this->inputIsPiped();
+            case self::INTERACTIVE_MODE_FORCED:
+                return true;
+            case self::INTERACTIVE_MODE_DISABLED:
+                return false;
+        }
+    }
+
+    /**
      * Set the OutputPager service.
      *
      * If a string is supplied, a ProcOutputPager will be used which shells out
@@ -1195,6 +1218,36 @@ class Configuration
     public function colorMode()
     {
         return $this->colorMode;
+    }
+
+    /**
+     * Set the shell's interactive mode.
+     *
+     * @param string $interactiveMode
+     */
+    public function setInteractiveMode($interactiveMode)
+    {
+        $validInteractiveModes = [
+            self::INTERACTIVE_MODE_AUTO,
+            self::INTERACTIVE_MODE_FORCED,
+            self::INTERACTIVE_MODE_DISABLED,
+        ];
+
+        if (!\in_array($interactiveMode, $validInteractiveModes)) {
+            throw new \InvalidArgumentException('Invalid interactive mode: ' . $interactiveMode);
+        }
+
+        $this->interactiveMode = $interactiveMode;
+    }
+
+    /**
+     * Get the current interactive mode.
+     *
+     * @return string
+     */
+    public function interactiveMode()
+    {
+        return $this->interactiveMode;
     }
 
     /**

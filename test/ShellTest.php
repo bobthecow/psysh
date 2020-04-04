@@ -112,11 +112,13 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function testNonInteractiveDoesNotUpdateContext()
     {
-        $config = $this->getConfig(['usePcntl' => false]);
+        $config = $this->getConfig([
+            'usePcntl'        => false,
+            'interactiveMode' => Configuration::INTERACTIVE_MODE_DISABLED,
+        ]);
         $shell = new Shell($config);
 
         $input = $this->getInput('');
-        $input->setInteractive(false);
 
         $shell->addInput('$var=5;', true);
         $shell->addInput('exit', true);
@@ -129,11 +131,14 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     public function testNonInteractiveRawOutput()
     {
-        $config = $this->getConfig(['usePcntl' => false, 'rawOutput' => true]);
+        $config = $this->getConfig([
+            'usePcntl'        => false,
+            'rawOutput'       => true,
+            'interactiveMode' => Configuration::INTERACTIVE_MODE_DISABLED,
+        ]);
         $shell = new Shell($config);
 
         $input = $this->getInput('');
-        $input->setInteractive(false);
 
         $output = $this->getOutput();
         $stream = $output->getStream();

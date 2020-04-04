@@ -171,6 +171,11 @@ if (!\function_exists('Psy\\info')) {
             'update cache file'      => $prettyPath($config->getUpdateCheckCacheFile()),
         ];
 
+        $input = [
+            'interactive mode'  => $config->interactiveMode(),
+            'input interactive' => $config->getInputInteractive(),
+        ];
+
         if ($config->hasReadline()) {
             $info = \readline_info();
 
@@ -269,7 +274,7 @@ if (!\function_exists('Psy\\info')) {
 
         // @todo Show Presenter / custom casters.
 
-        return \array_merge($core, \compact('updates', 'pcntl', 'readline', 'output', 'history', 'docs', 'autocomplete'));
+        return \array_merge($core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
     }
 }
 

@@ -301,6 +301,65 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $config->setVerbosity('some invalid verbosity');
     }
 
+    public function getInputInteractiveProvider()
+    {
+        return [
+            'auto' => [
+                null,
+                Configuration::INTERACTIVE_MODE_AUTO,
+            ],
+            'forced' => [
+                true,
+                Configuration::INTERACTIVE_MODE_FORCED,
+            ],
+            'disabled' => [
+                false,
+                Configuration::INTERACTIVE_MODE_DISABLED,
+            ],
+        ];
+    }
+
+    /** @dataProvider getInputInteractiveProvider */
+    public function testGetInputInteractive($expectation, $interactive)
+    {
+        if ($interactive === Configuration::INTERACTIVE_MODE_AUTO) {
+            $this->markTestSkipped('This test won\'t work on CI without overriding pipe detection');
+        }
+
+        $config = $this->getConfig();
+        $config->setInteractiveMode($interactive);
+
+        $this->assertSame($expectation, $config->getInputInteractive());
+    }
+
+    public function setInteractiveModeValidProvider()
+    {
+        return [
+            'auto'     => [Configuration::INTERACTIVE_MODE_AUTO],
+            'forced'   => [Configuration::INTERACTIVE_MODE_FORCED],
+            'disabled' => [Configuration::INTERACTIVE_MODE_DISABLED],
+        ];
+    }
+
+    /** @dataProvider setInteractiveModeValidProvider */
+    public function testsetInteractiveModeValid($interactive)
+    {
+        $config = $this->getConfig();
+        $config->setInteractiveMode($interactive);
+
+        $this->assertSame($interactive, $config->interactiveMode());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid interactive mode: nope
+     */
+    public function testsetInteractiveModeInvalid()
+    {
+        $config = $this->getConfig();
+        $config->setInteractiveMode('nope');
+    }
+
     public function testSetCheckerValid()
     {
         $config  = $this->getConfig();
