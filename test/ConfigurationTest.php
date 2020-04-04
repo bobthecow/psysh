@@ -17,6 +17,8 @@ use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
 use Psy\VersionUpdater\GitHubChecker;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -157,6 +159,16 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($config->useUnicode());
 
         \chdir($oldPwd);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid configuration file specified
+     */
+    public function testUnknownConfigFileThrowsException()
+    {
+        $config = new Configuration(['configFile' => __DIR__ . '/not/a/real/config.php']);
+        $this->assertFalse(true);
     }
 
     /**
@@ -456,5 +468,149 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
                 'Invalid option specified: "marquee". Expected one of',
             ],
         ];
+    }
+
+    /**
+     * @dataProvider inputStrings
+     */
+    public function testConfigurationFromInput($inputString, $verbosity, $colorMode, $interactiveMode, $rawOutput)
+    {
+        $input = $this->getBoundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertEquals($verbosity, $config->verbosity());
+        $this->assertEquals($colorMode, $config->colorMode());
+        $this->assertEquals($interactiveMode, $config->interactiveMode());
+        $this->assertEquals($rawOutput, $config->rawOutput());
+
+        $input = $this->getUnboundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertEquals($verbosity, $config->verbosity());
+        $this->assertEquals($colorMode, $config->colorMode());
+        $this->assertEquals($interactiveMode, $config->interactiveMode());
+        $this->assertEquals($rawOutput, $config->rawOutput());
+    }
+
+    public function inputStrings()
+    {
+        return [
+            ['', Configuration::VERBOSITY_NORMAL, Configuration::COLOR_MODE_AUTO, Configuration::INTERACTIVE_MODE_AUTO, false],
+            ['--raw-output --color --interactive --verbose', Configuration::VERBOSITY_VERBOSE, Configuration::COLOR_MODE_FORCED, Configuration::INTERACTIVE_MODE_FORCED, false],
+            ['--raw-output --no-color --no-interactive --quiet', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_DISABLED, Configuration::INTERACTIVE_MODE_DISABLED, true],
+            ['--quiet --color --interactive', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_FORCED, Configuration::INTERACTIVE_MODE_FORCED, false],
+        ];
+    }
+
+    public function testConfigurationFromInputSpecificity()
+    {
+        $input = $this->getBoundStringInput('--raw-output --color --interactive --verbose');
+        $config = Configuration::fromInput($input);
+        $this->assertEquals(Configuration::VERBOSITY_VERBOSE, $config->verbosity());
+        $this->assertEquals(Configuration::COLOR_MODE_FORCED, $config->colorMode());
+        $this->assertEquals(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode());
+        $this->assertFalse($config->rawOutput(), '--raw-output is ignored with interactive input');
+
+        $input = $this->getBoundStringInput('--verbose --quiet --color --no-color --interactive --no-interactive');
+        $config = Configuration::fromInput($input);
+        $this->assertEquals(Configuration::VERBOSITY_QUIET, $config->verbosity(), '--quiet trumps --verbose');
+        $this->assertEquals(Configuration::COLOR_MODE_FORCED, $config->colorMode(), '--color trumps --no-color');
+        $this->assertEquals(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode(), '--interactive trumps --no-interactive');
+    }
+
+    /**
+     * @dataProvider verbosityInputStrings
+     */
+    public function testConfigurationFromInputVerbosityLevels($inputString, $verbosity)
+    {
+        $input = $this->getBoundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertEquals($verbosity, $config->verbosity());
+
+        $input = $this->getUnboundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertEquals($verbosity, $config->verbosity());
+    }
+
+    public function verbosityInputStrings()
+    {
+        return [
+            ['--verbose 0',  Configuration::VERBOSITY_NORMAL],
+            ['--verbose=0',  Configuration::VERBOSITY_NORMAL],
+            ['--verbose 1',  Configuration::VERBOSITY_VERBOSE],
+            ['--verbose=1',  Configuration::VERBOSITY_VERBOSE],
+            ['-v',           Configuration::VERBOSITY_VERBOSE],
+            ['--verbose 2',  Configuration::VERBOSITY_VERY_VERBOSE],
+            ['--verbose=2',  Configuration::VERBOSITY_VERY_VERBOSE],
+            ['-vv',          Configuration::VERBOSITY_VERY_VERBOSE],
+            ['--verbose 3',  Configuration::VERBOSITY_DEBUG],
+            ['--verbose=3',  Configuration::VERBOSITY_DEBUG],
+            ['-vvv',         Configuration::VERBOSITY_DEBUG],
+            // no `--verbose -1` because that's not a valid option value :P
+            ['--verbose=-1', Configuration::VERBOSITY_QUIET],
+            ['--quiet', Configuration::VERBOSITY_QUIET],
+        ];
+    }
+
+    /**
+     * @dataProvider shortInputStrings
+     */
+    public function testConfigurationFromInputShortOptions($inputString, $verbosity, $interactiveMode, $rawOutput, $skipUnbound = false)
+    {
+        $input = $this->getBoundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertEquals($verbosity, $config->verbosity());
+        $this->assertEquals($interactiveMode, $config->interactiveMode());
+        $this->assertEquals($rawOutput, $config->rawOutput());
+
+        if ($skipUnbound) {
+            $this->markTestSkipped($inputString . ' fails with unbound input');
+        }
+
+        $input = $this->getUnboundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertEquals($verbosity, $config->verbosity());
+        $this->assertEquals($interactiveMode, $config->interactiveMode());
+        $this->assertEquals($rawOutput, $config->rawOutput());
+    }
+
+    public function shortInputStrings()
+    {
+        return [
+            // Can't do `-nrq`-style compact short options with unbound input.
+            ['-nrq',     Configuration::VERBOSITY_QUIET,        Configuration::INTERACTIVE_MODE_DISABLED, true, true],
+            ['-n -r -q', Configuration::VERBOSITY_QUIET,        Configuration::INTERACTIVE_MODE_DISABLED, true],
+            ['-v',       Configuration::VERBOSITY_VERBOSE,      Configuration::INTERACTIVE_MODE_AUTO,     false],
+            ['-vv',      Configuration::VERBOSITY_VERY_VERBOSE, Configuration::INTERACTIVE_MODE_AUTO,     false],
+            ['-vvv',     Configuration::VERBOSITY_DEBUG,        Configuration::INTERACTIVE_MODE_AUTO,     false],
+        ];
+    }
+
+    public function testConfigurationFromInputAliases()
+    {
+        $input = $this->getBoundStringInput('--ansi --interaction');
+        $config = Configuration::fromInput($input);
+        $this->assertEquals(Configuration::COLOR_MODE_FORCED, $config->colorMode());
+        $this->assertEquals(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode());
+
+        $input = $this->getBoundStringInput('--no-ansi --no-interaction');
+        $config = Configuration::fromInput($input);
+        $this->assertEquals(Configuration::COLOR_MODE_DISABLED, $config->colorMode());
+        $this->assertEquals(Configuration::INTERACTIVE_MODE_DISABLED, $config->interactiveMode());
+    }
+
+    private function getBoundStringInput($string, $configFile = null)
+    {
+        $input = $this->getUnboundStringInput($string, $configFile);
+        $input->bind(new InputDefinition(Configuration::getInputOptions()));
+
+        return $input;
+    }
+
+    private function getUnboundStringInput($string, $configFile = null)
+    {
+        if ($configFile === null) {
+            $configFile = __DIR__ . '/fixtures/empty.php';
+        }
+
+        return new StringInput($string . ' --config ' . \escapeshellarg($configFile));
     }
 }

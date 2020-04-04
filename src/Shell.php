@@ -26,7 +26,7 @@ use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -302,9 +302,8 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
-        if ($input === null && !isset($_SERVER['argv'])) {
-            $input = new ArgvInput([]);
-        }
+        // We'll just ignore the input passed in, and set up our own!
+        $input = new ArrayInput([]);
 
         if ($output === null) {
             $output = $this->config->getOutput();
@@ -403,6 +402,21 @@ class Shell extends Application
         }
 
         $this->afterRun();
+    }
+
+    /**
+     * Configures the input and output instances based on the user arguments and options.
+     */
+    protected function configureIO(InputInterface $input, OutputInterface $output)
+    {
+        // @todo overrides via environment variables (or should these happen in config? ... probably config)
+        $input->setInteractive($this->config->getInputInteractive());
+
+        if ($this->config->getOutputDecorated() !== null) {
+            $output->setDecorated($this->config->getOutputDecorated());
+        }
+
+        $output->setVerbosity($this->config->getOutputVerbosity());
     }
 
     /**

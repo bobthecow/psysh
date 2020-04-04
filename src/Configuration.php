@@ -23,6 +23,8 @@ use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\IntervalChecker;
 use Psy\VersionUpdater\NoopChecker;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -149,6 +151,193 @@ class Configuration
     }
 
     /**
+     * Construct a Configuration object from Symfony Console input.
+     *
+     * This is great for adding psysh-compatible command line options to framework- or app-specific
+     * wrappers.
+     *
+     * $input should already be bound to an appropriate InputDefinition (see self::getInputOptions
+     * if you want to build your own) before calling this method. It's not required, but things work
+     * a lot better if we do.
+     *
+     * @see self::getInputOptions
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @param InputInterface $input
+     *
+     * @return self
+     */
+    public static function fromInput(InputInterface $input)
+    {
+        $config = new self(['configFile' => self::getConfigFileFromInput($input)]);
+
+        // Handle --color and --no-color (and --ansi and --no-ansi aliases)
+        if (self::getOptionFromInput($input, ['color', 'ansi'])) {
+            $config->setColorMode(self::COLOR_MODE_FORCED);
+        } elseif (self::getOptionFromInput($input, ['no-color', 'no-ansi'])) {
+            $config->setColorMode(self::COLOR_MODE_DISABLED);
+        }
+
+        // Handle verbosity options
+        if ($verbosity = self::getVerbosityFromInput($input)) {
+            $config->setVerbosity($verbosity);
+        }
+
+        // Handle interactive mode
+        if (self::getOptionFromInput($input, ['interactive', 'interaction'], ['-a', '-i'])) {
+            $config->setInteractiveMode(self::INTERACTIVE_MODE_FORCED);
+        } elseif (self::getOptionFromInput($input, ['no-interactive', 'no-interaction'], ['-n'])) {
+            $config->setInteractiveMode(self::INTERACTIVE_MODE_DISABLED);
+        }
+
+        // Handle --raw-output
+        // @todo support raw output with interactive input?
+        if (!$config->getInputInteractive()) {
+            if (self::getOptionFromInput($input, ['raw-output'], ['-r'])) {
+                $config->setRawOutput(true);
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * Get the desired config file from the given input.
+     *
+     * @return string|null config file path, or null if none is specified
+     */
+    private static function getConfigFileFromInput(InputInterface $input)
+    {
+        // Best case, input is properly bound and validated.
+        if ($input->hasOption('config')) {
+            return $input->getOption('config');
+        }
+
+        return $input->getParameterOption('--config', null, true) ?: $input->getParameterOption('-c', null, true);
+    }
+
+    /**
+     * Get a boolean option from the given input.
+     *
+     * This helper allows fallback for unbound and unvalidated input. It's not perfect--for example,
+     * it can't deal with several short options squished together--but it's better than falling over
+     * any time someone gives us unbound input.
+     *
+     * @return bool true if the option (or an alias) is present
+     */
+    private static function getOptionFromInput(InputInterface $input, array $names, array $otherParams = [])
+    {
+        // Best case, input is properly bound and validated.
+        foreach ($names as $name) {
+            if ($input->hasOption($name) && $input->getOption($name)) {
+                return true;
+            }
+        }
+
+        foreach ($names as $name) {
+            $otherParams[] = '--' . $name;
+        }
+
+        foreach ($otherParams as $name) {
+            if ($input->hasParameterOption($name, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the desired verbosity from the given input.
+     *
+     * This is a bit more complext than the other options parsers. It handles `--quiet` and
+     * `--verbose`, along with their short aliases, and fancy things like `-vvv`.
+     *
+     * @return string|null configuration constant, or null if no verbosity option is specified
+     */
+    private static function getVerbosityFromInput(InputInterface $input)
+    {
+        // --quiet wins!
+        if (self::getOptionFromInput($input, ['quiet'], ['-q'])) {
+            return self::VERBOSITY_QUIET;
+        }
+
+        // Best case, input is properly bound and validated.
+        if ($input->hasOption('verbose')) {
+            switch ($input->getOption('verbose')) {
+                case '-1':
+                    return self::VERBOSITY_QUIET;
+                case '0': // explicitly normal, overrides config file default
+                    return self::VERBOSITY_NORMAL;
+                case '1':
+                case null: // `--verbose` and `-v`
+                    return self::VERBOSITY_VERBOSE;
+                case '2':
+                case 'v': // `-vv`
+                    return self::VERBOSITY_VERY_VERBOSE;
+                case '3':
+                case 'vv': // `-vvv`
+                    return self::VERBOSITY_DEBUG;
+                default: // implicitly normal, config file default wins
+                    return;
+            }
+        }
+
+        // quiet and normal have to come before verbose, because it eats everything else.
+        if ($input->hasParameterOption('--verbose=-1', true) || $input->getParameterOption('--verbose', false, true) === '-1') {
+            return self::VERBOSITY_QUIET;
+        }
+
+        if ($input->hasParameterOption('--verbose=0', true) || $input->getParameterOption('--verbose', false, true) === '0') {
+            return self::VERBOSITY_NORMAL;
+        }
+
+        // `-vvv`, `-vv` and `-v` have to come in descending length order, because `hasParameterOption` matches prefixes.
+        if ($input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3', true) || $input->getParameterOption('--verbose', false, true) === '3') {
+            return self::VERBOSITY_DEBUG;
+        }
+
+        if ($input->hasParameterOption('-vv', true) || $input->hasParameterOption('--verbose=2', true) || $input->getParameterOption('--verbose', false, true) === '2') {
+            return self::VERBOSITY_VERY_VERBOSE;
+        }
+
+        if ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1', true) || $input->hasParameterOption('--verbose', true)) {
+            return self::VERBOSITY_VERBOSE;
+        }
+    }
+
+    /**
+     * Get a list of input options expected when initializing Configuration via input.
+     *
+     * @see self::fromInput
+     *
+     * @return InputOption[]
+     */
+    public static function getInputOptions()
+    {
+        return [
+            new InputOption('config',         'c',        InputOption::VALUE_REQUIRED, 'Use an alternate PsySH config file location.'),
+            new InputOption('cwd',            null,       InputOption::VALUE_REQUIRED, 'Use an alternate working directory.'),
+
+            new InputOption('color',          null,       InputOption::VALUE_NONE,     'Force colors in output.'),
+            new InputOption('no-color',       null,       InputOption::VALUE_NONE,     'Disable colors in output.'),
+            // --ansi and --no-ansi aliases to match Symfony, Composer, etc.
+            new InputOption('ansi',           null,       InputOption::VALUE_NONE,     'Force colors in output.'),
+            new InputOption('no-ansi',        null,       InputOption::VALUE_NONE,     'Disable colors in output.'),
+
+            new InputOption('quiet',          'q',        InputOption::VALUE_NONE,     'Shhhhhh.'),
+            new InputOption('verbose',        'v|vv|vvv', InputOption::VALUE_OPTIONAL, 'Increase the verbosity of messages.', '0'),
+            new InputOption('interactive',    'i|a',      InputOption::VALUE_NONE,     'Force PsySH to run in interactive mode.'),
+            new InputOption('no-interactive', 'n',        InputOption::VALUE_NONE,     'Run PsySH without interactive input. Requires input from stdin.'),
+            // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
+            new InputOption('interaction',    null,       InputOption::VALUE_NONE,     'Force PsySH to run in interactive mode.'),
+            new InputOption('no-interaction', null,       InputOption::VALUE_NONE,     'Run PsySH without interactive input. Requires input from stdin.'),
+            new InputOption('raw-output',     'r',        InputOption::VALUE_NONE,     'Print var_export-style return values (for non-interactive input)'),
+        ];
+    }
+
+    /**
      * Initialize the configuration.
      *
      * This checks for the presence of Readline and Pcntl extensions.
@@ -267,12 +456,16 @@ class Configuration
      * The config file may directly manipulate the configuration, or may return
      * an array of options which will be merged with the current configuration.
      *
-     * @throws \InvalidArgumentException if the config file returns a non-array result
+     * @throws \InvalidArgumentException if the config file does not exist or returns a non-array result
      *
      * @param string $file
      */
     public function loadConfigFile($file)
     {
+        if (!\is_file($file)) {
+            throw new \InvalidArgumentException(\sprintf('Invalid configuration file specified, %s does not exist', $file));
+        }
+
         $__psysh_config_file__ = $file;
         $load = function ($config) use ($__psysh_config_file__) {
             $result = require $__psysh_config_file__;

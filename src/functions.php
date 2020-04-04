@@ -323,48 +323,24 @@ if (!\function_exists('Psy\\bin')) {
 
             $input = new ArgvInput();
             try {
-                $input->bind(new InputDefinition([
-                    new InputOption('help',     'h',  InputOption::VALUE_NONE),
-                    new InputOption('config',   'c',  InputOption::VALUE_REQUIRED),
-                    new InputOption('version',  'V',  InputOption::VALUE_NONE),
-                    new InputOption('cwd',      null, InputOption::VALUE_REQUIRED),
-
-                    new InputOption('color',    null, InputOption::VALUE_NONE),
-                    new InputOption('no-color', null, InputOption::VALUE_NONE),
-
-                    new InputOption('quiet',          'q',        InputOption::VALUE_NONE),
-                    new InputOption('verbose',        'v|vv|vvv', InputOption::VALUE_NONE),
-                    new InputOption('no-interaction', 'n',        InputOption::VALUE_NONE),
-                    new InputOption('raw-output',     'r',        InputOption::VALUE_NONE),
+                $input->bind(new InputDefinition(\array_merge(Configuration::getInputOptions(), [
+                    new InputOption('help',    'h', InputOption::VALUE_NONE),
+                    new InputOption('version', 'V', InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
-                ]));
+                ])));
             } catch (\RuntimeException $e) {
                 $usageException = $e;
             }
 
-            $config = [];
-
-            // Handle --config
-            if ($configFile = $input->getOption('config')) {
-                $config['configFile'] = $configFile;
+            try {
+                $config = Configuration::fromInput($input);
+            } catch (\InvalidArgumentException $e) {
+                $config = new Configuration();
+                $usageException = $e;
             }
 
-            // Handle --color and --no-color
-            if ($input->getOption('color') && $input->getOption('no-color')) {
-                $usageException = new \RuntimeException('Using both "--color" and "--no-color" options is invalid');
-            } elseif ($input->getOption('color')) {
-                $config['colorMode'] = Configuration::COLOR_MODE_FORCED;
-            } elseif ($input->getOption('no-color')) {
-                $config['colorMode'] = Configuration::COLOR_MODE_DISABLED;
-            }
-
-            // Handle --raw-output
-            if ($input->getOption('raw-output')) {
-                $config['rawOutput'] = true;
-            }
-
-            $shell = new Shell(new Configuration($config));
+            $shell = new Shell($config);
 
             // Handle --help
             if ($usageException !== null || $input->getOption('help')) {
@@ -387,7 +363,8 @@ Options:
   -V, --version         Display the PsySH version.
       --color           Force colors in output.
       --no-color        Disable colors in output.
-  -n, --no-interaction  Run PsySH without interaction. Requires input from stdin.
+  -i, --interactive     Force PsySH to run in interactive mode.
+  -n, --no-interactive  Run PsySH without interactive input. Requires input from stdin.
   -r, --raw-output      Print var_export-style return values (for non-interactive input)
   -q, --quiet           Shhhhhh.
   -v|vv|vvv, --verbose  Increase the verbosity of messages.
