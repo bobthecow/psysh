@@ -84,7 +84,7 @@ class Configuration
     private $newMatchers = [];
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
-    private $colorMode;
+    private $colorMode = self::COLOR_MODE_AUTO;
     private $updateCheck;
     private $startupMessage;
     private $forceArrayIndexes = false;
@@ -111,8 +111,6 @@ class Configuration
      */
     public function __construct(array $config = [])
     {
-        $this->setColorMode(self::COLOR_MODE_AUTO);
-
         // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
@@ -868,12 +866,13 @@ class Configuration
      */
     public function getOutputDecorated()
     {
-        if ($this->colorMode() === self::COLOR_MODE_AUTO) {
-            return;
-        } elseif ($this->colorMode() === self::COLOR_MODE_FORCED) {
-            return true;
-        } elseif ($this->colorMode() === self::COLOR_MODE_DISABLED) {
-            return false;
+        switch ($this->colorMode()) {
+            case self::COLOR_MODE_AUTO:
+                return null;
+            case self::COLOR_MODE_FORCED:
+                return true;
+            case self::COLOR_MODE_DISABLED:
+                return false;
         }
     }
 
