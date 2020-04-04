@@ -212,6 +212,10 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     /** @dataProvider getOutputDecoratedProvider */
     public function testGetOutputDecorated($expectation, $colorMode)
     {
+        if ($colorMode === Configuration::COLOR_MODE_AUTO) {
+            $this->markTestSkipped('This test won\'t work on CI without overriding pipe detection');
+        }
+
         $config = $this->getConfig();
         $config->setColorMode($colorMode);
 

@@ -833,6 +833,8 @@ class Configuration
     public function setOutput(ShellOutput $output)
     {
         $this->output = $output;
+        $this->pipedOutput = null; // Reset cached pipe info
+        $this->applyFormatterStyles();
     }
 
     /**
@@ -848,14 +850,20 @@ class Configuration
     public function getOutput()
     {
         if (!isset($this->output)) {
-            $this->output = new ShellOutput(
+            $this->setOutput(new ShellOutput(
                 OutputInterface::VERBOSITY_NORMAL,
-                $this->getOutputDecorated(),
+                null,
                 null,
                 $this->getPager()
-            );
+            ));
 
-            $this->applyFormatterStyles();
+            // This is racy because `getOutputDecorated` needs access to the
+            // output stream to figure out if it's piped or not, so create it
+            // first, then update after we have a stream.
+            $decorated = $this->getOutputDecorated();
+            if ($decorated !== null) {
+                $this->output->setDecorated($decorated);
+            }
         }
 
         return $this->output;
@@ -870,7 +878,7 @@ class Configuration
     {
         switch ($this->colorMode()) {
             case self::COLOR_MODE_AUTO:
-                return null;
+                return $this->outputIsPiped() ? false : null;
             case self::COLOR_MODE_FORCED:
                 return true;
             case self::COLOR_MODE_DISABLED:
