@@ -32,6 +32,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -1081,7 +1082,13 @@ class Shell extends Application
     {
         $this->lastExecSuccess = false;
         $this->context->setLastException($e);
-        $this->output->writeln($this->formatException($e));
+
+        $output = $this->output;
+        if ($output instanceof ConsoleOutput) {
+            $output = $output->getErrorOutput();
+        }
+        $output->writeln($this->formatException($e));
+
         $this->resetCodeBuffer();
     }
 
