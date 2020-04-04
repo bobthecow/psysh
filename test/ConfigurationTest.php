@@ -18,6 +18,7 @@ use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
@@ -248,6 +249,56 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     {
         $config = $this->getConfig();
         $config->setColorMode('some invalid mode');
+    }
+
+    public function getOutputVerbosityProvider()
+    {
+        return [
+            'quiet'        => [OutputInterface::VERBOSITY_QUIET, Configuration::VERBOSITY_QUIET],
+            'normal'       => [OutputInterface::VERBOSITY_NORMAL, Configuration::VERBOSITY_NORMAL],
+            'verbose'      => [OutputInterface::VERBOSITY_VERBOSE, Configuration::VERBOSITY_VERBOSE],
+            'very_verbose' => [OutputInterface::VERBOSITY_VERY_VERBOSE, Configuration::VERBOSITY_VERY_VERBOSE],
+            'debug'        => [OutputInterface::VERBOSITY_DEBUG, Configuration::VERBOSITY_DEBUG],
+        ];
+    }
+
+    /** @dataProvider getOutputVerbosityProvider */
+    public function testGetOutputVerbosity($expectation, $verbosity)
+    {
+        $config = $this->getConfig();
+        $config->setVerbosity($verbosity);
+
+        $this->assertSame($expectation, $config->getOutputVerbosity());
+    }
+
+    public function setVerbosityValidProvider()
+    {
+        return [
+            'quiet'        => [Configuration::VERBOSITY_QUIET],
+            'normal'       => [Configuration::VERBOSITY_NORMAL],
+            'verbose'      => [Configuration::VERBOSITY_VERBOSE],
+            'very_verbose' => [Configuration::VERBOSITY_VERY_VERBOSE],
+            'debug'        => [Configuration::VERBOSITY_DEBUG],
+        ];
+    }
+
+    /** @dataProvider setVerbosityValidProvider */
+    public function testSetVerbosityValid($verbosity)
+    {
+        $config = $this->getConfig();
+        $config->setVerbosity($verbosity);
+
+        $this->assertSame($verbosity, $config->verbosity());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid verbosity level: some invalid verbosity
+     */
+    public function testSetVerbosityInvalid()
+    {
+        $config = $this->getConfig();
+        $config->setVerbosity('some invalid verbosity');
     }
 
     public function testSetCheckerValid()

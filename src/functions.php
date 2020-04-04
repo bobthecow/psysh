@@ -193,6 +193,12 @@ if (!\function_exists('Psy\\info')) {
             ];
         }
 
+        $output = [
+            'color mode'       => $config->colorMode(),
+            'output decorated' => $config->getOutputDecorated(),
+            'output verbosity' => $config->verbosity(),
+        ];
+
         $pcntl = [
             'pcntl available' => ProcessForker::isPcntlSupported(),
             'posix available' => ProcessForker::isPosixSupported(),
@@ -263,7 +269,7 @@ if (!\function_exists('Psy\\info')) {
 
         // @todo Show Presenter / custom casters.
 
-        return \array_merge($core, \compact('updates', 'pcntl', 'readline', 'history', 'docs', 'autocomplete'));
+        return \array_merge($core, \compact('updates', 'pcntl', 'readline', 'output', 'history', 'docs', 'autocomplete'));
     }
 }
 

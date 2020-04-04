@@ -34,6 +34,12 @@ class Configuration
     const COLOR_MODE_FORCED   = 'forced';
     const COLOR_MODE_DISABLED = 'disabled';
 
+    const VERBOSITY_QUIET        = 'quiet';
+    const VERBOSITY_NORMAL       = 'normal';
+    const VERBOSITY_VERBOSE      = 'verbose';
+    const VERBOSITY_VERY_VERBOSE = 'very_verbose';
+    const VERBOSITY_DEBUG        = 'debug';
+
     private static $AVAILABLE_OPTIONS = [
         'codeCleaner',
         'colorMode',
@@ -58,6 +64,7 @@ class Configuration
         'useReadline',
         'useTabCompletion',
         'useUnicode',
+        'verbosity',
         'warnOnMultipleConfigs',
     ];
 
@@ -91,6 +98,7 @@ class Configuration
     private $startupMessage;
     private $forceArrayIndexes = false;
     private $formatterStyles = [];
+    private $verbosity = self::VERBOSITY_NORMAL;
 
     // services
     private $readline;
@@ -841,8 +849,9 @@ class Configuration
      * Get a Shell Output service instance.
      *
      * If none has been explicitly provided, this will create a new instance
-     * with VERBOSITY_NORMAL and the output page supplied by self::getPager
+     * with the configured verbosity and output pager supplied by self::getPager
      *
+     * @see self::verbosity
      * @see self::getPager
      *
      * @return ShellOutput
@@ -851,7 +860,7 @@ class Configuration
     {
         if (!isset($this->output)) {
             $this->setOutput(new ShellOutput(
-                OutputInterface::VERBOSITY_NORMAL,
+                $this->getOutputVerbosity(),
                 null,
                 null,
                 $this->getPager()
@@ -1383,6 +1392,66 @@ class Configuration
         $formatter = $this->output->getFormatter();
         foreach ($this->formatterStyles as $name => $style) {
             $formatter->setStyle($name, $style);
+        }
+    }
+
+    /**
+     * Get the configured output verbosity.
+     *
+     * @return string
+     */
+    public function verbosity()
+    {
+        return $this->verbosity;
+    }
+
+    /**
+     * Set the shell output verbosity.
+     *
+     * Accepts OutputInterface verbosity constants.
+     *
+     * @param string $verbosity
+     */
+    public function setVerbosity($verbosity)
+    {
+        $validVerbosityLevels = [
+            self::VERBOSITY_QUIET,
+            self::VERBOSITY_NORMAL,
+            self::VERBOSITY_VERBOSE,
+            self::VERBOSITY_VERY_VERBOSE,
+            self::VERBOSITY_DEBUG,
+        ];
+
+        if (!\in_array($verbosity, $validVerbosityLevels)) {
+            throw new \InvalidArgumentException('Invalid verbosity level: ' . $verbosity);
+        }
+
+        $this->verbosity = $verbosity;
+
+        if (isset($this->output)) {
+            $this->output->setVerbosity($this->getOutputVerbosity());
+        }
+    }
+
+    /**
+     * Map the verbosity configuration to OutputInterface verbosity constants.
+     *
+     * @return int OutputInterface verbosity level
+     */
+    public function getOutputVerbosity()
+    {
+        switch ($this->verbosity()) {
+            case self::VERBOSITY_QUIET:
+                return OutputInterface::VERBOSITY_QUIET;
+            case self::VERBOSITY_VERBOSE:
+                return OutputInterface::VERBOSITY_VERBOSE;
+            case self::VERBOSITY_VERY_VERBOSE:
+                return OutputInterface::VERBOSITY_VERY_VERBOSE;
+            case self::VERBOSITY_DEBUG:
+                return OutputInterface::VERBOSITY_DEBUG;
+            case self::VERBOSITY_NORMAL:
+            default:
+                return OutputInterface::VERBOSITY_NORMAL;
         }
     }
 
