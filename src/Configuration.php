@@ -1161,11 +1161,12 @@ class Configuration
             self::COLOR_MODE_DISABLED,
         ];
 
-        if (\in_array($colorMode, $validColorModes)) {
-            $this->colorMode = $colorMode;
-        } else {
+        if (!\in_array($colorMode, $validColorModes)) {
+            // @todo Fix capitalization for 0.11.0
             throw new \InvalidArgumentException('invalid color mode: ' . $colorMode);
         }
+
+        $this->colorMode = $colorMode;
     }
 
     /**
@@ -1255,6 +1256,7 @@ class Configuration
         ];
 
         if (!\in_array($interval, $validIntervals)) {
+            // @todo Fix capitalization for 0.11.0
             throw new \InvalidArgumentException('invalid update check interval: ' . $interval);
         }
 
