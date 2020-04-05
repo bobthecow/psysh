@@ -1240,7 +1240,7 @@ class Configuration
     /**
      * Set the update check interval.
      *
-     * @throws \InvalidArgumentDescription if the update check interval is unknown
+     * @throws \InvalidArgumentException if the update check interval is unknown
      *
      * @param string $interval
      */
