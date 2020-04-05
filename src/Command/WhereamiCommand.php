@@ -42,18 +42,21 @@ class WhereamiCommand extends Command
         $this
             ->setName('whereami')
             ->setDefinition([
-                new InputOption('num', 'n', InputOption::VALUE_OPTIONAL, 'Number of lines before and after.', '5'),
+                new InputOption('num',  'n',   InputOption::VALUE_OPTIONAL, 'Number of lines before and after.', '5'),
+                new InputOption('file', 'f|a', InputOption::VALUE_NONE,     'Show the full source for the current file.'),
             ])
             ->setDescription('Show where you are in the code.')
             ->setHelp(
                 <<<'HELP'
 Show where you are in the code.
 
-Optionally, include how many lines before and after you want to display.
+Optionally, include the number of lines before and after you want to display,
+or --file for the whole file.
 
 e.g.
 <return>> whereami </return>
 <return>> whereami -n10</return>
+<return>> whereami --file</return>
 HELP
             );
     }
@@ -114,6 +117,11 @@ HELP
         $startLine = \max($lineNum - $num, 1);
         $endLine   = $lineNum + $num;
         $code      = \file_get_contents($info['file']);
+
+        if ($input->getOption('file')) {
+            $startLine = 1;
+            $endLine   = null;
+        }
 
         if ($output instanceof ShellOutput) {
             $output->startPaging();
