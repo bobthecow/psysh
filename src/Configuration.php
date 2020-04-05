@@ -77,6 +77,8 @@ class Configuration
     private $hasPcntl;
     private $usePcntl;
     private $newCommands = [];
+    private $pipedInput;
+    private $pipedOutput;
     private $rawOutput = false;
     private $requireSemicolons = false;
     private $useUnicode;
@@ -1374,5 +1376,56 @@ class Configuration
         foreach ($this->formatterStyles as $name => $style) {
             $formatter->setStyle($name, $style);
         }
+    }
+
+    /**
+     * Guess whether stdin is piped.
+     *
+     * This is mostly useful for deciding whether to use non-interactive mode.
+     *
+     * @return bool
+     */
+    public function inputIsPiped()
+    {
+        if ($this->pipedInput === null) {
+            $this->pipedInput = static::looksLikeAPipe(\STDIN);
+        }
+
+        return $this->pipedInput;
+    }
+
+    /**
+     * Guess whether shell output is piped.
+     *
+     * This is mostly useful for deciding whether to use non-decorated output.
+     *
+     * @return bool
+     */
+    public function outputIsPiped()
+    {
+        if ($this->pipedOutput === null) {
+            $this->pipedOutput = static::looksLikeAPipe($this->getOutput()->getStream());
+        }
+
+        return $this->pipedOutput;
+    }
+
+    /**
+     * Guess whether an input or output stream is piped.
+     *
+     * @param resource|int $stream
+     *
+     * @return bool
+     */
+    private static function looksLikeAPipe($stream)
+    {
+        if (\function_exists('posix_isatty')) {
+            return !\posix_isatty($stream);
+        }
+
+        $stat = \fstat($stream);
+        $mode = $stat['mode'] & 0170000;
+
+        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000;
     }
 }
