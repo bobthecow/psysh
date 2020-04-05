@@ -18,6 +18,7 @@ use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -34,6 +35,7 @@ class DocCommand extends ReflectingCommand
             ->setName('doc')
             ->setAliases(['rtfm', 'man'])
             ->setDefinition([
+                new InputOption('all', 'a', InputOption::VALUE_NONE, 'Show documentation for superclasses as well as the current class.'),
                 new CodeArgument('target', CodeArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
             ])
             ->setDescription('Read the documentation for an object, class, constant, method or property.')
@@ -69,18 +71,40 @@ HELP
 
         $db = $this->getApplication()->getManualDb();
 
-        $output->page(function ($output) use ($reflector, $doc, $db) {
-            $output->writeln(SignatureFormatter::format($reflector));
-            $output->writeln('');
+        if ($output instanceof ShellOutput) {
+            $output->startPaging();
+        }
 
-            if (empty($doc) && !$db) {
-                $output->writeln('<warning>PHP manual not found</warning>');
-                $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
-                $output->writeln('    https://github.com/bobthecow/psysh/wiki/PHP-manual');
-            } else {
-                $output->writeln($doc);
+        $output->writeln(SignatureFormatter::format($reflector));
+        $output->writeln('');
+
+        if (empty($doc) && !$db) {
+            $output->writeln('<warning>PHP manual not found</warning>');
+            $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
+            $output->writeln('    https://github.com/bobthecow/psysh/wiki/PHP-manual');
+        } else {
+            $output->writeln($doc);
+        }
+
+        if ($input->getOption('all')) {
+            $parent = $reflector;
+            foreach ($this->getParentReflectors($reflector) as $parent) {
+                $output->writeln('');
+                $output->writeln('---');
+                $output->writeln('');
+
+                $output->writeln(SignatureFormatter::format($parent));
+                $output->writeln('');
+
+                if ($doc = $this->getManualDoc($parent) ?: DocblockFormatter::format($parent)) {
+                    $output->writeln($doc);
+                }
             }
-        });
+        }
+
+        if ($output instanceof ShellOutput) {
+            $output->stopPaging();
+        }
 
         // Set some magic local variables
         $this->setCommandScopeVariables($reflector);
@@ -122,6 +146,62 @@ HELP
         }
 
         return $this->getManualDocById($id);
+    }
+
+    /**
+     * Get all all parent Reflectors for a given Reflector.
+     *
+     * For example, passing a Class, Object or TraitReflector will yield all
+     * traits and parent classes. Passing a Method or PropertyReflector will
+     * yield Reflectors for the same-named method or property on all traits and
+     * parent classes.
+     *
+     * @return Generator a whole bunch of \Reflector instances
+     */
+    private function getParentReflectors($reflector)
+    {
+        switch (\get_class($reflector)) {
+            case \ReflectionClass::class:
+            case \ReflectionObject::class:
+                foreach ($reflector->getTraits() as $trait) {
+                    yield $trait;
+                }
+
+                foreach ($reflector->getInterfaces() as $interface) {
+                    yield $interface;
+                }
+
+                while ($reflector = $reflector->getParentClass()) {
+                    yield $reflector;
+
+                    foreach ($reflector->getTraits() as $trait) {
+                        yield $trait;
+                    }
+
+                    foreach ($reflector->getInterfaces() as $interface) {
+                        yield $interface;
+                    }
+                }
+
+                return;
+
+            case \ReflectionMethod::class:
+                foreach ($this->getParentReflectors($reflector->getDeclaringClass()) as $parent) {
+                    if ($parent->hasMethod($reflector->getName())) {
+                        yield $parent->getMethod($reflector->getName());
+                    }
+                }
+
+                return;
+
+            case \ReflectionProperty::class:
+                foreach ($this->getParentReflectors($reflector->getDeclaringClass()) as $parent) {
+                    if ($parent->hasProperty($reflector->getName())) {
+                        yield $parent->getProperty($reflector->getName());
+                    }
+                }
+                break;
+        }
     }
 
     private function getManualDocById($id)
