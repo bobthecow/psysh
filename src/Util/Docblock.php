@@ -111,6 +111,11 @@ class Docblock
         $first = \reset($lines);
         $last  = \end($lines);
 
+        // Special case for single-line comments
+        if (\count($lines) === 1) {
+            return \strspn($first, "* \t\n\r\0\x0B");
+        }
+
         // find the longest common substring
         $count = \min(\strlen($first), \strlen($last));
         for ($i = 0; $i < $count; $i++) {

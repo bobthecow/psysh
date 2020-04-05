@@ -95,6 +95,13 @@ class DocblockTest extends \PHPUnit\Framework\TestCase
                     'tagname' => ['plus a description'],
                 ],
             ],
+            [
+                '/**
+                 * This is a single-line docblock.
+                 */',
+                'This is a single-line docblock.',
+                [],
+            ],
         ];
     }
 }
