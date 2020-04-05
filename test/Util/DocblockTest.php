@@ -102,6 +102,11 @@ class DocblockTest extends \PHPUnit\Framework\TestCase
                 'This is a single-line docblock.',
                 [],
             ],
+            [
+                '/** This is a single-line docblock. */',
+                'This is a single-line docblock.',
+                [],
+            ],
         ];
     }
 }
