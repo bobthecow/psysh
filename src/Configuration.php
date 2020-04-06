@@ -265,6 +265,11 @@ class Configuration
 
         // Best case, input is properly bound and validated.
         if ($input->hasOption('verbose')) {
+            // Have to handle this case explicitly because we need ===. Yay PHP!
+            if ($input->getOption('verbose') === true) {
+                return self::VERBOSITY_VERBOSE;
+            }
+
             switch ($input->getOption('verbose')) {
                 case '-1':
                     return self::VERBOSITY_QUIET;
