@@ -38,7 +38,7 @@ class Context
     /**
      * Get a context variable.
      *
-     * @throws InvalidArgumentException If the variable is not found in the current context
+     * @throws \InvalidArgumentException If the variable is not found in the current context
      *
      * @param string $name
      *

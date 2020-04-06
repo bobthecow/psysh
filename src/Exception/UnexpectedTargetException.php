@@ -16,10 +16,10 @@ class UnexpectedTargetException extends RuntimeException
     private $target;
 
     /**
-     * @param mixed      $target
-     * @param string     $message  (default: "")
-     * @param int        $code     (default: 0)
-     * @param \Exception $previous (default: null)
+     * @param mixed           $target
+     * @param string          $message  (default: "")
+     * @param int             $code     (default: 0)
+     * @param \Exception|null $previous (default: null)
      */
     public function __construct($target, $message = '', $code = 0, \Exception $previous = null)
     {

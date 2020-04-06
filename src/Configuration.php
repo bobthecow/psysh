@@ -734,9 +734,9 @@ class Configuration
     /**
      * Set the Psy Shell readline service.
      *
-     * @param Readline $readline
+     * @param Readline\Readline $readline
      */
-    public function setReadline(Readline $readline)
+    public function setReadline(Readline\Readline $readline)
     {
         $this->readline = $readline;
     }
@@ -750,7 +750,7 @@ class Configuration
      *  * Libedit
      *  * A transient array-based readline emulation.
      *
-     * @return Readline
+     * @return Readline\Readline
      */
     public function getReadline()
     {

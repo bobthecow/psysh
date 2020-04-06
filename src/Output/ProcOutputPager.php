@@ -77,7 +77,8 @@ class ProcOutputPager extends StreamOutput implements OutputPager
             }
         }
 
-        unset($this->pipe, $this->proc);
+        $this->pipe = null;
+        $this->proc = null;
     }
 
     /**

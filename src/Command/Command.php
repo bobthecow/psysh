@@ -27,7 +27,7 @@ abstract class Command extends BaseCommand
     /**
      * Sets the application instance for this command.
      *
-     * @param Application $application An Application instance
+     * @param Application|null $application An Application instance
      *
      * @api
      */

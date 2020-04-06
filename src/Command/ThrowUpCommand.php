@@ -36,13 +36,6 @@ class ThrowUpCommand extends Command implements ContextAware
     private $printer;
 
     /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
-     */
-    protected $context;
-
-    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -56,13 +49,13 @@ class ThrowUpCommand extends Command implements ContextAware
     }
 
     /**
-     * ContextAware interface.
+     * @deprecated throwUp no longer needs to be ContextAware
      *
      * @param Context $context
      */
     public function setContext(Context $context)
     {
-        $this->context = $context;
+        @\trigger_error('ThrowUp no longer needs to be ContextAware', E_USER_DEPRECATED);
     }
 
     /**
@@ -94,7 +87,7 @@ HELP
     /**
      * {@inheritdoc}
      *
-     * @throws InvalidArgumentException if there is no exception to throw
+     * @throws \InvalidArgumentException if there is no exception to throw
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -113,7 +106,7 @@ HELP
      *
      * If no argument was given, this falls back to `$_e`
      *
-     * @throws InvalidArgumentException if there is no exception to throw
+     * @throws \InvalidArgumentException if there is no exception to throw
      *
      * @param string $code
      *

@@ -31,7 +31,7 @@ class FinalClassPass extends CodeCleanerPass
     }
 
     /**
-     * @throws RuntimeException if the node is a class that extends a final class
+     * @throws FatalErrorException if the node is a class that extends a final class
      *
      * @param Node $node
      */

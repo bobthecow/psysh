@@ -29,10 +29,10 @@ class ShellOutput extends ConsoleOutput
     /**
      * Construct a ShellOutput instance.
      *
-     * @param mixed                    $verbosity (default: self::VERBOSITY_NORMAL)
-     * @param bool                     $decorated (default: null)
-     * @param OutputFormatterInterface $formatter (default: null)
-     * @param string|OutputPager|null  $pager     (default: null)
+     * @param mixed                         $verbosity (default: self::VERBOSITY_NORMAL)
+     * @param bool|null                     $decorated (default: null)
+     * @param OutputFormatterInterface|null $formatter (default: null)
+     * @param string|OutputPager|null       $pager     (default: null)
      */
     public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null)
     {

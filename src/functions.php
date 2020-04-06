@@ -260,7 +260,6 @@ if (!\function_exists('Psy\\info')) {
 
         $autocomplete = [
             'tab completion enabled' => $config->useTabCompletion(),
-            'custom matchers'        => \array_map('get_class', $config->getTabCompletionMatchers()),
             'bracketed paste'        => $config->useBracketedPaste(),
         ];
 

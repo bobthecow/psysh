@@ -26,7 +26,7 @@ class AssignThisVariablePass extends CodeCleanerPass
     /**
      * Validate that the user input does not assign the `$this` variable.
      *
-     * @throws RuntimeException if the user assign the `$this` variable
+     * @throws FatalErrorException if the user assign the `$this` variable
      *
      * @param Node $node
      */

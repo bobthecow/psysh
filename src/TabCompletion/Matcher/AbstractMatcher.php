@@ -141,8 +141,8 @@ abstract class AbstractMatcher
     /**
      * Check whether $token type is $which.
      *
-     * @param string $which A PHP token type
      * @param mixed  $token A PHP token (see token_get_all)
+     * @param string $which A PHP token type
      *
      * @return bool
      */

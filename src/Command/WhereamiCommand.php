@@ -12,6 +12,7 @@
 namespace Psy\Command;
 
 use Psy\Formatter\CodeFormatter;
+use Psy\Output\ShellOutput;
 use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

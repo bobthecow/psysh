@@ -31,7 +31,7 @@ class CallTimePassByReferencePass extends CodeCleanerPass
     /**
      * Validate of use call-time pass-by-reference.
      *
-     * @throws RuntimeException if the user used call-time pass-by-reference
+     * @throws FatalErrorException if the user used call-time pass-by-reference
      *
      * @param Node $node
      */

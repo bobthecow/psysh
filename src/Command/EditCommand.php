@@ -150,7 +150,7 @@ class EditCommand extends Command implements ContextAware
 
     /**
      * @param string $filePath
-     * @param string $shouldRemoveFile
+     * @param bool   $shouldRemoveFile
      *
      * @return string
      *

@@ -77,7 +77,7 @@ class Mirror
      *
      * @param mixed $value
      *
-     * @return \ReflectionClass
+     * @return \ReflectionClass|ReflectionNamespace
      */
     private static function getClass($value)
     {

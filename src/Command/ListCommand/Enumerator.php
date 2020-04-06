@@ -48,9 +48,9 @@ abstract class Enumerator
     /**
      * Return a list of categorized things with the given input options and target.
      *
-     * @param InputInterface $input
-     * @param \Reflector     $reflector
-     * @param mixed          $target
+     * @param InputInterface  $input
+     * @param \Reflector|null $reflector
+     * @param mixed           $target
      *
      * @return array
      */
@@ -76,9 +76,9 @@ abstract class Enumerator
      *         ],
      *     ]
      *
-     * @param InputInterface $input
-     * @param \Reflector     $reflector
-     * @param mixed          $target
+     * @param InputInterface  $input
+     * @param \Reflector|null $reflector
+     * @param mixed           $target
      *
      * @return array
      */

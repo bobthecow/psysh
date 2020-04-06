@@ -97,10 +97,10 @@ class CodeFormatter implements Formatter
      *
      * Optionally, restrict by $startLine and $endLine line numbers, or pass $markLine to add a line marker.
      *
-     * @param string      $code
-     * @param number      $startLine
-     * @param number|null $endLine
-     * @param number|null $markLine
+     * @param string   $code
+     * @param int      $startLine
+     * @param int|null $endLine
+     * @param int|null $markLine
      *
      * @return string formatted code
      */
@@ -123,7 +123,7 @@ class CodeFormatter implements Formatter
      *
      * @param \ReflectionClass|\ReflectionFunctionAbstract $reflector
      *
-     * @return number
+     * @return int
      */
     private static function getStartLine(\Reflector $reflector)
     {
@@ -151,7 +151,6 @@ class CodeFormatter implements Formatter
     private static function tokenizeSpans($code)
     {
         $spanType = null;
-        $nextType = null;
         $buffer   = '';
 
         foreach (\token_get_all($code) as $token) {
@@ -204,9 +203,9 @@ class CodeFormatter implements Formatter
      *
      * Optionally, restrict by start and end line numbers.
      *
-     * @param \Generator  $spans     as [$spanType, $spanText] pairs
-     * @param number      $startLine
-     * @param number|null $endLine
+     * @param \Generator $spans     as [$spanType, $spanText] pairs
+     * @param int        $startLine
+     * @param int|null   $endLine
      *
      * @return \Generator lines, each an array of [$spanType, $spanText] pairs
      */
@@ -272,8 +271,8 @@ class CodeFormatter implements Formatter
      *
      * Optionally, pass $markLine to add a line marker.
      *
-     * @param \Generator  $lines    Formatted lines
-     * @param number|null $markLine
+     * @param \Generator $lines    Formatted lines
+     * @param int|null   $markLine
      *
      * @return \Generator Numbered, formatted lines
      */

@@ -57,7 +57,7 @@ class StrictTypesPass extends CodeCleanerPass
 
         $prependStrictTypes = $this->strictTypes;
 
-        foreach ($nodes as $key => $node) {
+        foreach ($nodes as $node) {
             if ($node instanceof Declare_) {
                 foreach ($node->declares as $declare) {
                     // For PHP Parser 4.x

@@ -97,9 +97,9 @@ class FilterOptions
     /**
      * Validate that grep, invert and insensitive input options are consistent.
      *
-     * @param InputInterface $input
+     * @throws RuntimeException if input is invalid
      *
-     * @return bool
+     * @param InputInterface $input
      */
     private function validateInput(InputInterface $input)
     {
@@ -127,9 +127,9 @@ class FilterOptions
     /**
      * Validate that $pattern is a valid regular expression.
      *
-     * @param string $pattern
+     * @throws RuntimeException if pattern is invalid
      *
-     * @return bool
+     * @param string $pattern
      */
     private function validateRegex($pattern)
     {

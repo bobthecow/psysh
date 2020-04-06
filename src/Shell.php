@@ -68,7 +68,6 @@ class Shell extends Application
     private $context;
     private $includes;
     private $outputWantsNewline = false;
-    private $prompt;
     private $loopListeners;
     private $autoCompleter;
     private $matchers = [];
@@ -78,7 +77,7 @@ class Shell extends Application
     /**
      * Create a new Psy Shell.
      *
-     * @param Configuration $config (default: null)
+     * @param Configuration|null $config (default: null)
      */
     public function __construct(Configuration $config = null)
     {
@@ -295,8 +294,8 @@ class Shell extends Application
     /**
      * Runs PsySH.
      *
-     * @param InputInterface  $input  An Input instance
-     * @param OutputInterface $output An Output instance
+     * @param InputInterface|null  $input  An Input instance
+     * @param OutputInterface|null $output An Output instance
      *
      * @return int 0 if everything went fine, or an error code
      */
@@ -324,7 +323,7 @@ class Shell extends Application
     /**
      * Runs PsySH.
      *
-     * @throws Exception if thrown via the `throw-up` command
+     * @throws \Exception if thrown via the `throw-up` command
      *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
@@ -350,7 +349,9 @@ class Shell extends Application
      * Initializes tab completion and readline history, then spins up the
      * execution loop.
      *
-     * @throws Exception if thrown via the `throw-up` command
+     * @throws \Exception if thrown via the `throw-up` command
+     *
+     * @return int 0 if everything went fine, or an error code
      */
     private function doInteractiveRun()
     {
@@ -371,8 +372,9 @@ class Shell extends Application
             throw $e->getPrevious();
         } catch (BreakException $e) {
             // The ProcessForker throws a BreakException to finish the main thread.
-            return;
         }
+
+        return 0;
     }
 
     /**
@@ -382,6 +384,8 @@ class Shell extends Application
      * the command line, or code via stdin.
      *
      * @param bool $rawOutput
+     *
+     * @return int 0 if everything went fine, or an error code
      */
     private function doNonInteractiveRun($rawOutput)
     {
@@ -402,6 +406,8 @@ class Shell extends Application
         }
 
         $this->afterRun();
+
+        return 0;
     }
 
     /**
@@ -519,7 +525,7 @@ class Shell extends Application
     private function inputInOpenStringOrComment($input)
     {
         if (!$this->hasCode()) {
-            return;
+            return false;
         }
 
         $code = $this->codeBuffer;
@@ -875,7 +881,7 @@ class Shell extends Application
     /**
      * Run a Psy Shell command given the user input.
      *
-     * @throws InvalidArgumentException if the input is not a valid command
+     * @throws \InvalidArgumentException if the input is not a valid command
      *
      * @param string $input User input string
      *
