@@ -119,7 +119,7 @@ HELP
             return [new Arg(new Variable('_e'))];
         }
 
-        if (\strpos('<?', $code) === false) {
+        if (\strpos($code, '<?') === false) {
             $code = '<?php ' . $code;
         }
 

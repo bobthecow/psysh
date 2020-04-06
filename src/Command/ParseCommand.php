@@ -128,7 +128,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $code = $input->getArgument('code');
-        if (\strpos('<?', $code) === false) {
+        if (\strpos($code, '<?') === false) {
             $code = '<?php ' . $code;
         }
 

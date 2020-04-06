@@ -109,7 +109,7 @@ HELP
             $code = $history[\count($history) - 2];
         }
 
-        if (\strpos('<?', $code) === false) {
+        if (\strpos($code, '<?') === false) {
             $code = '<?php ' . $code;
         }
 
