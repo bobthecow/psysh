@@ -264,12 +264,14 @@ class Configuration
         }
 
         // Best case, input is properly bound and validated.
-        if ($input->hasOption('verbose')) {
-            // Have to handle this case explicitly because we need ===. Yay PHP!
-            if ($input->getOption('verbose') === true) {
-                return self::VERBOSITY_VERBOSE;
-            }
-
+        //
+        // Note that if the `--verbose` option is incorrectly defined as `VALUE_NONE` rather than
+        // `VALUE_OPTIONAL` (as it is in Symfony Console by default) it doesn't actually work with
+        // multiple verbosity levels as it claims.
+        //
+        // We can detect this by checking whether the the value === true, and fall back to unbound
+        // parsing for this option.
+        if ($input->hasOption('verbose') && $input->getOption('verbose') !== true) {
             switch ($input->getOption('verbose')) {
                 case '-1':
                     return self::VERBOSITY_QUIET;
