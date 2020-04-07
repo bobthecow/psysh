@@ -50,7 +50,7 @@ before_deploy: make dist -j 4
 deploy:
     provider: releases
     token:
-        secure: LL8koDM1xDqzF9t0URHvmMPyWjojyd4PeZ7IW7XYgyvD6n1H6GYrVAeKCh5wfUKFbwHoa9s5AAn6pLzra00bODVkPTmUH+FSMWz9JKLw9ODAn8HvN7C+IooxmeClGHFZc0TfHfya8/D1E9C1iXtGGEoE/GqtaYq/z0C1DLpO0OU=
+        secure: jMTc2z9JgpNJbf5Ia8uVMQRz2BYEqhr2IGZQtHoj3zgqt+SzgTdjFWK5yfSRdkiqt671JfSFU7Epc1NhURwMoQTlzLdCYnP9Lct9CFzHMTn0sNbDLDmZXkGuxe15DToMiaCexv8dBM2zb5QsdXpNeFunz+eqfeKqechuX6QXoaY=
     file_glob: true
     file: dist/psysh-*.tar.gz
     skip_cleanup: true
