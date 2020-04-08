@@ -399,7 +399,13 @@ class Shell extends Application
 
         $this->beforeRun();
         $this->loadIncludes();
-        $this->getInput(false);
+
+        // For non-interactive execution, read only from the input buffer or from piped input.
+        // Otherwise it'll try to readline and hang, waiting for user input with no indication of
+        // what's holding things up.
+        if (!empty($this->inputBuffer) || $this->config->inputIsPiped()) {
+            $this->getInput(false);
+        }
 
         if ($this->hasCode()) {
             $ret = $this->execute($this->flushCode());
