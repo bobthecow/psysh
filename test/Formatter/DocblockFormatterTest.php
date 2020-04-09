@@ -47,7 +47,7 @@ class DocblockFormatterTest extends \PHPUnit\Framework\TestCase
 
 <comment>Param:</comment>
   <info>mixed </info> <strong>\$foo </strong> It's a foo thing
-  <info>int   </info> <strong>\$bar </strong> 
+  <info>int   </info> <strong>\$bar </strong>
 
 <comment>Return:</comment>
   <info>string </info> A string of no consequence
