@@ -89,7 +89,13 @@ class DocblockFormatter implements Formatter
         $template = \implode(' ', $template);
 
         return \implode("\n", \array_map(function ($line) use ($template) {
-            $escaped = \array_map([OutputFormatter::class, 'escape'], $line);
+            $escaped = \array_map(function ($l) {
+                if ($l === null) {
+                    return '';
+                }
+
+                return OutputFormatter::escape($l);
+            }, $line);
 
             return \rtrim(\vsprintf($template, $escaped));
         }, $lines));
