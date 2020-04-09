@@ -1375,11 +1375,25 @@ class Shell extends Application
     /**
      * Get the current version of Psy Shell.
      *
+     * @deprecated call self::getVersionHeader instead
+     *
      * @return string
      */
     public function getVersion()
     {
-        $separator = $this->config->useUnicode() ? '—' : '-';
+        return self::getVersionHeader($this->config->useUnicode());
+    }
+
+    /**
+     * Get a pretty header including the current version of Psy Shell.
+     *
+     * @param bool $useUnicode
+     *
+     * @return string
+     */
+    public static function getVersionHeader($useUnicode = false)
+    {
+        $separator = $useUnicode ? '—' : '-';
 
         return \sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, PHP_VERSION, $separator, PHP_SAPI);
     }

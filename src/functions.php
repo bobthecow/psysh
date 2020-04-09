@@ -335,11 +335,8 @@ if (!\function_exists('Psy\\bin')) {
             try {
                 $config = Configuration::fromInput($input);
             } catch (\InvalidArgumentException $e) {
-                $config = new Configuration();
                 $usageException = $e;
             }
-
-            $shell = new Shell($config);
 
             // Handle --help
             if ($usageException !== null || $input->getOption('help')) {
@@ -347,7 +344,7 @@ if (!\function_exists('Psy\\bin')) {
                     echo $usageException->getMessage() . PHP_EOL . PHP_EOL;
                 }
 
-                $version = $shell->getVersion();
+                $version = Shell::getVersionHeader(false);
                 $name    = \basename(\reset($_SERVER['argv']));
                 echo <<<EOL
 $version
@@ -374,9 +371,11 @@ EOL;
 
             // Handle --version
             if ($input->getOption('version')) {
-                echo $shell->getVersion() . PHP_EOL;
+                echo Shell::getVersionHeader($config->useUnicode()) . PHP_EOL;
                 exit(0);
             }
+
+            $shell = new Shell($config);
 
             // Pass additional arguments to Shell as 'includes'
             $shell->setIncludes($input->getArgument('include'));

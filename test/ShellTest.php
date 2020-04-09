@@ -306,6 +306,15 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertContains(PHP_SAPI, $shell->getVersion());
     }
 
+    public function testGetVersionHeader()
+    {
+        $header = Shell::getVersionHeader(false);
+
+        $this->assertContains(Shell::VERSION, $header);
+        $this->assertContains(PHP_VERSION, $header);
+        $this->assertContains(PHP_SAPI, $header);
+    }
+
     public function testCodeBuffer()
     {
         $shell = new Shell($this->getConfig());
