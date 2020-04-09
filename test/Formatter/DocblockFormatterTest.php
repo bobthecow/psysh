@@ -23,7 +23,7 @@ class DocblockFormatterTest extends \PHPUnit\Framework\TestCase
      * @throws InvalidArgumentException if $foo is empty
      *
      * @param mixed $foo It's a foo thing
-     * @param int   $bar This is definitely bar
+     * @param int   $bar
      *
      * @return string A string of no consequence
      */
@@ -47,7 +47,7 @@ class DocblockFormatterTest extends \PHPUnit\Framework\TestCase
 
 <comment>Param:</comment>
   <info>mixed </info> <strong>\$foo </strong> It's a foo thing
-  <info>int   </info> <strong>\$bar </strong> This is definitely bar
+  <info>int   </info> <strong>\$bar </strong>
 
 <comment>Return:</comment>
   <info>string </info> A string of no consequence
