@@ -11,7 +11,7 @@
 
 namespace Psy\Command\ListCommand;
 
-use Psy\Formatter\SignatureFormatter;
+use Psy\Formatter;
 use Psy\Input\FilterOptions;
 use Psy\Util\Mirror;
 use Psy\VarDumper\Presenter;
@@ -101,6 +101,6 @@ abstract class Enumerator
             $target = Mirror::get($target);
         }
 
-        return SignatureFormatter::format($target);
+        return Formatter\formatSignature($target);
     }
 }

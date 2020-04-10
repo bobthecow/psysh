@@ -12,7 +12,7 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\FunctionEnumerator;
-use Psy\Formatter\SignatureFormatter;
+use Psy\Formatter;
 use Psy\Reflection\ReflectionNamespace;
 
 require_once __DIR__ . '/Fixtures/functions.php';
@@ -56,7 +56,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
         $expected = ['array_push', 'array_pop', 'json_encode', 'htmlspecialchars'];
         foreach ($expected as $name) {
             $this->assertArrayHasKey($name, $functions);
-            $signature = SignatureFormatter::format(new \ReflectionFunction($name));
+            $signature = Formatter\formatSignature(new \ReflectionFunction($name));
             $this->assertEquals(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
         }
     }
@@ -79,7 +79,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
         $expected = ['composer\\autoload\\includefile', 'dump', 'psy\\sh', 'psy\\debug', 'psy\\info', 'psy\\bin'];
         foreach ($expected as $name) {
             $this->assertArrayHasKey($name, $functions);
-            $signature = SignatureFormatter::format(new \ReflectionFunction($name));
+            $signature = Formatter\formatSignature(new \ReflectionFunction($name));
             $this->assertEquals(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
         }
     }

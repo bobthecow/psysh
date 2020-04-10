@@ -13,8 +13,8 @@ namespace Psy\Command;
 
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
+use Psy\Formatter;
 use Psy\Formatter\CodeFormatter;
-use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
@@ -127,7 +127,7 @@ HELP
         try {
             $output->page(CodeFormatter::format($reflector));
         } catch (RuntimeException $e) {
-            $output->writeln(SignatureFormatter::format($reflector));
+            $output->writeln(Formatter\formatSignature($reflector));
             throw $e;
         }
     }

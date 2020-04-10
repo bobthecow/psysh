@@ -12,7 +12,6 @@
 namespace Psy\Command;
 
 use Psy\Formatter;
-use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
@@ -71,7 +70,7 @@ HELP
         $db = $this->getApplication()->getManualDb();
 
         $output->page(function ($output) use ($reflector, $doc, $db) {
-            $output->writeln(SignatureFormatter::format($reflector));
+            $output->writeln(Formatter\formatSignature($reflector));
             $output->writeln('');
 
             if (empty($doc) && !$db) {
