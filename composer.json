@@ -35,6 +35,7 @@
     "autoload": {
         "files": [
             "src/functions.php",
+            "src/Formatter/functions/formatDocblock.php",
             "src/Formatter/functions/formatTrace.php",
         ],
         "psr-4": {

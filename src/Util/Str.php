@@ -111,4 +111,18 @@ EOS;
             return \chr($cp);
         }
     }
+
+    /**
+     * Convert underscored or whitespace separated words into sentence case.
+     *
+     * @param string $text
+     *
+     * @return string
+     */
+    public static function toSentenceCase($text)
+    {
+        $words = \trim(\preg_replace('/[\s_-]+/', ' ', \preg_replace('/([a-z])([A-Z])/', '$1 $2', $text)));
+
+        return \implode(' ', \array_map('ucfirst', \explode(' ', $words)));
+    }
 }

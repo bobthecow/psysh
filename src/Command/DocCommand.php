@@ -11,12 +11,13 @@
 
 namespace Psy\Command;
 
-use Psy\Formatter\DocblockFormatter;
+use Psy\Formatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Psy\Util\Docblock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -64,7 +65,7 @@ HELP
             $doc = $this->getManualDocById($value);
         } else {
             list($target, $reflector) = $this->getTargetAndReflector($value);
-            $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
+            $doc = $this->getManualDoc($reflector) ?: Formatter\formatDocblock(new Docblock($reflector));
         }
 
         $db = $this->getApplication()->getManualDb();
