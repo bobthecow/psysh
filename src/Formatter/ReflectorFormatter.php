@@ -12,10 +12,14 @@
 namespace Psy\Formatter;
 
 /**
- * Formatter interface.
- *
- * @deprecated this interface only exists for backwards compatibility. Use ReflectorFormatter.
+ * Reflector formatter interface.
  */
-interface Formatter extends ReflectorFormatter
+interface ReflectorFormatter
 {
+    /**
+     * @param \Reflector $reflector
+     *
+     * @return string
+     */
+    public static function format(\Reflector $reflector);
 }

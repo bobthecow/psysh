@@ -17,7 +17,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 /**
  * A pretty-printer for code.
  */
-class CodeFormatter implements Formatter
+class CodeFormatter implements ReflectorFormatter
 {
     const LINE_MARKER    = '  <urgent>></urgent> ';
     const NO_LINE_MARKER = '    ';
