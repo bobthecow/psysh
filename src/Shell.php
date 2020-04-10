@@ -19,6 +19,7 @@ use Psy\Exception\ThrowUpException;
 use Psy\Exception\TypeErrorException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
+use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
 use Psy\TabCompletion\Matcher;
@@ -1112,6 +1113,16 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
         $output->writeln($this->formatException($e));
+
+        // Include an exception trace (as long as this isn't a BreakException).
+        if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
+            $trace = TraceFormatter::formatTrace($e);
+            if (\count($trace) !== 0) {
+                $output->writeln('--');
+                $output->write($trace, true);
+                $output->writeln('');
+            }
+        }
 
         $this->resetCodeBuffer();
     }

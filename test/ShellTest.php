@@ -12,6 +12,7 @@
 namespace Psy\Test;
 
 use Psy\Configuration;
+use Psy\Exception\BreakException;
 use Psy\Exception\ParseErrorException;
 use Psy\Shell;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
@@ -475,6 +476,40 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $shell->writeException($exception);
         \rewind($stream);
         $this->assertSame($expected, \stream_get_contents($stream));
+    }
+
+    /**
+     * @dataProvider getRenderedExceptions
+     */
+    public function testWriteExceptionVerbose($exception, $expected)
+    {
+        $output = $this->getOutput();
+        $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
+        $stream = $output->getStream();
+        $shell  = new Shell($this->getConfig());
+        $shell->setOutput($output);
+
+        $shell->writeException($exception);
+        \rewind($stream);
+        $stdout = \stream_get_contents($stream);
+        $this->assertStringStartsWith($expected, $stdout);
+        $this->assertContains(\basename(__FILE__), $stdout);
+
+        $lineCount = \count(\explode(PHP_EOL, $stdout));
+        $this->assertGreaterThan(4, $lineCount); // /shrug
+    }
+
+    public function testWriteExceptionVerboseButNotReallyBecauseItIsABreakException()
+    {
+        $output = $this->getOutput();
+        $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
+        $stream = $output->getStream();
+        $shell  = new Shell($this->getConfig());
+        $shell->setOutput($output);
+
+        $shell->writeException(new BreakException('yeah.'));
+        \rewind($stream);
+        $this->assertSame('Exit:  yeah.' . PHP_EOL, \stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
