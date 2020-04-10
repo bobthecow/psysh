@@ -17,7 +17,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 /**
  * A pretty-printer for docblocks.
  */
-class DocblockFormatter implements ReflectorFormatter
+class DocblockFormatter implements Formatter
 {
     private static $vectorParamTemplates = [
         'type' => 'info',

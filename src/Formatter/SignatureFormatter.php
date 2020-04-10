@@ -20,7 +20,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 /**
  * An abstract representation of a function, class or property signature.
  */
-class SignatureFormatter implements ReflectorFormatter
+class SignatureFormatter implements Formatter
 {
     /**
      * Format a signature for the given reflector.
