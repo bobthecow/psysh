@@ -71,8 +71,13 @@ class TraceFormatter
             $class = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
             $type = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
             $function = $trace[$i]['function'];
-            $file = isset($trace[$i]['file']) ? self::replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
+            $file = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
             $line = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
+
+            // Make file paths relative to cwd
+            if ($cwd !== false) {
+                $file = \preg_replace('/^' . \preg_quote($cwd, '/') . '/', '', $file);
+            }
 
             // Leave execution loop out of the `eval()'d code` lines
             if (\preg_match("#/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code$#", \str_replace('\\', '/', $file))) {
@@ -95,22 +100,5 @@ class TraceFormatter
         }
 
         return $lines;
-    }
-
-    /**
-     * Replace the given directory from the start of a filepath.
-     *
-     * @param string $cwd
-     * @param string $file
-     *
-     * @return string
-     */
-    private static function replaceCwd($cwd, $file)
-    {
-        if ($cwd === false) {
-            return $file;
-        } else {
-            return \preg_replace('/^'.\preg_quote($cwd, '/').'/', '', $file);
-        }
     }
 }
