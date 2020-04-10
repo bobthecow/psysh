@@ -11,7 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Formatter\CodeFormatter;
+use Psy\Formatter;
 use Psy\Output\ShellOutput;
 use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
@@ -129,7 +129,7 @@ HELP
         }
 
         $output->writeln(\sprintf('From <info>%s:%s</info>:', $this->replaceCwd($info['file']), $lineNum));
-        $output->write(CodeFormatter::formatCode($code, $startLine, $endLine, $lineNum), false);
+        $output->write(Formatter\formatCode($code, $startLine, $endLine, $lineNum), false);
 
         if ($output instanceof ShellOutput) {
             $output->stopPaging();

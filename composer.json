@@ -37,11 +37,13 @@
             "src/functions.php",
             "src/Formatter/functions/formatClassConstantSignature.php",
             "src/Formatter/functions/formatClassSignature.php",
+            "src/Formatter/functions/formatCode.php",
             "src/Formatter/functions/formatConstantSignature.php",
             "src/Formatter/functions/formatDocblock.php",
             "src/Formatter/functions/formatFunctionSignature.php",
             "src/Formatter/functions/formatMethodSignature.php",
             "src/Formatter/functions/formatPropertySignature.php",
+            "src/Formatter/functions/formatReflectorCode.php",
             "src/Formatter/functions/formatSignature.php",
             "src/Formatter/functions/formatTrace.php",
             "src/Formatter/functions/getTypeStyle.php"

@@ -14,7 +14,6 @@ namespace Psy\Command;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
 use Psy\Formatter;
-use Psy\Formatter\CodeFormatter;
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
@@ -115,7 +114,7 @@ HELP
             $target = $e->getTarget();
             if (\is_string($target) && \is_file($target) && $code = @\file_get_contents($target)) {
                 // @todo maybe set $__file to $target?
-                return $output->page(CodeFormatter::formatCode($code));
+                return $output->page(Formatter\formatCode($code));
             } else {
                 throw $e;
             }
@@ -125,7 +124,7 @@ HELP
         $this->setCommandScopeVariables($reflector);
 
         try {
-            $output->page(CodeFormatter::format($reflector));
+            $output->page(Formatter\formatReflectorCode($reflector));
         } catch (RuntimeException $e) {
             $output->writeln(Formatter\formatSignature($reflector));
             throw $e;
@@ -227,7 +226,7 @@ HELP
         $startLine = \max($line - 5, 0);
         $endLine = $line + 5;
 
-        $output->write(CodeFormatter::formatCode($code, $startLine, $endLine, $line), false);
+        $output->write(Formatter\formatCode($code, $startLine, $endLine, $line), false);
     }
 
     private function setCommandScopeVariablesFromContext(array $context)
