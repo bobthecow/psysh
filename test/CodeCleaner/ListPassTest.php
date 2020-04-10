@@ -44,7 +44,7 @@ class ListPassTest extends CodeCleanerTestCase
         $errorEmptyList = 'Cannot use empty list';
         $errorAssocListAssign = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
         $errorNonVariableAssign = 'Assignments can only happen to writable values';
-        $errorPhpParserSyntax = 'PHP Parse error: Syntax error, unexpected';
+        $errorPhpParserSyntax = 'PHP Parse error: ';
 
         $invalidExpr = [
             ['list() = []', $errorEmptyList],
