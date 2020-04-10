@@ -238,6 +238,16 @@ class Shell extends Application
     }
 
     /**
+     * Adds a loop listener.
+     *
+     * @param \Psy\ExecutionLoop\Listener $listener
+     */
+    public function addLoopListener(Listener $listener)
+    {
+        $this->listeners[] = $listener;
+    }
+
+    /**
      * Gets the default command loop listeners.
      *
      * @return array An array of Execution Loop Listener instances
