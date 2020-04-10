@@ -33,7 +33,10 @@
         "hoa/console": "A pure PHP readline implementation. You'll want this if your PHP install doesn't already support readline or libedit."
     },
     "autoload": {
-        "files": ["src/functions.php"],
+        "files": [
+            "src/functions.php",
+            "src/Formatter/functions/formatTrace.php",
+        ],
         "psr-4": {
             "Psy\\": "src/"
         }

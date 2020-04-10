@@ -11,14 +11,9 @@
 
 namespace Psy\Formatter;
 
-use Psy\Input\FilterOptions;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * Output formatter for exception traces.
- */
-class TraceFormatter
-{
+if (!\function_exists('Psy\\Formatter\\formatTrace')) {
     /**
      * Format the trace of the given exception.
      *
@@ -33,7 +28,7 @@ class TraceFormatter
      *
      * @return string[] Formatted stacktrace lines
      */
-    public static function formatTrace($throwable, FilterOptions $filter = null, $count = null, $includePsy = true)
+    function formatTrace($throwable, FilterOptions $filter = null, $count = null, $includePsy = true)
     {
         if (!($throwable instanceof \Throwable || $throwable instanceof \Exception)) {
             throw new \InvalidArgumentException('Unable to format non-throwable value');

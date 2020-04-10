@@ -11,7 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Formatter\TraceFormatter;
+use Psy\Formatter;
 use Psy\Input\FilterOptions;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -92,6 +92,6 @@ HELP
      */
     protected function getBacktrace(\Exception $e, $count = null, $includePsy = true)
     {
-        return TraceFormatter::formatTrace($e, $this->filter, $count, $includePsy);
+        return Formatter\formatTrace($e, $this->filter, $count, $includePsy);
     }
 }
