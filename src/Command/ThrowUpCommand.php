@@ -55,7 +55,7 @@ class ThrowUpCommand extends Command implements ContextAware
      */
     public function setContext(Context $context)
     {
-        @\trigger_error('ThrowUp no longer needs to be ContextAware', E_USER_DEPRECATED);
+        // Do nothing
     }
 
     /**
