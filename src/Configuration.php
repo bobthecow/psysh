@@ -105,7 +105,7 @@ class Configuration
     private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
     private $updateCheck;
     private $startupMessage;
-    private $debugConstant = 'SH';
+    private $debugConstant = 'Psy\\sh';
     private $forceArrayIndexes = false;
     private $formatterStyles = [];
     private $verbosity = self::VERBOSITY_NORMAL;
