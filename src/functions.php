@@ -395,3 +395,10 @@ EOL;
         };
     }
 }
+
+/**
+ * Use `eval(dbg)` because `eval(\Psy\sh());` is too long
+ */
+if (!defined('dbg') && function_exists('Psy\\sh')) {
+    define('dbg', \Psy\sh(), true);
+}
