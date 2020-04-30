@@ -400,5 +400,6 @@ EOL;
  * Use `eval(dbg)` because `eval(\Psy\sh());` is too long
  */
 if (!defined('dbg') && function_exists('Psy\\sh')) {
-    define('dbg', \Psy\sh(), true);
+    $constant = (new Configuration())->getDebugConstant();
+    define($constant, \Psy\sh(), true);
 }

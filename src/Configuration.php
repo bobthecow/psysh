@@ -65,6 +65,7 @@ class Configuration
         'requireSemicolons',
         'runtimeDir',
         'startupMessage',
+        'debugConstant',
         'updateCheck',
         'useBracketedPaste',
         'usePcntl',
@@ -104,6 +105,7 @@ class Configuration
     private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
     private $updateCheck;
     private $startupMessage;
+    private $debugConstant = 'DBG';
     private $forceArrayIndexes = false;
     private $formatterStyles = [];
     private $verbosity = self::VERBOSITY_NORMAL;
@@ -1574,6 +1576,26 @@ class Configuration
     public function setPrompt($prompt)
     {
         $this->prompt = $prompt;
+    }
+
+    /**
+     * Set the debug constant.
+     *
+     * @param string $debugConstant
+     */
+    public function setDebugConstant($debugConstant)
+    {
+        $this->debugConstant = $debugConstant;
+    }
+
+    /**
+     * Get the debug constant.
+     *
+     * @return string
+     */
+    public function getDebugConstant()
+    {
+        return $this->debugConstant;
     }
 
     /**
