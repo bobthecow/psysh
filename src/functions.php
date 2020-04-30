@@ -397,9 +397,9 @@ EOL;
 }
 
 /*
- * Use `eval(dbg)` because `eval(\Psy\sh());` is too long
+ * Use `eval(sh)` because `eval(\Psy\sh());` is too long
  */
-if (!defined('dbg') && function_exists('Psy\\sh')) {
-    $constant = (new Configuration())->getDebugConstant();
+$constant = (new Configuration())->getDebugConstant();
+if (!defined($constant) && function_exists('Psy\\sh')) {
     define($constant, \Psy\sh(), true);
 }
