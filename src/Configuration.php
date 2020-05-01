@@ -1718,7 +1718,7 @@ class Configuration
     public function inputIsPiped()
     {
         if ($this->pipedInput === null) {
-            $this->pipedInput = static::looksLikeAPipe(\STDIN);
+            $this->pipedInput = \defined('STDIN') && static::looksLikeAPipe(\STDIN);
         }
 
         return $this->pipedInput;
