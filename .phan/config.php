@@ -19,6 +19,12 @@ return [
         'vendor/nikic/php-parser/lib/',
         'vendor/symfony/console/',
         'vendor/symfony/var-dumper/',
+        'vendor/symfony/polyfill-ctype/',
+        'vendor/symfony/polyfill-intl-grapheme/',
+        'vendor/symfony/polyfill-intl-normalizer/',
+        'vendor/symfony/polyfill-mbstring/',
+        'vendor/symfony/polyfill-php73/',
+        'vendor/symfony/polyfill-php80/',
     ],
 
     // A directory list that defines files that will be excluded
@@ -33,6 +39,13 @@ return [
     //       should be added to both the `directory_list`
     //       and `exclude_analysis_directory_list` arrays.
     "exclude_analysis_directory_list" => [
-        'vendor/'
+        'vendor/',
+        'src/Readline/Hoa/',
     ],
+
+    // The baseline.php merges separate baseline files for clarity:
+    //   - baseline-min-versions.php: False positives from minimum versions
+    //   - baseline-new-deprecations.php: Future deprecations from latest versions
+    //   - baseline-internal-deprecations.php: Internal PsySH BC deprecations
+    'baseline_path' => __DIR__ . '/baseline.php',
 ];

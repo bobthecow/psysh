@@ -55,6 +55,9 @@ phpstan: ## Run static analysis
 phpstan: vendor/bin/phpstan vendor/bin/phpunit
 	vendor/bin/phpstan --memory-limit=1G analyse
 
+phan: ## Run phan
+phan: vendor/bin/phan
+	vendor/bin/phan --allow-polyfill-parser
 
 # All the composer stuffs
 
@@ -81,6 +84,11 @@ vendor/bin/phpunit: vendor-bin/phpunit/vendor/autoload.php
 vendor/bin/phpstan: vendor-bin/phpstan/vendor/autoload.php
 	composer bin phpstan install --ignore-platform-reqs
 	ln -sf ../../vendor-bin/phpstan/vendor/phpstan/phpstan/phpstan $@
+
+vendor/bin/phan: vendor/autoload.php
+	composer bin phan install --ignore-platform-reqs
+	ln -sf ../../vendor-bin/phan/vendor/phan/phan/phan $@
+	touch $@
 
 
 # Lots of PHARs
