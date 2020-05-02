@@ -136,6 +136,7 @@ if (!\function_exists('Psy\\info')) {
         };
 
         $config = $lastConfig ?: new Configuration();
+        $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;
 
         $core = [
             'PsySH version'       => Shell::VERSION,
@@ -147,7 +148,7 @@ if (!\function_exists('Psy\\info')) {
             'config file'         => [
                 'default config file' => $prettyPath($config->getConfigFile()),
                 'local config file'   => $prettyPath($config->getLocalConfigFile()),
-                'PSYSH_CONFIG env'    => $prettyPath(\getenv('PSYSH_CONFIG')),
+                'PSYSH_CONFIG env'    => $prettyPath($configEnv),
             ],
             // 'config dir'  => $config->getConfigDir(),
             // 'data dir'    => $config->getDataDir(),
@@ -345,7 +346,9 @@ if (!\function_exists('Psy\\bin')) {
                 }
 
                 $version = Shell::getVersionHeader(false);
-                $name    = \basename(\reset($_SERVER['argv']));
+                $argv    = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
+                $name    = $argv ? \basename(\reset($argv)) : 'psysh';
+
                 echo <<<EOL
 $version
 

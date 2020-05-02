@@ -44,8 +44,8 @@ call_user_func(function () {
     while (!empty($chunks)) {
         $path = implode('/', $chunks);
         $prettyPath = $path;
-        if ($home = getenv('HOME')) {
-            $prettyPath = preg_replace('/^' . preg_quote($home, '/') . '/', '~', $path);
+        if (isset($_SERVER['HOME']) && $_SERVER['HOME']) {
+            $prettyPath = preg_replace('/^' . preg_quote($_SERVER['HOME'], '/') . '/', '~', $path);
         }
 
         // Find composer.json
@@ -130,7 +130,7 @@ unset($trace);
 
 // If the local version is too old, we can't do this
 if (!function_exists('Psy\bin')) {
-    $argv = $_SERVER['argv'];
+    $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
     $first = array_shift($argv);
     if (preg_match('/php(\.exe)?$/', $first)) {
         array_shift($argv);

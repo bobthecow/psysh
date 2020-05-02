@@ -62,7 +62,8 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
      */
     public function testFilesAndDirectories($home, $configFile, $historyFile, $manualDbFile)
     {
-        $oldHome = \getenv('HOME');
+        $oldHome = $_SERVER['HOME'];
+        $_SERVER['HOME'] = $home;
         \putenv("HOME=$home");
 
         $config = new Configuration();
@@ -70,6 +71,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(\realpath($historyFile),  \realpath($config->getHistoryFile()));
         $this->assertSame(\realpath($manualDbFile), \realpath($config->getManualDbFile()));
 
+        $_SERVER['HOME'] = $oldHome;
         \putenv("HOME=$oldHome");
     }
 

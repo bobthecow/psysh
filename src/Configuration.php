@@ -132,8 +132,8 @@ class Configuration
         // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
-        } elseif ($configFile = \getenv('PSYSH_CONFIG')) {
-            $this->configFile = $configFile;
+        } elseif (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) {
+            $this->configFile = $_SERVER['PSYSH_CONFIG'];
         }
 
         // legacy baseDir option
