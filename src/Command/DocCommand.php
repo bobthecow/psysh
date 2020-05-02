@@ -75,6 +75,11 @@ HELP
             $output->startPaging();
         }
 
+        // Maybe include the declaring class
+        if ($reflector instanceof \ReflectionMethod || $reflector instanceof \ReflectionProperty) {
+            $output->writeln(SignatureFormatter::format($reflector->getDeclaringClass()));
+        }
+
         $output->writeln(SignatureFormatter::format($reflector));
         $output->writeln('');
 
@@ -92,6 +97,11 @@ HELP
                 $output->writeln('');
                 $output->writeln('---');
                 $output->writeln('');
+
+                // Maybe include the declaring class
+                if ($parent instanceof \ReflectionMethod || $parent instanceof \ReflectionProperty) {
+                    $output->writeln(SignatureFormatter::format($parent->getDeclaringClass()));
+                }
 
                 $output->writeln(SignatureFormatter::format($parent));
                 $output->writeln('');
