@@ -33,6 +33,7 @@ use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespacePass;
 use Psy\CodeCleaner\PassableByReferencePass;
 use Psy\CodeCleaner\RequirePass;
+use Psy\CodeCleaner\ReturnTypePass;
 use Psy\CodeCleaner\StrictTypesPass;
 use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
@@ -104,6 +105,7 @@ class CodeCleaner
             new ListPass(),
             new LoopContextPass(),
             new PassableByReferencePass(),
+            new ReturnTypePass(),
             new EmptyArrayDimFetchPass(),
             new ValidConstructorPass(),
 
