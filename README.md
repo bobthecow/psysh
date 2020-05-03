@@ -24,6 +24,7 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
  * [⏳ Managing history](https://github.com/bobthecow/psysh/wiki/History)
  * [💲 System shell integration](https://github.com/bobthecow/psysh/wiki/Shell-integration)
  * [🎥 Tutorials & guides](https://github.com/bobthecow/psysh/wiki/Tutorials)
+ * [🐛 Troubleshooting](https://github.com/bobthecow/psysh/wiki/Troubleshooting)
 
 ### [📢 Commands](https://github.com/bobthecow/psysh/wiki/Commands)
 
