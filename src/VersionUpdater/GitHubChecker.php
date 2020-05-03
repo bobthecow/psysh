@@ -24,7 +24,11 @@ class GitHubChecker implements Checker
      */
     public function isLatest()
     {
-        return \version_compare(Shell::VERSION, $this->getLatest(), '>=');
+        // version_compare doesn't handle semver completely;
+        // strip pre-release and build metadata before comparing
+        $version = \preg_replace('/[+-]\w+/', '', Shell::VERSION);
+
+        return \version_compare($version, $this->getLatest(), '>=');
     }
 
     /**

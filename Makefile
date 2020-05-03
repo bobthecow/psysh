@@ -64,6 +64,7 @@ build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
+	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)'/" $@/src/Shell.php
 	composer config --working-dir $@ platform.php 7.2.5
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.2.5'
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
@@ -72,6 +73,7 @@ build/psysh-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
+	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)+compat'/" $@/src/Shell.php
 	composer config --working-dir $@ platform.php 7.2.5
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.2.5'
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console
@@ -81,6 +83,7 @@ build/psysh-php55: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
+	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)+php55'/" $@/src/Shell.php
 	composer config --working-dir $@ platform.php 5.5.9
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
@@ -88,6 +91,7 @@ build/psysh-php55-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
+	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)+php55-compat'/" $@/src/Shell.php
 	composer config --working-dir $@ platform.php 5.5.9
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console:^2.15
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
