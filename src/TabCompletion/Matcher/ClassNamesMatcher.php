@@ -29,7 +29,6 @@ class ClassNamesMatcher extends AbstractMatcher
         if (\strlen($class) > 0 && $class[0] === '\\') {
             $class = \substr($class, 1, \strlen($class));
         }
-        $quotedClass = \preg_quote($class);
 
         return \array_map(
             function ($className) use ($class) {
@@ -41,8 +40,8 @@ class ClassNamesMatcher extends AbstractMatcher
             },
             \array_filter(
                 \array_merge(\get_declared_classes(), \get_declared_interfaces()),
-                function ($className) use ($quotedClass) {
-                    return AbstractMatcher::startsWith($quotedClass, $className);
+                function ($className) use ($class) {
+                    return AbstractMatcher::startsWith($class, $className);
                 }
             )
         );
