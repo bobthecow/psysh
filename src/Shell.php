@@ -238,6 +238,23 @@ class Shell extends Application
     }
 
     /**
+     * Get completion matches.
+     *
+     * @return array An array of completion matches for $input
+     */
+    public function getTabCompletions(string $input)
+    {
+        $ac = $this->autoCompleter;
+        $word = '';
+        $regexp = $ac::WORD_REGEXP;
+        $matches = [];
+        if (preg_match($regexp, $input, $matches) === 1) {
+            $word = $matches[0];
+        }
+        return $ac->processCallback($word, null, ['line_buffer' => $input]);
+    }
+
+    /**
      * Gets the default command loop listeners.
      *
      * @return array An array of Execution Loop Listener instances
