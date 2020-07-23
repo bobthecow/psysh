@@ -173,9 +173,11 @@ class ConfigPaths
                 \array_unshift($dirs, \strtr($_SERVER['APPDATA'], '\\', '/') . '/PsySH');
             }
 
-            $dir = \strtr($_SERVER['HOMEDRIVE'] . '/' . $_SERVER['HOMEPATH'], '\\', '/') . '/.psysh';
-            if (!\in_array($dir, $dirs)) {
-                $dirs[] = $dir;
+            if (isset($_SERVER['HOMEDRIVE']) && isset($_SERVER['HOMEPATH'])) {
+                $dir = \strtr($_SERVER['HOMEDRIVE'] . '/' . $_SERVER['HOMEPATH'], '\\', '/') . '/.psysh';
+                if (!\in_array($dir, $dirs)) {
+                    $dirs[] = $dir;
+                }
             }
         }
 
