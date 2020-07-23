@@ -58,15 +58,24 @@ abstract class AbstractMatcher
      * Get current readline input word.
      *
      * @param array $tokens Tokenized readline input (see token_get_all)
+     * @param array|null $t_valid Acceptable tokens.  If null then strings
+     *   which are valid identifiers (or empty) are considered valid.
      *
-     * @return string
+     * @return string|bool
      */
-    protected function getInput(array $tokens)
+    protected function getInput(array $tokens, array $t_valid = null)
     {
         $var = '';
-        $firstToken = \array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            $var = $firstToken[1];
+        $token = \array_pop($tokens);
+        $input = \is_array($token) ? $token[1] : $token;
+
+        if (isset($t_valid)) {
+            if (self::hasToken($t_valid, $token)) {
+                $var = $input;
+            }
+        }
+        elseif (self::tokenIsValidIdentifier($token, true)) {
+            $var = $input;
         }
 
         return $var;
