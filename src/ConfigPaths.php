@@ -216,7 +216,7 @@ class ConfigPaths
         }
 
         if (!\is_dir($dir) || !\is_writable($dir)) {
-            \trigger_error(\sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
+            \trigger_error(\sprintf('Writing to directory %s is not allowed.', $dir), E_USER_NOTICE);
 
             return false;
         }
