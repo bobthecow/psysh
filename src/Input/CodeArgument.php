@@ -26,6 +26,11 @@ use Symfony\Component\Console\Input\InputArgument;
  *     parse function() { return "wheee\n"; }
  *
  * ... without having to put the code in a quoted string and escape everything.
+ *
+ * Certain trailing whitespace characters are exceptions.  Trailing Spaces and
+ * tabs will be included in the argument value, but trailing newlines, carriage
+ * returns, vertical tabs, and nulls are trimmed from the command before the
+ * arguments are established.
  */
 class CodeArgument extends InputArgument
 {

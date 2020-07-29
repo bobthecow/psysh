@@ -926,7 +926,7 @@ class Shell extends Application
             throw new \InvalidArgumentException('Command not found: '.$input);
         }
 
-        $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, " \t\n\r\0\x0B;")));
+        $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, "\n\r\0\x0B;")));
 
         if ($input->hasParameterOption(['--help', '-h'])) {
             $helpCommand = $this->get('help');
