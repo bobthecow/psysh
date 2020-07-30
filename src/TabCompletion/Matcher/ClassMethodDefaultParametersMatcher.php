@@ -11,8 +11,16 @@
 
 namespace Psy\TabCompletion\Matcher;
 
+/**
+ * A class method tab completion Matcher.
+ *
+ * This provides completions for all parameters of the specifed method.
+ */
 class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatcher
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getMatches(array $tokens, array $info = [])
     {
         $openBracket = \array_pop($tokens);
@@ -39,6 +47,9 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
         return [];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasMatched(array $tokens)
     {
         $openBracket = \array_pop($tokens);
