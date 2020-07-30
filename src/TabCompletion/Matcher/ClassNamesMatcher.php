@@ -66,7 +66,6 @@ class ClassNamesMatcher extends AbstractMatcher
                 return false;
             case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR, self::T_STRING], $prevToken):
             case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $token):
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
             case self::isOperator($token):
                 return true;
         }
