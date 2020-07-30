@@ -26,6 +26,9 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = \str_replace('$', '', $this->getInput($tokens));
+        if ($input === false) {
+            return [];
+        }
 
         return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($input) {
             return AbstractMatcher::startsWith($input, $variable);

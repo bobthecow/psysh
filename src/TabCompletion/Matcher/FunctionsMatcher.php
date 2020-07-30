@@ -26,6 +26,9 @@ class FunctionsMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         $functions = \get_defined_functions();
         $allFunctions = \array_merge($functions['user'], $functions['internal']);

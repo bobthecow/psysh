@@ -65,20 +65,19 @@ abstract class AbstractMatcher
      */
     protected function getInput(array $tokens, array $t_valid = null)
     {
-        $var = '';
         $token = \array_pop($tokens);
         $input = \is_array($token) ? $token[1] : $token;
 
         if (isset($t_valid)) {
             if (self::hasToken($t_valid, $token)) {
-                $var = $input;
+                return $input;
             }
         }
         elseif (self::tokenIsValidIdentifier($token, true)) {
-            $var = $input;
+            return $input;
         }
 
-        return $var;
+        return false;
     }
 
     /**

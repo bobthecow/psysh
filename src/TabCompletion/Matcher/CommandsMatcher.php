@@ -87,6 +87,9 @@ class CommandsMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         return \array_filter($this->commands, function ($command) use ($input) {
             return AbstractMatcher::startsWith($input, $command);

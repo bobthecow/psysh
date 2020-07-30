@@ -27,6 +27,9 @@ class ClassAttributesMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         $firstToken = \array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING)) {
