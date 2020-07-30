@@ -49,8 +49,6 @@ class ConstantsMatcher extends AbstractMatcher
             case self::tokenIs($prevToken, self::T_NS_SEPARATOR):
                 return false;
             // Current token (whitelist).
-            case self::tokenIs($token, self::T_OPEN_TAG):
-            case self::isOperator($token):
             case self::tokenIsValidIdentifier($token, true);
                 return true;
         }

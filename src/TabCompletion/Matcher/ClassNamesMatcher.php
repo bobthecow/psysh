@@ -60,8 +60,7 @@ class ClassNamesMatcher extends AbstractMatcher
         ];
 
         switch (true) {
-            // Blacklisted.
-            case self::hasToken([$blacklistedTokens], $token):
+            // Previous token (blacklist).
             case self::hasToken([$blacklistedTokens], $prevToken):
             case $token === '$':
                 return false;
@@ -69,8 +68,7 @@ class ClassNamesMatcher extends AbstractMatcher
             case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $prevToken):
                 return self::tokenIsValidIdentifier($token, true);
             // Current token (whitelist).
-            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $token):
-            case self::isOperator($token):
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 

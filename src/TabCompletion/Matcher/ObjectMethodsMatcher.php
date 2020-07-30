@@ -34,10 +34,10 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
         }
 
         $firstToken = \array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the object operator
-            \array_pop($tokens);
-        }
+
+        // Second token is the object operator '->'.
+        \array_pop($tokens);
+
         $objectToken = \array_pop($tokens);
         if (!\is_array($objectToken)) {
             return [];
@@ -74,8 +74,6 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
 
         // Valid following '->'.
         switch (true) {
-            case self::tokenIs($token, self::T_OBJECT_OPERATOR):
-                return true;
             case self::tokenIs($prevToken, self::T_OBJECT_OPERATOR):
                 return self::tokenIsValidIdentifier($token, true);
         }

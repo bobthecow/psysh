@@ -45,7 +45,11 @@ abstract class AbstractMatcher
     /**
      * Check whether this matcher can provide completions for $tokens.
      *
-     * @param array $tokens Tokenized readline input
+     * @param array $tokens Tokenized readline input, with whitespace
+     *   tokens removed.  The final token is the identifier prefix to
+     *   be completed (if the input did not end in a valid identifier
+     *   prefix then the final token will be an empty string).  Refer
+     *   to AutoCompleter::processCallback() for details.
      *
      * @return bool
      */
@@ -172,7 +176,7 @@ abstract class AbstractMatcher
      */
     public static function isOperator($token)
     {
-        if (!\is_string($token)) {
+        if (!\is_string($token) || $token === '') {
             return false;
         }
 

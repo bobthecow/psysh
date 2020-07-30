@@ -79,8 +79,7 @@ class KeywordsMatcher extends AbstractMatcher
             case self::tokenIs($prevToken, self::T_OPEN_TAG):
                 return self::tokenIsValidIdentifier($token, true);
             // Current token (whitelist).
-            case self::tokenIs($token, self::T_OPEN_TAG):
-            case self::isOperator($token):
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 

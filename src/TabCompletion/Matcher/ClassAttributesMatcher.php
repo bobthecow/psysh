@@ -32,10 +32,9 @@ class ClassAttributesMatcher extends AbstractMatcher
         }
 
         $firstToken = \array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the nekudotayim operator
-            \array_pop($tokens);
-        }
+
+        // Second token is the nekudotayim operator '::'.
+        \array_pop($tokens);
 
         $class = $this->getNamespaceAndClass($tokens);
         $chunks = \explode('\\', $class);
@@ -85,8 +84,6 @@ class ClassAttributesMatcher extends AbstractMatcher
         switch (true) {
             case self::tokenIs($prevToken, self::T_DOUBLE_COLON):
                 return self::tokenIsValidIdentifier($token, true);
-            case self::tokenIs($token, self::T_DOUBLE_COLON):
-                return true;
         }
 
         return false;

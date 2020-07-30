@@ -106,6 +106,7 @@ class CommandsMatcher extends AbstractMatcher
 
         // Valid for completion only if this was the only token.
         switch (true) {
+            case empty($command):
             case empty($tokens) &&
                 self::tokenIsValidIdentifier($command, true) &&
                 $this->matchCommand($command[1]):

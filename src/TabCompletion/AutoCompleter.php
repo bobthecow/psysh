@@ -148,10 +148,40 @@ class AutoCompleter
 
         $tokens = \token_get_all('<?php '.$line);
 
-        // remove whitespaces
+        // Remove whitespace tokens, excluding the current token.
+        $token = \array_pop($tokens);
         $tokens = \array_filter($tokens, function ($token) {
             return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
         });
+
+        // If we're effectively completing an empty string, append a
+        // token to represent this.  An empty string isn't actually a
+        // valid token, so we use the value that is simplest to test.
+        switch (true) {
+            case AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE):
+                $tokens[] = '';
+                break;
+            case AbstractMatcher::tokenIs($token, AbstractMatcher::T_VARIABLE):
+                $tokens[] = $token;
+                break;
+            case !AbstractMatcher::tokenIsValidIdentifier($token):
+                // This also covers/includes the cases !is_array($token)
+                // (which is a super-set of AbstractMatcher::isOperator()),
+                // and also tokenIs($token, AbstractMatcher::T_OPEN_TAG).
+                // Therefore it will never be the case that one of those
+                // things is the final token in the array; they can only
+                // ever be the *previous* token.  Moreover, the final token
+                // is always a valid completion prefix or else the empty
+                // string.  This simplifies the set of cases that Matchers
+                // need to cater for.
+                $tokens[] = $token;
+                $tokens[] = '';
+                break;
+            default:
+                // We're completing a valid identifier.
+                $tokens[] = $token;
+                break;
+        }
 
         $matches = [];
         foreach ($this->matchers as $matcher) {

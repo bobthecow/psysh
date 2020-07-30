@@ -43,9 +43,8 @@ class VariablesMatcher extends AbstractContextAwareMatcher
         $token = \array_pop($tokens);
 
         switch (true) {
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-            case $token === '$':
-            case self::isOperator($token):
+            case self::tokenIs($token, self::T_VARIABLE):
+            case in_array($token, ['', '$'], true):
                 return true;
         }
 
