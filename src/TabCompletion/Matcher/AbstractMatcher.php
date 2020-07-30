@@ -172,6 +172,23 @@ abstract class AbstractMatcher
     }
 
     /**
+     * Check whether $token is a valid prefix for a PHP identifier.
+     *
+     * @param mixed $token A PHP token (see token_get_all)
+     * @param bool $allowEmpty Whether an empty string is valid.
+     *
+     * @return bool
+     */
+    public static function tokenIsValidIdentifier($token, bool $allowEmpty = false)
+    {
+        // See AutoCompleter::processCallback() regarding the '' token.
+        if ($token === '') {
+            return $allowEmpty;
+        }
+        return self::hasSyntax($token, self::CONSTANT_SYNTAX);
+    }
+
+    /**
      * Used both to test $tokens[1] (i.e. following T_OPEN_TAG) to
      * see whether it's a PsySH introspection command, and also by
      * self::getNamespaceAndClass() to prevent these commands from
