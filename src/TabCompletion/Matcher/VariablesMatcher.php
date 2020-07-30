@@ -25,10 +25,10 @@ class VariablesMatcher extends AbstractContextAwareMatcher
      */
     public function getMatches(array $tokens, array $info = [])
     {
-        $var = \str_replace('$', '', $this->getInput($tokens));
+        $input = \str_replace('$', '', $this->getInput($tokens));
 
-        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($var) {
-            return AbstractMatcher::startsWith($var, $variable);
+        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($input) {
+            return AbstractMatcher::startsWith($input, $variable);
         });
     }
 

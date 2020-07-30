@@ -25,10 +25,10 @@ class ConstantsMatcher extends AbstractMatcher
      */
     public function getMatches(array $tokens, array $info = [])
     {
-        $const = $this->getInput($tokens);
+        $input = $this->getInput($tokens);
 
-        return \array_filter(\array_keys(\get_defined_constants()), function ($constant) use ($const) {
-            return AbstractMatcher::startsWith($const, $constant);
+        return \array_filter(\array_keys(\get_defined_constants()), function ($constant) use ($input) {
+            return AbstractMatcher::startsWith($input, $constant);
         });
     }
 
