@@ -105,10 +105,9 @@ class CommandsMatcher extends AbstractMatcher
         $command = \array_shift($tokens);
 
         switch (true) {
-            case self::tokenIs($command, self::T_STRING) &&
-                !$this->isCommand($command[1]) &&
-                $this->matchCommand($command[1]) &&
-                empty($tokens):
+            case empty($tokens) &&
+                self::tokenIs($command, self::T_STRING) &&
+                $this->matchCommand($command[1]):
                 return true;
         }
 
