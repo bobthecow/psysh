@@ -61,8 +61,9 @@ class MongoDatabaseMatcher extends AbstractContextAwareMatcher
 
         switch (true) {
             case self::tokenIs($token, self::T_OBJECT_OPERATOR):
-            case self::tokenIs($prevToken, self::T_OBJECT_OPERATOR):
                 return true;
+            case self::tokenIs($prevToken, self::T_OBJECT_OPERATOR):
+                return self::tokenIsValidIdentifier($token, true);
         }
 
         return false;
