@@ -75,10 +75,8 @@ class KeywordsMatcher extends AbstractMatcher
         $prevToken = \array_pop($tokens);
 
         switch (true) {
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-//            case is_string($token) && $token === '$':
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $prevToken) &&
-                self::tokenIs($token, self::T_STRING):
+            case self::tokenIs($token, self::T_OPEN_TAG):
+            case self::tokenIs($prevToken, self::T_OPEN_TAG) && self::tokenIs($token, self::T_STRING):
             case self::isOperator($token):
                 return true;
         }
