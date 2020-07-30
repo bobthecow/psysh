@@ -43,6 +43,7 @@ class FunctionDefaultParametersMatcher extends AbstractDefaultParametersMatcher
      */
     public function hasMatched(array $tokens)
     {
+        // Valid following 'FUNCTION('.
         $openBracket = \array_pop($tokens);
 
         if ($openBracket !== '(') {

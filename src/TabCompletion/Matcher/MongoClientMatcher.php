@@ -63,6 +63,7 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
+        // Valid following '->'.
         switch (true) {
             case self::tokenIs($token, self::T_OBJECT_OPERATOR):
                 return true;

@@ -47,8 +47,10 @@ class FunctionsMatcher extends AbstractMatcher
         $prevToken = \array_pop($tokens);
 
         switch (true) {
+            // Previous token (blacklist).
             case self::tokenIs($prevToken, self::T_NEW):
                 return false;
+            // Current token (whitelist).
             case self::hasToken([self::T_OPEN_TAG], $token):
             case self::isOperator($token):
             case self::tokenIsValidIdentifier($token, true):

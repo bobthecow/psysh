@@ -52,6 +52,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
      */
     public function hasMatched(array $tokens)
     {
+        // Valid following '::METHOD('.
         $openBracket = \array_pop($tokens);
 
         if ($openBracket !== '(') {

@@ -85,6 +85,7 @@ class ClassAttributesMatcher extends AbstractMatcher
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
+        // Valid following '::'.
         switch (true) {
             case self::tokenIs($prevToken, self::T_DOUBLE_COLON):
                 return self::tokenIsValidIdentifier($token, true);

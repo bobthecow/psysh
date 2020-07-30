@@ -75,8 +75,10 @@ class KeywordsMatcher extends AbstractMatcher
         $prevToken = \array_pop($tokens);
 
         switch (true) {
+            // Previous token.
             case self::tokenIs($prevToken, self::T_OPEN_TAG):
                 return self::tokenIsValidIdentifier($token, true);
+            // Current token (whitelist).
             case self::tokenIs($token, self::T_OPEN_TAG):
             case self::isOperator($token):
                 return true;
