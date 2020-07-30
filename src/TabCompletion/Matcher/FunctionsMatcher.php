@@ -49,8 +49,9 @@ class FunctionsMatcher extends AbstractMatcher
         switch (true) {
             case self::tokenIs($prevToken, self::T_NEW):
                 return false;
-            case self::hasToken([self::T_OPEN_TAG, self::T_STRING], $token):
+            case self::hasToken([self::T_OPEN_TAG], $token):
             case self::isOperator($token):
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 

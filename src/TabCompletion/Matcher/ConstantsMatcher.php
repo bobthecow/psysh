@@ -47,8 +47,9 @@ class ConstantsMatcher extends AbstractMatcher
             case self::tokenIs($prevToken, self::T_NEW):
             case self::tokenIs($prevToken, self::T_NS_SEPARATOR):
                 return false;
-            case self::hasToken([self::T_OPEN_TAG, self::T_STRING], $token):
+            case self::tokenIs($token, self::T_OPEN_TAG):
             case self::isOperator($token):
+            case self::tokenIsValidIdentifier($token, true);
                 return true;
         }
 

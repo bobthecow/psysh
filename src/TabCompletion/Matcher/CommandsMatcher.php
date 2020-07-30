@@ -106,7 +106,7 @@ class CommandsMatcher extends AbstractMatcher
 
         switch (true) {
             case empty($tokens) &&
-                self::tokenIs($command, self::T_STRING) &&
+                self::tokenIsValidIdentifier($command, true) &&
                 $this->matchCommand($command[1]):
                 return true;
         }

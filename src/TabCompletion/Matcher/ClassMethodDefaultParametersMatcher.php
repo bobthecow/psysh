@@ -60,7 +60,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
 
         $functionName = \array_pop($tokens);
 
-        if (!self::tokenIs($functionName, self::T_STRING)) {
+        if (!self::tokenIsValidIdentifier($functionName)) {
             return false;
         }
 

@@ -64,7 +64,8 @@ class ClassNamesMatcher extends AbstractMatcher
             case self::hasToken([$blacklistedTokens], $prevToken):
             case \is_string($token) && $token === '$':
                 return false;
-            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR, self::T_STRING], $prevToken):
+            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $prevToken):
+                return self::tokenIsValidIdentifier($token, true);
             case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $token):
             case self::isOperator($token):
                 return true;
