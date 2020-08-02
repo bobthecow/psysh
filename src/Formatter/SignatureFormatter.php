@@ -190,7 +190,7 @@ class SignatureFormatter implements ReflectorFormatter
             return 'number';
         } elseif (\is_string($value)) {
             return 'string';
-        } elseif (\is_bool($value) || \is_null($value)) {
+        } elseif (\is_bool($value) || $value === null) {
             return 'bool';
         } else {
             return 'strong'; // @codeCoverageIgnore
@@ -287,7 +287,7 @@ class SignatureFormatter implements ReflectorFormatter
                 } else {
                     $value     = $param->getDefaultValue();
                     $typeStyle = self::getTypeStyle($value);
-                    $value     = \is_array($value) ? '[]' : (\is_null($value) ? 'null' : \var_export($value, true));
+                    $value     = \is_array($value) ? '[]' : ($value === null ? 'null' : \var_export($value, true));
                 }
                 $default = \sprintf(' = <%s>%s</%s>', $typeStyle, OutputFormatter::escape($value), $typeStyle);
             } else {

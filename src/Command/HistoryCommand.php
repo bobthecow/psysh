@@ -164,8 +164,8 @@ HELP
 
         $matches = [];
         if ($range !== '..' && \preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
-            $start = $matches[1] ? \intval($matches[1]) : 0;
-            $end   = $matches[2] ? \intval($matches[2]) + 1 : PHP_INT_MAX;
+            $start = $matches[1] ? (int) $matches[1] : 0;
+            $end   = $matches[2] ? (int) $matches[2] + 1 : PHP_INT_MAX;
 
             return [$start, $end];
         }
@@ -198,14 +198,14 @@ HELP
             }
 
             $start  = 0;
-            $length = \intval($head);
+            $length = (int) $head;
         } elseif ($tail) {
             if (!\preg_match('/^\d+$/', $tail)) {
                 throw new \InvalidArgumentException('Please specify an integer argument for --tail');
             }
 
             $start  = \count($history) - $tail;
-            $length = \intval($tail) + 1;
+            $length = (int) $tail + 1;
         } else {
             return $history;
         }

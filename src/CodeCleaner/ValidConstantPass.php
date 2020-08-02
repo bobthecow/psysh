@@ -75,7 +75,7 @@ class ValidConstantPass extends NamespaceAwarePass
         if (!$stmt->class instanceof Expr) {
             $className = $this->getFullyQualifiedName($stmt->class);
 
-            // if the class doesn't exist, don't throw an exception… it might be
+            // if the class doesn't exist, don't throw an exception… it might be
             // defined in the same line it's used or something stupid like that.
             if (\class_exists($className) || \interface_exists($className)) {
                 $refl = new \ReflectionClass($className);
