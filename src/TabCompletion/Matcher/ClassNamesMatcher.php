@@ -54,14 +54,20 @@ class ClassNamesMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
-
-        $blacklistedTokens = [
-            self::T_INCLUDE, self::T_INCLUDE_ONCE, self::T_REQUIRE, self::T_REQUIRE_ONCE,
+        $prevTokenBlacklist = [
+            self::T_INCLUDE,
+            self::T_INCLUDE_ONCE,
+            self::T_REQUIRE,
+            self::T_REQUIRE_ONCE,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
         ];
 
         switch (true) {
             // Previous token (blacklist).
-            case self::hasToken([$blacklistedTokens], $prevToken):
+            case self::hasToken($prevTokenBlacklist, $prevToken):
+                return false;
+            // Current token (blacklist).
             case $token === '$':
                 return false;
             // Previous token.

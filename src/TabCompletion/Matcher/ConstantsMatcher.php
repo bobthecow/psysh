@@ -42,11 +42,16 @@ class ConstantsMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
             // Previous token (blacklist).
-            case self::tokenIs($prevToken, self::T_NEW):
-            case self::tokenIs($prevToken, self::T_NS_SEPARATOR):
+            case self::hasToken($prevTokenBlacklist, $prevToken):
                 return false;
             // Current token (whitelist).
             case self::tokenIsValidIdentifier($token, true);

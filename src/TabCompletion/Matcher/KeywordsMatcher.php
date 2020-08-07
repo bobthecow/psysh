@@ -73,8 +73,17 @@ class KeywordsMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
+                return false;
             // Previous token.
             case self::tokenIsExpressionDelimiter($prevToken):
                 return self::tokenIsValidIdentifier($token, true);

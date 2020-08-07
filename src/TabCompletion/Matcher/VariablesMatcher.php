@@ -65,8 +65,19 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     public function hasMatched(array $tokens)
     {
         $token = \array_pop($tokens);
+        $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
+                return false;
+            // Current token (whitelist).
             case self::tokenIs($token, self::T_VARIABLE):
             case in_array($token, ['', '$'], true):
                 return true;
