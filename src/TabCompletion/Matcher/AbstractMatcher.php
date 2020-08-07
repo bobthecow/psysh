@@ -160,11 +160,12 @@ abstract class AbstractMatcher
      */
     public static function tokenIs($token, $which)
     {
-        if (!\is_array($token)) {
-            return false;
+        if (\is_array($token)) {
+            return \token_name($token[0]) === $which;
         }
-
-        return \token_name($token[0]) === $which;
+        else {
+            return $token === $which;
+        }
     }
 
     /**
@@ -238,10 +239,11 @@ abstract class AbstractMatcher
      */
     public static function hasToken(array $coll, $token)
     {
-        if (!\is_array($token)) {
-            return false;
+        if (\is_array($token)) {
+            return \in_array(\token_name($token[0]), $coll);
         }
-
-        return \in_array(\token_name($token[0]), $coll);
+        else {
+            return \in_array($token, $coll, true);
+        }
     }
 }
