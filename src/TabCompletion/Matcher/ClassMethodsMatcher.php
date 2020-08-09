@@ -52,6 +52,12 @@ class ClassMethodsMatcher extends AbstractMatcher
             return $method->getName();
         }, $methods);
 
+        // We have no control over the word-break characters used by
+        // Readline's completion, and ':' isn't included in that set,
+        // which means the $input which AutoCompleter::processCallback()
+        // is completing includes the preceding "ClassName::" text, and
+        // therefore the candidate strings we are returning must do
+        // likewise.
         return \array_map(
             function ($name) use ($class) {
                 $chunks = \explode('\\', $class);
