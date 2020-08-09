@@ -44,7 +44,7 @@ class VariablesMatcher extends AbstractContextAwareMatcher
 
         switch (true) {
             case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-            case \is_string($token) && $token === '$':
+            case $token === '$':
             case self::isOperator($token):
                 return true;
         }

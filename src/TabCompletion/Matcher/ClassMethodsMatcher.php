@@ -38,6 +38,8 @@ class ClassMethodsMatcher extends AbstractMatcher
         }
 
         $class = $this->getNamespaceAndClass($tokens);
+        $chunks = \explode('\\', $class);
+        $className = \array_pop($chunks);
 
         try {
             $reflection = new \ReflectionClass($class);
@@ -62,10 +64,7 @@ class ClassMethodsMatcher extends AbstractMatcher
         // therefore the candidate strings we are returning must do
         // likewise.
         return \array_map(
-            function ($name) use ($class) {
-                $chunks = \explode('\\', $class);
-                $className = \array_pop($chunks);
-
+            function ($name) use ($className) {
                 return $className.'::'.$name;
             },
             \array_filter($methods, function ($method) use ($input) {
