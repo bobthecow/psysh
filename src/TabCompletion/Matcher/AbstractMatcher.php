@@ -99,7 +99,7 @@ abstract class AbstractMatcher
             $token = \array_pop($tokens)
         )) {
             if (self::needCompleteClass($token)) {
-                continue;
+                break;
             }
 
             $class = $token[1].$class;
