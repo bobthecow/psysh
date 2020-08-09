@@ -171,9 +171,17 @@ abstract class AbstractMatcher
         return \strpos(self::MISC_OPERATORS, $token) !== false;
     }
 
+    /**
+     * Used both to test $tokens[1] (i.e. following T_OPEN_TAG) to
+     * see whether it's a PsySH introspection command, and also by
+     * self::getNamespaceAndClass() to prevent these commands from
+     * being considered part of the namespace (which could happen
+     * on account of all the whitespace tokens having been removed
+     * from the tokens array by AutoCompleter::processCallback().
+     */
     public static function needCompleteClass($token)
     {
-        return \in_array($token[1], ['doc', 'ls', 'show']);
+        return \in_array($token[1], ['doc', 'ls', 'show', 'completions']);
     }
 
     /**
