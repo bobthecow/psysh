@@ -93,11 +93,20 @@ abstract class AbstractMatcher
      */
     protected function getNamespaceAndClass($tokens)
     {
-        $class = '';
-        while (self::hasToken(
-            [self::T_NS_SEPARATOR, self::T_STRING],
-            $token = \array_pop($tokens)
-        )) {
+        $validTokens = [
+            self::T_NS_SEPARATOR,
+            self::T_STRING,
+        ];
+
+        $token = \array_pop($tokens);
+        if (!self::hasToken($validTokens, $token)
+            && !self::tokenIsValidIdentifier($token, true))
+        {
+            return '';
+        }
+        $class = \is_array($token) ? $token[1] : $token;
+
+        while (self::hasToken($validTokens, $token = \array_pop($tokens))) {
             if (self::needCompleteClass($token)) {
                 break;
             }
