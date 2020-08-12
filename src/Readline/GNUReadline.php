@@ -87,7 +87,7 @@ class GNUReadline implements Readline
      */
     public function listHistory()
     {
-        return readline_list_history();
+        return \readline_list_history();
     }
 
     /**

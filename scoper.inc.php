@@ -29,20 +29,20 @@ return [
                 return $contents;
             }
 
-            return str_replace(
-                sprintf("'%s\\\\ReflectionClassConstant'", $prefix),
+            return \str_replace(
+                \sprintf("'%s\\\\ReflectionClassConstant'", $prefix),
                 "'\\\\ReflectionClassConstant'",
                 $contents
             );
         },
         // https://github.com/bobthecow/psysh/issues/610
         static function (string $filePath, string $prefix, string $contents): string {
-            if (!in_array($filePath, ['vendor/symfony/var-dumper/Cloner/VarCloner.php', 'vendor/symfony/var-dumper/Caster/ReflectionCaster.php'], true)) {
+            if (!\in_array($filePath, ['vendor/symfony/var-dumper/Cloner/VarCloner.php', 'vendor/symfony/var-dumper/Caster/ReflectionCaster.php'], true)) {
                 return $contents;
             }
 
-            return str_replace(
-                sprintf('\\%s\\ReflectionReference', $prefix),
+            return \str_replace(
+                \sprintf('\\%s\\ReflectionReference', $prefix),
                 '\\ReflectionReference',
                 $contents
             );
@@ -53,9 +53,9 @@ return [
                 return $contents;
             }
 
-            return preg_replace(
+            return \preg_replace(
                 '/Hoa\\\\Consistency::registerShutdownFunction\(xcallable\(\'(.*)\'\)\)/',
-                sprintf(
+                \sprintf(
                     'Hoa\\Consistency::registerShutdownFunction(xcallable(\'%s$1\'))',
                     $prefix.'\\\\\\\\'
                 ),
@@ -66,17 +66,17 @@ return [
             if ('vendor/hoa/consistency/Autoloader.php' !== $filePath) {
                 return $contents;
             }
-            $contents = preg_replace(
+            $contents = \preg_replace(
                 '/(\$entityPrefix = \$entity;)/',
-                sprintf(
+                \sprintf(
                     '$entity = substr($entity, %d);$1',
-                    strlen($prefix) + 1
+                    \strlen($prefix) + 1
                 ),
                 $contents
             );
-            $contents = preg_replace(
+            $contents = \preg_replace(
                 '/return \$this->runAutoloaderStack\((.*)\);/',
-                sprintf(
+                \sprintf(
                     'return $this->runAutoloaderStack(\'%s\'.\'%s\'.$1);',
                     $prefix,
                     '\\\\\\'
@@ -87,13 +87,13 @@ return [
             return $contents;
         },
         static function (string $filePath, string $prefix, string $contents): string {
-            if (!in_array($filePath, ['vendor/hoa/console/Mouse.php', 'vendor/hoa/console/Console.php', 'vendor/hoa/core/Consistency.php'], true)) {
+            if (!\in_array($filePath, ['vendor/hoa/console/Mouse.php', 'vendor/hoa/console/Console.php', 'vendor/hoa/core/Consistency.php'], true)) {
                 return $contents;
             }
 
-            return preg_replace(
+            return \preg_replace(
                 '/\'(?:\\\\){0,2}(Hoa\\\\.+?)(::.+)\'/',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\\\\$1$2\'',
                     $prefix
                 ),
@@ -105,11 +105,11 @@ return [
                 return $contents;
             }
 
-            return str_replace(
+            return \str_replace(
                 '$classname = \ltrim($classname, \'\\\\\');',
-                sprintf(
+                \sprintf(
                     '$classname = \substr(\ltrim($classname, \'\\\\\'), %d);',
-                    strlen($prefix) + 1
+                    \strlen($prefix) + 1
                 ),
                 $contents
             );
@@ -117,13 +117,13 @@ return [
         // https://github.com/humbug/php-scoper/issues/294
         // https://github.com/humbug/php-scoper/issues/286
         static function (string $filePath, string $prefix, string $contents): string {
-            if (!in_array($filePath, ['src/Formatter/DocblockFormatter.php', 'src/Output/ShellOutput.php'], true)) {
+            if (!\in_array($filePath, ['src/Formatter/DocblockFormatter.php', 'src/Output/ShellOutput.php'], true)) {
                 return $contents;
             }
 
-            return str_replace(
+            return \str_replace(
                 '\'Symfony\\\\Component\\\\Console\\\\Formatter\\\\OutputFormatter\'',
-                sprintf(
+                \sprintf(
                     '\'%s\\%s\'',
                     $prefix,
                     'Symfony\\Component\\Console\\Formatter\\OutputFormatter'
@@ -137,9 +137,9 @@ return [
                 return $contents;
             }
 
-            return preg_replace(
+            return \preg_replace(
                 '/case \'(Symfony\\\\.+\\\\)\':/',
-                sprintf(
+                \sprintf(
                     'case \'%s\\\\\\\$1\':',
                     $prefix
                 ),
@@ -152,9 +152,9 @@ return [
                 return $contents;
             }
 
-            return preg_replace(
+            return \preg_replace(
                 '/\'(Symfony\\\\.+?)\'/',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\\\\$1\'',
                     $prefix
                 ),
@@ -167,9 +167,9 @@ return [
                 return $contents;
             }
 
-            return preg_replace(
+            return \preg_replace(
                 '/\'(Symfony\\\\.+?)\'/',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\\\\$1\'',
                     $prefix
                 ),
@@ -182,9 +182,9 @@ return [
                 return $contents;
             }
 
-            return str_replace(
+            return \str_replace(
                 '\'PhpParser\\\\Node\\\\\'',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\PhpParser\\\\Node\\\\\'',
                     $prefix
                 ),
@@ -196,18 +196,18 @@ return [
                 return $contents;
             }
 
-            $contents = preg_replace(
+            $contents = \preg_replace(
                 '/\'(PhpParser\\\\.+(?:\\\\)?)\'/',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\\\\$1\'',
                     $prefix
                 ),
                 $contents
             );
 
-            $contents = preg_replace(
+            $contents = \preg_replace(
                 '/\'(PhpParser\\\\\\\\\p{L}+)(?:\\\\\\\\)?\'/u',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\\\\$1\'',
                     $prefix
                 ),
@@ -221,9 +221,9 @@ return [
                 return $contents;
             }
 
-            return str_replace(
+            return \str_replace(
                 '\'PhpParser\\\\Parser\\\\Tokens::\'',
-                sprintf(
+                \sprintf(
                     '\'%s\\\\PhpParser\\\\Parser\\\\Tokens::\'',
                     $prefix
                 ),

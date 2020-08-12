@@ -686,7 +686,7 @@ class Shell extends Application
         $newVars = [];
 
         foreach ($this->getScopeVariables(false) as $key => $value) {
-            if (!array_key_exists($key, $currentVars) || $currentVars[$key] !== $value) {
+            if (!\array_key_exists($key, $currentVars) || $currentVars[$key] !== $value) {
                 $newVars[$key] = $value;
             }
         }

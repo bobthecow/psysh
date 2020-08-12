@@ -21,27 +21,27 @@ class ParserFactoryTest extends \PhpUnit\Framework\TestCase
         $kinds = ParserFactory::getPossibleKinds();
         $this->assertContains(ParserFactory::PREFER_PHP7, $kinds);
         foreach ($kinds as $kind) {
-            $this->assertTrue(defined("Psy\\ParserFactory::$kind"));
+            $this->assertTrue(\defined("Psy\\ParserFactory::$kind"));
         }
     }
 
     public function testHasKindsSupport()
     {
         $factory = new ParserFactory();
-        $this->assertEquals(class_exists(OriginalParserFactory::class), $factory->hasKindsSupport());
+        $this->assertEquals(\class_exists(OriginalParserFactory::class), $factory->hasKindsSupport());
     }
 
     public function testGetDefaultKind()
     {
         $factory = new ParserFactory();
 
-        if (!class_exists(OriginalParserFactory::class)) {
+        if (!\class_exists(OriginalParserFactory::class)) {
             $this->assertNull($factory->getDefaultKind());
 
             return;
         }
 
-        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+        if (\version_compare(PHP_VERSION, '7.0', '>=')) {
             $this->assertEquals(ParserFactory::ONLY_PHP7, $factory->getDefaultKind());
         } else {
             $this->assertEquals(ParserFactory::ONLY_PHP5, $factory->getDefaultKind());
@@ -53,7 +53,7 @@ class ParserFactoryTest extends \PhpUnit\Framework\TestCase
         $factory = new ParserFactory();
 
         $parser = $factory->createParser();
-        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+        if (\version_compare(PHP_VERSION, '7.0', '>=')) {
             $this->assertInstanceOf(\PhpParser\Parser\Php7::class, $parser);
         } else {
             $this->assertInstanceOf(\PhpParser\Parser\Php5::class, $parser);

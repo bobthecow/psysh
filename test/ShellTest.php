@@ -105,8 +105,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
             return $this->assertEqualsCanonicalizing($expected, $actual, $message);
         }
 
-        sort($expected);
-        sort($actual);
+        \sort($expected);
+        \sort($actual);
 
         return $this->assertEquals($expected, $actual, $message);
     }
