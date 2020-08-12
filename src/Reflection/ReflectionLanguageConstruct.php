@@ -122,7 +122,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     {
         $params = [];
         foreach (self::$languageConstructs[$this->keyword] as $parameter => $opts) {
-            \array_push($params, new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts));
+            $params[] = new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts);
         }
 
         return $params;

@@ -315,7 +315,7 @@ class ShellInput extends StringInput
             }
         }
 
-        if (null === $value) {
+        if ($value === null) {
             if ($option->isValueRequired()) {
                 throw new \RuntimeException(\sprintf('The "--%s" option requires a value.', $name));
             }

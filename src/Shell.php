@@ -536,7 +536,7 @@ class Shell extends Application
         }
 
         $code = $this->codeBuffer;
-        \array_push($code, $input);
+        $code[] = $input;
         $tokens = @\token_get_all('<?php ' . \implode("\n", $code));
         $last = \array_pop($tokens);
 

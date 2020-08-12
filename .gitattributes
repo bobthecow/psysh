@@ -2,7 +2,6 @@
 /.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
-/.php_cs export-ignore
 /.styleci.yml export-ignore
 /.travis.yml export-ignore
 /bin/build-stub export-ignore

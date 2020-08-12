@@ -148,7 +148,7 @@ HELP
                 $index = 0;
             }
         } else {
-            $index = \max(0, \intval($input->getOption('ex')) - 1);
+            $index = \max(0, (int) $input->getOption('ex') - 1);
         }
 
         $trace = $exception->getTrace();
