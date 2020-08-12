@@ -16,6 +16,7 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Do_;
@@ -99,7 +100,8 @@ class ValidClassNamePass extends NamespaceAwarePass
         return $node instanceof If_ ||
             $node instanceof While_ ||
             $node instanceof Do_ ||
-            $node instanceof Switch_;
+            $node instanceof Switch_ ||
+            $node instanceof Ternary;
     }
 
     /**

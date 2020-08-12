@@ -167,6 +167,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             ['class A {} A::FOO'],
             ['$a = new DateTime; $a::ATOM'],
             ['interface A { const B = 1; } A::B'],
+            ['$foo = true ? A::class : B::class'],
 
             // static call
             ['DateTime::createFromFormat()'],
