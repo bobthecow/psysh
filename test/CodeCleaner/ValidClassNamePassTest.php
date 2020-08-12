@@ -95,7 +95,25 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             ['class ValidClassNamePassTest implements ArrayAccess, stdClass {}'],
             ['interface ValidClassNamePassTest extends stdClass {}'],
             ['interface ValidClassNamePassTest extends ArrayAccess, stdClass {}'],
+        ];
+    }
 
+    /**
+     * @dataProvider getInvalidLegacy
+     * @expectedException \Psy\Exception\FatalErrorException
+     */
+    public function testProcessInvalidLegacy($code)
+    {
+        if (\version_compare(PHP_VERSION, '7.0', '>=')) {
+            $this->markTestSkipped();
+        }
+
+        $this->parseAndTraverse($code);
+    }
+
+    public function getInvalidLegacy()
+    {
+        return [
             // class instantiations
             ['new Psy_Test_CodeCleaner_ValidClassNamePass_Gamma();'],
             ['

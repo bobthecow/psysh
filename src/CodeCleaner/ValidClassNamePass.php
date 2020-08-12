@@ -40,6 +40,12 @@ class ValidClassNamePass extends NamespaceAwarePass
     const TRAIT_TYPE     = 'trait';
 
     private $conditionalScopes = 0;
+    private $atLeastPhp7;
+
+    public function __construct()
+    {
+        $this->atLeastPhp7 = \version_compare(PHP_VERSION, '7.0', '>=');
+    }
 
     /**
      * Validate class, interface and trait definitions.
@@ -60,16 +66,16 @@ class ValidClassNamePass extends NamespaceAwarePass
             return;
         }
 
-            if ($this->conditionalScopes === 0) {
-                if ($node instanceof Class_) {
-                    $this->validateClassStatement($node);
-                } elseif ($node instanceof Interface_) {
-                    $this->validateInterfaceStatement($node);
-                } elseif ($node instanceof Trait_) {
-                    $this->validateTraitStatement($node);
-                }
+        if ($this->conditionalScopes === 0) {
+            if ($node instanceof Class_) {
+                $this->validateClassStatement($node);
+            } elseif ($node instanceof Interface_) {
+                $this->validateInterfaceStatement($node);
+            } elseif ($node instanceof Trait_) {
+                $this->validateTraitStatement($node);
             }
         }
+    }
 
     /**
      * Validate `new` expressions, class constant fetches, and static calls.
@@ -90,12 +96,14 @@ class ValidClassNamePass extends NamespaceAwarePass
             return;
         }
 
-        if ($node instanceof New_) {
-            $this->validateNewExpression($node);
-        } elseif ($node instanceof ClassConstFetch) {
-            $this->validateClassConstFetchExpression($node);
-        } elseif ($node instanceof StaticCall) {
-            $this->validateStaticCallExpression($node);
+        if (!$this->atLeastPhp7) {
+            if ($node instanceof New_) {
+                $this->validateNewExpression($node);
+            } elseif ($node instanceof ClassConstFetch) {
+                $this->validateClassConstFetchExpression($node);
+            } elseif ($node instanceof StaticCall) {
+                $this->validateStaticCallExpression($node);
+            }
         }
     }
 
