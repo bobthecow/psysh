@@ -173,7 +173,7 @@ class CodeCleaner
      */
     private static function getDebugFile()
     {
-        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $trace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
 
         foreach (\array_reverse($trace) as $stackFrame) {
             if (!self::isDebugCall($stackFrame)) {
@@ -218,7 +218,7 @@ class CodeCleaner
      */
     public function clean(array $codeLines, $requireSemicolons = false)
     {
-        $stmts = $this->parse('<?php '.\implode(PHP_EOL, $codeLines).PHP_EOL, $requireSemicolons);
+        $stmts = $this->parse('<?php '.\implode(\PHP_EOL, $codeLines).\PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
             return false;
         }
@@ -227,13 +227,13 @@ class CodeCleaner
         $stmts = $this->traverser->traverse($stmts);
 
         // Work around https://github.com/nikic/PHP-Parser/issues/399
-        $oldLocale = \setlocale(LC_NUMERIC, 0);
-        \setlocale(LC_NUMERIC, 'C');
+        $oldLocale = \setlocale(\LC_NUMERIC, 0);
+        \setlocale(\LC_NUMERIC, 'C');
 
         $code = $this->printer->prettyPrint($stmts);
 
         // Now put the locale back
-        \setlocale(LC_NUMERIC, $oldLocale);
+        \setlocale(\LC_NUMERIC, $oldLocale);
 
         return $code;
     }

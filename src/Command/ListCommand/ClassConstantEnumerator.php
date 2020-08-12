@@ -76,7 +76,7 @@ class ClassConstantEnumerator extends Enumerator
             $constants[$name] = $constReflector;
         }
 
-        \ksort($constants, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($constants, \SORT_NATURAL | \SORT_FLAG_CASE);
 
         return $constants;
     }

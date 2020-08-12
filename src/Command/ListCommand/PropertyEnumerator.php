@@ -77,7 +77,7 @@ class PropertyEnumerator extends Enumerator
             }
         }
 
-        \ksort($properties, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($properties, \SORT_NATURAL | \SORT_FLAG_CASE);
 
         return $properties;
     }

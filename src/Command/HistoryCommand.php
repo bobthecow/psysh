@@ -124,7 +124,7 @@ HELP
 
         if ($save = $input->getOption('save')) {
             $output->writeln(\sprintf('Saving history in %s...', $save));
-            \file_put_contents($save, \implode(PHP_EOL, $history).PHP_EOL);
+            \file_put_contents($save, \implode(\PHP_EOL, $history).\PHP_EOL);
             $output->writeln('<info>History saved.</info>');
         } elseif ($input->getOption('replay')) {
             if (!($input->getOption('show') || $input->getOption('head') || $input->getOption('tail'))) {
@@ -165,7 +165,7 @@ HELP
         $matches = [];
         if ($range !== '..' && \preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
             $start = $matches[1] ? (int) $matches[1] : 0;
-            $end = $matches[2] ? (int) $matches[2] + 1 : PHP_INT_MAX;
+            $end = $matches[2] ? (int) $matches[2] + 1 : \PHP_INT_MAX;
 
             return [$start, $end];
         }

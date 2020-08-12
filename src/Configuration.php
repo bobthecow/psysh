@@ -98,7 +98,7 @@ class Configuration
     private $useUnicode;
     private $useTabCompletion;
     private $newMatchers = [];
-    private $errorLoggingLevel = E_ALL;
+    private $errorLoggingLevel = \E_ALL;
     private $warnOnMultipleConfigs = false;
     private $colorMode = self::COLOR_MODE_AUTO;
     private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
@@ -394,7 +394,7 @@ class Configuration
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
                 $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode(', ', $files), $files[0]);
-                \trigger_error($msg, E_USER_NOTICE);
+                \trigger_error($msg, \E_USER_NOTICE);
             }
 
             return $files[0];
@@ -435,7 +435,7 @@ class Configuration
         // legacy `tabCompletion` option
         if (isset($options['tabCompletion'])) {
             $msg = '`tabCompletion` is deprecated; use `useTabCompletion` instead.';
-            @\trigger_error($msg, E_USER_DEPRECATED);
+            @\trigger_error($msg, \E_USER_DEPRECATED);
 
             $this->setUseTabCompletion($options['tabCompletion']);
         }
@@ -450,7 +450,7 @@ class Configuration
         // legacy `tabCompletionMatchers` option
         if (isset($options['tabCompletionMatchers'])) {
             $msg = '`tabCompletionMatchers` is deprecated; use `matchers` instead.';
-            @\trigger_error($msg, E_USER_DEPRECATED);
+            @\trigger_error($msg, \E_USER_DEPRECATED);
 
             $this->addMatchers($options['tabCompletionMatchers']);
         }
@@ -613,7 +613,7 @@ class Configuration
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
                 $msg = \sprintf('Multiple history files found: %s. Using %s', \implode(', ', $files), $files[0]);
-                \trigger_error($msg, E_USER_NOTICE);
+                \trigger_error($msg, \E_USER_NOTICE);
             }
 
             $this->setHistoryFile($files[0]);
@@ -948,7 +948,7 @@ class Configuration
      */
     public function setErrorLoggingLevel($errorLoggingLevel)
     {
-        $this->errorLoggingLevel = (E_ALL | E_STRICT) & $errorLoggingLevel;
+        $this->errorLoggingLevel = (\E_ALL | \E_STRICT) & $errorLoggingLevel;
     }
 
     /**
@@ -1304,7 +1304,7 @@ class Configuration
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
                 $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $files), $files[0]);
-                \trigger_error($msg, E_USER_NOTICE);
+                \trigger_error($msg, \E_USER_NOTICE);
             }
 
             return $this->manualDbFile = $files[0];

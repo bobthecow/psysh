@@ -161,7 +161,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
     public function testEnumerateExcludeInherited()
     {
         // PHP < 7.1 does the wrong thing with interface constant inheritance, so let's skip for now
-        if (\version_compare(PHP_VERSION, '7.1', '<')) {
+        if (\version_compare(\PHP_VERSION, '7.1', '<')) {
             return $this->markTestSkipped();
         }
 

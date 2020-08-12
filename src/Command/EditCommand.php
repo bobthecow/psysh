@@ -162,7 +162,7 @@ class EditCommand extends Command implements ContextAware
         $editor = (isset($_SERVER['EDITOR']) && $_SERVER['EDITOR']) ? $_SERVER['EDITOR'] : 'nano';
 
         $pipes = [];
-        $proc = \proc_open("{$editor} {$escapedFilePath}", [STDIN, STDOUT, STDERR], $pipes);
+        $proc = \proc_open("{$editor} {$escapedFilePath}", [\STDIN, \STDOUT, \STDERR], $pipes);
         \proc_close($proc);
 
         $editedContent = @\file_get_contents($filePath);

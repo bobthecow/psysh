@@ -40,11 +40,11 @@ class TraceFormatter
         }
 
         if ($cwd = \getcwd()) {
-            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+            $cwd = \rtrim($cwd, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR;
         }
 
         if ($count === null) {
-            $count = PHP_INT_MAX;
+            $count = \PHP_INT_MAX;
         }
 
         $lines = [];

@@ -58,7 +58,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
      */
     public function testEmpty()
     {
-        if (\version_compare(PHP_VERSION, '5.5', '>=')) {
+        if (\version_compare(\PHP_VERSION, '5.5', '>=')) {
             $this->markTestSkipped();
         }
 

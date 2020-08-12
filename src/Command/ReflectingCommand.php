@@ -110,7 +110,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
             }
 
             $msg = \sprintf('Cannot use "%s" when no class scope is active', \strtolower($name));
-            throw new ErrorException($msg, 0, E_USER_ERROR, "eval()'d code", 1);
+            throw new ErrorException($msg, 0, \E_USER_ERROR, "eval()'d code", 1);
         }
 
         if (\substr($name, 0, 1) === '\\') {
@@ -216,7 +216,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function resolveInstance($name)
     {
-        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
+        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', \E_USER_DEPRECATED);
 
         return $this->resolveCode($name);
     }

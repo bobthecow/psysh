@@ -89,7 +89,7 @@ HELP
      */
     protected function resolveTarget($name)
     {
-        @\trigger_error('`resolveTarget` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
+        @\trigger_error('`resolveTarget` is deprecated; use `resolveCode` instead.', \E_USER_DEPRECATED);
 
         return $this->resolveCode($name);
     }

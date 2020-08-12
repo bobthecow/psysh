@@ -101,7 +101,7 @@ class GNUReadline implements Readline
         //
         //     https://github.com/php/php-src/blob/423a057023ef3c00d2ffc16a6b43ba01d0f71796/NEWS#L19-L21
         //
-        if (\version_compare(PHP_VERSION, '5.6.7', '>=') || !\ini_get('open_basedir')) {
+        if (\version_compare(\PHP_VERSION, '5.6.7', '>=') || !\ini_get('open_basedir')) {
             \readline_read_history();
         }
         \readline_clear_history();

@@ -78,7 +78,7 @@ class MethodEnumerator extends Enumerator
             }
         }
 
-        \ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($methods, \SORT_NATURAL | \SORT_FLAG_CASE);
 
         return $methods;
     }

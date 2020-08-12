@@ -51,7 +51,7 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
             'E_USER_WARNING'         => '\<number>512\</number>',
             'FALSE'                  => '\<const>false\</const>',
             'JSON_UNESCAPED_SLASHES' => '\<number>64\</number>',
-            'PHP_VERSION'            => '"\<string>'.PHP_VERSION.'\</string>"',
+            'PHP_VERSION'            => '"\<string>'.\PHP_VERSION.'\</string>"',
         ];
 
         foreach ($expected as $name => $value) {

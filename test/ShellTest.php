@@ -156,7 +156,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         // There shouldn't be a welcome message with raw output
         $this->assertNotContains('Justin Hileman', $streamContents);
-        $this->assertNotContains(PHP_VERSION, $streamContents);
+        $this->assertNotContains(\PHP_VERSION, $streamContents);
         $this->assertNotContains(Shell::VERSION, $streamContents);
 
         // @todo prolly shouldn't have an exit message with raw output, either
@@ -247,7 +247,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $stream = $output->getStream();
         $shell->setOutput($output);
 
-        $oldLevel = \error_reporting(E_ALL);
+        $oldLevel = \error_reporting(\E_ALL);
 
         $shell->handleError($errno, 'wheee', null, 13);
 
@@ -264,14 +264,14 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     public function notSoBadErrors()
     {
         return [
-            [E_WARNING, 'PHP Warning:'],
-            [E_NOTICE, 'PHP Notice:'],
-            [E_CORE_WARNING, 'PHP Warning:'],
-            [E_COMPILE_WARNING, 'PHP Warning:'],
-            [E_USER_WARNING, 'PHP Warning:'],
-            [E_USER_NOTICE, 'PHP Notice:'],
-            [E_DEPRECATED, 'PHP Deprecated:'],
-            [E_USER_DEPRECATED, 'PHP Deprecated:'],
+            [\E_WARNING, 'PHP Warning:'],
+            [\E_NOTICE, 'PHP Notice:'],
+            [\E_CORE_WARNING, 'PHP Warning:'],
+            [\E_COMPILE_WARNING, 'PHP Warning:'],
+            [\E_USER_WARNING, 'PHP Warning:'],
+            [\E_USER_NOTICE, 'PHP Notice:'],
+            [\E_DEPRECATED, 'PHP Deprecated:'],
+            [\E_USER_DEPRECATED, 'PHP Deprecated:'],
         ];
     }
 
@@ -288,12 +288,12 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     public function badErrors()
     {
         return [
-            [E_ERROR],
-            [E_PARSE],
-            [E_CORE_ERROR],
-            [E_COMPILE_ERROR],
-            [E_USER_ERROR],
-            [E_RECOVERABLE_ERROR],
+            [\E_ERROR],
+            [\E_PARSE],
+            [\E_CORE_ERROR],
+            [\E_COMPILE_ERROR],
+            [\E_USER_ERROR],
+            [\E_RECOVERABLE_ERROR],
         ];
     }
 
@@ -303,8 +303,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $this->assertInstanceOf(Application::class, $shell);
         $this->assertContains(Shell::VERSION, $shell->getVersion());
-        $this->assertContains(PHP_VERSION, $shell->getVersion());
-        $this->assertContains(PHP_SAPI, $shell->getVersion());
+        $this->assertContains(\PHP_VERSION, $shell->getVersion());
+        $this->assertContains(\PHP_SAPI, $shell->getVersion());
     }
 
     public function testGetVersionHeader()
@@ -312,8 +312,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $header = Shell::getVersionHeader(false);
 
         $this->assertContains(Shell::VERSION, $header);
-        $this->assertContains(PHP_VERSION, $header);
-        $this->assertContains(PHP_SAPI, $header);
+        $this->assertContains(\PHP_VERSION, $header);
+        $this->assertContains(\PHP_SAPI, $header);
     }
 
     public function testCodeBuffer()
@@ -389,7 +389,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertSame('{{stdout}}'.PHP_EOL, $streamContents);
+        $this->assertSame('{{stdout}}'.\PHP_EOL, $streamContents);
     }
 
     public function testWriteStdoutWithoutNewline()
@@ -406,7 +406,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertSame('{{stdout}}<aside>⏎</aside>'.PHP_EOL, $streamContents);
+        $this->assertSame('{{stdout}}<aside>⏎</aside>'.\PHP_EOL, $streamContents);
     }
 
     public function testWriteStdoutRawOutputWithoutNewline()
@@ -421,7 +421,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertSame('{{stdout}}'.PHP_EOL, $streamContents);
+        $this->assertSame('{{stdout}}'.\PHP_EOL, $streamContents);
     }
 
     /**
@@ -458,8 +458,8 @@ class ShellTest extends \PHPUnit\Framework\TestCase
     public function getReturnValues()
     {
         return [
-            ['{{return value}}', "=> \"\033[32m{{return value}}\033[39m\"".PHP_EOL],
-            [1, "=> \033[35m1\033[39m".PHP_EOL],
+            ['{{return value}}', "=> \"\033[32m{{return value}}\033[39m\"".\PHP_EOL],
+            [1, "=> \033[35m1\033[39m".\PHP_EOL],
         ];
     }
 
@@ -495,7 +495,7 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertStringStartsWith($expected, $stdout);
         $this->assertContains(\basename(__FILE__), $stdout);
 
-        $lineCount = \count(\explode(PHP_EOL, $stdout));
+        $lineCount = \count(\explode(\PHP_EOL, $stdout));
         $this->assertGreaterThan(4, $lineCount); // /shrug
     }
 
@@ -509,13 +509,13 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
         $shell->writeException(new BreakException('yeah.'));
         \rewind($stream);
-        $this->assertSame('Exit:  yeah.'.PHP_EOL, \stream_get_contents($stream));
+        $this->assertSame('Exit:  yeah.'.\PHP_EOL, \stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
     {
         return [
-            [new \Exception('{{message}}'), "Exception with message '{{message}}'".PHP_EOL],
+            [new \Exception('{{message}}'), "Exception with message '{{message}}'".\PHP_EOL],
         ];
     }
 

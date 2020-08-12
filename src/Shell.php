@@ -234,7 +234,7 @@ class Shell extends Application
      */
     protected function getTabCompletionMatchers()
     {
-        @\trigger_error('getTabCompletionMatchers is no longer used', E_USER_DEPRECATED);
+        @\trigger_error('getTabCompletionMatchers is no longer used', \E_USER_DEPRECATED);
     }
 
     /**
@@ -541,7 +541,7 @@ class Shell extends Application
         $last = \array_pop($tokens);
 
         return $last === '"' || $last === '`' ||
-            (\is_array($last) && \in_array($last[0], [T_ENCAPSED_AND_WHITESPACE, T_START_HEREDOC, T_COMMENT]));
+            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT]));
     }
 
     /**
@@ -1036,9 +1036,9 @@ class Shell extends Application
      * @param string $out
      * @param int    $phase Output buffering phase
      */
-    public function writeStdout($out, $phase = PHP_OUTPUT_HANDLER_END)
+    public function writeStdout($out, $phase = \PHP_OUTPUT_HANDLER_END)
     {
-        $isCleaning = $phase & PHP_OUTPUT_HANDLER_CLEAN;
+        $isCleaning = $phase & \PHP_OUTPUT_HANDLER_CLEAN;
 
         // Incremental flush
         if ($out !== '' && !$isCleaning) {
@@ -1048,7 +1048,7 @@ class Shell extends Application
         }
 
         // Output buffering is done!
-        if ($phase & PHP_OUTPUT_HANDLER_END) {
+        if ($phase & \PHP_OUTPUT_HANDLER_END) {
             // Write an extra newline if stdout didn't end with one
             if ($this->outputWantsNewline) {
                 if (!$this->config->rawOutput() && !$this->config->outputIsPiped()) {
@@ -1093,7 +1093,7 @@ class Shell extends Application
         } else {
             $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
-            $formatted = static::RETVAL.\str_replace(PHP_EOL, PHP_EOL.$indent, $formatted);
+            $formatted = static::RETVAL.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
 
         $this->output->writeln($formatted);
@@ -1190,13 +1190,13 @@ class Shell extends Application
         $severity = $e->getSeverity();
         if ($severity & \error_reporting()) {
             switch ($severity) {
-                case E_WARNING:
-                case E_NOTICE:
-                case E_CORE_WARNING:
-                case E_COMPILE_WARNING:
-                case E_USER_WARNING:
-                case E_USER_NOTICE:
-                case E_STRICT:
+                case \E_WARNING:
+                case \E_NOTICE:
+                case \E_CORE_WARNING:
+                case \E_COMPILE_WARNING:
+                case \E_USER_WARNING:
+                case \E_USER_NOTICE:
+                case \E_STRICT:
                     return 'warning';
 
                 default:
@@ -1267,7 +1267,7 @@ class Shell extends Application
         //
         // n.b. Technically we can't handle all of these in userland code, but
         // we'll list 'em all for good measure
-        if ($errno & (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
+        if ($errno & (\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) {
             ErrorException::throwException($errno, $errstr, $errfile, $errline);
         }
 
@@ -1412,7 +1412,7 @@ class Shell extends Application
     {
         $separator = $useUnicode ? '—' : '-';
 
-        return \sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, PHP_VERSION, $separator, PHP_SAPI);
+        return \sprintf('Psy Shell %s (PHP %s %s %s)', self::VERSION, \PHP_VERSION, $separator, \PHP_SAPI);
     }
 
     /**
@@ -1430,7 +1430,7 @@ class Shell extends Application
      */
     protected function autocomplete($text)
     {
-        @\trigger_error('Tab completion is provided by the AutoCompleter service', E_USER_DEPRECATED);
+        @\trigger_error('Tab completion is provided by the AutoCompleter service', \E_USER_DEPRECATED);
     }
 
     /**
@@ -1478,7 +1478,7 @@ class Shell extends Application
      */
     protected function writeVersionInfo()
     {
-        if (PHP_SAPI !== 'cli') {
+        if (\PHP_SAPI !== 'cli') {
             return;
         }
 

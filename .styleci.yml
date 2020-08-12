@@ -4,6 +4,7 @@ preset: symfony
 
 enabled:
   - align_double_arrow
+  - native_constant_invocation
   - native_function_invocation
   - ordered_use
   - strict

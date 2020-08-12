@@ -92,7 +92,7 @@ HELP
         }
 
         $exception = $this->context->getLastException();
-        $count = $input->getOption('all') ? PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
+        $count = $input->getOption('all') ? \PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
         $shell = $this->getApplication();
 
@@ -105,7 +105,7 @@ HELP
             $showLines = $count;
             // Show the whole trace if we'd only be hiding a few lines
             if ($traceCount < \max($count * 1.2, $count + 2)) {
-                $showLines = PHP_INT_MAX;
+                $showLines = \PHP_INT_MAX;
             }
 
             $trace = $this->getBacktrace($exception, $showLines);

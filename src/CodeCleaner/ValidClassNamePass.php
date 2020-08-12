@@ -44,7 +44,7 @@ class ValidClassNamePass extends NamespaceAwarePass
 
     public function __construct()
     {
-        $this->atLeastPhp7 = \version_compare(PHP_VERSION, '7.0', '>=');
+        $this->atLeastPhp7 = \version_compare(\PHP_VERSION, '7.0', '>=');
     }
 
     /**
@@ -414,6 +414,6 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function createError($msg, $stmt)
     {
-        return new FatalErrorException($msg, 0, E_ERROR, null, $stmt->getLine());
+        return new FatalErrorException($msg, 0, \E_ERROR, null, $stmt->getLine());
     }
 }

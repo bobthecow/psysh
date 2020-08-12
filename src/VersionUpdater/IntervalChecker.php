@@ -58,7 +58,7 @@ class IntervalChecker extends GitHubChecker
     private function updateCache($release)
     {
         $data = [
-            'last_check' => \date(DATE_ATOM),
+            'last_check' => \date(\DATE_ATOM),
             'release'    => $release,
         ];
 

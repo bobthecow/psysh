@@ -42,7 +42,7 @@ class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
 
     public function testFromThrowableWithError()
     {
-        if (\version_compare(PHP_VERSION, '7.0.0', '<')) {
+        if (\version_compare(\PHP_VERSION, '7.0.0', '<')) {
             $this->markTestSkipped();
         }
 

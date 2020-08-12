@@ -104,7 +104,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
      */
     public function testProcessInvalidLegacy($code)
     {
-        if (\version_compare(PHP_VERSION, '7.0', '>=')) {
+        if (\version_compare(\PHP_VERSION, '7.0', '>=')) {
             $this->markTestSkipped();
         }
 

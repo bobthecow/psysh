@@ -70,7 +70,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Interfaces', $res);
         $fixtureClasses = \array_filter($res['Interfaces'], [$this, 'isFixtureClass']);
 
-        $prefix = PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
+        $prefix = \PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
 
         $expected = [
             Fixtures\InterfaceDelta::class => [
@@ -145,7 +145,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Classes', $res);
         $this->assertEquals($expectedClasses, $res['Classes']);
 
-        $prefix = PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
+        $prefix = \PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
         $expectedInterfaces = [
             Fixtures\InterfaceDelta::class => [
                 'name'  => Fixtures\InterfaceDelta::class,

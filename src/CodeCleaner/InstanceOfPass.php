@@ -34,7 +34,7 @@ class InstanceOfPass extends CodeCleanerPass
 
     public function __construct()
     {
-        $this->atLeastPhp73 = \version_compare(PHP_VERSION, '7.3', '>=');
+        $this->atLeastPhp73 = \version_compare(\PHP_VERSION, '7.3', '>=');
     }
 
     /**
@@ -61,7 +61,7 @@ class InstanceOfPass extends CodeCleanerPass
             $node->expr instanceof ConstFetch ||
             $node->expr instanceof ClassConstFetch
         ) {
-            throw new FatalErrorException(self::EXCEPTION_MSG, 0, E_ERROR, null, $node->getLine());
+            throw new FatalErrorException(self::EXCEPTION_MSG, 0, \E_ERROR, null, $node->getLine());
         }
     }
 }

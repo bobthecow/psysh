@@ -78,8 +78,8 @@ class RequirePass extends CodeCleanerPass
             // @todo Shell::handleError would be better here, because we could
             // fake the file and line number, but we can't call it statically.
             // So we're duplicating some of the logics here.
-            if (E_WARNING & \error_reporting()) {
-                ErrorException::throwException(E_WARNING, 'Filename cannot be empty', null, $lineNumber);
+            if (\E_WARNING & \error_reporting()) {
+                ErrorException::throwException(\E_WARNING, 'Filename cannot be empty', null, $lineNumber);
             }
             // @todo trigger an error as fallback? this is pretty ugly…
             // trigger_error('Filename cannot be empty', E_USER_WARNING);
@@ -87,7 +87,7 @@ class RequirePass extends CodeCleanerPass
 
         if ($file === '' || !\stream_resolve_include_path($file)) {
             $msg = \sprintf("Failed opening required '%s'", $file);
-            throw new FatalErrorException($msg, 0, E_ERROR, null, $lineNumber);
+            throw new FatalErrorException($msg, 0, \E_ERROR, null, $lineNumber);
         }
 
         return $file;

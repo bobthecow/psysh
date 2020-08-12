@@ -113,7 +113,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             'codeCleaner'       => $cleaner,
             'pager'             => $pager,
             'requireSemicolons' => true,
-            'errorLoggingLevel' => E_ERROR | E_WARNING,
+            'errorLoggingLevel' => \E_ERROR | \E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
             'startupMessage'    => 'Psysh is awesome!',
         ]);
@@ -123,7 +123,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
         $this->assertTrue($config->requireSemicolons());
-        $this->assertSame(E_ERROR | E_WARNING, $config->errorLoggingLevel());
+        $this->assertSame(\E_ERROR | \E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
         $this->assertSame('Psysh is awesome!', $config->getStartupMessage());
     }
@@ -140,7 +140,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame(\function_exists('readline'), $config->useReadline());
         $this->assertFalse($config->usePcntl());
-        $this->assertSame(E_ALL & ~E_NOTICE, $config->errorLoggingLevel());
+        $this->assertSame(\E_ALL & ~\E_NOTICE, $config->errorLoggingLevel());
     }
 
     public function testLoadLocalConfigFile()
@@ -183,7 +183,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     private function joinPath()
     {
-        return \implode(DIRECTORY_SEPARATOR, \func_get_args());
+        return \implode(\DIRECTORY_SEPARATOR, \func_get_args());
     }
 
     public function testConfigIncludes()

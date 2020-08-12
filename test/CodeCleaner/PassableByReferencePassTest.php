@@ -57,7 +57,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             ['array_pop(Foo::qux)'],
         ];
 
-        if (\version_compare(PHP_VERSION, '5.6', '>=')) {
+        if (\version_compare(\PHP_VERSION, '5.6', '>=')) {
             $stmts[] = ['end(...[$a])'];
         }
 

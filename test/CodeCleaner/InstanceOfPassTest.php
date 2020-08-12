@@ -31,7 +31,7 @@ class InstanceOfPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        if (\version_compare(PHP_VERSION, '7.3', '>=')) {
+        if (\version_compare(\PHP_VERSION, '7.3', '>=')) {
             return [];
         }
 
@@ -71,7 +71,7 @@ class InstanceOfPassTest extends CodeCleanerTestCase
             ['"foo ${foo} $bar" instanceof stdClass'],
         ];
 
-        if (\version_compare(PHP_VERSION, '7.3', '>=')) {
+        if (\version_compare(\PHP_VERSION, '7.3', '>=')) {
             return \array_merge($data, [
                 ['null instanceof stdClass'],
                 ['true instanceof stdClass'],

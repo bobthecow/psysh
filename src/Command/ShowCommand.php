@@ -189,7 +189,7 @@ HELP
     private function replaceCwd($file)
     {
         if ($cwd = \getcwd()) {
-            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+            $cwd = \rtrim($cwd, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR;
         }
 
         if ($cwd === false) {

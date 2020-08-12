@@ -73,7 +73,7 @@ class Libedit extends GNUReadline
             if (\is_file($this->historyFile) && \is_writable($this->historyFile)) {
                 $this->hasWarnedOwnership = true;
                 $msg = \sprintf('Error writing history file, check file ownership: %s', $this->historyFile);
-                \trigger_error($msg, E_USER_NOTICE);
+                \trigger_error($msg, \E_USER_NOTICE);
             }
         }
 

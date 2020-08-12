@@ -122,7 +122,7 @@ abstract class Command extends BaseCommand
      */
     private function aliasesAsText()
     {
-        return '<comment>Aliases:</comment> <info>'.\implode(', ', $this->getAliases()).'</info>'.PHP_EOL;
+        return '<comment>Aliases:</comment> <info>'.\implode(', ', $this->getAliases()).'</info>'.\PHP_EOL;
     }
 
     /**
@@ -153,7 +153,7 @@ abstract class Command extends BaseCommand
             $messages[] = '';
         }
 
-        return \implode(PHP_EOL, $messages);
+        return \implode(\PHP_EOL, $messages);
     }
 
     /**
@@ -194,7 +194,7 @@ abstract class Command extends BaseCommand
             $messages[] = '';
         }
 
-        return \implode(PHP_EOL, $messages);
+        return \implode(\PHP_EOL, $messages);
     }
 
     /**

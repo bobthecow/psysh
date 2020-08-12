@@ -107,7 +107,7 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
         \file_put_contents(
             $this->historyFile,
             "This is an entry\n\0This is a comment\nThis is an entry\0With a comment\n",
-            FILE_APPEND
+            \FILE_APPEND
         );
         $this->assertSame([
             'This is an entry',
@@ -126,7 +126,7 @@ class LibeditTest extends \PHPUnit\Framework\TestCase
         \file_put_contents(
             $this->historyFile,
             "foo\rbar\nbaz\r\nw00t",
-            FILE_APPEND
+            \FILE_APPEND
         );
         $this->assertSame([
             "foo\rbar",

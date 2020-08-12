@@ -51,7 +51,7 @@ class ListPassTest extends CodeCleanerTestCase
             ['list("a") = [1]', $errorPhpParserSyntax],
         ];
 
-        if (\version_compare(PHP_VERSION, '7.1', '<')) {
+        if (\version_compare(\PHP_VERSION, '7.1', '<')) {
             return \array_merge($invalidExpr, [
                 ['list("a" => _) = ["a" => 1]', $errorPhpParserSyntax],
                 ['[] = []', $errorShortListAssign],
@@ -88,7 +88,7 @@ class ListPassTest extends CodeCleanerTestCase
             ['list($x, $y) = [1, 2]'],
         ];
 
-        if (\version_compare(PHP_VERSION, '7.1', '>=')) {
+        if (\version_compare(\PHP_VERSION, '7.1', '>=')) {
             return \array_merge($validExpr, [
                 ['[$a] = [1]'],
                 ['list($b) = [2]'],

@@ -78,7 +78,7 @@ if (!\function_exists('Psy\\debug')) {
      */
     function debug(array $vars = [], $bindTo = null)
     {
-        echo PHP_EOL;
+        echo \PHP_EOL;
 
         $sh = new Shell();
         $sh->setScopeVariables($vars);
@@ -140,8 +140,8 @@ if (!\function_exists('Psy\\info')) {
 
         $core = [
             'PsySH version'       => Shell::VERSION,
-            'PHP version'         => PHP_VERSION,
-            'OS'                  => PHP_OS,
+            'PHP version'         => \PHP_VERSION,
+            'OS'                  => \PHP_OS,
             'default includes'    => $config->getDefaultIncludes(),
             'require semicolons'  => $config->requireSemicolons(),
             'error logging level' => $config->errorLoggingLevel(),
@@ -289,32 +289,32 @@ if (!\function_exists('Psy\\bin')) {
         return function () {
             if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {
                 if (\defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
-                    \fwrite(STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
+                    \fwrite(\STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
                 if (\defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID > 39999) {
-                    \fwrite(STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
+                    \fwrite(\STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
                 if (\PHP_VERSION_ID < 50509) {
-                    \fwrite(STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
+                    \fwrite(\STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
                 if (\PHP_VERSION_ID > 89999) {
-                    \fwrite(STDERR, 'PHP 9 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
+                    \fwrite(\STDERR, 'PHP 9 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
                 if (!\function_exists('json_encode')) {
-                    \fwrite(STDERR, 'The JSON extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
+                    \fwrite(\STDERR, 'The JSON extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
                 if (!\function_exists('token_get_all')) {
-                    \fwrite(STDERR, 'The Tokenizer extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
+                    \fwrite(\STDERR, 'The Tokenizer extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
             }
@@ -342,7 +342,7 @@ if (!\function_exists('Psy\\bin')) {
             // Handle --help
             if ($usageException !== null || $input->getOption('help')) {
                 if ($usageException !== null) {
-                    echo $usageException->getMessage().PHP_EOL.PHP_EOL;
+                    echo $usageException->getMessage().\PHP_EOL.\PHP_EOL;
                 }
 
                 $version = Shell::getVersionHeader(false);
@@ -374,7 +374,7 @@ EOL;
 
             // Handle --version
             if ($input->getOption('version')) {
-                echo Shell::getVersionHeader($config->useUnicode()).PHP_EOL;
+                echo Shell::getVersionHeader($config->useUnicode()).\PHP_EOL;
                 exit(0);
             }
 
@@ -387,7 +387,7 @@ EOL;
                 // And go!
                 $shell->run();
             } catch (\Exception $e) {
-                \fwrite(STDERR, $e->getMessage().PHP_EOL);
+                \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
 
                 // @todo this triggers the "exited unexpectedly" logic in the
                 // ForkingLoop, so we can't exit(1) after starting the shell...

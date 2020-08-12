@@ -36,7 +36,7 @@ class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals('PHP_VERSION', $refl->getName());
         $this->assertEquals('PHP_VERSION', (string) $refl);
-        $this->assertEquals(PHP_VERSION, $refl->getValue());
+        $this->assertEquals(\PHP_VERSION, $refl->getValue());
         $this->assertFalse($refl->inNamespace());
         $this->assertSame('', $refl->getNamespaceName());
     }

@@ -89,7 +89,7 @@ EOS;
             [new \ReflectionProperty(SomeClass::class, 'someProp')],
         ];
 
-        if (\version_compare(PHP_VERSION, '7.1.0', '>=')) {
+        if (\version_compare(\PHP_VERSION, '7.1.0', '>=')) {
             $reflectors[] = [new \ReflectionClassConstant(SomeClass::class, 'SOME_CONST')];
         }
 

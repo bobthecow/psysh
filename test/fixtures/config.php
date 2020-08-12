@@ -16,5 +16,5 @@ return [
     'usePcntl'          => false,
     'requireSemicolons' => false,
     'useUnicode'        => true,
-    'errorLoggingLevel' => E_ALL & ~E_NOTICE,
+    'errorLoggingLevel' => \E_ALL & ~\E_NOTICE,
 ];

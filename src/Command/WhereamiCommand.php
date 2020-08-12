@@ -30,7 +30,7 @@ class WhereamiCommand extends Command
      */
     public function __construct($colorMode = null)
     {
-        $this->backtrace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $this->backtrace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
 
         parent::__construct();
     }
@@ -152,7 +152,7 @@ HELP
             return $file;
         }
 
-        $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        $cwd = \rtrim($cwd, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR;
 
         return \preg_replace('/^'.\preg_quote($cwd, '/').'/', '', $file);
     }
