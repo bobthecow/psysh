@@ -90,7 +90,7 @@ abstract class AbstractMatcher
                 continue;
             }
 
-            $class = $token[1] . $class;
+            $class = $token[1].$class;
         }
 
         return $class;

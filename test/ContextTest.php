@@ -237,13 +237,13 @@ class ContextTest extends \PHPUnit\Framework\TestCase
 
     public function testCommandScopeVariables()
     {
-        $__function  = 'donkey';
-        $__method    = 'diddy';
-        $__class     = 'cranky';
+        $__function = 'donkey';
+        $__method = 'diddy';
+        $__class = 'cranky';
         $__namespace = 'funky';
-        $__file      = 'candy';
-        $__line      = 'dixie';
-        $__dir       = 'wrinkly';
+        $__file = 'candy';
+        $__line = 'dixie';
+        $__dir = 'wrinkly';
 
         $vars = \compact('__function', '__method', '__class', '__namespace', '__file', '__line', '__dir');
 

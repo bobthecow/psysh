@@ -60,8 +60,8 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
             [
                 new \ReflectionClass(CodeCleanerPass::class),
                 'abstract class Psy\CodeCleaner\CodeCleanerPass '
-                . 'extends PhpParser\NodeVisitorAbstract '
-                . 'implements PhpParser\NodeVisitor',
+                .'extends PhpParser\NodeVisitorAbstract '
+                .'implements PhpParser\NodeVisitor',
             ],
             [
                 new \ReflectionFunction('array_chunk'),
@@ -81,7 +81,7 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 new ReflectionConstant_('PHP_VERSION'),
-                'define("PHP_VERSION", "' . PHP_VERSION . '")',
+                'define("PHP_VERSION", "'.PHP_VERSION.'")',
             ],
             [
                 new ReflectionConstant_('__LINE__'),

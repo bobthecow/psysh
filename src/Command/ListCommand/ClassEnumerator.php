@@ -30,8 +30,8 @@ class ClassEnumerator extends Enumerator
         }
 
         $internal = $input->getOption('internal');
-        $user     = $input->getOption('user');
-        $prefix   = $reflector === null ? null : \strtolower($reflector->getName()) . '\\';
+        $user = $input->getOption('user');
+        $prefix = $reflector === null ? null : \strtolower($reflector->getName()).'\\';
 
         $ret = [];
 
@@ -71,7 +71,7 @@ class ClassEnumerator extends Enumerator
         $ret = [];
 
         if ($internal) {
-            $ret['Internal ' . $key] = \array_filter($classes, function ($class) use ($prefix) {
+            $ret['Internal '.$key] = \array_filter($classes, function ($class) use ($prefix) {
                 if ($prefix !== null && \strpos(\strtolower($class), $prefix) !== 0) {
                     return false;
                 }
@@ -83,7 +83,7 @@ class ClassEnumerator extends Enumerator
         }
 
         if ($user) {
-            $ret['User ' . $key] = \array_filter($classes, function ($class) use ($prefix) {
+            $ret['User '.$key] = \array_filter($classes, function ($class) use ($prefix) {
                 if ($prefix !== null && \strpos(\strtolower($class), $prefix) !== 0) {
                     return false;
                 }

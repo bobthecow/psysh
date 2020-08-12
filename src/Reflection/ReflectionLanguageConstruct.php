@@ -77,7 +77,7 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     public function __construct($keyword)
     {
         if (!self::isLanguageConstruct($keyword)) {
-            throw new \InvalidArgumentException('Unknown language construct: ' . $keyword);
+            throw new \InvalidArgumentException('Unknown language construct: '.$keyword);
         }
 
         $this->keyword = $keyword;

@@ -50,7 +50,7 @@ class GNUReadline implements Readline
     {
         $this->historyFile = ($historyFile !== null) ? $historyFile : false;
         $this->historySize = $historySize;
-        $this->eraseDups   = $eraseDups;
+        $this->eraseDups = $eraseDups;
 
         // HHVM errors on this, so HHVM doesn't get a readline_name.
         if (!\defined('HHVM_VERSION')) {

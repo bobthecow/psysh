@@ -20,8 +20,8 @@ use PhpParser\ParserFactory as OriginalParserFactory;
  */
 class ParserFactory
 {
-    const ONLY_PHP5   = 'ONLY_PHP5';
-    const ONLY_PHP7   = 'ONLY_PHP7';
+    const ONLY_PHP5 = 'ONLY_PHP5';
+    const ONLY_PHP7 = 'ONLY_PHP7';
     const PREFER_PHP5 = 'PREFER_PHP5';
     const PREFER_PHP7 = 'PREFER_PHP7';
 
@@ -77,7 +77,7 @@ class ParserFactory
                 throw new \InvalidArgumentException('Unknown parser kind');
             }
 
-            $parser = $originalFactory->create(\constant(OriginalParserFactory::class . '::' . $kind));
+            $parser = $originalFactory->create(\constant(OriginalParserFactory::class.'::'.$kind));
         } else {
             if ($kind !== null) {
                 throw new \InvalidArgumentException('Install PHP Parser v2.x to specify parser kind');

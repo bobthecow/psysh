@@ -32,7 +32,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      */
     public function beforeTraverse(array $nodes)
     {
-        $this->namespace    = [];
+        $this->namespace = [];
         $this->currentScope = [];
     }
 

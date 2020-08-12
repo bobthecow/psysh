@@ -19,7 +19,7 @@ class IntervalChecker extends GitHubChecker
     public function __construct($cacheFile, $interval)
     {
         $this->cacheFile = $cacheFile;
-        $this->interval  = $interval;
+        $this->interval = $interval;
     }
 
     public function fetchLatestRelease()

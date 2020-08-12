@@ -36,13 +36,13 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 
     public function testEnumerate()
     {
-        $one = 'psyTestGlobal' . \rand();
+        $one = 'psyTestGlobal'.\rand();
         $GLOBALS[$one] = 42;
 
-        $two = 'psyTestGlobal' . \rand();
+        $two = 'psyTestGlobal'.\rand();
         $GLOBALS[$two] = 'string';
 
-        $three = 'psyTestGlobal' . \rand();
+        $three = 'psyTestGlobal'.\rand();
         $GLOBALS[$three] = [];
 
         $enumerator = new GlobalVariableEnumerator($this->getPresenter());
@@ -58,22 +58,22 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Global Variables', $res);
         $globals = $res['Global Variables'];
 
-        $name = '$' . $one;
+        $name = '$'.$one;
         $style = 'global';
         $value = '\<number>42\</number>';
-        $this->assertArrayHasKey('$' . $one, $globals);
+        $this->assertArrayHasKey('$'.$one, $globals);
         $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
 
-        $name = '$' . $two;
+        $name = '$'.$two;
         $style = 'global';
         $value = '"\<string>string\</string>"';
-        $this->assertArrayHasKey('$' . $two, $globals);
+        $this->assertArrayHasKey('$'.$two, $globals);
         $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
 
-        $name = '$' . $three;
+        $name = '$'.$three;
         $style = 'global';
         $value = '[]';
-        $this->assertArrayHasKey('$' . $three, $globals);
+        $this->assertArrayHasKey('$'.$three, $globals);
         $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
     }
 }

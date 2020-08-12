@@ -35,17 +35,17 @@ class FunctionEnumerator extends Enumerator
         }
 
         if ($input->getOption('user')) {
-            $label     = 'User Functions';
+            $label = 'User Functions';
             $functions = $this->getFunctions('user');
         } elseif ($input->getOption('internal')) {
-            $label     = 'Internal Functions';
+            $label = 'Internal Functions';
             $functions = $this->getFunctions('internal');
         } else {
-            $label     = 'Functions';
+            $label = 'Functions';
             $functions = $this->getFunctions();
         }
 
-        $prefix = $reflector === null ? null : \strtolower($reflector->getName()) . '\\';
+        $prefix = $reflector === null ? null : \strtolower($reflector->getName()).'\\';
         $functions = $this->prepareFunctions($functions, $prefix);
 
         if (empty($functions)) {

@@ -56,7 +56,7 @@ class SignatureFormatter implements ReflectorFormatter
                 return self::formatConstant($reflector);
 
             default:
-                throw new \InvalidArgumentException('Unexpected Reflector class: ' . \get_class($reflector));
+                throw new \InvalidArgumentException('Unexpected Reflector class: '.\get_class($reflector));
         }
     }
 
@@ -272,9 +272,9 @@ class SignatureFormatter implements ReflectorFormatter
                 // Hax: we'll try to extract it :P
 
                 // @codeCoverageIgnoreStart
-                $chunks = \explode('$' . $param->getName(), (string) $param);
+                $chunks = \explode('$'.$param->getName(), (string) $param);
                 $chunks = \explode(' ', \trim($chunks[0]));
-                $guess  = \end($chunks);
+                $guess = \end($chunks);
 
                 $hint = \sprintf('<urgent>%s</urgent> ', $guess);
                 // @codeCoverageIgnoreEnd
@@ -282,12 +282,12 @@ class SignatureFormatter implements ReflectorFormatter
 
             if ($param->isOptional()) {
                 if (!$param->isDefaultValueAvailable()) {
-                    $value     = 'unknown';
+                    $value = 'unknown';
                     $typeStyle = 'urgent';
                 } else {
-                    $value     = $param->getDefaultValue();
+                    $value = $param->getDefaultValue();
                     $typeStyle = self::getTypeStyle($value);
-                    $value     = \is_array($value) ? '[]' : ($value === null ? 'null' : \var_export($value, true));
+                    $value = \is_array($value) ? '[]' : ($value === null ? 'null' : \var_export($value, true));
                 }
                 $default = \sprintf(' = <%s>%s</%s>', $typeStyle, OutputFormatter::escape($value), $typeStyle);
             } else {

@@ -125,7 +125,7 @@ class Presenter
                 if ('' !== $output) {
                     $output .= PHP_EOL;
                 }
-                $output .= \str_repeat('  ', $depth) . $line;
+                $output .= \str_repeat('  ', $depth).$line;
             }
         });
 

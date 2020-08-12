@@ -33,8 +33,8 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
             \array_pop($tokens);
         }
         $objectToken = \array_pop($tokens);
-        $objectName  = \str_replace('$', '', $objectToken[1]);
-        $object      = $this->getVariable($objectName);
+        $objectName = \str_replace('$', '', $objectToken[1]);
+        $object = $this->getVariable($objectName);
 
         if (!$object instanceof \MongoClient) {
             return [];
@@ -57,7 +57,7 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token     = \array_pop($tokens);
+        $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
         switch (true) {

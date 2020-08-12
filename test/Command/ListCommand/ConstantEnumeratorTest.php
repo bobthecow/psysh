@@ -51,7 +51,7 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
             'E_USER_WARNING'         => '\<number>512\</number>',
             'FALSE'                  => '\<const>false\</const>',
             'JSON_UNESCAPED_SLASHES' => '\<number>64\</number>',
-            'PHP_VERSION'            => '"\<string>' . PHP_VERSION . '\</string>"',
+            'PHP_VERSION'            => '"\<string>'.PHP_VERSION.'\</string>"',
         ];
 
         foreach ($expected as $name => $value) {
@@ -85,7 +85,7 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
     public function testEnumerateCategoryConstants($category, $label, $expected, $unexpected)
     {
         $enumerator = new ConstantEnumerator($this->getPresenter());
-        $input = $this->getInput('--constants --category ' . $category);
+        $input = $this->getInput('--constants --category '.$category);
         $res = $enumerator->enumerate($input);
         $this->assertArrayHasKey($label, $res);
         $constants = $res[$label];

@@ -15,8 +15,8 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
 {
     public function getMatches(array $tokens, array $info = [])
     {
-        $openBracket    = \array_pop($tokens);
-        $functionName   = \array_pop($tokens);
+        $openBracket = \array_pop($tokens);
+        $functionName = \array_pop($tokens);
         $methodOperator = \array_pop($tokens);
 
         $class = $this->getNamespaceAndClass($tokens);

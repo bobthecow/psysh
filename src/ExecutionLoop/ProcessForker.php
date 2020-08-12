@@ -124,8 +124,8 @@ class ProcessForker extends AbstractListener
             \fclose($up);
 
             // Wait for a return value from the loop process.
-            $read   = [$down];
-            $write  = null;
+            $read = [$down];
+            $write = null;
             $except = null;
 
             do {

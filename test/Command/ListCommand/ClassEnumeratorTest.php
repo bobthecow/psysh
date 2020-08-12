@@ -46,14 +46,14 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             Fixtures\ClassBravo::class => [
                 'name'  => Fixtures\ClassBravo::class,
                 'style' => 'class',
-                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> '.
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
             Fixtures\ClassCharlie::class => [
                 'name'  => Fixtures\ClassCharlie::class,
                 'style' => 'class',
-                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> ' .
-                    'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> '.
+                    'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> '.
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
         ];
@@ -81,7 +81,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             Fixtures\InterfaceEcho::class => [
                 'name'  => Fixtures\InterfaceEcho::class,
                 'style' => 'class',
-                'value' => $prefix . 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
+                'value' => $prefix.'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> '.
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
         ];
@@ -130,14 +130,14 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             Fixtures\ClassBravo::class => [
                 'name'  => Fixtures\ClassBravo::class,
                 'style' => 'class',
-                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> '.
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
             Fixtures\ClassCharlie::class => [
                 'name'  => Fixtures\ClassCharlie::class,
                 'style' => 'class',
-                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> ' .
-                    'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> ' .
+                'value' => 'class <class>Psy\Test\Command\ListCommand\Fixtures\ClassCharlie</class> '.
+                    'extends <class>Psy\Test\Command\ListCommand\Fixtures\ClassBravo</class> '.
                     'implements <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
         ];
@@ -155,7 +155,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             Fixtures\InterfaceEcho::class => [
                 'name'  => Fixtures\InterfaceEcho::class,
                 'style' => 'class',
-                'value' => $prefix . 'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> ' .
+                'value' => $prefix.'interface <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceEcho</class> '.
                     'extends <class>Psy\Test\Command\ListCommand\Fixtures\InterfaceDelta</class>',
             ],
         ];

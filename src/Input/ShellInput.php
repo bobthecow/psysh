@@ -50,7 +50,7 @@ class ShellInput extends StringInput
         $hasCodeArgument = false;
 
         if ($definition->getArgumentCount() > 0) {
-            $args    = $definition->getArguments();
+            $args = $definition->getArguments();
             $lastArg = \array_pop($args);
             foreach ($args as $arg) {
                 if ($arg instanceof CodeArgument) {
@@ -88,17 +88,17 @@ class ShellInput extends StringInput
         $cursor = 0;
         while ($cursor < $length) {
             if (\preg_match('/\s+/A', $input, $match, 0, $cursor)) {
-            } elseif (\preg_match('/([^="\'\s]+?)(=?)(' . StringInput::REGEX_QUOTED_STRING . '+)/A', $input, $match, 0, $cursor)) {
+            } elseif (\preg_match('/([^="\'\s]+?)(=?)('.StringInput::REGEX_QUOTED_STRING.'+)/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
-                    $match[1] . $match[2] . \stripcslashes(\str_replace(['"\'', '\'"', '\'\'', '""'], '', \substr($match[3], 1, \strlen($match[3]) - 2))),
+                    $match[1].$match[2].\stripcslashes(\str_replace(['"\'', '\'"', '\'\'', '""'], '', \substr($match[3], 1, \strlen($match[3]) - 2))),
                     \stripcslashes(\substr($input, $cursor)),
                 ];
-            } elseif (\preg_match('/' . StringInput::REGEX_QUOTED_STRING . '/A', $input, $match, 0, $cursor)) {
+            } elseif (\preg_match('/'.StringInput::REGEX_QUOTED_STRING.'/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
                     \stripcslashes(\substr($match[0], 1, \strlen($match[0]) - 2)),
                     \stripcslashes(\substr($input, $cursor)),
                 ];
-            } elseif (\preg_match('/' . StringInput::REGEX_STRING . '/A', $input, $match, 0, $cursor)) {
+            } elseif (\preg_match('/'.StringInput::REGEX_STRING.'/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
                     \stripcslashes($match[1]),
                     \stripcslashes(\substr($input, $cursor)),

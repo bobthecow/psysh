@@ -32,19 +32,19 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Configuration
 {
-    const COLOR_MODE_AUTO     = 'auto';
-    const COLOR_MODE_FORCED   = 'forced';
+    const COLOR_MODE_AUTO = 'auto';
+    const COLOR_MODE_FORCED = 'forced';
     const COLOR_MODE_DISABLED = 'disabled';
 
-    const INTERACTIVE_MODE_AUTO     = 'auto';
-    const INTERACTIVE_MODE_FORCED   = 'forced';
+    const INTERACTIVE_MODE_AUTO = 'auto';
+    const INTERACTIVE_MODE_FORCED = 'forced';
     const INTERACTIVE_MODE_DISABLED = 'disabled';
 
-    const VERBOSITY_QUIET        = 'quiet';
-    const VERBOSITY_NORMAL       = 'normal';
-    const VERBOSITY_VERBOSE      = 'verbose';
+    const VERBOSITY_QUIET = 'quiet';
+    const VERBOSITY_NORMAL = 'normal';
+    const VERBOSITY_VERBOSE = 'verbose';
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
-    const VERBOSITY_DEBUG        = 'debug';
+    const VERBOSITY_DEBUG = 'debug';
 
     private static $AVAILABLE_OPTIONS = [
         'codeCleaner',
@@ -138,7 +138,7 @@ class Configuration
 
         // legacy baseDir option
         if (isset($config['baseDir'])) {
-            $msg = "The 'baseDir' configuration option is deprecated; " .
+            $msg = "The 'baseDir' configuration option is deprecated; ".
                 "please specify 'configDir' and 'dataDir' options instead";
             throw new DeprecatedException($msg);
         }
@@ -236,7 +236,7 @@ class Configuration
         }
 
         foreach ($names as $name) {
-            $otherParams[] = '--' . $name;
+            $otherParams[] = '--'.$name;
         }
 
         foreach ($otherParams as $name) {
@@ -324,23 +324,23 @@ class Configuration
     public static function getInputOptions()
     {
         return [
-            new InputOption('config',         'c',        InputOption::VALUE_REQUIRED, 'Use an alternate PsySH config file location.'),
-            new InputOption('cwd',            null,       InputOption::VALUE_REQUIRED, 'Use an alternate working directory.'),
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'Use an alternate PsySH config file location.'),
+            new InputOption('cwd', null, InputOption::VALUE_REQUIRED, 'Use an alternate working directory.'),
 
-            new InputOption('color',          null,       InputOption::VALUE_NONE,     'Force colors in output.'),
-            new InputOption('no-color',       null,       InputOption::VALUE_NONE,     'Disable colors in output.'),
+            new InputOption('color', null, InputOption::VALUE_NONE, 'Force colors in output.'),
+            new InputOption('no-color', null, InputOption::VALUE_NONE, 'Disable colors in output.'),
             // --ansi and --no-ansi aliases to match Symfony, Composer, etc.
-            new InputOption('ansi',           null,       InputOption::VALUE_NONE,     'Force colors in output.'),
-            new InputOption('no-ansi',        null,       InputOption::VALUE_NONE,     'Disable colors in output.'),
+            new InputOption('ansi', null, InputOption::VALUE_NONE, 'Force colors in output.'),
+            new InputOption('no-ansi', null, InputOption::VALUE_NONE, 'Disable colors in output.'),
 
-            new InputOption('quiet',          'q',        InputOption::VALUE_NONE,     'Shhhhhh.'),
-            new InputOption('verbose',        'v|vv|vvv', InputOption::VALUE_OPTIONAL, 'Increase the verbosity of messages.', '0'),
-            new InputOption('interactive',    'i|a',      InputOption::VALUE_NONE,     'Force PsySH to run in interactive mode.'),
-            new InputOption('no-interactive', 'n',        InputOption::VALUE_NONE,     'Run PsySH without interactive input. Requires input from stdin.'),
+            new InputOption('quiet', 'q', InputOption::VALUE_NONE, 'Shhhhhh.'),
+            new InputOption('verbose', 'v|vv|vvv', InputOption::VALUE_OPTIONAL, 'Increase the verbosity of messages.', '0'),
+            new InputOption('interactive', 'i|a', InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
+            new InputOption('no-interactive', 'n', InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
             // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
-            new InputOption('interaction',    null,       InputOption::VALUE_NONE,     'Force PsySH to run in interactive mode.'),
-            new InputOption('no-interaction', null,       InputOption::VALUE_NONE,     'Run PsySH without interactive input. Requires input from stdin.'),
-            new InputOption('raw-output',     'r',        InputOption::VALUE_NONE,     'Print var_export-style return values (for non-interactive input)'),
+            new InputOption('interaction', null, InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
+            new InputOption('no-interaction', null, InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
+            new InputOption('raw-output', 'r', InputOption::VALUE_NONE, 'Print var_export-style return values (for non-interactive input)'),
         ];
     }
 
@@ -358,7 +358,7 @@ class Configuration
     {
         // feature detection
         $this->hasReadline = \function_exists('readline');
-        $this->hasPcntl    = ProcessForker::isSupported();
+        $this->hasPcntl = ProcessForker::isSupported();
 
         if ($configFile = $this->getConfigFile()) {
             $this->loadConfigFile($configFile);
@@ -411,7 +411,7 @@ class Configuration
      */
     public function getLocalConfigFile()
     {
-        $localConfig = \getcwd() . '/.psysh.php';
+        $localConfig = \getcwd().'/.psysh.php';
 
         if (@\is_file($localConfig)) {
             return $localConfig;
@@ -427,7 +427,7 @@ class Configuration
     {
         foreach (self::$AVAILABLE_OPTIONS as $option) {
             if (isset($options[$option])) {
-                $method = 'set' . \ucfirst($option);
+                $method = 'set'.\ucfirst($option);
                 $this->$method($options[$option]);
             }
         }
@@ -442,7 +442,7 @@ class Configuration
 
         foreach (['commands', 'matchers', 'casters'] as $option) {
             if (isset($options[$option])) {
-                $method = 'add' . \ucfirst($option);
+                $method = 'add'.\ucfirst($option);
                 $this->$method($options[$option]);
             }
         }
@@ -620,7 +620,7 @@ class Configuration
         } else {
             // fallback: create our own history file
             $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-            $this->setHistoryFile($dir . '/psysh_history');
+            $this->setHistoryFile($dir.'/psysh_history');
         }
 
         return $this->historyFile;
@@ -680,7 +680,7 @@ class Configuration
      */
     public function getTempFile($type, $pid)
     {
-        return \tempnam($this->getRuntimeDir(), $type . '_' . $pid . '_');
+        return \tempnam($this->getRuntimeDir(), $type.'_'.$pid.'_');
     }
 
     /**
@@ -1153,7 +1153,7 @@ class Configuration
                 $this->pager = $pager;
             } elseif ($less = \exec('which less 2>/dev/null')) {
                 // check for the presence of less...
-                $this->pager = $less . ' -R -S -F -X';
+                $this->pager = $less.' -R -S -F -X';
             }
         }
 
@@ -1322,7 +1322,7 @@ class Configuration
             $dbFile = $this->getManualDbFile();
             if (\is_file($dbFile)) {
                 try {
-                    $this->manualDb = new \PDO('sqlite:' . $dbFile);
+                    $this->manualDb = new \PDO('sqlite:'.$dbFile);
                 } catch (\PDOException $e) {
                     if ($e->getMessage() === 'could not find driver') {
                         throw new RuntimeException('SQLite PDO driver not found', 0, $e);
@@ -1404,7 +1404,7 @@ class Configuration
 
         if (!\in_array($colorMode, $validColorModes)) {
             // @todo Fix capitalization for 0.11.0
-            throw new \InvalidArgumentException('invalid color mode: ' . $colorMode);
+            throw new \InvalidArgumentException('invalid color mode: '.$colorMode);
         }
 
         $this->colorMode = $colorMode;
@@ -1434,7 +1434,7 @@ class Configuration
         ];
 
         if (!\in_array($interactiveMode, $validInteractiveModes)) {
-            throw new \InvalidArgumentException('Invalid interactive mode: ' . $interactiveMode);
+            throw new \InvalidArgumentException('Invalid interactive mode: '.$interactiveMode);
         }
 
         $this->interactiveMode = $interactiveMode;
@@ -1528,7 +1528,7 @@ class Configuration
 
         if (!\in_array($interval, $validIntervals)) {
             // @todo Fix capitalization for 0.11.0
-            throw new \InvalidArgumentException('invalid update check interval: ' . $interval);
+            throw new \InvalidArgumentException('invalid update check interval: '.$interval);
         }
 
         $this->updateCheck = $interval;
@@ -1543,7 +1543,7 @@ class Configuration
     {
         $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
 
-        return ConfigPaths::touchFileWithMkdir($dir . '/update_check.json');
+        return ConfigPaths::touchFileWithMkdir($dir.'/update_check.json');
     }
 
     /**
@@ -1676,7 +1676,7 @@ class Configuration
         ];
 
         if (!\in_array($verbosity, $validVerbosityLevels)) {
-            throw new \InvalidArgumentException('Invalid verbosity level: ' . $verbosity);
+            throw new \InvalidArgumentException('Invalid verbosity level: '.$verbosity);
         }
 
         $this->verbosity = $verbosity;

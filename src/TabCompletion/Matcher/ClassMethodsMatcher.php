@@ -57,7 +57,7 @@ class ClassMethodsMatcher extends AbstractMatcher
                 $chunks = \explode('\\', $class);
                 $className = \array_pop($chunks);
 
-                return $className . '::' . $name;
+                return $className.'::'.$name;
             },
             \array_filter($methods, function ($method) use ($input) {
                 return AbstractMatcher::startsWith($input, $method);
@@ -70,7 +70,7 @@ class ClassMethodsMatcher extends AbstractMatcher
      */
     public function hasMatched(array $tokens)
     {
-        $token     = \array_pop($tokens);
+        $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
         switch (true) {

@@ -19,7 +19,7 @@ class RuntimeExceptionTest extends \PHPUnit\Framework\TestCase
     public function testException()
     {
         $msg = 'bananas';
-        $e   = new RuntimeException($msg);
+        $e = new RuntimeException($msg);
 
         $this->assertInstanceOf(Exception::class, $e);
         $this->assertInstanceOf(\RuntimeException::class, $e);

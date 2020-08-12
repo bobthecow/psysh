@@ -61,7 +61,7 @@ class ConstantEnumerator extends Enumerator
             return [];
         }
 
-        $user     = $input->getOption('user');
+        $user = $input->getOption('user');
         $internal = $input->getOption('internal');
         $category = $input->getOption('category');
 
@@ -89,7 +89,7 @@ class ConstantEnumerator extends Enumerator
 
         if ($category) {
             $caseCategory = \array_key_exists($category, self::$categoryLabels) ? self::$categoryLabels[$category] : \ucfirst($category);
-            $label = $caseCategory . ' Constants';
+            $label = $caseCategory.' Constants';
             $ret[$label] = $this->getConstants($category);
         }
 
@@ -98,7 +98,7 @@ class ConstantEnumerator extends Enumerator
         }
 
         if ($reflector !== null) {
-            $prefix = \strtolower($reflector->getName()) . '\\';
+            $prefix = \strtolower($reflector->getName()).'\\';
 
             foreach ($ret as $key => $names) {
                 foreach (\array_keys($names) as $name) {

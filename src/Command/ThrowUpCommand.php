@@ -42,7 +42,7 @@ class ThrowUpCommand extends Command implements ContextAware
     {
         $parserFactory = new ParserFactory();
 
-        $this->parser  = $parserFactory->createParser();
+        $this->parser = $parserFactory->createParser();
         $this->printer = new Printer();
 
         parent::__construct($name);
@@ -120,7 +120,7 @@ HELP
         }
 
         if (\strpos($code, '<?') === false) {
-            $code = '<?php ' . $code;
+            $code = '<?php '.$code;
         }
 
         $nodes = $this->parse($code);
@@ -160,7 +160,7 @@ HELP
             }
 
             // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code . ';');
+            return $this->parser->parse($code.';');
         }
     }
 }

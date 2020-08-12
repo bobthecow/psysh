@@ -43,7 +43,7 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
      */
     public function testUnclosedStatements(array $lines, $isUnclosed)
     {
-        $cc  = new CodeCleaner();
+        $cc = new CodeCleaner();
         $res = $cc->clean($lines);
 
         if ($isUnclosed) {
@@ -83,7 +83,7 @@ class CodeCleanerTest extends \PHPUnit\Framework\TestCase
             $this->markTestSkipped('HHVM not supported.');
         }
 
-        $cc  = new CodeCleaner();
+        $cc = new CodeCleaner();
         $res = $cc->clean($lines);
 
         $this->assertFalse($res);

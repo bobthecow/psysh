@@ -35,9 +35,9 @@ use Psy\Exception\FatalErrorException;
  */
 class ValidClassNamePass extends NamespaceAwarePass
 {
-    const CLASS_TYPE     = 'class';
+    const CLASS_TYPE = 'class';
     const INTERFACE_TYPE = 'interface';
-    const TRAIT_TYPE     = 'trait';
+    const TRAIT_TYPE = 'trait';
 
     private $conditionalScopes = 0;
     private $atLeastPhp7;

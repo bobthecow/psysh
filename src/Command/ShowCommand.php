@@ -46,7 +46,7 @@ class ShowCommand extends ReflectingCommand
             ->setName('show')
             ->setDefinition([
                 new CodeArgument('target', CodeArgument::OPTIONAL, 'Function, class, instance, constant, method or property to show.'),
-                new InputOption('ex', null,  InputOption::VALUE_OPTIONAL, 'Show last exception context. Optionally specify a stack index.', 1),
+                new InputOption('ex', null, InputOption::VALUE_OPTIONAL, 'Show last exception context. Optionally specify a stack index.', 1),
             ])
             ->setDescription('Show the code for an object, class, constant, method or property.')
             ->setHelp(
@@ -189,13 +189,13 @@ HELP
     private function replaceCwd($file)
     {
         if ($cwd = \getcwd()) {
-            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
         }
 
         if ($cwd === false) {
             return $file;
         } else {
-            return \preg_replace('/^' . \preg_quote($cwd, '/') . '/', '', $file);
+            return \preg_replace('/^'.\preg_quote($cwd, '/').'/', '', $file);
         }
     }
 

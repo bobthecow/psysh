@@ -35,11 +35,11 @@ class ReflectionClassConstant implements \Reflector
         }
 
         $this->class = $class;
-        $this->name  = $name;
+        $this->name = $name;
 
         $constants = $class->getConstants();
         if (!\array_key_exists($name, $constants)) {
-            throw new \InvalidArgumentException('Unknown constant: ' . $name);
+            throw new \InvalidArgumentException('Unknown constant: '.$name);
         }
 
         $this->value = $constants[$name];
@@ -65,7 +65,7 @@ class ReflectionClassConstant implements \Reflector
             return $str;
         }
 
-        echo $str . "\n";
+        echo $str."\n";
     }
 
     /**
@@ -83,7 +83,7 @@ class ReflectionClassConstant implements \Reflector
         //
         // While this isn't _technically_ correct, it's prolly close enough.
         do {
-            $class  = $parent;
+            $class = $parent;
             $parent = $class->getParentClass();
         } while ($parent && $parent->hasConstant($this->name) && $parent->getConstant($this->name) === $this->value);
 

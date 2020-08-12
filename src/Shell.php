@@ -50,10 +50,10 @@ class Shell extends Application
 {
     const VERSION = 'v0.10.4';
 
-    const PROMPT      = '>>> ';
+    const PROMPT = '>>> ';
     const BUFF_PROMPT = '... ';
-    const REPLAY      = '--> ';
-    const RETVAL      = '=> ';
+    const REPLAY = '--> ';
+    const RETVAL = '=> ';
 
     private $config;
     private $cleaner;
@@ -82,14 +82,14 @@ class Shell extends Application
      */
     public function __construct(Configuration $config = null)
     {
-        $this->config        = $config ?: new Configuration();
-        $this->cleaner       = $this->config->getCodeCleaner();
-        $this->context       = new Context();
-        $this->includes      = [];
-        $this->readline      = $this->config->getReadline();
-        $this->inputBuffer   = [];
-        $this->codeStack     = [];
-        $this->stdoutBuffer  = '';
+        $this->config = $config ?: new Configuration();
+        $this->cleaner = $this->config->getCodeCleaner();
+        $this->context = new Context();
+        $this->includes = [];
+        $this->readline = $this->config->getReadline();
+        $this->inputBuffer = [];
+        $this->codeStack = [];
+        $this->stdoutBuffer = '';
         $this->loopListeners = $this->getDefaultLoopListeners();
 
         parent::__construct('Psy Shell', self::VERSION);
@@ -537,7 +537,7 @@ class Shell extends Application
 
         $code = $this->codeBuffer;
         $code[] = $input;
-        $tokens = @\token_get_all('<?php ' . \implode("\n", $code));
+        $tokens = @\token_get_all('<?php '.\implode("\n", $code));
         $last = \array_pop($tokens);
 
         return $last === '"' || $last === '`' ||
@@ -826,7 +826,7 @@ class Shell extends Application
             }
 
             $this->codeBuffer[] = $silent ? new SilentInput($code) : $code;
-            $this->code         = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
+            $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
         } catch (\Exception $e) {
             // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
@@ -899,7 +899,7 @@ class Shell extends Application
         $command = $this->getCommand($input);
 
         if (empty($command)) {
-            throw new \InvalidArgumentException('Command not found: ' . $input);
+            throw new \InvalidArgumentException('Command not found: '.$input);
         }
 
         $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, " \t\n\r\0\x0B;")));
@@ -923,7 +923,7 @@ class Shell extends Application
     public function resetCodeBuffer()
     {
         $this->codeBuffer = [];
-        $this->code       = false;
+        $this->code = false;
     }
 
     /**
@@ -973,9 +973,9 @@ class Shell extends Application
 
         list($codeBuffer, $codeBufferOpen, $code) = \array_pop($this->codeStack);
 
-        $this->codeBuffer     = $codeBuffer;
+        $this->codeBuffer = $codeBuffer;
         $this->codeBufferOpen = $codeBufferOpen;
-        $this->code           = $code;
+        $this->code = $code;
     }
 
     /**
@@ -1093,7 +1093,7 @@ class Shell extends Application
         } else {
             $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
-            $formatted = static::RETVAL . \str_replace(PHP_EOL, PHP_EOL . $indent, $formatted);
+            $formatted = static::RETVAL.\str_replace(PHP_EOL, PHP_EOL.$indent, $formatted);
         }
 
         $this->output->writeln($formatted);

@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class TimeitCommand extends Command
 {
-    const RESULT_MSG     = '<info>Command took %.6f seconds to complete.</info>';
+    const RESULT_MSG = '<info>Command took %.6f seconds to complete.</info>';
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
     private static $start = null;
@@ -181,7 +181,7 @@ HELP
      */
     private function parse($code)
     {
-        $code = '<?php ' . $code;
+        $code = '<?php '.$code;
 
         try {
             return $this->parser->parse($code);
@@ -191,7 +191,7 @@ HELP
             }
 
             // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code . ';');
+            return $this->parser->parse($code.';');
         }
     }
 }

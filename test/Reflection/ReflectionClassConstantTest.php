@@ -19,7 +19,7 @@ class ReflectionClassConstantTest extends \PHPUnit\Framework\TestCase
 
     public function testConstruction()
     {
-        $refl  = new ReflectionClassConstant($this, 'CONSTANT_ONE');
+        $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
         $class = $refl->getDeclaringClass();
 
         $this->assertInstanceOf(\ReflectionClass::class, $class);

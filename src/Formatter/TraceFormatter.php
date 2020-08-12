@@ -40,7 +40,7 @@ class TraceFormatter
         }
 
         if ($cwd = \getcwd()) {
-            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            $cwd = \rtrim($cwd, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
         }
 
         if ($count === null) {
@@ -68,11 +68,11 @@ class TraceFormatter
         }
 
         for ($i = 0, $count = \min($count, \count($trace)); $i < $count; $i++) {
-            $class    = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
-            $type     = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
+            $class = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
+            $type = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
             $function = $trace[$i]['function'];
-            $file     = isset($trace[$i]['file']) ? self::replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
-            $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
+            $file = isset($trace[$i]['file']) ? self::replaceCwd($cwd, $trace[$i]['file']) : 'n/a';
+            $line = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
             // Leave execution loop out of the `eval()'d code` lines
             if (\preg_match("#/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code$#", \str_replace('\\', '/', $file))) {
@@ -110,7 +110,7 @@ class TraceFormatter
         if ($cwd === false) {
             return $file;
         } else {
-            return \preg_replace('/^' . \preg_quote($cwd, '/') . '/', '', $file);
+            return \preg_replace('/^'.\preg_quote($cwd, '/').'/', '', $file);
         }
     }
 }

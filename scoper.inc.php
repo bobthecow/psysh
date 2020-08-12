@@ -57,7 +57,7 @@ return [
                 '/Hoa\\\\Consistency::registerShutdownFunction\(xcallable\(\'(.*)\'\)\)/',
                 sprintf(
                     'Hoa\\Consistency::registerShutdownFunction(xcallable(\'%s$1\'))',
-                    $prefix . '\\\\\\\\'
+                    $prefix.'\\\\\\\\'
                 ),
                 $contents
             );

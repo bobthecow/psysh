@@ -47,7 +47,7 @@ class ShellOutput extends ConsoleOutput
         } elseif ($pager instanceof OutputPager) {
             $this->pager = $pager;
         } else {
-            throw new \InvalidArgumentException('Unexpected pager parameter: ' . $pager);
+            throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
         }
     }
 
@@ -176,30 +176,30 @@ class ShellOutput extends ConsoleOutput
         $formatter = $this->getFormatter();
 
         $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $formatter->setStyle('error',   new OutputFormatterStyle('white', 'red', ['bold']));
-        $formatter->setStyle('aside',   new OutputFormatterStyle('blue'));
-        $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, ['bold']));
-        $formatter->setStyle('return',  new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('urgent',  new OutputFormatterStyle('red'));
-        $formatter->setStyle('hidden',  new OutputFormatterStyle('black'));
+        $formatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
+        $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('strong', new OutputFormatterStyle(null, null, ['bold']));
+        $formatter->setStyle('return', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('urgent', new OutputFormatterStyle('red'));
+        $formatter->setStyle('hidden', new OutputFormatterStyle('black'));
 
         // Visibility
-        $formatter->setStyle('public',    new OutputFormatterStyle(null, null, ['bold']));
+        $formatter->setStyle('public', new OutputFormatterStyle(null, null, ['bold']));
         $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('private',   new OutputFormatterStyle('red'));
-        $formatter->setStyle('global',    new OutputFormatterStyle('cyan', null, ['bold']));
-        $formatter->setStyle('const',     new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, ['underscore']));
-        $formatter->setStyle('function',  new OutputFormatterStyle(null));
-        $formatter->setStyle('default',   new OutputFormatterStyle(null));
+        $formatter->setStyle('private', new OutputFormatterStyle('red'));
+        $formatter->setStyle('global', new OutputFormatterStyle('cyan', null, ['bold']));
+        $formatter->setStyle('const', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+        $formatter->setStyle('function', new OutputFormatterStyle(null));
+        $formatter->setStyle('default', new OutputFormatterStyle(null));
 
         // Types
-        $formatter->setStyle('number',   new OutputFormatterStyle('magenta'));
-        $formatter->setStyle('string',   new OutputFormatterStyle('green'));
-        $formatter->setStyle('bool',     new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('keyword',  new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('comment',  new OutputFormatterStyle('blue'));
-        $formatter->setStyle('object',   new OutputFormatterStyle('blue'));
+        $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+        $formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $formatter->setStyle('bool', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('comment', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('object', new OutputFormatterStyle('blue'));
         $formatter->setStyle('resource', new OutputFormatterStyle('yellow'));
 
         // Code-specific formatting

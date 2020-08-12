@@ -57,7 +57,7 @@ class VariableEnumerator extends Enumerator
             return [];
         }
 
-        $showAll   = $input->getOption('all');
+        $showAll = $input->getOption('all');
         $variables = $this->prepareVariables($this->getVariables($showAll));
 
         if (empty($variables)) {
@@ -123,7 +123,7 @@ class VariableEnumerator extends Enumerator
         $ret = [];
         foreach ($variables as $name => $val) {
             if ($this->showItem($name)) {
-                $fname = '$' . $name;
+                $fname = '$'.$name;
                 $ret[$fname] = [
                     'name'  => $fname,
                     'style' => \in_array($name, self::$specialNames) ? self::IS_PRIVATE : self::IS_PUBLIC,

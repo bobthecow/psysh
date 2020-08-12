@@ -47,7 +47,7 @@ abstract class Command extends BaseCommand
     {
         $messages = [
             '<comment>Usage:</comment>',
-            ' ' . $this->getSynopsis(),
+            ' '.$this->getSynopsis(),
             '',
         ];
 
@@ -65,7 +65,7 @@ abstract class Command extends BaseCommand
 
         if ($help = $this->getProcessedHelp()) {
             $messages[] = '<comment>Help:</comment>';
-            $messages[] = ' ' . \str_replace("\n", "\n ", $help) . "\n";
+            $messages[] = ' '.\str_replace("\n", "\n ", $help)."\n";
         }
 
         return \implode("\n", $messages);
@@ -122,7 +122,7 @@ abstract class Command extends BaseCommand
      */
     private function aliasesAsText()
     {
-        return '<comment>Aliases:</comment> <info>' . \implode(', ', $this->getAliases()) . '</info>' . PHP_EOL;
+        return '<comment>Aliases:</comment> <info>'.\implode(', ', $this->getAliases()).'</info>'.PHP_EOL;
     }
 
     /**
@@ -145,7 +145,7 @@ abstract class Command extends BaseCommand
                     $default = '';
                 }
 
-                $description = \str_replace("\n", "\n" . \str_pad('', $max + 2, ' '), $argument->getDescription());
+                $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $argument->getDescription());
 
                 $messages[] = \sprintf(" <info>%-${max}s</info> %s%s", $argument->getName(), $description, $default);
             }
@@ -178,12 +178,12 @@ abstract class Command extends BaseCommand
                 }
 
                 $multiple = $option->isArray() ? '<comment> (multiple values allowed)</comment>' : '';
-                $description = \str_replace("\n", "\n" . \str_pad('', $max + 2, ' '), $option->getDescription());
+                $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $option->getDescription());
 
                 $optionMax = $max - \strlen($option->getName()) - 2;
                 $messages[] = \sprintf(
                     " <info>%s</info> %-${optionMax}s%s%s%s",
-                    '--' . $option->getName(),
+                    '--'.$option->getName(),
                     $option->getShortcut() ? \sprintf('(-%s) ', $option->getShortcut()) : '',
                     $description,
                     $default,

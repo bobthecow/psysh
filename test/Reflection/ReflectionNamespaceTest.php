@@ -17,7 +17,7 @@ class ReflectionNamespaceTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstruction()
     {
-        $refl  = new ReflectionNamespace('Psy\\Test\\Reflection');
+        $refl = new ReflectionNamespace('Psy\\Test\\Reflection');
 
         $this->assertEquals('Psy\\Test\\Reflection', $refl->getName());
         $this->assertEquals('Psy\\Test\\Reflection', (string) $refl);

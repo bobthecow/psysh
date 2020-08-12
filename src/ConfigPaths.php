@@ -152,29 +152,29 @@ class ConfigPaths
 
         \restore_error_handler();
 
-        return \strtr($runtimeDir, '\\', '/') . '/psysh';
+        return \strtr($runtimeDir, '\\', '/').'/psysh';
     }
 
     private static function getDirNames(array $baseDirs)
     {
         $dirs = \array_map(function ($dir) {
-            return \strtr($dir, '\\', '/') . '/psysh';
+            return \strtr($dir, '\\', '/').'/psysh';
         }, $baseDirs);
 
         // Add ~/.psysh
         if (isset($_SERVER['HOME']) && $_SERVER['HOME']) {
-            $dirs[] = \strtr($_SERVER['HOME'], '\\', '/') . '/.psysh';
+            $dirs[] = \strtr($_SERVER['HOME'], '\\', '/').'/.psysh';
         }
 
         // Add some Windows specific ones :)
         if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
             if (isset($_SERVER['APPDATA']) && $_SERVER['APPDATA']) {
                 // AppData gets preference
-                \array_unshift($dirs, \strtr($_SERVER['APPDATA'], '\\', '/') . '/PsySH');
+                \array_unshift($dirs, \strtr($_SERVER['APPDATA'], '\\', '/').'/PsySH');
             }
 
             if (isset($_SERVER['HOMEDRIVE']) && isset($_SERVER['HOMEPATH'])) {
-                $dir = \strtr($_SERVER['HOMEDRIVE'] . '/' . $_SERVER['HOMEPATH'], '\\', '/') . '/.psysh';
+                $dir = \strtr($_SERVER['HOMEDRIVE'].'/'.$_SERVER['HOMEPATH'], '\\', '/').'/.psysh';
                 if (!\in_array($dir, $dirs)) {
                     $dirs[] = $dir;
                 }
@@ -189,7 +189,7 @@ class ConfigPaths
         $files = [];
         foreach ($dirNames as $dir) {
             foreach ($fileNames as $name) {
-                $file = $dir . '/' . $name;
+                $file = $dir.'/'.$name;
                 if (@\is_file($file)) {
                     $files[] = $file;
                 }

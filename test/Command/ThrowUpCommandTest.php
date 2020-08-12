@@ -43,23 +43,23 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
         $throw = 'throw \Psy\Exception\ThrowUpException::fromThrowable';
 
         return [
-            [[], false, $throw . '($_e);'],
+            [[], false, $throw.'($_e);'],
 
-            [['exception' => '$ex'], false, $throw . '($ex);'],
-            [['exception' => 'getException()'], false, $throw . '(getException());'],
-            [['exception' => 'new \\Exception("WAT")'], false, $throw . '(new \\Exception("WAT"));'],
+            [['exception' => '$ex'], false, $throw.'($ex);'],
+            [['exception' => 'getException()'], false, $throw.'(getException());'],
+            [['exception' => 'new \\Exception("WAT")'], false, $throw.'(new \\Exception("WAT"));'],
 
-            [['exception' => '\'some string\''], false, $throw . '(new \\Exception(\'some string\'));'],
-            [['exception' => '"WHEEEEEEE!"'], false, $throw . '(new \\Exception("WHEEEEEEE!"));'],
+            [['exception' => '\'some string\''], false, $throw.'(new \\Exception(\'some string\'));'],
+            [['exception' => '"WHEEEEEEE!"'], false, $throw.'(new \\Exception("WHEEEEEEE!"));'],
 
             // Everything should work with or without semicolons.
-            [['exception' => '$ex;'], false, $throw . '($ex);'],
-            [['exception' => '"WHEEEEEEE!";'], false, $throw . '(new \\Exception("WHEEEEEEE!"));'],
+            [['exception' => '$ex;'], false, $throw.'($ex);'],
+            [['exception' => '"WHEEEEEEE!";'], false, $throw.'(new \\Exception("WHEEEEEEE!"));'],
 
             // Don't add as silent code if we've already got code.
-            [[], true, $throw . '($_e);', false],
-            [['exception' => 'getException()'], true, $throw . '(getException());', false],
-            [['exception' => '\'some string\''], true, $throw . '(new \\Exception(\'some string\'));', false],
+            [[], true, $throw.'($_e);', false],
+            [['exception' => 'getException()'], true, $throw.'(getException());', false],
+            [['exception' => '\'some string\''], true, $throw.'(new \\Exception(\'some string\'));', false],
         ];
     }
 

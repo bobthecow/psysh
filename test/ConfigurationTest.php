@@ -27,7 +27,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     private function getConfig($configFile = null)
     {
         return new Configuration([
-            'configFile' => $configFile ?: __DIR__ . '/fixtures/empty.php',
+            'configFile' => $configFile ?: __DIR__.'/fixtures/empty.php',
         ]);
     }
 
@@ -67,8 +67,8 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         \putenv("HOME=$home");
 
         $config = new Configuration();
-        $this->assertSame(\realpath($configFile),   \realpath($config->getConfigFile()));
-        $this->assertSame(\realpath($historyFile),  \realpath($config->getHistoryFile()));
+        $this->assertSame(\realpath($configFile), \realpath($config->getConfigFile()));
+        $this->assertSame(\realpath($historyFile), \realpath($config->getHistoryFile()));
         $this->assertSame(\realpath($manualDbFile), \realpath($config->getManualDbFile()));
 
         $_SERVER['HOME'] = $oldHome;
@@ -77,25 +77,25 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function directories()
     {
-        $base = \realpath(__DIR__ . '/fixtures');
+        $base = \realpath(__DIR__.'/fixtures');
 
         return [
             [
-                $base . '/default',
-                $base . '/default/.config/psysh/config.php',
-                $base . '/default/.config/psysh/psysh_history',
-                $base . '/default/.local/share/psysh/php_manual.sqlite',
+                $base.'/default',
+                $base.'/default/.config/psysh/config.php',
+                $base.'/default/.config/psysh/psysh_history',
+                $base.'/default/.local/share/psysh/php_manual.sqlite',
             ],
             [
-                $base . '/legacy',
-                $base . '/legacy/.psysh/rc.php',
-                $base . '/legacy/.psysh/history',
-                $base . '/legacy/.psysh/php_manual.sqlite',
+                $base.'/legacy',
+                $base.'/legacy/.psysh/rc.php',
+                $base.'/legacy/.psysh/history',
+                $base.'/legacy/.psysh/php_manual.sqlite',
             ],
             [
-                $base . '/mixed',
-                $base . '/mixed/.psysh/config.php',
-                $base . '/mixed/.psysh/psysh_history',
+                $base.'/mixed',
+                $base.'/mixed/.psysh/config.php',
+                $base.'/mixed/.psysh/psysh_history',
                 null,
             ],
         ];
@@ -103,9 +103,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadConfig()
     {
-        $config  = $this->getConfig();
+        $config = $this->getConfig();
         $cleaner = new CodeCleaner();
-        $pager   = new PassthruPager(new ConsoleOutput());
+        $pager = new PassthruPager(new ConsoleOutput());
 
         $config->loadConfig([
             'useReadline'       => false,
@@ -130,7 +130,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function testLoadConfigFile()
     {
-        $config = $this->getConfig(__DIR__ . '/fixtures/config.php');
+        $config = $this->getConfig(__DIR__.'/fixtures/config.php');
 
         $runtimeDir = $this->joinPath(\realpath(\sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
 
@@ -146,7 +146,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     public function testLoadLocalConfigFile()
     {
         $oldPwd = \getcwd();
-        \chdir(\realpath(__DIR__ . '/fixtures/project/'));
+        \chdir(\realpath(__DIR__.'/fixtures/project/'));
 
         $config = new Configuration();
 
@@ -154,7 +154,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($config->requireSemicolons());
         $this->assertFalse($config->useUnicode());
 
-        $config = new Configuration(['configFile' => __DIR__ . '/fixtures/config.php']);
+        $config = new Configuration(['configFile' => __DIR__.'/fixtures/config.php']);
 
         // Defining a configuration file skips loading local project config
         $this->assertFalse($config->requireSemicolons());
@@ -169,7 +169,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
      */
     public function testUnknownConfigFileThrowsException()
     {
-        $config = new Configuration(['configFile' => __DIR__ . '/not/a/real/config.php']);
+        $config = new Configuration(['configFile' => __DIR__.'/not/a/real/config.php']);
         $this->assertFalse(true);
     }
 
@@ -190,7 +190,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     {
         $config = new Configuration([
             'defaultIncludes' => ['/file.php'],
-            'configFile'      => __DIR__ . '/fixtures/empty.php',
+            'configFile'      => __DIR__.'/fixtures/empty.php',
         ]);
 
         $includes = $config->getDefaultIncludes();
@@ -376,7 +376,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
 
     public function testSetCheckerValid()
     {
-        $config  = $this->getConfig();
+        $config = $this->getConfig();
         $checker = new GitHubChecker();
 
         $config->setChecker($checker);
@@ -564,7 +564,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($rawOutput, $config->rawOutput());
 
         if ($skipUnbound) {
-            $this->markTestSkipped($inputString . ' fails with unbound input');
+            $this->markTestSkipped($inputString.' fails with unbound input');
         }
 
         $input = $this->getUnboundStringInput($inputString);
@@ -610,9 +610,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     private function getUnboundStringInput($string, $configFile = null)
     {
         if ($configFile === null) {
-            $configFile = __DIR__ . '/fixtures/empty.php';
+            $configFile = __DIR__.'/fixtures/empty.php';
         }
 
-        return new StringInput($string . ' --config ' . \escapeshellarg($configFile));
+        return new StringInput($string.' --config '.\escapeshellarg($configFile));
     }
 }

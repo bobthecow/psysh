@@ -39,7 +39,7 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
     public function testErrorLevels($level, $type)
     {
         $e = new ErrorException('foo', 0, $level);
-        $this->assertContains('PHP ' . $type, $e->getMessage());
+        $this->assertContains('PHP '.$type, $e->getMessage());
     }
 
     /**
@@ -50,7 +50,7 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
         try {
             ErrorException::throwException($level, '{whot}', '{file}', '13');
         } catch (ErrorException $e) {
-            $this->assertContains('PHP ' . $type, $e->getMessage());
+            $this->assertContains('PHP '.$type, $e->getMessage());
             $this->assertContains('{whot}', $e->getMessage());
             $this->assertContains('in {file}', $e->getMessage());
             $this->assertContains('on line 13', $e->getMessage());
@@ -81,7 +81,7 @@ class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
         try {
             \trigger_error('{whot}', $level);
         } catch (ErrorException $e) {
-            $this->assertContains('PHP ' . $type, $e->getMessage());
+            $this->assertContains('PHP '.$type, $e->getMessage());
             $this->assertContains('{whot}', $e->getMessage());
         }
         \restore_error_handler();

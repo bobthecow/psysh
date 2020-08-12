@@ -78,7 +78,7 @@ class GlobalVariableEnumerator extends Enumerator
 
         foreach ($globals as $name => $value) {
             if ($this->showItem($name)) {
-                $fname = '$' . $name;
+                $fname = '$'.$name;
                 $ret[$fname] = [
                     'name'  => $fname,
                     'style' => self::IS_GLOBAL,

@@ -54,7 +54,7 @@ class WtfCommand extends TraceCommand implements ContextAware
             ->setAliases(['last-exception', 'wtf?'])
             ->setDefinition([
                 new InputArgument('incredulity', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Number of lines to show.'),
-                new InputOption('all', 'a',  InputOption::VALUE_NONE, 'Show entire backtrace.'),
+                new InputOption('all', 'a', InputOption::VALUE_NONE, 'Show entire backtrace.'),
 
                 $grep,
                 $insensitive,
@@ -92,7 +92,7 @@ HELP
         }
 
         $exception = $this->context->getLastException();
-        $count     = $input->getOption('all') ? PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
+        $count = $input->getOption('all') ? PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
         $shell = $this->getApplication();
 
@@ -102,13 +102,13 @@ HELP
 
         do {
             $traceCount = \count($exception->getTrace());
-            $showLines  = $count;
+            $showLines = $count;
             // Show the whole trace if we'd only be hiding a few lines
             if ($traceCount < \max($count * 1.2, $count + 2)) {
                 $showLines = PHP_INT_MAX;
             }
 
-            $trace     = $this->getBacktrace($exception, $showLines);
+            $trace = $this->getBacktrace($exception, $showLines);
             $moreLines = $traceCount - \count($trace);
 
             $output->writeln($shell->formatException($exception));

@@ -15,7 +15,7 @@ use Psy\Command\ListCommand\FunctionEnumerator;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Reflection\ReflectionNamespace;
 
-require_once __DIR__ . '/Fixtures/functions.php';
+require_once __DIR__.'/Fixtures/functions.php';
 
 class FunctionEnumeratorTest extends EnumeratorTestCase
 {

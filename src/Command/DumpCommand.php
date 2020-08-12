@@ -69,7 +69,7 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $depth  = $input->getOption('depth');
+        $depth = $input->getOption('depth');
         $target = $this->resolveCode($input->getArgument('target'));
         $output->page($this->presenter->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
 

@@ -132,11 +132,11 @@ HELP
                 break;
 
             case \ReflectionMethod::class:
-                $id = $reflector->class . '::' . $reflector->name;
+                $id = $reflector->class.'::'.$reflector->name;
                 break;
 
             case \ReflectionProperty::class:
-                $id = $reflector->class . '::$' . $reflector->name;
+                $id = $reflector->class.'::$'.$reflector->name;
                 break;
 
             case \ReflectionClassConstant::class:
@@ -144,7 +144,7 @@ HELP
                 // @todo this is going to collide with ReflectionMethod ids
                 // someday... start running the query by id + type if the DB
                 // supports it.
-                $id = $reflector->class . '::' . $reflector->name;
+                $id = $reflector->class.'::'.$reflector->name;
                 break;
 
             case ReflectionConstant_::class:

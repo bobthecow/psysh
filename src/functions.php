@@ -125,7 +125,7 @@ if (!\function_exists('Psy\\info')) {
 
         $xdg = new Xdg();
         $home = \rtrim(\str_replace('\\', '/', $xdg->getHomeDir()), '/');
-        $homePattern = '#^' . \preg_quote($home, '#') . '/#';
+        $homePattern = '#^'.\preg_quote($home, '#').'/#';
 
         $prettyPath = function ($path) use ($homePattern) {
             if (\is_string($path)) {
@@ -240,11 +240,11 @@ if (!\function_exists('Psy\\info')) {
                     foreach ($meta as $key => $val) {
                         switch ($key) {
                             case 'built_at':
-                                $d = new \DateTime('@' . $val);
+                                $d = new \DateTime('@'.$val);
                                 $val = $d->format(\DateTime::RFC2822);
                                 break;
                         }
-                        $key = 'db ' . \str_replace('_', ' ', $key);
+                        $key = 'db '.\str_replace('_', ' ', $key);
                         $docs[$key] = $val;
                     }
                 } else {
@@ -267,7 +267,7 @@ if (!\function_exists('Psy\\info')) {
         // Shenanigans, but totally justified.
         if ($shell = Sudo::fetchProperty($config, 'shell')) {
             $core['loop listeners'] = \array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
-            $core['commands']       = \array_map('get_class', $shell->all());
+            $core['commands'] = \array_map('get_class', $shell->all());
 
             $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
         }
@@ -289,32 +289,32 @@ if (!\function_exists('Psy\\bin')) {
         return function () {
             if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {
                 if (defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
-                    fwrite(STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    fwrite(STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
                     exit(1);
                 }
 
                 if (defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID > 39999) {
-                    fwrite(STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    fwrite(STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
                     exit(1);
                 }
 
                 if (\PHP_VERSION_ID < 50509) {
-                    fwrite(STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    fwrite(STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
                     exit(1);
                 }
 
                 if (\PHP_VERSION_ID > 89999) {
-                    fwrite(STDERR, 'PHP 9 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    fwrite(STDERR, 'PHP 9 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
                     exit(1);
                 }
 
                 if (!function_exists('json_encode')) {
-                    fwrite(STDERR, 'The JSON extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    fwrite(STDERR, 'The JSON extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
                     exit(1);
                 }
 
                 if (!function_exists('token_get_all')) {
-                    fwrite(STDERR, 'The Tokenizer extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.' . PHP_EOL);
+                    fwrite(STDERR, 'The Tokenizer extension is required. Please install it. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.PHP_EOL);
                     exit(1);
                 }
             }
@@ -324,7 +324,7 @@ if (!\function_exists('Psy\\bin')) {
             $input = new ArgvInput();
             try {
                 $input->bind(new InputDefinition(\array_merge(Configuration::getInputOptions(), [
-                    new InputOption('help',    'h', InputOption::VALUE_NONE),
+                    new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
@@ -342,12 +342,12 @@ if (!\function_exists('Psy\\bin')) {
             // Handle --help
             if ($usageException !== null || $input->getOption('help')) {
                 if ($usageException !== null) {
-                    echo $usageException->getMessage() . PHP_EOL . PHP_EOL;
+                    echo $usageException->getMessage().PHP_EOL.PHP_EOL;
                 }
 
                 $version = Shell::getVersionHeader(false);
-                $argv    = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
-                $name    = $argv ? \basename(\reset($argv)) : 'psysh';
+                $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
+                $name = $argv ? \basename(\reset($argv)) : 'psysh';
 
                 echo <<<EOL
 $version
@@ -374,7 +374,7 @@ EOL;
 
             // Handle --version
             if ($input->getOption('version')) {
-                echo Shell::getVersionHeader($config->useUnicode()) . PHP_EOL;
+                echo Shell::getVersionHeader($config->useUnicode()).PHP_EOL;
                 exit(0);
             }
 
@@ -387,7 +387,7 @@ EOL;
                 // And go!
                 $shell->run();
             } catch (\Exception $e) {
-                fwrite(STDERR, $e->getMessage() . PHP_EOL);
+                fwrite(STDERR, $e->getMessage().PHP_EOL);
 
                 // @todo this triggers the "exited unexpectedly" logic in the
                 // ForkingLoop, so we can't exit(1) after starting the shell...

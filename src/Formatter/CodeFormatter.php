@@ -19,20 +19,20 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class CodeFormatter implements ReflectorFormatter
 {
-    const LINE_MARKER    = '  <urgent>></urgent> ';
+    const LINE_MARKER = '  <urgent>></urgent> ';
     const NO_LINE_MARKER = '    ';
 
-    const HIGHLIGHT_DEFAULT     = 'default';
-    const HIGHLIGHT_KEYWORD     = 'keyword';
+    const HIGHLIGHT_DEFAULT = 'default';
+    const HIGHLIGHT_KEYWORD = 'keyword';
 
-    const HIGHLIGHT_PUBLIC      = 'public';
-    const HIGHLIGHT_PROTECTED   = 'protected';
-    const HIGHLIGHT_PRIVATE     = 'private';
+    const HIGHLIGHT_PUBLIC = 'public';
+    const HIGHLIGHT_PROTECTED = 'protected';
+    const HIGHLIGHT_PRIVATE = 'private';
 
-    const HIGHLIGHT_CONST       = 'const';
-    const HIGHLIGHT_NUMBER      = 'number';
-    const HIGHLIGHT_STRING      = 'string';
-    const HIGHLIGHT_COMMENT     = 'comment';
+    const HIGHLIGHT_CONST = 'const';
+    const HIGHLIGHT_NUMBER = 'number';
+    const HIGHLIGHT_STRING = 'string';
+    const HIGHLIGHT_COMMENT = 'comment';
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
     private static $tokenMap = [
@@ -151,7 +151,7 @@ class CodeFormatter implements ReflectorFormatter
     private static function tokenizeSpans($code)
     {
         $spanType = null;
-        $buffer   = '';
+        $buffer = '';
 
         foreach (\token_get_all($code) as $token) {
             $nextType = self::nextHighlightType($token, $spanType);
@@ -160,7 +160,7 @@ class CodeFormatter implements ReflectorFormatter
             if ($spanType !== $nextType) {
                 yield [$spanType, $buffer];
                 $spanType = $nextType;
-                $buffer   = '';
+                $buffer = '';
             }
 
             $buffer .= \is_array($token) ? $token[1] : $token;
@@ -212,7 +212,7 @@ class CodeFormatter implements ReflectorFormatter
     private static function splitLines(\Generator $spans, $startLine = 1, $endLine = null)
     {
         $lineNum = 1;
-        $buffer  = [];
+        $buffer = [];
 
         foreach ($spans as list($spanType, $spanText)) {
             foreach (\preg_split('/(\r\n?|\n)/', $spanText) as $index => $spanLine) {
@@ -260,7 +260,7 @@ class CodeFormatter implements ReflectorFormatter
                 }
             }
 
-            yield $lineNum => $line . \PHP_EOL;
+            yield $lineNum => $line.\PHP_EOL;
         }
     }
 
