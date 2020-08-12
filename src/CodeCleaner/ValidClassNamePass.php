@@ -56,9 +56,10 @@ class ValidClassNamePass extends NamespaceAwarePass
 
         if (self::isConditional($node)) {
             $this->conditionalScopes++;
-        } else {
-            // @todo add an "else" here which adds a runtime check for instances where we can't tell
-            // whether a class is being redefined by static analysis alone.
+
+            return;
+        }
+
             if ($this->conditionalScopes === 0) {
                 if ($node instanceof Class_) {
                     $this->validateClassStatement($node);
@@ -69,7 +70,6 @@ class ValidClassNamePass extends NamespaceAwarePass
                 }
             }
         }
-    }
 
     /**
      * Validate `new` expressions, class constant fetches, and static calls.
@@ -86,7 +86,11 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         if (self::isConditional($node)) {
             $this->conditionalScopes--;
-        } elseif ($node instanceof New_) {
+
+            return;
+        }
+
+        if ($node instanceof New_) {
             $this->validateNewExpression($node);
         } elseif ($node instanceof ClassConstFetch) {
             $this->validateClassConstFetchExpression($node);
