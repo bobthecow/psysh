@@ -55,7 +55,8 @@ class VariableEnumeratorTest extends EnumeratorTestCase
         $context->setAll([
             'one'   => 1,
             'two'   => 'two',
-            'three' => [true, false, null],
+            // @todo: uncomment when symfony/symfony#37674 fix lands
+            // 'three' => [true, false, null],
         ]);
 
         $enumerator = new VariableEnumerator($this->getPresenter(), $context);
@@ -76,11 +77,12 @@ class VariableEnumeratorTest extends EnumeratorTestCase
                 'style' => 'public',
                 'value' => '"\<string>two\</string>"',
             ],
-            '$three' => [
-                'name'  => '$three',
-                'style' => 'public',
-                'value' => '[ …3]',
-            ],
+            // @todo: uncomment when symfony/symfony#37674 fix lands
+            // '$three' => [
+            //     'name'  => '$three',
+            //     'style' => 'public',
+            //     'value' => '[ …3]',
+            // ],
         ], $vars);
     }
 
@@ -90,7 +92,8 @@ class VariableEnumeratorTest extends EnumeratorTestCase
         $context->setAll([
             'one'   => 1,
             'two'   => 'two',
-            'three' => [true, false, null],
+            // @todo: uncomment when symfony/symfony#37674 fix lands
+            // 'three' => [true, false, null],
         ]);
 
         $exception = new \Exception('Wheeeee');
@@ -116,11 +119,12 @@ class VariableEnumeratorTest extends EnumeratorTestCase
                 'style' => 'public',
                 'value' => '"\<string>two\</string>"',
             ],
-            '$three' => [
-                'name'  => '$three',
-                'style' => 'public',
-                'value' => '[ …3]',
-            ],
+            // @todo: uncomment when symfony/symfony#37674 fix lands
+            // '$three' => [
+            //     'name'  => '$three',
+            //     'style' => 'public',
+            //     'value' => '[ …3]',
+            // ],
             '$_' => [
                 'name'  => '$_',
                 'style' => 'private',
