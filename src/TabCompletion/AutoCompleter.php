@@ -162,6 +162,9 @@ class AutoCompleter
                 $tokens[] = '';
                 break;
             case AbstractMatcher::tokenIs($token, AbstractMatcher::T_VARIABLE):
+            case $token === '$':
+                // We allow a special case for '$', which for completion
+                // purposes we will treat the same way as T_VARIABLE.
                 $tokens[] = $token;
                 break;
             case !AbstractMatcher::tokenIsValidIdentifier($token):

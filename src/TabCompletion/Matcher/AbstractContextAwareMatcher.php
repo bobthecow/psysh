@@ -56,10 +56,24 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
     /**
      * Get all variables in the current Context.
      *
+     * @param bool $dollarPrefix
+     *   Whether to prefix '$' to each variable name.
+     *
      * @return array
      */
-    protected function getVariables()
+    protected function getVariables($dollarPrefix = false)
     {
-        return $this->context->getAll();
+        $variables = $this->context->getAll();
+        if (!$dollarPrefix) {
+            return $variables;
+        }
+        else {
+            // Add '$' prefix to each name.
+            $newvars = [];
+            foreach ($variables as $name => $value) {
+                $newvars['$'.$name] = $value;
+            }
+            return $newvars;
+        }
     }
 }

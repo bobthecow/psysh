@@ -23,16 +23,40 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     /**
      * {@inheritdoc}
      */
+    protected function getInput(array $tokens, array $t_valid = null)
+    {
+        return parent::getInput($tokens, [self::T_VARIABLE, '$', '']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getMatches(array $tokens, array $info = [])
     {
-        $input = \str_replace('$', '', $this->getInput($tokens));
+        $input = $this->getInput($tokens);
         if ($input === false) {
             return [];
         }
 
-        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($input) {
-            return AbstractMatcher::startsWith($input, $variable);
-        });
+        // '$' is a readline completion word-break character (refer to
+        // AutoCompleter::WORD_BREAK_CHARS), and so the completion
+        // candidates we generate must not include the leading '$' --
+        // *unless* we are completing an empty string, in which case
+        // the '$' is required.
+        if ($input === '') {
+            $dollarPrefix = true;
+        }
+        else {
+            $dollarPrefix = false;
+            $input = \str_replace('$', '', $input);
+        }
+
+        return \array_filter(
+            \array_keys($this->getVariables($dollarPrefix)),
+            function ($variable) use ($input) {
+                return AbstractMatcher::startsWith($input, $variable);
+            }
+        );
     }
 
     /**
