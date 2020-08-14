@@ -65,7 +65,8 @@ class ClassNamesMatcher extends AbstractMatcher
             case $token === '$':
                 return false;
             // Previous token.
-            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $prevToken):
+            case self::tokenIsExpressionDelimiter($prevToken):
+            case self::hasToken([self::T_NEW, self::T_NS_SEPARATOR], $prevToken):
                 return self::tokenIsValidIdentifier($token, true);
             // Current token (whitelist).
             case self::tokenIsValidIdentifier($token, true):

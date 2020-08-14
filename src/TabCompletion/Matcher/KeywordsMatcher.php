@@ -76,7 +76,7 @@ class KeywordsMatcher extends AbstractMatcher
 
         switch (true) {
             // Previous token.
-            case self::tokenIs($prevToken, self::T_OPEN_TAG):
+            case self::tokenIsExpressionDelimiter($prevToken):
                 return self::tokenIsValidIdentifier($token, true);
             // Current token (whitelist).
             case self::tokenIsValidIdentifier($token, true):

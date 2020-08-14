@@ -201,6 +201,21 @@ abstract class AbstractMatcher
     }
 
     /**
+     * Check whether $token 'separates' PHP expressions, meaning that
+     * whatever follows is a new expression.
+     *
+     * Separators include the initial T_OPEN_TAG token, and ";".
+     *
+     * @param mixed $token A PHP token (see token_get_all)
+     *
+     * @return bool
+     */
+    public static function tokenIsExpressionDelimiter($token)
+    {
+        return $token === ';' || self::tokenIs($token, self::T_OPEN_TAG);
+    }
+
+    /**
      * Used both to test $tokens[1] (i.e. following T_OPEN_TAG) to
      * see whether it's a PsySH introspection command, and also by
      * self::getNamespaceAndClass() to prevent these commands from
