@@ -62,13 +62,16 @@ class RequirePass extends CodeCleanerPass
      *
      * If $file can be resolved, return $file. Otherwise throw a fatal error exception.
      *
+     * If $file collides with a path in the currently running PsySH phar, it will be resolved
+     * relative to the include path, to prevent PHP from grabbing the phar version of the file.
+     *
      * @throws FatalErrorException when unable to resolve include path for $file
      * @throws ErrorException      if $file is empty and E_WARNING is included in error_reporting level
      *
      * @param string $file
      * @param int    $lineNumber Line number of the original require expression
      *
-     * @return string Exactly the same as $file
+     * @return string Exactly the same as $file, unless $file collides with a path in the currently running phar
      */
     public static function resolve($file, $lineNumber = null)
     {
@@ -85,9 +88,28 @@ class RequirePass extends CodeCleanerPass
             // trigger_error('Filename cannot be empty', E_USER_WARNING);
         }
 
-        if ($file === '' || !\stream_resolve_include_path($file)) {
+        $resolvedPath = \stream_resolve_include_path($file);
+        if ($file === '' || !$resolvedPath) {
             $msg = \sprintf("Failed opening required '%s'", $file);
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $lineNumber);
+        }
+
+        // Special case: if the path is not already relative or absolute, and it would resolve to
+        // something inside the currently running phar (e.g. `vendor/autoload.php`), we'll resolve
+        // it relative to the include path so PHP won't grab the phar version.
+        //
+        // Note that this only works if the phar has `psysh` in the path. We might want to lift this
+        // restriction and special case paths that would collide with any running phar?
+        if ($resolvedPath !== $file && $file[0] !== '.') {
+            $runningPhar = \Phar::running();
+            if (\strpos($runningPhar, 'psysh') !== false && \is_file($runningPhar.\DIRECTORY_SEPARATOR.$file)) {
+                foreach (self::getIncludePath() as $prefix) {
+                    $resolvedPath = $prefix.\DIRECTORY_SEPARATOR.$file;
+                    if (\is_file($resolvedPath)) {
+                        return $resolvedPath;
+                    }
+                }
+            }
         }
 
         return $file;
@@ -96,5 +118,14 @@ class RequirePass extends CodeCleanerPass
     private function isRequireNode(Node $node)
     {
         return $node instanceof Include_ && \in_array($node->type, self::$requireTypes);
+    }
+
+    private static function getIncludePath()
+    {
+        if (\PATH_SEPARATOR === ':') {
+            return \preg_split('#:(?!//)#', \get_include_path());
+        }
+
+        return \explode(\PATH_SEPARATOR, \get_include_path());
     }
 }
