@@ -13,7 +13,6 @@ namespace Psy\Command;
 
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -55,7 +54,7 @@ HELP
         $completions = $this->getApplication()->getTabCompletions($target);
 
         // Ouput the completion candidates as newline-separated text.
-        $str = implode("\n", array_filter($completions))."\n";
+        $str = \implode("\n", \array_filter($completions))."\n";
         $output->write($str, false, OutputInterface::OUTPUT_RAW);
 
         return 0;
