@@ -79,7 +79,7 @@ class VariablesMatcher extends AbstractContextAwareMatcher
                 return false;
             // Current token (whitelist).
             case self::tokenIs($token, self::T_VARIABLE):
-            case in_array($token, ['', '$'], true):
+            case \in_array($token, ['', '$'], true):
                 return true;
         }
 

@@ -45,11 +45,15 @@ abstract class AbstractMatcher
     /**
      * Check whether this matcher can provide completions for $tokens.
      *
-     * @param array $tokens Tokenized readline input, with whitespace
-     *   tokens removed.  The final token is the identifier prefix to
-     *   be completed (if the input did not end in a valid identifier
-     *   prefix then the final token will be an empty string).  Refer
-     *   to AutoCompleter::processCallback() for details.
+     * The final token is the 'word' to be completed.  If the input
+     * did not end in a valid identifier prefix then the final token
+     * will be an empty string.
+     *
+     * All whitespace tokens have been removed from the $tokens array.
+     *
+     * @see AutoCompleter::processCallback().
+     *
+     * @param array $tokens Tokenized readline input.
      *
      * @return bool
      */
