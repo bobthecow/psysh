@@ -181,8 +181,7 @@ abstract class AbstractMatcher
     {
         if (\is_array($token)) {
             return \token_name($token[0]) === $which;
-        }
-        else {
+        } else {
             return $token === $which;
         }
     }
@@ -260,8 +259,7 @@ abstract class AbstractMatcher
     {
         if (\is_array($token)) {
             return \in_array(\token_name($token[0]), $coll);
-        }
-        else {
+        } else {
             return \in_array($token, $coll, true);
         }
     }
