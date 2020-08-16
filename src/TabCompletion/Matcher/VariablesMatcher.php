@@ -45,8 +45,7 @@ class VariablesMatcher extends AbstractContextAwareMatcher
         // the '$' is required.
         if ($input === '') {
             $dollarPrefix = true;
-        }
-        else {
+        } else {
             $dollarPrefix = false;
             $input = \str_replace('$', '', $input);
         }

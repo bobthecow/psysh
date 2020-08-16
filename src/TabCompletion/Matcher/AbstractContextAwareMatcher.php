@@ -56,8 +56,9 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
     /**
      * Get all variables in the current Context.
      *
-     * @param bool $dollarPrefix
-     *   Whether to prefix '$' to each variable name.
+     * The '$' prefix for each variable name is not included by default.
+     *
+     * @param bool $dollarPrefix Whether to prefix '$' to each name.
      *
      * @return array
      */
@@ -66,8 +67,7 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
         $variables = $this->context->getAll();
         if (!$dollarPrefix) {
             return $variables;
-        }
-        else {
+        } else {
             // Add '$' prefix to each name.
             $newvars = [];
             foreach ($variables as $name => $value) {
