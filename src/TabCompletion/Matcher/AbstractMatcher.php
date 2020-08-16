@@ -59,25 +59,31 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Get current readline input word.
+     * Get the input word to be completed, based on the tokenised input.
      *
-     * @param array $tokens Tokenized readline input (see token_get_all)
-     * @param array|null $t_valid Acceptable tokens.  If null then strings
-     *   which are valid identifiers (or empty) are considered valid.
+     * Note that this may not be identical to the word which readline needs to
+     * complete (see AutoCompleter::WORD_BREAK_CHARS), and so Matchers must
+     * take care to return candidate values that match what readline wants.
+     *
+     * We return the string value of the final token if it is valid, and false
+     * if that token is invalid.  By default, the token is valid if it is
+     * valid prefix (including '') for a PHP identifier.
+     *
+     * @param array      $tokens      Tokenized readline input (see token_get_all).
+     * @param array|null $validTokens Acceptable tokens.
      *
      * @return string|bool
      */
-    protected function getInput(array $tokens, array $t_valid = null)
+    protected function getInput(array $tokens, array $validTokens = null)
     {
         $token = \array_pop($tokens);
         $input = \is_array($token) ? $token[1] : $token;
 
-        if (isset($t_valid)) {
-            if (self::hasToken($t_valid, $token)) {
+        if (isset($validTokens)) {
+            if (self::hasToken($validTokens, $token)) {
                 return $input;
             }
-        }
-        elseif (self::tokenIsValidIdentifier($token, true)) {
+        } elseif (self::tokenIsValidIdentifier($token, true)) {
             return $input;
         }
 
