@@ -263,6 +263,7 @@ abstract class AbstractMatcher
             'throw-up',
             'timeit',
         ];
+
         return \in_array($token[1], $commands);
     }
 
