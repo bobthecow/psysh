@@ -53,7 +53,7 @@ abstract class AbstractMatcher
      *
      * @see AutoCompleter::processCallback().
      *
-     * @param array $tokens Tokenized readline input.
+     * @param array $tokens Tokenized readline input
      *
      * @return bool
      */
