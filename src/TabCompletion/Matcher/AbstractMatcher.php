@@ -248,7 +248,22 @@ abstract class AbstractMatcher
      */
     public static function needCompleteClass($token)
     {
-        return \in_array($token[1], ['doc', 'ls', 'show', 'completions']);
+        // PsySH introspection commands.
+        $commands = [
+            'completions',
+            'dir',
+            'doc',
+            'dump',
+            'ls',
+            'man',
+            'parse',
+            'rtfm',
+            'show',
+            'sudo',
+            'throw-up',
+            'timeit',
+        ];
+        return \in_array($token[1], $commands);
     }
 
     /**
