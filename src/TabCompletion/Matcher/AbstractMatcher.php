@@ -170,7 +170,10 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Check whether $token type is $which.
+     * Check whether $token is of type $which.
+     *
+     * $which may either be a token type name (e.g. self::T_VARIABLE),
+     * or a literal string token (e.g. '+').
      *
      * @param mixed  $token A PHP token (see token_get_all)
      * @param string $which A PHP token type
@@ -180,10 +183,10 @@ abstract class AbstractMatcher
     public static function tokenIs($token, $which)
     {
         if (\is_array($token)) {
-            return \token_name($token[0]) === $which;
-        } else {
-            return $token === $which;
+            $token = \token_name($token[0]);
         }
+
+        return $token === $which;
     }
 
     /**
@@ -249,7 +252,10 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Check whether $token type is present in $coll.
+     * Check whether $token has a type which is present in $coll.
+     *
+     * $coll may include a mixture of token type names (e.g. self::T_VARIABLE),
+     * and literal string tokens (e.g. '+').
      *
      * @param array $coll  A list of token types
      * @param mixed $token A PHP token (see token_get_all)
@@ -259,9 +265,9 @@ abstract class AbstractMatcher
     public static function hasToken(array $coll, $token)
     {
         if (\is_array($token)) {
-            return \in_array(\token_name($token[0]), $coll);
-        } else {
-            return \in_array($token, $coll, true);
+            $token = \token_name($token[0]);
         }
+
+        return \in_array($token, $coll, true);
     }
 }
