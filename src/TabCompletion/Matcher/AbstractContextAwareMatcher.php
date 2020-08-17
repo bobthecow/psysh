@@ -73,6 +73,7 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
             foreach ($variables as $name => $value) {
                 $newvars['$'.$name] = $value;
             }
+
             return $newvars;
         }
     }
