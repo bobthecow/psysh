@@ -110,8 +110,8 @@ abstract class AbstractMatcher
 
         $token = \array_pop($tokens);
         if (!self::hasToken($validTokens, $token)
-            && !self::tokenIsValidIdentifier($token, true))
-        {
+            && !self::tokenIsValidIdentifier($token, true)
+        ) {
             return '';
         }
         $class = \is_array($token) ? $token[1] : $token;
