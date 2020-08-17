@@ -58,7 +58,7 @@ abstract class AbstractContextAwareMatcher extends AbstractMatcher implements Co
      *
      * The '$' prefix for each variable name is not included by default.
      *
-     * @param bool $dollarPrefix Whether to prefix '$' to each name.
+     * @param bool $dollarPrefix Whether to prefix '$' to each name
      *
      * @return array
      */
