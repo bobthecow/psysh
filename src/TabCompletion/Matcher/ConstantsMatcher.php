@@ -54,7 +54,7 @@ class ConstantsMatcher extends AbstractMatcher
             case self::hasToken($prevTokenBlacklist, $prevToken):
                 return false;
             // Current token (whitelist).
-            case self::tokenIsValidIdentifier($token, true);
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 
