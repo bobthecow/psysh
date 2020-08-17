@@ -73,8 +73,8 @@ abstract class AbstractMatcher
      * if that token is invalid.  By default, the token is valid if it is
      * valid prefix (including '') for a PHP identifier.
      *
-     * @param array      $tokens      Tokenized readline input (see token_get_all).
-     * @param array|null $validTokens Acceptable tokens.
+     * @param array      $tokens      Tokenized readline input (see token_get_all)
+     * @param array|null $validTokens Acceptable tokens
      *
      * @return string|bool
      */
