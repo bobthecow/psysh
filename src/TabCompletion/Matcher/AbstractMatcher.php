@@ -216,6 +216,7 @@ abstract class AbstractMatcher
         if ($token === '') {
             return $allowEmpty;
         }
+
         return self::hasSyntax($token, self::CONSTANT_SYNTAX);
     }
 
