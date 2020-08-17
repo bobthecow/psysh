@@ -251,6 +251,7 @@ class Shell extends Application
         if (\preg_match($regexp, $input, $matches) === 1) {
             $word = $matches[0];
         }
+
         return $ac->processCallback($word, null, ['line_buffer' => $input]);
     }
 
