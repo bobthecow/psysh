@@ -196,8 +196,8 @@ abstract class AbstractMatcher
     /**
      * Check whether $token is a valid prefix for a PHP identifier.
      *
-     * @param mixed $token A PHP token (see token_get_all)
-     * @param bool $allowEmpty Whether an empty string is valid.
+     * @param mixed $token      A PHP token (see token_get_all)
+     * @param bool  $allowEmpty Whether an empty string is valid.
      *
      * @return bool
      */
