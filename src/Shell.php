@@ -22,6 +22,7 @@ use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
+use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
@@ -246,7 +247,7 @@ class Shell extends Application
     {
         $ac = $this->autoCompleter;
         $word = '';
-        $regexp = $ac::WORD_REGEXP;
+        $regexp = AutoCompleter::WORD_REGEXP;
         $matches = [];
         if (\preg_match($regexp, $input, $matches) === 1) {
             $word = $matches[0];
