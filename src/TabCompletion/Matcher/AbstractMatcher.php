@@ -213,7 +213,7 @@ abstract class AbstractMatcher
      *
      * @return bool
      */
-    public static function tokenIsValidIdentifier($token, bool $allowEmpty = false)
+    public static function tokenIsValidIdentifier($token, $allowEmpty = false)
     {
         // See AutoCompleter::processCallback() regarding the '' token.
         if ($token === '') {
