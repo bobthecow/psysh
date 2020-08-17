@@ -93,13 +93,13 @@ class AutoCompleter
      * @see self::processCallback()
      * @see \Psy\Shell::getTabCompletions()
      */
-    public const WORD_BREAK_CHARS = " \t\n\"\\’‘@$><=;|&{(";
+    const WORD_BREAK_CHARS = " \t\n\"\\’‘@$><=;|&{(";
 
     /**
      * A regular expression based on WORD_BREAK_CHARS which will match the
      * completable word at the end of the string.
      */
-    public const WORD_REGEXP = "/[^ \t\n\"\\\\’‘@$><=;|&{(]*$/";
+    const WORD_REGEXP = "/[^ \t\n\"\\\\’‘@$><=;|&{(]*$/";
 
     /**
      * Register a tab completion Matcher.
