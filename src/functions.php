@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
-use XdgBaseDir\Xdg;
+use CodeSax\BaseDirectory\BaseDirectory;
 
 if (!\function_exists('Psy\\sh')) {
     /**
@@ -123,8 +123,8 @@ if (!\function_exists('Psy\\info')) {
             return;
         }
 
-        $xdg = new Xdg();
-        $home = \rtrim(\str_replace('\\', '/', $xdg->getHomeDir()), '/');
+        $BaseDirectory = new BaseDirectory();
+        $home = \rtrim(\str_replace('\\', '/', $BaseDirectory->getHomeDirectory()), '/');
         $homePattern = '#^'.\preg_quote($home, '#').'/#';
 
         $prettyPath = function ($path) use ($homePattern) {

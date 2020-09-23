@@ -12,7 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\ErrorException;
-use XdgBaseDir\Xdg;
+use CodeSax\BaseDirectory\BaseDirectory;
 
 /**
  * A Psy Shell configuration path helper.
@@ -31,9 +31,9 @@ class ConfigPaths
      */
     public static function getConfigDirs()
     {
-        $xdg = new Xdg();
+        $BaseDirectory = new BaseDirectory();
 
-        return self::getDirNames($xdg->getConfigDirs());
+        return self::getDirNames($BaseDirectory->getConfigDirectories());
     }
 
     /**
@@ -48,9 +48,9 @@ class ConfigPaths
      */
     public static function getHomeConfigDirs()
     {
-        $xdg = new Xdg();
+        $BaseDirectory = new BaseDirectory();
 
-        return self::getDirNames([$xdg->getHomeConfigDir()]);
+        return self::getDirNames([$BaseDirectory->getConfigDirectory()]);
     }
 
     /**
@@ -106,9 +106,9 @@ class ConfigPaths
      */
     public static function getDataDirs()
     {
-        $xdg = new Xdg();
+        $BaseDirectory = new BaseDirectory();
 
-        return self::getDirNames($xdg->getDataDirs());
+        return self::getDirNames($BaseDirectory->getDataDirectories());
     }
 
     /**
@@ -135,7 +135,7 @@ class ConfigPaths
      */
     public static function getRuntimeDir()
     {
-        $xdg = new Xdg();
+        $BaseDirectory = new BaseDirectory();
 
         \set_error_handler([ErrorException::class, 'throwException']);
 
@@ -143,7 +143,7 @@ class ConfigPaths
             // XDG doesn't really work on Windows, sometimes complains about
             // permissions, sometimes tries to remove non-empty directories.
             // It's a bit flaky. So we'll give this a shot first...
-            $runtimeDir = $xdg->getRuntimeDir(false);
+            $runtimeDir = $BaseDirectory->getRuntimeDirectory(false);
         } catch (\Exception $e) {
             // Well. That didn't work. Fall back to a boring old folder in the
             // system temp dir.
