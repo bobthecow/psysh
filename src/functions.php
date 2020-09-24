@@ -73,10 +73,11 @@ if (!\function_exists('Psy\\debug')) {
      *
      * @param array         $vars   Scope variables from the calling context (default: [])
      * @param object|string $bindTo Bound object ($this) or class (self) value for the shell
+     * @param bool          $suppressContext If true, call context is not shown automatically via "whereami" comment (default: false)
      *
      * @return array Scope variables from the debugger session
      */
-    function debug(array $vars = [], $bindTo = null)
+    function debug(array $vars = [], $bindTo = null, $suppressContext = false)
     {
         echo \PHP_EOL;
 
@@ -86,7 +87,7 @@ if (!\function_exists('Psy\\debug')) {
         // Show a couple of lines of call context for the debug session.
         //
         // @todo come up with a better way of doing this which doesn't involve injecting input :-P
-        if ($sh->has('whereami')) {
+        if (!$suppressContext && $sh->has('whereami')) {
             $sh->addInput('whereami -n2', true);
         }
 
