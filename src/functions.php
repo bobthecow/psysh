@@ -71,8 +71,8 @@ if (!\function_exists('Psy\\debug')) {
      *         }
      *     }
      *
-     * @param array         $vars   Scope variables from the calling context (default: [])
-     * @param object|string $bindTo Bound object ($this) or class (self) value for the shell
+     * @param array         $vars            Scope variables from the calling context (default: [])
+     * @param object|string $bindTo          Bound object ($this) or class (self) value for the shell
      * @param bool          $suppressContext If true, call context is not shown automatically via "whereami" comment (default: false)
      *
      * @return array Scope variables from the debugger session
