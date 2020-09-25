@@ -12,7 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\ErrorException;
-use CodeSax\BaseDirectory\BaseDirectory;
+use Psy\BaseDirectory;
 
 /**
  * A Psy Shell configuration path helper.
