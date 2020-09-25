@@ -818,7 +818,7 @@ class Configuration
     public function useBracketedPaste()
     {
         // For now, only the GNU readline implementation supports bracketed paste.
-        $supported = ($this->getReadlineClass() === Readline\GNUReadline::class);
+        $supported = ($this->getReadlineClass() === Readline\GNUReadline::class) && Readline\GNUReadline::supportsBracketedPaste();
 
         return $supported && $this->useBracketedPaste;
 

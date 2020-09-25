@@ -14,7 +14,7 @@ namespace Psy\Readline;
 /**
  * A Readline interface implementation for GNU Readline.
  *
- * This is by far the coolest way to do it, but it doesn't work with new PHP.
+ * This is by far the coolest way to do it, if you can.
  *
  * Oh well.
  */
@@ -32,11 +32,24 @@ class GNUReadline implements Readline
      * decided it would be awesome to swap out GNU Readline for Libedit, but
      * they ended up shipping an incomplete implementation. So we've got this.
      *
+     * NOTE: As of PHP 7.4, PHP sometimes has history support in the Libedit
+     * wrapper, so that will use the GNUReadline implementation as well!
+     *
      * @return bool
      */
     public static function isSupported()
     {
-        return \function_exists('readline_list_history');
+        return \function_exists('readline') && \function_exists('readline_list_history');
+    }
+
+    /**
+     * Check whether this readline implementation supports bracketed paste.
+     *
+     * Currently, the GNU readline implementation does, but the libedit wrapper does not.
+     */
+    public static function supportsBracketedPaste()
+    {
+        return self::isSupported() && \stripos(\readline_info('library_version'), 'editline') === false;
     }
 
     /**
