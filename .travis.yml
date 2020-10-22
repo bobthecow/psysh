@@ -17,15 +17,13 @@ jobs:
         - php: 7.2
         - php: 7.3
         - php: 7.4
-        - php: nightly
-          env: 'COMPOSER_FLAGS="--ignore-platform-reqs"'
+        - php: 8.0snapshot
         - php: hhvm-3.18
           dist: trusty
     allow_failures:
         - php: 5.5.9
           env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
-        - php: nightly
-          env: 'COMPOSER_FLAGS="--ignore-platform-reqs"'
+        - php: 8.0snapshot
     fast_finish: true
 
 install:
