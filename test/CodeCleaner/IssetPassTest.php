@@ -25,11 +25,29 @@ class IssetPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
+     * @expectedException \Psy\Exception\ParseErrorException
+     * @expectedExceptionMessage Syntax error, unexpected
+     */
+    public function testLegacyParseErrors($code)
+    {
+        if (\version_compare(\PHP_VERSION, '7.0', '>=')) {
+            $this->markTestSkipped();
+        }
+
+        $this->parseAndTraverse($code);
+    }
+
+    /**
+     * @dataProvider invalidStatements
      * @expectedException \Psy\Exception\FatalErrorException
      * @expectedExceptionMessage Cannot use isset() on the result of an expression (you can use "null !== expression" instead)
      */
     public function testProcessStatementFails($code)
     {
+        if (\version_compare(\PHP_VERSION, '7.0', '<')) {
+            $this->markTestSkipped();
+        }
+
         $this->parseAndTraverse($code);
     }
 
@@ -77,6 +95,34 @@ class IssetPassTest extends CodeCleanerTestCase
             // Objects
             ['isset($a->b)'],
 
+            // $this
+            ['isset($this)'],
+            ['isset($this->foo)'],
+            ['isset($this[0])'],
+
+            // Variable variables, and other errata
+            ['isset($$wat)'],
+            ['isset($$$wat)'],
+            ['isset(${"wat"})'],
+        ];
+    }
+
+    /**
+     * @dataProvider validFancyStatements
+     */
+    public function testValidFancyStatements($code)
+    {
+        if (\version_compare(\PHP_VERSION, '7.0', '<')) {
+            $this->markTestSkipped();
+        }
+
+        $this->parseAndTraverse($code);
+        $this->assertTrue(true);
+    }
+
+    public function validFancyStatements()
+    {
+        return [
             // isset() can be used on dereferences of temporary expressions
             // TODO: as of which version?
             ['isset([0, 1][0])'],
@@ -89,19 +135,9 @@ class IssetPassTest extends CodeCleanerTestCase
             ['isset((["a" => "b"] + [])->a)'],
             ['isset((["a" => "b"] + [])->a->b)'],
 
-            // $this
-            ['isset($this)'],
-            ['isset($this->foo)'],
-            ['isset($this[0])'],
-
             // Nullsafe operator
             ['isset($foo?->bar)'],
             ['isset($foo?->bar->baz)'],
-
-            // Variable variables, and other errata
-            ['isset($$wat)'],
-            ['isset($$$wat)'],
-            ['isset(${"wat"})'],
         ];
     }
 }
