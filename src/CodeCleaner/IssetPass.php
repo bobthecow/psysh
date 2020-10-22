@@ -12,12 +12,12 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use Psy\Exception\FatalErrorException;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\NullsafePropertyFetch;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\Variable;
+use Psy\Exception\FatalErrorException;
 
 /**
  * Code cleaner pass to ensure we only allow variables, array fetch and property
@@ -39,9 +39,9 @@ class IssetPass extends CodeCleanerPass
         }
 
         foreach ($node->vars as $var) {
-          if (!$var instanceof Variable && !$var instanceof ArrayDimFetch && !$var instanceof PropertyFetch && !$var instanceof NullsafePropertyFetch) {
-            throw new FatalErrorException(self::EXCEPTION_MSG, 0, \E_ERROR, null, $node->getLine());
-          }
+            if (!$var instanceof Variable && !$var instanceof ArrayDimFetch && !$var instanceof PropertyFetch && !$var instanceof NullsafePropertyFetch) {
+                throw new FatalErrorException(self::EXCEPTION_MSG, 0, \E_ERROR, null, $node->getLine());
+            }
         }
     }
 }
