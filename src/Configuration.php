@@ -71,6 +71,7 @@ class Configuration
         'useReadline',
         'useTabCompletion',
         'useUnicode',
+        'yolo',
         'verbosity',
         'warnOnMultipleConfigs',
     ];
@@ -107,6 +108,7 @@ class Configuration
     private $forceArrayIndexes = false;
     private $formatterStyles = [];
     private $verbosity = self::VERBOSITY_NORMAL;
+    private $yolo = false;
 
     // services
     private $readline;
@@ -197,6 +199,11 @@ class Configuration
             if (self::getOptionFromInput($input, ['raw-output'], ['-r'])) {
                 $config->setRawOutput(true);
             }
+        }
+
+        // Handle --yolo
+        if (self::getOptionFromInput($input, ['yolo'])) {
+            $config->setYolo(true);
         }
 
         return $config;
@@ -341,6 +348,8 @@ class Configuration
             new InputOption('interaction', null, InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interaction', null, InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
             new InputOption('raw-output', 'r', InputOption::VALUE_NONE, 'Print var_export-style return values (for non-interactive input)'),
+
+            new InputOption('yolo', null, InputOption::VALUE_NONE, 'Run PsySH with minimal input validation. You probably don\'t want this.'),
         ];
     }
 
@@ -990,10 +999,28 @@ class Configuration
     public function getCodeCleaner()
     {
         if (!isset($this->cleaner)) {
-            $this->cleaner = new CodeCleaner();
+            $this->cleaner = new CodeCleaner(null, null, null, $this->yolo());
         }
 
         return $this->cleaner;
+    }
+
+    /**
+     * Enable or disable running PsySH without input validation.
+     *
+     * You don't want this.
+     */
+    public function setYolo($yolo)
+    {
+        $this->yolo = (bool) $yolo;
+    }
+
+    /**
+     * Check whether to disable input validation.
+     */
+    public function yolo()
+    {
+        return $this->yolo;
     }
 
     /**

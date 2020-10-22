@@ -190,6 +190,7 @@ if (!\function_exists('Psy\\info')) {
         $input = [
             'interactive mode'  => $config->interactiveMode(),
             'input interactive' => $config->getInputInteractive(),
+            'yolo'              => $config->yolo(),
         ];
 
         if ($config->hasReadline()) {
@@ -382,6 +383,7 @@ Options:
   -r, --raw-output      Print var_export-style return values (for non-interactive input)
   -q, --quiet           Shhhhhh.
   -v|vv|vvv, --verbose  Increase the verbosity of messages.
+      --yolo            Run PsySH without input validation. You don't want this.
 
 EOL;
                 exit($usageException === null ? 0 : 1);

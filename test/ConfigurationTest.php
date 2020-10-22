@@ -479,7 +479,7 @@ class ConfigurationTest extends TestCase
     /**
      * @dataProvider inputStrings
      */
-    public function testConfigurationFromInput($inputString, $verbosity, $colorMode, $interactiveMode, $rawOutput)
+    public function testConfigurationFromInput($inputString, $verbosity, $colorMode, $interactiveMode, $rawOutput, $yolo)
     {
         $input = $this->getBoundStringInput($inputString);
         $config = Configuration::fromInput($input);
@@ -487,6 +487,7 @@ class ConfigurationTest extends TestCase
         $this->assertEquals($colorMode, $config->colorMode());
         $this->assertEquals($interactiveMode, $config->interactiveMode());
         $this->assertEquals($rawOutput, $config->rawOutput());
+        $this->assertEquals($yolo, $config->yolo());
 
         $input = $this->getUnboundStringInput($inputString);
         $config = Configuration::fromInput($input);
@@ -494,15 +495,17 @@ class ConfigurationTest extends TestCase
         $this->assertEquals($colorMode, $config->colorMode());
         $this->assertEquals($interactiveMode, $config->interactiveMode());
         $this->assertEquals($rawOutput, $config->rawOutput());
+        $this->assertEquals($yolo, $config->yolo());
     }
 
     public function inputStrings()
     {
         return [
-            ['', Configuration::VERBOSITY_NORMAL, Configuration::COLOR_MODE_AUTO, Configuration::INTERACTIVE_MODE_AUTO, false],
-            ['--raw-output --color --interactive --verbose', Configuration::VERBOSITY_VERBOSE, Configuration::COLOR_MODE_FORCED, Configuration::INTERACTIVE_MODE_FORCED, false],
-            ['--raw-output --no-color --no-interactive --quiet', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_DISABLED, Configuration::INTERACTIVE_MODE_DISABLED, true],
-            ['--quiet --color --interactive', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_FORCED, Configuration::INTERACTIVE_MODE_FORCED, false],
+            ['', Configuration::VERBOSITY_NORMAL, Configuration::COLOR_MODE_AUTO, Configuration::INTERACTIVE_MODE_AUTO, false, false],
+            ['--raw-output --color --interactive --verbose', Configuration::VERBOSITY_VERBOSE, Configuration::COLOR_MODE_FORCED, Configuration::INTERACTIVE_MODE_FORCED, false, false],
+            ['--raw-output --no-color --no-interactive --quiet', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_DISABLED, Configuration::INTERACTIVE_MODE_DISABLED, true, false],
+            ['--quiet --color --interactive', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_FORCED, Configuration::INTERACTIVE_MODE_FORCED, false, false],
+            ['--quiet --yolo', Configuration::VERBOSITY_QUIET, Configuration::COLOR_MODE_AUTO, Configuration::INTERACTIVE_MODE_AUTO, false, true],
         ];
     }
 
@@ -618,5 +621,17 @@ class ConfigurationTest extends TestCase
         }
 
         return new StringInput($string.' --config '.\escapeshellarg($configFile));
+    }
+
+    public function testYoloMode()
+    {
+        $config = $this->getConfig();
+        $this->assertFalse($config->yolo());
+
+        $config->setYolo(true);
+        $this->assertTrue($config->yolo());
+
+        // The CodeCleaner will not be updated after the first time we access it:
+        $this->assertTrue($config->getCodeCleaner()->yolo());
     }
 }
