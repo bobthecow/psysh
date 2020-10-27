@@ -15,7 +15,10 @@ use Psy\CodeCleaner\RequirePass;
 
 class RequirePassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new RequirePass());
     }

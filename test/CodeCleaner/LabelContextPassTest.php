@@ -15,7 +15,10 @@ use Psy\CodeCleaner\LabelContextPass;
 
 class LabelContextPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new LabelContextPass());
     }

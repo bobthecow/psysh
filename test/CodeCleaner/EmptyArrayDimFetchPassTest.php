@@ -15,7 +15,10 @@ use Psy\CodeCleaner\EmptyArrayDimFetchPass;
 
 class EmptyArrayDimFetchPassTest extends CodeCleanerTestCase
 {
-    protected function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new EmptyArrayDimFetchPass());
     }

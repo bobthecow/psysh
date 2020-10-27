@@ -15,7 +15,10 @@ use Psy\CodeCleaner\ValidConstantPass;
 
 class ValidConstantPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new ValidConstantPass());
     }

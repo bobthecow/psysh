@@ -21,7 +21,10 @@ class ParserTestCase extends TestCase
     private $parser;
     private $printer;
 
-    public function tearDown()
+    /**
+     * @after
+     */
+    public function clearProperties()
     {
         $this->traverser = null;
         $this->parser = null;

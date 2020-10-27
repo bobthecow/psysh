@@ -15,7 +15,10 @@ use Psy\CodeCleaner\ReturnTypePass;
 
 class ReturnTypePassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         if (\version_compare(\PHP_VERSION, '7.1', '<')) {
             $this->markTestSkipped();

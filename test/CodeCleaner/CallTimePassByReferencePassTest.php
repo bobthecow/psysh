@@ -15,7 +15,10 @@ use Psy\CodeCleaner\CallTimePassByReferencePass;
 
 class CallTimePassByReferencePassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new CallTimePassByReferencePass());
     }

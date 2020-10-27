@@ -20,7 +20,10 @@ class ExitPassTest extends CodeCleanerTestCase
      */
     private $expectedExceptionString = '\\Psy\\Exception\\BreakException::exitShell()';
 
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new ExitPass());
     }

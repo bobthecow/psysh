@@ -15,7 +15,10 @@ use Psy\CodeCleaner\InstanceOfPass;
 
 class InstanceOfPassTest extends CodeCleanerTestCase
 {
-    protected function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new InstanceOfPass());
     }

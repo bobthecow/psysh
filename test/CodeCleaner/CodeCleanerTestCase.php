@@ -19,10 +19,12 @@ class CodeCleanerTestCase extends ParserTestCase
 {
     protected $pass;
 
-    public function tearDown()
+    /**
+     * @after
+     */
+    public function clearProperties()
     {
         $this->pass = null;
-        parent::tearDown();
     }
 
     protected function setPass(CodeCleanerPass $pass)

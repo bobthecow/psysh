@@ -15,7 +15,10 @@ use Psy\Sudo;
 
 class SudoTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         if (\version_compare(\PHP_VERSION, '7.1.0', '<')) {
             $this->markTestSkipped('YOLO');

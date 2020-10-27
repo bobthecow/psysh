@@ -17,7 +17,10 @@ class LibeditTest extends \Psy\Test\TestCase
 {
     private $historyFile;
 
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         if (!Libedit::isSupported()) {
             $this->markTestSkipped('Libedit not enabled');
@@ -33,7 +36,10 @@ class LibeditTest extends \Psy\Test\TestCase
         \readline_clear_history();
     }
 
-    public function tearDown()
+    /**
+     * @after
+     */
+    public function removeHistoryFile()
     {
         if (\is_file($this->historyFile)) {
             \unlink($this->historyFile);

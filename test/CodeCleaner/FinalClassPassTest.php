@@ -15,7 +15,10 @@ use Psy\CodeCleaner\FinalClassPass;
 
 class FinalClassPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new FinalClassPass());
     }

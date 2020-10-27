@@ -18,7 +18,10 @@ use Psy\CodeCleaner\IssetPass;
  */
 class IssetPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new IssetPass());
     }

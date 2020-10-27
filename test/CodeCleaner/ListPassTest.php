@@ -16,7 +16,10 @@ use Psy\Exception\ParseErrorException;
 
 class ListPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new ListPass());
     }

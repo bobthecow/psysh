@@ -17,7 +17,10 @@ use Psy\Test\ParserTestCase;
 
 class SudoVisitorTest extends ParserTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new SudoVisitor());

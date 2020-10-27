@@ -15,7 +15,10 @@ use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 
 class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new FunctionReturnInWriteContextPass());
     }

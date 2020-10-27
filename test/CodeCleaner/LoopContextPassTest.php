@@ -15,7 +15,10 @@ use Psy\CodeCleaner\LoopContextPass;
 
 class LoopContextPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new LoopContextPass());
     }

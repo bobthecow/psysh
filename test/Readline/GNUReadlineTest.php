@@ -17,7 +17,10 @@ class GNUReadlineTest extends \Psy\Test\TestCase
 {
     private $historyFile;
 
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         if (!GNUReadline::isSupported()) {
             $this->markTestSkipped('GNUReadline not enabled');

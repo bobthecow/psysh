@@ -15,7 +15,10 @@ use Psy\CodeCleaner\PassableByReferencePass;
 
 class PassableByReferencePassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new PassableByReferencePass());
     }
