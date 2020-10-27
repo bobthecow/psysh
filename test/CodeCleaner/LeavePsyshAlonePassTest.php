@@ -15,7 +15,10 @@ use Psy\CodeCleaner\LeavePsyshAlonePass;
 
 class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new LeavePsyshAlonePass());
     }

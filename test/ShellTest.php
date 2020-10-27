@@ -24,7 +24,10 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 {
     private $streams = [];
 
-    public function tearDown()
+    /**
+     * @after
+     */
+    public function closeOpenStreams()
     {
         foreach ($this->streams as $stream) {
             \fclose($stream);

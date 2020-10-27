@@ -15,7 +15,10 @@ use Psy\CodeCleaner\MagicConstantsPass;
 
 class MagicConstantsPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new MagicConstantsPass());
     }

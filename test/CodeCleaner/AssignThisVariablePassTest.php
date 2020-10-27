@@ -15,7 +15,10 @@ use Psy\CodeCleaner\AssignThisVariablePass;
 
 class AssignThisVariablePassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new AssignThisVariablePass());
     }

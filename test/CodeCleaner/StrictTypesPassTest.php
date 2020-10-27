@@ -15,7 +15,10 @@ use Psy\CodeCleaner\StrictTypesPass;
 
 class StrictTypesPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         if (\version_compare(\PHP_VERSION, '7.0', '<')) {
             $this->markTestSkipped();

@@ -15,7 +15,10 @@ use Psy\CodeCleaner\CalledClassPass;
 
 class CalledClassPassTest extends CodeCleanerTestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new CalledClassPass());
     }
