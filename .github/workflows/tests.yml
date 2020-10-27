@@ -41,5 +41,8 @@ jobs:
           max_attempts: 5
           command: composer bin phpunit update --no-interaction --no-progress
 
-      - name: Execute PHPUnit
-        run: vendor/bin/phpunit
+      - name: Run Tests
+        run: make test
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v1
