@@ -15,7 +15,10 @@ use Psy\CodeCleaner\ValidConstructorPass;
 
 class ValidConstructorPassTest extends CodeCleanerTestCase
 {
-    protected function setUp()
+    /**
+     * @before
+     */
+    public function getReady()
     {
         $this->setPass(new ValidConstructorPass());
     }
