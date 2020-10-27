@@ -1,5 +1,5 @@
 {
     "require": {
-        "phpunit/phpunit": "^4|^7.5.15"
+        "phpunit/phpunit": "^4.8.35|^7.5.15|^8.5|^9.4"
     }
 }
