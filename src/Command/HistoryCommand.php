@@ -30,6 +30,14 @@ class HistoryCommand extends Command
     private $readline;
 
     /**
+     * Required file header for 'readline_read_history' command
+     * https://www.php.net/manual/en/function.readline-read-history.php
+     *
+     * @var string
+     */
+    private $readlineOpenner = '_HiStOrY_V2_';
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -239,6 +247,10 @@ HELP
     private function clearHistory()
     {
         $this->readline->clearHistory();
+
+        if(empty($this->readline->listHistory())) {
+            readline_add_history($this->readlineOpenner);
+        }
     }
 
     public static function escape($string)
