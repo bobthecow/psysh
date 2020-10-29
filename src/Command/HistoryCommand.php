@@ -31,7 +31,7 @@ class HistoryCommand extends Command
 
     /**
      * Required file header for 'readline_read_history' command
-     * https://www.php.net/manual/en/function.readline-read-history.php
+     * https://www.php.net/manual/en/function.readline-read-history.php .
      *
      * @var string
      */
@@ -248,8 +248,8 @@ HELP
     {
         $this->readline->clearHistory();
 
-        if(empty($this->readline->listHistory())) {
-            readline_add_history($this->readlineOpenner);
+        if (empty($this->readline->listHistory())) {
+            \readline_add_history($this->readlineOpenner);
         }
     }
 
