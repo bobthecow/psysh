@@ -50,9 +50,9 @@ class Libedit extends GNUReadline
         // libedit doesn't seem to support non-unix line separators.
         $history = \explode("\n", $history);
 
-        // shift the history signature, ensure it's valid
-        if (\array_shift($history) !== '_HiStOrY_V2_') {
-            return [];
+        // remove history signature if it exists
+        if ($history[0] === '_HiStOrY_V2_') {
+            \array_shift($history);
         }
 
         // decode the line
