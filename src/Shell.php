@@ -442,7 +442,7 @@ class Shell extends Application
             \set_error_handler([$__psysh__, 'handleError']);
             foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                 try {
-                    include $__psysh_include__;
+                    include_once $__psysh_include__;
                 } catch (\Error $_e) {
                     $__psysh__->writeException(ErrorException::fromError($_e));
                 } catch (\Exception $_e) {
