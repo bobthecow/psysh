@@ -29,7 +29,6 @@ class ClassNamesMatcher extends AbstractMatcher
         if (\strlen($class) > 0 && $class[0] === '\\') {
             $class = \substr($class, 1, \strlen($class));
         }
-        $quotedClass = \preg_quote($class);
 
         return \array_map(
             function ($className) use ($class) {
@@ -41,8 +40,8 @@ class ClassNamesMatcher extends AbstractMatcher
             },
             \array_filter(
                 \array_merge(\get_declared_classes(), \get_declared_interfaces()),
-                function ($className) use ($quotedClass) {
-                    return AbstractMatcher::startsWith($quotedClass, $className);
+                function ($className) use ($class) {
+                    return AbstractMatcher::startsWith($class, $className);
                 }
             )
         );
@@ -55,20 +54,28 @@ class ClassNamesMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
-
-        $blacklistedTokens = [
-            self::T_INCLUDE, self::T_INCLUDE_ONCE, self::T_REQUIRE, self::T_REQUIRE_ONCE,
+        $prevTokenBlacklist = [
+            self::T_INCLUDE,
+            self::T_INCLUDE_ONCE,
+            self::T_REQUIRE,
+            self::T_REQUIRE_ONCE,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
         ];
 
         switch (true) {
-            case self::hasToken([$blacklistedTokens], $token):
-            case self::hasToken([$blacklistedTokens], $prevToken):
-            case \is_string($token) && $token === '$':
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
                 return false;
-            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR, self::T_STRING], $prevToken):
-            case self::hasToken([self::T_NEW, self::T_OPEN_TAG, self::T_NS_SEPARATOR], $token):
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-            case self::isOperator($token):
+            // Current token (blacklist).
+            case $token === '$':
+                return false;
+            // Previous token.
+            case self::tokenIsExpressionDelimiter($prevToken):
+            case self::hasToken([self::T_NEW, self::T_NS_SEPARATOR], $prevToken):
+                return self::tokenIsValidIdentifier($token, true);
+            // Current token (whitelist).
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 

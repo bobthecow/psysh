@@ -25,13 +25,16 @@ class FunctionsMatcher extends AbstractMatcher
      */
     public function getMatches(array $tokens, array $info = [])
     {
-        $func = $this->getInput($tokens);
+        $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         $functions = \get_defined_functions();
         $allFunctions = \array_merge($functions['user'], $functions['internal']);
 
-        return \array_filter($allFunctions, function ($function) use ($func) {
-            return AbstractMatcher::startsWith($func, $function);
+        return \array_filter($allFunctions, function ($function) use ($input) {
+            return AbstractMatcher::startsWith($input, $function);
         });
     }
 
@@ -42,12 +45,19 @@ class FunctionsMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
-            case self::tokenIs($prevToken, self::T_NEW):
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
                 return false;
-            case self::hasToken([self::T_OPEN_TAG, self::T_STRING], $token):
-            case self::isOperator($token):
+            // Current token (whitelist).
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 

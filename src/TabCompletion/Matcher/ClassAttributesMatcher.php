@@ -27,14 +27,18 @@ class ClassAttributesMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
-
-        $firstToken = \array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the nekudotayim operator
-            \array_pop($tokens);
+        if ($input === false) {
+            return [];
         }
 
+        $firstToken = \array_pop($tokens);
+
+        // Second token is the nekudotayim operator '::'.
+        \array_pop($tokens);
+
         $class = $this->getNamespaceAndClass($tokens);
+        $chunks = \explode('\\', $class);
+        $className = \array_pop($chunks);
 
         try {
             $reflection = new \ReflectionClass($class);
@@ -52,19 +56,19 @@ class ClassAttributesMatcher extends AbstractMatcher
             \array_keys($reflection->getConstants())
         );
 
+        // We have no control over the word-break characters used by
+        // Readline's completion, and ':' isn't included in that set,
+        // which means the $input which AutoCompleter::processCallback()
+        // is completing includes the preceding "ClassName::" text, and
+        // therefore the candidate strings we are returning must do
+        // likewise.
         return \array_map(
-            function ($name) use ($class) {
-                $chunks = \explode('\\', $class);
-                $className = \array_pop($chunks);
-
+            function ($name) use ($className) {
                 return $className.'::'.$name;
             },
-            \array_filter(
-                $vars,
-                function ($var) use ($input) {
-                    return AbstractMatcher::startsWith($input, $var);
-                }
-            )
+            \array_filter($vars, function ($var) use ($input) {
+                return AbstractMatcher::startsWith($input, $var);
+            })
         );
     }
 
@@ -76,10 +80,10 @@ class ClassAttributesMatcher extends AbstractMatcher
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
+        // Valid following '::'.
         switch (true) {
-            case self::tokenIs($prevToken, self::T_DOUBLE_COLON) && self::tokenIs($token, self::T_STRING):
-            case self::tokenIs($token, self::T_DOUBLE_COLON):
-                return true;
+            case self::tokenIs($prevToken, self::T_DOUBLE_COLON):
+                return self::tokenIsValidIdentifier($token, true);
         }
 
         return false;

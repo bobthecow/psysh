@@ -57,6 +57,9 @@ class KeywordsMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         return \array_filter($this->keywords, function ($keyword) use ($input) {
             return AbstractMatcher::startsWith($input, $keyword);
@@ -70,13 +73,22 @@ class KeywordsMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-//            case is_string($token) && $token === '$':
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $prevToken) &&
-                self::tokenIs($token, self::T_STRING):
-            case self::isOperator($token):
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
+                return false;
+            // Previous token.
+            case self::tokenIsExpressionDelimiter($prevToken):
+                return self::tokenIsValidIdentifier($token, true);
+            // Current token (whitelist).
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 

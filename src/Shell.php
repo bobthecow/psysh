@@ -22,6 +22,7 @@ use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
+use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
@@ -235,6 +236,24 @@ class Shell extends Application
     protected function getTabCompletionMatchers()
     {
         @\trigger_error('getTabCompletionMatchers is no longer used', \E_USER_DEPRECATED);
+    }
+
+    /**
+     * Get completion matches.
+     *
+     * @return array An array of completion matches for $input
+     */
+    public function getTabCompletions(string $input)
+    {
+        $ac = $this->autoCompleter;
+        $word = '';
+        $regexp = AutoCompleter::WORD_REGEXP;
+        $matches = [];
+        if (\preg_match($regexp, $input, $matches) === 1) {
+            $word = $matches[0];
+        }
+
+        return $ac->processCallback($word, null, ['line_buffer' => $input]);
     }
 
     /**
@@ -909,7 +928,7 @@ class Shell extends Application
             throw new \InvalidArgumentException('Command not found: '.$input);
         }
 
-        $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, " \t\n\r\0\x0B;")));
+        $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, "\n\r\0\x0B;")));
 
         if ($input->hasParameterOption(['--help', '-h'])) {
             $helpCommand = $this->get('help');

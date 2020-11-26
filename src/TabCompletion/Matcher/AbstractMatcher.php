@@ -45,6 +45,14 @@ abstract class AbstractMatcher
     /**
      * Check whether this matcher can provide completions for $tokens.
      *
+     * The final token is the 'word' to be completed.  If the input
+     * did not end in a valid identifier prefix then the final token
+     * will be an empty string.
+     *
+     * All whitespace tokens have been removed from the $tokens array.
+     *
+     * @see AutoCompleter::processCallback().
+     *
      * @param array $tokens Tokenized readline input
      *
      * @return bool
@@ -55,21 +63,35 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Get current readline input word.
+     * Get the input word to be completed, based on the tokenised input.
      *
-     * @param array $tokens Tokenized readline input (see token_get_all)
+     * Note that this may not be identical to the word which readline needs to
+     * complete (see AutoCompleter::WORD_BREAK_CHARS), and so Matchers must
+     * take care to return candidate values that match what readline wants.
      *
-     * @return string
+     * We return the string value of the final token if it is valid, and false
+     * if that token is invalid.  By default, the token is valid if it is
+     * valid prefix (including '') for a PHP identifier.
+     *
+     * @param array      $tokens      Tokenized readline input (see token_get_all)
+     * @param array|null $validTokens Acceptable tokens
+     *
+     * @return string|bool
      */
-    protected function getInput(array $tokens)
+    protected function getInput(array $tokens, array $validTokens = null)
     {
-        $var = '';
-        $firstToken = \array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            $var = $firstToken[1];
+        $token = \array_pop($tokens);
+        $input = \is_array($token) ? $token[1] : $token;
+
+        if (isset($validTokens)) {
+            if (self::hasToken($validTokens, $token)) {
+                return $input;
+            }
+        } elseif (self::tokenIsValidIdentifier($token, true)) {
+            return $input;
         }
 
-        return $var;
+        return false;
     }
 
     /**
@@ -81,13 +103,22 @@ abstract class AbstractMatcher
      */
     protected function getNamespaceAndClass($tokens)
     {
-        $class = '';
-        while (self::hasToken(
-            [self::T_NS_SEPARATOR, self::T_STRING],
-            $token = \array_pop($tokens)
-        )) {
+        $validTokens = [
+            self::T_NS_SEPARATOR,
+            self::T_STRING,
+        ];
+
+        $token = \array_pop($tokens);
+        if (!self::hasToken($validTokens, $token)
+            && !self::tokenIsValidIdentifier($token, true)
+        ) {
+            return '';
+        }
+        $class = \is_array($token) ? $token[1] : $token;
+
+        while (self::hasToken($validTokens, $token = \array_pop($tokens))) {
             if (self::needCompleteClass($token)) {
-                continue;
+                break;
             }
 
             $class = $token[1].$class;
@@ -116,7 +147,7 @@ abstract class AbstractMatcher
      */
     public static function startsWith($prefix, $word)
     {
-        return \preg_match(\sprintf('#^%s#', $prefix), $word);
+        return \preg_match(\sprintf('#^%s#', \preg_quote($prefix)), $word);
     }
 
     /**
@@ -139,7 +170,10 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Check whether $token type is $which.
+     * Check whether $token is of type $which.
+     *
+     * $which may either be a token type name (e.g. self::T_VARIABLE),
+     * or a literal string token (e.g. '+').
      *
      * @param mixed  $token A PHP token (see token_get_all)
      * @param string $which A PHP token type
@@ -148,11 +182,11 @@ abstract class AbstractMatcher
      */
     public static function tokenIs($token, $which)
     {
-        if (!\is_array($token)) {
-            return false;
+        if (\is_array($token)) {
+            $token = \token_name($token[0]);
         }
 
-        return \token_name($token[0]) === $which;
+        return $token === $which;
     }
 
     /**
@@ -164,20 +198,80 @@ abstract class AbstractMatcher
      */
     public static function isOperator($token)
     {
-        if (!\is_string($token)) {
+        if (!\is_string($token) || $token === '') {
             return false;
         }
 
         return \strpos(self::MISC_OPERATORS, $token) !== false;
     }
 
-    public static function needCompleteClass($token)
+    /**
+     * Check whether $token is a valid prefix for a PHP identifier.
+     *
+     * @param mixed $token      A PHP token (see token_get_all)
+     * @param bool  $allowEmpty Whether an empty string is valid
+     *
+     * @return bool
+     */
+    public static function tokenIsValidIdentifier($token, $allowEmpty = false)
     {
-        return \in_array($token[1], ['doc', 'ls', 'show']);
+        // See AutoCompleter::processCallback() regarding the '' token.
+        if ($token === '') {
+            return $allowEmpty;
+        }
+
+        return self::hasSyntax($token, self::CONSTANT_SYNTAX);
     }
 
     /**
-     * Check whether $token type is present in $coll.
+     * Check whether $token 'separates' PHP expressions, meaning that
+     * whatever follows is a new expression.
+     *
+     * Separators include the initial T_OPEN_TAG token, and ";".
+     *
+     * @param mixed $token A PHP token (see token_get_all)
+     *
+     * @return bool
+     */
+    public static function tokenIsExpressionDelimiter($token)
+    {
+        return $token === ';' || self::tokenIs($token, self::T_OPEN_TAG);
+    }
+
+    /**
+     * Used both to test $tokens[1] (i.e. following T_OPEN_TAG) to
+     * see whether it's a PsySH introspection command, and also by
+     * self::getNamespaceAndClass() to prevent these commands from
+     * being considered part of the namespace (which could happen
+     * on account of all the whitespace tokens having been removed
+     * from the tokens array by AutoCompleter::processCallback().
+     */
+    public static function needCompleteClass($token)
+    {
+        // PsySH introspection commands.
+        $commands = [
+            'completions',
+            'dir',
+            'doc',
+            'dump',
+            'ls',
+            'man',
+            'parse',
+            'rtfm',
+            'show',
+            'sudo',
+            'throw-up',
+            'timeit',
+        ];
+
+        return \in_array($token[1], $commands);
+    }
+
+    /**
+     * Check whether $token has a type which is present in $coll.
+     *
+     * $coll may include a mixture of token type names (e.g. self::T_VARIABLE),
+     * and literal string tokens (e.g. '+').
      *
      * @param array $coll  A list of token types
      * @param mixed $token A PHP token (see token_get_all)
@@ -186,10 +280,10 @@ abstract class AbstractMatcher
      */
     public static function hasToken(array $coll, $token)
     {
-        if (!\is_array($token)) {
-            return false;
+        if (\is_array($token)) {
+            $token = \token_name($token[0]);
         }
 
-        return \in_array(\token_name($token[0]), $coll);
+        return \in_array($token, $coll, true);
     }
 }

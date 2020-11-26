@@ -23,13 +23,39 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     /**
      * {@inheritdoc}
      */
+    protected function getInput(array $tokens, array $t_valid = null)
+    {
+        return parent::getInput($tokens, [self::T_VARIABLE, '$', '']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getMatches(array $tokens, array $info = [])
     {
-        $var = \str_replace('$', '', $this->getInput($tokens));
+        $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
-        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($var) {
-            return AbstractMatcher::startsWith($var, $variable);
-        });
+        // '$' is a readline completion word-break character (refer to
+        // AutoCompleter::WORD_BREAK_CHARS), and so the completion
+        // candidates we generate must not include the leading '$' --
+        // *unless* we are completing an empty string, in which case
+        // the '$' is required.
+        if ($input === '') {
+            $dollarPrefix = true;
+        } else {
+            $dollarPrefix = false;
+            $input = \str_replace('$', '', $input);
+        }
+
+        return \array_filter(
+            \array_keys($this->getVariables($dollarPrefix)),
+            function ($variable) use ($input) {
+                return AbstractMatcher::startsWith($input, $variable);
+            }
+        );
     }
 
     /**
@@ -38,11 +64,21 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     public function hasMatched(array $tokens)
     {
         $token = \array_pop($tokens);
+        $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
-            case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
-            case \is_string($token) && $token === '$':
-            case self::isOperator($token):
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
+                return false;
+            // Current token (whitelist).
+            case self::tokenIs($token, self::T_VARIABLE):
+            case \in_array($token, ['', '$'], true):
                 return true;
         }
 

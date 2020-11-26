@@ -26,6 +26,9 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         $firstToken = \array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING)) {
@@ -60,10 +63,10 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
+        // Valid following '->'.
         switch (true) {
-            case self::tokenIs($token, self::T_OBJECT_OPERATOR):
             case self::tokenIs($prevToken, self::T_OBJECT_OPERATOR):
-                return true;
+                return self::tokenIsValidIdentifier($token, true);
         }
 
         return false;

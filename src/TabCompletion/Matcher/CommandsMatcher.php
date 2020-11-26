@@ -87,6 +87,9 @@ class CommandsMatcher extends AbstractMatcher
     public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
         return \array_filter($this->commands, function ($command) use ($input) {
             return AbstractMatcher::startsWith($input, $command);
@@ -101,11 +104,12 @@ class CommandsMatcher extends AbstractMatcher
         /* $openTag */ \array_shift($tokens);
         $command = \array_shift($tokens);
 
+        // Valid for completion only if this was the only token.
         switch (true) {
-            case self::tokenIs($command, self::T_STRING) &&
-                !$this->isCommand($command[1]) &&
-                $this->matchCommand($command[1]) &&
-                empty($tokens):
+            case empty($command):
+            case empty($tokens) &&
+                self::tokenIsValidIdentifier($command, true) &&
+                $this->matchCommand($command[1]):
                 return true;
         }
 

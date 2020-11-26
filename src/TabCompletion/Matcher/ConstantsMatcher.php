@@ -25,10 +25,13 @@ class ConstantsMatcher extends AbstractMatcher
      */
     public function getMatches(array $tokens, array $info = [])
     {
-        $const = $this->getInput($tokens);
+        $input = $this->getInput($tokens);
+        if ($input === false) {
+            return [];
+        }
 
-        return \array_filter(\array_keys(\get_defined_constants()), function ($constant) use ($const) {
-            return AbstractMatcher::startsWith($const, $constant);
+        return \array_filter(\array_keys(\get_defined_constants()), function ($constant) use ($input) {
+            return AbstractMatcher::startsWith($input, $constant);
         });
     }
 
@@ -39,13 +42,19 @@ class ConstantsMatcher extends AbstractMatcher
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
+        $prevTokenBlacklist = [
+            self::T_NEW,
+            self::T_NS_SEPARATOR,
+            self::T_OBJECT_OPERATOR,
+            self::T_DOUBLE_COLON,
+        ];
 
         switch (true) {
-            case self::tokenIs($prevToken, self::T_NEW):
-            case self::tokenIs($prevToken, self::T_NS_SEPARATOR):
+            // Previous token (blacklist).
+            case self::hasToken($prevTokenBlacklist, $prevToken):
                 return false;
-            case self::hasToken([self::T_OPEN_TAG, self::T_STRING], $token):
-            case self::isOperator($token):
+            // Current token (whitelist).
+            case self::tokenIsValidIdentifier($token, true):
                 return true;
         }
 
