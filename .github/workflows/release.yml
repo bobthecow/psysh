@@ -1,0 +1,68 @@
+name: Create release
+
+on:
+  push:
+    tags: 'v*'
+
+jobs:
+  draft_release:
+    name: 'Create draft release'
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.tag_name.outputs.tag }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Get tag name
+        id: tag_name
+        uses: little-core-labs/get-git-tag@v3.0.2
+      - name: Create draft release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: PsySH ${{ steps.tag_name.outputs.tag }}
+          body: |
+            New:
+             - ...
+
+            Improved:
+             - ...
+
+            Removed:
+             - ...
+          draft: true
+          prerelease: false
+
+  upload_assets:
+    name: 'Upload release assets'
+    needs: draft_release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ['', '-compat', '-php55', '-php55-compat']
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          tools: composer:v2
+          coverage: none
+      - name: Update Composer
+        run: composer update --no-interaction --no-progress
+      - name: Build release asset
+        run: make dist/psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft_release.outputs.upload_url }}
+          asset_path: ./dist/psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
+          asset_name: psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
+          asset_content_type: application/gzip

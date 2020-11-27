@@ -42,17 +42,3 @@ script:
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
-
-before_deploy: make dist -j 4
-
-deploy:
-    provider: releases
-    token:
-        secure: jMTc2z9JgpNJbf5Ia8uVMQRz2BYEqhr2IGZQtHoj3zgqt+SzgTdjFWK5yfSRdkiqt671JfSFU7Epc1NhURwMoQTlzLdCYnP9Lct9CFzHMTn0sNbDLDmZXkGuxe15DToMiaCexv8dBM2zb5QsdXpNeFunz+eqfeKqechuX6QXoaY=
-    file_glob: true
-    file: dist/psysh-*.tar.gz
-    skip_cleanup: true
-    on:
-        tags: true
-        repo: bobthecow/psysh
-        condition: $TRAVIS_PHP_VERSION = 7.2*
