@@ -29,6 +29,8 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Can\'t use function return value in write context');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function invalidStatements()
@@ -49,6 +51,7 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Cannot use isset() on the result of an expression (you can use "null !== expression" instead)');
 
         $this->traverser->traverse($this->parse('isset(strtolower("A"))'));
+
         $this->fail();
     }
 
@@ -62,6 +65,8 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Can\'t use function return value in write context');
 
         $this->traverser->traverse($this->parse('empty(strtolower("A"))'));
+
+        $this->fail();
     }
 
     /**

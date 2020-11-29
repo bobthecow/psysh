@@ -31,6 +31,8 @@ class GitHubCheckerTest extends \Psy\Test\TestCase
             ->getMock();
         $checker->expects($this->once())->method('fetchLatestRelease')->willReturn($input);
         $checker->isLatest();
+
+        $this->fail();
     }
 
     /**

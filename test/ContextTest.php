@@ -113,6 +113,8 @@ class ContextTest extends TestCase
         $context = new Context();
         $context->setAll([$name => 'fail']);
         $context->get($name);
+
+        $this->fail();
     }
 
     public function specialNames()
@@ -167,6 +169,8 @@ class ContextTest extends TestCase
 
         $context = new Context();
         $context->getLastException();
+
+        $this->fail();
     }
 
     public function testLastStdout()
@@ -184,6 +188,8 @@ class ContextTest extends TestCase
 
         $context = new Context();
         $context->getLastStdout();
+
+        $this->fail();
     }
 
     public function testBoundObject()
@@ -207,6 +213,8 @@ class ContextTest extends TestCase
 
         $context = new Context();
         $context->get('this');
+
+        $this->fail();
     }
 
     public function testBoundClass()

@@ -27,6 +27,8 @@ class CalledClassPassTest extends CodeCleanerTestCase
     {
         $this->expectException(\Psy\Exception\ErrorException::class);
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function invalidStatements()

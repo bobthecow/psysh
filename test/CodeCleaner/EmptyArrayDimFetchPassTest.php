@@ -27,6 +27,8 @@ class EmptyArrayDimFetchPassTest extends CodeCleanerTestCase
     {
         $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function invalidStatements()

@@ -27,5 +27,7 @@ class ReflectionNamespaceTest extends \Psy\Test\TestCase
     {
         $this->expectException(\RuntimeException::class);
         ReflectionNamespace::export('Psy\\Test\\Reflection');
+
+        $this->fail();
     }
 }

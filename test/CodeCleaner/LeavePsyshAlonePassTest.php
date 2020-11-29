@@ -55,6 +55,8 @@ class LeavePsyshAlonePassTest extends CodeCleanerTestCase
     {
         $this->expectException(\Psy\Exception\RuntimeException::class);
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function invalidStatements()

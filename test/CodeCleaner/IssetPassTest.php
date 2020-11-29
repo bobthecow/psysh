@@ -36,6 +36,8 @@ class IssetPassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Syntax error, unexpected');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     /**
@@ -51,6 +53,8 @@ class IssetPassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Cannot use isset() on the result of an expression (you can use "null !== expression" instead)');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function invalidStatements()

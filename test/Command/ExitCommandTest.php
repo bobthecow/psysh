@@ -24,5 +24,7 @@ class ExitCommandTest extends \Psy\Test\TestCase
         $command = new ExitCommand();
         $tester = new CommandTester($command);
         $tester->execute([]);
+
+        $this->fail();
     }
 }

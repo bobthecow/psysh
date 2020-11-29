@@ -63,5 +63,7 @@ class ThrowUpExceptionTest extends \Psy\Test\TestCase
 
         $notThrowable = new \stdClass();
         ThrowUpException::fromThrowable($notThrowable);
+
+        $this->fail();
     }
 }

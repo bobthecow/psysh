@@ -33,6 +33,8 @@ class ReturnTypePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('A function with return type must return a value');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function missingReturns()
@@ -53,6 +55,8 @@ class ReturnTypePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('(did you mean "return null;" instead of "return;"?)');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function missingNullableReturns()
@@ -73,6 +77,8 @@ class ReturnTypePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('A void function must not return a value');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function voidReturns()
@@ -93,6 +99,8 @@ class ReturnTypePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('(did you mean "return;" instead of "return null;"?)');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function voidNullReturns()
@@ -113,6 +121,8 @@ class ReturnTypePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Void type cannot be nullable');
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function nullableVoidReturns()

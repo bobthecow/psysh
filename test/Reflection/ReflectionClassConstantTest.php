@@ -35,6 +35,8 @@ class ReflectionClassConstantTest extends \Psy\Test\TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         new ReflectionClassConstant($this, 'UNKNOWN_CONSTANT');
+
+        $this->fail();
     }
 
     public function testExport()
@@ -68,6 +70,8 @@ class ReflectionClassConstantTest extends \Psy\Test\TestCase
 
         $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
         $refl->$method();
+
+        $this->fail();
     }
 
     public function notYetImplemented()

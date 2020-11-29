@@ -109,6 +109,8 @@ class CodeCleanerTest extends TestCase
 
         $cc = new CodeCleaner();
         $cc->clean([$code]);
+
+        $this->fail();
     }
 
     public function invalidStatementsProvider()

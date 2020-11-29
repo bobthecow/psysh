@@ -72,6 +72,8 @@ class ThrowUpCommandTest extends \Psy\Test\TestCase
         $command->setApplication(new Shell());
         $tester = new CommandTester($command);
         $tester->execute(['exception' => 'foo(); bar()']);
+
+        $this->fail();
     }
 
     public function testParseErrorThrowsException()
@@ -83,5 +85,7 @@ class ThrowUpCommandTest extends \Psy\Test\TestCase
         $command->setApplication(new Shell());
         $tester = new CommandTester($command);
         $tester->execute(['exception' => 'foo)']);
+
+        $this->fail();
     }
 }

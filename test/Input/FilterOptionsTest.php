@@ -56,6 +56,8 @@ class FilterOptionsTest extends \Psy\Test\TestCase
         $input = $this->getInput($input);
         $filterOptions = new FilterOptions();
         $filterOptions->bind($input);
+
+        $this->fail();
     }
 
     public function invalidInputs()

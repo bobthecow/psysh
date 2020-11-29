@@ -169,13 +169,16 @@ class ConfigurationTest extends TestCase
         $this->expectExceptionMessage('Invalid configuration file specified');
 
         $config = new Configuration(['configFile' => __DIR__.'/not/a/real/config.php']);
-        $this->assertFalse(true);
+
+        $this->fail();
     }
 
     public function testBaseDirConfigIsDeprecated()
     {
         $this->expectException(\Psy\Exception\DeprecatedException::class);
         $config = new Configuration(['baseDir' => 'fake']);
+
+        $this->fail();
     }
 
     private function joinPath()
@@ -259,6 +262,8 @@ class ConfigurationTest extends TestCase
 
         $config = $this->getConfig();
         $config->setColorMode('some invalid mode');
+
+        $this->fail();
     }
 
     public function getOutputVerbosityProvider()
@@ -308,6 +313,8 @@ class ConfigurationTest extends TestCase
 
         $config = $this->getConfig();
         $config->setVerbosity('some invalid verbosity');
+
+        $this->fail();
     }
 
     public function getInputInteractiveProvider()
@@ -366,6 +373,8 @@ class ConfigurationTest extends TestCase
 
         $config = $this->getConfig();
         $config->setInteractiveMode('nope');
+
+        $this->fail();
     }
 
     public function testSetCheckerValid()
@@ -442,6 +451,8 @@ class ConfigurationTest extends TestCase
 
         $config = $this->getConfig();
         $config->setFormatterStyles($styles);
+
+        $this->fail();
     }
 
     public function invalidStyles()

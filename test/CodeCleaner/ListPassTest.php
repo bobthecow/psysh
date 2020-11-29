@@ -31,6 +31,8 @@ class ListPassTest extends CodeCleanerTestCase
 
         $stmts = $this->parse($code);
         $this->traverser->traverse($stmts);
+
+        $this->fail();
     }
 
     public function invalidStatements()

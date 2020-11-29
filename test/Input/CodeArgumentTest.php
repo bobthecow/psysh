@@ -23,6 +23,8 @@ class CodeArgumentTest extends \Psy\Test\TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         new CodeArgument('wat', $mode);
+
+        $this->fail();
     }
 
     public function getInvalidModes()

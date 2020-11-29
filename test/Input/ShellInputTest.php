@@ -31,6 +31,8 @@ class ShellInputTest extends \Psy\Test\TestCase
 
         $input = new ShellInput('foo bar');
         $input->bind($definition);
+
+        $this->fail();
     }
 
     public function testInputOptionWithGivenString()

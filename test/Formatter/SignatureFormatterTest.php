@@ -100,5 +100,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
 
         $refl = $this->getMockBuilder(\Reflector::class)->getMock();
         SignatureFormatter::format($refl);
+
+        $this->fail();
     }
 }

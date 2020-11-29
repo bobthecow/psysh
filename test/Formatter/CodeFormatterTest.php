@@ -79,6 +79,8 @@ EOS;
     {
         $this->expectException(\Psy\Exception\RuntimeException::class);
         CodeFormatter::format($reflector);
+
+        $this->fail();
     }
 
     public function invalidReflectors()
@@ -113,6 +115,8 @@ EOS;
             ->will($this->returnValue($filename));
 
         CodeFormatter::format($reflector);
+
+        $this->fail();
     }
 
     public function filenames()

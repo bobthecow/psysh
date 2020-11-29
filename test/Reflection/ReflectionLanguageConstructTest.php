@@ -67,6 +67,8 @@ class ReflectionLanguageConstructTest extends \Psy\Test\TestCase
     {
         $this->expectException(\RuntimeException::class);
         ReflectionLanguageConstruct::export($keyword);
+
+        $this->fail();
     }
 
     public function languageConstructs()
@@ -89,6 +91,8 @@ class ReflectionLanguageConstructTest extends \Psy\Test\TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         new ReflectionLanguageConstruct($keyword);
+
+        $this->fail();
     }
 
     public function unknownLanguageConstructs()

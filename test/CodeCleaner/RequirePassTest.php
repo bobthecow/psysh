@@ -59,6 +59,8 @@ class RequirePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Failed opening required \'not a file name\' in eval()\'d code on line 2');
 
         RequirePass::resolve('not a file name', 2);
+
+        $this->fail();
     }
 
     /**
@@ -74,6 +76,8 @@ class RequirePassTest extends CodeCleanerTestCase
         $this->expectExceptionMessage('Filename cannot be empty on line 1');
 
         RequirePass::resolve($file, 1);
+
+        $this->fail();
     }
 
     public function emptyWarnings()

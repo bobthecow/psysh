@@ -28,6 +28,8 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
     {
         $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function getInvalid()
@@ -110,6 +112,8 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
         $this->expectException(\Psy\Exception\FatalErrorException::class);
 
         $this->parseAndTraverse($code);
+
+        $this->fail();
     }
 
     public function getInvalidLegacy()

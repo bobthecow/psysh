@@ -70,6 +70,8 @@ class ShellTest extends TestCase
         $shell = new Shell($this->getConfig());
         $shell->setScopeVariables(['foo' => 'FOO', 'bar' => 1]);
         $shell->getScopeVariable('baz');
+
+        $this->fail();
     }
 
     public function testIncludesWithScopeVariables()
@@ -283,6 +285,8 @@ class ShellTest extends TestCase
 
         $shell = new Shell($this->getConfig());
         $shell->handleError($errno, 'wheee', null, 13);
+
+        $this->fail();
     }
 
     public function badErrors()
@@ -363,6 +367,8 @@ class ShellTest extends TestCase
         $shell = new Shell($this->getConfig());
         $shell->addCode('this is not valid');
         $shell->flushCode();
+
+        $this->fail();
     }
 
     public function testClosuresSupport()

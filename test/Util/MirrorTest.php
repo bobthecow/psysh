@@ -72,6 +72,8 @@ class MirrorTest extends \Psy\Test\TestCase
     {
         $this->expectException(\RuntimeException::class);
         Mirror::get($this, 'notAMethod');
+
+        $this->fail();
     }
 
     /**
@@ -81,6 +83,8 @@ class MirrorTest extends \Psy\Test\TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         Mirror::get($value);
+
+        $this->fail();
     }
 
     public function invalidArguments()
