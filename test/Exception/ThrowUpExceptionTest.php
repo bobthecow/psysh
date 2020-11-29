@@ -15,7 +15,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\Exception;
 use Psy\Exception\ThrowUpException;
 
-class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
+class ThrowUpExceptionTest extends \Psy\Test\TestCase
 {
     public function testException()
     {
@@ -56,12 +56,11 @@ class ThrowUpExceptionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($previous, $e->getPrevious()->getPrevious());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage throw-up can only throw Exceptions and Errors
-     */
     public function testFromThrowableThrowsError()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('throw-up can only throw Exceptions and Errors');
+
         $notThrowable = new \stdClass();
         ThrowUpException::fromThrowable($notThrowable);
     }

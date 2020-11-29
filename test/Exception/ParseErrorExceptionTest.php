@@ -14,7 +14,7 @@ namespace Psy\Test\Exception;
 use Psy\Exception\Exception;
 use Psy\Exception\ParseErrorException;
 
-class ParseErrorExceptionTest extends \PHPUnit\Framework\TestCase
+class ParseErrorExceptionTest extends \Psy\Test\TestCase
 {
     public function testInstance()
     {

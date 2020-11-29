@@ -23,15 +23,11 @@ class ListPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\ParseErrorException
      */
     public function testProcessInvalidStatement($code, $expectedMessage)
     {
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(ParseErrorException::class, $expectedMessage);
-        } else {
-            $this->expectExceptionMessage($expectedMessage);
-        }
+        $this->expectException(ParseErrorException::class);
+        $this->expectExceptionMessage($expectedMessage);
 
         $stmts = $this->parse($code);
         $this->traverser->traverse($stmts);

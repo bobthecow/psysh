@@ -23,10 +23,10 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider getInvalid
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessInvalid($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 
@@ -100,13 +100,14 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider getInvalidLegacy
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessInvalidLegacy($code)
     {
         if (\version_compare(\PHP_VERSION, '7.0', '>=')) {
             $this->markTestSkipped();
         }
+
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
 
         $this->parseAndTraverse($code);
     }

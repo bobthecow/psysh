@@ -17,14 +17,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 
-class ShellInputTest extends \PHPUnit\Framework\TestCase
+class ShellInputTest extends \Psy\Test\TestCase
 {
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Unexpected CodeArgument before the final position: a
-     */
     public function testThrowsWhenCodeArgumentNotInFinalPosition()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unexpected CodeArgument before the final position: a');
+
         $definition = new InputDefinition([
             new CodeArgument('a', null, CodeArgument::REQUIRED),
             new InputArgument('b', null, InputArgument::REQUIRED),

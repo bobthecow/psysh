@@ -22,7 +22,7 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ConfigurationTest extends \PHPUnit\Framework\TestCase
+class ConfigurationTest extends TestCase
 {
     private function getConfig($configFile = null)
     {
@@ -163,21 +163,18 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         \chdir($oldPwd);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid configuration file specified
-     */
     public function testUnknownConfigFileThrowsException()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid configuration file specified');
+
         $config = new Configuration(['configFile' => __DIR__.'/not/a/real/config.php']);
         $this->assertFalse(true);
     }
 
-    /**
-     * @expectedException \Psy\Exception\DeprecatedException
-     */
     public function testBaseDirConfigIsDeprecated()
     {
+        $this->expectException(\Psy\Exception\DeprecatedException::class);
         $config = new Configuration(['baseDir' => 'fake']);
     }
 
@@ -255,12 +252,11 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($colorMode, $config->colorMode());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid color mode: some invalid mode
-     */
     public function testSetColorModeInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid color mode: some invalid mode');
+
         $config = $this->getConfig();
         $config->setColorMode('some invalid mode');
     }
@@ -305,12 +301,11 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($verbosity, $config->verbosity());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid verbosity level: some invalid verbosity
-     */
     public function testSetVerbosityInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid verbosity level: some invalid verbosity');
+
         $config = $this->getConfig();
         $config->setVerbosity('some invalid verbosity');
     }
@@ -364,12 +359,11 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($interactive, $config->interactiveMode());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid interactive mode: nope
-     */
     public function testsetInteractiveModeInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid interactive mode: nope');
+
         $config = $this->getConfig();
         $config->setInteractiveMode('nope');
     }
@@ -443,12 +437,8 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
      */
     public function testSetFormatterStylesInvalid($styles, $msg)
     {
-        if (\method_exists($this, 'expectException')) {
-            $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage($msg);
-        } else {
-            $this->setExpectedException(\InvalidArgumentException::class, $msg);
-        }
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($msg);
 
         $config = $this->getConfig();
         $config->setFormatterStyles($styles);

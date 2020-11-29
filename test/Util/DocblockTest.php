@@ -13,7 +13,7 @@ namespace Psy\Test\Util;
 
 use Psy\Util\Docblock;
 
-class DocblockTest extends \PHPUnit\Framework\TestCase
+class DocblockTest extends \Psy\Test\TestCase
 {
     /**
      * @dataProvider comments

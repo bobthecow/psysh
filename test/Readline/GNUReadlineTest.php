@@ -13,7 +13,7 @@ namespace Psy\Test\Readline;
 
 use Psy\Readline\GNUReadline;
 
-class GNUReadlineTest extends \PHPUnit\Framework\TestCase
+class GNUReadlineTest extends \Psy\Test\TestCase
 {
     private $historyFile;
 

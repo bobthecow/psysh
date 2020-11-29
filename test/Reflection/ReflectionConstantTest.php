@@ -15,7 +15,7 @@ use Psy\Reflection\ReflectionConstant_;
 
 \define('Psy\\Test\\Reflection\\SOME_CONSTANT', 'yep');
 
-class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
+class ReflectionConstantTest extends \Psy\Test\TestCase
 {
     public function testConstruction()
     {
@@ -68,11 +68,9 @@ class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testUnknownConstantThrowsException()
     {
+        $this->expectException(\InvalidArgumentException::class);
         new ReflectionConstant_('UNKNOWN_CONSTANT');
     }
 
@@ -95,11 +93,12 @@ class ReflectionConstantTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
      * @dataProvider notYetImplemented
      */
     public function testNotYetImplemented($method)
     {
+        $this->expectException(\RuntimeException::class);
+
         $refl = new ReflectionConstant_('Psy\\Test\\Reflection\\SOME_CONSTANT');
         $refl->$method();
     }

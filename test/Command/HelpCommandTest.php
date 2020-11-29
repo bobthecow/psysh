@@ -15,7 +15,7 @@ use Psy\Command\HelpCommand;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class HelpCommandTest extends \PHPUnit\Framework\TestCase
+class HelpCommandTest extends \Psy\Test\TestCase
 {
     public function testExecute()
     {

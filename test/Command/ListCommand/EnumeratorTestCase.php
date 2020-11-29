@@ -16,7 +16,7 @@ use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\StringInput;
 
-abstract class EnumeratorTestCase extends \PHPUnit\Framework\TestCase
+abstract class EnumeratorTestCase extends \Psy\Test\TestCase
 {
     protected function getPresenter()
     {

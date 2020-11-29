@@ -14,14 +14,13 @@ namespace Psy\Test\Command;
 use Psy\Command\ExitCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ExitCommandTest extends \PHPUnit\Framework\TestCase
+class ExitCommandTest extends \Psy\Test\TestCase
 {
-    /**
-     * @expectedException \Psy\Exception\BreakException
-     * @expectedExceptionMessage Goodbye
-     */
     public function testExecute()
     {
+        $this->expectException(\Psy\Exception\BreakException::class);
+        $this->expectExceptionMessage('Goodbye');
+
         $command = new ExitCommand();
         $tester = new CommandTester($command);
         $tester->execute([]);

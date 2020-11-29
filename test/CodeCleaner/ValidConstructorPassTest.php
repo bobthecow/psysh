@@ -22,19 +22,19 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessInvalidStatement($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 
     /**
      * @dataProvider invalidParserStatements
-     * @expectedException \Psy\Exception\ParseErrorException
      */
     public function testProcessInvalidStatementCatchedByParser($code)
     {
+        $this->expectException(\Psy\Exception\ParseErrorException::class);
         $this->parseAndTraverse($code);
     }
 

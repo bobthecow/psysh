@@ -15,7 +15,7 @@ use Psy\Command\ThrowUpCommand;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
+class ThrowUpCommandTest extends \Psy\Test\TestCase
 {
     /**
      * @dataProvider executeThis
@@ -63,24 +63,22 @@ class ThrowUpCommandTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage No idea how to throw this
-     */
     public function testMultipleArgsThrowsException()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('No idea how to throw this');
+
         $command = new ThrowUpCommand();
         $command->setApplication(new Shell());
         $tester = new CommandTester($command);
         $tester->execute(['exception' => 'foo(); bar()']);
     }
 
-    /**
-     * @expectedException \PhpParser\Error
-     * @expectedExceptionMessage Syntax error, unexpected ')' on line 1
-     */
     public function testParseErrorThrowsException()
     {
+        $this->expectException(\PhpParser\Error::class);
+        $this->expectExceptionMessage('Syntax error, unexpected \')\' on line 1');
+
         $command = new ThrowUpCommand();
         $command->setApplication(new Shell());
         $tester = new CommandTester($command);

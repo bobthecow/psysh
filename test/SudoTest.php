@@ -13,7 +13,7 @@ namespace Psy\Test;
 
 use Psy\Sudo;
 
-class SudoTest extends \PHPUnit\Framework\TestCase
+class SudoTest extends TestCase
 {
     public function setUp()
     {

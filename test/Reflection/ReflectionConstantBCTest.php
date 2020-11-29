@@ -14,7 +14,7 @@ namespace Psy\Test\Reflection;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant;
 
-class ReflectionConstantBCTest extends \PHPUnit\Framework\TestCase
+class ReflectionConstantBCTest extends \Psy\Test\TestCase
 {
     const CONSTANT_ONE = 'one';
 

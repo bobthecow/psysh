@@ -13,7 +13,7 @@ namespace Psy\Test\Readline;
 
 use Psy\Readline\Transient;
 
-class TransientTest extends \PHPUnit\Framework\TestCase
+class TransientTest extends \Psy\Test\TestCase
 {
     public function testHistory()
     {

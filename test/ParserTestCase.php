@@ -15,7 +15,7 @@ use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Exception\ParseErrorException;
 use Psy\ParserFactory;
 
-class ParserTestCase extends \PHPUnit\Framework\TestCase
+class ParserTestCase extends TestCase
 {
     protected $traverser;
     private $parser;

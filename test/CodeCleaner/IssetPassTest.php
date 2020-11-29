@@ -25,8 +25,6 @@ class IssetPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\ParseErrorException
-     * @expectedExceptionMessage Syntax error, unexpected
      */
     public function testLegacyParseErrors($code)
     {
@@ -34,19 +32,23 @@ class IssetPassTest extends CodeCleanerTestCase
             $this->markTestSkipped();
         }
 
+        $this->expectException(\Psy\Exception\ParseErrorException::class);
+        $this->expectExceptionMessage('Syntax error, unexpected');
+
         $this->parseAndTraverse($code);
     }
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage Cannot use isset() on the result of an expression (you can use "null !== expression" instead)
      */
     public function testProcessStatementFails($code)
     {
         if (\version_compare(\PHP_VERSION, '7.0', '<')) {
             $this->markTestSkipped();
         }
+
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
+        $this->expectExceptionMessage('Cannot use isset() on the result of an expression (you can use "null !== expression" instead)');
 
         $this->parseAndTraverse($code);
     }

@@ -22,10 +22,10 @@ class CalledClassPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\ErrorException
      */
     public function testProcessStatementFails($code)
     {
+        $this->expectException(\Psy\Exception\ErrorException::class);
         $this->parseAndTraverse($code);
     }
 

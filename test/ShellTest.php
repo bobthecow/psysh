@@ -20,7 +20,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class ShellTest extends \PHPUnit\Framework\TestCase
+class ShellTest extends TestCase
 {
     private $streams = [];
 
@@ -63,11 +63,10 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['_' => null, 'this' => $this], $shell->getScopeVariables());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testUnknownScopeVariablesThrowExceptions()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $shell = new Shell($this->getConfig());
         $shell->setScopeVariables(['foo' => 'FOO', 'bar' => 1]);
         $shell->getScopeVariable('baz');
@@ -277,10 +276,11 @@ class ShellTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider badErrors
-     * @expectedException \Psy\Exception\ErrorException
      */
     public function testThrowsBadErrors($errno)
     {
+        $this->expectException(\Psy\Exception\ErrorException::class);
+
         $shell = new Shell($this->getConfig());
         $shell->handleError($errno, 'wheee', null, 13);
     }
@@ -356,11 +356,10 @@ class ShellTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('return 1 + 1 + 1;', $code);
     }
 
-    /**
-     * @expectedException \Psy\Exception\ParseErrorException
-     */
     public function testCodeBufferThrowsParseExceptions()
     {
+        $this->expectException(\Psy\Exception\ParseErrorException::class);
+
         $shell = new Shell($this->getConfig());
         $shell->addCode('this is not valid');
         $shell->flushCode();

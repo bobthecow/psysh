@@ -16,7 +16,7 @@ use Psy\Reflection\ReflectionConstant_;
 use Psy\Reflection\ReflectionNamespace;
 use Psy\Util\Mirror;
 
-class MirrorTest extends \PHPUnit\Framework\TestCase
+class MirrorTest extends \Psy\Test\TestCase
 {
     const FOO = 1;
     private $bar = 2;
@@ -68,20 +68,18 @@ class MirrorTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\ReflectionClass::class, $refl);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testMirrorThrowsExceptions()
     {
+        $this->expectException(\RuntimeException::class);
         Mirror::get($this, 'notAMethod');
     }
 
     /**
-     * @expectedException \InvalidArgumentException
      * @dataProvider invalidArguments
      */
     public function testMirrorThrowsInvalidArgumentExceptions($value)
     {
+        $this->expectException(\InvalidArgumentException::class);
         Mirror::get($value);
     }
 

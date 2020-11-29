@@ -14,7 +14,7 @@ namespace Psy\Test\Reflection;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Reflection\ReflectionLanguageConstructParameter;
 
-class ReflectionLanguageConstructParameterTest extends \PHPUnit\Framework\TestCase
+class ReflectionLanguageConstructParameterTest extends \Psy\Test\TestCase
 {
     public function testOptions()
     {

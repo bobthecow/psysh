@@ -14,7 +14,7 @@ namespace Psy\Test;
 use Psy\Context;
 use Psy\Shell;
 
-class ContextTest extends \PHPUnit\Framework\TestCase
+class ContextTest extends TestCase
 {
     public function testGet()
     {
@@ -104,11 +104,12 @@ class ContextTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider specialNames
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessageRegEx /Unknown variable: \$\w+/
      */
     public function testSetAllDoesNotSetSpecial($name)
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Unknown variable: \$\w+/');
+
         $context = new Context();
         $context->setAll([$name => 'fail']);
         $context->get($name);
@@ -159,12 +160,11 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($e, $context->get('_e'));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage No most-recent exception
-     */
     public function testLastExceptionThrowsSometimes()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('No most-recent exception');
+
         $context = new Context();
         $context->getLastException();
     }
@@ -177,12 +177,11 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('ouuuuut', $context->get('__out'));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage No most-recent output
-     */
     public function testLastStdoutThrowsSometimes()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('No most-recent output');
+
         $context = new Context();
         $context->getLastStdout();
     }
@@ -201,12 +200,11 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($context->getBoundObject());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Unknown variable: $this
-     */
     public function testBoundObjectThrowsSometimes()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown variable: $this');
+
         $context = new Context();
         $context->get('this');
     }

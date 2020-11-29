@@ -22,10 +22,10 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider getInvalidFunctions
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessInvalidFunctionCallsAndDeclarations($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 

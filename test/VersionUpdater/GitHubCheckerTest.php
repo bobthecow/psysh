@@ -14,17 +14,18 @@ namespace Psy\Test\VersionUpdater;
 use Psy\Shell;
 use Psy\VersionUpdater\GitHubChecker;
 
-class GitHubCheckerTest extends \PHPUnit\Framework\TestCase
+class GitHubCheckerTest extends \Psy\Test\TestCase
 {
     /**
      * @dataProvider malformedResults
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Unable to check for updates
      *
      * @param mixed $input
      */
     public function testExceptionInvocation($input)
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unable to check for updates');
+
         $checker = $this->getMockBuilder(GitHubChecker::class)
             ->setMethods(['fetchLatestRelease'])
             ->getMock();

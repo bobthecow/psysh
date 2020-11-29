@@ -39,10 +39,10 @@ class FunctionContextPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidYieldStatements
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testInvalidYield($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 

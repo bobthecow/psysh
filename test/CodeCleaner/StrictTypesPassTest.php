@@ -34,10 +34,10 @@ class StrictTypesPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidDeclarations
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testInvalidDeclarations($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 

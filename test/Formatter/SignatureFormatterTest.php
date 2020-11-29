@@ -17,7 +17,7 @@ use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Test\Formatter\Fixtures\BoringTrait;
 
-class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
+class SignatureFormatterTest extends \Psy\Test\TestCase
 {
     const FOO = 'foo value';
     private static $bar = 'bar value';
@@ -94,11 +94,10 @@ class SignatureFormatterTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testSignatureFormatterThrowsUnknownReflectorExpeption()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $refl = $this->getMockBuilder(\Reflector::class)->getMock();
         SignatureFormatter::format($refl);
     }

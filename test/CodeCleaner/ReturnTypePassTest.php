@@ -26,11 +26,12 @@ class ReturnTypePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider missingReturns
-     * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage A function with return type must return a value
      */
     public function testMissingReturn($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
+        $this->expectExceptionMessage('A function with return type must return a value');
+
         $this->parseAndTraverse($code);
     }
 
@@ -45,11 +46,12 @@ class ReturnTypePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider missingNullableReturns
-     * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage (did you mean "return null;" instead of "return;"?)
      */
     public function testMissingNullableReturns($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
+        $this->expectExceptionMessage('(did you mean "return null;" instead of "return;"?)');
+
         $this->parseAndTraverse($code);
     }
 
@@ -64,11 +66,12 @@ class ReturnTypePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider voidReturns
-     * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage A void function must not return a value
      */
     public function testVoidReturns($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
+        $this->expectExceptionMessage('A void function must not return a value');
+
         $this->parseAndTraverse($code);
     }
 
@@ -83,11 +86,12 @@ class ReturnTypePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider voidNullReturns
-     * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage (did you mean "return;" instead of "return null;"?)
      */
     public function testVoidNullReturns($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
+        $this->expectExceptionMessage('(did you mean "return;" instead of "return null;"?)');
+
         $this->parseAndTraverse($code);
     }
 
@@ -102,11 +106,12 @@ class ReturnTypePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider nullableVoidReturns
-     * @expectedException \Psy\Exception\FatalErrorException
-     * @expectedExceptionMessage Void type cannot be nullable
      */
     public function testNullableVoidReturns($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
+        $this->expectExceptionMessage('Void type cannot be nullable');
+
         $this->parseAndTraverse($code);
     }
 

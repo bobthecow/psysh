@@ -14,7 +14,7 @@ namespace Psy\Test\Command;
 use Psy\Command\ClearCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ClearCommandTest extends \PHPUnit\Framework\TestCase
+class ClearCommandTest extends \Psy\Test\TestCase
 {
     public function testExecute()
     {

@@ -22,10 +22,10 @@ class ValidConstantPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider getInvalidReferences
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessInvalidConstantReferences($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 

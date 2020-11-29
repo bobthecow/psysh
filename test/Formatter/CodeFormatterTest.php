@@ -15,7 +15,7 @@ use Psy\Configuration;
 use Psy\Formatter\CodeFormatter;
 use Psy\Test\Formatter\Fixtures\SomeClass;
 
-class CodeFormatterTest extends \PHPUnit\Framework\TestCase
+class CodeFormatterTest extends \Psy\Test\TestCase
 {
     /**
      * @dataProvider reflectors
@@ -74,10 +74,10 @@ EOS;
 
     /**
      * @dataProvider invalidReflectors
-     * @expectedException \Psy\Exception\RuntimeException
      */
     public function testCodeFormatterThrowsExceptionForReflectorsItDoesntUnderstand($reflector)
     {
+        $this->expectException(\Psy\Exception\RuntimeException::class);
         CodeFormatter::format($reflector);
     }
 
@@ -98,10 +98,11 @@ EOS;
 
     /**
      * @dataProvider filenames
-     * @expectedException \Psy\Exception\RuntimeException
      */
     public function testCodeFormatterThrowsExceptionForMissingFile($filename)
     {
+        $this->expectException(\Psy\Exception\RuntimeException::class);
+
         $reflector = $this->getMockBuilder(\ReflectionClass::class)
             ->disableOriginalConstructor()
             ->getMock();

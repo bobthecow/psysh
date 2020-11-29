@@ -22,10 +22,10 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testProcessStatementFails($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 
@@ -92,10 +92,10 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidArrayMultisort
-     * @expectedException \Psy\Exception\FatalErrorException
      */
     public function testInvalidArrayMultisort($code)
     {
+        $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->parseAndTraverse($code);
     }
 

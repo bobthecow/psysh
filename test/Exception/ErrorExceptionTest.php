@@ -14,7 +14,7 @@ namespace Psy\Test\Exception;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception;
 
-class ErrorExceptionTest extends \PHPUnit\Framework\TestCase
+class ErrorExceptionTest extends \Psy\Test\TestCase
 {
     public function testInstance()
     {

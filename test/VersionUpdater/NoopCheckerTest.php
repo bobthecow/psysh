@@ -14,7 +14,7 @@ namespace Psy\Test\VersionUpdater;
 use Psy\Shell;
 use Psy\VersionUpdater\NoopChecker;
 
-class NoopCheckerTest extends \PHPUnit\Framework\TestCase
+class NoopCheckerTest extends \Psy\Test\TestCase
 {
     public function testTheThings()
     {
