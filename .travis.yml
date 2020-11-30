@@ -28,10 +28,7 @@ jobs:
 
 install:
     - travis_retry composer update --no-interaction $COMPOSER_FLAGS
-    - |
-      if [[ $TRAVIS_PHP_VERSION != 7.2* ]]; then
-        composer bin phpunit update
-      fi
+    - travis_retry composer bin phpunit update --no-interaction --no-progress
 
 script:
     - make test
