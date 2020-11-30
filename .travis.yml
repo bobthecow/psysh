@@ -24,6 +24,7 @@ jobs:
         - php: 5.5.9
           env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
         - php: 8.0snapshot
+        - php: hhvm-3.18
     fast_finish: true
 
 install:
