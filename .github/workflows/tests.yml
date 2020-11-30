@@ -6,7 +6,7 @@ on:
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }}
+    name: PHP ${{ matrix.php }} ${{ matrix.composer_flags }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.yolo }}
 
@@ -14,9 +14,13 @@ jobs:
       fail-fast: false
       matrix:
         php: ['5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
+        composer_flags: ['']
         yolo: [false]
         include:
           - php: '8.0'
+            yolo: true
+          - php: '5.5'
+            composer_flags: --prefer-lowest --prefer-stable
             yolo: true
 
     steps:
@@ -38,7 +42,7 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer update --no-interaction --no-progress
+          command: composer update --no-interaction --no-progress ${{ matrix.composer_flags }}
 
       - name: Install PHPUnit
         uses: nick-invision/retry@v1

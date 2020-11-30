@@ -4,18 +4,14 @@ dist: trusty
 
 jobs:
   include:
-    - php: 5.5.9
-      env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
     - php: hhvm-3.18
 
   allow_failures:
-    - php: 5.5.9
-      env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
     - php: hhvm-3.18
   fast_finish: true
 
 install:
-  - travis_retry composer update --no-interaction $COMPOSER_FLAGS
+  - travis_retry composer update --no-interaction
   - travis_retry composer bin phpunit update --no-interaction --no-progress
 
 script:
