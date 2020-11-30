@@ -1,42 +1,22 @@
 language: php
 os: linux
-dist: bionic
+dist: trusty
 
 jobs:
-    include:
-        - php: 5.5.9
-          env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
-          dist: trusty
-        - php: 5.5
-          dist: trusty
-        - php: 5.6
-          dist: xenial
-        - php: 7.0
-          dist: xenial
-        - php: 7.1
-        - php: 7.2
-        - php: 7.3
-        - php: 7.4
-        - php: 8.0snapshot
-        - php: hhvm-3.18
-          dist: trusty
-    allow_failures:
-        - php: 5.5.9
-          env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
-        - php: 8.0snapshot
-        - php: hhvm-3.18
-    fast_finish: true
+  include:
+    - php: 5.5.9
+      env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
+    - php: hhvm-3.18
+
+  allow_failures:
+    - php: 5.5.9
+      env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
+    - php: hhvm-3.18
+  fast_finish: true
 
 install:
-    - travis_retry composer update --no-interaction $COMPOSER_FLAGS
-    - travis_retry composer bin phpunit update --no-interaction --no-progress
+  - travis_retry composer update --no-interaction $COMPOSER_FLAGS
+  - travis_retry composer bin phpunit update --no-interaction --no-progress
 
 script:
-    - make test
-    - |
-      if [[ $TRAVIS_PHP_VERSION = 7.2* ]]; then
-        make build -j 4
-      fi
-
-after_success:
-    - bash <(curl -s https://codecov.io/bash)
+  - make test
