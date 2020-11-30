@@ -28,7 +28,7 @@ class BreakExceptionTest extends \Psy\Test\TestCase
     {
         $e = new BreakException('foo');
 
-        $this->assertContains('foo', $e->getMessage());
+        $this->assertStringContainsString('foo', $e->getMessage());
         $this->assertSame('foo', $e->getRawMessage());
     }
 

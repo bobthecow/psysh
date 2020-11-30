@@ -30,9 +30,9 @@ class FatalErrorExceptionTest extends \Psy\Test\TestCase
         $e = new FatalErrorException('{msg}', 0, 0, '{filename}', 13);
 
         $this->assertSame('{msg}', $e->getRawMessage());
-        $this->assertContains('{msg}', $e->getMessage());
-        $this->assertContains('{filename}', $e->getMessage());
-        $this->assertContains('line 13', $e->getMessage());
+        $this->assertStringContainsString('{msg}', $e->getMessage());
+        $this->assertStringContainsString('{filename}', $e->getMessage());
+        $this->assertStringContainsString('line 13', $e->getMessage());
     }
 
     public function testMessageWithNoFilename()
@@ -40,8 +40,8 @@ class FatalErrorExceptionTest extends \Psy\Test\TestCase
         $e = new FatalErrorException('{msg}');
 
         $this->assertSame('{msg}', $e->getRawMessage());
-        $this->assertContains('{msg}', $e->getMessage());
-        $this->assertContains('eval()\'d code', $e->getMessage());
+        $this->assertStringContainsString('{msg}', $e->getMessage());
+        $this->assertStringContainsString('eval()\'d code', $e->getMessage());
     }
 
     public function testNegativeOneLineNumberIgnored()

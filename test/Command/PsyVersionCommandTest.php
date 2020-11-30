@@ -24,6 +24,6 @@ class PsyVersionCommandTest extends \Psy\Test\TestCase
         $tester = new CommandTester($command);
         $tester->execute([]);
 
-        $this->assertContains(Shell::VERSION, $tester->getDisplay());
+        $this->assertStringContainsString(Shell::VERSION, $tester->getDisplay());
     }
 }

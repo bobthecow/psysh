@@ -29,7 +29,7 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
     {
         $e = new ErrorException('foo');
 
-        $this->assertContains('foo', $e->getMessage());
+        $this->assertStringContainsString('foo', $e->getMessage());
         $this->assertSame('foo', $e->getRawMessage());
     }
 
@@ -39,7 +39,7 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
     public function testErrorLevels($level, $type)
     {
         $e = new ErrorException('foo', 0, $level);
-        $this->assertContains('PHP '.$type, $e->getMessage());
+        $this->assertStringContainsString('PHP '.$type, $e->getMessage());
     }
 
     /**
@@ -50,10 +50,10 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
         try {
             ErrorException::throwException($level, '{whot}', '{file}', '13');
         } catch (ErrorException $e) {
-            $this->assertContains('PHP '.$type, $e->getMessage());
-            $this->assertContains('{whot}', $e->getMessage());
-            $this->assertContains('in {file}', $e->getMessage());
-            $this->assertContains('on line 13', $e->getMessage());
+            $this->assertStringContainsString('PHP '.$type, $e->getMessage());
+            $this->assertStringContainsString('{whot}', $e->getMessage());
+            $this->assertStringContainsString('in {file}', $e->getMessage());
+            $this->assertStringContainsString('on line 13', $e->getMessage());
         }
     }
 
@@ -81,8 +81,8 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
         try {
             \trigger_error('{whot}', $level);
         } catch (ErrorException $e) {
-            $this->assertContains('PHP '.$type, $e->getMessage());
-            $this->assertContains('{whot}', $e->getMessage());
+            $this->assertStringContainsString('PHP '.$type, $e->getMessage());
+            $this->assertStringContainsString('{whot}', $e->getMessage());
         }
         \restore_error_handler();
     }
@@ -118,7 +118,7 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
         $error = new \Error('{{message}}', 0);
         $exception = ErrorException::fromError($error);
 
-        $this->assertContains('PHP Error:  {{message}}', $exception->getMessage());
+        $this->assertStringContainsString('PHP Error:  {{message}}', $exception->getMessage());
         $this->assertEquals(0, $exception->getCode());
         $this->assertEquals($error->getFile(), $exception->getFile());
         $this->assertSame($exception->getPrevious(), $error);

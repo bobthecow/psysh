@@ -159,12 +159,12 @@ class ShellTest extends TestCase
         $streamContents = \stream_get_contents($stream);
 
         // There shouldn't be a welcome message with raw output
-        $this->assertNotContains('Justin Hileman', $streamContents);
-        $this->assertNotContains(\PHP_VERSION, $streamContents);
-        $this->assertNotContains(Shell::VERSION, $streamContents);
+        $this->assertStringNotContainsString('Justin Hileman', $streamContents);
+        $this->assertStringNotContainsString(\PHP_VERSION, $streamContents);
+        $this->assertStringNotContainsString(Shell::VERSION, $streamContents);
 
         // @todo prolly shouldn't have an exit message with raw output, either
-        $this->assertContains('Goodbye', $streamContents);
+        $this->assertStringContainsString('Goodbye', $streamContents);
     }
 
     public function testIncludes()
@@ -236,9 +236,9 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertContains('PHP Parse error', $streamContents);
-        $this->assertContains('message', $streamContents);
-        $this->assertContains('line 13', $streamContents);
+        $this->assertStringContainsString('PHP Parse error', $streamContents);
+        $this->assertStringContainsString('message', $streamContents);
+        $this->assertStringContainsString('line 13', $streamContents);
     }
 
     /**
@@ -260,9 +260,9 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertContains($label, $streamContents);
-        $this->assertContains('wheee', $streamContents);
-        $this->assertContains('line 13', $streamContents);
+        $this->assertStringContainsString($label, $streamContents);
+        $this->assertStringContainsString('wheee', $streamContents);
+        $this->assertStringContainsString('line 13', $streamContents);
     }
 
     public function notSoBadErrors()
@@ -309,18 +309,18 @@ class ShellTest extends TestCase
         $shell = new Shell($this->getConfig());
 
         $this->assertInstanceOf(Application::class, $shell);
-        $this->assertContains(Shell::VERSION, $shell->getVersion());
-        $this->assertContains(\PHP_VERSION, $shell->getVersion());
-        $this->assertContains(\PHP_SAPI, $shell->getVersion());
+        $this->assertStringContainsString(Shell::VERSION, $shell->getVersion());
+        $this->assertStringContainsString(\PHP_VERSION, $shell->getVersion());
+        $this->assertStringContainsString(\PHP_SAPI, $shell->getVersion());
     }
 
     public function testGetVersionHeader()
     {
         $header = Shell::getVersionHeader(false);
 
-        $this->assertContains(Shell::VERSION, $header);
-        $this->assertContains(\PHP_VERSION, $header);
-        $this->assertContains(\PHP_SAPI, $header);
+        $this->assertStringContainsString(Shell::VERSION, $header);
+        $this->assertStringContainsString(\PHP_VERSION, $header);
+        $this->assertStringContainsString(\PHP_SAPI, $header);
     }
 
     public function testCodeBuffer()
@@ -501,7 +501,7 @@ class ShellTest extends TestCase
         \rewind($stream);
         $stdout = \stream_get_contents($stream);
         $this->assertStringStartsWith($expected, $stdout);
-        $this->assertContains(\basename(__FILE__), $stdout);
+        $this->assertStringContainsString(\basename(__FILE__), $stdout);
 
         $lineCount = \count(\explode(\PHP_EOL, $stdout));
         $this->assertGreaterThan(4, $lineCount); // /shrug

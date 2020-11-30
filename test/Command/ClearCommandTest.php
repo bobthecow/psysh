@@ -23,6 +23,6 @@ class ClearCommandTest extends \Psy\Test\TestCase
         $tester->execute([]);
 
         $clear = \sprintf('%c[2J%c[0;0f', 27, 27);
-        $this->assertContains($clear, $tester->getDisplay());
+        $this->assertStringContainsString($clear, $tester->getDisplay());
     }
 }

@@ -43,22 +43,62 @@ trait ExpectExceptionMessagMatchesForwardCompatibility
     }
 }
 
+trait AssertContainsForwardCompatibility
+{
+    public static function assertStringContainsString($needle, $haystack, $message = '')
+    {
+        static::assertContains((string) $needle, (string) $haystack, $message);
+    }
+
+    public static function assertStringContainsStringIgnoringCase($needle, $haystack, $message = '')
+    {
+        static::assertContains((string) $needle, (string) $haystack, $message, true);
+    }
+
+    public static function assertStringNotContainsString($needle, $haystack, $message = '')
+    {
+        static::assertNotContains((string) $needle, (string) $haystack, $message);
+    }
+
+    public static function assertStringNotContainsStringIgnoringCase($needle, $haystack, $message = '')
+    {
+        static::assertNotContains((string) $needle, (string) $haystack, $message, true);
+    }
+}
+
 if (\method_exists(\PHPUnit\Framework\TestCase::class, 'expectException')) {
-    if (\method_exists(\PHPUnit\Framework\TestCase::class, 'expectExceptionMessageMatches')) {
-        abstract class TestCase extends \PHPUnit\Framework\TestCase
-        {
-            // No forward compatibility needed!
+    if (\method_exists(\PHPUnit\Framework\TestCase::class, 'assertStringContainsString')) {
+        if (\method_exists(\PHPUnit\Framework\TestCase::class, 'expectExceptionMessageMatches')) {
+            abstract class TestCase extends \PHPUnit\Framework\TestCase
+            {
+                // No forward compatibility needed!
+            }
+        } else {
+            abstract class TestCase extends \PHPUnit\Framework\TestCase
+            {
+                use ExpectExceptionMessagMatchesForwardCompatibility;
+            }
         }
     } else {
         abstract class TestCase extends \PHPUnit\Framework\TestCase
         {
-            use ExpectExceptionMessagMatchesForwardCompatibility;
+            use AssertContainsForwardCompatibility;
+            use ModernExceptExceptionPolyfill;
         }
     }
 } else {
-    abstract class TestCase extends \PHPUnit\Framework\TestCase
-    {
-        use ExpectExceptionForwardCompatibility;
-        use ExpectExceptionMessagMatchesForwardCompatibility;
+    if (\method_exists(\PHPUnit\Framework\TestCase::class, 'assertStringContainsString')) {
+        abstract class TestCase extends \PHPUnit\Framework\TestCase
+        {
+            use ExpectExceptionForwardCompatibility;
+            use ExpectExceptionMessagMatchesForwardCompatibility;
+        }
+    } else {
+        abstract class TestCase extends \PHPUnit\Framework\TestCase
+        {
+            use AssertContainsForwardCompatibility;
+            use ExpectExceptionForwardCompatibility;
+            use ExpectExceptionMessagMatchesForwardCompatibility;
+        }
     }
 }

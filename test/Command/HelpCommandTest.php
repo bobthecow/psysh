@@ -25,14 +25,14 @@ class HelpCommandTest extends \Psy\Test\TestCase
         $tester = new CommandTester($command);
         $tester->execute([]);
 
-        $this->assertContains('Show a list of commands. Type `help [foo]` for information about [foo].', $tester->getDisplay());
+        $this->assertStringContainsString('Show a list of commands. Type `help [foo]` for information about [foo].', $tester->getDisplay());
 
         foreach ($shell->all() as $command) {
             $pattern = \sprintf('/^\s*%s/m', \preg_quote($command->getName()));
             $this->assertRegExp($pattern, $tester->getDisplay());
         }
 
-        $this->assertContains('End the current session and return to caller.', $tester->getDisplay());
-        $this->assertContains('Aliases: quit, q', $tester->getDisplay());
+        $this->assertStringContainsString('End the current session and return to caller.', $tester->getDisplay());
+        $this->assertStringContainsString('Aliases: quit, q', $tester->getDisplay());
     }
 }
