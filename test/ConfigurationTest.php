@@ -444,10 +444,11 @@ class ConfigurationTest extends TestCase
     /**
      * @dataProvider invalidStyles
      */
-    public function testSetFormatterStylesInvalid($styles, $msg)
+    public function testSetFormatterStylesInvalid($styles, $option)
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage($msg);
+        $this->expectExceptionMessage('Invalid');
+        $this->expectExceptionMessage($option);
 
         $config = $this->getConfig();
         $config->setFormatterStyles($styles);
@@ -460,15 +461,15 @@ class ConfigurationTest extends TestCase
         return [
             [
                 ['error' => ['burgundy', null, ['bold']]],
-                'Invalid foreground color specified: "burgundy". Expected one of',
+                '"burgundy"',
             ],
             [
                 ['error' => ['red', 'ink', ['bold']]],
-                'Invalid background color specified: "ink". Expected one of',
+                '"ink"',
             ],
             [
                 ['error' => ['black', 'red', ['marquee']]],
-                'Invalid option specified: "marquee". Expected one of',
+                '"marquee"',
             ],
         ];
     }
