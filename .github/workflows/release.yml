@@ -8,9 +8,11 @@ jobs:
   draft_release:
     name: 'Create draft release'
     runs-on: ubuntu-latest
+
     outputs:
       tag_name: ${{ steps.tag_name.outputs.tag }}
       upload_url: ${{ steps.create_release.outputs.upload_url }}
+
     steps:
       - name: Get tag name
         id: tag_name
@@ -40,9 +42,11 @@ jobs:
     name: 'Upload release assets'
     needs: draft_release
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         package: ['', '-compat', '-php55', '-php55-compat']
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -56,7 +60,7 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Update Composer
+      - name: Install dependencies
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 5
