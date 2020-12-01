@@ -81,3 +81,9 @@ jobs:
 
       - name: Build Phar binaries
         run: make build -j
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries
+          path: build/*/psysh
