@@ -51,6 +51,13 @@ class FatalErrorExceptionTest extends \Psy\Test\TestCase
         }
 
         $e = new FatalErrorException('{msg}', 0, 1, null, -1);
-        $this->assertEquals(0, $e->getLine());
+
+        // In PHP 8.0+, the line number will be (as of the time of this change) 53, because it's
+        // the line where the exception was first constructed. In older PHP versions, it'll be 0.
+        $this->assertNotEquals(-1, $e->getLine());
+
+        if (\version_compare(\PHP_VERSION, '8.0', '<')) {
+            $this->assertEquals(0, $e->getLine());
+        }
     }
 }
