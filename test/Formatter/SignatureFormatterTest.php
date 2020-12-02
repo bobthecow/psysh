@@ -40,11 +40,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
 
     public function signatureReflectors()
     {
-        return [
-            [
-                new \ReflectionFunction('implode'),
-                \defined('HHVM_VERSION') ? 'function implode($arg1, $arg2 = null)' : (\version_compare(\PHP_VERSION, '8.0', '>=') ? 'function implode($glue, array $pieces = unknown)' : 'function implode($glue, $pieces)'),
-            ],
+        $values = [
             [
                 ReflectionClassConstant::create($this, 'FOO'),
                 'const FOO = "foo value"',
@@ -62,10 +58,6 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
                 'abstract class Psy\CodeCleaner\CodeCleanerPass '
                 .'extends PhpParser\NodeVisitorAbstract '
                 .'implements PhpParser\NodeVisitor',
-            ],
-            [
-                new \ReflectionFunction('array_chunk'),
-                \defined('HHVM_VERSION') ? 'function array_chunk($input, $size, $preserve_keys = false)' : (\version_compare(\PHP_VERSION, '8.0', '>=') ? 'function array_chunk(array $arg, $size, $preserve_keys = unknown)' : 'function array_chunk($arg, $size, $preserve_keys = unknown)'),
             ],
             [
                 new \ReflectionClass(BoringTrait::class),
@@ -92,6 +84,19 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
                 'private function anotherFakeMethod(array $one = [], $two = 2, $three = null)',
             ],
         ];
+
+        if (\defined('HHVM_VERSION')) {
+            $values[] = [new \ReflectionFunction('implode'), 'function implode($arg1, $arg2 = null)'];
+            $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk($input, $size, $preserve_keys = false)'];
+        } elseif (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+            $values[] = [new \ReflectionFunction('implode'), 'function implode(array|string $separator, array $array = null)'];
+            $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk(array $array, int $length, bool $preserve_keys = false)'];
+        } else {
+            $values[] = [new \ReflectionFunction('implode'), 'function implode($glue, $pieces)'];
+            $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk($arg, $size, $preserve_keys = unknown)'];
+        }
+
+        return $values;
     }
 
     public function testSignatureFormatterThrowsUnknownReflectorExpeption()

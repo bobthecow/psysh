@@ -259,10 +259,14 @@ class SignatureFormatter implements ReflectorFormatter
         foreach ($reflector->getParameters() as $param) {
             $hint = '';
             try {
-                if ($param->isArray()) {
-                    $hint = '<keyword>array</keyword> ';
-                } elseif ($class = $param->getClass()) {
-                    $hint = \sprintf('<class>%s</class> ', $class->getName());
+                if (\method_exists($param, 'getType')) {
+                    $hint = self::formatReflectionType($param->getType());
+                } else {
+                    if ($param->isArray()) {
+                        $hint = '<keyword>array</keyword> ';
+                    } elseif ($class = $param->getClass()) {
+                        $hint = \sprintf('<class>%s</class> ', $class->getName());
+                    }
                 }
             } catch (\Exception $e) {
                 // sometimes we just don't know...
@@ -304,5 +308,34 @@ class SignatureFormatter implements ReflectorFormatter
         }
 
         return $params;
+    }
+
+    /**
+     * Print function param or return type(s).
+     *
+     * @param \ReflectionType $type
+     *
+     * @return string
+     */
+    private static function formatReflectionType(\ReflectionType $type = null)
+    {
+        if ($type === null) {
+            return '';
+        }
+
+        $types = $type instanceof \ReflectionUnionType ? $type->getTypes() : [$type];
+        $formattedTypes = [];
+
+        foreach ($types as $type) {
+            $typeStyle = $type->isBuiltin() ? 'keyword' : 'class';
+
+            // PHP 7.0 didn't have `getName` on reflection types, so wheee!
+            $typeName = \method_exists($type, 'getName') ? $type->getName() : (string) $type;
+
+            // @todo Do we want to include the ? for nullable types? Maybe only sometimes?
+            $formattedTypes[] = \sprintf('<%s>%s</%s>', $typeStyle, OutputFormatter::escape($typeName), $typeStyle);
+        }
+
+        return \implode('|', $formattedTypes) . ' ';
     }
 }
