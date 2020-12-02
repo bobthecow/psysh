@@ -276,7 +276,7 @@ class SignatureFormatter implements ReflectorFormatter
                 $chunks = \explode(' ', \trim($chunks[0]));
                 $guess = \end($chunks);
 
-                $hint = \sprintf('<urgent>%s</urgent> ', $guess);
+                $hint = \sprintf('<urgent>%s</urgent> ', OutputFormatter::escape($guess));
                 // @codeCoverageIgnoreEnd
             }
 
