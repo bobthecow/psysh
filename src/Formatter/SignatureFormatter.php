@@ -223,11 +223,28 @@ class SignatureFormatter implements ReflectorFormatter
     private static function formatFunction(\ReflectionFunctionAbstract $reflector)
     {
         return \sprintf(
-            '<keyword>function</keyword> %s<function>%s</function>(%s)',
+            '<keyword>function</keyword> %s<function>%s</function>(%s)%s',
             $reflector->returnsReference() ? '&' : '',
             self::formatName($reflector),
-            \implode(', ', self::formatFunctionParams($reflector))
+            \implode(', ', self::formatFunctionParams($reflector)),
+            self::formatFunctionReturnType($reflector)
         );
+    }
+
+    /**
+     * Format a function signature's return type (if available).
+     *
+     * @param \ReflectionFunctionAbstract $reflector
+     *
+     * @return string Formatted return type
+     */
+    private static function formatFunctionReturnType(\ReflectionFunctionAbstract $reflector)
+    {
+        if (!\method_exists($reflector, 'hasReturnType') || !$reflector->hasReturnType()) {
+            return '';
+        }
+
+        return \sprintf(': %s', self::formatReflectionType($reflector->getReturnType()));
     }
 
     /**
@@ -263,9 +280,9 @@ class SignatureFormatter implements ReflectorFormatter
                     $hint = self::formatReflectionType($param->getType());
                 } else {
                     if ($param->isArray()) {
-                        $hint = '<keyword>array</keyword> ';
+                        $hint = '<keyword>array</keyword>';
                     } elseif ($class = $param->getClass()) {
-                        $hint = \sprintf('<class>%s</class> ', $class->getName());
+                        $hint = \sprintf('<class>%s</class>', $class->getName());
                     }
                 }
             } catch (\Exception $e) {
@@ -280,7 +297,7 @@ class SignatureFormatter implements ReflectorFormatter
                 $chunks = \explode(' ', \trim($chunks[0]));
                 $guess = \end($chunks);
 
-                $hint = \sprintf('<urgent>%s</urgent> ', OutputFormatter::escape($guess));
+                $hint = \sprintf('<urgent>%s</urgent>', OutputFormatter::escape($guess));
                 // @codeCoverageIgnoreEnd
             }
 
@@ -299,9 +316,10 @@ class SignatureFormatter implements ReflectorFormatter
             }
 
             $params[] = \sprintf(
-                '%s%s<strong>$%s</strong>%s',
+                '%s%s%s<strong>$%s</strong>%s',
                 $param->isPassedByReference() ? '&' : '',
                 $hint,
+                $hint !== '' ? ' ' : '',
                 $param->getName(),
                 $default
             );
@@ -336,6 +354,6 @@ class SignatureFormatter implements ReflectorFormatter
             $formattedTypes[] = \sprintf('<%s>%s</%s>', $typeStyle, OutputFormatter::escape($typeName), $typeStyle);
         }
 
-        return \implode('|', $formattedTypes) . ' ';
+        return \implode('|', $formattedTypes);
     }
 }

@@ -89,8 +89,8 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
             $values[] = [new \ReflectionFunction('implode'), 'function implode($arg1, $arg2 = null)'];
             $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk($input, $size, $preserve_keys = false)'];
         } elseif (\version_compare(\PHP_VERSION, '8.0', '>=')) {
-            $values[] = [new \ReflectionFunction('implode'), 'function implode(array|string $separator, array $array = null)'];
-            $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk(array $array, int $length, bool $preserve_keys = false)'];
+            $values[] = [new \ReflectionFunction('implode'), 'function implode(array|string $separator, array $array = null): string'];
+            $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk(array $array, int $length, bool $preserve_keys = false): array'];
         } else {
             $values[] = [new \ReflectionFunction('implode'), 'function implode($glue, $pieces)'];
             $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk($arg, $size, $preserve_keys = unknown)'];
