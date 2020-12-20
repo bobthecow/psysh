@@ -96,7 +96,7 @@ class ShellTest extends TestCase
         $shell->run(null, $this->getOutput());
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
-        $this->assertArrayEquals(['one', 'two', 'three', '_', '_e'], $shell->getScopeVariableNames());
+        $this->assertArrayEquals(['one', 'two', 'three', '_'], $shell->getScopeVariableNames());
         $this->assertSame('banana', $shell->getScopeVariable('one'));
         $this->assertSame(123, $shell->getScopeVariable('two'));
         $this->assertSame($three, $shell->getScopeVariable('three'));

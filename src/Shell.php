@@ -1129,8 +1129,11 @@ class Shell extends Application
             return;
         }
 
-        $this->lastExecSuccess = false;
-        $this->context->setLastException($e);
+        // Break exceptions don't count :)
+        if (!$e instanceof BreakException) {
+            $this->lastExecSuccess = false;
+            $this->context->setLastException($e);
+        }
 
         $output = $this->output;
         if ($output instanceof ConsoleOutput) {
