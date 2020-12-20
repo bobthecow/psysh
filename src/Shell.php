@@ -74,6 +74,7 @@ class Shell extends Application
     private $matchers = [];
     private $commandsMatcher;
     private $lastExecSuccess = true;
+    private $nonInteractive = false;
 
     /**
      * Create a new Psy Shell.
@@ -390,6 +391,8 @@ class Shell extends Application
      */
     private function doNonInteractiveRun($rawOutput)
     {
+        $this->nonInteractive = true;
+
         // If raw output is enabled (or output is piped) we don't want startup messages.
         if (!$rawOutput && !$this->config->outputIsPiped()) {
             $this->output->writeln($this->getHeader());
@@ -413,6 +416,7 @@ class Shell extends Application
         }
 
         $this->afterRun();
+        $this->nonInteractive = false;
 
         return 0;
     }
@@ -1118,6 +1122,13 @@ class Shell extends Application
      */
     public function writeException(\Exception $e)
     {
+        // No need to write the break exception during a non-interactive run.
+        if ($e instanceof BreakException && $this->nonInteractive) {
+            $this->resetCodeBuffer();
+
+            return;
+        }
+
         $this->lastExecSuccess = false;
         $this->context->setLastException($e);
 

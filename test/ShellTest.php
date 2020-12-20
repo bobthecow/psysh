@@ -163,8 +163,9 @@ class ShellTest extends TestCase
         $this->assertStringNotContainsString(\PHP_VERSION, $streamContents);
         $this->assertStringNotContainsString(Shell::VERSION, $streamContents);
 
-        // @todo prolly shouldn't have an exit message with raw output, either
-        $this->assertStringContainsString('Goodbye', $streamContents);
+        // There shouldn't be an exit message with non-interactive input
+        $this->assertStringNotContainsString('Goodbye', $streamContents);
+        $this->assertStringNotContainsString('Exiting', $streamContents);
     }
 
     public function testIncludes()
