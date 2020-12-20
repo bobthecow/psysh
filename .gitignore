@@ -1,10 +1,9 @@
-/build/
-/dist/
-/composer.lock
-/manual/
-/psysh
-/__pycache__
-/.php_cs.cache
+__pycache__
+*.pyc
 /.phpunit.result.cache
-/vendor/
+/build/
+/composer.lock
+/dist/
 /vendor-bin/*/vendor/
+/vendor-bin/phpunit/composer.lock
+/vendor/
