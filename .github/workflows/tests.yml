@@ -119,3 +119,6 @@ jobs:
         with:
           name: binaries
           path: build/*/psysh
+
+      - name: Smoke test
+        run: .github/bin/smoketest.sh
