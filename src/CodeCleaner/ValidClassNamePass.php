@@ -205,6 +205,11 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function ensureCanDefine(Stmt $stmt, $scopeType = self::CLASS_TYPE)
     {
+        // Anonymous classes don't have a name, and uniqueness shouldn't be enforced.
+        if ($stmt->name === null) {
+            return;
+        }
+
         $name = $this->getFullyQualifiedName($stmt->name);
 
         // check for name collisions

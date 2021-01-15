@@ -352,6 +352,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
         if (\class_exists(OriginalParserFactory::class)) {
             // PHP 7.0 anonymous classes, only supported by PHP Parser v2.x
             $valid[] = ['$obj = new class() {}'];
+            $valid[] = ['new class() {}; new class() {}'];
         }
 
         return $valid;
