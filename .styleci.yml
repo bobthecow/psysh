@@ -4,13 +4,11 @@ preset: symfony
 
 enabled:
   - align_double_arrow
-  - native_constant_invocation
   - native_function_invocation
   - ordered_use
   - strict
 
 disabled:
-  - native_constant_invocation_symfony
   - native_function_invocation_symfony
   - no_superfluous_phpdoc_tags_symfony
   - pow_to_exponentiation
