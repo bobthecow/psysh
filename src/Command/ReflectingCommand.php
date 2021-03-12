@@ -120,10 +120,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
         // Check $name against the current namespace and use statements.
         if (self::couldBeClassName($name)) {
             try {
-                $maybeAlias = $this->resolveCode($name.'::class');
-                if ($maybeAlias !== $name) {
-                    return $maybeAlias;
-                }
+                $name = $this->resolveCode($name.'::class');
             } catch (RuntimeException $e) {
                 // /shrug
             }
