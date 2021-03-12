@@ -34,17 +34,17 @@ if (!\function_exists('Psy\\sh')) {
         }
 
         return <<<'EOS'
-        if (isset($this)) {
-            \extract(\Psy\debug(\get_defined_vars(), $this));
-        } else {
-            try {
-                static::class;
-                \extract(\Psy\debug(\get_defined_vars(), static::class));
-            } catch (\Error $e) {
-                \extract(\Psy\debug(\get_defined_vars()));
-            }
-        }
-        EOS;
+if (isset($this)) {
+    \extract(\Psy\debug(\get_defined_vars(), $this));
+} else {
+    try {
+        static::class;
+        \extract(\Psy\debug(\get_defined_vars(), static::class));
+    } catch (\Error $e) {
+        \extract(\Psy\debug(\get_defined_vars()));
+    }
+}
+EOS;
     }
 }
 
