@@ -29,7 +29,22 @@ if (!\function_exists('Psy\\sh')) {
      */
     function sh()
     {
-        return 'extract(\Psy\debug(get_defined_vars(), isset($this) ? $this : @get_called_class()));';
+        if (\version_compare(\PHP_VERSION, '8.0', '<')) {
+            return '\extract(\Psy\debug(\get_defined_vars(), isset($this) ? $this : @\get_called_class()));';
+        }
+
+        return <<<'EOS'
+        if (isset($this)) {
+            \extract(\Psy\debug(\get_defined_vars(), $this));
+        } else {
+            try {
+                static::class;
+                \extract(\Psy\debug(\get_defined_vars(), static::class));
+            } catch (\Error $e) {
+                \extract(\Psy\debug(\get_defined_vars()));
+            }
+        }
+        EOS;
     }
 }
 
