@@ -62,6 +62,8 @@ class ConfigurationTest extends TestCase
      */
     public function testFilesAndDirectories($home, $configFile, $historyFile, $manualDbFile)
     {
+        $this->markTestSkipped();
+
         $oldHome = $_SERVER['HOME'];
         $_SERVER['HOME'] = $home;
         \putenv("HOME=$home");
