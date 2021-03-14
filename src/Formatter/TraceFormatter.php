@@ -76,7 +76,7 @@ class TraceFormatter
 
             // Make file paths relative to cwd
             if ($cwd !== false) {
-                $file = \preg_replace('/^' . \preg_quote($cwd, '/') . '/', '', $file);
+                $file = \preg_replace('/^'.\preg_quote($cwd, '/').'/', '', $file);
             }
 
             // Leave execution loop out of the `eval()'d code` lines
