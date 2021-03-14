@@ -71,9 +71,9 @@ class Configuration
         'useReadline',
         'useTabCompletion',
         'useUnicode',
-        'yolo',
         'verbosity',
         'warnOnMultipleConfigs',
+        'yolo',
     ];
 
     private $defaultIncludes;
