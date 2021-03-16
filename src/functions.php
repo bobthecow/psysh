@@ -17,7 +17,6 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
-use XdgBaseDir\Xdg;
 
 if (!\function_exists('Psy\\sh')) {
     /**
@@ -138,17 +137,21 @@ if (!\function_exists('Psy\\info')) {
             return;
         }
 
-        $xdg = new Xdg();
-        $home = \rtrim(\str_replace('\\', '/', $xdg->getHomeDir()), '/');
-        $homePattern = '#^'.\preg_quote($home, '#').'/#';
-
-        $prettyPath = function ($path) use ($homePattern) {
-            if (\is_string($path)) {
-                return \preg_replace($homePattern, '~/', $path);
-            } else {
-                return $path;
-            }
+        $prettyPath = function ($path) {
+            return $path;
         };
+
+        $homeDir = (new ConfigPaths())->homeDir();
+        if ($homeDir && $homeDir = \rtrim($homeDir, '/')) {
+            $homePattern = '#^'.\preg_quote($homeDir, '#').'/#';
+            $prettyPath = function ($path) use ($homePattern) {
+                if (\is_string($path)) {
+                    return \preg_replace($homePattern, '~/', $path);
+                } else {
+                    return $path;
+                }
+            };
+        }
 
         $config = $lastConfig ?: new Configuration();
         $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;

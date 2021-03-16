@@ -57,52 +57,6 @@ class ConfigurationTest extends TestCase
         $this->assertSame('wheee', $config->getConfigDir());
     }
 
-    /**
-     * @dataProvider directories
-     */
-    public function testFilesAndDirectories($home, $configFile, $historyFile, $manualDbFile)
-    {
-        $this->markTestSkipped();
-
-        $oldHome = $_SERVER['HOME'];
-        $_SERVER['HOME'] = $home;
-        \putenv("HOME=$home");
-
-        $config = new Configuration();
-        $this->assertSame(\realpath($configFile), \realpath($config->getConfigFile()));
-        $this->assertSame(\realpath($historyFile), \realpath($config->getHistoryFile()));
-        $this->assertSame(\realpath($manualDbFile), \realpath($config->getManualDbFile()));
-
-        $_SERVER['HOME'] = $oldHome;
-        \putenv("HOME=$oldHome");
-    }
-
-    public function directories()
-    {
-        $base = \realpath(__DIR__.'/fixtures');
-
-        return [
-            [
-                $base.'/default',
-                $base.'/default/.config/psysh/config.php',
-                $base.'/default/.config/psysh/psysh_history',
-                $base.'/default/.local/share/psysh/php_manual.sqlite',
-            ],
-            [
-                $base.'/legacy',
-                $base.'/legacy/.psysh/rc.php',
-                $base.'/legacy/.psysh/history',
-                $base.'/legacy/.psysh/php_manual.sqlite',
-            ],
-            [
-                $base.'/mixed',
-                $base.'/mixed/.psysh/config.php',
-                $base.'/mixed/.psysh/psysh_history',
-                null,
-            ],
-        ];
-    }
-
     public function testLoadConfig()
     {
         $config = $this->getConfig();
