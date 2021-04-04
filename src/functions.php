@@ -156,8 +156,11 @@ if (!\function_exists('Psy\\info')) {
         $config = $lastConfig ?: new Configuration();
         $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;
 
+        $shellInfo = [
+            'PsySH version' => Shell::VERSION,
+        ];
+
         $core = [
-            'PsySH version'       => Shell::VERSION,
             'PHP version'         => \PHP_VERSION,
             'OS'                  => \PHP_OS,
             'default includes'    => $config->getDefaultIncludes(),
@@ -284,16 +287,37 @@ if (!\function_exists('Psy\\info')) {
         ];
 
         // Shenanigans, but totally justified.
-        if ($shell = Sudo::fetchProperty($config, 'shell')) {
-            $core['loop listeners'] = \array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
-            $core['commands'] = \array_map('get_class', $shell->all());
+        try {
+            if ($shell = Sudo::fetchProperty($config, 'shell')) {
+                $shellClass = \get_class($shell);
+                if ($shellClass !== 'Psy\\Shell') {
+                    $shellInfo = [
+                        'PsySH version' => $shell::VERSION,
+                        'Shell class'   => $shellClass,
+                    ];
+                }
 
-            $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+                try {
+                    $core['loop listeners'] = \array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
+                } catch (\ReflectionException $e) {
+                    // shrug
+                }
+
+                $core['commands'] = \array_map('get_class', $shell->all());
+
+                try {
+                    $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+                } catch (\ReflectionException $e) {
+                    // shrug
+                }
+            }
+        } catch (\ReflectionException $e) {
+            // shrug
         }
 
         // @todo Show Presenter / custom casters.
 
-        return \array_merge($core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
+        return \array_merge($shellInfo, $core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
     }
 }
 
