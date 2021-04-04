@@ -115,10 +115,12 @@ HELP
             $target = $e->getTarget();
             if (\is_string($target) && \is_file($target) && $code = @\file_get_contents($target)) {
                 $file = \realpath($target);
-                $this->context->setCommandScopeVariables([
-                    '__file' => $file,
-                    '__dir' => \dirname($file),
-                ]);
+                if ($file !== $this->context->get('__file')) {
+                    $this->context->setCommandScopeVariables([
+                        '__file' => $file,
+                        '__dir' => \dirname($file),
+                    ]);
+                }
 
                 return $output->page(CodeFormatter::formatCode($code));
             } else {
