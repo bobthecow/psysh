@@ -27,9 +27,7 @@ class Sudo
      */
     public static function fetchProperty($object, $property)
     {
-        $refl = new \ReflectionObject($object);
-        $prop = $refl->getProperty($property);
-        $prop->setAccessible(true);
+        $prop = static::getProperty(new \ReflectionObject($object), $property);
 
         return $prop->getValue($object);
     }
@@ -45,9 +43,7 @@ class Sudo
      */
     public static function assignProperty($object, $property, $value)
     {
-        $refl = new \ReflectionObject($object);
-        $prop = $refl->getProperty($property);
-        $prop->setAccessible(true);
+        $prop = static::getProperty(new \ReflectionObject($object), $property);
         $prop->setValue($object, $value);
 
         return $value;
@@ -85,8 +81,7 @@ class Sudo
      */
     public static function fetchStaticProperty($class, $property)
     {
-        $refl = new \ReflectionClass($class);
-        $prop = $refl->getProperty($property);
+        $prop = static::getProperty(new \ReflectionClass($class), $property);
         $prop->setAccessible(true);
 
         return $prop->getValue();
@@ -103,9 +98,7 @@ class Sudo
      */
     public static function assignStaticProperty($class, $property, $value)
     {
-        $refl = new \ReflectionClass($class);
-        $prop = $refl->getProperty($property);
-        $prop->setAccessible(true);
+        $prop = static::getProperty(new \ReflectionClass($class), $property);
         $prop->setValue($value);
 
         return $value;
@@ -145,6 +138,45 @@ class Sudo
     {
         $refl = new \ReflectionClass($class);
 
-        return $refl->getConstant($const);
+        do {
+            if ($refl->hasConstant($const)) {
+                return $refl->getConstant($const);
+            }
+
+            $refl = $refl->getParentClass();
+        } while ($refl !== false);
+
+        return false;
+    }
+
+    /**
+     * Get a ReflectionProperty from an object (or its parent classes).
+     *
+     * @throws \ReflectionException if neither the object nor any of its parents has this property
+     *
+     * @param \ReflectionClass $refl
+     * @param string           $property property name
+     *
+     * @return \ReflectionProperty
+     */
+    private static function getProperty(\ReflectionClass $refl, $property)
+    {
+        $firstException = null;
+        do {
+            try {
+                $prop = $refl->getProperty($property);
+                $prop->setAccessible(true);
+
+                return $prop;
+            } catch (\ReflectionException $e) {
+                if ($firstException === null) {
+                    $firstException = $e;
+                }
+
+                $refl = $refl->getParentClass();
+            }
+        } while ($refl !== false);
+
+        throw $firstException;
     }
 }
