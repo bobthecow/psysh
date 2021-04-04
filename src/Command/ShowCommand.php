@@ -118,7 +118,7 @@ HELP
                 if ($file !== $this->context->get('__file')) {
                     $this->context->setCommandScopeVariables([
                         '__file' => $file,
-                        '__dir' => \dirname($file),
+                        '__dir'  => \dirname($file),
                     ]);
                 }
 
