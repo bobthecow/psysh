@@ -122,3 +122,31 @@ jobs:
 
       - name: Smoke test
         run: .github/bin/smoketest.sh
+
+  php56-phar:
+    name: PHP 5.6 Phar smoke test
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '5.6'
+          tools: composer:v2
+          coverage: none
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: binaries
+          path: build
+
+      - name: Make binaries executable
+        run: chmod +x build/*/psysh
+
+      - name: Smoke test
+        run: .github/bin/smoketest.sh psysh-php56 psysh-php56-compat

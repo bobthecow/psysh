@@ -2,6 +2,12 @@
 
 failed=0
 
+if [ "$#" -gt 0 ]; then
+  build_versions=$@
+else
+  build_versions=(psysh psysh-compat psysh-php56 psysh-php56-compat)
+fi
+
 fail() {
   failed=1
 
@@ -14,7 +20,7 @@ fail() {
 test_version() {
   echo -n "  Version:      "
 
-  output=$(build/$1/psysh --version 2>/dev/null)
+  output=$(build/$1/psysh --version 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -26,7 +32,7 @@ test_version() {
 test_psy_info() {
   echo -n "  \\Psy\\info():  "
 
-  output=$(echo "\\Psy\\info()" | build/$1/psysh 2>/dev/null)
+  output=$(echo "\\Psy\\info()" | build/$1/psysh 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -40,7 +46,7 @@ test_psy_info() {
   echo "Passed"
 }
 
-for build in psysh psysh-compat psysh-php56 psysh-php56-compat; do
+for build in ${build_versions[@]}; do
   echo "Testing $build phar"
 
   test_version $build
