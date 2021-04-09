@@ -45,7 +45,7 @@ jobs:
 
     strategy:
       matrix:
-        package: ['', '-compat', '-php55', '-php55-compat']
+        package: ['', '-compat', '-php56', '-php56-compat']
 
     steps:
       - name: Check out code

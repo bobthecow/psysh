@@ -40,7 +40,7 @@ test_psy_info() {
   echo "Passed"
 }
 
-for build in psysh psysh-compat psysh-php55 psysh-php55-compat; do
+for build in psysh psysh-compat psysh-php56 psysh-php56-compat; do
   echo "Testing $build phar"
 
   test_version $build
