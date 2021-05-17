@@ -1346,7 +1346,7 @@ class Shell extends Application
     /**
      * Get the current input prompt.
      *
-     * @return string | null
+     * @return string|null
      */
     protected function getPrompt()
     {

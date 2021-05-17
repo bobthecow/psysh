@@ -91,7 +91,7 @@ class Libedit extends GNUReadline
      *
      * @param string $line The history line to parse
      *
-     * @return string | null
+     * @return string|null
      */
     protected function parseHistoryLine($line)
     {
