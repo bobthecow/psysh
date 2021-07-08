@@ -60,6 +60,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             ['array_pop($foo->bar)'],
             ['array_pop($foo::baz)'],
             ['array_pop(Foo::qux)'],
+            ['array_pop($foo["quux"])'],
         ];
 
         if (\version_compare(\PHP_VERSION, '5.6', '>=')) {
