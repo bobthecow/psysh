@@ -33,6 +33,8 @@ class Presenter
     ];
     private $styles = [
         'num'       => 'number',
+        'integer'   => 'integer',
+        'float'     => 'float',
         'const'     => 'const',
         'str'       => 'string',
         'cchr'      => 'default',
