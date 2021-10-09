@@ -50,12 +50,12 @@ jobs:
 
   hhvm:
     name: HHVM ${{ matrix.hhvm }}
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
 
     strategy:
       fail-fast: false
       matrix:
-        hhvm: ['3.15', '3.18', '3.21', '3.24']
+        hhvm: ['3.24']
 
     steps:
       - name: Check out code
