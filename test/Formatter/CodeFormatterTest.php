@@ -125,7 +125,7 @@ EOS;
             $this->markTestSkipped('We have issues with PHPUnit mocks on HHVM.');
         }
 
-        return [[null], ['not a file']];
+        return [[false], ['not a file']];
     }
 
     /**
