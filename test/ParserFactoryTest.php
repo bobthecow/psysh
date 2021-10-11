@@ -25,12 +25,6 @@ class ParserFactoryTest extends \PhpUnit\Framework\TestCase
         }
     }
 
-    public function testHasKindsSupport()
-    {
-        $factory = new ParserFactory();
-        $this->assertEquals(\class_exists(OriginalParserFactory::class), $factory->hasKindsSupport());
-    }
-
     public function testGetDefaultKind()
     {
         $factory = new ParserFactory();

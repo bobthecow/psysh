@@ -11,7 +11,6 @@
 
 namespace Psy\Test\CodeCleaner;
 
-use PhpParser\ParserFactory as OriginalParserFactory;
 use Psy\CodeCleaner\ValidClassNamePass;
 
 class ValidClassNamePassTest extends CodeCleanerTestCase
