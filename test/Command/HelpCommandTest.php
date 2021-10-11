@@ -29,7 +29,7 @@ class HelpCommandTest extends \Psy\Test\TestCase
 
         foreach ($shell->all() as $command) {
             $pattern = \sprintf('/^\s*%s/m', \preg_quote($command->getName()));
-            $this->assertRegExp($pattern, $tester->getDisplay());
+            $this->assertMatchesRegularExpression($pattern, $tester->getDisplay());
         }
 
         $this->assertStringContainsString('End the current session and return to caller.', $tester->getDisplay());
