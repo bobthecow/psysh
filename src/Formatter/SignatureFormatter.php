@@ -285,7 +285,7 @@ class SignatureFormatter implements ReflectorFormatter
                         $hint = \sprintf('<class>%s</class>', $class->getName());
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // sometimes we just don't know...
                 // bad class names, or autoloaded classes that haven't been loaded yet, or whathaveyou.
                 // come to think of it, the only time I've seen this is with the intl extension.

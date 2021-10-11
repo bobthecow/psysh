@@ -163,7 +163,7 @@ class PropertyEnumerator extends Enumerator
 
                     return $this->presentRef($props[$property->name]).$suffix;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Well, we gave it a shot.
             }
 

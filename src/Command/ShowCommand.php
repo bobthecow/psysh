@@ -252,7 +252,7 @@ HELP
                 if ($namespace = $refl->getNamespaceName()) {
                     $vars['__namespace'] = $namespace;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // oh well
             }
         } elseif (isset($context['function'])) {
@@ -263,7 +263,7 @@ HELP
                 if ($namespace = $refl->getNamespaceName()) {
                     $vars['__namespace'] = $namespace;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // oh well
             }
         }

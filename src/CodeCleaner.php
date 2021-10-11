@@ -211,8 +211,6 @@ class CodeCleaner
             $traverser->traverse($stmts);
         } catch (\Throwable $e) {
             // Don't care.
-        } catch (\Exception $e) {
-            // Still don't care.
         }
     }
 
@@ -384,7 +382,7 @@ class CodeCleaner
 
         try {
             $this->parser->parse($code."';");
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
 

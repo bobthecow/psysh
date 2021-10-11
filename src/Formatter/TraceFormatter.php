@@ -22,10 +22,6 @@ class TraceFormatter
     /**
      * Format the trace of the given exception.
      *
-     * @throws \InvalidArgumentException if passed a non-Throwable value
-     *
-     * @todo type hint $throwable when we drop support for PHP 5.x
-     *
      * @param \Throwable    $throwable  The error or exception with a backtrace
      * @param FilterOptions $filter     (default: null)
      * @param int           $count      (default: PHP_INT_MAX)
@@ -33,12 +29,8 @@ class TraceFormatter
      *
      * @return string[] Formatted stacktrace lines
      */
-    public static function formatTrace($throwable, FilterOptions $filter = null, $count = null, $includePsy = true)
+    public static function formatTrace(\Throwable $throwable, FilterOptions $filter = null, $count = null, $includePsy = true)
     {
-        if (!($throwable instanceof \Throwable || $throwable instanceof \Exception)) {
-            throw new \InvalidArgumentException('Unable to format non-throwable value');
-        }
-
         if ($cwd = \getcwd()) {
             $cwd = \rtrim($cwd, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR;
         }

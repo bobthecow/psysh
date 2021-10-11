@@ -838,7 +838,7 @@ class Shell extends Application
 
             $this->codeBuffer[] = $silent ? new SilentInput($code) : $code;
             $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
 
@@ -868,10 +868,6 @@ class Shell extends Application
         try {
             $this->addCode($code, $silent);
         } catch (\Throwable $e) {
-            $this->popCodeStack();
-
-            throw $e;
-        } catch (\Exception $e) {
             $this->popCodeStack();
 
             throw $e;

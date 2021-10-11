@@ -183,7 +183,7 @@ if (!\function_exists('Psy\\info')) {
         try {
             $updateAvailable = !$checker->isLatest();
             $latest = $checker->getLatest();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
 
         $updates = [
@@ -425,7 +425,7 @@ EOL;
             try {
                 // And go!
                 $shell->run();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
 
                 // @todo this triggers the "exited unexpectedly" logic in the

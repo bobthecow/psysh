@@ -135,7 +135,7 @@ class RunkitReloader extends AbstractListener
         // first try to parse it
         try {
             $this->parser->parse(\file_get_contents($file));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
 

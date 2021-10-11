@@ -105,7 +105,7 @@ class FunctionEnumerator extends Enumerator
                         'style' => self::IS_FUNCTION,
                         'value' => $this->presentSignature($name),
                     ];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Ignore failures.
                 }
             }

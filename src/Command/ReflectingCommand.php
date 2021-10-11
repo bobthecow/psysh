@@ -173,7 +173,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     {
         try {
             $value = $this->getApplication()->execute($code, true);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Swallow all exceptions?
         }
 
