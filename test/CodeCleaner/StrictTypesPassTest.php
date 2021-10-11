@@ -20,10 +20,6 @@ class StrictTypesPassTest extends CodeCleanerTestCase
      */
     public function getReady()
     {
-        if (\version_compare(\PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped();
-        }
-
         $this->setPass(new StrictTypesPass());
     }
 

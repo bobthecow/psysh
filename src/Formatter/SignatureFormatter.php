@@ -81,14 +81,6 @@ class SignatureFormatter implements ReflectorFormatter
      */
     private static function formatModifiers(\Reflector $reflector)
     {
-        if ($reflector instanceof \ReflectionClass && $reflector->isTrait()) {
-            // For some reason, PHP 5.x returns `abstract public` modifiers for
-            // traits. Let's just ignore that business entirely.
-            if (\version_compare(\PHP_VERSION, '7.0.0', '<')) {
-                return '';
-            }
-        }
-
         return \implode(' ', \array_map(function ($modifier) {
             return \sprintf('<keyword>%s</keyword>', $modifier);
         }, \Reflection::getModifierNames($reflector->getModifiers())));

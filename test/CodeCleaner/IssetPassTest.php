@@ -29,29 +29,8 @@ class IssetPassTest extends CodeCleanerTestCase
     /**
      * @dataProvider invalidStatements
      */
-    public function testLegacyParseErrors($code)
-    {
-        if (\version_compare(\PHP_VERSION, '7.0', '>=')) {
-            $this->markTestSkipped();
-        }
-
-        $this->expectException(\Psy\Exception\ParseErrorException::class);
-        $this->expectExceptionMessage('Syntax error, unexpected');
-
-        $this->parseAndTraverse($code);
-
-        $this->fail();
-    }
-
-    /**
-     * @dataProvider invalidStatements
-     */
     public function testProcessStatementFails($code)
     {
-        if (\version_compare(\PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped();
-        }
-
         $this->expectException(\Psy\Exception\FatalErrorException::class);
         $this->expectExceptionMessage('Cannot use isset() on the result of an expression (you can use "null !== expression" instead)');
 
@@ -121,10 +100,6 @@ class IssetPassTest extends CodeCleanerTestCase
      */
     public function testValidFancyStatements($code)
     {
-        if (\version_compare(\PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped();
-        }
-
         $this->parseAndTraverse($code);
         $this->assertTrue(true);
     }

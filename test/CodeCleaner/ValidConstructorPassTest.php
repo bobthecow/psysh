@@ -47,19 +47,14 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        $data = [
+        return [
             ['class A { public static function A() {}}'],
             ['class A { public static function a() {}}'],
             ['class A { private static function A() {}}'],
             ['class A { private static function a() {}}'],
+            ['class A { public function A(): ?array {}}'],
+            ['class A { public function a(): ?array {}}'],
         ];
-
-        if (\version_compare(\PHP_VERSION, '7.0', '>=')) {
-            $data[] = ['class A { public function A(): ?array {}}'];
-            $data[] = ['class A { public function a(): ?array {}}'];
-        }
-
-        return $data;
     }
 
     public function invalidParserStatements()
@@ -83,18 +78,13 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        $data = [
+        return [
             ['class A { public static function A() {} public function __construct() {}}'],
             ['class A { private function __construct() {} public static function A() {}}'],
             ['namespace B; class A { private static function A() {}}'],
+            ['class A { public static function A() {} public function __construct() {}}'],
+            ['class A { private function __construct() {} public static function A(): ?array {}}'],
+            ['namespace B; class A { private static function A(): ?array {}}'],
         ];
-
-        if (\version_compare(\PHP_VERSION, '7.0', '>=')) {
-            $data[] = ['class A { public static function A() {} public function __construct() {}}'];
-            $data[] = ['class A { private function __construct() {} public static function A(): ?array {}}'];
-            $data[] = ['namespace B; class A { private static function A(): ?array {}}'];
-        }
-
-        return $data;
     }
 }

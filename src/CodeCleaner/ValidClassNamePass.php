@@ -13,9 +13,6 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
@@ -40,12 +37,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     const TRAIT_TYPE = 'trait';
 
     private $conditionalScopes = 0;
-    private $atLeastPhp7;
-
-    public function __construct()
-    {
-        $this->atLeastPhp7 = \version_compare(\PHP_VERSION, '7.0', '>=');
-    }
 
     /**
      * Validate class, interface and trait definitions.
@@ -78,14 +69,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Validate `new` expressions, class constant fetches, and static calls.
-     *
-     * @throws FatalErrorException if a class, interface or trait is referenced which does not exist
-     * @throws FatalErrorException if a class extends something that is not a class
-     * @throws FatalErrorException if a class implements something that is not an interface
-     * @throws FatalErrorException if an interface extends something that is not an interface
-     * @throws FatalErrorException if a class, interface or trait redefines an existing class, interface or trait name
-     *
      * @param Node $node
      */
     public function leaveNode(Node $node)
@@ -94,16 +77,6 @@ class ValidClassNamePass extends NamespaceAwarePass
             $this->conditionalScopes--;
 
             return;
-        }
-
-        if (!$this->atLeastPhp7) {
-            if ($node instanceof New_) {
-                $this->validateNewExpression($node);
-            } elseif ($node instanceof ClassConstFetch) {
-                $this->validateClassConstFetchExpression($node);
-            } elseif ($node instanceof StaticCall) {
-                $this->validateStaticCallExpression($node);
-            }
         }
     }
 
@@ -149,50 +122,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     protected function validateTraitStatement(Trait_ $stmt)
     {
         $this->ensureCanDefine($stmt, self::TRAIT_TYPE);
-    }
-
-    /**
-     * Validate a `new` expression.
-     *
-     * @param New_ $stmt
-     */
-    protected function validateNewExpression(New_ $stmt)
-    {
-        // if class name is an expression or an anonymous class, give it a pass for now
-        if (!$stmt->class instanceof Expr && !$stmt->class instanceof Class_) {
-            $this->ensureClassExists($this->getFullyQualifiedName($stmt->class), $stmt);
-        }
-    }
-
-    /**
-     * Validate a class constant fetch expression's class.
-     *
-     * @param ClassConstFetch $stmt
-     */
-    protected function validateClassConstFetchExpression(ClassConstFetch $stmt)
-    {
-        // there is no need to check exists for ::class const
-        if (\strtolower($stmt->name) === 'class') {
-            return;
-        }
-
-        // if class name is an expression, give it a pass for now
-        if (!$stmt->class instanceof Expr) {
-            $this->ensureClassOrInterfaceExists($this->getFullyQualifiedName($stmt->class), $stmt);
-        }
-    }
-
-    /**
-     * Validate a class constant fetch expression's class.
-     *
-     * @param StaticCall $stmt
-     */
-    protected function validateStaticCallExpression(StaticCall $stmt)
-    {
-        // if class name is an expression, give it a pass for now
-        if (!$stmt->class instanceof Expr) {
-            $this->ensureMethodExists($this->getFullyQualifiedName($stmt->class), $stmt->name, $stmt);
-        }
     }
 
     /**

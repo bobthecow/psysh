@@ -58,20 +58,6 @@ class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
         $this->fail();
     }
 
-    public function testEmpty()
-    {
-        if (\version_compare(\PHP_VERSION, '5.5', '>=')) {
-            $this->markTestSkipped();
-        }
-
-        $this->expectException(\Psy\Exception\FatalErrorException::class);
-        $this->expectExceptionMessage('Can\'t use function return value in write context');
-
-        $this->traverser->traverse($this->parse('empty(strtolower("A"))'));
-
-        $this->fail();
-    }
-
     /**
      * @dataProvider validStatements
      */

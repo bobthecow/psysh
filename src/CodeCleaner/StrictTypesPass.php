@@ -32,12 +32,6 @@ class StrictTypesPass extends CodeCleanerPass
     const EXCEPTION_MESSAGE = 'strict_types declaration must have 0 or 1 as its value';
 
     private $strictTypes = false;
-    private $atLeastPhp7;
-
-    public function __construct()
-    {
-        $this->atLeastPhp7 = \version_compare(\PHP_VERSION, '7.0', '>=');
-    }
 
     /**
      * If this is a standalone strict types declaration, remember it for later.
@@ -51,10 +45,6 @@ class StrictTypesPass extends CodeCleanerPass
      */
     public function beforeTraverse(array $nodes)
     {
-        if (!$this->atLeastPhp7) {
-            return; // @codeCoverageIgnore
-        }
-
         $prependStrictTypes = $this->strictTypes;
 
         foreach ($nodes as $node) {

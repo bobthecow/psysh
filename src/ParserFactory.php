@@ -55,7 +55,7 @@ class ParserFactory
     public function getDefaultKind()
     {
         if ($this->hasKindsSupport()) {
-            return \version_compare(\PHP_VERSION, '7.0', '>=') ? static::ONLY_PHP7 : static::ONLY_PHP5;
+            return static::ONLY_PHP7;
         }
     }
 

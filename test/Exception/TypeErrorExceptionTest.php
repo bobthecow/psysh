@@ -38,10 +38,6 @@ class TypeErrorExceptionTest extends \Psy\Test\TestCase
 
     public function testFromTypeError()
     {
-        if (\version_compare(\PHP_VERSION, '7.0.0', '<')) {
-            $this->markTestSkipped();
-        }
-
         $previous = new \TypeError('{{message}}', 13);
         $e = TypeErrorException::fromTypeError($previous);
 

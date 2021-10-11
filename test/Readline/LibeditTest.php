@@ -30,9 +30,7 @@ class LibeditTest extends \Psy\Test\TestCase
         if (false === \file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
             $this->fail('Unable to write history file: '.$this->historyFile);
         }
-        // Calling readline_read_history before readline_clear_history
-        // avoids segfault with PHP 5.5.7 & libedit v3.1
-        \readline_read_history($this->historyFile);
+
         \readline_clear_history();
     }
 

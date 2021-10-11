@@ -42,10 +42,6 @@ class ThrowUpExceptionTest extends \Psy\Test\TestCase
 
     public function testFromThrowableWithError()
     {
-        if (\version_compare(\PHP_VERSION, '7.0.0', '<')) {
-            $this->markTestSkipped();
-        }
-
         $previous = new \Error('{{message}}');
         $e = ThrowUpException::fromThrowable($previous);
 
