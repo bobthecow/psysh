@@ -341,13 +341,8 @@ if (!\function_exists('Psy\\bin')) {
                     exit(1);
                 }
 
-                if (\PHP_VERSION_ID < 50509) {
-                    \fwrite(\STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
-                    exit(1);
-                }
-
-                if (\PHP_VERSION_ID < 50600 && \Phar::running()) {
-                    \fwrite(\STDERR, 'PHP 5.6.0 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
+                if (\PHP_VERSION_ID < 70000) {
+                    \fwrite(\STDERR, 'PHP 7.0.0 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
