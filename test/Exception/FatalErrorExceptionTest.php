@@ -46,10 +46,6 @@ class FatalErrorExceptionTest extends \Psy\Test\TestCase
 
     public function testNegativeOneLineNumberIgnored()
     {
-        if (\defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM does not support the line number argument, apparently.');
-        }
-
         $e = new FatalErrorException('{msg}', 0, 1, null, -1);
 
         // In PHP 8.0+, the line number will be (as of the time of this change) 53, because it's

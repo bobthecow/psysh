@@ -36,18 +36,12 @@ class FinalClassPassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        $data = [
+        return [
             ['final class A {} class B extends A {}'],
             ['class A {} final class B extends A {} class C extends B {}'],
+            ['class A extends \\Closure {}'],
             // ['namespace A { final class B {} } namespace C { class D extends \\A\\B {} }'],
         ];
-
-        if (!\defined('HHVM_VERSION')) {
-            // For some reason Closure isn't final in HHVM?
-            $data[] = ['class A extends \\Closure {}'];
-        }
-
-        return $data;
     }
 
     /**

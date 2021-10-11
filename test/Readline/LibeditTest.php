@@ -48,10 +48,6 @@ class LibeditTest extends \Psy\Test\TestCase
 
     public function testReadlineName()
     {
-        if (\defined('HHVM_VERSION')) {
-            $this->markTestSkipped();
-        }
-
         $readline = new Libedit($this->historyFile);
         $this->assertEquals(\readline_info('readline_name'), 'psysh');
     }

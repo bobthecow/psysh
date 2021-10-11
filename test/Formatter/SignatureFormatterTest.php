@@ -85,10 +85,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
             ],
         ];
 
-        if (\defined('HHVM_VERSION')) {
-            $values[] = [new \ReflectionFunction('implode'), 'function implode(HH\mixed $arg1, HH\mixed $arg2 = null): HH\string'];
-            $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk(HH\mixed $input, HH\int $size, HH\bool $preserve_keys = false): HH\mixed'];
-        } elseif (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+        if (\version_compare(\PHP_VERSION, '8.0', '>=')) {
             $values[] = [new \ReflectionFunction('implode'), 'function implode(array|string $separator, array $array = null): string'];
             $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk(array $array, int $length, bool $preserve_keys = false): array'];
         } else {

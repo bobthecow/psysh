@@ -79,10 +79,6 @@ class CodeCleanerTest extends TestCase
      */
     public function testMoreUnclosedStatements(array $lines)
     {
-        if (\defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM not supported.');
-        }
-
         $cc = new CodeCleaner();
         $res = $cc->clean($lines);
 

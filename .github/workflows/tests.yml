@@ -48,47 +48,6 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v1
 
-  hhvm:
-    name: HHVM ${{ matrix.hhvm }}
-    runs-on: ubuntu-18.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        hhvm: ['3.24']
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Install HHVM
-        shell: bash
-        run: sudo .github/bin/hhvm.sh ${{ matrix.hhvm }}
-
-      - name: Install Composer
-        shell: bash
-        run: sudo .github/bin/composer.sh
-
-      - name: Install dependencies
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer update --no-interaction --no-progress
-
-      - name: Configure PHPUnit Composer
-        run: composer bin phpunit config platform.php 5.6.50
-
-      - name: Install PHPUnit
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer bin phpunit update --no-interaction --no-progress
-
-      - name: Run tests
-        run: hhvm vendor/bin/phpunit
-
   build:
     name: Test Phar build
     runs-on: ubuntu-latest

@@ -106,7 +106,7 @@ class FunctionEnumerator extends Enumerator
                         'value' => $this->presentSignature($name),
                     ];
                 } catch (\Exception $e) {
-                    // Ignore failures. HHVM does this sometimes for internal functions.
+                    // Ignore failures.
                 }
             }
         }

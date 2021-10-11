@@ -121,10 +121,6 @@ EOS;
 
     public function filenames()
     {
-        if (\defined('HHVM_VERSION')) {
-            $this->markTestSkipped('We have issues with PHPUnit mocks on HHVM.');
-        }
-
         return [[false], ['not a file']];
     }
 
