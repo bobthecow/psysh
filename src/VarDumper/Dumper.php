@@ -64,7 +64,7 @@ class Dumper extends CliDumper
         }
     }
 
-    protected function style($style, $value, $attr = [])
+    protected function style($style, $value, $attr = []): string
     {
         if ('ref' === $style) {
             $value = \strtr($value, '@', '#');

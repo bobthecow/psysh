@@ -162,7 +162,7 @@ class Shell extends Application
      *
      * @return InputDefinition An InputDefinition instance
      */
-    protected function getDefaultInputDefinition()
+    protected function getDefaultInputDefinition(): InputDefinition
     {
         return new InputDefinition([
             new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
@@ -175,7 +175,7 @@ class Shell extends Application
      *
      * @return array An array of default Command instances
      */
-    protected function getDefaultCommands()
+    protected function getDefaultCommands(): array
     {
         $sudo = new Command\SudoCommand();
         $sudo->setReadline($this->readline);
@@ -301,7 +301,7 @@ class Shell extends Application
      *
      * @return int 0 if everything went fine, or an error code
      */
-    public function run(InputInterface $input = null, OutputInterface $output = null)
+    public function run(InputInterface $input = null, OutputInterface $output = null): int
     {
         // We'll just ignore the input passed in, and set up our own!
         $input = new ArrayInput([]);
@@ -1417,7 +1417,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return self::getVersionHeader($this->config->useUnicode());
     }
