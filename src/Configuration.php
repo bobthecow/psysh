@@ -1454,8 +1454,7 @@ class Configuration
         ];
 
         if (!\in_array($colorMode, $validColorModes)) {
-            // @todo Fix capitalization for 0.11.0
-            throw new \InvalidArgumentException('invalid color mode: '.$colorMode);
+            throw new \InvalidArgumentException('Invalid color mode: '.$colorMode);
         }
 
         $this->colorMode = $colorMode;
@@ -1578,8 +1577,7 @@ class Configuration
         ];
 
         if (!\in_array($interval, $validIntervals)) {
-            // @todo Fix capitalization for 0.11.0
-            throw new \InvalidArgumentException('invalid update check interval: '.$interval);
+            throw new \InvalidArgumentException('Invalid update check interval: '.$interval);
         }
 
         $this->updateCheck = $interval;

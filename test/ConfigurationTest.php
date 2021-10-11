@@ -214,7 +214,7 @@ class ConfigurationTest extends TestCase
     public function testSetColorModeInvalid()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('invalid color mode: some invalid mode');
+        $this->expectExceptionMessage('Invalid color mode: some invalid mode');
 
         $config = $this->getConfig();
         $config->setColorMode('some invalid mode');
