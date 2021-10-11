@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+        php: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
 
     steps:
       - name: Check out code
@@ -152,7 +152,7 @@ jobs:
         run: .github/bin/smoketest.sh psysh-php56 psysh-php56-compat
 
   php56-phar:
-    name: PHP 5.6 Phar smoke test
+    name: PHP 7.0 Phar smoke test
     needs: build
     runs-on: ubuntu-latest
 
@@ -163,7 +163,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '5.6'
+          php-version: '7.0'
           tools: composer:v2
           coverage: none
 
@@ -177,4 +177,4 @@ jobs:
         run: chmod +x build/*/psysh
 
       - name: Smoke test
-        run: .github/bin/smoketest.sh psysh-php56 psysh-php56-compat
+        run: .github/bin/smoketest.sh psysh-php70 psysh-php70-compat
