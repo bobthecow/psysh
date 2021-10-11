@@ -74,7 +74,6 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
         $style = 'global';
         $value = '[]';
         $this->assertArrayHasKey('$'.$three, $globals);
-        // @todo: uncomment when symfony/symfony#37674 fix lands
-        // $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
+        $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
     }
 }
