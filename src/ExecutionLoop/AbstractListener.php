@@ -35,14 +35,14 @@ abstract class AbstractListener implements Listener
     /**
      * {@inheritdoc}
      */
-    public function onInput(Shell $shell, $input)
+    public function onInput(Shell $shell, string $input)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onExecute(Shell $shell, $code)
+    public function onExecute(Shell $shell, string $code)
     {
     }
 

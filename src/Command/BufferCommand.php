@@ -68,7 +68,7 @@ HELP
      *
      * @return array Formatted strings
      */
-    protected function formatLines(array $lines, $type = 'return'): array
+    protected function formatLines(array $lines, string $type = 'return'): array
     {
         $template = \sprintf('<%s>%%s</%s>', $type, $type);
 

@@ -61,7 +61,7 @@ class ClassConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getConstants(\Reflector $reflector, $noInherit = false): array
+    protected function getConstants(\Reflector $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 

@@ -31,7 +31,7 @@ class ConfigPaths
      * @param string[]     $overrides Directory overrides
      * @param EnvInterface $env
      */
-    public function __construct($overrides = [], $env = null)
+    public function __construct(array $overrides = [], EnvInterface $env = null)
     {
         $this->overrideDirs($overrides);
         $this->env = $env ?: new SuperglobalsEnv();
@@ -45,7 +45,7 @@ class ConfigPaths
      *
      * @param string[] $overrides Directory overrides
      */
-    public function overrideDirs($overrides)
+    public function overrideDirs(array $overrides)
     {
         if (\array_key_exists('configDir', $overrides)) {
             $this->configDir = $overrides['configDir'] ?: null;
@@ -351,7 +351,7 @@ class ConfigPaths
      *
      * @return bool False if directory exists but is not writeable, or cannot be created
      */
-    public static function ensureDir($dir): bool
+    public static function ensureDir(string $dir): bool
     {
         if (!\is_dir($dir)) {
             // Just try making it and see if it works
@@ -376,7 +376,7 @@ class ConfigPaths
      *
      * @return string|false Full path to $file, or false if file is not writable
      */
-    public static function touchFileWithMkdir($file)
+    public static function touchFileWithMkdir(string $file)
     {
         if (\file_exists($file)) {
             if (\is_writable($file)) {

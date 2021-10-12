@@ -144,7 +144,7 @@ HELP
      *
      * @return array Statements
      */
-    private function parse(Parser $parser, $code): array
+    private function parse(Parser $parser, string $code): array
     {
         try {
             return $parser->parse($code);

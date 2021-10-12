@@ -46,7 +46,7 @@ class GitHubChecker implements Checker
     /**
      * @param string $version
      */
-    public function setLatest($version)
+    public function setLatest(string $version)
     {
         $this->latest = $version;
     }

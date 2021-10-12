@@ -86,7 +86,7 @@ class FunctionEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareFunctions(array $functions, $prefix = null): array
+    protected function prepareFunctions(array $functions, string $prefix = null): array
     {
         \natcasesort($functions);
 

@@ -24,7 +24,7 @@ class Json
      *
      * @return string
      */
-    public static function encode($val, $opt = 0): string
+    public static function encode($val, int $opt = 0): string
     {
         $opt |= \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE;
 

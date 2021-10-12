@@ -42,7 +42,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @param string $name
      */
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name;
 
@@ -63,7 +63,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @return string|null
      */
-    public static function export($name, $return = false)
+    public static function export(string $name, bool $return = false)
     {
         $refl = new self($name);
         $value = $refl->getValue();

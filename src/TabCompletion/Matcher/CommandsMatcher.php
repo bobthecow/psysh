@@ -58,7 +58,7 @@ class CommandsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    protected function isCommand($name): bool
+    protected function isCommand(string $name): bool
     {
         return \in_array($name, $this->commands);
     }
@@ -70,7 +70,7 @@ class CommandsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    protected function matchCommand($name): bool
+    protected function matchCommand(string $name): bool
     {
         foreach ($this->commands as $cmd) {
             if ($this->startsWith($name, $cmd)) {

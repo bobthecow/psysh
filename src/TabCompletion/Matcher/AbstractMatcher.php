@@ -80,7 +80,7 @@ abstract class AbstractMatcher
      *
      * @return string
      */
-    protected function getNamespaceAndClass($tokens): string
+    protected function getNamespaceAndClass(array $tokens): string
     {
         $class = '';
         while (self::hasToken(
@@ -115,7 +115,7 @@ abstract class AbstractMatcher
      *
      * @return bool
      */
-    public static function startsWith($prefix, $word): bool
+    public static function startsWith(string $prefix, string $word): bool
     {
         return \preg_match(\sprintf('#^%s#', $prefix), $word);
     }
@@ -128,7 +128,7 @@ abstract class AbstractMatcher
      *
      * @return bool
      */
-    public static function hasSyntax($token, $syntax = self::VAR_SYNTAX): bool
+    public static function hasSyntax($token, string $syntax = self::VAR_SYNTAX): bool
     {
         if (!\is_array($token)) {
             return false;
@@ -147,7 +147,7 @@ abstract class AbstractMatcher
      *
      * @return bool
      */
-    public static function tokenIs($token, $which): bool
+    public static function tokenIs($token, string $which): bool
     {
         if (!\is_array($token)) {
             return false;

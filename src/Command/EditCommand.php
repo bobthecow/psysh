@@ -156,7 +156,7 @@ class EditCommand extends Command implements ContextAware
      *
      * @throws \UnexpectedValueException if file_get_contents on $filePath returns false instead of a string
      */
-    private function editFile($filePath, $shouldRemoveFile): string
+    private function editFile(string $filePath, bool $shouldRemoveFile): string
     {
         $escapedFilePath = \escapeshellarg($filePath);
         $editor = (isset($_SERVER['EDITOR']) && $_SERVER['EDITOR']) ? $_SERVER['EDITOR'] : 'nano';

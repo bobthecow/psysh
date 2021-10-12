@@ -136,7 +136,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function getVectorParamTemplate($type, $max): string
+    private static function getVectorParamTemplate(string $type, int $max): string
     {
         if (!isset(self::$vectorParamTemplates[$type])) {
             return \sprintf('%%-%ds', $max);
@@ -153,7 +153,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function indent($text, $indent = '  '): string
+    private static function indent(string $text, string $indent = '  '): string
     {
         return $indent.\str_replace("\n", "\n".$indent, $text);
     }
@@ -165,7 +165,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function inflect($text): string
+    private static function inflect(string $text): string
     {
         $words = \trim(\preg_replace('/[\s_-]+/', ' ', \preg_replace('/([a-z])([A-Z])/', '$1 $2', $text)));
 

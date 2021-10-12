@@ -76,7 +76,7 @@ class VariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getVariables($showAll): array
+    protected function getVariables(bool $showAll): array
     {
         $scopeVars = $this->context->getAll();
         \uksort($scopeVars, function ($a, $b) {

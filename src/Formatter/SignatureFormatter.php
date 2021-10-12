@@ -155,7 +155,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatConstant($reflector): string
+    private static function formatConstant(ReflectionConstant_ $reflector): string
     {
         $value = $reflector->getValue();
         $style = self::getTypeStyle($value);

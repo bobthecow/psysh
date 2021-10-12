@@ -132,7 +132,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param Stmt   $stmt
      * @param string $scopeType
      */
-    protected function ensureCanDefine(Stmt $stmt, $scopeType = self::CLASS_TYPE)
+    protected function ensureCanDefine(Stmt $stmt, string $scopeType = self::CLASS_TYPE)
     {
         // Anonymous classes don't have a name, and uniqueness shouldn't be enforced.
         if ($stmt->name === null) {
@@ -168,7 +168,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param string $name
      * @param Stmt   $stmt
      */
-    protected function ensureClassExists($name, $stmt)
+    protected function ensureClassExists(string $name, Stmt $stmt)
     {
         if (!$this->classExists($name)) {
             throw $this->createError(\sprintf('Class \'%s\' not found', $name), $stmt);
@@ -183,7 +183,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param string $name
      * @param Stmt   $stmt
      */
-    protected function ensureClassOrInterfaceExists($name, $stmt)
+    protected function ensureClassOrInterfaceExists(string $name, Stmt $stmt)
     {
         if (!$this->classExists($name) && !$this->interfaceExists($name)) {
             throw $this->createError(\sprintf('Class \'%s\' not found', $name), $stmt);
@@ -198,7 +198,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param string $name
      * @param Stmt   $stmt
      */
-    protected function ensureClassOrTraitExists($name, $stmt)
+    protected function ensureClassOrTraitExists(string $name, Stmt $stmt)
     {
         if (!$this->classExists($name) && !$this->traitExists($name)) {
             throw $this->createError(\sprintf('Class \'%s\' not found', $name), $stmt);
@@ -214,7 +214,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param string $name
      * @param Stmt   $stmt
      */
-    protected function ensureMethodExists($class, $name, $stmt)
+    protected function ensureMethodExists(string $class, string $name, Stmt $stmt)
     {
         $this->ensureClassOrTraitExists($class, $stmt);
 
@@ -246,7 +246,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      * @param Interface_[] $interfaces
      * @param Stmt         $stmt
      */
-    protected function ensureInterfacesExist($interfaces, $stmt)
+    protected function ensureInterfacesExist(array $interfaces, Stmt $stmt)
     {
         foreach ($interfaces as $interface) {
             /** @var string $name */
@@ -287,7 +287,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return bool
      */
-    protected function classExists($name): bool
+    protected function classExists(string $name): bool
     {
         // Give `self`, `static` and `parent` a pass. This will actually let
         // some errors through, since we're not checking whether the keyword is
@@ -306,7 +306,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return bool
      */
-    protected function interfaceExists($name): bool
+    protected function interfaceExists(string $name): bool
     {
         return \interface_exists($name) || $this->findInScope($name) === self::INTERFACE_TYPE;
     }
@@ -318,7 +318,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return bool
      */
-    protected function traitExists($name): bool
+    protected function traitExists(string $name): bool
     {
         return \trait_exists($name) || $this->findInScope($name) === self::TRAIT_TYPE;
     }
@@ -330,7 +330,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return string|null
      */
-    protected function findInScope($name)
+    protected function findInScope(string $name)
     {
         $name = \strtolower($name);
         if (isset($this->currentScope[$name])) {
@@ -346,7 +346,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return FatalErrorException
      */
-    protected function createError($msg, $stmt): FatalErrorException
+    protected function createError(string $msg, Stmt $stmt): FatalErrorException
     {
         return new FatalErrorException($msg, 0, \E_ERROR, null, $stmt->getLine());
     }

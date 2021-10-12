@@ -93,7 +93,7 @@ class Libedit extends GNUReadline
      *
      * @return string|null
      */
-    protected function parseHistoryLine($line)
+    protected function parseHistoryLine(string $line)
     {
         // empty line, comment or timestamp
         if (!$line || $line[0] === "\0") {

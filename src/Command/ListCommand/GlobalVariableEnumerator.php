@@ -71,7 +71,7 @@ class GlobalVariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareGlobals($globals): array
+    protected function prepareGlobals(array $globals): array
     {
         // My kingdom for a generator.
         $ret = [];

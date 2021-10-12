@@ -66,7 +66,7 @@ class ClassEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function filterClasses($key, $classes, $internal, $user, $prefix = null): array
+    protected function filterClasses(string $key, array $classes, bool $internal, bool $user, string $prefix = null): array
     {
         $ret = [];
 

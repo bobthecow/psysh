@@ -62,7 +62,7 @@ class PropertyEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getProperties($showAll, \Reflector $reflector, $noInherit = false): array
+    protected function getProperties(bool $showAll, \Reflector $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 

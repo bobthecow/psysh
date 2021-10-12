@@ -50,7 +50,7 @@ class AutoCompleter
      *
      * @return array
      */
-    public function processCallback($input, $index, $info = []): array
+    public function processCallback(string $input, int $index, array $info = []): array
     {
         // Some (Windows?) systems provide incomplete `readline_info`, so let's
         // try to work around it.
@@ -91,7 +91,7 @@ class AutoCompleter
      *
      * @return array
      */
-    public function callback($input, $index): array
+    public function callback(string $input, int $index): array
     {
         return $this->processCallback($input, $index, \readline_info());
     }

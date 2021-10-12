@@ -485,7 +485,7 @@ class Configuration
      *
      * @param string $file
      */
-    public function loadConfigFile($file)
+    public function loadConfigFile(string $file)
     {
         if (!\is_file($file)) {
             throw new \InvalidArgumentException(\sprintf('Invalid configuration file specified, %s does not exist', $file));
@@ -534,7 +534,7 @@ class Configuration
      *
      * @param string $dir
      */
-    public function setConfigDir($dir)
+    public function setConfigDir(string $dir)
     {
         $this->configDir = (string) $dir;
 
@@ -560,7 +560,7 @@ class Configuration
      *
      * @param string $dir
      */
-    public function setDataDir($dir)
+    public function setDataDir(string $dir)
     {
         $this->dataDir = (string) $dir;
 
@@ -586,7 +586,7 @@ class Configuration
      *
      * @param string $dir
      */
-    public function setRuntimeDir($dir)
+    public function setRuntimeDir(string $dir)
     {
         $this->runtimeDir = (string) $dir;
 
@@ -623,7 +623,7 @@ class Configuration
      *
      * @param string $file
      */
-    public function setHistoryFile($file)
+    public function setHistoryFile(string $file)
     {
         $this->historyFile = ConfigPaths::touchFileWithMkdir($file);
     }
@@ -664,7 +664,7 @@ class Configuration
      *
      * @param int $value
      */
-    public function setHistorySize($value)
+    public function setHistorySize(int $value)
     {
         $this->historySize = (int) $value;
     }
@@ -684,7 +684,7 @@ class Configuration
      *
      * @param bool $value
      */
-    public function setEraseDuplicates($value)
+    public function setEraseDuplicates(bool $value)
     {
         $this->eraseDuplicates = (bool) $value;
     }
@@ -711,7 +711,7 @@ class Configuration
      *
      * @return string Temporary file name
      */
-    public function getTempFile($type, $pid): string
+    public function getTempFile(string $type, int $pid): string
     {
         return \tempnam($this->getRuntimeDir(), $type.'_'.$pid.'_');
     }
@@ -726,7 +726,7 @@ class Configuration
      *
      * @return string Pipe name
      */
-    public function getPipe($type, $pid): string
+    public function getPipe(string $type, int $pid): string
     {
         return \sprintf('%s/%s_%s', $this->getRuntimeDir(), $type, $pid);
     }
@@ -746,7 +746,7 @@ class Configuration
      *
      * @param bool $useReadline
      */
-    public function setUseReadline($useReadline)
+    public function setUseReadline(bool $useReadline)
     {
         $this->useReadline = (bool) $useReadline;
     }
@@ -828,7 +828,7 @@ class Configuration
      *
      * @param bool $useBracketedPaste
      */
-    public function setUseBracketedPaste($useBracketedPaste)
+    public function setUseBracketedPaste(bool $useBracketedPaste)
     {
         $this->useBracketedPaste = (bool) $useBracketedPaste;
     }
@@ -874,7 +874,7 @@ class Configuration
      *
      * @param bool $usePcntl
      */
-    public function setUsePcntl($usePcntl)
+    public function setUsePcntl(bool $usePcntl)
     {
         $this->usePcntl = (bool) $usePcntl;
     }
@@ -910,7 +910,7 @@ class Configuration
      *
      * @param bool $rawOutput
      */
-    public function setRawOutput($rawOutput)
+    public function setRawOutput(bool $rawOutput)
     {
         $this->rawOutput = (bool) $rawOutput;
     }
@@ -922,7 +922,7 @@ class Configuration
      *
      * @param bool $requireSemicolons
      */
-    public function setRequireSemicolons($requireSemicolons)
+    public function setRequireSemicolons(bool $requireSemicolons)
     {
         $this->requireSemicolons = (bool) $requireSemicolons;
     }
@@ -949,7 +949,7 @@ class Configuration
      *
      * @param bool $useUnicode
      */
-    public function setUseUnicode($useUnicode)
+    public function setUseUnicode(bool $useUnicode)
     {
         $this->useUnicode = (bool) $useUnicode;
     }
@@ -977,7 +977,7 @@ class Configuration
      *
      * @see self::errorLoggingLevel
      *
-     * @param bool $errorLoggingLevel
+     * @param int $errorLoggingLevel
      */
     public function setErrorLoggingLevel($errorLoggingLevel)
     {
@@ -1052,7 +1052,7 @@ class Configuration
      *
      * @param bool $useTabCompletion
      */
-    public function setUseTabCompletion($useTabCompletion)
+    public function setUseTabCompletion(bool $useTabCompletion)
     {
         $this->useTabCompletion = (bool) $useTabCompletion;
     }
@@ -1062,7 +1062,7 @@ class Configuration
      *
      * @param bool $useTabCompletion
      */
-    public function setTabCompletion($useTabCompletion)
+    public function setTabCompletion(bool $useTabCompletion)
     {
         $this->setUseTabCompletion($useTabCompletion);
     }
@@ -1335,7 +1335,7 @@ class Configuration
      *
      * @param string $filename
      */
-    public function setManualDbFile($filename)
+    public function setManualDbFile(string $filename)
     {
         $this->manualDbFile = (string) $filename;
     }
@@ -1418,7 +1418,7 @@ class Configuration
      *
      * @param bool $warnOnMultipleConfigs
      */
-    public function setWarnOnMultipleConfigs($warnOnMultipleConfigs)
+    public function setWarnOnMultipleConfigs(bool $warnOnMultipleConfigs)
     {
         $this->warnOnMultipleConfigs = (bool) $warnOnMultipleConfigs;
     }
@@ -1445,7 +1445,7 @@ class Configuration
      *
      * @param string $colorMode
      */
-    public function setColorMode($colorMode)
+    public function setColorMode(string $colorMode)
     {
         $validColorModes = [
             self::COLOR_MODE_AUTO,
@@ -1475,7 +1475,7 @@ class Configuration
      *
      * @param string $interactiveMode
      */
-    public function setInteractiveMode($interactiveMode)
+    public function setInteractiveMode(string $interactiveMode)
     {
         $validInteractiveModes = [
             self::INTERACTIVE_MODE_AUTO,
@@ -1566,7 +1566,7 @@ class Configuration
      *
      * @param string $interval
      */
-    public function setUpdateCheck($interval)
+    public function setUpdateCheck(string $interval)
     {
         $validIntervals = [
             Checker::ALWAYS,
@@ -1598,7 +1598,7 @@ class Configuration
      *
      * @param string $message
      */
-    public function setStartupMessage($message)
+    public function setStartupMessage(string $message)
     {
         $this->startupMessage = $message;
     }
@@ -1618,7 +1618,7 @@ class Configuration
      *
      * @param string $prompt
      */
-    public function setPrompt($prompt)
+    public function setPrompt(string $prompt)
     {
         $this->prompt = $prompt;
     }
@@ -1648,7 +1648,7 @@ class Configuration
      *
      * @param bool $forceArrayIndexes
      */
-    public function setForceArrayIndexes($forceArrayIndexes)
+    public function setForceArrayIndexes(bool $forceArrayIndexes)
     {
         $this->forceArrayIndexes = $forceArrayIndexes;
     }
@@ -1712,7 +1712,7 @@ class Configuration
      *
      * @param string $verbosity
      */
-    public function setVerbosity($verbosity)
+    public function setVerbosity(string $verbosity)
     {
         $validVerbosityLevels = [
             self::VERBOSITY_QUIET,

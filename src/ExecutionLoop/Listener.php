@@ -49,7 +49,7 @@ interface Listener
      *
      * @return string|null User input override
      */
-    public function onInput(Shell $shell, $input);
+    public function onInput(Shell $shell, string $input);
 
     /**
      * Called before executing user code.
@@ -65,7 +65,7 @@ interface Listener
      *
      * @return string|null User code override
      */
-    public function onExecute(Shell $shell, $code);
+    public function onExecute(Shell $shell, string $code);
 
     /**
      * Called at the end of each loop.

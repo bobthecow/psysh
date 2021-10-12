@@ -34,7 +34,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      * @param StreamOutput $output
      * @param string       $cmd    Pager process command (default: 'less -R -S -F -X')
      */
-    public function __construct(StreamOutput $output, $cmd = 'less -R -S -F -X')
+    public function __construct(StreamOutput $output, string $cmd = 'less -R -S -F -X')
     {
         $this->stream = $output->getStream();
         $this->cmd = $cmd;
@@ -48,7 +48,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      *
      * @throws \RuntimeException When unable to write output (should never happen)
      */
-    public function doWrite($message, $newline)
+    public function doWrite(string $message, bool $newline)
     {
         $pipe = $this->getPipe();
         if (false === @\fwrite($pipe, $message.($newline ? \PHP_EOL : ''))) {

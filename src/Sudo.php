@@ -25,7 +25,7 @@ class Sudo
      *
      * @return mixed Value of $object->property
      */
-    public static function fetchProperty($object, $property)
+    public static function fetchProperty(object $object, string $property)
     {
         $prop = static::getProperty(new \ReflectionObject($object), $property);
 
@@ -41,7 +41,7 @@ class Sudo
      *
      * @return mixed Value of $object->property
      */
-    public static function assignProperty($object, $property, $value)
+    public static function assignProperty(object $object, string $property, $value)
     {
         $prop = static::getProperty(new \ReflectionObject($object), $property);
         $prop->setValue($object, $value);
@@ -58,7 +58,7 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callMethod($object, $method, $args = null)
+    public static function callMethod(object $object, string $method, $args = null)
     {
         $args = \func_get_args();
         $object = \array_shift($args);
@@ -79,7 +79,7 @@ class Sudo
      *
      * @return mixed Value of $class::$property
      */
-    public static function fetchStaticProperty($class, $property)
+    public static function fetchStaticProperty($class, string $property)
     {
         $prop = static::getProperty(new \ReflectionClass($class), $property);
         $prop->setAccessible(true);
@@ -96,7 +96,7 @@ class Sudo
      *
      * @return mixed Value of $class::$property
      */
-    public static function assignStaticProperty($class, $property, $value)
+    public static function assignStaticProperty($class, string $property, $value)
     {
         $prop = static::getProperty(new \ReflectionClass($class), $property);
         $prop->setValue($value);
@@ -113,7 +113,7 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callStatic($class, $method, $args = null)
+    public static function callStatic($class, string $method, $args = null)
     {
         $args = \func_get_args();
         $class = \array_shift($args);
@@ -134,7 +134,7 @@ class Sudo
      *
      * @return mixed
      */
-    public static function fetchClassConst($class, $const)
+    public static function fetchClassConst($class, string $const)
     {
         $refl = new \ReflectionClass($class);
 
@@ -159,7 +159,7 @@ class Sudo
      *
      * @return \ReflectionProperty
      */
-    private static function getProperty(\ReflectionClass $refl, $property): \ReflectionProperty
+    private static function getProperty(\ReflectionClass $refl, string $property): \ReflectionProperty
     {
         $firstException = null;
         do {

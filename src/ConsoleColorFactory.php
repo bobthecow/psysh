@@ -21,7 +21,7 @@ class ConsoleColorFactory
     /**
      * @param string $colorMode
      */
-    public function __construct($colorMode)
+    public function __construct(string $colorMode)
     {
         // Nothing to see here
     }

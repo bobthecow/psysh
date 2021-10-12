@@ -133,7 +133,7 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * @return \PhpParser\Node\Expr|\PhpParser\Node\Stmt\Expression
      */
-    private function maybeExpression($expr, $attrs = [])
+    private function maybeExpression(\PhpParser\Node $expr, array $attrs = [])
     {
         return \class_exists(Expression::class) ? new Expression($expr, $attrs) : $expr;
     }

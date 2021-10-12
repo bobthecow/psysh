@@ -62,7 +62,7 @@ class CodeCleaner
      * @param NodeTraverser|null $traverser A PhpParser NodeTraverser instance. One will be created if not explicitly supplied
      * @param bool               $yolo      run without input validation
      */
-    public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null, $yolo = false)
+    public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null, bool $yolo = false)
     {
         $this->yolo = $yolo;
 
@@ -262,7 +262,7 @@ class CodeCleaner
      *
      * @return string|false Cleaned PHP code, False if the input is incomplete
      */
-    public function clean(array $codeLines, $requireSemicolons = false)
+    public function clean(array $codeLines, bool $requireSemicolons = false)
     {
         $stmts = $this->parse('<?php '.\implode(\PHP_EOL, $codeLines).\PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
@@ -319,7 +319,7 @@ class CodeCleaner
      *
      * @return array|false A set of statements, or false if incomplete
      */
-    protected function parse($code, $requireSemicolons = false)
+    protected function parse(string $code, bool $requireSemicolons = false)
     {
         try {
             return $this->parser->parse($code);
@@ -372,7 +372,7 @@ class CodeCleaner
      *
      * @return bool
      */
-    private function parseErrorIsUnclosedString(\PhpParser\Error $e, $code): bool
+    private function parseErrorIsUnclosedString(\PhpParser\Error $e, string $code): bool
     {
         if ($e->getRawMessage() !== 'Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE') {
             return false;

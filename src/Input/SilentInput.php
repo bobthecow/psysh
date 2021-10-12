@@ -27,7 +27,7 @@ class SilentInput
      *
      * @param string $inputString
      */
-    public function __construct($inputString)
+    public function __construct(string $inputString)
     {
         $this->inputString = $inputString;
     }

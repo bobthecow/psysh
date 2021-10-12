@@ -33,7 +33,7 @@ class ShellInput extends StringInput
      *
      * @param string $input An array of parameters from the CLI (in the argv format)
      */
-    public function __construct($input)
+    public function __construct(string $input)
     {
         parent::__construct($input);
 
@@ -81,7 +81,7 @@ class ShellInput extends StringInput
      *
      * @throws \InvalidArgumentException When unable to parse input (should never happen)
      */
-    private function tokenize($input): array
+    private function tokenize(string $input): array
     {
         $tokens = [];
         $length = \strlen($input);
@@ -150,7 +150,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When too many arguments are given
      */
-    private function parseShellArgument($token, $rest)
+    private function parseShellArgument(string $token, string $rest)
     {
         $c = \count($this->arguments);
 
@@ -200,7 +200,7 @@ class ShellInput extends StringInput
      *
      * @param string $token The current token
      */
-    private function parseShortOption($token)
+    private function parseShortOption(string $token)
     {
         $name = \substr($token, 1);
 
@@ -223,7 +223,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When option given doesn't exist
      */
-    private function parseShortOptionSet($name)
+    private function parseShortOptionSet(string $name)
     {
         $len = \strlen($name);
         for ($i = 0; $i < $len; $i++) {
@@ -247,7 +247,7 @@ class ShellInput extends StringInput
      *
      * @param string $token The current token
      */
-    private function parseLongOption($token)
+    private function parseLongOption(string $token)
     {
         $name = \substr($token, 2);
 
@@ -269,7 +269,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When option given doesn't exist
      */
-    private function addShortOption($shortcut, $value)
+    private function addShortOption(string $shortcut, $value)
     {
         if (!$this->definition->hasShortcut($shortcut)) {
             throw new \RuntimeException(\sprintf('The "-%s" option does not exist.', $shortcut));
@@ -286,7 +286,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When option given doesn't exist
      */
-    private function addLongOption($name, $value)
+    private function addLongOption(string $name, $value)
     {
         if (!$this->definition->hasOption($name)) {
             throw new \RuntimeException(\sprintf('The "--%s" option does not exist.', $name));

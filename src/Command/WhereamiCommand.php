@@ -145,7 +145,7 @@ HELP
      *
      * @return string
      */
-    private function replaceCwd($file): string
+    private function replaceCwd(string $file): string
     {
         $cwd = \getcwd();
         if ($cwd === false) {

@@ -122,7 +122,7 @@ class ConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getConstants($category = null): array
+    protected function getConstants(string $category = null): array
     {
         if (!$category) {
             return \get_defined_constants();

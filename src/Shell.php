@@ -389,7 +389,7 @@ class Shell extends Application
      *
      * @return int 0 if everything went fine, or an error code
      */
-    private function doNonInteractiveRun($rawOutput): int
+    private function doNonInteractiveRun(bool $rawOutput): int
     {
         $this->nonInteractive = true;
 
@@ -476,7 +476,7 @@ class Shell extends Application
      *
      * @param bool $interactive
      */
-    public function getInput($interactive = true)
+    public function getInput(bool $interactive = true)
     {
         $this->codeBufferOpen = false;
 
@@ -533,7 +533,7 @@ class Shell extends Application
      *
      * @return bool true if the input is in an open string or comment
      */
-    private function inputInOpenStringOrComment($input): bool
+    private function inputInOpenStringOrComment(string $input): bool
     {
         if (!$this->hasCode()) {
             return false;
@@ -575,7 +575,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public function onInput($input): string
+    public function onInput(string $input): string
     {
         foreach ($this->loopListeners as $listeners) {
             if (($return = $listeners->onInput($this, $input)) !== null) {
@@ -593,7 +593,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public function onExecute($code): string
+    public function onExecute(string $code): string
     {
         foreach ($this->loopListeners as $listener) {
             if (($return = $listener->onExecute($this, $code)) !== null) {
@@ -650,7 +650,7 @@ class Shell extends Application
      *
      * @return array Associative array of scope variables
      */
-    public function getScopeVariables($includeBoundObject = true): array
+    public function getScopeVariables(bool $includeBoundObject = true): array
     {
         $vars = $this->context->getAll();
 
@@ -670,7 +670,7 @@ class Shell extends Application
      *
      * @return array Associative array of magic scope variables
      */
-    public function getSpecialScopeVariables($includeBoundObject = true): array
+    public function getSpecialScopeVariables(bool $includeBoundObject = true): array
     {
         $vars = $this->context->getSpecialVariables();
 
@@ -825,7 +825,7 @@ class Shell extends Application
      * @param string $code
      * @param bool   $silent
      */
-    public function addCode($code, $silent = false)
+    public function addCode(string $code, bool $silent = false)
     {
         try {
             // Code lines ending in \ keep the buffer open
@@ -858,7 +858,7 @@ class Shell extends Application
      * @param string $code
      * @param bool   $silent
      */
-    private function setCode($code, $silent = false)
+    private function setCode(string $code, bool $silent = false)
     {
         if ($this->hasCode()) {
             $this->codeStack[] = [$this->codeBuffer, $this->codeBufferOpen, $this->code];
@@ -941,7 +941,7 @@ class Shell extends Application
      * @param string|array $input
      * @param bool         $silent
      */
-    public function addInput($input, $silent = false)
+    public function addInput($input, bool $silent = false)
     {
         foreach ((array) $input as $line) {
             $this->inputBuffer[] = $silent ? new SilentInput($line) : $line;
@@ -1043,7 +1043,7 @@ class Shell extends Application
      * @param string $out
      * @param int    $phase Output buffering phase
      */
-    public function writeStdout($out, $phase = \PHP_OUTPUT_HANDLER_END)
+    public function writeStdout(string $out, int $phase = \PHP_OUTPUT_HANDLER_END)
     {
         $isCleaning = $phase & \PHP_OUTPUT_HANDLER_CLEAN;
 
@@ -1085,7 +1085,7 @@ class Shell extends Application
      * @param mixed $ret
      * @param bool  $rawOutput Write raw var_export-style values
      */
-    public function writeReturnValue($ret, $rawOutput = false)
+    public function writeReturnValue($ret, bool $rawOutput = false)
     {
         $this->lastExecSuccess = true;
 
@@ -1233,7 +1233,7 @@ class Shell extends Application
      *
      * @return mixed
      */
-    public function execute($code, $throwExceptions = false)
+    public function execute(string $code, bool $throwExceptions = false)
     {
         $this->setCode($code, true);
         $closure = new ExecutionClosure($this);
@@ -1315,7 +1315,7 @@ class Shell extends Application
      *
      * @return BaseCommand|null
      */
-    protected function getCommand($input)
+    protected function getCommand(string $input)
     {
         $input = new StringInput($input);
         if ($name = $input->getFirstArgument()) {
@@ -1330,7 +1330,7 @@ class Shell extends Application
      *
      * @return bool True if the shell has a command for the given input
      */
-    protected function hasCommand($input): bool
+    protected function hasCommand(string $input): bool
     {
         if (\preg_match('/([^\s]+?)(?:\s|$)/A', \ltrim($input), $match)) {
             return $this->has($match[1]);
@@ -1370,7 +1370,7 @@ class Shell extends Application
      *
      * @return string One line of user input
      */
-    protected function readline($interactive = true): string
+    protected function readline(bool $interactive = true): string
     {
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
@@ -1425,7 +1425,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public static function getVersionHeader($useUnicode = false): string
+    public static function getVersionHeader(bool $useUnicode = false): string
     {
         $separator = $useUnicode ? '—' : '-';
 

@@ -46,7 +46,7 @@ class HelpCommand extends Command
      *
      * @param Command $command
      */
-    public function setCommand($command)
+    public function setCommand(Command $command)
     {
         $this->command = $command;
     }

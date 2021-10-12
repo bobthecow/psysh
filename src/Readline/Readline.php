@@ -30,7 +30,7 @@ interface Readline
      *
      * @return bool Success
      */
-    public function addHistory($line): bool;
+    public function addHistory(string $line): bool;
 
     /**
      * Clear the command history.

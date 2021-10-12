@@ -148,7 +148,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator [$spanType, $spanText] highlight spans
      */
-    private static function tokenizeSpans($code): \Generator
+    private static function tokenizeSpans(string $code): \Generator
     {
         $spanType = null;
         $buffer = '';

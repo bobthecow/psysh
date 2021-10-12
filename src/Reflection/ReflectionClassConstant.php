@@ -28,7 +28,7 @@ class ReflectionClassConstant implements \Reflector
      * @param string|object $class
      * @param string        $name
      */
-    public function __construct($class, $name)
+    public function __construct($class, string $name)
     {
         if (!$class instanceof \ReflectionClass) {
             $class = new \ReflectionClass($class);
@@ -54,7 +54,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return string|null
      */
-    public static function export($class, $name, $return = false)
+    public static function export($class, string $name, bool $return = false)
     {
         $refl = new self($class, $name);
         $value = $refl->getValue();
@@ -217,7 +217,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return ReflectionClassConstant|\ReflectionClassConstant
      */
-    public static function create($class, $name)
+    public static function create($class, string $name)
     {
         if (\class_exists(\ReflectionClassConstant::class)) {
             return new \ReflectionClassConstant($class, $name);

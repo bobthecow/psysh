@@ -51,7 +51,7 @@ class RunkitReloader extends AbstractListener
      * @param Shell  $shell
      * @param string $input
      */
-    public function onInput(Shell $shell, $input)
+    public function onInput(Shell $shell, string $input)
     {
         $this->reload($shell);
     }
@@ -130,7 +130,7 @@ class RunkitReloader extends AbstractListener
      *
      * @return bool
      */
-    private function lintFile($file): bool
+    private function lintFile(string $file): bool
     {
         // first try to parse it
         try {

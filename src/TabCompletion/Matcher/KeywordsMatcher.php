@@ -46,7 +46,7 @@ class KeywordsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    public function isKeyword($keyword): bool
+    public function isKeyword(string $keyword): bool
     {
         return \in_array($keyword, $this->keywords);
     }

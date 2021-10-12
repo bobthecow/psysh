@@ -44,7 +44,7 @@ class Context
      *
      * @return mixed
      */
-    public function get($name)
+    public function get(string $name)
     {
         switch ($name) {
             case '_':
@@ -198,7 +198,7 @@ class Context
      *
      * @param string $lastStdout
      */
-    public function setLastStdout($lastStdout)
+    public function setLastStdout(string $lastStdout)
     {
         $this->lastStdout = $lastStdout;
     }
@@ -313,7 +313,7 @@ class Context
      *
      * @return bool
      */
-    public static function isSpecialVariableName($name): bool
+    public static function isSpecialVariableName(string $name): bool
     {
         return \in_array($name, self::$specialNames) || \in_array($name, self::$commandScopeNames);
     }

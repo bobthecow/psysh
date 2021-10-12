@@ -61,7 +61,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false): array
+    protected function getMethods(bool $showAll, \Reflector $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 
