@@ -252,7 +252,7 @@ class ShellInput extends StringInput
         $name = \substr($token, 2);
 
         if (false !== $pos = \strpos($name, '=')) {
-            if ('' === ($value = \substr($name, $pos + 1))) {
+            if (($value = \substr($name, $pos + 1)) === '') {
                 \array_unshift($this->parsed, [$value, null]);
             }
             $this->addLongOption(\substr($name, 0, $pos), $value);
