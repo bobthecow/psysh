@@ -34,7 +34,7 @@ class KeywordsMatcher extends AbstractMatcher
      *
      * @return array
      */
-    public function getKeywords()
+    public function getKeywords(): array
     {
         return $this->keywords;
     }
@@ -46,7 +46,7 @@ class KeywordsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    public function isKeyword($keyword)
+    public function isKeyword($keyword): bool
     {
         return \in_array($keyword, $this->keywords);
     }
@@ -54,7 +54,7 @@ class KeywordsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = [])
+    public function getMatches(array $tokens, array $info = []): array
     {
         $input = $this->getInput($tokens);
 
@@ -66,7 +66,7 @@ class KeywordsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function hasMatched(array $tokens)
+    public function hasMatched(array $tokens): bool
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);

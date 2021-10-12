@@ -58,7 +58,7 @@ class CommandsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    protected function isCommand($name)
+    protected function isCommand($name): bool
     {
         return \in_array($name, $this->commands);
     }
@@ -70,7 +70,7 @@ class CommandsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    protected function matchCommand($name)
+    protected function matchCommand($name): bool
     {
         foreach ($this->commands as $cmd) {
             if ($this->startsWith($name, $cmd)) {
@@ -84,7 +84,7 @@ class CommandsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = [])
+    public function getMatches(array $tokens, array $info = []): array
     {
         $input = $this->getInput($tokens);
 
@@ -96,7 +96,7 @@ class CommandsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function hasMatched(array $tokens)
+    public function hasMatched(array $tokens): bool
     {
         /* $openTag */ \array_shift($tokens);
         $command = \array_shift($tokens);

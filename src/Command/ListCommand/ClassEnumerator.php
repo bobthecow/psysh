@@ -22,7 +22,7 @@ class ClassEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
@@ -66,7 +66,7 @@ class ClassEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function filterClasses($key, $classes, $internal, $user, $prefix = null)
+    protected function filterClasses($key, $classes, $internal, $user, $prefix = null): array
     {
         $ret = [];
 
@@ -110,7 +110,7 @@ class ClassEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareClasses(array $classes)
+    protected function prepareClasses(array $classes): array
     {
         \natcasesort($classes);
 

@@ -37,7 +37,7 @@ class GNUReadline implements Readline
      *
      * @return bool
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return \function_exists('readline') && \function_exists('readline_list_history');
     }
@@ -71,7 +71,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line)
+    public function addHistory($line): bool
     {
         if ($res = \readline_add_history($line)) {
             $this->writeHistory();
@@ -83,7 +83,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function clearHistory()
+    public function clearHistory(): bool
     {
         if ($res = \readline_clear_history()) {
             $this->writeHistory();
@@ -95,7 +95,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function listHistory()
+    public function listHistory(): array
     {
         return \readline_list_history();
     }
@@ -103,7 +103,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function readHistory()
+    public function readHistory(): bool
     {
         \readline_read_history();
         \readline_clear_history();
@@ -130,7 +130,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function writeHistory()
+    public function writeHistory(): bool
     {
         // We have to write history first, since it is used
         // by Libedit to list history

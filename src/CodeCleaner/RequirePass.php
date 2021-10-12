@@ -73,7 +73,7 @@ class RequirePass extends CodeCleanerPass
      *
      * @return string Exactly the same as $file, unless $file collides with a path in the currently running phar
      */
-    public static function resolve($file, $lineNumber = null)
+    public static function resolve($file, $lineNumber = null): string
     {
         $file = (string) $file;
 

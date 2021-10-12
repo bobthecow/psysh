@@ -173,7 +173,7 @@ class Configuration
      *
      * @return self
      */
-    public static function fromInput(InputInterface $input)
+    public static function fromInput(InputInterface $input): self
     {
         $config = new self(['configFile' => self::getConfigFileFromInput($input)]);
 
@@ -236,7 +236,7 @@ class Configuration
      *
      * @return bool true if the option (or an alias) is present
      */
-    private static function getOptionFromInput(InputInterface $input, array $names, array $otherParams = [])
+    private static function getOptionFromInput(InputInterface $input, array $names, array $otherParams = []): bool
     {
         // Best case, input is properly bound and validated.
         foreach ($names as $name) {
@@ -331,7 +331,7 @@ class Configuration
      *
      * @return InputOption[]
      */
-    public static function getInputOptions()
+    public static function getInputOptions(): array
     {
         return [
             new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'Use an alternate PsySH config file location.'),
@@ -524,7 +524,7 @@ class Configuration
      *
      * @return array
      */
-    public function getDefaultIncludes()
+    public function getDefaultIncludes(): array
     {
         return $this->defaultIncludes ?: [];
     }
@@ -605,7 +605,7 @@ class Configuration
      *
      * @return string
      */
-    public function getRuntimeDir()
+    public function getRuntimeDir(): string
     {
         $runtimeDir = $this->configPaths->runtimeDir();
 
@@ -636,7 +636,7 @@ class Configuration
      *
      * @return string
      */
-    public function getHistoryFile()
+    public function getHistoryFile(): string
     {
         if (isset($this->historyFile)) {
             return $this->historyFile;
@@ -711,7 +711,7 @@ class Configuration
      *
      * @return string Temporary file name
      */
-    public function getTempFile($type, $pid)
+    public function getTempFile($type, $pid): string
     {
         return \tempnam($this->getRuntimeDir(), $type.'_'.$pid.'_');
     }
@@ -726,7 +726,7 @@ class Configuration
      *
      * @return string Pipe name
      */
-    public function getPipe($type, $pid)
+    public function getPipe($type, $pid): string
     {
         return \sprintf('%s/%s_%s', $this->getRuntimeDir(), $type, $pid);
     }
@@ -736,7 +736,7 @@ class Configuration
      *
      * @return bool True if Readline is available
      */
-    public function hasReadline()
+    public function hasReadline(): bool
     {
         return $this->hasReadline;
     }
@@ -759,7 +759,7 @@ class Configuration
      *
      * @return bool True if the current Shell should use Readline
      */
-    public function useReadline()
+    public function useReadline(): bool
     {
         return isset($this->useReadline) ? ($this->hasReadline && $this->useReadline) : $this->hasReadline;
     }
@@ -785,7 +785,7 @@ class Configuration
      *
      * @return Readline\Readline
      */
-    public function getReadline()
+    public function getReadline(): Readline\Readline
     {
         if (!isset($this->readline)) {
             $className = $this->getReadlineClass();
@@ -806,7 +806,7 @@ class Configuration
      *
      * @return string
      */
-    private function getReadlineClass()
+    private function getReadlineClass(): string
     {
         if ($this->useReadline()) {
             if (Readline\GNUReadline::isSupported()) {
@@ -848,7 +848,7 @@ class Configuration
      *
      * @return bool True if the shell should use bracketed paste
      */
-    public function useBracketedPaste()
+    public function useBracketedPaste(): bool
     {
         // For now, only the GNU readline implementation supports bracketed paste.
         $supported = ($this->getReadlineClass() === Readline\GNUReadline::class) && Readline\GNUReadline::supportsBracketedPaste();
@@ -864,7 +864,7 @@ class Configuration
      *
      * @return bool True if Pcntl is available
      */
-    public function hasPcntl()
+    public function hasPcntl(): bool
     {
         return $this->hasPcntl;
     }
@@ -887,7 +887,7 @@ class Configuration
      *
      * @return bool True if the current Shell should use Pcntl
      */
-    public function usePcntl()
+    public function usePcntl(): bool
     {
         return isset($this->usePcntl) ? ($this->hasPcntl && $this->usePcntl) : $this->hasPcntl;
     }
@@ -900,7 +900,7 @@ class Configuration
      *
      * @return bool true if raw output is enabled
      */
-    public function rawOutput()
+    public function rawOutput(): bool
     {
         return $this->rawOutput;
     }
@@ -936,7 +936,7 @@ class Configuration
      *
      * @return bool
      */
-    public function requireSemicolons()
+    public function requireSemicolons(): bool
     {
         return $this->requireSemicolons;
     }
@@ -962,7 +962,7 @@ class Configuration
      *
      * @return bool
      */
-    public function useUnicode()
+    public function useUnicode(): bool
     {
         if (isset($this->useUnicode)) {
             return $this->useUnicode;
@@ -998,7 +998,7 @@ class Configuration
      *
      * @return int
      */
-    public function errorLoggingLevel()
+    public function errorLoggingLevel(): int
     {
         return $this->errorLoggingLevel;
     }
@@ -1020,7 +1020,7 @@ class Configuration
      *
      * @return CodeCleaner
      */
-    public function getCodeCleaner()
+    public function getCodeCleaner(): CodeCleaner
     {
         if (!isset($this->cleaner)) {
             $this->cleaner = new CodeCleaner(null, null, null, $this->yolo());
@@ -1075,7 +1075,7 @@ class Configuration
      *
      * @return bool True if the current Shell should use tab completion
      */
-    public function useTabCompletion()
+    public function useTabCompletion(): bool
     {
         return isset($this->useTabCompletion) ? ($this->hasReadline && $this->useTabCompletion) : $this->hasReadline;
     }
@@ -1085,7 +1085,7 @@ class Configuration
      *
      * @return bool
      */
-    public function getTabCompletion()
+    public function getTabCompletion(): bool
     {
         return $this->useTabCompletion();
     }
@@ -1113,7 +1113,7 @@ class Configuration
      *
      * @return ShellOutput
      */
-    public function getOutput()
+    public function getOutput(): ShellOutput
     {
         if (!isset($this->output)) {
             $this->setOutput(new ShellOutput(
@@ -1157,7 +1157,7 @@ class Configuration
      *
      * @return bool
      */
-    public function getInputInteractive()
+    public function getInputInteractive(): bool
     {
         switch ($this->interactiveMode()) {
             case self::INTERACTIVE_MODE_AUTO:
@@ -1226,7 +1226,7 @@ class Configuration
      *
      * @return AutoCompleter
      */
-    public function getAutoCompleter()
+    public function getAutoCompleter(): AutoCompleter
     {
         if (!isset($this->autoCompleter)) {
             $this->autoCompleter = new AutoCompleter();
@@ -1240,7 +1240,7 @@ class Configuration
      *
      * @return array
      */
-    public function getTabCompletionMatchers()
+    public function getTabCompletionMatchers(): array
     {
         return [];
     }
@@ -1345,7 +1345,7 @@ class Configuration
      *
      * @return string Default: '~/.local/share/psysh/php_manual.sqlite'
      */
-    public function getManualDbFile()
+    public function getManualDbFile(): string
     {
         if (isset($this->manualDbFile)) {
             return $this->manualDbFile;
@@ -1367,7 +1367,7 @@ class Configuration
      *
      * @return \PDO
      */
-    public function getManualDb()
+    public function getManualDb(): \PDO
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
@@ -1402,7 +1402,7 @@ class Configuration
      *
      * @return Presenter
      */
-    public function getPresenter()
+    public function getPresenter(): Presenter
     {
         if (!isset($this->presenter)) {
             $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
@@ -1435,7 +1435,7 @@ class Configuration
      *
      * @return bool
      */
-    public function warnOnMultipleConfigs()
+    public function warnOnMultipleConfigs(): bool
     {
         return $this->warnOnMultipleConfigs;
     }
@@ -1465,7 +1465,7 @@ class Configuration
      *
      * @return string
      */
-    public function colorMode()
+    public function colorMode(): string
     {
         return $this->colorMode;
     }
@@ -1495,7 +1495,7 @@ class Configuration
      *
      * @return string
      */
-    public function interactiveMode()
+    public function interactiveMode(): string
     {
         return $this->interactiveMode;
     }
@@ -1517,7 +1517,7 @@ class Configuration
      *
      * @return Checker
      */
-    public function getChecker()
+    public function getChecker(): Checker
     {
         if (!isset($this->checker)) {
             $interval = $this->getUpdateCheck();
@@ -1554,7 +1554,7 @@ class Configuration
      *
      * @return string
      */
-    public function getUpdateCheck()
+    public function getUpdateCheck(): string
     {
         return isset($this->updateCheck) ? $this->updateCheck : Checker::WEEKLY;
     }
@@ -1628,7 +1628,7 @@ class Configuration
      *
      * @return string
      */
-    public function getPrompt()
+    public function getPrompt(): string
     {
         return $this->prompt;
     }
@@ -1638,7 +1638,7 @@ class Configuration
      *
      * @return bool
      */
-    public function forceArrayIndexes()
+    public function forceArrayIndexes(): bool
     {
         return $this->forceArrayIndexes;
     }
@@ -1700,7 +1700,7 @@ class Configuration
      *
      * @return string
      */
-    public function verbosity()
+    public function verbosity(): string
     {
         return $this->verbosity;
     }
@@ -1738,7 +1738,7 @@ class Configuration
      *
      * @return int OutputInterface verbosity level
      */
-    public function getOutputVerbosity()
+    public function getOutputVerbosity(): int
     {
         switch ($this->verbosity()) {
             case self::VERBOSITY_QUIET:
@@ -1762,7 +1762,7 @@ class Configuration
      *
      * @return bool
      */
-    public function inputIsPiped()
+    public function inputIsPiped(): bool
     {
         if ($this->pipedInput === null) {
             $this->pipedInput = \defined('STDIN') && static::looksLikeAPipe(\STDIN);
@@ -1778,7 +1778,7 @@ class Configuration
      *
      * @return bool
      */
-    public function outputIsPiped()
+    public function outputIsPiped(): bool
     {
         if ($this->pipedOutput === null) {
             $this->pipedOutput = static::looksLikeAPipe($this->getOutput()->getStream());
@@ -1794,7 +1794,7 @@ class Configuration
      *
      * @return bool
      */
-    private static function looksLikeAPipe($stream)
+    private static function looksLikeAPipe($stream): bool
     {
         if (\function_exists('posix_isatty')) {
             return !\posix_isatty($stream);

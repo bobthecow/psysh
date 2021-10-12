@@ -21,7 +21,7 @@ class PropertyEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // only list properties when a Reflector is present.
 
@@ -62,7 +62,7 @@ class PropertyEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getProperties($showAll, \Reflector $reflector, $noInherit = false)
+    protected function getProperties($showAll, \Reflector $reflector, $noInherit = false): array
     {
         $className = $reflector->getName();
 
@@ -89,7 +89,7 @@ class PropertyEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareProperties(array $properties, $target = null)
+    protected function prepareProperties(array $properties, $target = null): array
     {
         // My kingdom for a generator.
         $ret = [];
@@ -115,7 +115,7 @@ class PropertyEnumerator extends Enumerator
      *
      * @return string
      */
-    protected function getKindLabel(\ReflectionClass $reflector)
+    protected function getKindLabel(\ReflectionClass $reflector): string
     {
         if (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Properties';
@@ -131,7 +131,7 @@ class PropertyEnumerator extends Enumerator
      *
      * @return string
      */
-    private function getVisibilityStyle(\ReflectionProperty $property)
+    private function getVisibilityStyle(\ReflectionProperty $property): string
     {
         if ($property->isPublic()) {
             return self::IS_PUBLIC;
@@ -150,7 +150,7 @@ class PropertyEnumerator extends Enumerator
      *
      * @return string
      */
-    protected function presentValue(\ReflectionProperty $property, $target)
+    protected function presentValue(\ReflectionProperty $property, $target): string
     {
         // If $target is a class or trait (try to) get the default
         // value for the property.

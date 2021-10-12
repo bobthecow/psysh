@@ -31,7 +31,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    public static function format(\Reflector $reflector)
+    public static function format(\Reflector $reflector): string
     {
         switch (true) {
             case $reflector instanceof \ReflectionFunction:
@@ -67,7 +67,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted name
      */
-    public static function formatName(\Reflector $reflector)
+    public static function formatName(\Reflector $reflector): string
     {
         return $reflector->getName();
     }
@@ -79,7 +79,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted modifiers
      */
-    private static function formatModifiers(\Reflector $reflector)
+    private static function formatModifiers(\Reflector $reflector): string
     {
         return \implode(' ', \array_map(function ($modifier) {
             return \sprintf('<keyword>%s</keyword>', $modifier);
@@ -93,7 +93,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatClass(\ReflectionClass $reflector)
+    private static function formatClass(\ReflectionClass $reflector): string
     {
         $chunks = [];
 
@@ -134,7 +134,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatClassConstant($reflector)
+    private static function formatClassConstant($reflector): string
     {
         $value = $reflector->getValue();
         $style = self::getTypeStyle($value);
@@ -155,7 +155,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatConstant($reflector)
+    private static function formatConstant($reflector): string
     {
         $value = $reflector->getValue();
         $style = self::getTypeStyle($value);
@@ -176,7 +176,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function getTypeStyle($value)
+    private static function getTypeStyle($value): string
     {
         if (\is_int($value) || \is_float($value)) {
             return 'number';
@@ -196,7 +196,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatProperty(\ReflectionProperty $reflector)
+    private static function formatProperty(\ReflectionProperty $reflector): string
     {
         return \sprintf(
             '%s <strong>$%s</strong>',
@@ -212,7 +212,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatFunction(\ReflectionFunctionAbstract $reflector)
+    private static function formatFunction(\ReflectionFunctionAbstract $reflector): string
     {
         return \sprintf(
             '<keyword>function</keyword> %s<function>%s</function>(%s)%s',
@@ -230,7 +230,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted return type
      */
-    private static function formatFunctionReturnType(\ReflectionFunctionAbstract $reflector)
+    private static function formatFunctionReturnType(\ReflectionFunctionAbstract $reflector): string
     {
         if (!\method_exists($reflector, 'hasReturnType') || !$reflector->hasReturnType()) {
             return '';
@@ -246,7 +246,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string Formatted signature
      */
-    private static function formatMethod(\ReflectionMethod $reflector)
+    private static function formatMethod(\ReflectionMethod $reflector): string
     {
         return \sprintf(
             '%s %s',
@@ -262,7 +262,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return array
      */
-    private static function formatFunctionParams(\ReflectionFunctionAbstract $reflector)
+    private static function formatFunctionParams(\ReflectionFunctionAbstract $reflector): array
     {
         $params = [];
         foreach ($reflector->getParameters() as $param) {
@@ -327,7 +327,7 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function formatReflectionType(\ReflectionType $type = null)
+    private static function formatReflectionType(\ReflectionType $type = null): string
     {
         if ($type === null) {
             return '';

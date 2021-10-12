@@ -81,7 +81,7 @@ class ShellInput extends StringInput
      *
      * @throws \InvalidArgumentException When unable to parse input (should never happen)
      */
-    private function tokenize($input)
+    private function tokenize($input): array
     {
         $tokens = [];
         $length = \strlen($input);

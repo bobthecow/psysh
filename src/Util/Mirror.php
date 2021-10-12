@@ -43,7 +43,7 @@ class Mirror
      *
      * @return \Reflector
      */
-    public static function get($value, $member = null, $filter = 15)
+    public static function get($value, $member = null, $filter = 15): \Reflector
     {
         if ($member === null && \is_string($value)) {
             if (\function_exists($value)) {

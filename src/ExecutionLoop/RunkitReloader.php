@@ -28,7 +28,7 @@ class RunkitReloader extends AbstractListener
      *
      * @return bool
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         // runkit_import was removed in runkit7-4.0.0a1
         return \extension_loaded('runkit') || \extension_loaded('runkit7') && \function_exists('runkit_import');
@@ -130,7 +130,7 @@ class RunkitReloader extends AbstractListener
      *
      * @return bool
      */
-    private function lintFile($file)
+    private function lintFile($file): bool
     {
         // first try to parse it
         try {

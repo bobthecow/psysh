@@ -49,7 +49,7 @@ class ConstantEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
@@ -122,7 +122,7 @@ class ConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getConstants($category = null)
+    protected function getConstants($category = null): array
     {
         if (!$category) {
             return \get_defined_constants();
@@ -152,7 +152,7 @@ class ConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareConstants(array $constants)
+    protected function prepareConstants(array $constants): array
     {
         // My kingdom for a generator.
         $ret = [];

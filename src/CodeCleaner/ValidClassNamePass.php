@@ -267,7 +267,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return string
      */
-    protected function getScopeType(Stmt $stmt)
+    protected function getScopeType(Stmt $stmt): string
     {
         if ($stmt instanceof Class_) {
             return self::CLASS_TYPE;
@@ -287,7 +287,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return bool
      */
-    protected function classExists($name)
+    protected function classExists($name): bool
     {
         // Give `self`, `static` and `parent` a pass. This will actually let
         // some errors through, since we're not checking whether the keyword is
@@ -306,7 +306,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return bool
      */
-    protected function interfaceExists($name)
+    protected function interfaceExists($name): bool
     {
         return \interface_exists($name) || $this->findInScope($name) === self::INTERFACE_TYPE;
     }
@@ -318,7 +318,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return bool
      */
-    protected function traitExists($name)
+    protected function traitExists($name): bool
     {
         return \trait_exists($name) || $this->findInScope($name) === self::TRAIT_TYPE;
     }
@@ -346,7 +346,7 @@ class ValidClassNamePass extends NamespaceAwarePass
      *
      * @return FatalErrorException
      */
-    protected function createError($msg, $stmt)
+    protected function createError($msg, $stmt): FatalErrorException
     {
         return new FatalErrorException($msg, 0, \E_ERROR, null, $stmt->getLine());
     }

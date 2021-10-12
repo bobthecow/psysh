@@ -32,7 +32,7 @@ class ConsoleColorFactory
      *
      * @return ConsoleColor
      */
-    public function getConsoleColor()
+    public function getConsoleColor(): ConsoleColor
     {
         return new ConsoleColor(); // /shrug
     }

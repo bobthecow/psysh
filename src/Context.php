@@ -95,7 +95,7 @@ class Context
      *
      * @return array
      */
-    public function getAll()
+    public function getAll(): array
     {
         return \array_merge($this->scopeVariables, $this->getSpecialVariables());
     }
@@ -105,7 +105,7 @@ class Context
      *
      * @return array
      */
-    public function getSpecialVariables()
+    public function getSpecialVariables(): array
     {
         $vars = [
             '_' => $this->returnValue,
@@ -288,7 +288,7 @@ class Context
      *
      * @return array
      */
-    public function getCommandScopeVariables()
+    public function getCommandScopeVariables(): array
     {
         return $this->commandScopeVariables;
     }
@@ -301,7 +301,7 @@ class Context
      *
      * @return array Array of unused variable names
      */
-    public function getUnusedCommandScopeVariableNames()
+    public function getUnusedCommandScopeVariableNames(): array
     {
         return \array_diff(self::$commandScopeNames, \array_keys($this->commandScopeVariables));
     }
@@ -313,7 +313,7 @@ class Context
      *
      * @return bool
      */
-    public static function isSpecialVariableName($name)
+    public static function isSpecialVariableName($name): bool
     {
         return \in_array($name, self::$specialNames) || \in_array($name, self::$commandScopeNames);
     }

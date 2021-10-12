@@ -85,7 +85,7 @@ class CodeCleaner
      *
      * @return bool
      */
-    public function yolo()
+    public function yolo(): bool
     {
         return $this->yolo;
     }
@@ -95,7 +95,7 @@ class CodeCleaner
      *
      * @return array
      */
-    private function getDefaultPasses()
+    private function getDefaultPasses(): array
     {
         if ($this->yolo) {
             return $this->getYoloPasses();
@@ -152,7 +152,7 @@ class CodeCleaner
      *
      * @return array
      */
-    private function getYoloPasses()
+    private function getYoloPasses(): array
     {
         $useStatementPass = new UseStatementPass();
         $namespacePass = new NamespacePass($this);
@@ -243,7 +243,7 @@ class CodeCleaner
      *
      * @return bool
      */
-    private static function isDebugCall(array $stackFrame)
+    private static function isDebugCall(array $stackFrame): bool
     {
         $class = isset($stackFrame['class']) ? $stackFrame['class'] : null;
         $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;
@@ -372,7 +372,7 @@ class CodeCleaner
      *
      * @return bool
      */
-    private function parseErrorIsUnclosedString(\PhpParser\Error $e, $code)
+    private function parseErrorIsUnclosedString(\PhpParser\Error $e, $code): bool
     {
         if ($e->getRawMessage() !== 'Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE') {
             return false;

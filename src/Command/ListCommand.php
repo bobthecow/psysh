@@ -226,7 +226,7 @@ HELP
      *
      * @return string
      */
-    private function formatItemName($item)
+    private function formatItemName($item): string
     {
         return \sprintf('<%s>%s</%s>', $item['style'], OutputFormatter::escape($item['name']), $item['style']);
     }

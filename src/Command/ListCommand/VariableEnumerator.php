@@ -45,7 +45,7 @@ class VariableEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // only list variables when no Reflector is present.
         if ($reflector !== null || $target !== null) {
@@ -76,7 +76,7 @@ class VariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getVariables($showAll)
+    protected function getVariables($showAll): array
     {
         $scopeVars = $this->context->getAll();
         \uksort($scopeVars, function ($a, $b) {
@@ -117,7 +117,7 @@ class VariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareVariables(array $variables)
+    protected function prepareVariables(array $variables): array
     {
         // My kingdom for a generator.
         $ret = [];

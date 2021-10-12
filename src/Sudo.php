@@ -159,7 +159,7 @@ class Sudo
      *
      * @return \ReflectionProperty
      */
-    private static function getProperty(\ReflectionClass $refl, $property)
+    private static function getProperty(\ReflectionClass $refl, $property): \ReflectionProperty
     {
         $firstException = null;
         do {

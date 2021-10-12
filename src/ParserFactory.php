@@ -29,7 +29,7 @@ class ParserFactory
      *
      * @return array
      */
-    public static function getPossibleKinds()
+    public static function getPossibleKinds(): array
     {
         return ['ONLY_PHP5', 'ONLY_PHP7', 'PREFER_PHP5', 'PREFER_PHP7'];
     }
@@ -51,7 +51,7 @@ class ParserFactory
      *
      * @return Parser
      */
-    public function createParser($kind = null)
+    public function createParser($kind = null): Parser
     {
         $originalFactory = new OriginalParserFactory();
 

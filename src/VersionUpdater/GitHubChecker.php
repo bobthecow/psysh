@@ -22,7 +22,7 @@ class GitHubChecker implements Checker
     /**
      * @return bool
      */
-    public function isLatest()
+    public function isLatest(): bool
     {
         // version_compare doesn't handle semver completely;
         // strip pre-release and build metadata before comparing
@@ -34,7 +34,7 @@ class GitHubChecker implements Checker
     /**
      * @return string
      */
-    public function getLatest()
+    public function getLatest(): string
     {
         if (!isset($this->latest)) {
             $this->setLatest($this->getVersionFromTag());

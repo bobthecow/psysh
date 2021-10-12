@@ -76,7 +76,7 @@ class ErrorException extends \ErrorException implements Exception
      *
      * @return string
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->rawMessage;
     }
@@ -107,7 +107,7 @@ class ErrorException extends \ErrorException implements Exception
      *
      * @return ErrorException
      */
-    public static function fromError(\Error $e)
+    public static function fromError(\Error $e): ErrorException
     {
         return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
     }

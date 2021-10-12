@@ -21,7 +21,7 @@ interface Readline
      *
      * @return bool
      */
-    public static function isSupported();
+    public static function isSupported(): bool;
 
     /**
      * Add a line to the command history.
@@ -30,28 +30,28 @@ interface Readline
      *
      * @return bool Success
      */
-    public function addHistory($line);
+    public function addHistory($line): bool;
 
     /**
      * Clear the command history.
      *
      * @return bool Success
      */
-    public function clearHistory();
+    public function clearHistory(): bool;
 
     /**
      * List the command history.
      *
      * @return array
      */
-    public function listHistory();
+    public function listHistory(): array;
 
     /**
      * Read the command history.
      *
      * @return bool Success
      */
-    public function readHistory();
+    public function readHistory(): bool;
 
     /**
      * Read a single line of input from the user.
@@ -72,5 +72,5 @@ interface Readline
      *
      * @return bool Success
      */
-    public function writeHistory();
+    public function writeHistory(): bool;
 }

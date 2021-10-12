@@ -30,7 +30,7 @@ class ThrowUpException extends \Exception implements Exception
      *
      * @return string
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->getPrevious()->getMessage();
     }
@@ -42,7 +42,7 @@ class ThrowUpException extends \Exception implements Exception
      *
      * @return ThrowUpException
      */
-    public static function fromThrowable($throwable)
+    public static function fromThrowable($throwable): ThrowUpException
     {
         if ($throwable instanceof \Error) {
             $throwable = ErrorException::fromError($throwable);

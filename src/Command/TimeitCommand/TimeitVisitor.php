@@ -100,7 +100,7 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * @return \PhpParser\Node\Expr\StaticCall
      */
-    private function getStartCall()
+    private function getStartCall(): \PhpParser\Node\Expr\StaticCall
     {
         return new StaticCall(new FullyQualifiedName(TimeitCommand::class), 'markStart');
     }
@@ -114,7 +114,7 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * @return \PhpParser\Node\Expr\StaticCall
      */
-    private function getEndCall(Expr $arg = null)
+    private function getEndCall(Expr $arg = null): \PhpParser\Node\Expr\StaticCall
     {
         if ($arg === null) {
             $arg = NoReturnValue::create();

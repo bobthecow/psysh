@@ -124,7 +124,7 @@ class Shell extends Application
      *
      * @return array Scope variables from the debugger session
      */
-    public static function debug(array $vars = [], $bindTo = null)
+    public static function debug(array $vars = [], $bindTo = null): array
     {
         return \Psy\debug($vars, $bindTo);
     }
@@ -138,7 +138,7 @@ class Shell extends Application
      *
      * @return BaseCommand The registered command
      */
-    public function add(BaseCommand $command)
+    public function add(BaseCommand $command): BaseCommand
     {
         if ($ret = parent::add($command)) {
             if ($ret instanceof ContextAware) {
@@ -207,7 +207,7 @@ class Shell extends Application
     /**
      * @return array
      */
-    protected function getDefaultMatchers()
+    protected function getDefaultMatchers(): array
     {
         // Store the Commands Matcher for later. If more commands are added,
         // we'll update the Commands Matcher too.
@@ -243,7 +243,7 @@ class Shell extends Application
      *
      * @return array An array of Execution Loop Listener instances
      */
-    protected function getDefaultLoopListeners()
+    protected function getDefaultLoopListeners(): array
     {
         $listeners = [];
 
@@ -332,7 +332,7 @@ class Shell extends Application
      *
      * @return int 0 if everything went fine, or an error code
      */
-    public function doRun(InputInterface $input, OutputInterface $output)
+    public function doRun(InputInterface $input, OutputInterface $output): int
     {
         $this->setOutput($output);
         $this->resetCodeBuffer();
@@ -355,7 +355,7 @@ class Shell extends Application
      *
      * @return int 0 if everything went fine, or an error code
      */
-    private function doInteractiveRun()
+    private function doInteractiveRun(): int
     {
         $this->initializeTabCompletion();
         $this->readline->readHistory();
@@ -389,7 +389,7 @@ class Shell extends Application
      *
      * @return int 0 if everything went fine, or an error code
      */
-    private function doNonInteractiveRun($rawOutput)
+    private function doNonInteractiveRun($rawOutput): int
     {
         $this->nonInteractive = true;
 
@@ -533,7 +533,7 @@ class Shell extends Application
      *
      * @return bool true if the input is in an open string or comment
      */
-    private function inputInOpenStringOrComment($input)
+    private function inputInOpenStringOrComment($input): bool
     {
         if (!$this->hasCode()) {
             return false;
@@ -575,7 +575,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public function onInput($input)
+    public function onInput($input): string
     {
         foreach ($this->loopListeners as $listeners) {
             if (($return = $listeners->onInput($this, $input)) !== null) {
@@ -593,7 +593,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public function onExecute($code)
+    public function onExecute($code): string
     {
         foreach ($this->loopListeners as $listener) {
             if (($return = $listener->onExecute($this, $code)) !== null) {
@@ -650,7 +650,7 @@ class Shell extends Application
      *
      * @return array Associative array of scope variables
      */
-    public function getScopeVariables($includeBoundObject = true)
+    public function getScopeVariables($includeBoundObject = true): array
     {
         $vars = $this->context->getAll();
 
@@ -670,7 +670,7 @@ class Shell extends Application
      *
      * @return array Associative array of magic scope variables
      */
-    public function getSpecialScopeVariables($includeBoundObject = true)
+    public function getSpecialScopeVariables($includeBoundObject = true): array
     {
         $vars = $this->context->getSpecialVariables();
 
@@ -692,7 +692,7 @@ class Shell extends Application
      *
      * @return array Associative array of scope variables which differ from $currentVars
      */
-    public function getScopeVariablesDiff(array $currentVars)
+    public function getScopeVariablesDiff(array $currentVars): array
     {
         $newVars = [];
 
@@ -710,7 +710,7 @@ class Shell extends Application
      *
      * @return array Array of unused variable names
      */
-    public function getUnusedCommandScopeVariableNames()
+    public function getUnusedCommandScopeVariableNames(): array
     {
         return $this->context->getUnusedCommandScopeVariableNames();
     }
@@ -720,7 +720,7 @@ class Shell extends Application
      *
      * @return array Array of variable names
      */
-    public function getScopeVariableNames()
+    public function getScopeVariableNames(): array
     {
         return \array_keys($this->context->getAll());
     }
@@ -732,7 +732,7 @@ class Shell extends Application
      *
      * @return mixed
      */
-    public function getScopeVariable($name)
+    public function getScopeVariable(string $name)
     {
         return $this->context->get($name);
     }
@@ -792,7 +792,7 @@ class Shell extends Application
      *
      * @return array
      */
-    public function getIncludes()
+    public function getIncludes(): array
     {
         return \array_merge($this->config->getDefaultIncludes(), $this->includes);
     }
@@ -802,7 +802,7 @@ class Shell extends Application
      *
      * @return bool True if the code buffer contains code
      */
-    public function hasCode()
+    public function hasCode(): bool
     {
         return !empty($this->codeBuffer);
     }
@@ -814,7 +814,7 @@ class Shell extends Application
      *
      * @return bool True if the code buffer content is valid
      */
-    protected function hasValidCode()
+    protected function hasValidCode(): bool
     {
         return !$this->codeBufferOpen && $this->code !== false;
     }
@@ -887,7 +887,7 @@ class Shell extends Application
      *
      * @return array
      */
-    public function getCodeBuffer()
+    public function getCodeBuffer(): array
     {
         return $this->codeBuffer;
     }
@@ -901,7 +901,7 @@ class Shell extends Application
      *
      * @return mixed Who knows?
      */
-    protected function runCommand($input)
+    protected function runCommand(string $input)
     {
         $command = $this->getCommand($input);
 
@@ -1028,7 +1028,7 @@ class Shell extends Application
      *
      * @return string Current code namespace
      */
-    public function getNamespace()
+    public function getNamespace(): string
     {
         if ($namespace = $this->cleaner->getNamespace()) {
             return \implode('\\', $namespace);
@@ -1157,7 +1157,7 @@ class Shell extends Application
      *
      * @return bool
      */
-    public function getLastExecSuccess()
+    public function getLastExecSuccess(): bool
     {
         return $this->lastExecSuccess;
     }
@@ -1171,7 +1171,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public function formatException(\Exception $e)
+    public function formatException(\Exception $e): string
     {
         $message = $e->getMessage();
         if (!$e instanceof PsyException) {
@@ -1202,7 +1202,7 @@ class Shell extends Application
      *
      * @return string
      */
-    protected function getSeverity(\ErrorException $e)
+    protected function getSeverity(\ErrorException $e): string
     {
         $severity = $e->getSeverity();
         if ($severity & \error_reporting()) {
@@ -1303,7 +1303,7 @@ class Shell extends Application
      *
      * @return string Formatted value
      */
-    protected function presentValue($val)
+    protected function presentValue($val): string
     {
         return $this->config->getPresenter()->present($val);
     }
@@ -1330,7 +1330,7 @@ class Shell extends Application
      *
      * @return bool True if the shell has a command for the given input
      */
-    protected function hasCommand($input)
+    protected function hasCommand($input): bool
     {
         if (\preg_match('/([^\s]+?)(?:\s|$)/A', \ltrim($input), $match)) {
             return $this->has($match[1]);
@@ -1370,7 +1370,7 @@ class Shell extends Application
      *
      * @return string One line of user input
      */
-    protected function readline($interactive = true)
+    protected function readline($interactive = true): string
     {
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
@@ -1401,7 +1401,7 @@ class Shell extends Application
      *
      * @return string
      */
-    protected function getHeader()
+    protected function getHeader(): string
     {
         return \sprintf('<aside>%s by Justin Hileman</aside>', $this->getVersion());
     }
@@ -1425,7 +1425,7 @@ class Shell extends Application
      *
      * @return string
      */
-    public static function getVersionHeader($useUnicode = false)
+    public static function getVersionHeader($useUnicode = false): string
     {
         $separator = $useUnicode ? '—' : '-';
 

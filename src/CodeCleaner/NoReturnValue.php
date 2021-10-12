@@ -28,7 +28,7 @@ class NoReturnValue
      *
      * @return \PhpParser\Node\Expr\New_
      */
-    public static function create()
+    public static function create(): \PhpParser\Node\Expr\New_
     {
         return new New_(new FullyQualifiedName(self::class));
     }

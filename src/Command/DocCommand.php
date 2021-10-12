@@ -169,9 +169,9 @@ HELP
      * yield Reflectors for the same-named method or property on all traits and
      * parent classes.
      *
-     * @return Generator a whole bunch of \Reflector instances
+     * @return \Generator a whole bunch of \Reflector instances
      */
-    private function getParentReflectors($reflector)
+    private function getParentReflectors($reflector): \Generator
     {
         $seenClasses = [];
 

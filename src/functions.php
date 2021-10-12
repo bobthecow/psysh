@@ -26,7 +26,7 @@ if (!\function_exists('Psy\\sh')) {
      *
      * @return string
      */
-    function sh()
+    function sh(): string
     {
         if (\version_compare(\PHP_VERSION, '8.0', '<')) {
             return '\extract(\Psy\debug(\get_defined_vars(), isset($this) ? $this : @\get_called_class()));';
@@ -90,7 +90,7 @@ if (!\function_exists('Psy\\debug')) {
      *
      * @return array Scope variables from the debugger session
      */
-    function debug(array $vars = [], $bindTo = null)
+    function debug(array $vars = [], $bindTo = null): array
     {
         echo \PHP_EOL;
 
@@ -327,7 +327,7 @@ if (!\function_exists('Psy\\bin')) {
      *
      * @return \Closure
      */
-    function bin()
+    function bin(): \Closure
     {
         return function () {
             if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {

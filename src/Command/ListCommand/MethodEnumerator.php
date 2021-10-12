@@ -21,7 +21,7 @@ class MethodEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // only list methods when a Reflector is present.
         if ($reflector === null) {
@@ -61,7 +61,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false)
+    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false): array
     {
         $className = $reflector->getName();
 
@@ -90,7 +90,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareMethods(array $methods)
+    protected function prepareMethods(array $methods): array
     {
         // My kingdom for a generator.
         $ret = [];
@@ -115,7 +115,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return string
      */
-    protected function getKindLabel(\ReflectionClass $reflector)
+    protected function getKindLabel(\ReflectionClass $reflector): string
     {
         if ($reflector->isInterface()) {
             return 'Interface Methods';
@@ -133,7 +133,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return string
      */
-    private function getVisibilityStyle(\ReflectionMethod $method)
+    private function getVisibilityStyle(\ReflectionMethod $method): string
     {
         if ($method->isPublic()) {
             return self::IS_PUBLIC;

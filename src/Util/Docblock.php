@@ -98,7 +98,7 @@ class Docblock
      *
      * @return int Prefix length
      */
-    protected static function prefixLength(array $lines)
+    protected static function prefixLength(array $lines): int
     {
         // find only lines with interesting things
         $lines = \array_filter($lines, function ($line) {
@@ -201,7 +201,7 @@ class Docblock
      *
      * @return bool
      */
-    public function hasTag($tag)
+    public function hasTag($tag): bool
     {
         return \is_array($this->tags) && \array_key_exists($tag, $this->tags);
     }
@@ -213,7 +213,7 @@ class Docblock
      *
      * @return array
      */
-    public function tag($tag)
+    public function tag($tag): array
     {
         return $this->hasTag($tag) ? $this->tags[$tag] : null;
     }
@@ -225,7 +225,7 @@ class Docblock
      *
      * @return bool
      */
-    public static function isTagged($str)
+    public static function isTagged($str): bool
     {
         return isset($str[1]) && $str[0] === '@' && !\preg_match('/[^A-Za-z]/', $str[1]);
     }

@@ -67,7 +67,7 @@ HELP
      *
      * @return array
      */
-    protected function trace()
+    protected function trace(): array
     {
         foreach (\array_reverse($this->backtrace) as $stackFrame) {
             if ($this->isDebugCall($stackFrame)) {
@@ -92,7 +92,7 @@ HELP
      *
      * @return array
      */
-    protected function fileInfo()
+    protected function fileInfo(): array
     {
         $stackFrame = $this->trace();
         if (\preg_match('/eval\(/', $stackFrame['file'])) {
@@ -145,7 +145,7 @@ HELP
      *
      * @return string
      */
-    private function replaceCwd($file)
+    private function replaceCwd($file): string
     {
         $cwd = \getcwd();
         if ($cwd === false) {

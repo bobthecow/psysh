@@ -44,7 +44,7 @@ class ProcessForker extends AbstractListener
      *
      * @return bool
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return self::isPcntlSupported() && !self::disabledPcntlFunctions() && self::isPosixSupported() && !self::disabledPosixFunctions();
     }
@@ -253,7 +253,7 @@ class ProcessForker extends AbstractListener
      *
      * @return string
      */
-    private function serializeReturn(array $return)
+    private function serializeReturn(array $return): string
     {
         $serializable = [];
 

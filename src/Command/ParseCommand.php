@@ -144,7 +144,7 @@ HELP
      *
      * @return array Statements
      */
-    private function parse(Parser $parser, $code)
+    private function parse(Parser $parser, $code): array
     {
         try {
             return $parser->parse($code);
@@ -165,7 +165,7 @@ HELP
      *
      * @return Parser
      */
-    private function getParser($kind = null)
+    private function getParser($kind = null): Parser
     {
         if (!\array_key_exists($kind, $this->parsers)) {
             $this->parsers[$kind] = $this->parserFactory->createParser($kind);

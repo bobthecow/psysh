@@ -21,7 +21,7 @@ class NoopChecker implements Checker
     /**
      * @return bool
      */
-    public function isLatest()
+    public function isLatest(): bool
     {
         return true;
     }
@@ -29,7 +29,7 @@ class NoopChecker implements Checker
     /**
      * @return string
      */
-    public function getLatest()
+    public function getLatest(): string
     {
         return Shell::VERSION;
     }

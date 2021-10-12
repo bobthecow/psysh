@@ -32,7 +32,7 @@ class Libedit extends GNUReadline
      *
      * @return bool
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return \function_exists('readline') && !\function_exists('readline_list_history');
     }
@@ -40,7 +40,7 @@ class Libedit extends GNUReadline
     /**
      * {@inheritdoc}
      */
-    public function listHistory()
+    public function listHistory(): array
     {
         $history = \file_get_contents($this->historyFile);
         if (!$history) {
@@ -64,7 +64,7 @@ class Libedit extends GNUReadline
     /**
      * {@inheritdoc}
      */
-    public function writeHistory()
+    public function writeHistory(): bool
     {
         $res = parent::writeHistory();
 

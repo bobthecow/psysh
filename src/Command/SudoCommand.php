@@ -129,7 +129,7 @@ HELP
      *
      * @return array Statements
      */
-    private function parse($code)
+    private function parse($code): array
     {
         try {
             return $this->parser->parse($code);

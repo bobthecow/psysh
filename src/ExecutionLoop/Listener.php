@@ -23,7 +23,7 @@ interface Listener
      *
      * @return bool
      */
-    public static function isSupported();
+    public static function isSupported(): bool;
 
     /**
      * Called once before the REPL session starts.

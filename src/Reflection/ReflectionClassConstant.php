@@ -73,7 +73,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return \ReflectionClass
      */
-    public function getDeclaringClass()
+    public function getDeclaringClass(): \ReflectionClass
     {
         $parent = $this->class;
 
@@ -95,7 +95,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return false
      */
-    public function getDocComment()
+    public function getDocComment(): bool
     {
         return false;
     }
@@ -109,7 +109,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return int
      */
-    public function getModifiers()
+    public function getModifiers(): int
     {
         return \ReflectionMethod::IS_PUBLIC;
     }
@@ -119,7 +119,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -139,7 +139,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return bool false
      */
-    public function isPrivate()
+    public function isPrivate(): bool
     {
         return false;
     }
@@ -149,7 +149,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return bool false
      */
-    public function isProtected()
+    public function isProtected(): bool
     {
         return false;
     }
@@ -159,7 +159,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return bool true
      */
-    public function isPublic()
+    public function isPublic(): bool
     {
         return true;
     }
@@ -169,7 +169,7 @@ class ReflectionClassConstant implements \Reflector
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName();
     }

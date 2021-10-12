@@ -28,7 +28,7 @@ class Transient implements Readline
      *
      * {@inheritdoc}
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return true;
     }
@@ -47,7 +47,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line)
+    public function addHistory($line): bool
     {
         if ($this->eraseDups) {
             if (($key = \array_search($line, $this->history)) !== false) {
@@ -72,7 +72,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function clearHistory()
+    public function clearHistory(): bool
     {
         $this->history = [];
 
@@ -82,7 +82,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function listHistory()
+    public function listHistory(): array
     {
         return $this->history;
     }
@@ -90,7 +90,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function readHistory()
+    public function readHistory(): bool
     {
         return true;
     }
@@ -102,7 +102,7 @@ class Transient implements Readline
      *
      * @return string
      */
-    public function readline($prompt = null)
+    public function readline($prompt = null): string
     {
         echo $prompt;
 
@@ -120,7 +120,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function writeHistory()
+    public function writeHistory(): bool
     {
         return true;
     }

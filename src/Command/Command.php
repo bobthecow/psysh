@@ -88,7 +88,7 @@ abstract class Command extends BaseCommand
      *
      * @return array
      */
-    protected function getHiddenArguments()
+    protected function getHiddenArguments(): array
     {
         return ['command'];
     }
@@ -110,7 +110,7 @@ abstract class Command extends BaseCommand
      *
      * @return array
      */
-    protected function getHiddenOptions()
+    protected function getHiddenOptions(): array
     {
         return ['verbose'];
     }
@@ -120,7 +120,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function aliasesAsText()
+    private function aliasesAsText(): string
     {
         return '<comment>Aliases:</comment> <info>'.\implode(', ', $this->getAliases()).'</info>'.\PHP_EOL;
     }
@@ -130,7 +130,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function argumentsAsText()
+    private function argumentsAsText(): string
     {
         $max = $this->getMaxWidth();
         $messages = [];
@@ -161,7 +161,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function optionsAsText()
+    private function optionsAsText(): string
     {
         $max = $this->getMaxWidth();
         $messages = [];
@@ -202,7 +202,7 @@ abstract class Command extends BaseCommand
      *
      * @return int
      */
-    private function getMaxWidth()
+    private function getMaxWidth(): int
     {
         $max = 0;
 
@@ -229,7 +229,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function formatDefaultValue($default)
+    private function formatDefaultValue($default): string
     {
         if (\is_array($default) && $default === \array_values($default)) {
             return \sprintf("['%s']", \implode("', '", $default));
@@ -276,7 +276,7 @@ abstract class Command extends BaseCommand
      *
      * @return TableHelper
      */
-    protected function getTableHelper()
+    protected function getTableHelper(): TableHelper
     {
         $table = $this->getApplication()->getHelperSet()->get('table');
 

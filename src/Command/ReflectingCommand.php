@@ -57,7 +57,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @return array (class or instance name, member name, kind)
      */
-    protected function getTarget($valueName)
+    protected function getTarget($valueName): array
     {
         $valueName = \trim($valueName);
         $matches = [];
@@ -95,7 +95,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @return string
      */
-    protected function resolveName($name, $includeFunctions = false)
+    protected function resolveName($name, $includeFunctions = false): string
     {
         $shell = $this->getApplication();
 
@@ -153,7 +153,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @return array (value, Reflector)
      */
-    protected function getTargetAndReflector($valueName)
+    protected function getTargetAndReflector($valueName): array
     {
         list($value, $member, $kind) = $this->getTarget($valueName);
 
@@ -235,7 +235,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @return array
      */
-    protected function getScopeVariables()
+    protected function getScopeVariables(): array
     {
         return $this->context->getAll();
     }

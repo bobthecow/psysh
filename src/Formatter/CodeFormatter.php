@@ -81,7 +81,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return string formatted code
      */
-    public static function format(\Reflector $reflector, $colorMode = null)
+    public static function format(\Reflector $reflector, $colorMode = null): string
     {
         if (self::isReflectable($reflector)) {
             if ($code = @\file_get_contents($reflector->getFileName())) {
@@ -104,7 +104,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return string formatted code
      */
-    public static function formatCode($code, $startLine = 1, $endLine = null, $markLine = null)
+    public static function formatCode($code, $startLine = 1, $endLine = null, $markLine = null): string
     {
         $spans = self::tokenizeSpans($code);
         $lines = self::splitLines($spans, $startLine, $endLine);
@@ -125,7 +125,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return int
      */
-    private static function getStartLine(\Reflector $reflector)
+    private static function getStartLine(\Reflector $reflector): int
     {
         $startLine = $reflector->getStartLine();
 
@@ -148,7 +148,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator [$spanType, $spanText] highlight spans
      */
-    private static function tokenizeSpans($code)
+    private static function tokenizeSpans($code): \Generator
     {
         $spanType = null;
         $buffer = '';
@@ -209,7 +209,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator lines, each an array of [$spanType, $spanText] pairs
      */
-    private static function splitLines(\Generator $spans, $startLine = 1, $endLine = null)
+    private static function splitLines(\Generator $spans, $startLine = 1, $endLine = null): \Generator
     {
         $lineNum = 1;
         $buffer = [];
@@ -247,7 +247,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator Formatted lines
      */
-    private static function formatLines(\Generator $spanLines)
+    private static function formatLines(\Generator $spanLines): \Generator
     {
         foreach ($spanLines as $lineNum => $spanLine) {
             $line = '';
@@ -276,7 +276,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator Numbered, formatted lines
      */
-    private static function numberLines(\Generator $lines, $markLine = null)
+    private static function numberLines(\Generator $lines, $markLine = null): \Generator
     {
         $lines = \iterator_to_array($lines);
 
@@ -313,7 +313,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return bool
      */
-    private static function isReflectable(\Reflector $reflector)
+    private static function isReflectable(\Reflector $reflector): bool
     {
         return ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionFunctionAbstract) && \is_file($reflector->getFileName());
     }

@@ -23,5 +23,5 @@ interface Exception
      *
      * @return string
      */
-    public function getRawMessage();
+    public function getRawMessage(): string;
 }

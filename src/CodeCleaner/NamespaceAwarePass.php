@@ -56,7 +56,7 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      *
      * @return string
      */
-    protected function getFullyQualifiedName($name)
+    protected function getFullyQualifiedName($name): string
     {
         if ($name instanceof FullyQualifiedName) {
             return \implode('\\', $name->parts);

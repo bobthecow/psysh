@@ -36,7 +36,7 @@ class TypeErrorException extends \Exception implements Exception
      *
      * @return string
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->rawMessage;
     }
@@ -48,7 +48,7 @@ class TypeErrorException extends \Exception implements Exception
      *
      * @return TypeErrorException
      */
-    public static function fromTypeError(\TypeError $e)
+    public static function fromTypeError(\TypeError $e): TypeErrorException
     {
         return new self($e->getMessage(), $e->getCode());
     }

@@ -108,7 +108,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    public function configDirs()
+    public function configDirs(): array
     {
         if ($this->configDir !== null) {
             return [$this->configDir];
@@ -139,7 +139,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    public static function getHomeConfigDirs()
+    public static function getHomeConfigDirs(): array
     {
         // Not quite the same, but this is deprecated anyway /shrug
         return self::getConfigDirs();
@@ -157,7 +157,7 @@ class ConfigPaths
      *
      * @return string
      */
-    public function currentConfigDir()
+    public function currentConfigDir(): string
     {
         if ($this->configDir !== null) {
             return $this->configDir;
@@ -189,7 +189,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    public function configFiles(array $names)
+    public function configFiles(array $names): array
     {
         return $this->allRealFiles($this->configDirs(), $names);
     }
@@ -214,7 +214,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    public function dataDirs()
+    public function dataDirs(): array
     {
         if ($this->dataDir !== null) {
             return [$this->dataDir];
@@ -241,7 +241,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    public function dataFiles(array $names)
+    public function dataFiles(array $names): array
     {
         return $this->allRealFiles($this->dataDirs(), $names);
     }
@@ -261,7 +261,7 @@ class ConfigPaths
      *
      * @return string
      */
-    public function runtimeDir()
+    public function runtimeDir(): string
     {
         if ($this->runtimeDir !== null) {
             return $this->runtimeDir;
@@ -292,7 +292,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    private function allDirNames(array $baseDirs)
+    private function allDirNames(array $baseDirs): array
     {
         $dirs = \array_map(function ($dir) {
             return \strtr($dir, '\\', '/').'/psysh';
@@ -327,7 +327,7 @@ class ConfigPaths
      *
      * @return string[]
      */
-    private function allRealFiles(array $dirNames, array $fileNames)
+    private function allRealFiles(array $dirNames, array $fileNames): array
     {
         $files = [];
         foreach ($dirNames as $dir) {
@@ -351,7 +351,7 @@ class ConfigPaths
      *
      * @return bool False if directory exists but is not writeable, or cannot be created
      */
-    public static function ensureDir($dir)
+    public static function ensureDir($dir): bool
     {
         if (!\is_dir($dir)) {
             // Just try making it and see if it works

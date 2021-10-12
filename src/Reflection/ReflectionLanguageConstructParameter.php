@@ -42,7 +42,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      *
      * @return bool
      */
-    public function isArray()
+    public function isArray(): bool
     {
         return \array_key_exists('isArray', $this->opts) && $this->opts['isArray'];
     }
@@ -64,7 +64,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->parameter;
     }
@@ -74,7 +74,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      *
      * @return bool
      */
-    public function isOptional()
+    public function isOptional(): bool
     {
         return \array_key_exists('isOptional', $this->opts) && $this->opts['isOptional'];
     }
@@ -84,7 +84,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      *
      * @return bool
      */
-    public function isDefaultValueAvailable()
+    public function isDefaultValueAvailable(): bool
     {
         return \array_key_exists('defaultValue', $this->opts);
     }
@@ -96,7 +96,7 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      *
      * @return bool
      */
-    public function isPassedByReference()
+    public function isPassedByReference(): bool
     {
         return \array_key_exists('isPassedByReference', $this->opts) && $this->opts['isPassedByReference'];
     }

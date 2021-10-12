@@ -36,7 +36,7 @@ class RuntimeException extends \RuntimeException implements Exception
      *
      * @return string
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->rawMessage;
     }

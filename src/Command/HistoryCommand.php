@@ -156,7 +156,7 @@ HELP
      *
      * @return array [ start, end ]
      */
-    private function extractRange($range)
+    private function extractRange($range): array
     {
         if (\preg_match('/^\d+$/', $range)) {
             return [$range, $range + 1];
@@ -182,7 +182,7 @@ HELP
      *
      * @return array A slilce of history
      */
-    private function getHistorySlice($show, $head, $tail)
+    private function getHistorySlice($show, $head, $tail): array
     {
         $history = $this->readline->listHistory();
 
