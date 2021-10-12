@@ -112,7 +112,7 @@ EOS;
         $reflector
             ->expects($this->once())
             ->method('getFileName')
-            ->will($this->returnValue($filename));
+            ->willReturn($filename);
 
         CodeFormatter::format($reflector);
 

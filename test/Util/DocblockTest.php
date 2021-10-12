@@ -27,7 +27,7 @@ class DocblockTest extends \Psy\Test\TestCase
 
         $reflector->expects($this->once())
             ->method('getDocComment')
-            ->will($this->returnValue($comment));
+            ->willReturn($comment);
 
         $docblock = new Docblock($reflector);
 
