@@ -88,7 +88,7 @@ class ErrorException extends \ErrorException implements Exception
      *
      *     set_error_handler([ErrorException::class, 'throwException']);
      *
-     * @throws ErrorException
+     * @throws self
      *
      * @param int    $errno   Error type
      * @param string $errstr  Message
@@ -105,9 +105,9 @@ class ErrorException extends \ErrorException implements Exception
      *
      * @param \Error $e
      *
-     * @return ErrorException
+     * @return self
      */
-    public static function fromError(\Error $e): ErrorException
+    public static function fromError(\Error $e): self
     {
         return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
     }

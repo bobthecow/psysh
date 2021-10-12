@@ -40,9 +40,9 @@ class ThrowUpException extends \Exception implements Exception
      *
      * @param \Throwable $throwable
      *
-     * @return ThrowUpException
+     * @return self
      */
-    public static function fromThrowable($throwable): ThrowUpException
+    public static function fromThrowable($throwable): self
     {
         if ($throwable instanceof \Error) {
             $throwable = ErrorException::fromError($throwable);
