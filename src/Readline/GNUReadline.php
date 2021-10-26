@@ -49,7 +49,7 @@ class GNUReadline implements Readline
      */
     public static function supportsBracketedPaste()
     {
-        return self::isSupported() && \stripos(\readline_info('library_version'), 'editline') === false;
+        return self::isSupported() && \stripos((string) \readline_info('library_version'), 'editline') === false;
     }
 
     /**
