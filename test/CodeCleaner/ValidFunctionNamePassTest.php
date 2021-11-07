@@ -53,14 +53,6 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
                 }
             '],
 
-            // function calls
-            ['psy_test_codecleaner_validfunctionnamepass_gamma()'],
-            ['
-                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
-                    delta();
-                }
-            '],
-
             // recursion
             ['function a() { a(); } function a() {}'],
         ];
@@ -106,16 +98,6 @@ class ValidFunctionNamePassTest extends CodeCleanerTestCase
                 }
             '],
 
-            // function calls
-            ['array_merge();'],
-            ['
-                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
-                    function theta() {}
-                }
-                namespace Psy\\Test\\CodeCleaner\\ValidFunctionNamePass {
-                    theta();
-                }
-            '],
             // closures
             ['$test = function(){};$test()'],
             ['
