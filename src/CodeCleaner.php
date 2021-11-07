@@ -38,7 +38,6 @@ use Psy\CodeCleaner\ReturnTypePass;
 use Psy\CodeCleaner\StrictTypesPass;
 use Psy\CodeCleaner\UseStatementPass;
 use Psy\CodeCleaner\ValidClassNamePass;
-use Psy\CodeCleaner\ValidConstantPass;
 use Psy\CodeCleaner\ValidConstructorPass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\Exception\ParseErrorException;
@@ -140,7 +139,6 @@ class CodeCleaner
 
             // Namespace-aware validation (which depends on aforementioned shenanigans)
             new ValidClassNamePass(),
-            new ValidConstantPass(),
             new ValidFunctionNamePass(),
         ];
     }

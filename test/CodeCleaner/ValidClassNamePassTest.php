@@ -151,7 +151,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
                 }
             '],
 
-            // Class constant fetch (ValidConstantPassTest validates the actual constant)
+            // Class constant fetch
             ['class A {} A::FOO'],
             ['$a = new DateTime; $a::ATOM'],
             ['interface A { const B = 1; } A::B'],
