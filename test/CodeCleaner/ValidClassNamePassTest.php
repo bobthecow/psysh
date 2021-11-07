@@ -41,7 +41,7 @@ class ValidClassNamePassTest extends CodeCleanerTestCase
             // core class
             ['class stdClass {}'],
             // capitalization
-            ['class stdClass {}'],
+            ['class StdClass {}'],
 
             // collisions with interfaces and traits
             ['interface stdClass {}'],
