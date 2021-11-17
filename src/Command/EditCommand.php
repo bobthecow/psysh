@@ -140,7 +140,7 @@ class EditCommand extends Command implements ContextAware
     {
         // If the file argument was a variable, get it from the context
         if ($fileArgument !== null &&
-            \strlen($fileArgument) > 0 &&
+            $fileArgument !== '' &&
             $fileArgument[0] === '$') {
             $fileArgument = $this->context->get(\preg_replace('/^\$/', '', $fileArgument));
         }
