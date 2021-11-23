@@ -47,7 +47,7 @@ test_psy_info() {
 }
 
 test_help_command() {
-  echo -n "  help:  "
+  echo -n "  help:           "
 
   output=$(echo "help" | build/$1/psysh 2>&1 | cat)
   if [ $? != 0 ]; then
@@ -61,6 +61,8 @@ test_help_command() {
   [[ "$output" = *"Show the backtrace of the most recent exception."* ]] || fail "$output"
   [[ "$output" = *"exit"* ]] || fail "$output"
   [[ "$output" = *"End the current session and return to caller."* ]] || fail "$output"
+
+  echo "Passed"
 }
 
 for build in ${build_versions[@]}; do
