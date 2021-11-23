@@ -2,6 +2,7 @@
 /.gitattributes export-ignore
 /.github export-ignore
 /.gitignore export-ignore
+/.phan export-ignore
 /.styleci.yml export-ignore
 /.travis.yml export-ignore
 /bin/build-stub export-ignore
