@@ -47,7 +47,7 @@ test_psy_info() {
 }
 
 test_help_command() {
-  echo -n "  help:           "
+  echo -n "  help:         "
 
   output=$(echo "help" | build/$1/psysh 2>&1 | cat)
   if [ $? != 0 ]; then
