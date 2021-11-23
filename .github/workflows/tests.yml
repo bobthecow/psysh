@@ -149,7 +149,7 @@ jobs:
         run: chmod +x build/*/psysh
 
       - name: Smoke test
-        run: .github/bin/smoketest.sh
+        run: .github/bin/smoketest.sh psysh-php56 psysh-php56-compat
 
   php56-phar:
     name: PHP 5.6 Phar smoke test
