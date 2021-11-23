@@ -20,8 +20,8 @@ $polyfillsBootstraps = \array_map(
             ->files()
             ->in(__DIR__.'/vendor/symfony/polyfill-*')
             ->name('bootstrap.php'),
-        false,
-    ),
+        false
+    )
  );
 
 $polyfillsStubs = [];
@@ -36,8 +36,8 @@ try {
                 ->files()
                 ->in(__DIR__.'/vendor/symfony/polyfill-*/Resources/stubs')
                 ->name('*.php'),
-            false,
-        ),
+            false
+        )
     );
 } catch (Throwable $e) {
     // There may not be any stubs?
