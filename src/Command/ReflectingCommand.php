@@ -140,10 +140,10 @@ abstract class ReflectingCommand extends Command implements ContextAware
     /**
      * Check whether a given name could be a class name.
      */
-    protected function couldBeClassName($name)
+    protected function couldBeClassName(string $name): bool
     {
         // Regex based on https://www.php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class
-        return \preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(\\\\[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)*$/', $name);
+        return \preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(\\\\[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)*$/', $name) === 1;
     }
 
     /**
