@@ -241,7 +241,7 @@ HELP
         $this->readline->clearHistory();
     }
 
-    public static function escape($string)
+    public static function escape(string $string): string
     {
         return OutputFormatter::escape($string);
     }

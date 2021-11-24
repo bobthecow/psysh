@@ -21,7 +21,7 @@ class SuperglobalsEnv implements EnvInterface
      *
      * @return string|null
      */
-    public function get($key)
+    public function get(string $key)
     {
         if (isset($_SERVER[$key]) && $_SERVER[$key]) {
             return $_SERVER[$key];

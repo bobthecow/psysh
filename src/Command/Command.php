@@ -43,7 +43,7 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    public function asText()
+    public function asText(): string
     {
         $messages = [
             '<comment>Usage:</comment>',
@@ -74,7 +74,7 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    private function getArguments()
+    private function getArguments(): array
     {
         $hidden = $this->getHiddenArguments();
 
@@ -96,7 +96,7 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    private function getOptions()
+    private function getOptions(): array
     {
         $hidden = $this->getHiddenOptions();
 

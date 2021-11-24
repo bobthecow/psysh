@@ -80,7 +80,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         }
     }
 
-    private static function isConditional(Node $node)
+    private static function isConditional(Node $node): bool
     {
         return $node instanceof If_ ||
             $node instanceof While_ ||

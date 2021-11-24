@@ -67,7 +67,7 @@ class FunctionEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getFunctions($type = null): array
+    protected function getFunctions(string $type = null): array
     {
         $funcs = \get_defined_functions();
 

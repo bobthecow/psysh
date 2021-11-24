@@ -399,7 +399,7 @@ class Configuration
      *
      *     ~/.config/psysh/config.php
      *
-     * @return string
+     * @return string|null
      */
     public function getConfigFile()
     {
@@ -425,7 +425,7 @@ class Configuration
      * Searches for a project specific config file `.psysh.php` in the current
      * working directory.
      *
-     * @return string
+     * @return string|null
      */
     public function getLocalConfigFile()
     {
@@ -548,7 +548,7 @@ class Configuration
     /**
      * Get the current configuration directory, if any is explicitly set.
      *
-     * @return string
+     * @return string|null
      */
     public function getConfigDir()
     {
@@ -574,7 +574,7 @@ class Configuration
     /**
      * Get the current data directory, if any is explicitly set.
      *
-     * @return string
+     * @return string|null
      */
     public function getDataDir()
     {
@@ -602,6 +602,8 @@ class Configuration
      *
      * Defaults to  `/psysh` inside the system's temp dir unless explicitly
      * overridden.
+     *
+     * @throws RuntimeException if no temporary directory is set and it is not possible to create one
      *
      * @return string
      */
@@ -692,7 +694,7 @@ class Configuration
     /**
      * Get whether readline erases old duplicate history entries.
      *
-     * @return bool
+     * @return bool|null
      */
     public function getEraseDuplicates()
     {
@@ -1042,7 +1044,7 @@ class Configuration
     /**
      * Check whether to disable input validation.
      */
-    public function yolo()
+    public function yolo(): bool
     {
         return $this->yolo;
     }
@@ -1473,6 +1475,8 @@ class Configuration
     /**
      * Set the shell's interactive mode.
      *
+     * @throws \InvalidArgumentException if interactive mode isn't disabled, forced, or auto
+     *
      * @param string $interactiveMode
      */
     public function setInteractiveMode(string $interactiveMode)
@@ -1626,9 +1630,9 @@ class Configuration
     /**
      * Get the prompt.
      *
-     * @return string
+     * @return string|null
      */
-    public function getPrompt(): string
+    public function getPrompt()
     {
         return $this->prompt;
     }
@@ -1709,6 +1713,8 @@ class Configuration
      * Set the shell output verbosity.
      *
      * Accepts OutputInterface verbosity constants.
+     *
+     * @throws \InvalidArgumentException if verbosity level is invalid
      *
      * @param string $verbosity
      */

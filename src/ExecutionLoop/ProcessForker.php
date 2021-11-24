@@ -52,7 +52,7 @@ class ProcessForker extends AbstractListener
     /**
      * Verify that all required pcntl functions are, in fact, available.
      */
-    public static function isPcntlSupported()
+    public static function isPcntlSupported(): bool
     {
         foreach (self::$pcntlFunctions as $func) {
             if (!\function_exists($func)) {
@@ -74,7 +74,7 @@ class ProcessForker extends AbstractListener
     /**
      * Verify that all required posix functions are, in fact, available.
      */
-    public static function isPosixSupported()
+    public static function isPosixSupported(): bool
     {
         foreach (self::$posixFunctions as $func) {
             if (!\function_exists($func)) {
@@ -93,7 +93,7 @@ class ProcessForker extends AbstractListener
         return self::checkDisabledFunctions(self::$posixFunctions);
     }
 
-    private static function checkDisabledFunctions(array $functions)
+    private static function checkDisabledFunctions(array $functions): array
     {
         return \array_values(\array_intersect($functions, \array_map('strtolower', \array_map('trim', \explode(',', \ini_get('disable_functions'))))));
     }

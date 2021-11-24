@@ -122,7 +122,9 @@ HELP
                     ]);
                 }
 
-                return $output->page(CodeFormatter::formatCode($code));
+                $output->page(CodeFormatter::formatCode($code));
+
+                return;
             } else {
                 throw $e;
             }
@@ -193,7 +195,7 @@ HELP
         ));
     }
 
-    private function replaceCwd($file)
+    private function replaceCwd(string $file): string
     {
         if ($cwd = \getcwd()) {
             $cwd = \rtrim($cwd, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR;
@@ -288,7 +290,7 @@ HELP
         $this->context->setCommandScopeVariables($vars);
     }
 
-    private function extractEvalFileAndLine($file)
+    private function extractEvalFileAndLine(string $file)
     {
         if (\preg_match('/(.*)\\((\\d+)\\) : eval\\(\\)\'d code$/', $file, $matches)) {
             return [$matches[1], $matches[2]];

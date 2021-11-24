@@ -172,7 +172,7 @@ abstract class AbstractMatcher
         return \strpos(self::MISC_OPERATORS, $token) !== false;
     }
 
-    public static function needCompleteClass($token)
+    public static function needCompleteClass($token): bool
     {
         return \in_array($token[1], ['doc', 'ls', 'show']);
     }

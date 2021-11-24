@@ -81,7 +81,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return string formatted code
      */
-    public static function format(\Reflector $reflector, $colorMode = null): string
+    public static function format(\Reflector $reflector, string $colorMode = null): string
     {
         if (self::isReflectable($reflector)) {
             if ($code = @\file_get_contents($reflector->getFileName())) {
@@ -104,7 +104,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return string formatted code
      */
-    public static function formatCode($code, $startLine = 1, $endLine = null, $markLine = null): string
+    public static function formatCode(string $code, int $startLine = 1, int $endLine = null, int $markLine = null): string
     {
         $spans = self::tokenizeSpans($code);
         $lines = self::splitLines($spans, $startLine, $endLine);
@@ -209,7 +209,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator lines, each an array of [$spanType, $spanText] pairs
      */
-    private static function splitLines(\Generator $spans, $startLine = 1, $endLine = null): \Generator
+    private static function splitLines(\Generator $spans, int $startLine = 1, int $endLine = null): \Generator
     {
         $lineNum = 1;
         $buffer = [];
@@ -276,7 +276,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator Numbered, formatted lines
      */
-    private static function numberLines(\Generator $lines, $markLine = null): \Generator
+    private static function numberLines(\Generator $lines, int $markLine = null): \Generator
     {
         $lines = \iterator_to_array($lines);
 

@@ -78,7 +78,7 @@ HELP
         return \end($this->backtrace);
     }
 
-    private static function isDebugCall(array $stackFrame)
+    private static function isDebugCall(array $stackFrame): bool
     {
         $class = isset($stackFrame['class']) ? $stackFrame['class'] : null;
         $function = isset($stackFrame['function']) ? $stackFrame['function'] : null;

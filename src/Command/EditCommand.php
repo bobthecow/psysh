@@ -115,7 +115,7 @@ class EditCommand extends Command implements ContextAware
      *
      * @return bool
      */
-    private function shouldExecuteFile($execOption, $noExecOption, $filePath): bool
+    private function shouldExecuteFile(bool $execOption, bool $noExecOption, string $filePath = null): bool
     {
         if ($execOption) {
             return true;
@@ -136,7 +136,7 @@ class EditCommand extends Command implements ContextAware
      *
      * @throws \InvalidArgumentException If the variable is not found in the current context
      */
-    private function extractFilePath($fileArgument)
+    private function extractFilePath(string $fileArgument = null)
     {
         // If the file argument was a variable, get it from the context
         if ($fileArgument !== null &&

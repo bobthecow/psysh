@@ -23,7 +23,7 @@ class MongoDatabaseMatcher extends AbstractContextAwareMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = [])
+    public function getMatches(array $tokens, array $info = []): array
     {
         $input = $this->getInput($tokens);
 
@@ -51,7 +51,7 @@ class MongoDatabaseMatcher extends AbstractContextAwareMatcher
     /**
      * {@inheritdoc}
      */
-    public function hasMatched(array $tokens)
+    public function hasMatched(array $tokens): bool
     {
         $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);

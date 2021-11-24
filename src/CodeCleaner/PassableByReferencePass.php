@@ -68,7 +68,7 @@ class PassableByReferencePass extends CodeCleanerPass
         }
     }
 
-    private function isPassableByReference(Node $arg)
+    private function isPassableByReference(Node $arg): bool
     {
         // Unpacked arrays can be passed by reference
         if ($arg->value instanceof Array_) {

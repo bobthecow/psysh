@@ -165,7 +165,7 @@ HELP
      *
      * @return Parser
      */
-    private function getParser($kind = null): Parser
+    private function getParser(string $kind = null): Parser
     {
         if (!\array_key_exists($kind, $this->parsers)) {
             $this->parsers[$kind] = $this->parserFactory->createParser($kind);

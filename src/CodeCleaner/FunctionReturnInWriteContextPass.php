@@ -63,7 +63,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
         }
     }
 
-    private function isCallNode(Node $node)
+    private function isCallNode(Node $node): bool
     {
         return $node instanceof FuncCall || $node instanceof MethodCall || $node instanceof StaticCall;
     }

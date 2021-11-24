@@ -47,7 +47,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line): bool
+    public function addHistory(string $line): bool
     {
         if ($this->eraseDups) {
             if (($key = \array_search($line, $this->history)) !== false) {
@@ -100,9 +100,9 @@ class Transient implements Readline
      *
      * @throws BreakException if user hits Ctrl+D
      *
-     * @return string
+     * @return false|string
      */
-    public function readline($prompt = null): string
+    public function readline(string $prompt = null)
     {
         echo $prompt;
 

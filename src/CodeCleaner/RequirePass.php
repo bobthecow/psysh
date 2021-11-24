@@ -115,12 +115,12 @@ class RequirePass extends CodeCleanerPass
         return $file;
     }
 
-    private function isRequireNode(Node $node)
+    private function isRequireNode(Node $node): bool
     {
         return $node instanceof Include_ && \in_array($node->type, self::$requireTypes);
     }
 
-    private static function getIncludePath()
+    private static function getIncludePath(): array
     {
         if (\PATH_SEPARATOR === ':') {
             return \preg_split('#:(?!//)#', \get_include_path());

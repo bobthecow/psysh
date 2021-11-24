@@ -107,7 +107,7 @@ class Shell extends Application
      * This is used by the psysh bin to decide whether to start a shell on boot,
      * or to simply autoload the library.
      */
-    public static function isIncluded(array $trace)
+    public static function isIncluded(array $trace): bool
     {
         return isset($trace[0]['function']) &&
           \in_array($trace[0]['function'], ['require', 'include', 'require_once', 'include_once']);
@@ -954,7 +954,7 @@ class Shell extends Application
      * If the code buffer is valid, resets the code buffer and returns the
      * current code.
      *
-     * @return string PHP code buffer contents
+     * @return string|null PHP code buffer contents
      */
     public function flushCode()
     {
@@ -1026,9 +1026,9 @@ class Shell extends Application
      *
      * @see CodeCleaner::getNamespace
      *
-     * @return string Current code namespace
+     * @return string|null Current code namespace
      */
-    public function getNamespace(): string
+    public function getNamespace()
     {
         if ($namespace = $this->cleaner->getNamespace()) {
             return \implode('\\', $namespace);

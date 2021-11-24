@@ -122,7 +122,7 @@ class ConfigPaths
     /**
      * @deprecated
      */
-    public static function getConfigDirs()
+    public static function getConfigDirs(): array
     {
         return (new self())->configDirs();
     }
@@ -177,7 +177,7 @@ class ConfigPaths
     /**
      * @deprecated
      */
-    public static function getCurrentConfigDir()
+    public static function getCurrentConfigDir(): string
     {
         return (new self())->currentConfigDir();
     }
@@ -197,7 +197,7 @@ class ConfigPaths
     /**
      * @deprecated
      */
-    public static function getConfigFiles(array $names, $configDir = null)
+    public static function getConfigFiles(array $names, $configDir = null): array
     {
         return (new self(['configDir' => $configDir]))->configFiles($names);
     }
@@ -229,7 +229,7 @@ class ConfigPaths
     /**
      * @deprecated
      */
-    public static function getDataDirs()
+    public static function getDataDirs(): array
     {
         return (new self())->dataDirs();
     }
@@ -249,7 +249,7 @@ class ConfigPaths
     /**
      * @deprecated
      */
-    public static function getDataFiles(array $names, $dataDir = null)
+    public static function getDataFiles(array $names, $dataDir = null): array
     {
         return (new self(['dataDir' => $dataDir]))->dataFiles($names);
     }
@@ -276,7 +276,7 @@ class ConfigPaths
     /**
      * @deprecated
      */
-    public static function getRuntimeDir()
+    public static function getRuntimeDir(): string
     {
         return (new self())->runtimeDir();
     }

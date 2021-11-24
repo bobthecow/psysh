@@ -48,7 +48,7 @@ class HoaConsole implements Readline
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line): bool
+    public function addHistory(string $line): bool
     {
         $this->hoaReadline->addHistory($line);
 
@@ -92,9 +92,9 @@ class HoaConsole implements Readline
      *
      * @throws BreakException if user hits Ctrl+D
      *
-     * @return string
+     * @return false|string
      */
-    public function readline($prompt = null): string
+    public function readline(string $prompt = null)
     {
         $this->lastPrompt = $prompt;
 

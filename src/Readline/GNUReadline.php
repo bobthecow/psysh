@@ -47,7 +47,7 @@ class GNUReadline implements Readline
      *
      * Currently, the GNU readline implementation does, but the libedit wrapper does not.
      */
-    public static function supportsBracketedPaste()
+    public static function supportsBracketedPaste(): bool
     {
         return self::isSupported() && \stripos(\readline_info('library_version'), 'editline') === false;
     }
@@ -71,7 +71,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line): bool
+    public function addHistory(string $line): bool
     {
         if ($res = \readline_add_history($line)) {
             $this->writeHistory();
@@ -114,7 +114,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function readline($prompt = null)
+    public function readline(string $prompt = null)
     {
         return \readline($prompt);
     }
