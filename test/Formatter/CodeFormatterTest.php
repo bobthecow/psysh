@@ -219,7 +219,7 @@ EOS;
 EOS;
 
         return [
-            [$someCode, null, null, null, $someCodeExpected],
+            [$someCode, 1, null, null, $someCodeExpected],
             [$someCode, 19, 22, null, $someCodeSnippet],
             [$someCode, 19, 22, 20, $someCodeSnippetWithMarker],
         ];
@@ -241,8 +241,8 @@ EOS;
     public function smallCodeLines()
     {
         return [
-            ['<?php $foo = 42;', null, null, null, '<aside>1</aside>: \\<?php $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
-            ['<?php echo "yay $foo!";', null, null, null, '<aside>1</aside>: \\<?php <keyword>echo </keyword><string>"yay </string>$foo<string>!"</string><keyword>;</keyword>'],
+            ['<?php $foo = 42;', 1, null, null, '<aside>1</aside>: \\<?php $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
+            ['<?php echo "yay $foo!";', 1, null, null, '<aside>1</aside>: \\<?php <keyword>echo </keyword><string>"yay </string>$foo<string>!"</string><keyword>;</keyword>'],
 
             // Start and end lines
             ["<?php echo 'wat';\n\$foo = 42;", 1, 1, null, '<aside>1</aside>: \\<?php <keyword>echo </keyword><string>\'wat\'</string><keyword>;</keyword>'],
