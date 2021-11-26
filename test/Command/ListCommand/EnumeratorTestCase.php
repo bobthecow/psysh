@@ -31,4 +31,16 @@ abstract class EnumeratorTestCase extends \Psy\Test\TestCase
 
         return $input;
     }
+
+    /**
+     * Helper to abstract wrapping number output for testing.
+     *
+     * Depending on the PHP and VarDumper versions, integers and floats may be
+     * presented differently. Since most tests don't test *that* bit, we can use
+     * a helper to abstract that away :)
+     */
+    protected function presentNumber($number)
+    {
+        return $this->getPresenter()->present($number);
+    }
 }

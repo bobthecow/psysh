@@ -60,7 +60,7 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 
         $name = '$'.$one;
         $style = 'global';
-        $value = '\<number>42\</number>';
+        $value = $this->presentNumber(42);
         $this->assertArrayHasKey('$'.$one, $globals);
         $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
 

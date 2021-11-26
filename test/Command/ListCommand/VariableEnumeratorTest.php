@@ -70,7 +70,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
             '$one' => [
                 'name'  => '$one',
                 'style' => 'public',
-                'value' => '\<number>1\</number>',
+                'value' => $this->presentNumber(1),
             ],
             '$two' => [
                 'name'  => '$two',
@@ -112,7 +112,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
             '$one' => [
                 'name'  => '$one',
                 'style' => 'public',
-                'value' => '\<number>1\</number>',
+                'value' => $this->presentNumber(1),
             ],
             '$two' => [
                 'name'  => '$two',
