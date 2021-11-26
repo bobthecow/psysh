@@ -25,7 +25,7 @@ class Sudo
      *
      * @return mixed Value of $object->property
      */
-    public static function fetchProperty(object $object, string $property)
+    public static function fetchProperty($object, string $property)
     {
         $prop = static::getProperty(new \ReflectionObject($object), $property);
 
@@ -41,7 +41,7 @@ class Sudo
      *
      * @return mixed Value of $object->property
      */
-    public static function assignProperty(object $object, string $property, $value)
+    public static function assignProperty($object, string $property, $value)
     {
         $prop = static::getProperty(new \ReflectionObject($object), $property);
         $prop->setValue($object, $value);
@@ -58,7 +58,7 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callMethod(object $object, string $method, $args = null)
+    public static function callMethod($object, string $method, $args = null)
     {
         $args = \func_get_args();
         $object = \array_shift($args);

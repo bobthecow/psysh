@@ -22,7 +22,7 @@ class TestableEnv implements EnvInterface
         $this->env = $env;
     }
 
-    public function get($name)
+    public function get(string $name)
     {
         return isset($this->env[$name]) ? $this->env[$name] : null;
     }
