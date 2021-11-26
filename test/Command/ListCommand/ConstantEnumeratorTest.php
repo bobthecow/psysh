@@ -48,9 +48,9 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
 
         $expected = [
             'DATE_ISO8601'           => '"\<string>Y-m-d\TH:i:sO\</string>"',
-            'E_USER_WARNING'         => '\<number>512\</number>',
+            'E_USER_WARNING'         => $this->presentNumber(512),
             'FALSE'                  => '\<const>false\</const>',
-            'JSON_UNESCAPED_SLASHES' => '\<number>64\</number>',
+            'JSON_UNESCAPED_SLASHES' => $this->presentNumber(64),
             'PHP_VERSION'            => '"\<string>'.\PHP_VERSION.'\</string>"',
         ];
 
@@ -76,7 +76,7 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
 
         $name = 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT';
         $this->assertArrayHasKey($name, $constants);
-        $this->assertEquals(['name' => $name, 'style' => 'const', 'value' => '\<number>42\</number>'], $constants[$name]);
+        $this->assertEquals(['name' => $name, 'style' => 'const', 'value' => $this->presentNumber(42)], $constants[$name]);
     }
 
     /**
@@ -121,7 +121,7 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
             'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT' => [
                 'name'  => 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT',
                 'style' => 'const',
-                'value' => '\\<number>42\\</number>',
+                'value' => $this->presentNumber(42),
             ],
         ];
 
@@ -140,7 +140,7 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
             'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT' => [
                 'name'  => 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT',
                 'style' => 'const',
-                'value' => '\\<number>42\\</number>',
+                'value' => $this->presentNumber(42),
             ],
         ];
 
