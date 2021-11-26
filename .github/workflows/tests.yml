@@ -48,6 +48,47 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v1
 
+  dev:
+    name: 'Test @dev dependencies'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+          coverage: none
+
+      - name: Set up problem matchers
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Update to dev stability
+        run: |
+          composer config minimum-stability dev
+          composer config prefer-stable false
+
+      - name: Install dependencies
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: composer update --no-interaction --no-progress
+
+      - name: Install PHPUnit
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: composer bin phpunit update --no-interaction --no-progress
+
+      - name: Run tests
+        run: make test
+
   build:
     name: Test Phar build
     runs-on: ubuntu-latest
