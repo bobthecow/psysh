@@ -1368,9 +1368,9 @@ class Shell extends Application
      *
      * @param bool $interactive
      *
-     * @return string One line of user input
+     * @return string|false One line of user input
      */
-    protected function readline(bool $interactive = true): string
+    protected function readline(bool $interactive = true)
     {
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
