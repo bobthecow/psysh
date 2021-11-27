@@ -190,4 +190,4 @@ jobs:
         run: chmod +x build/*/psysh
 
       - name: Smoke test
-        run: .github/bin/smoketest.sh psysh-php56 psysh-php56-compat
+        run: .github/bin/smoketest.sh psysh-php70 psysh-php70-compat
