@@ -35,6 +35,14 @@ class HoaConsole implements Readline
         return \class_exists(Console::class, true);
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public static function supportsBracketedPaste(): bool
+    {
+        return false;
+    }
+
     public function __construct()
     {
         $this->hoaReadline = new HoaReadline();

@@ -34,6 +34,14 @@ class Transient implements Readline
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public static function supportsBracketedPaste(): bool
+    {
+        return false;
+    }
+
+    /**
      * Transient Readline constructor.
      */
     public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)

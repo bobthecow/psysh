@@ -40,6 +40,14 @@ class Libedit extends GNUReadline
     /**
      * {@inheritdoc}
      */
+    public static function supportsBracketedPaste(): bool
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function listHistory(): array
     {
         $history = \file_get_contents($this->historyFile);

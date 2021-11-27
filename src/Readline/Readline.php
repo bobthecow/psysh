@@ -24,6 +24,13 @@ interface Readline
     public static function isSupported(): bool;
 
     /**
+     * Check whether this Readline class supports bracketed paste.
+     *
+     * @return bool
+     */
+    public static function supportsBracketedPaste(): bool;
+
+    /**
      * Add a line to the command history.
      *
      * @param string $line
