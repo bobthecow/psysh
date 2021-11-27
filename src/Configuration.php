@@ -1345,9 +1345,9 @@ class Configuration
     /**
      * Get the current PHP manual database file.
      *
-     * @return string Default: '~/.local/share/psysh/php_manual.sqlite'
+     * @return string|null Default: '~/.local/share/psysh/php_manual.sqlite'
      */
-    public function getManualDbFile(): string
+    public function getManualDbFile()
     {
         if (isset($this->manualDbFile)) {
             return $this->manualDbFile;
@@ -1367,9 +1367,9 @@ class Configuration
     /**
      * Get a PHP manual database connection.
      *
-     * @return \PDO
+     * @return \PDO|null
      */
-    public function getManualDb(): \PDO
+    public function getManualDb()
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
