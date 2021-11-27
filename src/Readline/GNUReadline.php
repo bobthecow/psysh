@@ -46,10 +46,12 @@ class GNUReadline implements Readline
      * Check whether this readline implementation supports bracketed paste.
      *
      * Currently, the GNU readline implementation does, but the libedit wrapper does not.
+     *
+     * @return bool
      */
     public static function supportsBracketedPaste(): bool
     {
-        return self::isSupported() && \stripos(\readline_info('library_version'), 'editline') === false;
+        return self::isSupported() && \stripos(\readline_info('library_version') ?: '', 'editline') === false;
     }
 
     /**
