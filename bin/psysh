@@ -116,7 +116,7 @@ if (version_compare(PHP_VERSION, '5.3.6', '<')) {
 } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 } else {
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 }
 
 if (Psy\Shell::isIncluded($trace)) {

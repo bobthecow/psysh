@@ -109,8 +109,18 @@ class Shell extends Application
      */
     public static function isIncluded(array $trace)
     {
-        return isset($trace[0]['function']) &&
+        $isIncluded = isset($trace[0]['function']) &&
           \in_array($trace[0]['function'], ['require', 'include', 'require_once', 'include_once']);
+
+        // Detect Composer PHP bin proxies.
+        if ($isIncluded && \array_key_exists('_composer_autoload_path', $GLOBALS) && \preg_match('{[\\\\/]psysh$}', $trace[0]['file'])) {
+            // If we're in a bin proxy, we'll *always* see one include, but we
+            // care if we see a second immediately after that.
+            return isset($trace[1]['function']) &&
+                \in_array($trace[1]['function'], ['require', 'include', 'require_once', 'include_once']);
+        }
+
+        return $isIncluded;
     }
 
     /**
