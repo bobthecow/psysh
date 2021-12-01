@@ -84,7 +84,7 @@ build/psysh-php70: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
 	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)+php70'/" $@/src/Shell.php
-	composer config --working-dir $@ platform.php 7.0.0
+	composer config --working-dir $@ platform.php 7.0.8
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
 build/psysh-php70-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
@@ -92,7 +92,7 @@ build/psysh-php70-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
 	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)+php70-compat'/" $@/src/Shell.php
-	composer config --working-dir $@ platform.php 7.0.0
+	composer config --working-dir $@ platform.php 7.0.8
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring hoa/console:^2.15
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
