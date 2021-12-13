@@ -43,6 +43,11 @@
         }
     },
     "bin": ["bin/psysh"],
+    "config": {
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-main": "0.10.x-dev"
