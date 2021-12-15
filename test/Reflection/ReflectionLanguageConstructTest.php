@@ -21,8 +21,8 @@ class ReflectionLanguageConstructTest extends \Psy\Test\TestCase
     public function testConstruction($keyword)
     {
         $refl = new ReflectionLanguageConstruct($keyword);
-        $this->assertEquals($keyword, $refl->getName());
-        $this->assertEquals($keyword, (string) $refl);
+        $this->assertSame($keyword, $refl->getName());
+        $this->assertSame($keyword, (string) $refl);
     }
 
     /**

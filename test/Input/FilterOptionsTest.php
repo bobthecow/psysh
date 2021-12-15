@@ -32,7 +32,7 @@ class FilterOptionsTest extends \Psy\Test\TestCase
         $filterOptions = new FilterOptions();
         $filterOptions->bind($input);
 
-        $this->assertEquals($hasFilter, $filterOptions->hasFilter());
+        $this->assertSame($hasFilter, $filterOptions->hasFilter());
     }
 
     public function validInputs()
@@ -81,7 +81,7 @@ class FilterOptionsTest extends \Psy\Test\TestCase
         $filterOptions = new FilterOptions();
         $filterOptions->bind($input);
 
-        $this->assertEquals($matches, $filterOptions->match($str));
+        $this->assertSame($matches, $filterOptions->match($str));
     }
 
     public function matchData()

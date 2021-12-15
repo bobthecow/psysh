@@ -105,14 +105,14 @@ class ShellTest extends TestCase
 
     protected function assertArrayEquals(array $expected, array $actual, $message = '')
     {
-        if (\method_exists($this, 'assertEqualsCanonicalizing')) {
-            return $this->assertEqualsCanonicalizing($expected, $actual, $message);
+        if (\method_exists($this, 'assertSameCanonicalizing')) {
+            return $this->assertSameCanonicalizing($expected, $actual, $message);
         }
 
         \sort($expected);
         \sort($actual);
 
-        return $this->assertEquals($expected, $actual, $message);
+        return $this->assertSame($expected, $actual, $message);
     }
 
     public function testNonInteractiveDoesNotUpdateContext()
@@ -445,7 +445,7 @@ class ShellTest extends TestCase
 
         $shell->writeReturnValue($input);
         \rewind($stream);
-        $this->assertEquals($expected, \stream_get_contents($stream));
+        $this->assertSame($expected, \stream_get_contents($stream));
     }
 
     /**
@@ -461,7 +461,7 @@ class ShellTest extends TestCase
 
         $shell->writeReturnValue($input);
         \rewind($stream);
-        $this->assertEquals('', \stream_get_contents($stream));
+        $this->assertSame('', \stream_get_contents($stream));
     }
 
     public function getReturnValues()
@@ -537,7 +537,7 @@ class ShellTest extends TestCase
         $stream = $output->getStream();
         $shell = new Shell($this->getConfig());
         $shell->setOutput($output);
-        $this->assertEquals($expected, $shell->execute($input));
+        $this->assertSame($expected, $shell->execute($input));
         \rewind($stream);
         $this->assertSame('', \stream_get_contents($stream));
     }
@@ -547,7 +547,7 @@ class ShellTest extends TestCase
         return [
             ['return 12', 12],
             ['"{{return value}}"', '{{return value}}'],
-            ['1', '1'],
+            ['1', 1],
         ];
     }
 
@@ -563,7 +563,7 @@ class ShellTest extends TestCase
         $method = $refl->getMethod('hasCommand');
         $method->setAccessible(true);
 
-        $this->assertEquals($method->invokeArgs($shell, [$command]), $has);
+        $this->assertSame($method->invokeArgs($shell, [$command]), $has);
     }
 
     public function commandsToHas()

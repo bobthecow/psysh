@@ -35,7 +35,7 @@ class ParserFactoryTest extends \PhpUnit\Framework\TestCase
             return;
         }
 
-        $this->assertEquals(ParserFactory::ONLY_PHP7, $factory->getDefaultKind());
+        $this->assertSame(ParserFactory::ONLY_PHP7, $factory->getDefaultKind());
     }
 
     public function testCreateParser()

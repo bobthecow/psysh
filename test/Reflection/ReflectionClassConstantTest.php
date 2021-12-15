@@ -42,7 +42,7 @@ class ReflectionClassConstantTest extends \Psy\Test\TestCase
     public function testExport()
     {
         $ret = ReflectionClassConstant::export($this, 'CONSTANT_ONE', true);
-        $this->assertEquals($ret, 'Constant [ public string CONSTANT_ONE ] { one }');
+        $this->assertSame($ret, 'Constant [ public string CONSTANT_ONE ] { one }');
     }
 
     public function testExportOutput()
@@ -55,7 +55,7 @@ class ReflectionClassConstantTest extends \Psy\Test\TestCase
     {
         $refl = new ReflectionClassConstant($this, 'CONSTANT_ONE');
 
-        $this->assertEquals(\ReflectionMethod::IS_PUBLIC, $refl->getModifiers());
+        $this->assertSame(\ReflectionMethod::IS_PUBLIC, $refl->getModifiers());
         $this->assertFalse($refl->isPrivate());
         $this->assertFalse($refl->isProtected());
         $this->assertTrue($refl->isPublic());

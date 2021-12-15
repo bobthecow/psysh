@@ -47,7 +47,7 @@ class LibeditTest extends \Psy\Test\TestCase
     public function testReadlineName()
     {
         $readline = new Libedit($this->historyFile);
-        $this->assertEquals(\readline_info('readline_name'), 'psysh');
+        $this->assertSame(\readline_info('readline_name'), 'psysh');
     }
 
     public function testHistory()

@@ -23,7 +23,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
         $enumerator = new ClassConstantEnumerator($this->getPresenter());
         $input = $this->getInput($inputStr);
 
-        $this->assertEquals($expectedItems, $enumerator->enumerate($input, $reflector, $target));
+        $this->assertSame($expectedItems, $enumerator->enumerate($input, $reflector, $target));
     }
 
     public function enumerateInput()
@@ -169,7 +169,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
         $input = $this->getInput('--constants --no-inherit');
         $reflector = new \ReflectionClass(Fixtures\InterfaceEcho::class);
 
-        $this->assertEquals([
+        $this->assertSame([
             'Interface Constants' => [
                 'E' => [
                     'name'  => 'E',

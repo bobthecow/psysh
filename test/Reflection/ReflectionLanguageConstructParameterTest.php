@@ -28,7 +28,7 @@ class ReflectionLanguageConstructParameterTest extends \Psy\Test\TestCase
         ]);
 
         $this->assertNull($refl->getClass());
-        $this->assertEquals('one', $refl->getName());
+        $this->assertSame('one', $refl->getName());
         $this->assertFalse($refl->isArray());
         $this->assertTrue($refl->isDefaultValueAvailable());
         $this->assertNull($refl->getDefaultValue());
@@ -42,7 +42,7 @@ class ReflectionLanguageConstructParameterTest extends \Psy\Test\TestCase
         ]);
 
         $this->assertNull($refl->getClass());
-        $this->assertEquals('two', $reflTwo->getName());
+        $this->assertSame('two', $reflTwo->getName());
         $this->assertTrue($reflTwo->isArray());
         $this->assertFalse($reflTwo->isDefaultValueAvailable());
         $this->assertNull($reflTwo->getDefaultValue());
@@ -54,10 +54,10 @@ class ReflectionLanguageConstructParameterTest extends \Psy\Test\TestCase
         ]);
 
         $this->assertNull($refl->getClass());
-        $this->assertEquals('three', $refl->getName());
+        $this->assertSame('three', $refl->getName());
         $this->assertFalse($refl->isArray());
         $this->assertTrue($refl->isDefaultValueAvailable());
-        $this->assertEquals(3, $refl->getDefaultValue());
+        $this->assertSame(3, $refl->getDefaultValue());
         $this->assertFalse($refl->isOptional());
         $this->assertFalse($refl->isPassedByReference());
     }

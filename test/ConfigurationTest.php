@@ -357,10 +357,10 @@ class ConfigurationTest extends TestCase
         $this->assertTrue($formatter->hasStyle('luigi'));
 
         $mario = $formatter->getStyle('mario');
-        $this->assertEquals("\e[37;41mwheee\e[39;49m", $mario->apply('wheee'));
+        $this->assertSame("\e[37;41mwheee\e[39;49m", $mario->apply('wheee'));
 
         $luigi = $formatter->getStyle('luigi');
-        $this->assertEquals("\e[37;42mwheee\e[39;49m", $luigi->apply('wheee'));
+        $this->assertSame("\e[37;42mwheee\e[39;49m", $luigi->apply('wheee'));
     }
 
     public function testSetFormatterStylesRuntimeUpdates()
@@ -380,10 +380,10 @@ class ConfigurationTest extends TestCase
         $this->assertTrue($formatter->hasStyle('luigi'));
 
         $mario = $formatter->getStyle('mario');
-        $this->assertEquals("\e[37;41mwheee\e[39;49m", $mario->apply('wheee'));
+        $this->assertSame("\e[37;41mwheee\e[39;49m", $mario->apply('wheee'));
 
         $luigi = $formatter->getStyle('luigi');
-        $this->assertEquals("\e[37;42mwheee\e[39;49m", $luigi->apply('wheee'));
+        $this->assertSame("\e[37;42mwheee\e[39;49m", $luigi->apply('wheee'));
 
         $config->setFormatterStyles([
             'mario' => ['red', 'white'],
@@ -391,10 +391,10 @@ class ConfigurationTest extends TestCase
         ]);
 
         $mario = $formatter->getStyle('mario');
-        $this->assertEquals("\e[31;47mwheee\e[39;49m", $mario->apply('wheee'));
+        $this->assertSame("\e[31;47mwheee\e[39;49m", $mario->apply('wheee'));
 
         $luigi = $formatter->getStyle('luigi');
-        $this->assertEquals("\e[32;47mwheee\e[39;49m", $luigi->apply('wheee'));
+        $this->assertSame("\e[32;47mwheee\e[39;49m", $luigi->apply('wheee'));
     }
 
     /**
@@ -437,19 +437,19 @@ class ConfigurationTest extends TestCase
     {
         $input = $this->getBoundStringInput($inputString);
         $config = Configuration::fromInput($input);
-        $this->assertEquals($verbosity, $config->verbosity());
-        $this->assertEquals($colorMode, $config->colorMode());
-        $this->assertEquals($interactiveMode, $config->interactiveMode());
-        $this->assertEquals($rawOutput, $config->rawOutput());
-        $this->assertEquals($yolo, $config->yolo());
+        $this->assertSame($verbosity, $config->verbosity());
+        $this->assertSame($colorMode, $config->colorMode());
+        $this->assertSame($interactiveMode, $config->interactiveMode());
+        $this->assertSame($rawOutput, $config->rawOutput());
+        $this->assertSame($yolo, $config->yolo());
 
         $input = $this->getUnboundStringInput($inputString);
         $config = Configuration::fromInput($input);
-        $this->assertEquals($verbosity, $config->verbosity());
-        $this->assertEquals($colorMode, $config->colorMode());
-        $this->assertEquals($interactiveMode, $config->interactiveMode());
-        $this->assertEquals($rawOutput, $config->rawOutput());
-        $this->assertEquals($yolo, $config->yolo());
+        $this->assertSame($verbosity, $config->verbosity());
+        $this->assertSame($colorMode, $config->colorMode());
+        $this->assertSame($interactiveMode, $config->interactiveMode());
+        $this->assertSame($rawOutput, $config->rawOutput());
+        $this->assertSame($yolo, $config->yolo());
     }
 
     public function inputStrings()
@@ -467,16 +467,16 @@ class ConfigurationTest extends TestCase
     {
         $input = $this->getBoundStringInput('--raw-output --color --interactive --verbose');
         $config = Configuration::fromInput($input);
-        $this->assertEquals(Configuration::VERBOSITY_VERBOSE, $config->verbosity());
-        $this->assertEquals(Configuration::COLOR_MODE_FORCED, $config->colorMode());
-        $this->assertEquals(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode());
+        $this->assertSame(Configuration::VERBOSITY_VERBOSE, $config->verbosity());
+        $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
+        $this->assertSame(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode());
         $this->assertFalse($config->rawOutput(), '--raw-output is ignored with interactive input');
 
         $input = $this->getBoundStringInput('--verbose --quiet --color --no-color --interactive --no-interactive');
         $config = Configuration::fromInput($input);
-        $this->assertEquals(Configuration::VERBOSITY_QUIET, $config->verbosity(), '--quiet trumps --verbose');
-        $this->assertEquals(Configuration::COLOR_MODE_FORCED, $config->colorMode(), '--color trumps --no-color');
-        $this->assertEquals(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode(), '--interactive trumps --no-interactive');
+        $this->assertSame(Configuration::VERBOSITY_QUIET, $config->verbosity(), '--quiet trumps --verbose');
+        $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode(), '--color trumps --no-color');
+        $this->assertSame(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode(), '--interactive trumps --no-interactive');
     }
 
     /**
@@ -486,11 +486,11 @@ class ConfigurationTest extends TestCase
     {
         $input = $this->getBoundStringInput($inputString);
         $config = Configuration::fromInput($input);
-        $this->assertEquals($verbosity, $config->verbosity());
+        $this->assertSame($verbosity, $config->verbosity());
 
         $input = $this->getUnboundStringInput($inputString);
         $config = Configuration::fromInput($input);
-        $this->assertEquals($verbosity, $config->verbosity());
+        $this->assertSame($verbosity, $config->verbosity());
     }
 
     public function verbosityInputStrings()
@@ -520,9 +520,9 @@ class ConfigurationTest extends TestCase
     {
         $input = $this->getBoundStringInput($inputString);
         $config = Configuration::fromInput($input);
-        $this->assertEquals($verbosity, $config->verbosity());
-        $this->assertEquals($interactiveMode, $config->interactiveMode());
-        $this->assertEquals($rawOutput, $config->rawOutput());
+        $this->assertSame($verbosity, $config->verbosity());
+        $this->assertSame($interactiveMode, $config->interactiveMode());
+        $this->assertSame($rawOutput, $config->rawOutput());
 
         if ($skipUnbound) {
             $this->markTestSkipped($inputString.' fails with unbound input');
@@ -530,9 +530,9 @@ class ConfigurationTest extends TestCase
 
         $input = $this->getUnboundStringInput($inputString);
         $config = Configuration::fromInput($input);
-        $this->assertEquals($verbosity, $config->verbosity());
-        $this->assertEquals($interactiveMode, $config->interactiveMode());
-        $this->assertEquals($rawOutput, $config->rawOutput());
+        $this->assertSame($verbosity, $config->verbosity());
+        $this->assertSame($interactiveMode, $config->interactiveMode());
+        $this->assertSame($rawOutput, $config->rawOutput());
     }
 
     public function shortInputStrings()
@@ -551,13 +551,13 @@ class ConfigurationTest extends TestCase
     {
         $input = $this->getBoundStringInput('--ansi --interaction');
         $config = Configuration::fromInput($input);
-        $this->assertEquals(Configuration::COLOR_MODE_FORCED, $config->colorMode());
-        $this->assertEquals(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode());
+        $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
+        $this->assertSame(Configuration::INTERACTIVE_MODE_FORCED, $config->interactiveMode());
 
         $input = $this->getBoundStringInput('--no-ansi --no-interaction');
         $config = Configuration::fromInput($input);
-        $this->assertEquals(Configuration::COLOR_MODE_DISABLED, $config->colorMode());
-        $this->assertEquals(Configuration::INTERACTIVE_MODE_DISABLED, $config->interactiveMode());
+        $this->assertSame(Configuration::COLOR_MODE_DISABLED, $config->colorMode());
+        $this->assertSame(Configuration::INTERACTIVE_MODE_DISABLED, $config->interactiveMode());
     }
 
     private function getBoundStringInput($string, $configFile = null)

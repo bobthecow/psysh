@@ -25,9 +25,9 @@ class ThrowUpExceptionTest extends \Psy\Test\TestCase
         $this->assertInstanceOf(Exception::class, $e);
         $this->assertInstanceOf(ThrowUpException::class, $e);
 
-        $this->assertEquals("Throwing Exception with message '{{message}}'", $e->getMessage());
-        $this->assertEquals('{{message}}', $e->getRawMessage());
-        $this->assertEquals(123, $e->getCode());
+        $this->assertSame("Throwing Exception with message '{{message}}'", $e->getMessage());
+        $this->assertSame('{{message}}', $e->getRawMessage());
+        $this->assertSame(123, $e->getCode());
         $this->assertSame($previous, $e->getPrevious());
     }
 

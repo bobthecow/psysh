@@ -33,7 +33,7 @@ class ContextTest extends TestCase
         $this->assertNull($context->get('_'));
         $this->assertNull($context->getReturnValue());
 
-        $this->assertEquals(['_' => null], $context->getAll());
+        $this->assertSame(['_' => null], $context->getAll());
 
         $e = new \Exception('eeeeeee');
         $obj = new \stdClass();
@@ -65,7 +65,7 @@ class ContextTest extends TestCase
             '__dir'       => 'dir',
         ];
 
-        $this->assertEquals($expected, $context->getAll());
+        $this->assertSame($expected, $context->getAll());
     }
 
     public function testSetAll()
@@ -95,11 +95,11 @@ class ContextTest extends TestCase
 
         $context->setAll($vars);
 
-        $this->assertEquals('Foo', $context->get('foo'));
-        $this->assertEquals(123, $context->get('bar'));
+        $this->assertSame('Foo', $context->get('foo'));
+        $this->assertSame(123, $context->get('bar'));
         $this->assertSame($baz, $context->get('baz'));
 
-        $this->assertEquals(['foo' => 'Foo', 'bar' => 123, 'baz' => $baz, '_' => null], $context->getAll());
+        $this->assertSame(['foo' => 'Foo', 'bar' => 123, 'baz' => $baz, '_' => null], $context->getAll());
     }
 
     /**
@@ -141,8 +141,8 @@ class ContextTest extends TestCase
 
         $val = 'some string';
         $context->setReturnValue($val);
-        $this->assertEquals($val, $context->getReturnValue());
-        $this->assertEquals($val, $context->get('_'));
+        $this->assertSame($val, $context->getReturnValue());
+        $this->assertSame($val, $context->get('_'));
 
         $obj = new \stdClass();
         $context->setReturnValue($obj);
@@ -177,8 +177,8 @@ class ContextTest extends TestCase
     {
         $context = new Context();
         $context->setLastStdout('ouuuuut');
-        $this->assertEquals('ouuuuut', $context->getLastStdout());
-        $this->assertEquals('ouuuuut', $context->get('__out'));
+        $this->assertSame('ouuuuut', $context->getLastStdout());
+        $this->assertSame('ouuuuut', $context->get('__out'));
     }
 
     public function testLastStdoutThrowsSometimes()
@@ -226,14 +226,14 @@ class ContextTest extends TestCase
         $this->assertNull($context->getBoundClass());
 
         $context->setBoundClass(Shell::class);
-        $this->assertEquals(Shell::class, $context->getBoundClass());
+        $this->assertSame(Shell::class, $context->getBoundClass());
 
         $context->setBoundObject(new \stdClass());
         $this->assertNotNull($context->getBoundObject());
         $this->assertNull($context->getBoundClass());
 
         $context->setBoundClass(Shell::class);
-        $this->assertEquals(Shell::class, $context->getBoundClass());
+        $this->assertSame(Shell::class, $context->getBoundClass());
         $this->assertNull($context->getBoundObject());
 
         $context->setBoundClass(null);
@@ -256,15 +256,15 @@ class ContextTest extends TestCase
         $context = new Context();
         $context->setCommandScopeVariables($vars);
 
-        $this->assertEquals($vars, $context->getCommandScopeVariables());
+        $this->assertSame($vars, $context->getCommandScopeVariables());
 
-        $this->assertEquals($__function, $context->get('__function'));
-        $this->assertEquals($__method, $context->get('__method'));
-        $this->assertEquals($__class, $context->get('__class'));
-        $this->assertEquals($__namespace, $context->get('__namespace'));
-        $this->assertEquals($__file, $context->get('__file'));
-        $this->assertEquals($__line, $context->get('__line'));
-        $this->assertEquals($__dir, $context->get('__dir'));
+        $this->assertSame($__function, $context->get('__function'));
+        $this->assertSame($__method, $context->get('__method'));
+        $this->assertSame($__class, $context->get('__class'));
+        $this->assertSame($__namespace, $context->get('__namespace'));
+        $this->assertSame($__file, $context->get('__file'));
+        $this->assertSame($__line, $context->get('__line'));
+        $this->assertSame($__dir, $context->get('__dir'));
 
         $someVars = \compact('__function', '__namespace', '__file', '__line', '__dir');
         $context->setCommandScopeVariables($someVars);
@@ -274,7 +274,7 @@ class ContextTest extends TestCase
     {
         $context = new Context();
 
-        $this->assertEquals(
+        $this->assertSame(
             ['__function', '__method', '__class', '__namespace', '__file', '__line', '__dir'],
             $context->getUnusedCommandScopeVariableNames()
         );
@@ -287,7 +287,7 @@ class ContextTest extends TestCase
             '__dir'       => 'qux',
         ]);
 
-        $this->assertEquals(
+        $this->assertSame(
             ['__method', '__class'],
             \array_values($context->getUnusedCommandScopeVariableNames())
         );

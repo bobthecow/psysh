@@ -22,11 +22,11 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
         $refl = new ReflectionConstant_('Psy\\Test\\Reflection\\SOME_CONSTANT');
 
         $this->assertFalse($refl->getDocComment());
-        $this->assertEquals('Psy\\Test\\Reflection\\SOME_CONSTANT', $refl->getName());
-        $this->assertEquals('Psy\\Test\\Reflection', $refl->getNamespaceName());
-        $this->assertEquals('yep', $refl->getValue());
+        $this->assertSame('Psy\\Test\\Reflection\\SOME_CONSTANT', $refl->getName());
+        $this->assertSame('Psy\\Test\\Reflection', $refl->getNamespaceName());
+        $this->assertSame('yep', $refl->getValue());
         $this->assertTrue($refl->inNamespace());
-        $this->assertEquals('Psy\\Test\\Reflection\\SOME_CONSTANT', (string) $refl);
+        $this->assertSame('Psy\\Test\\Reflection\\SOME_CONSTANT', (string) $refl);
         $this->assertNull($refl->getFileName());
     }
 
@@ -34,9 +34,9 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
     {
         $refl = new ReflectionConstant_('PHP_VERSION');
 
-        $this->assertEquals('PHP_VERSION', $refl->getName());
-        $this->assertEquals('PHP_VERSION', (string) $refl);
-        $this->assertEquals(\PHP_VERSION, $refl->getValue());
+        $this->assertSame('PHP_VERSION', $refl->getName());
+        $this->assertSame('PHP_VERSION', (string) $refl);
+        $this->assertSame(\PHP_VERSION, $refl->getValue());
         $this->assertFalse($refl->inNamespace());
         $this->assertSame('', $refl->getNamespaceName());
     }
@@ -46,7 +46,7 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
      */
     public function testIsMagicConstant($name, $is)
     {
-        $this->assertEquals($is, ReflectionConstant_::isMagicConstant($name));
+        $this->assertSame($is, ReflectionConstant_::isMagicConstant($name));
     }
 
     public function magicConstants()
@@ -79,7 +79,7 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
     public function testExport()
     {
         $ret = ReflectionConstant_::export('Psy\\Test\\Reflection\\SOME_CONSTANT', true);
-        $this->assertEquals($ret, 'Constant [ string Psy\\Test\\Reflection\\SOME_CONSTANT ] { yep }');
+        $this->assertSame($ret, 'Constant [ string Psy\\Test\\Reflection\\SOME_CONSTANT ] { yep }');
     }
 
     public function testExportOutput()

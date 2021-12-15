@@ -27,7 +27,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
 
         $enumerator = new VariableEnumerator($this->getPresenter(), $context);
         $input = $this->getInput('');
-        $this->assertEquals([], $enumerator->enumerate($input));
+        $this->assertSame([], $enumerator->enumerate($input));
     }
 
     public function testEnumerateReturnsNothingForTarget()
@@ -43,10 +43,10 @@ class VariableEnumeratorTest extends EnumeratorTestCase
         $input = $this->getInput('--vars');
         $target = new Fixtures\ClassAlfa();
 
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateEnumerates()

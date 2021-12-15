@@ -19,7 +19,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('');
-        $this->assertEquals([], $enumerator->enumerate($input));
+        $this->assertSame([], $enumerator->enumerate($input));
     }
 
     public function testEnumerateReturnsNothingWithoutTarget()
@@ -27,7 +27,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties');
 
-        $this->assertEquals([], $enumerator->enumerate($input, null, null));
+        $this->assertSame([], $enumerator->enumerate($input, null, null));
     }
 
     public function testEnumeratePublicProperties()
@@ -41,7 +41,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Class Properties', $res);
         $properties = $res['Class Properties'];
 
-        $this->assertEquals([
+        $this->assertSame([
             '$foo' => [
                 'name'  => '$foo',
                 'style' => 'public',
@@ -121,7 +121,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Class Properties', $res);
         $properties = $res['Class Properties'];
 
-        $this->assertEquals([
+        $this->assertSame([
             '$qux' => [
                 'name'  => '$qux',
                 'style' => 'public',
@@ -136,7 +136,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $input = $this->getInput('--properties');
 
         $res = $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceEcho::class), null);
-        $this->assertEquals([], $res);
+        $this->assertSame([], $res);
     }
 
     public function testTraitProperties()
@@ -149,7 +149,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Trait Properties', $res);
         $properties = $res['Trait Properties'];
 
-        $this->assertEquals([
+        $this->assertSame([
             '$someFoxtrot' => [
                 'name'  => '$someFoxtrot',
                 'style' => 'public',

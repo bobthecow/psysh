@@ -23,7 +23,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new FunctionEnumerator($this->getPresenter());
         $input = $this->getInput('');
-        $this->assertEquals([], $enumerator->enumerate($input));
+        $this->assertSame([], $enumerator->enumerate($input));
     }
 
     public function testEnumerateReturnsNothingForTarget()
@@ -32,10 +32,10 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
         $input = $this->getInput('--functions');
         $target = new Fixtures\ClassAlfa();
 
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateInternalFunctions()
@@ -57,7 +57,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
         foreach ($expected as $name) {
             $this->assertArrayHasKey($name, $functions);
             $signature = SignatureFormatter::format(new \ReflectionFunction($name));
-            $this->assertEquals(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
+            $this->assertSame(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
         }
     }
 
@@ -80,7 +80,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
         foreach ($expected as $name) {
             $this->assertArrayHasKey($name, $functions);
             $signature = SignatureFormatter::format(new \ReflectionFunction($name));
-            $this->assertEquals(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
+            $this->assertSame(['name' => $name, 'style' => 'function', 'value' => $signature], $functions[$name]);
         }
     }
 
@@ -105,7 +105,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
             ],
         ];
 
-        $this->assertEquals($expected, $res['Functions']);
+        $this->assertSame($expected, $res['Functions']);
     }
 
     public function testEnumerateUserAndInternalNamespaceFunctions()
@@ -130,6 +130,6 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
             ],
         ];
 
-        $this->assertEquals($expected, $res['User Functions']);
+        $this->assertSame($expected, $res['User Functions']);
     }
 }
