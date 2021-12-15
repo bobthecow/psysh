@@ -31,7 +31,10 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
 
     /**
      * No class here.
+     *
+     * @todo remove \ReturnTypeWillChange attribute after dropping support for PHP 7.0 (when we can use nullable types)
      */
+    #[\ReturnTypeWillChange]
     public function getClass()
     {
         return;
@@ -50,13 +53,18 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
     /**
      * Get param default value.
      *
+     * @todo remove \ReturnTypeWillChange attribute after dropping support for PHP 7.x (when we can use mixed type)
+     *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function getDefaultValue()
     {
         if ($this->isDefaultValueAvailable()) {
             return $this->opts['defaultValue'];
         }
+
+        return null;
     }
 
     /**

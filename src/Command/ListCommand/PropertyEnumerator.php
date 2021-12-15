@@ -152,6 +152,10 @@ class PropertyEnumerator extends Enumerator
      */
     protected function presentValue(\ReflectionProperty $property, $target): string
     {
+        if (!$target) {
+            return '';
+        }
+
         // If $target is a class or trait (try to) get the default
         // value for the property.
         if (!\is_object($target)) {

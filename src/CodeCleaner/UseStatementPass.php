@@ -50,7 +50,7 @@ class UseStatementPass extends CodeCleanerPass
         if ($node instanceof Namespace_) {
             // If this is the same namespace as last namespace, let's do ourselves
             // a favor and reload all the aliases...
-            if (\strtolower($node->name) === \strtolower($this->lastNamespace)) {
+            if (\strtolower($node->name ?: '') === \strtolower($this->lastNamespace ?: '')) {
                 $this->aliases = $this->lastAliases;
             }
         }
