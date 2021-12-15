@@ -53,7 +53,7 @@ class FatalErrorExceptionTest extends \Psy\Test\TestCase
         $this->assertNotEquals(-1, $e->getLine());
 
         if (\version_compare(\PHP_VERSION, '8.0', '<')) {
-            $this->assertEquals(0, $e->getLine());
+            $this->assertSame(0, $e->getLine());
         }
     }
 }

@@ -25,7 +25,7 @@ class CodeFormatterTest extends \Psy\Test\TestCase
         $formatted = CodeFormatter::format($reflector, Configuration::COLOR_MODE_FORCED);
         $formattedWithoutColors = self::stripTags($formatted);
 
-        $this->assertEquals($expected, self::trimLines($formattedWithoutColors));
+        $this->assertSame($expected, self::trimLines($formattedWithoutColors));
         $this->assertNotEquals($expected, self::trimLines($formatted));
     }
 
@@ -132,7 +132,7 @@ EOS;
         $formatted = CodeFormatter::formatCode($code, $startLine, $endLine, $markLine);
         $formattedWithoutColors = self::stripTags($formatted);
 
-        $this->assertEquals($expected, self::trimLines($formattedWithoutColors));
+        $this->assertSame($expected, self::trimLines($formattedWithoutColors));
         $this->assertNotEquals($expected, self::trimLines($formatted));
     }
 
@@ -235,7 +235,7 @@ EOS;
     public function testFormatSmallCodeLines($code, $startLine, $endLine, $markLine, $expected)
     {
         $formatted = CodeFormatter::formatCode($code, $startLine, $endLine, $markLine);
-        $this->assertEquals($expected, self::trimLines($formatted));
+        $this->assertSame($expected, self::trimLines($formatted));
     }
 
     public function smallCodeLines()

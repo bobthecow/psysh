@@ -115,8 +115,8 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
         $exception = ErrorException::fromError($error);
 
         $this->assertStringContainsString('PHP Error:  {{message}}', $exception->getMessage());
-        $this->assertEquals(0, $exception->getCode());
-        $this->assertEquals($error->getFile(), $exception->getFile());
+        $this->assertSame(0, $exception->getCode());
+        $this->assertSame($error->getFile(), $exception->getFile());
         $this->assertSame($exception->getPrevious(), $error);
     }
 }

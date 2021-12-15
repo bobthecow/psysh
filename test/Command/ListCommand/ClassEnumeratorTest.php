@@ -22,10 +22,10 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         $input = $this->getInput('--classes');
         $target = new Fixtures\ClassAlfa();
 
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateClasses()
@@ -58,7 +58,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             ],
         ];
 
-        $this->assertEquals($expected, $fixtureClasses);
+        $this->assertSame($expected, $fixtureClasses);
     }
 
     public function testEnumerateInterfaces()
@@ -86,7 +86,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             ],
         ];
 
-        $this->assertEquals($expected, $fixtureClasses);
+        $this->assertSame($expected, $fixtureClasses);
     }
 
     public function testEnumerateTraits()
@@ -111,7 +111,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             ],
         ];
 
-        $this->assertEquals($expected, $fixtureClasses);
+        $this->assertSame($expected, $fixtureClasses);
     }
 
     public function testEnumerateNamespace()
@@ -143,7 +143,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
         ];
 
         $this->assertArrayHasKey('Classes', $res);
-        $this->assertEquals($expectedClasses, $res['Classes']);
+        $this->assertSame($expectedClasses, $res['Classes']);
 
         $prefix = \PHP_VERSION === '7.4.0' ? '<keyword>static</keyword> ' : '';
         $expectedInterfaces = [
@@ -160,7 +160,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             ],
         ];
         $this->assertArrayHasKey('Interfaces', $res);
-        $this->assertEquals($expectedInterfaces, $res['Interfaces']);
+        $this->assertSame($expectedInterfaces, $res['Interfaces']);
 
         $expectedTraits = [
             Fixtures\TraitFoxtrot::class => [
@@ -175,7 +175,7 @@ class ClassEnumeratorTest extends EnumeratorTestCase
             ],
         ];
         $this->assertArrayHasKey('Traits', $res);
-        $this->assertEquals($expectedTraits, $res['Traits']);
+        $this->assertSame($expectedTraits, $res['Traits']);
     }
 
     public function testEnumerateParentNamespace()

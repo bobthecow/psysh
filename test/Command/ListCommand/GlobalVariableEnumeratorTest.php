@@ -19,7 +19,7 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new GlobalVariableEnumerator($this->getPresenter());
         $input = $this->getInput('');
-        $this->assertEquals([], $enumerator->enumerate($input));
+        $this->assertSame([], $enumerator->enumerate($input));
     }
 
     public function testEnumerateReturnsNothingForTarget()
@@ -28,10 +28,10 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
         $input = $this->getInput('--globals');
         $target = new Fixtures\ClassAlfa();
 
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
-        $this->assertEquals([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
     }
 
     public function testEnumerate()
@@ -62,18 +62,18 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
         $style = 'global';
         $value = $this->presentNumber(42);
         $this->assertArrayHasKey('$'.$one, $globals);
-        $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
+        $this->assertSame(\compact('name', 'style', 'value'), $globals[$name]);
 
         $name = '$'.$two;
         $style = 'global';
         $value = '"\<string>string\</string>"';
         $this->assertArrayHasKey('$'.$two, $globals);
-        $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
+        $this->assertSame(\compact('name', 'style', 'value'), $globals[$name]);
 
         $name = '$'.$three;
         $style = 'global';
         $value = '[]';
         $this->assertArrayHasKey('$'.$three, $globals);
-        $this->assertEquals(\compact('name', 'style', 'value'), $globals[$name]);
+        $this->assertSame(\compact('name', 'style', 'value'), $globals[$name]);
     }
 }

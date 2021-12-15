@@ -20,6 +20,6 @@ class NoopCheckerTest extends \Psy\Test\TestCase
     {
         $checker = new NoopChecker();
         $this->assertTrue($checker->isLatest());
-        $this->assertEquals(Shell::VERSION, $checker->getLatest());
+        $this->assertSame(Shell::VERSION, $checker->getLatest());
     }
 }

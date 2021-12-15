@@ -35,7 +35,7 @@ class ThrowUpCommandTest extends \Psy\Test\TestCase
         $command->setApplication($shell);
         $tester = new CommandTester($command);
         $tester->execute($args);
-        $this->assertEquals('', $tester->getDisplay());
+        $this->assertSame('', $tester->getDisplay());
     }
 
     public function executeThis()

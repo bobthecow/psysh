@@ -19,8 +19,8 @@ class ReflectionNamespaceTest extends \Psy\Test\TestCase
     {
         $refl = new ReflectionNamespace('Psy\\Test\\Reflection');
 
-        $this->assertEquals('Psy\\Test\\Reflection', $refl->getName());
-        $this->assertEquals('Psy\\Test\\Reflection', (string) $refl);
+        $this->assertSame('Psy\\Test\\Reflection', $refl->getName());
+        $this->assertSame('Psy\\Test\\Reflection', (string) $refl);
     }
 
     public function testNotYetImplemented()

@@ -19,7 +19,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('');
-        $this->assertEquals([], $enumerator->enumerate($input));
+        $this->assertSame([], $enumerator->enumerate($input));
     }
 
     public function testEnumerateReturnsNothingWithoutTarget()
@@ -27,7 +27,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods');
 
-        $this->assertEquals([], $enumerator->enumerate($input, null, null));
+        $this->assertSame([], $enumerator->enumerate($input, null, null));
     }
 
     public function testEnumeratePublicMethods()
@@ -41,7 +41,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Class Methods', $res);
         $methods = $res['Class Methods'];
 
-        $this->assertEquals([
+        $this->assertSame([
             'foo' => [
                 'name'  => 'foo',
                 'style' => 'public',
@@ -121,7 +121,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Class Methods', $res);
         $methods = $res['Class Methods'];
 
-        $this->assertEquals([
+        $this->assertSame([
             'qux' => [
                 'name'  => 'qux',
                 'style' => 'public',
@@ -140,7 +140,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Interface Methods', $res);
         $methods = $res['Interface Methods'];
 
-        $this->assertEquals([
+        $this->assertSame([
             'doEcho' => [
                 'name'  => 'doEcho',
                 'style' => 'public',
@@ -159,7 +159,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Trait Methods', $res);
         $methods = $res['Trait Methods'];
 
-        $this->assertEquals([
+        $this->assertSame([
             'doFoxtrot' => [
                 'name'  => 'doFoxtrot',
                 'style' => 'public',

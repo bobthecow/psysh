@@ -23,17 +23,17 @@ class ConfigPathsTest extends TestCase
             'runtimeDir' => 'baz',
         ], new TestableEnv());
 
-        $this->assertEquals(['foo'], $paths->configDirs());
-        $this->assertEquals(['bar'], $paths->dataDirs());
-        $this->assertEquals('baz', $paths->runtimeDir());
+        $this->assertSame(['foo'], $paths->configDirs());
+        $this->assertSame(['bar'], $paths->dataDirs());
+        $this->assertSame('baz', $paths->runtimeDir());
 
         $paths->overrideDirs([
             'configDir' => 'qux',
         ]);
 
-        $this->assertEquals(['qux'], $paths->configDirs());
-        $this->assertEquals(['bar'], $paths->dataDirs());
-        $this->assertEquals('baz', $paths->runtimeDir());
+        $this->assertSame(['qux'], $paths->configDirs());
+        $this->assertSame(['bar'], $paths->dataDirs());
+        $this->assertSame('baz', $paths->runtimeDir());
 
         $paths->overrideDirs([
             'configDir'  => 'a',
@@ -41,9 +41,9 @@ class ConfigPathsTest extends TestCase
             'runtimeDir' => null,
         ]);
 
-        $this->assertEquals(['a'], $paths->configDirs());
-        $this->assertEquals(['b'], $paths->dataDirs());
-        $this->assertEquals(\sys_get_temp_dir().'/psysh', $paths->runtimeDir());
+        $this->assertSame(['a'], $paths->configDirs());
+        $this->assertSame(['b'], $paths->dataDirs());
+        $this->assertSame(\sys_get_temp_dir().'/psysh', $paths->runtimeDir());
     }
 
     /**
@@ -54,7 +54,7 @@ class ConfigPathsTest extends TestCase
         $paths = new ConfigPaths($overrides, new TestableEnv($env));
 
         $this->assertSame(\realpath($configDir), \realpath($paths->currentConfigDir()));
-        $this->assertSame(\array_map('realpath', $dataDirs), \array_values(\array_filter(\array_map('realpath', $paths->dataDirs()))));
+        $this->assertEquals(\array_map('realpath', $dataDirs), \array_values(\array_filter(\array_map('realpath', $paths->dataDirs()))));
         $this->assertSame(\realpath($runtimeDir), \realpath($paths->runtimeDir()));
     }
 
