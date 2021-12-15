@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Trait_;
+use PhpParser\Node\VariadicPlaceholder;
 use Psy\Exception\ErrorException;
 
 /**
@@ -78,6 +79,10 @@ class CalledClassPass extends CodeCleanerPass
 
     private function isNull(Node $node): bool
     {
+        if ($node instanceof VariadicPlaceholder) {
+            return false;
+        }
+
         return $node->value instanceof ConstFetch && \strtolower($node->value->name) === 'null';
     }
 }
