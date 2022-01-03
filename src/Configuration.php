@@ -56,6 +56,7 @@ class Configuration
         'errorLoggingLevel',
         'forceArrayIndexes',
         'formatterStyles',
+        'historyFile',
         'historySize',
         'interactiveMode',
         'manualDbFile',

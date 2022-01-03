@@ -176,13 +176,13 @@ HELP
     /**
      * Retrieve a slice of the readline history.
      *
-     * @param string $show
-     * @param string $head
-     * @param string $tail
+     * @param string|null $show
+     * @param string|null $head
+     * @param string|null $tail
      *
-     * @return array A slilce of history
+     * @return array A slice of history
      */
-    private function getHistorySlice(string $show, string $head, string $tail): array
+    private function getHistorySlice($show, $head, $tail): array
     {
         $history = $this->readline->listHistory();
 
