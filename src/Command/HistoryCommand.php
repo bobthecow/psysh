@@ -182,7 +182,7 @@ HELP
      *
      * @return array A slice of history
      */
-    private function getHistorySlice(?string $show, ?string $head, ?string $tail): array
+    private function getHistorySlice($show, $head, $tail): array
     {
         $history = $this->readline->listHistory();
 
