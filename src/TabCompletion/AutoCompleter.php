@@ -68,6 +68,8 @@ class AutoCompleter
         $tokens = \array_filter($tokens, function ($token) {
             return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
         });
+        // reset index from 0 to remove missing index number
+        $tokens = \array_values($tokens);
 
         $matches = [];
         foreach ($this->matchers as $matcher) {
