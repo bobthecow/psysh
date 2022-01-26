@@ -268,6 +268,14 @@ class ProcessForker extends AbstractListener
                 continue;
             }
 
+            if (\version_compare(\PHP_VERSION, '8.1', '>=') && $value instanceof \UnitEnum) {
+                // Enums defined in the REPL session can't be unserialized.
+                $ref = new \ReflectionObject($value);
+                if (\strpos($ref->getFileName(), ": eval()'d code") !== false) {
+                    continue;
+                }
+            }
+
             try {
                 @\serialize($value);
                 $serializable[$key] = $value;
