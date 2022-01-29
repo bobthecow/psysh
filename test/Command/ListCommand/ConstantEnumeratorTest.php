@@ -13,6 +13,7 @@ namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ConstantEnumerator;
 use Psy\Reflection\ReflectionNamespace;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 \define('Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT', 42);
 
@@ -47,11 +48,11 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
         $constants = $res['Internal Constants'];
 
         $expected = [
-            'DATE_ISO8601'           => '"\<string>Y-m-d\TH:i:sO\</string>"',
+            'DATE_ISO8601'           => OutputFormatter::escape('"<string>Y-m-d\TH:i:sO</string>"'),
             'E_USER_WARNING'         => $this->presentNumber(512),
-            'FALSE'                  => '\<const>false\</const>',
+            'FALSE'                  => OutputFormatter::escape('<const>false</const>'),
             'JSON_UNESCAPED_SLASHES' => $this->presentNumber(64),
-            'PHP_VERSION'            => '"\<string>'.\PHP_VERSION.'\</string>"',
+            'PHP_VERSION'            => OutputFormatter::escape('"<string>'.\PHP_VERSION.'</string>"'),
         ];
 
         foreach ($expected as $name => $value) {

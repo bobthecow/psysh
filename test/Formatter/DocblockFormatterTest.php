@@ -12,6 +12,7 @@
 namespace Psy\Test\Formatter;
 
 use Psy\Formatter\DocblockFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class DocblockFormatterTest extends \Psy\Test\TestCase
 {
@@ -38,6 +39,7 @@ class DocblockFormatterTest extends \Psy\Test\TestCase
 
     public function testFormat()
     {
+        $escapedEmail = OutputFormatter::escape('<justin@justinhileman.info>');
         $expected = <<<EOS
 <comment>Description:</comment>
   This is a docblock!
@@ -52,7 +54,7 @@ class DocblockFormatterTest extends \Psy\Test\TestCase
 <comment>Return:</comment>
   <info>string </info> A string of no consequence
 
-<comment>Author:</comment> Justin Hileman \<justin@justinhileman.info>
+<comment>Author:</comment> Justin Hileman $escapedEmail
 EOS;
 
         $this->assertSame(

@@ -12,6 +12,7 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ClassConstantEnumerator;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class ClassConstantEnumeratorTest extends EnumeratorTestCase
 {
@@ -39,12 +40,12 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'B' => [
                         'name'  => 'B',
                         'style' => 'const',
-                        'value' => '"\<string>bee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>bee</string>"'),
                     ],
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                 ],
             ]],
@@ -53,12 +54,12 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'B' => [
                         'name'  => 'B',
                         'style' => 'const',
-                        'value' => '"\<string>bee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>bee</string>"'),
                     ],
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                 ],
             ]],
@@ -67,17 +68,17 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'B' => [
                         'name'  => 'B',
                         'style' => 'const',
-                        'value' => '"\<string>bee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>bee</string>"'),
                     ],
                     'C' => [
                         'name'  => 'C',
                         'style' => 'const',
-                        'value' => '"\<string>cee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>cee</string>"'),
                     ],
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                 ],
             ]],
@@ -86,7 +87,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                 ],
             ]],
@@ -95,12 +96,12 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                     'E' => [
                         'name'  => 'E',
                         'style' => 'const',
-                        'value' => '"\<string>eee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>eee</string>"'),
                     ],
                 ],
             ]],
@@ -119,17 +120,17 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'B' => [
                         'name'  => 'B',
                         'style' => 'const',
-                        'value' => '"\<string>bee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>bee</string>"'),
                     ],
                     'C' => [
                         'name'  => 'C',
                         'style' => 'const',
-                        'value' => '"\<string>cee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>cee</string>"'),
                     ],
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                 ],
             ]],
@@ -138,7 +139,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'D' => [
                         'name'  => 'D',
                         'style' => 'const',
-                        'value' => '"\<string>dee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>dee</string>"'),
                     ],
                 ],
             ]],
@@ -149,7 +150,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     'C' => [
                         'name'  => 'C',
                         'style' => 'const',
-                        'value' => '"\<string>cee\</string>"',
+                        'value' => OutputFormatter::escape('"<string>cee</string>"'),
                     ],
                 ],
             ]],
@@ -174,7 +175,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                 'E' => [
                     'name'  => 'E',
                     'style' => 'const',
-                    'value' => '"\<string>eee\</string>"',
+                    'value' => OutputFormatter::escape('"<string>eee</string>"'),
                 ],
             ],
         ], $enumerator->enumerate($input, $reflector));

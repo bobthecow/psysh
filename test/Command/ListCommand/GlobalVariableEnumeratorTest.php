@@ -12,6 +12,7 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\GlobalVariableEnumerator;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 {
@@ -66,7 +67,7 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 
         $name = '$'.$two;
         $style = 'global';
-        $value = '"\<string>string\</string>"';
+        $value = OutputFormatter::escape('"<string>string</string>"');
         $this->assertArrayHasKey('$'.$two, $globals);
         $this->assertSame(\compact('name', 'style', 'value'), $globals[$name]);
 
