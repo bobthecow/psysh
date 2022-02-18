@@ -1373,7 +1373,7 @@ class Configuration
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
-            if (\is_file($dbFile)) {
+            if ($dbFile !== null && \is_file($dbFile)) {
                 try {
                     $this->manualDb = new \PDO('sqlite:'.$dbFile);
                 } catch (\PDOException $e) {
