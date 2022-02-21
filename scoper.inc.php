@@ -56,7 +56,7 @@ return [
         'curry_ref',
     ],
 
-    'files-whitelist' => \array_merge($polyfillsBootstraps, $polyfillsStubs),
+    'exclude-files' => \array_merge($polyfillsBootstraps, $polyfillsStubs),
 
     'patchers' => [
         // Un-patch overly enthusiastic internal constant patching.
