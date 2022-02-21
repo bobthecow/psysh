@@ -21,7 +21,7 @@ class Context
 {
     private static $specialNames = ['_', '_e', '__out', '__psysh__', 'this'];
 
-    // Whitelist a very limited number of command-scope magic variable names.
+    // Include a very limited number of command-scope magic variable names.
     // This might be a bad idea, but future me can sort it out.
     private static $commandScopeNames = [
         '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',

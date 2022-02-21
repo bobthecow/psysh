@@ -99,7 +99,7 @@ class ProcessForker extends AbstractListener
     }
 
     /**
-     * Forks into a master and a loop process.
+     * Forks into a main and a loop process.
      *
      * The loop process will handle the evaluation of all instructions, then
      * return its state via a socket upon completion.
