@@ -1,6 +1,6 @@
 {
     "require": {
-        "humbug/box": "^3.9.1",
+        "humbug/box": "^3.16.0",
         "jetbrains/phpstorm-stubs": "@dev"
     }
 }
