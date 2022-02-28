@@ -46,7 +46,7 @@ jobs:
           command: composer update --no-interaction --no-progress
 
       - name: Build Phar binaries
-        run: make build -j
+        run: make build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2

@@ -97,7 +97,7 @@ build/psysh-php70-compat: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
 
 build/%/psysh: vendor/bin/box build/%
-	vendor/bin/box compile --working-dir $(dir $@)
+	vendor/bin/box compile --no-parallel --working-dir $(dir $@)
 
 
 # Dist packages
