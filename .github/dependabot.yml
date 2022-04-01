@@ -5,3 +5,8 @@ updates:
     schedule:
       interval: daily
     versioning-strategy: widen
+  - package-ecosystem: "github-actions"
+    directory: /
+    schedule:
+      interval: daily
+    versioning-strategy: widen
