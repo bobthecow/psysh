@@ -23,10 +23,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@d37cc3048580de06099c81ded417530716a0d7ab # v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         if: inputs.deps != 'lowest'
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@39da88d5f7d15a96aed861dbabbe8b7443e3182a # v1
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -51,14 +51,14 @@ jobs:
 
       - name: Install dependencies (--prefer-lowest)
         if: inputs.deps == 'lowest'
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@39da88d5f7d15a96aed861dbabbe8b7443e3182a # v1
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
 
       - name: Install PHPUnit
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@39da88d5f7d15a96aed861dbabbe8b7443e3182a # v1
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -74,4 +74,4 @@ jobs:
         continue-on-error: true
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@29386c70ef20e286228c72b668a06fd0e8399192 # v1

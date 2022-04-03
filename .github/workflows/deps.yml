@@ -28,17 +28,17 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@d37cc3048580de06099c81ded417530716a0d7ab # v2
         with:
           php-version: '7.4'
           tools: composer:v2
           coverage: none
 
       - name: Install dependencies
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@39da88d5f7d15a96aed861dbabbe8b7443e3182a # v1
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -48,7 +48,7 @@ jobs:
         run: make build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: binaries
           path: build/*/psysh
@@ -63,17 +63,17 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@d37cc3048580de06099c81ded417530716a0d7ab # v2
         with:
           php-version: '7.0'
           tools: composer:v2
           coverage: none
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@f023be2c48cc18debc3bacd34cb396e0295e2869 # v2
         with:
           name: binaries
           path: build

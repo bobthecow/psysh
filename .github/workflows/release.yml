@@ -16,11 +16,11 @@ jobs:
     steps:
       - name: Get tag name
         id: tag_name
-        uses: little-core-labs/get-git-tag@v3.0.2
+        uses: little-core-labs/get-git-tag@2c292ff564c1a61b989e29f0410d131317f89b03 # v3.0.2
 
       - name: Create draft release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -49,19 +49,19 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
         with:
           fetch-depth: 0
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@d37cc3048580de06099c81ded417530716a0d7ab # v2
         with:
           php-version: 7.4
           tools: composer:v2
           coverage: none
 
       - name: Install dependencies
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@39da88d5f7d15a96aed861dbabbe8b7443e3182a # v1
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -71,7 +71,7 @@ jobs:
         run: make dist/psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
 
       - name: Upload release asset
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
