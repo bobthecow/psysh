@@ -22,6 +22,7 @@ use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
+use Psy\Output\ShellOutput;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
@@ -1058,6 +1059,12 @@ class Shell extends Application
      */
     public function writeStdout(string $out, int $phase = \PHP_OUTPUT_HANDLER_END)
     {
+        if ($phase & \PHP_OUTPUT_HANDLER_START) {
+            if ($this->output instanceof ShellOutput) {
+                $this->output->startPaging();
+            }
+        }
+
         $isCleaning = $phase & \PHP_OUTPUT_HANDLER_CLEAN;
 
         // Incremental flush
@@ -1083,6 +1090,10 @@ class Shell extends Application
             if ($this->stdoutBuffer !== '') {
                 $this->context->setLastStdout($this->stdoutBuffer);
                 $this->stdoutBuffer = '';
+            }
+
+            if ($this->output instanceof ShellOutput) {
+                $this->output->stopPaging();
             }
         }
     }
@@ -1116,7 +1127,11 @@ class Shell extends Application
             $formatted = static::RETVAL.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
 
-        $this->output->writeln($formatted);
+        if ($this->output instanceof ShellOutput) {
+            $this->output->page($formatted.\PHP_EOL);
+        } else {
+            $this->output->writeln($formatted);
+        }
     }
 
     /**
