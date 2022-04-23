@@ -47,13 +47,6 @@ return [
     'whitelist' => [
         'Psy\*',
         'Symfony\Polyfill\*',
-
-        // Old Hoa global functions
-        'from',
-        'dnew',
-        'xcallable',
-        'curry',
-        'curry_ref',
     ],
 
     'exclude-files' => \array_merge($polyfillsBootstraps, $polyfillsStubs),
@@ -81,73 +74,6 @@ return [
             return \str_replace(
                 \sprintf('\\%s\\ReflectionReference', $prefix),
                 '\\ReflectionReference',
-                $contents
-            );
-        },
-        // Hoa patches
-        static function (string $filePath, string $prefix, string $contents): string {
-            if ('vendor/hoa/stream/Stream.php' !== $filePath) {
-                return $contents;
-            }
-
-            return \preg_replace(
-                '/Hoa\\\\Consistency::registerShutdownFunction\(xcallable\(\'(.*)\'\)\)/',
-                \sprintf(
-                    'Hoa\\Consistency::registerShutdownFunction(xcallable(\'%s$1\'))',
-                    $prefix.'\\\\\\\\'
-                ),
-                $contents
-            );
-        },
-        static function (string $filePath, string $prefix, string $contents): string {
-            if ('vendor/hoa/consistency/Autoloader.php' !== $filePath) {
-                return $contents;
-            }
-            $contents = \preg_replace(
-                '/(\$entityPrefix = \$entity;)/',
-                \sprintf(
-                    '$entity = substr($entity, %d);$1',
-                    \strlen($prefix) + 1
-                ),
-                $contents
-            );
-            $contents = \preg_replace(
-                '/return \$this->runAutoloaderStack\((.*)\);/',
-                \sprintf(
-                    'return $this->runAutoloaderStack(\'%s\'.\'%s\'.$1);',
-                    $prefix,
-                    '\\\\\\'
-                ),
-                $contents
-            );
-
-            return $contents;
-        },
-        static function (string $filePath, string $prefix, string $contents): string {
-            if (!\in_array($filePath, ['vendor/hoa/console/Mouse.php', 'vendor/hoa/console/Console.php', 'vendor/hoa/core/Consistency.php'], true)) {
-                return $contents;
-            }
-
-            return \preg_replace(
-                '/\'(?:\\\\){0,2}(Hoa\\\\.+?)(::.+)\'/',
-                \sprintf(
-                    '\'%s\\\\\\\$1$2\'',
-                    $prefix
-                ),
-                $contents
-            );
-        },
-        static function (string $filePath, string $prefix, string $contents): string {
-            if ('vendor/hoa/core/Consistency.php' === $filePath) {
-                return $contents;
-            }
-
-            return \str_replace(
-                '$classname = \ltrim($classname, \'\\\\\');',
-                \sprintf(
-                    '$classname = \substr(\ltrim($classname, \'\\\\\'), %d);',
-                    \strlen($prefix) + 1
-                ),
                 $contents
             );
         },
