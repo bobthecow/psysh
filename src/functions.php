@@ -225,6 +225,7 @@ if (!\function_exists('Psy\\info')) {
             'color mode'       => $config->colorMode(),
             'output decorated' => $config->getOutputDecorated(),
             'output verbosity' => $config->verbosity(),
+            'output pager'     => $config->getPager(),
         ];
 
         $pcntl = [

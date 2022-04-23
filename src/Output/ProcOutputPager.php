@@ -32,9 +32,9 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      * Constructor.
      *
      * @param StreamOutput $output
-     * @param string       $cmd    Pager process command (default: 'less -R -S -F -X')
+     * @param string       $cmd    Pager process command (default: 'less -R -F -X')
      */
-    public function __construct(StreamOutput $output, string $cmd = 'less -R -S -F -X')
+    public function __construct(StreamOutput $output, string $cmd = 'less -R -F -X')
     {
         $this->stream = $output->getStream();
         $this->cmd = $cmd;

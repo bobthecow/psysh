@@ -1206,7 +1206,7 @@ class Configuration
                 $this->pager = $pager;
             } elseif ($less = \exec('which less 2>/dev/null')) {
                 // check for the presence of less...
-                $this->pager = $less.' -R -S -F -X';
+                $this->pager = $less.' -R -F -X';
             }
         }
 
