@@ -46,22 +46,20 @@ class StreamContext
     /**
      * Context ID.
      */
-    protected $_id               = null;
+    protected $_id = null;
 
     /**
      * Multiton.
      */
     protected static $_instances = [];
 
-
-
     /**
      * Construct a context.
      */
     protected function __construct($id)
     {
-        $this->_id      = $id;
-        $this->_context = stream_context_create();
+        $this->_id = $id;
+        $this->_context = \stream_context_create();
 
         return;
     }
@@ -91,7 +89,7 @@ class StreamContext
      */
     public static function contextExists(string $id): bool
     {
-        return array_key_exists($id, static::$_instances);
+        return \array_key_exists($id, static::$_instances);
     }
 
     /**
@@ -100,7 +98,7 @@ class StreamContext
      */
     public function setOptions(array $options): bool
     {
-        return stream_context_set_option($this->getContext(), $options);
+        return \stream_context_set_option($this->getContext(), $options);
     }
 
     /**
@@ -109,7 +107,7 @@ class StreamContext
      */
     public function setParameters(array $parameters): bool
     {
-        return stream_context_set_params($this->getContext(), $parameters);
+        return \stream_context_set_params($this->getContext(), $parameters);
     }
 
     /**
@@ -117,7 +115,7 @@ class StreamContext
      */
     public function getOptions(): array
     {
-        return stream_context_get_options($this->getContext());
+        return \stream_context_get_options($this->getContext());
     }
 
     /**
@@ -125,7 +123,7 @@ class StreamContext
      */
     public function getParameters(): array
     {
-        return stream_context_get_params($this->getContext());
+        return \stream_context_get_params($this->getContext());
     }
 
     /**

@@ -46,13 +46,13 @@ class FileDirectory extends FileGeneric
     /**
      * Open for reading.
      */
-    const MODE_READ             = 'rb';
+    const MODE_READ = 'rb';
 
     /**
      * Open for reading and writing. If the directory does not exist, attempt to
      * create it.
      */
-    const MODE_CREATE           = 'xb';
+    const MODE_CREATE = 'xb';
 
     /**
      * Open for reading and writing. If the directory does not exist, attempt to
@@ -60,16 +60,14 @@ class FileDirectory extends FileGeneric
      */
     const MODE_CREATE_RECURSIVE = 'xrb';
 
-
-
     /**
      * Open a directory.
      */
     public function __construct(
         string $streamName,
-        string $mode    = self::MODE_READ,
+        string $mode = self::MODE_READ,
         string $context = null,
-        bool $wait      = false
+        bool $wait = false
     ) {
         $this->setMode($mode);
         parent::__construct($streamName, $context, $wait);
@@ -82,13 +80,9 @@ class FileDirectory extends FileGeneric
      */
     protected function &_open(string $streamName, StreamContext $context = null)
     {
-        if (false === is_dir($streamName)) {
-            if ($this->getMode() == self::MODE_READ) {
-                throw new FileDoesNotExistException(
-                    'Directory %s does not exist.',
-                    0,
-                    $streamName
-                );
+        if (false === \is_dir($streamName)) {
+            if ($this->getMode() === self::MODE_READ) {
+                throw new FileDoesNotExistException('Directory %s does not exist.', 0, $streamName);
             } else {
                 self::create(
                     $streamName,
@@ -119,22 +113,19 @@ class FileDirectory extends FileGeneric
     public function copy(string $to, bool $force = StreamTouchable::DO_NOT_OVERWRITE): bool
     {
         if (empty($to)) {
-            throw new FileException(
-                'The destination path (to copy) is empty.',
-                1
-            );
+            throw new FileException('The destination path (to copy) is empty.', 1);
         }
 
-        $from       = $this->getStreamName();
-        $fromLength = strlen($from) + 1;
-        $finder     = new FileFinder();
+        $from = $this->getStreamName();
+        $fromLength = \strlen($from) + 1;
+        $finder = new FileFinder();
         $finder->in($from);
 
         self::create($to, self::MODE_CREATE_RECURSIVE);
 
         foreach ($finder as $file) {
-            $relative = substr($file->getPathname(), $fromLength);
-            $_to      = $to . DIRECTORY_SEPARATOR . $relative;
+            $relative = \substr($file->getPathname(), $fromLength);
+            $_to = $to.\DIRECTORY_SEPARATOR.$relative;
 
             if (true === $file->isDir()) {
                 self::create($_to, self::MODE_CREATE);
@@ -171,7 +162,7 @@ class FileDirectory extends FileGeneric
      */
     public function delete(): bool
     {
-        $from   = $this->getStreamName();
+        $from = $this->getStreamName();
         $finder = new FileFinder();
         $finder->in($from)
                ->childFirst();
@@ -182,10 +173,10 @@ class FileDirectory extends FileGeneric
         }
 
         if (null === $this->getStreamContext()) {
-            return @rmdir($from);
+            return @\rmdir($from);
         }
 
-        return @rmdir($from, $this->getStreamContext()->getContext());
+        return @\rmdir($from, $this->getStreamContext()->getContext());
     }
 
     /**
@@ -193,10 +184,10 @@ class FileDirectory extends FileGeneric
      */
     public static function create(
         string $name,
-        string $mode    = self::MODE_CREATE_RECURSIVE,
+        string $mode = self::MODE_CREATE_RECURSIVE,
         string $context = null
     ): bool {
-        if (true === is_dir($name)) {
+        if (true === \is_dir($name)) {
             return true;
         }
 
@@ -206,26 +197,21 @@ class FileDirectory extends FileGeneric
 
         if (null !== $context) {
             if (false === StreamContext::contextExists($context)) {
-                throw new FileException(
-                    'Context %s was not previously declared, cannot retrieve ' .
-                    'this context.',
-                    2,
-                    $context
-                );
+                throw new FileException('Context %s was not previously declared, cannot retrieve '.'this context.', 2, $context);
             } else {
                 $context = StreamContext::getInstance($context);
             }
         }
 
         if (null === $context) {
-            return @mkdir(
+            return @\mkdir(
                 $name,
                 0755,
                 self::MODE_CREATE_RECURSIVE === $mode
             );
         }
 
-        return @mkdir(
+        return @\mkdir(
             $name,
             0755,
             self::MODE_CREATE_RECURSIVE === $mode,

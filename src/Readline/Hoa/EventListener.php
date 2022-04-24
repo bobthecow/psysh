@@ -45,14 +45,12 @@ class EventListener
     /**
      * Source of listener (for `Hoa\Event\Bucket`).
      */
-    protected $_source    = null;
+    protected $_source = null;
 
     /**
      * All listener IDs and associated listeners.
      */
     protected $_callables = [];
-
-
 
     /**
      * Build a listener.
@@ -81,14 +79,10 @@ class EventListener
     public function attach(string $listenerId, $callable): self
     {
         if (false === $this->listenerExists($listenerId)) {
-            throw new EventException(
-                'Cannot listen %s because it is not defined.',
-                0,
-                $listenerId
-            );
+            throw new EventException('Cannot listen %s because it is not defined.', 0, $listenerId);
         }
 
-        $callable                                            = Xcallable::from($callable);
+        $callable = Xcallable::from($callable);
         $this->_callables[$listenerId][$callable->getHash()] = $callable;
 
         return $this;
@@ -119,7 +113,7 @@ class EventListener
      */
     public function listenerExists(string $listenerId): bool
     {
-        return array_key_exists($listenerId, $this->_callables);
+        return \array_key_exists($listenerId, $this->_callables);
     }
 
     /**
@@ -128,11 +122,7 @@ class EventListener
     public function fire(string $listenerId, EventBucket $data): array
     {
         if (false === $this->listenerExists($listenerId)) {
-            throw new EventException(
-                'Cannot fire on %s because it is not defined.',
-                1,
-                $listenerId
-            );
+            throw new EventException('Cannot fire on %s because it is not defined.', 1, $listenerId);
         }
 
         $data->setSource($this->_source);

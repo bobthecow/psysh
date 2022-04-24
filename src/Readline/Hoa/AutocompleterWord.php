@@ -48,8 +48,6 @@ class AutocompleterWord implements Autocompleter
      */
     protected $_words = null;
 
-
-
     /**
      * Constructor.
      */
@@ -62,16 +60,17 @@ class AutocompleterWord implements Autocompleter
      * Complete a word.
      * Returns null for no word, a full-word or an array of full-words.
      *
-     * @param   string  &$prefix    Prefix to autocomplete.
-     * @return  mixed
+     * @param string &$prefix Prefix to autocomplete
+     *
+     * @return mixed
      */
     public function complete(&$prefix)
     {
-        $out    = [];
-        $length = mb_strlen($prefix);
+        $out = [];
+        $length = \mb_strlen($prefix);
 
         foreach ($this->getWords() as $word) {
-            if (mb_substr($word, 0, $length) === $prefix) {
+            if (\mb_substr($word, 0, $length) === $prefix) {
                 $out[] = $word;
             }
         }
@@ -80,7 +79,7 @@ class AutocompleterWord implements Autocompleter
             return null;
         }
 
-        if (1 === count($out)) {
+        if (1 === \count($out)) {
             return $out[0];
         }
 
@@ -98,12 +97,13 @@ class AutocompleterWord implements Autocompleter
     /**
      * Set list of words.
      *
-     * @param   array  $words    Words.
-     * @return  array
+     * @param array $words words
+     *
+     * @return array
      */
     public function setWords(array $words)
     {
-        $old          = $this->_words;
+        $old = $this->_words;
         $this->_words = $words;
 
         return $old;

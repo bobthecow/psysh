@@ -51,24 +51,22 @@ class ExceptionIdle extends \Exception
     /**
      * List of arguments to format message.
      */
-    protected $_arguments    = null;
+    protected $_arguments = null;
 
     /**
      * Backtrace.
      */
-    protected $_trace        = null;
+    protected $_trace = null;
 
     /**
      * Previous exception if any.
      */
-    protected $_previous     = null;
+    protected $_previous = null;
 
     /**
      * Original exception message.
      */
-    protected $_rawMessage   = null;
-
-
+    protected $_rawMessage = null;
 
     /**
      * Allocates a new exception.
@@ -79,14 +77,14 @@ class ExceptionIdle extends \Exception
      */
     public function __construct(
         string $message,
-        int $code            = 0,
-        $arguments           = [],
+        int $code = 0,
+        $arguments = [],
         \Exception $previous = null
     ) {
         $this->_tmpArguments = $arguments;
         parent::__construct($message, $code, $previous);
-        $this->_rawMessage   = $message;
-        $this->message       = @vsprintf($message, $this->getArguments());
+        $this->_rawMessage = $message;
+        $this->message = @\vsprintf($message, $this->getArguments());
 
         return;
     }
@@ -127,7 +125,7 @@ class ExceptionIdle extends \Exception
         if (null === $this->_arguments) {
             $arguments = $this->_tmpArguments;
 
-            if (!is_array($arguments)) {
+            if (!\is_array($arguments)) {
                 $arguments = [$arguments];
             }
 
@@ -166,18 +164,18 @@ class ExceptionIdle extends \Exception
     public function getFrom(): string
     {
         $trace = $this->getBacktrace();
-        $from  = '{main}';
+        $from = '{main}';
 
         if (!empty($trace)) {
-            $t    = $trace[0];
+            $t = $trace[0];
             $from = '';
 
             if (isset($t['class'])) {
-                $from .= $t['class'] . '::';
+                $from .= $t['class'].'::';
             }
 
             if (isset($t['function'])) {
-                $from .= $t['function'] . '()';
+                $from .= $t['function'].'()';
             }
         }
 
@@ -190,10 +188,10 @@ class ExceptionIdle extends \Exception
     public function raise(bool $includePrevious = false): string
     {
         $message = $this->getFormattedMessage();
-        $trace   = $this->getBacktrace();
-        $file    = '/dev/null';
-        $line    = -1;
-        $pre     = $this->getFrom();
+        $trace = $this->getBacktrace();
+        $file = '/dev/null';
+        $line = -1;
+        $pre = $this->getFrom();
 
         if (!empty($trace)) {
             $file = $trace['file'] ?? null;
@@ -204,20 +202,20 @@ class ExceptionIdle extends \Exception
 
         try {
             $out =
-                $pre . '(' . $this->getCode() . ') ' . $message . "\n" .
-                'in ' . $this->getFile() . ' at line ' .
-                $this->getLine() . '.';
+                $pre.'('.$this->getCode().') '.$message."\n".
+                'in '.$this->getFile().' at line '.
+                $this->getLine().'.';
         } catch (\Exception $e) {
             $out =
-                $pre . '(' . $this->getCode() . ') ' . $message . "\n" .
-                'in ' . $file . ' around line ' . $line . '.';
+                $pre.'('.$this->getCode().') '.$message."\n".
+                'in '.$file.' around line '.$line.'.';
         }
 
         if (true === $includePrevious &&
             null !== $previous = $this->getPreviousThrow()) {
             $out .=
-                "\n\n" . '    ⬇' . "\n\n" .
-                'Nested exception (' . get_class($previous) . '):' . "\n" .
+                "\n\n".'    ⬇'."\n\n".
+                'Nested exception ('.\get_class($previous).'):'."\n".
                 ($previous instanceof self
                     ? $previous->raise(true)
                     : $previous->getMessage());
@@ -235,12 +233,11 @@ class ExceptionIdle extends \Exception
             throw $exception;
         }
 
-        while (0 < ob_get_level()) {
-            ob_end_flush();
+        while (0 < \ob_get_level()) {
+            \ob_end_flush();
         }
 
-        echo
-            'Uncaught exception (' . get_class($exception) . '):' . "\n" .
+        echo 'Uncaught exception ('.\get_class($exception).'):'."\n".
             $exception->raise(true);
     }
 
@@ -260,10 +257,10 @@ class ExceptionIdle extends \Exception
     public static function enableUncaughtHandler(bool $enable = true)
     {
         if (false === $enable) {
-            return restore_exception_handler();
+            return \restore_exception_handler();
         }
 
-        return set_exception_handler(function ($exception) {
+        return \set_exception_handler(function ($exception) {
             return self::uncaught($exception);
         });
     }

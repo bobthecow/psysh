@@ -48,8 +48,6 @@ class AutocompleterAggregate implements Autocompleter
      */
     protected $_autocompleters = null;
 
-
-
     /**
      * Constructor.
      */
@@ -67,8 +65,8 @@ class AutocompleterAggregate implements Autocompleter
     public function complete(&$prefix)
     {
         foreach ($this->getAutocompleters() as $autocompleter) {
-            $preg = preg_match(
-                '#(' . $autocompleter->getWordDefinition() . ')$#u',
+            $preg = \preg_match(
+                '#('.$autocompleter->getWordDefinition().')$#u',
                 $prefix,
                 $match
             );
@@ -96,7 +94,7 @@ class AutocompleterAggregate implements Autocompleter
      */
     protected function setAutocompleters(array $autocompleters)
     {
-        $old                   = $this->_autocompleters;
+        $old = $this->_autocompleters;
         $this->_autocompleters = new \ArrayObject($autocompleters);
 
         return $old;

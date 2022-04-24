@@ -41,30 +41,26 @@ namespace Psy\Readline\Hoa;
  *
  * File handler.
  */
-abstract class File
-    extends    FileGeneric
-    implements StreamBufferable,
-               StreamLockable,
-               StreamPointable
+abstract class File extends FileGeneric implements StreamBufferable, StreamLockable, StreamPointable
 {
     /**
      * Open for reading only; place the file pointer at the beginning of the
      * file.
      */
-    const MODE_READ                = 'rb';
+    const MODE_READ = 'rb';
 
     /**
      * Open for reading and writing; place the file pointer at the beginning of
      * the file.
      */
-    const MODE_READ_WRITE          = 'r+b';
+    const MODE_READ_WRITE = 'r+b';
 
     /**
      * Open for writing only; place the file pointer at the beginning of the
      * file and truncate the file to zero length. If the file does not exist,
      * attempt to create it.
      */
-    const MODE_TRUNCATE_WRITE      = 'wb';
+    const MODE_TRUNCATE_WRITE = 'wb';
 
     /**
      * Open for reading and writing; place the file pointer at the beginning of
@@ -77,13 +73,13 @@ abstract class File
      * Open for writing only; place the file pointer at the end of the file. If
      * the file does not exist, attempt to create it.
      */
-    const MODE_APPEND_WRITE        = 'ab';
+    const MODE_APPEND_WRITE = 'ab';
 
     /**
      * Open for reading and writing; place the file pointer at the end of the
      * file. If the file does not exist, attempt to create it.
      */
-    const MODE_APPEND_READ_WRITE   = 'a+b';
+    const MODE_APPEND_READ_WRITE = 'a+b';
 
     /**
      * Create and open for writing only; place the file pointer at the beginning
@@ -92,7 +88,7 @@ abstract class File
      * does not exist, attempt to create it. This is equivalent to specifying
      * O_EXCL | O_CREAT flags for the underlying open(2) system call.
      */
-    const MODE_CREATE_WRITE        = 'xb';
+    const MODE_CREATE_WRITE = 'xb';
 
     /**
      * Create and open for reading and writing; place the file pointer at the
@@ -101,9 +97,7 @@ abstract class File
      * the file does not exist, attempt to create it. This is equivalent to
      * specifying O_EXCL | O_CREAT flags for the underlying open(2) system call.
      */
-    const MODE_CREATE_READ_WRITE   = 'x+b';
-
-
+    const MODE_CREATE_READ_WRITE = 'x+b';
 
     /**
      * Open a file.
@@ -112,7 +106,7 @@ abstract class File
         string $streamName,
         string $mode,
         string $context = null,
-        bool $wait      = false
+        bool $wait = false
     ) {
         $this->setMode($mode);
 
@@ -133,16 +127,11 @@ abstract class File
                 break;
 
             default:
-                if (true === ctype_digit($streamName)) {
-                    if (PHP_VERSION_ID >= 50306) {
-                        $streamName = 'php://fd/' . $streamName;
+                if (true === \ctype_digit($streamName)) {
+                    if (\PHP_VERSION_ID >= 50306) {
+                        $streamName = 'php://fd/'.$streamName;
                     } else {
-                        throw new FileException(
-                            'You need PHP5.3.6 to use a file descriptor ' .
-                            'other than 0, 1 or 2 (tried %d with PHP%s).',
-                            0,
-                            [$streamName, PHP_VERSION]
-                        );
+                        throw new FileException('You need PHP5.3.6 to use a file descriptor '.'other than 0, 1 or 2 (tried %d with PHP%s).', 0, [$streamName, \PHP_VERSION]);
                     }
                 }
         }
@@ -157,28 +146,20 @@ abstract class File
      */
     protected function &_open(string $streamName, StreamContext $context = null)
     {
-        if (substr($streamName, 0, 4) == 'file' &&
-            false === is_dir(dirname($streamName))) {
-            throw new FileException(
-                'Directory %s does not exist. Could not open file %s.',
-                1,
-                [dirname($streamName), basename($streamName)]
-            );
+        if (\substr($streamName, 0, 4) === 'file' &&
+            false === \is_dir(\dirname($streamName))) {
+            throw new FileException('Directory %s does not exist. Could not open file %s.', 1, [\dirname($streamName), \basename($streamName)]);
         }
 
         if (null === $context) {
-            if (false === $out = @fopen($streamName, $this->getMode(), true)) {
-                throw new FileException(
-                    'Failed to open stream %s.',
-                    2,
-                    $streamName
-                );
+            if (false === $out = @\fopen($streamName, $this->getMode(), true)) {
+                throw new FileException('Failed to open stream %s.', 2, $streamName);
             }
 
             return $out;
         }
 
-        $out = @fopen(
+        $out = @\fopen(
             $streamName,
             $this->getMode(),
             true,
@@ -186,11 +167,7 @@ abstract class File
         );
 
         if (false === $out) {
-            throw new FileException(
-                'Failed to open stream %s.',
-                3,
-                $streamName
-            );
+            throw new FileException('Failed to open stream %s.', 3, $streamName);
         }
 
         return $out;
@@ -201,7 +178,7 @@ abstract class File
      */
     protected function _close(): bool
     {
-        return @fclose($this->getStream());
+        return @\fclose($this->getStream());
     }
 
     /**
@@ -212,7 +189,7 @@ abstract class File
     {
         $this->setStreamBuffer($size);
 
-        //@TODO manage $callable as a filter?
+        // @TODO manage $callable as a filter?
 
         return 1;
     }
@@ -222,7 +199,7 @@ abstract class File
      */
     public function flush(): bool
     {
-        return fflush($this->getStream());
+        return \fflush($this->getStream());
     }
 
     /**
@@ -254,7 +231,7 @@ abstract class File
      */
     public function lock(int $operation): bool
     {
-        return flock($this->getStream(), $operation);
+        return \flock($this->getStream(), $operation);
     }
 
     /**
@@ -262,7 +239,7 @@ abstract class File
      */
     public function rewind(): bool
     {
-        return rewind($this->getStream());
+        return \rewind($this->getStream());
     }
 
     /**
@@ -270,7 +247,7 @@ abstract class File
      */
     public function seek(int $offset, int $whence = StreamPointable::SEEK_SET): int
     {
-        return fseek($this->getStream(), $offset, $whence);
+        return \fseek($this->getStream(), $offset, $whence);
     }
 
     /**
@@ -284,7 +261,7 @@ abstract class File
             return 0;
         }
 
-        return ftell($stream);
+        return \ftell($stream);
     }
 
     /**
@@ -292,10 +269,10 @@ abstract class File
      */
     public static function create(string $name)
     {
-        if (file_exists($name)) {
+        if (\file_exists($name)) {
             return true;
         }
 
-        return touch($name);
+        return \touch($name);
     }
 }

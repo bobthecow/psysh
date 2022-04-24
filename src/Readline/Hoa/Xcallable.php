@@ -36,12 +36,6 @@
 
 namespace Psy\Readline\Hoa;
 
-use Reflector;
-use ReflectionClass;
-use ReflectionFunction;
-use ReflectionMethod;
-use ReflectionObject;
-
 /**
  * Build a callable object, i.e. `function`, `class::method`, `object->method` or
  * closure. They all have the same behaviour. This callable is an extension of
@@ -57,7 +51,7 @@ class Xcallable
     /**
      * Callable hash.
      */
-    protected $_hash     = null;
+    protected $_hash = null;
 
     /**
      * Allocates a xcallable based on a callback.
@@ -96,22 +90,15 @@ class Xcallable
             return;
         }
 
-        if (!is_string($able)) {
-            throw new Exception(
-                'Bad callback form; the able part must be a string.',
-                0
-            );
+        if (!\is_string($able)) {
+            throw new Exception('Bad callback form; the able part must be a string.', 0);
         }
 
         if ('' === $able) {
-            if (is_string($call)) {
-                if (false === strpos($call, '::')) {
-                    if (!function_exists($call)) {
-                        throw new Exception(
-                            'Bad callback form; function %s does not exist.',
-                            1,
-                            $call
-                        );
+            if (\is_string($call)) {
+                if (false === \strpos($call, '::')) {
+                    if (!\function_exists($call)) {
+                        throw new Exception('Bad callback form; function %s does not exist.', 1, $call);
                     }
 
                     $this->_callback = $call;
@@ -119,30 +106,23 @@ class Xcallable
                     return;
                 }
 
-                list($call, $able) = explode('::', $call);
-            } elseif (is_object($call)) {
+                list($call, $able) = \explode('::', $call);
+            } elseif (\is_object($call)) {
                 if ($call instanceof StreamOut) {
                     $able = null;
-                } elseif (method_exists($call, '__invoke')) {
+                } elseif (\method_exists($call, '__invoke')) {
                     $able = '__invoke';
                 } else {
-                    throw new Exception(
-                        'Bad callback form; an object but without a known ' .
-                        'method.',
-                        2
-                    );
+                    throw new Exception('Bad callback form; an object but without a known '.'method.', 2);
                 }
-            } elseif (is_array($call) && isset($call[0])) {
+            } elseif (\is_array($call) && isset($call[0])) {
                 if (!isset($call[1])) {
                     return $this->__construct($call[0]);
                 }
 
                 return $this->__construct($call[0], $call[1]);
             } else {
-                throw new Exception(
-                    'Bad callback form.',
-                    3
-                );
+                throw new Exception('Bad callback form.', 3);
             }
         }
 
@@ -167,7 +147,7 @@ class Xcallable
     public function getValidCallback(array &$arguments = [])
     {
         $callback = $this->_callback;
-        $head     = null;
+        $head = null;
 
         if (isset($arguments[0])) {
             $head = &$arguments[0];
@@ -176,15 +156,15 @@ class Xcallable
         // If method is undetermined, we find it (we understand event bucket and
         // stream).
         if (null !== $head &&
-            is_array($callback) &&
+            \is_array($callback) &&
             null === $callback[1]) {
             if ($head instanceof EventBucket) {
                 $head = $head->getData();
             }
 
-            switch ($type = gettype($head)) {
+            switch ($type = \gettype($head)) {
                 case 'string':
-                    if (1 === strlen($head)) {
+                    if (1 === \strlen($head)) {
                         $method = 'writeCharacter';
                     } else {
                         $method = 'writeString';
@@ -195,7 +175,7 @@ class Xcallable
                 case 'boolean':
                 case 'integer':
                 case 'array':
-                    $method = 'write' . ucfirst($type);
+                    $method = 'write'.\ucfirst($type);
 
                     break;
 
@@ -206,7 +186,7 @@ class Xcallable
 
                 default:
                     $method = 'writeAll';
-                    $head   = $head . "\n";
+                    $head = $head."\n";
             }
 
             $callback[1] = $method;
@@ -232,24 +212,24 @@ class Xcallable
 
         $_ = &$this->_callback;
 
-        if (is_string($_)) {
-            return $this->_hash = 'function#' . $_;
+        if (\is_string($_)) {
+            return $this->_hash = 'function#'.$_;
         }
 
-        if (is_array($_)) {
+        if (\is_array($_)) {
             return
                 $this->_hash =
-                    (is_object($_[0])
-                        ? 'object(' . spl_object_hash($_[0]) . ')' .
-                          '#' . get_class($_[0])
-                        : 'class#' . $_[0]) .
-                    '::' .
+                    (\is_object($_[0])
+                        ? 'object('.\spl_object_hash($_[0]).')'.
+                          '#'.\get_class($_[0])
+                        : 'class#'.$_[0]).
+                    '::'.
                     (null !== $_[1]
                         ? $_[1]
                         : '???');
         }
 
-        return $this->_hash = 'closure(' . spl_object_hash($_) . ')';
+        return $this->_hash = 'closure('.\spl_object_hash($_).')';
     }
 
     /**
@@ -265,10 +245,10 @@ class Xcallable
      */
     public static function from($call, $able = '')
     {
-        if ($call instanceof Xcallable) {
+        if ($call instanceof self) {
             return $call;
         }
 
-        return new Xcallable($call, $able);
+        return new self($call, $able);
     }
 }

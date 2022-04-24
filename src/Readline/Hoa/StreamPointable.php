@@ -46,19 +46,17 @@ interface StreamPointable extends IStream
     /**
      * Set position equal to $offset bytes.
      */
-    const SEEK_SET     = SEEK_SET;
+    const SEEK_SET = \SEEK_SET;
 
     /**
      * Set position to current location plus $offset.
      */
-    const SEEK_CURRENT = SEEK_CUR;
+    const SEEK_CURRENT = \SEEK_CUR;
 
     /**
      * Set position to end-of-file plus $offset.
      */
-    const SEEK_END     = SEEK_END;
-
-
+    const SEEK_END = \SEEK_END;
 
     /**
      * Rewind the position of a stream pointer.

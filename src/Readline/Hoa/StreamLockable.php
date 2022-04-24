@@ -50,37 +50,36 @@ interface StreamLockable extends IStream
      *
      * @const int
      */
-    const LOCK_SHARED    = LOCK_SH;
+    const LOCK_SHARED = \LOCK_SH;
 
     /**
      * Acquire an exclusive lock (writer).
      *
      * @const int
      */
-    const LOCK_EXCLUSIVE = LOCK_EX;
+    const LOCK_EXCLUSIVE = \LOCK_EX;
 
     /**
      * Release a lock (shared or exclusive).
      *
      * @const int
      */
-    const LOCK_RELEASE   = LOCK_UN;
+    const LOCK_RELEASE = \LOCK_UN;
 
     /**
      * If we do not want $this->lock() to block while locking.
      *
      * @const int
      */
-    const LOCK_NO_BLOCK  = LOCK_NB;
-
-
+    const LOCK_NO_BLOCK = \LOCK_NB;
 
     /**
      * Portable advisory locking.
      * Should take a look at stream_supports_lock().
      *
-     * @param   int     $operation    Operation, use the self::LOCK_* constants.
-     * @return  bool
+     * @param int $operation operation, use the self::LOCK_* constants
+     *
+     * @return bool
      */
     public function lock(int $operation): bool;
 }

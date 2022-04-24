@@ -49,9 +49,7 @@ class EventBucket
     /**
      * Data attached to the bucket.
      */
-    protected $_data   = null;
-
-
+    protected $_data = null;
 
     /**
      * Allocates a new bucket with various data attached to it.
@@ -76,7 +74,7 @@ class EventBucket
      */
     public function setSource(EventSource $source)
     {
-        $old           = $this->_source;
+        $old = $this->_source;
         $this->_source = $source;
 
         return $old;
@@ -95,7 +93,7 @@ class EventBucket
      */
     public function setData($data)
     {
-        $old         = $this->_data;
+        $old = $this->_data;
         $this->_data = $data;
 
         return $old;

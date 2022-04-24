@@ -44,5 +44,5 @@ interface EventListenable extends EventSource
     /**
      * Attaches a callable to a listenable component.
      */
-    public function on(string $listenerId, $callable): EventListenable;
+    public function on(string $listenerId, $callable): self;
 }

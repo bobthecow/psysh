@@ -48,8 +48,6 @@ class IteratorFileSystem extends \FilesystemIterator
      */
     protected $_splFileInfoClass = null;
 
-
-
     /**
      * Constructor.
      * Please, see \FileSystemIterator::__construct() method.

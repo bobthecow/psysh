@@ -51,9 +51,7 @@ class IteratorRecursiveDirectory extends \RecursiveDirectoryIterator
     /**
      * Relative path.
      */
-    protected $_relativePath     = null;
-
-
+    protected $_relativePath = null;
 
     /**
      * Constructor.

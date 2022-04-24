@@ -50,8 +50,8 @@ class Exception extends ExceptionIdle implements EventSource
      */
     public function __construct(
         string $message,
-        int $code            = 0,
-        $arguments           = [],
+        int $code = 0,
+        $arguments = [],
         \Throwable $previous = null
     ) {
         parent::__construct($message, $code, $arguments, $previous);

@@ -56,9 +56,7 @@ class Protocol extends ProtocolNode
     /**
      * Cache of resolver.
      */
-    private static $_cache    = [];
-
-
+    private static $_cache = [];
 
     /**
      * Initialize the protocol.
@@ -74,7 +72,7 @@ class Protocol extends ProtocolNode
      * Singleton.
      * To use the `hoa://` protocol shared by everyone.
      */
-    public static function getInstance(): Protocol
+    public static function getInstance(): self
     {
         if (null === static::$_instance) {
             static::$_instance = new static();
@@ -88,55 +86,55 @@ class Protocol extends ProtocolNode
      */
     protected function initialize()
     {
-        $root  = dirname(__DIR__, 3);
-        $argv0 = realpath($_SERVER['argv'][0]);
+        $root = \dirname(__DIR__, 3);
+        $argv0 = \realpath($_SERVER['argv'][0]);
 
         $cwd =
-            'cli' === PHP_SAPI
-                ? false !== $argv0 ? dirname($argv0) : ''
-                : getcwd();
+            'cli' === \PHP_SAPI
+                ? false !== $argv0 ? \dirname($argv0) : ''
+                : \getcwd();
 
         $this[] = new ProtocolNode(
             'Application',
-            $cwd . DIRECTORY_SEPARATOR,
+            $cwd.\DIRECTORY_SEPARATOR,
             [
-                new ProtocolNode('Public', 'Public' . DIRECTORY_SEPARATOR)
+                new ProtocolNode('Public', 'Public'.\DIRECTORY_SEPARATOR),
             ]
         );
 
         $this[] = new ProtocolNode(
             'Data',
-            dirname($cwd) . DIRECTORY_SEPARATOR,
+            \dirname($cwd).\DIRECTORY_SEPARATOR,
             [
                 new ProtocolNode(
                     'Etc',
-                    'Etc' . DIRECTORY_SEPARATOR,
+                    'Etc'.\DIRECTORY_SEPARATOR,
                     [
-                        new ProtocolNode('Configuration', 'Configuration' . DIRECTORY_SEPARATOR),
-                        new ProtocolNode('Locale', 'Locale' . DIRECTORY_SEPARATOR)
+                        new ProtocolNode('Configuration', 'Configuration'.\DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Locale', 'Locale'.\DIRECTORY_SEPARATOR),
                     ]
                 ),
-                new ProtocolNode('Lost+found', 'Lost+found' . DIRECTORY_SEPARATOR),
-                new ProtocolNode('Temporary', 'Temporary' . DIRECTORY_SEPARATOR),
+                new ProtocolNode('Lost+found', 'Lost+found'.\DIRECTORY_SEPARATOR),
+                new ProtocolNode('Temporary', 'Temporary'.\DIRECTORY_SEPARATOR),
                 new ProtocolNode(
                     'Variable',
-                    'Variable' . DIRECTORY_SEPARATOR,
+                    'Variable'.\DIRECTORY_SEPARATOR,
                     [
-                        new ProtocolNode('Cache', 'Cache' . DIRECTORY_SEPARATOR),
-                        new ProtocolNode('Database', 'Database' . DIRECTORY_SEPARATOR),
-                        new ProtocolNode('Log', 'Log' . DIRECTORY_SEPARATOR),
-                        new ProtocolNode('Private', 'Private' . DIRECTORY_SEPARATOR),
-                        new ProtocolNode('Run', 'Run' . DIRECTORY_SEPARATOR),
-                        new ProtocolNode('Test', 'Test' . DIRECTORY_SEPARATOR)
+                        new ProtocolNode('Cache', 'Cache'.\DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Database', 'Database'.\DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Log', 'Log'.\DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Private', 'Private'.\DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Run', 'Run'.\DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Test', 'Test'.\DIRECTORY_SEPARATOR),
                     ]
-                )
+                ),
             ]
         );
 
         $this[] = new ProtocolNodeLibrary(
             'Library',
-            $root . DIRECTORY_SEPARATOR . 'Hoathis' . DIRECTORY_SEPARATOR . ';' .
-            $root . DIRECTORY_SEPARATOR . 'Hoa' . DIRECTORY_SEPARATOR
+            $root.\DIRECTORY_SEPARATOR.'Hoathis'.\DIRECTORY_SEPARATOR.';'.
+            $root.\DIRECTORY_SEPARATOR.'Hoa'.\DIRECTORY_SEPARATOR
         );
     }
 
@@ -149,11 +147,11 @@ class Protocol extends ProtocolNode
      */
     public function resolve(string $path, bool $exists = true, bool $unfold = false)
     {
-        if (substr($path, 0, 6) !== 'hoa://') {
-            if (true === is_dir($path)) {
-                $path = rtrim($path, '/\\');
+        if (\substr($path, 0, 6) !== 'hoa://') {
+            if (true === \is_dir($path)) {
+                $path = \rtrim($path, '/\\');
 
-                if (0 === strlen($path)) {
+                if ('' === $path) {
                     $path = '/';
                 }
             }
@@ -167,17 +165,17 @@ class Protocol extends ProtocolNode
             $out = $this->_resolve($path, $handle);
 
             // Not a path but a resource.
-            if (!is_array($handle)) {
+            if (!\is_array($handle)) {
                 return $out;
             }
 
-            $handle = array_values(array_unique($handle, SORT_REGULAR));
+            $handle = \array_values(\array_unique($handle, \SORT_REGULAR));
 
             foreach ($handle as &$entry) {
-                if (true === is_dir($entry)) {
-                    $entry = rtrim($entry, '/\\');
+                if (true === \is_dir($entry)) {
+                    $entry = \rtrim($entry, '/\\');
 
-                    if (0 === strlen($entry)) {
+                    if ('' === $entry) {
                         $entry = '/';
                     }
                 }
@@ -194,7 +192,7 @@ class Protocol extends ProtocolNode
             $out = [];
 
             foreach ($handle as $solution) {
-                if (file_exists($solution)) {
+                if (\file_exists($solution)) {
                     $out[] = $solution;
                 }
             }
@@ -207,7 +205,7 @@ class Protocol extends ProtocolNode
         }
 
         foreach ($handle as $solution) {
-            if (file_exists($solution)) {
+            if (\file_exists($solution)) {
                 return $solution;
             }
         }

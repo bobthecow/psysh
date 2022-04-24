@@ -48,9 +48,9 @@ class FileRead extends File implements StreamIn
      */
     public function __construct(
         string $streamName,
-        string $mode    = parent::MODE_READ,
+        string $mode = parent::MODE_READ,
         string $context = null,
-        bool $wait      = false
+        bool $wait = false
     ) {
         parent::__construct($streamName, $mode, $context, $wait);
 
@@ -63,26 +63,18 @@ class FileRead extends File implements StreamIn
     protected function &_open(string $streamName, StreamContext $context = null)
     {
         static $createModes = [
-            parent::MODE_READ
+            parent::MODE_READ,
         ];
 
-        if (!in_array($this->getMode(), $createModes)) {
-            throw new FileException(
-                'Open mode are not supported; given %d. Only %s are supported.',
-                0,
-                [$this->getMode(), implode(', ', $createModes)]
-            );
+        if (!\in_array($this->getMode(), $createModes)) {
+            throw new FileException('Open mode are not supported; given %d. Only %s are supported.', 0, [$this->getMode(), \implode(', ', $createModes)]);
         }
 
-        preg_match('#^(\w+)://#', $streamName, $match);
+        \preg_match('#^(\w+)://#', $streamName, $match);
 
-        if (((isset($match[1]) && $match[1] == 'file') || !isset($match[1])) &&
-            !file_exists($streamName)) {
-            throw new FileDoesNotExistException(
-                'File %s does not exist.',
-                1,
-                $streamName
-            );
+        if (((isset($match[1]) && $match[1] === 'file') || !isset($match[1])) &&
+            !\file_exists($streamName)) {
+            throw new FileDoesNotExistException('File %s does not exist.', 1, $streamName);
         }
 
         $out = parent::_open($streamName, $context);
@@ -95,7 +87,7 @@ class FileRead extends File implements StreamIn
      */
     public function eof(): bool
     {
-        return feof($this->getStream());
+        return \feof($this->getStream());
     }
 
     /**
@@ -104,14 +96,10 @@ class FileRead extends File implements StreamIn
     public function read(int $length)
     {
         if (0 > $length) {
-            throw new FileException(
-                'Length must be greater than 0, given %d.',
-                2,
-                $length
-            );
+            throw new FileException('Length must be greater than 0, given %d.', 2, $length);
         }
 
-        return fread($this->getStream(), $length);
+        return \fread($this->getStream(), $length);
     }
 
     /**
@@ -127,7 +115,7 @@ class FileRead extends File implements StreamIn
      */
     public function readCharacter()
     {
-        return fgetc($this->getStream());
+        return \fgetc($this->getStream());
     }
 
     /**
@@ -168,7 +156,7 @@ class FileRead extends File implements StreamIn
      */
     public function readLine()
     {
-        return fgets($this->getStream());
+        return \fgets($this->getStream());
     }
 
     /**
@@ -176,7 +164,7 @@ class FileRead extends File implements StreamIn
      */
     public function readAll(int $offset = 0)
     {
-        return stream_get_contents($this->getStream(), -1, $offset);
+        return \stream_get_contents($this->getStream(), -1, $offset);
     }
 
     /**
@@ -184,6 +172,6 @@ class FileRead extends File implements StreamIn
      */
     public function scanf(string $format): array
     {
-        return fscanf($this->getStream(), $format);
+        return \fscanf($this->getStream(), $format);
     }
 }

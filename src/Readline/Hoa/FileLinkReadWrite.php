@@ -41,19 +41,16 @@ namespace Psy\Readline\Hoa;
  *
  * File handler.
  */
-class          FileLinkReadWrite
-    extends    FileLink
-    implements StreamIn,
-               StreamOut
+class FileLinkReadWrite extends FileLink implements StreamIn, StreamOut
 {
     /**
      * Open a file.
      */
     public function __construct(
         string $streamName,
-        string $mode    = parent::MODE_APPEND_READ_WRITE,
+        string $mode = parent::MODE_APPEND_READ_WRITE,
         string $context = null,
-        bool $wait      = false
+        bool $wait = false
     ) {
         parent::__construct($streamName, $mode, $context, $wait);
 
@@ -69,27 +66,19 @@ class          FileLinkReadWrite
             parent::MODE_READ_WRITE,
             parent::MODE_TRUNCATE_READ_WRITE,
             parent::MODE_APPEND_READ_WRITE,
-            parent::MODE_CREATE_READ_WRITE
+            parent::MODE_CREATE_READ_WRITE,
         ];
 
-        if (!in_array($this->getMode(), $createModes)) {
-            throw new FileException(
-                'Open mode are not supported; given %d. Only %s are supported.',
-                0,
-                [$this->getMode(), implode(', ', $createModes)]
-            );
+        if (!\in_array($this->getMode(), $createModes)) {
+            throw new FileException('Open mode are not supported; given %d. Only %s are supported.', 0, [$this->getMode(), \implode(', ', $createModes)]);
         }
 
-        preg_match('#^(\w+)://#', $streamName, $match);
+        \preg_match('#^(\w+)://#', $streamName, $match);
 
-        if (((isset($match[1]) && $match[1] == 'file') || !isset($match[1])) &&
-            !file_exists($streamName) &&
-            parent::MODE_READ_WRITE == $this->getMode()) {
-            throw new FileDoesNotExistException(
-                'File %s does not exist.',
-                1,
-                $streamName
-            );
+        if (((isset($match[1]) && $match[1] === 'file') || !isset($match[1])) &&
+            !\file_exists($streamName) &&
+            parent::MODE_READ_WRITE === $this->getMode()) {
+            throw new FileDoesNotExistException('File %s does not exist.', 1, $streamName);
         }
 
         $out = parent::_open($streamName, $context);
@@ -102,7 +91,7 @@ class          FileLinkReadWrite
      */
     public function eof(): bool
     {
-        return feof($this->getStream());
+        return \feof($this->getStream());
     }
 
     /**
@@ -111,14 +100,10 @@ class          FileLinkReadWrite
     public function read(int $length)
     {
         if (0 > $length) {
-            throw new FileException(
-                'Length must be greater than 0, given %d.',
-                2,
-                $length
-            );
+            throw new FileException('Length must be greater than 0, given %d.', 2, $length);
         }
 
-        return fread($this->getStream(), $length);
+        return \fread($this->getStream(), $length);
     }
 
     /**
@@ -134,7 +119,7 @@ class          FileLinkReadWrite
      */
     public function readCharacter()
     {
-        return fgetc($this->getStream());
+        return \fgetc($this->getStream());
     }
 
     /**
@@ -175,7 +160,7 @@ class          FileLinkReadWrite
      */
     public function readLine()
     {
-        return fgets($this->getStream());
+        return \fgets($this->getStream());
     }
 
     /**
@@ -183,7 +168,7 @@ class          FileLinkReadWrite
      */
     public function readAll(int $offset = 0)
     {
-        return stream_get_contents($this->getStream(), -1, $offset);
+        return \stream_get_contents($this->getStream(), -1, $offset);
     }
 
     /**
@@ -191,7 +176,7 @@ class          FileLinkReadWrite
      */
     public function scanf(string $format): array
     {
-        return fscanf($this->getStream(), $format);
+        return \fscanf($this->getStream(), $format);
     }
 
     /**
@@ -200,14 +185,10 @@ class          FileLinkReadWrite
     public function write(string $string, int $length)
     {
         if (0 > $length) {
-            throw new FileException(
-                'Length must be greater than 0, given %d.',
-                3,
-                $length
-            );
+            throw new FileException('Length must be greater than 0, given %d.', 3, $length);
         }
 
-        return fwrite($this->getStream(), $string, $length);
+        return \fwrite($this->getStream(), $string, $length);
     }
 
     /**
@@ -217,7 +198,7 @@ class          FileLinkReadWrite
     {
         $string = (string) $string;
 
-        return $this->write($string, strlen($string));
+        return $this->write($string, \strlen($string));
     }
 
     /**
@@ -243,7 +224,7 @@ class          FileLinkReadWrite
     {
         $integer = (string) (int) $integer;
 
-        return $this->write($integer, strlen($integer));
+        return $this->write($integer, \strlen($integer));
     }
 
     /**
@@ -253,7 +234,7 @@ class          FileLinkReadWrite
     {
         $float = (string) (float) $float;
 
-        return $this->write($float, strlen($float));
+        return $this->write($float, \strlen($float));
     }
 
     /**
@@ -261,9 +242,9 @@ class          FileLinkReadWrite
      */
     public function writeArray(array $array)
     {
-        $array = var_export($array, true);
+        $array = \var_export($array, true);
 
-        return $this->write($array, strlen($array));
+        return $this->write($array, \strlen($array));
     }
 
     /**
@@ -271,13 +252,13 @@ class          FileLinkReadWrite
      */
     public function writeLine(string $line)
     {
-        if (false === $n = strpos($line, "\n")) {
-            return $this->write($line . "\n", strlen($line) + 1);
+        if (false === $n = \strpos($line, "\n")) {
+            return $this->write($line."\n", \strlen($line) + 1);
         }
 
         ++$n;
 
-        return $this->write(substr($line, 0, $n), $n);
+        return $this->write(\substr($line, 0, $n), $n);
     }
 
     /**
@@ -285,7 +266,7 @@ class          FileLinkReadWrite
      */
     public function writeAll(string $string)
     {
-        return $this->write($string, strlen($string));
+        return $this->write($string, \strlen($string));
     }
 
     /**
@@ -293,6 +274,6 @@ class          FileLinkReadWrite
      */
     public function truncate(int $size): bool
     {
-        return ftruncate($this->getStream(), $size);
+        return \ftruncate($this->getStream(), $size);
     }
 }

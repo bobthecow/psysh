@@ -94,7 +94,7 @@ class ConsoleTput
         'gnu_meta_key', // originally gnu_has_meta_key
         'linefeed_is_newline',
         'hardware_tabs', // originally has_hardware_tabs
-        'return_does_clr_eol'
+        'return_does_clr_eol',
     ];
 
     /**
@@ -140,7 +140,7 @@ class ConsoleTput
         'new_line_delay',
         'backspace_delay',
         'horizontal_tab_delay',
-        'number_of_function_keys'
+        'number_of_function_keys',
     ];
 
     /**
@@ -561,15 +561,13 @@ class ConsoleTput
         'acs_plus',
         'memory_lock',
         'memory_unlock',
-        'box_chars_1'
+        'box_chars_1',
     ];
 
     /**
      * Computed informations.
      */
     protected $_informations = [];
-
-
 
     /**
      * Set stream and parse.
@@ -590,48 +588,43 @@ class ConsoleTput
      */
     protected function parse(string $terminfo): array
     {
-        if (!file_exists($terminfo)) {
-            throw new ConsoleException(
-                'Terminfo file %s does not exist.',
-                0,
-                $terminfo
-            );
+        if (!\file_exists($terminfo)) {
+            throw new ConsoleException('Terminfo file %s does not exist.', 0, $terminfo);
         }
 
-        $data    = file_get_contents($terminfo);
-        $length  = strlen($data);
-        $out     = ['file' => $terminfo];
+        $data = \file_get_contents($terminfo);
+        $length = \strlen($data);
+        $out = ['file' => $terminfo];
 
         $headers = [
             'data_size'         => $length,
             'header_size'       => 12,
-            'magic_number'      => (ord($data[ 1]) << 8) | ord($data[ 0]),
-            'names_size'        => (ord($data[ 3]) << 8) | ord($data[ 2]),
-            'bool_count'        => (ord($data[ 5]) << 8) | ord($data[ 4]),
-            'number_count'      => (ord($data[ 7]) << 8) | ord($data[ 6]),
-            'string_count'      => (ord($data[ 9]) << 8) | ord($data[ 8]),
-            'string_table_size' => (ord($data[11]) << 8) | ord($data[10]),
+            'magic_number'      => (\ord($data[1]) << 8) | \ord($data[0]),
+            'names_size'        => (\ord($data[3]) << 8) | \ord($data[2]),
+            'bool_count'        => (\ord($data[5]) << 8) | \ord($data[4]),
+            'number_count'      => (\ord($data[7]) << 8) | \ord($data[6]),
+            'string_count'      => (\ord($data[9]) << 8) | \ord($data[8]),
+            'string_table_size' => (\ord($data[11]) << 8) | \ord($data[10]),
         ];
         $out['headers'] = $headers;
 
-
         // Names.
-        $i                  = $headers['header_size'];
-        $nameAndDescription = explode('|', substr($data, $i, $headers['names_size'] - 1));
-        $out['name']        = $nameAndDescription[0];
+        $i = $headers['header_size'];
+        $nameAndDescription = \explode('|', \substr($data, $i, $headers['names_size'] - 1));
+        $out['name'] = $nameAndDescription[0];
         $out['description'] = $nameAndDescription[1];
 
         // Booleans.
         $i += $headers['names_size'];
-        $booleans      = [];
-        $booleanNames  = &static::$_booleans;
+        $booleans = [];
+        $booleanNames = &static::$_booleans;
 
         for (
             $e = 0, $max = $i + $headers['bool_count'];
             $i < $max;
             ++$e, ++$i
         ) {
-            $booleans[$booleanNames[$e]] = 1 === ord($data[$i]);
+            $booleans[$booleanNames[$e]] = 1 === \ord($data[$i]);
         }
 
         $out['booleans'] = $booleans;
@@ -641,7 +634,7 @@ class ConsoleTput
             ++$i;
         }
 
-        $numbers     = [];
+        $numbers = [];
         $numberNames = &static::$_numbers;
 
         for (
@@ -649,9 +642,9 @@ class ConsoleTput
             $i < $max;
             ++$e, $i += 2
         ) {
-            $name    = $numberNames[$e];
-            $data_i0 = ord($data[$i    ]);
-            $data_i1 = ord($data[$i + 1]);
+            $name = $numberNames[$e];
+            $data_i0 = \ord($data[$i]);
+            $data_i1 = \ord($data[$i + 1]);
 
             if ($data_i1 === 255 && $data_i0 === 255) {
                 $numbers[$name] = -1;
@@ -663,24 +656,24 @@ class ConsoleTput
         $out['numbers'] = $numbers;
 
         // Strings.
-        $strings     = [];
+        $strings = [];
         $stringNames = &static::$_strings;
-        $ii          = $i + $headers['string_count'] * 2;
+        $ii = $i + $headers['string_count'] * 2;
 
         for (
             $e = 0, $max = $ii;
             $i < $max;
             ++$e, $i += 2
         ) {
-            $name    = $stringNames[$e];
-            $data_i0 = ord($data[$i    ]);
-            $data_i1 = ord($data[$i + 1]);
+            $name = $stringNames[$e];
+            $data_i0 = \ord($data[$i]);
+            $data_i1 = \ord($data[$i + 1]);
 
             if ($data_i1 === 255 && $data_i0 === 255) {
                 continue;
             }
 
-            $a              = ($data_i1 << 8) | $data_i0;
+            $a = ($data_i1 << 8) | $data_i0;
             $strings[$name] = $a;
 
             if (65534 === $a) {
@@ -690,11 +683,11 @@ class ConsoleTput
             $b = $ii + $a;
             $c = $b;
 
-            while ($c < $length && ord($data[$c])) {
+            while ($c < $length && \ord($data[$c])) {
                 $c++;
             }
 
-            $value          = substr($data, $b, $c - $b);
+            $value = \substr($data, $b, $c - $b);
             $strings[$name] = false !== $value ? $value : null;
         }
 
@@ -755,7 +748,7 @@ class ConsoleTput
         return
             isset($_SERVER['TERM']) && !empty($_SERVER['TERM'])
                 ? $_SERVER['TERM']
-                : (defined('PHP_WINDOWS_VERSION_PLATFORM') ? 'windows-ansi' : 'xterm');
+                : (\defined('PHP_WINDOWS_VERSION_PLATFORM') ? 'windows-ansi' : 'xterm');
     }
 
     /**
@@ -770,11 +763,11 @@ class ConsoleTput
         }
 
         if (isset($_SERVER['HOME'])) {
-            $paths[] = $_SERVER['HOME'] . DIRECTORY_SEPARATOR . '.terminfo';
+            $paths[] = $_SERVER['HOME'].\DIRECTORY_SEPARATOR.'.terminfo';
         }
 
         if (isset($_SERVER['TERMINFO_DIRS'])) {
-            foreach (explode(':', $_SERVER['TERMINFO_DIRS']) as $path) {
+            foreach (\explode(':', $_SERVER['TERMINFO_DIRS']) as $path) {
                 $paths[] = $path;
             }
         }
@@ -789,14 +782,14 @@ class ConsoleTput
         $paths[] = '/usr/local/ncurses/lib/terminfo';
         $paths[] = 'hoa://Library/Terminfo';
 
-        $term      = $term ?: static::getTerm();
-        $fileHexa  = dechex(ord($term[0])) . DIRECTORY_SEPARATOR . $term;
-        $fileAlpha = $term[0] . DIRECTORY_SEPARATOR . $term;
-        $pathname  = null;
+        $term = $term ?: static::getTerm();
+        $fileHexa = \dechex(\ord($term[0])).\DIRECTORY_SEPARATOR.$term;
+        $fileAlpha = $term[0].\DIRECTORY_SEPARATOR.$term;
+        $pathname = null;
 
         foreach ($paths as $path) {
-            if (file_exists($_ = $path . DIRECTORY_SEPARATOR . $fileHexa) ||
-                file_exists($_ = $path . DIRECTORY_SEPARATOR . $fileAlpha)) {
+            if (\file_exists($_ = $path.\DIRECTORY_SEPARATOR.$fileHexa) ||
+                \file_exists($_ = $path.\DIRECTORY_SEPARATOR.$fileAlpha)) {
                 $pathname = $_;
 
                 break;

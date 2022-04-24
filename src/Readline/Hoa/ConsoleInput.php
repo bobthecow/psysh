@@ -50,16 +50,14 @@ class ConsoleInput implements StreamIn
      */
     protected $_input = null;
 
-
-
     /**
      * Wraps an `Hoa\Stream\IStream\In` stream.
      */
     public function __construct(StreamIn $input = null)
     {
         if (null === $input) {
-            if (defined('STDIN') &&
-                false !== @stream_get_meta_data(STDIN)) {
+            if (\defined('STDIN') &&
+                false !== @\stream_get_meta_data(\STDIN)) {
                 $input = new FileRead('php://stdin');
             } else {
                 $input = new FileRead('/dev/tty');

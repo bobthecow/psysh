@@ -44,19 +44,17 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
     /**
      * Node's name.
      */
-    protected $_name       = null;
+    protected $_name = null;
 
     /**
      * Path for the `reach` method.
      */
-    protected $_reach      = null;
+    protected $_reach = null;
 
     /**
      * Children of the node.
      */
-    private $_children     = [];
-
-
+    private $_children = [];
 
     /**
      * Construct a protocol's node.
@@ -88,11 +86,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
     public function offsetSet($name, $node)
     {
         if (!($node instanceof self)) {
-            throw new ProtocolException(
-                'Protocol node must extend %s.',
-                0,
-                __CLASS__
-            );
+            throw new ProtocolException('Protocol node must extend %s.', 0, __CLASS__);
         }
 
         if (empty($name)) {
@@ -100,10 +94,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
         }
 
         if (empty($name)) {
-            throw new ProtocolException(
-                'Cannot add a node to the `hoa://` protocol without a name.',
-                1
-            );
+            throw new ProtocolException('Cannot add a node to the `hoa://` protocol without a name.', 1);
         }
 
         $this->_children[$name] = $node;
@@ -115,11 +106,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
     public function offsetGet($name): self
     {
         if (!isset($this[$name])) {
-            throw new ProtocolException(
-                'Node %s does not exist.',
-                2,
-                $name
-            );
+            throw new ProtocolException('Node %s does not exist.', 2, $name);
         }
 
         return $this->_children[$name];
@@ -130,7 +117,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
      */
     public function offsetExists($name): bool
     {
-        return true === array_key_exists($name, $this->_children);
+        return true === \array_key_exists($name, $this->_children);
     }
 
     /**
@@ -148,8 +135,8 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
      */
     protected function _resolve(string $path, &$accumulator, string $id = null)
     {
-        if (substr($path, 0, 6) == 'hoa://') {
-            $path = substr($path, 6);
+        if (\substr($path, 0, 6) === 'hoa://') {
+            $path = \substr($path, 6);
         }
 
         if (empty($path)) {
@@ -158,21 +145,21 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
 
         if (null === $accumulator) {
             $accumulator = [];
-            $posId       = strpos($path, '#');
+            $posId = \strpos($path, '#');
 
             if (false !== $posId) {
-                $id   = substr($path, $posId + 1);
-                $path = substr($path, 0, $posId);
+                $id = \substr($path, $posId + 1);
+                $path = \substr($path, 0, $posId);
             } else {
-                $id   = null;
+                $id = null;
             }
         }
 
-        $path = trim($path, '/');
-        $pos  = strpos($path, '/');
+        $path = \trim($path, '/');
+        $pos = \strpos($path, '/');
 
         if (false !== $pos) {
-            $next = substr($path, 0, $pos);
+            $next = \substr($path, 0, $pos);
         } else {
             $next = $path;
         }
@@ -193,7 +180,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
             $tnext = $this[$next];
             $this->_resolveChoice($tnext->reach(), $accumulator);
 
-            return $tnext->_resolve(substr($path, $pos + 1), $accumulator, $id);
+            return $tnext->_resolve(\substr($path, $pos + 1), $accumulator, $id);
         }
 
         $this->_resolveChoice($this->reach($path), $accumulator);
@@ -211,14 +198,14 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
         }
 
         if (empty($accumulator)) {
-            $accumulator = explode(';', $reach);
+            $accumulator = \explode(';', $reach);
 
             return;
         }
 
-        if (false === strpos($reach, ';')) {
-            if (false !== $pos = strrpos($reach, "\r")) {
-                $reach = substr($reach, $pos + 1);
+        if (false === \strpos($reach, ';')) {
+            if (false !== $pos = \strrpos($reach, "\r")) {
+                $reach = \substr($reach, $pos + 1);
 
                 foreach ($accumulator as &$entry) {
                     $entry = null;
@@ -232,20 +219,20 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
             return;
         }
 
-        $choices     = explode(';', $reach);
-        $ref         = $accumulator;
+        $choices = \explode(';', $reach);
+        $ref = $accumulator;
         $accumulator = [];
 
         foreach ($choices as $choice) {
-            if (false !== $pos = strrpos($choice, "\r")) {
-                $choice = substr($choice, $pos + 1);
+            if (false !== $pos = \strrpos($choice, "\r")) {
+                $choice = \substr($choice, $pos + 1);
 
                 foreach ($ref as $entry) {
                     $accumulator[] = $choice;
                 }
             } else {
                 foreach ($ref as $entry) {
-                    $accumulator[] = $entry . $choice;
+                    $accumulator[] = $entry.$choice;
                 }
             }
         }
@@ -270,11 +257,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
      */
     public function reachId(string $id)
     {
-        throw new ProtocolException(
-            'The node %s has no ID support (tried to reach #%s).',
-            4,
-            [$this->getName(), $id]
-        );
+        throw new ProtocolException('The node %s has no ID support (tried to reach #%s).', 4, [$this->getName(), $id]);
     }
 
     /**
@@ -282,7 +265,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
      */
     public function setReach(string $reach)
     {
-        $old          = $this->_reach;
+        $old = $this->_reach;
         $this->_reach = $reach;
 
         return $old;
@@ -327,7 +310,7 @@ class ProtocolNode implements \ArrayAccess, \IteratorAggregate
     {
         static $i = 0;
 
-        $out = str_repeat('  ', $i) . $this->getName() . "\n";
+        $out = \str_repeat('  ', $i).$this->getName()."\n";
 
         foreach ($this as $node) {
             ++$i;

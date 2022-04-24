@@ -46,7 +46,7 @@ class Console
     /**
      * Pipe mode: FIFO.
      */
-    const IS_FIFO      = 0;
+    const IS_FIFO = 0;
 
     /**
      * Pipe mode: character.
@@ -61,27 +61,27 @@ class Console
     /**
      * Pipe mode: block.
      */
-    const IS_BLOCK     = 3;
+    const IS_BLOCK = 3;
 
     /**
      * Pipe mode: regular.
      */
-    const IS_REGULAR   = 4;
+    const IS_REGULAR = 4;
 
     /**
      * Pipe mode: link.
      */
-    const IS_LINK      = 5;
+    const IS_LINK = 5;
 
     /**
      * Pipe mode: socket.
      */
-    const IS_SOCKET    = 6;
+    const IS_SOCKET = 6;
 
     /**
      * Pipe mode: whiteout.
      */
-    const IS_WHITEOUT  = 7;
+    const IS_WHITEOUT = 7;
 
     /**
      * Advanced interaction is on.
@@ -91,17 +91,17 @@ class Console
     /**
      * Previous STTY configuration.
      */
-    private static $_old      = null;
+    private static $_old = null;
 
     /**
      * Mode.
      */
-    protected static $_mode   = [];
+    protected static $_mode = [];
 
     /**
      * Input.
      */
-    protected static $_input  = null;
+    protected static $_input = null;
 
     /**
      * Output.
@@ -111,9 +111,7 @@ class Console
     /**
      * Tput.
      */
-    protected static $_tput   = null;
-
-
+    protected static $_tput = null;
 
     /**
      * Prepare the environment for advanced interactions.
@@ -124,13 +122,13 @@ class Console
             return self::$_advanced;
         }
 
-        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
+        if (\defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return self::$_advanced = false;
         }
 
         if (false === $force &&
-            true === defined('STDIN') &&
-            false === self::isDirect(STDIN)) {
+            true === \defined('STDIN') &&
+            false === self::isDirect(\STDIN)) {
             return self::$_advanced = false;
         }
 
@@ -149,7 +147,7 @@ class Console
             return;
         }
 
-        ConsoleProcessus::execute('stty ' . self::$_old . ' < /dev/tty', false);
+        ConsoleProcessus::execute('stty '.self::$_old.' < /dev/tty', false);
 
         return;
     }
@@ -158,7 +156,7 @@ class Console
      * Get mode of a certain pipe.
      * Inspired by sys/stat.h.
      */
-    public static function getMode($pipe = STDIN): int
+    public static function getMode($pipe = \STDIN): int
     {
         $_pipe = (int) $pipe;
 
@@ -166,7 +164,7 @@ class Console
             return self::$_mode[$_pipe];
         }
 
-        $stat = fstat($pipe);
+        $stat = \fstat($pipe);
 
         switch ($stat['mode'] & 0170000) {
             // named pipe (fifo).
@@ -270,7 +268,7 @@ class Console
      */
     public static function setInput(ConsoleInput $input)
     {
-        $old            = static::$_input;
+        $old = static::$_input;
         static::$_input = $input;
 
         return $old;
@@ -293,7 +291,7 @@ class Console
      */
     public static function setOutput(ConsoleOutput $output)
     {
-        $old             = static::$_output;
+        $old = static::$_output;
         static::$_output = $output;
 
         return $old;
@@ -316,7 +314,7 @@ class Console
      */
     public static function setTput(ConsoleTput $tput)
     {
-        $old           = static::$_tput;
+        $old = static::$_tput;
         static::$_tput = $tput;
 
         return $old;
@@ -343,7 +341,7 @@ class Console
     }
 }
 
-/**
+/*
  * Restore interaction.
  */
 \register_shutdown_function([Console::class, 'restoreInteraction']);

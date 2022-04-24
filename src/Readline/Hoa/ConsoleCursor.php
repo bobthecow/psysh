@@ -61,12 +61,12 @@ class ConsoleCursor
         if (1 > $repeat) {
             return;
         } elseif (1 === $repeat) {
-            $handle = explode(' ', $steps);
+            $handle = \explode(' ', $steps);
         } else {
-            $handle = explode(' ', $steps, 1);
+            $handle = \explode(' ', $steps, 1);
         }
 
-        $tput   = Console::getTput();
+        $tput = Console::getTput();
         $output = Console::getOutput();
 
         foreach ($handle as $step) {
@@ -75,7 +75,7 @@ class ConsoleCursor
                 case 'up':
                 case '↑':
                     $output->writeAll(
-                        str_replace(
+                        \str_replace(
                             '%p1%d',
                             $repeat,
                             $tput->get('parm_up_cursor')
@@ -94,7 +94,7 @@ class ConsoleCursor
                 case 'right':
                 case '→':
                     $output->writeAll(
-                        str_replace(
+                        \str_replace(
                             '%p1%d',
                             $repeat,
                             $tput->get('parm_right_cursor')
@@ -113,7 +113,7 @@ class ConsoleCursor
                 case 'down':
                 case '↓':
                     $output->writeAll(
-                        str_replace(
+                        \str_replace(
                             '%p1%d',
                             $repeat,
                             $tput->get('parm_down_cursor')
@@ -132,7 +132,7 @@ class ConsoleCursor
                 case 'left':
                 case '←':
                     $output->writeAll(
-                        str_replace(
+                        \str_replace(
                             '%p1%d',
                             $repeat,
                             $tput->get('parm_left_cursor')
@@ -169,7 +169,7 @@ class ConsoleCursor
         }
 
         Console::getOutput()->writeAll(
-            str_replace(
+            \str_replace(
                 ['%i%p1%d', '%p2%d'],
                 [$y, $x],
                 Console::getTput()->get('cursor_address')
@@ -182,13 +182,13 @@ class ConsoleCursor
      */
     public static function getPosition(): array
     {
-        $tput  = Console::getTput();
+        $tput = Console::getTput();
         $user7 = $tput->get('user7');
 
         if (null === $user7) {
             return [
                 'x' => 0,
-                'y' => 0
+                'y' => 0,
             ];
         }
 
@@ -199,11 +199,11 @@ class ConsoleCursor
         // Read $tput->get('user6').
         $input->read(2); // skip \033 and [.
 
-        $x      = null;
-        $y      = null;
+        $x = null;
+        $y = null;
         $handle = &$y;
 
-        do {
+        while (true) {
             $char = $input->readCharacter();
 
             switch ($char) {
@@ -218,11 +218,11 @@ class ConsoleCursor
                 default:
                     $handle .= $char;
             }
-        } while (true);
+        }
 
         return [
             'x' => (int) $x,
-            'y' => (int) $y
+            'y' => (int) $y,
         ];
     }
 
@@ -259,10 +259,10 @@ class ConsoleCursor
      */
     public static function clear(string $parts = 'all')
     {
-        $tput   = Console::getTput();
+        $tput = Console::getTput();
         $output = Console::getOutput();
 
-        foreach (explode(' ', $parts) as $part) {
+        foreach (\explode(' ', $parts) as $part) {
             switch ($part) {
                 case 'a':
                 case 'all':
@@ -302,7 +302,7 @@ class ConsoleCursor
 
                 case 'line':
                 case '↔':
-                    $output->writeAll("\r" . $tput->get('clr_eol'));
+                    $output->writeAll("\r".$tput->get('clr_eol'));
 
                     break;
             }
@@ -405,7 +405,7 @@ class ConsoleCursor
                 '1c1c1c', '262626', '303030', '3a3a3a', '444444', '4e4e4e',
                 '585858', '606060', '666666', '767676', '808080', '8a8a8a',
                 '949494', '9e9e9e', 'a8a8a8', 'b2b2b2', 'bcbcbc', 'c6c6c6',
-                'd0d0d0', 'dadada', 'e4e4e4', 'eeeeee'
+                'd0d0d0', 'dadada', 'e4e4e4', 'eeeeee',
             ];
         }
 
@@ -417,7 +417,7 @@ class ConsoleCursor
 
         $handle = [];
 
-        foreach (explode(' ', $attributes) as $attribute) {
+        foreach (\explode(' ', $attributes) as $attribute) {
             switch ($attribute) {
                 case 'n':
                 case 'normal':
@@ -474,7 +474,7 @@ class ConsoleCursor
                     break;
 
                 default:
-                    if (0 === preg_match('#^([^\(]+)\(([^\)]+)\)$#', $attribute, $m)) {
+                    if (0 === \preg_match('#^([^\(]+)\(([^\)]+)\)$#', $attribute, $m)) {
                         break;
                     }
 
@@ -497,7 +497,7 @@ class ConsoleCursor
                             break 2;
                     }
 
-                    $_handle  = 0;
+                    $_handle = 0;
                     $_keyword = true;
 
                     switch ($m[2]) {
@@ -551,19 +551,19 @@ class ConsoleCursor
 
                             if (256 <= $tput->count('max_colors') &&
                                 '#' === $m[2][0]) {
-                                $rgb      = hexdec(substr($m[2], 1));
-                                $r        = ($rgb >> 16) & 255;
-                                $g        = ($rgb >> 8) & 255;
-                                $b        =  $rgb & 255;
+                                $rgb = \hexdec(\substr($m[2], 1));
+                                $r = ($rgb >> 16) & 255;
+                                $g = ($rgb >> 8) & 255;
+                                $b = $rgb & 255;
                                 $distance = null;
 
                                 foreach ($_rgbTo256 as $i => $_rgb) {
-                                    $_rgb = hexdec($_rgb);
-                                    $_r   = ($_rgb >> 16) & 255;
-                                    $_g   = ($_rgb >> 8) & 255;
-                                    $_b   =  $_rgb & 255;
+                                    $_rgb = \hexdec($_rgb);
+                                    $_r = ($_rgb >> 16) & 255;
+                                    $_g = ($_rgb >> 8) & 255;
+                                    $_b = $_rgb & 255;
 
-                                    $d = sqrt(
+                                    $d = \sqrt(
                                         ($_r - $r) ** 2
                                       + ($_g - $g) ** 2
                                       + ($_b - $b) ** 2
@@ -572,23 +572,23 @@ class ConsoleCursor
                                     if (null === $distance ||
                                         $d <= $distance) {
                                         $distance = $d;
-                                        $_handle  = $i;
+                                        $_handle = $i;
                                     }
                                 }
                             } else {
-                                $_handle = intval($m[2]);
+                                $_handle = (int) ($m[2]);
                             }
                     }
 
                     if (true === $_keyword) {
                         $handle[] = $_handle + $shift;
                     } else {
-                        $handle[] = (38 + $shift) . ';5;' . $_handle;
+                        $handle[] = (38 + $shift).';5;'.$_handle;
                     }
             }
         }
 
-        Console::getOutput()->writeAll("\033[" . implode(';', $handle) . "m");
+        Console::getOutput()->writeAll("\033[".\implode(';', $handle).'m');
 
         return;
     }
@@ -606,23 +606,23 @@ class ConsoleCursor
 
         $r = ($toColor >> 16) & 255;
         $g = ($toColor >> 8) & 255;
-        $b =  $toColor & 255;
+        $b = $toColor & 255;
 
         Console::getOutput()->writeAll(
-            str_replace(
+            \str_replace(
                 [
                     '%p1%d',
                     'rgb:',
                     '%p2%{255}%*%{1000}%/%2.2X/',
                     '%p3%{255}%*%{1000}%/%2.2X/',
-                    '%p4%{255}%*%{1000}%/%2.2X'
+                    '%p4%{255}%*%{1000}%/%2.2X',
                 ],
                 [
                     $fromCode,
                     '',
-                    sprintf('%02x', $r),
-                    sprintf('%02x', $g),
-                    sprintf('%02x', $b)
+                    \sprintf('%02x', $r),
+                    \sprintf('%02x', $g),
+                    \sprintf('%02x', $b),
                 ],
                 $tput->get('initialize_color')
             )
@@ -640,7 +640,7 @@ class ConsoleCursor
      */
     public static function setStyle(string $style, bool $blink = true)
     {
-        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
+        if (\defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -672,7 +672,7 @@ class ConsoleCursor
         }
 
         // Not sure what tput entry we can use here…
-        Console::getOutput()->writeAll("\033[" . $_style . " q");
+        Console::getOutput()->writeAll("\033[".$_style.' q');
 
         return;
     }
@@ -688,7 +688,7 @@ class ConsoleCursor
     }
 }
 
-/**
+/*
  * Advanced interaction.
  */
 Console::advancedInteraction();

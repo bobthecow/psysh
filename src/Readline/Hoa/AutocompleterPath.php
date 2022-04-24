@@ -51,20 +51,18 @@ class AutocompleterPath implements Autocompleter
     /**
      * Root.
      */
-    protected $_root            = null;
+    protected $_root = null;
 
     /**
      * Iterator factory. Please, see the self::setIteratorFactory method.
      */
     protected $_iteratorFactory = null;
 
-
-
     /**
      * Constructor.
      */
     public function __construct(
-        string $root              = null,
+        string $root = null,
         \Closure $iteratorFactory = null
     ) {
         if (null === $root) {
@@ -89,14 +87,14 @@ class AutocompleterPath implements Autocompleter
         $root = $this->getRoot();
 
         if (static::PWD === $root) {
-            $root = getcwd();
+            $root = \getcwd();
         }
 
-        $path = $root . DIRECTORY_SEPARATOR . $prefix;
+        $path = $root.\DIRECTORY_SEPARATOR.$prefix;
 
-        if (!is_dir($path)) {
-            $path   = dirname($path) . DIRECTORY_SEPARATOR;
-            $prefix = basename($prefix);
+        if (!\is_dir($path)) {
+            $path = \dirname($path).\DIRECTORY_SEPARATOR;
+            $prefix = \basename($prefix);
         } else {
             $prefix = null;
         }
@@ -106,16 +104,16 @@ class AutocompleterPath implements Autocompleter
 
         try {
             $iterator = $iteratorFactory($path);
-            $out      = [];
-            $length   = mb_strlen($prefix);
+            $out = [];
+            $length = \mb_strlen($prefix);
 
             foreach ($iterator as $fileinfo) {
                 $filename = $fileinfo->getFilename();
 
                 if (null === $prefix ||
-                    (mb_substr($filename, 0, $length) === $prefix)) {
+                    (\mb_substr($filename, 0, $length) === $prefix)) {
                     if ($fileinfo->isDir()) {
-                        $out[] = $filename . '/';
+                        $out[] = $filename.'/';
                     } else {
                         $out[] = $filename;
                     }
@@ -125,7 +123,7 @@ class AutocompleterPath implements Autocompleter
             return null;
         }
 
-        $count = count($out);
+        $count = \count($out);
 
         if (1 === $count) {
             return $out[0];
@@ -151,7 +149,7 @@ class AutocompleterPath implements Autocompleter
      */
     public function setRoot(string $root)
     {
-        $old         = $this->_root;
+        $old = $this->_root;
         $this->_root = $root;
 
         return $old;
@@ -170,7 +168,7 @@ class AutocompleterPath implements Autocompleter
      */
     public function setIteratorFactory(\Closure $iteratorFactory)
     {
-        $old                    = $this->_iteratorFactory;
+        $old = $this->_iteratorFactory;
         $this->_iteratorFactory = $iteratorFactory;
 
         return $old;

@@ -51,42 +51,42 @@ class Readline
     /**
      * State: stop to read.
      */
-    const STATE_BREAK    = 2;
+    const STATE_BREAK = 2;
 
     /**
      * State: no output the current buffer.
      */
-    const STATE_NO_ECHO  = 4;
+    const STATE_NO_ECHO = 4;
 
     /**
      * Current editing line.
      */
-    protected $_line           = null;
+    protected $_line = null;
 
     /**
      * Current editing line seek.
      */
-    protected $_lineCurrent    = 0;
+    protected $_lineCurrent = 0;
 
     /**
      * Current editing line length.
      */
-    protected $_lineLength     = 0;
+    protected $_lineLength = 0;
 
     /**
      * Current buffer (most of the time, a char).
      */
-    protected $_buffer         = null;
+    protected $_buffer = null;
 
     /**
      * Mapping.
      */
-    protected $_mapping        = [];
+    protected $_mapping = [];
 
     /**
      * History.
      */
-    protected $_history        = [];
+    protected $_history = [];
 
     /**
      * History current position.
@@ -96,26 +96,24 @@ class Readline
     /**
      * History size.
      */
-    protected $_historySize    = 0;
+    protected $_historySize = 0;
 
     /**
      * Prefix.
      */
-    protected $_prefix         = null;
+    protected $_prefix = null;
 
     /**
      * Autocompleter.
      */
-    protected $_autocompleter  = null;
-
-
+    protected $_autocompleter = null;
 
     /**
      * Initialize the readline editor.
      */
     public function __construct()
     {
-        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
+        if (\defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -123,15 +121,15 @@ class Readline
         $this->_mapping["\033[B"] = [$this, '_bindArrowDown'];
         $this->_mapping["\033[C"] = [$this, '_bindArrowRight'];
         $this->_mapping["\033[D"] = [$this, '_bindArrowLeft'];
-        $this->_mapping["\001"]   = [$this, '_bindControlA'];
-        $this->_mapping["\002"]   = [$this, '_bindControlB'];
-        $this->_mapping["\005"]   = [$this, '_bindControlE'];
-        $this->_mapping["\006"]   = [$this, '_bindControlF'];
-        $this->_mapping["\010"]   =
-        $this->_mapping["\177"]   = [$this, '_bindBackspace'];
-        $this->_mapping["\027"]   = [$this, '_bindControlW'];
-        $this->_mapping["\n"]     = [$this, '_bindNewline'];
-        $this->_mapping["\t"]     = [$this, '_bindTab'];
+        $this->_mapping["\001"] = [$this, '_bindControlA'];
+        $this->_mapping["\002"] = [$this, '_bindControlB'];
+        $this->_mapping["\005"] = [$this, '_bindControlE'];
+        $this->_mapping["\006"] = [$this, '_bindControlF'];
+        $this->_mapping["\010"] =
+        $this->_mapping["\177"] = [$this, '_bindBackspace'];
+        $this->_mapping["\027"] = [$this, '_bindControlW'];
+        $this->_mapping["\n"] = [$this, '_bindNewline'];
+        $this->_mapping["\t"] = [$this, '_bindTab'];
 
         return;
     }
@@ -150,19 +148,19 @@ class Readline
         $direct = Console::isDirect($input->getStream()->getStream());
         $output = Console::getOutput();
 
-        if (false === $direct || defined('PHP_WINDOWS_VERSION_PLATFORM')) {
+        if (false === $direct || \defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             $out = $input->readLine();
 
             if (false === $out) {
                 return false;
             }
 
-            $out = substr($out, 0, -1);
+            $out = \substr($out, 0, -1);
 
             if (true === $direct) {
                 $output->writeAll($prefix);
             } else {
-                $output->writeAll($prefix . $out . "\n");
+                $output->writeAll($prefix.$out."\n");
             }
 
             return $out;
@@ -174,7 +172,7 @@ class Readline
         $output->writeAll($prefix);
 
         while (true) {
-            @stream_select($read, $write, $except, 30, 0);
+            @\stream_select($read, $write, $except, 30, 0);
 
             if (empty($read)) {
                 $read = [$input->getStream()->getStream()];
@@ -182,9 +180,9 @@ class Readline
                 continue;
             }
 
-            $char          = $this->_read();
+            $char = $this->_read();
             $this->_buffer = $char;
-            $return        = $this->_readLine($char);
+            $return = $this->_readLine($char);
 
             if (0 === ($return & self::STATE_NO_ECHO)) {
                 $output->writeAll($this->_buffer);
@@ -204,7 +202,7 @@ class Readline
     public function _readLine(string $char)
     {
         if (isset($this->_mapping[$char]) &&
-            is_callable($this->_mapping[$char])) {
+            \is_callable($this->_mapping[$char])) {
             $mapping = $this->_mapping[$char];
 
             return $mapping($this);
@@ -218,20 +216,20 @@ class Readline
             return static::STATE_CONTINUE | static::STATE_NO_ECHO;
         }
 
-        if ($this->getLineLength() == $this->getLineCurrent()) {
+        if ($this->getLineLength() === $this->getLineCurrent()) {
             $this->appendLine($this->_buffer);
 
             return static::STATE_CONTINUE;
         }
 
         $this->insertLine($this->_buffer);
-        $tail = mb_substr(
+        $tail = \mb_substr(
             $this->getLine(),
             $this->getLineCurrent() - 1
         );
-        $this->_buffer = "\033[K" . $tail . str_repeat(
+        $this->_buffer = "\033[K".$tail.\str_repeat(
             "\033[D",
-            mb_strlen($tail) - 1
+            \mb_strlen($tail) - 1
         );
 
         return static::STATE_CONTINUE;
@@ -258,11 +256,11 @@ class Readline
      */
     public function addMapping(string $key, $mapping)
     {
-        if ('\e[' === substr($key, 0, 3)) {
-            $this->_mapping["\033[" . substr($key, 3)] = $mapping;
-        } elseif ('\C-' === substr($key, 0, 3)) {
-            $_key                       = ord(strtolower(substr($key, 3))) - 96;
-            $this->_mapping[chr($_key)] = $mapping;
+        if ('\e[' === \substr($key, 0, 3)) {
+            $this->_mapping["\033[".\substr($key, 3)] = $mapping;
+        } elseif ('\C-' === \substr($key, 0, 3)) {
+            $_key = \ord(\strtolower(\substr($key, 3))) - 96;
+            $this->_mapping[\chr($_key)] = $mapping;
         } else {
             $this->_mapping[$key] = $mapping;
         }
@@ -277,7 +275,7 @@ class Readline
             return;
         }
 
-        $this->_history[]      = $line;
+        $this->_history[] = $line;
         $this->_historyCurrent = $this->_historySize++;
     }
 
@@ -287,9 +285,9 @@ class Readline
     public function clearHistory()
     {
         unset($this->_history);
-        $this->_history        = [];
+        $this->_history = [];
         $this->_historyCurrent = 0;
-        $this->_historySize    = 1;
+        $this->_historySize = 1;
     }
 
     /**
@@ -346,7 +344,7 @@ class Readline
     public function appendLine(string $append)
     {
         $this->_line .= $append;
-        $this->_lineLength  = mb_strlen($this->_line);
+        $this->_lineLength = \mb_strlen($this->_line);
         $this->_lineCurrent = $this->_lineLength;
     }
 
@@ -355,15 +353,15 @@ class Readline
      */
     public function insertLine(string $insert)
     {
-        if ($this->_lineLength == $this->_lineCurrent) {
+        if ($this->_lineLength === $this->_lineCurrent) {
             return $this->appendLine($insert);
         }
 
-        $this->_line         = mb_substr($this->_line, 0, $this->_lineCurrent) .
-                               $insert .
-                               mb_substr($this->_line, $this->_lineCurrent);
-        $this->_lineLength   = mb_strlen($this->_line);
-        $this->_lineCurrent += mb_strlen($insert);
+        $this->_line = \mb_substr($this->_line, 0, $this->_lineCurrent).
+                               $insert.
+                               \mb_substr($this->_line, $this->_lineCurrent);
+        $this->_lineLength = \mb_strlen($this->_line);
+        $this->_lineCurrent += \mb_strlen($insert);
 
         return;
     }
@@ -373,9 +371,9 @@ class Readline
      */
     protected function resetLine()
     {
-        $this->_line        = null;
+        $this->_line = null;
         $this->_lineCurrent = 0;
-        $this->_lineLength  = 0;
+        $this->_lineLength = 0;
     }
 
     /**
@@ -389,7 +387,7 @@ class Readline
     /**
      * Get current line length.
      *
-     * @return  int
+     * @return int
      */
     public function getLineLength(): int
     {
@@ -425,7 +423,7 @@ class Readline
      */
     public function setAutocompleter(Autocompleter $autocompleter)
     {
-        $old                  = $this->_autocompleter;
+        $old = $this->_autocompleter;
         $this->_autocompleter = $autocompleter;
 
         return $old;
@@ -452,8 +450,8 @@ class Readline
      */
     public function setLine(string $line)
     {
-        $this->_line        = $line;
-        $this->_lineLength  = mb_strlen($this->_line ?: '');
+        $this->_line = $line;
+        $this->_lineLength = \mb_strlen($this->_line ?: '');
         $this->_lineCurrent = $this->_lineLength;
     }
 
@@ -501,7 +499,6 @@ class Readline
     /**
      * Down arrow binding.
      * Go forward in the history.
-     *
      */
     public function _bindArrowDown(self $self): int
     {
@@ -568,14 +565,14 @@ class Readline
                 ConsoleCursor::clear('→');
             }
 
-            if ($self->getLineLength() == $current = $self->getLineCurrent()) {
-                $self->setLine(mb_substr($self->getLine(), 0, -1));
+            if ($self->getLineLength() === $current = $self->getLineCurrent()) {
+                $self->setLine(\mb_substr($self->getLine(), 0, -1));
             } else {
-                $line    = $self->getLine();
+                $line = $self->getLine();
                 $current = $self->getLineCurrent();
-                $tail    = mb_substr($line, $current);
-                $buffer  = $tail . str_repeat("\033[D", mb_strlen($tail));
-                $self->setLine(mb_substr($line, 0, $current - 1) . $tail);
+                $tail = \mb_substr($line, $current);
+                $buffer = $tail.\str_repeat("\033[D", \mb_strlen($tail));
+                $self->setLine(\mb_substr($line, 0, $current - 1).$tail);
                 $self->setLineCurrent($current - 1);
             }
         }
@@ -610,18 +607,19 @@ class Readline
             return static::STATE_CONTINUE;
         }
 
-        $words = preg_split(
+        $words = \preg_split(
             '#\b#u',
             $self->getLine(),
             -1,
-            PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_NO_EMPTY
+            \PREG_SPLIT_OFFSET_CAPTURE | \PREG_SPLIT_NO_EMPTY
         );
 
         for (
-            $i = 0, $max = count($words) - 1;
+            $i = 0, $max = \count($words) - 1;
             $i < $max && $words[$i + 1][1] < $current;
             ++$i
-        );
+        ) {
+        }
 
         for ($j = $words[$i][1] + 1; $current >= $j; ++$j) {
             $self->_bindArrowLeft($self);
@@ -659,18 +657,19 @@ class Readline
             return static::STATE_CONTINUE;
         }
 
-        $words = preg_split(
+        $words = \preg_split(
             '#\b#u',
             $self->getLine(),
             -1,
-            PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_NO_EMPTY
+            \PREG_SPLIT_OFFSET_CAPTURE | \PREG_SPLIT_NO_EMPTY
         );
 
         for (
-            $i = 0, $max = count($words) - 1;
+            $i = 0, $max = \count($words) - 1;
             $i < $max && $words[$i][1] < $current;
             ++$i
-        );
+        ) {
+        }
 
         if (!isset($words[$i + 1])) {
             $words[$i + 1] = [1 => $self->getLineLength()];
@@ -695,18 +694,19 @@ class Readline
             return static::STATE_CONTINUE;
         }
 
-        $words = preg_split(
+        $words = \preg_split(
             '#\b#u',
             $self->getLine(),
             -1,
-            PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_NO_EMPTY
+            \PREG_SPLIT_OFFSET_CAPTURE | \PREG_SPLIT_NO_EMPTY
         );
 
         for (
-            $i = 0, $max = count($words) - 1;
+            $i = 0, $max = \count($words) - 1;
             $i < $max && $words[$i + 1][1] < $current;
             ++$i
-        );
+        ) {
+        }
 
         for ($j = $words[$i][1] + 1; $current >= $j; ++$j) {
             $self->_bindBackspace($self);
@@ -730,24 +730,24 @@ class Readline
      */
     public function _bindTab(self $self): int
     {
-        $output        = Console::getOutput();
+        $output = Console::getOutput();
         $autocompleter = $self->getAutocompleter();
-        $state         = static::STATE_CONTINUE | static::STATE_NO_ECHO;
+        $state = static::STATE_CONTINUE | static::STATE_NO_ECHO;
 
         if (null === $autocompleter) {
             return $state;
         }
 
         $current = $self->getLineCurrent();
-        $line    = $self->getLine();
+        $line = $self->getLine();
 
         if (0 === $current) {
             return $state;
         }
 
-        $matches = preg_match_all(
-            '#' . $autocompleter->getWordDefinition() . '$#u',
-            mb_substr($line, 0, $current),
+        $matches = \preg_match_all(
+            '#'.$autocompleter->getWordDefinition().'$#u',
+            \mb_substr($line, 0, $current),
             $words
         );
 
@@ -757,27 +757,27 @@ class Readline
 
         $word = $words[0][0];
 
-        if ('' === trim($word)) {
+        if ('' === \trim($word)) {
             return $state;
         }
 
         $solution = $autocompleter->complete($word);
-        $length   = mb_strlen($word);
+        $length = \mb_strlen($word);
 
         if (null === $solution) {
             return $state;
         }
 
-        if (is_array($solution)) {
+        if (\is_array($solution)) {
             $_solution = $solution;
-            $count     = count($_solution) - 1;
-            $cWidth    = 0;
-            $window    = ConsoleWindow::getSize();
-            $wWidth    = $window['x'];
-            $cursor    = ConsoleCursor::getPosition();
+            $count = \count($_solution) - 1;
+            $cWidth = 0;
+            $window = ConsoleWindow::getSize();
+            $wWidth = $window['x'];
+            $cursor = ConsoleCursor::getPosition();
 
-            array_walk($_solution, function (&$value) use (&$cWidth) {
-                $handle = mb_strlen($value);
+            \array_walk($_solution, function (&$value) use (&$cWidth) {
+                $handle = \mb_strlen($value);
 
                 if ($handle > $cWidth) {
                     $cWidth = $handle;
@@ -785,22 +785,22 @@ class Readline
 
                 return;
             });
-            array_walk($_solution, function (&$value) use (&$cWidth) {
-                $handle = mb_strlen($value);
+            \array_walk($_solution, function (&$value) use (&$cWidth) {
+                $handle = \mb_strlen($value);
 
                 if ($handle >= $cWidth) {
                     return;
                 }
 
-                $value .= str_repeat(' ', $cWidth - $handle);
+                $value .= \str_repeat(' ', $cWidth - $handle);
 
                 return;
             });
 
-            $mColumns = (int) floor($wWidth / ($cWidth + 2));
-            $mLines   = (int) ceil(($count + 1) / $mColumns);
+            $mColumns = (int) \floor($wWidth / ($cWidth + 2));
+            $mLines = (int) \ceil(($count + 1) / $mColumns);
             --$mColumns;
-            $i        = 0;
+            $i = 0;
 
             if (0 > $window['y'] - $cursor['y'] - $mLines) {
                 ConsoleWindow::scroll('↑', $mLines);
@@ -813,7 +813,7 @@ class Readline
             ConsoleCursor::clear('↓');
 
             foreach ($_solution as $j => $s) {
-                $output->writeAll("\033[0m" . $s . "\033[0m");
+                $output->writeAll("\033[0m".$s."\033[0m");
 
                 if ($i++ < $mColumns) {
                     $output->writeAll('  ');
@@ -830,11 +830,11 @@ class Readline
             ConsoleCursor::show();
 
             ++$mColumns;
-            $input    = Console::getInput();
-            $read     = [$input->getStream()->getStream()];
-            $mColumn  = -1;
-            $mLine    = -1;
-            $coord    = -1;
+            $input = Console::getInput();
+            $read = [$input->getStream()->getStream()];
+            $mColumn = -1;
+            $mLine = -1;
+            $coord = -1;
             $unselect = function () use (
                 &$mColumn,
                 &$mLine,
@@ -848,7 +848,7 @@ class Readline
                 ConsoleCursor::move('↓ LEFT');
                 ConsoleCursor::move('→', $mColumn * ($cWidth + 2));
                 ConsoleCursor::move('↓', $mLine);
-                $output->writeAll("\033[0m" . $_solution[$coord] . "\033[0m");
+                $output->writeAll("\033[0m".$_solution[$coord]."\033[0m");
                 ConsoleCursor::restore();
                 ConsoleCursor::show();
 
@@ -867,7 +867,7 @@ class Readline
                 ConsoleCursor::move('↓ LEFT');
                 ConsoleCursor::move('→', $mColumn * ($cWidth + 2));
                 ConsoleCursor::move('↓', $mLine);
-                $output->writeAll("\033[7m" . $_solution[$coord] . "\033[0m");
+                $output->writeAll("\033[7m".$_solution[$coord]."\033[0m");
                 ConsoleCursor::restore();
                 ConsoleCursor::show();
 
@@ -880,15 +880,15 @@ class Readline
                 &$select
             ) {
                 $mColumn = 0;
-                $mLine   = 0;
-                $coord   = 0;
+                $mLine = 0;
+                $coord = 0;
                 $select();
 
                 return;
             };
 
             while (true) {
-                @stream_select($read, $write, $except, 30, 0);
+                @\stream_select($read, $write, $except, 30, 0);
 
                 if (empty($read)) {
                     $read = [$input->getStream()->getStream()];
@@ -905,8 +905,8 @@ class Readline
                         }
 
                         $unselect();
-                        $coord   = max(0, $coord - $mColumns);
-                        $mLine   = (int) floor($coord / $mColumns);
+                        $coord = \max(0, $coord - $mColumns);
+                        $mLine = (int) \floor($coord / $mColumns);
                         $mColumn = $coord % $mColumns;
                         $select();
 
@@ -920,8 +920,8 @@ class Readline
                         }
 
                         $unselect();
-                        $coord   = min($count, $coord + $mColumns);
-                        $mLine   = (int) floor($coord / $mColumns);
+                        $coord = \min($count, $coord + $mColumns);
+                        $mLine = (int) \floor($coord / $mColumns);
                         $mColumn = $coord % $mColumns;
                         $select();
 
@@ -936,8 +936,8 @@ class Readline
                         }
 
                         $unselect();
-                        $coord   = min($count, $coord + 1);
-                        $mLine   = (int) floor($coord / $mColumns);
+                        $coord = \min($count, $coord + 1);
+                        $mLine = (int) \floor($coord / $mColumns);
                         $mColumn = $coord % $mColumns;
                         $select();
 
@@ -951,8 +951,8 @@ class Readline
                         }
 
                         $unselect();
-                        $coord   = max(0, $coord - 1);
-                        $mLine   = (int) floor($coord / $mColumns);
+                        $coord = \max(0, $coord - 1);
+                        $mLine = (int) \floor($coord / $mColumns);
                         $mColumn = $coord % $mColumns;
                         $select();
 
@@ -960,29 +960,29 @@ class Readline
 
                     case "\n":
                         if (-1 !== $mColumn && -1 !== $mLine) {
-                            $tail     = mb_substr($line, $current);
+                            $tail = \mb_substr($line, $current);
                             $current -= $length;
                             $self->setLine(
-                                mb_substr($line, 0, $current) .
-                                $solution[$coord] .
+                                \mb_substr($line, 0, $current).
+                                $solution[$coord].
                                 $tail
                             );
                             $self->setLineCurrent(
-                                $current + mb_strlen($solution[$coord])
+                                $current + \mb_strlen($solution[$coord])
                             );
 
                             ConsoleCursor::move('←', $length);
                             $output->writeAll($solution[$coord]);
                             ConsoleCursor::clear('→');
                             $output->writeAll($tail);
-                            ConsoleCursor::move('←', mb_strlen($tail));
+                            ConsoleCursor::move('←', \mb_strlen($tail));
                         }
 
                         // no break
                     default:
                         $mColumn = -1;
-                        $mLine   = -1;
-                        $coord   = -1;
+                        $mLine = -1;
+                        $coord = -1;
                         ConsoleCursor::save();
                         ConsoleCursor::move('↓ LEFT');
                         ConsoleCursor::clear('↓');
@@ -1001,28 +1001,28 @@ class Readline
             return $state;
         }
 
-        $tail     = mb_substr($line, $current);
+        $tail = \mb_substr($line, $current);
         $current -= $length;
         $self->setLine(
-            mb_substr($line, 0, $current) .
-            $solution .
+            \mb_substr($line, 0, $current).
+            $solution.
             $tail
         );
         $self->setLineCurrent(
-            $current + mb_strlen($solution)
+            $current + \mb_strlen($solution)
         );
 
         ConsoleCursor::move('←', $length);
         $output->writeAll($solution);
         ConsoleCursor::clear('→');
         $output->writeAll($tail);
-        ConsoleCursor::move('←', mb_strlen($tail));
+        ConsoleCursor::move('←', \mb_strlen($tail));
 
         return $state;
     }
 }
 
-/**
+/*
  * Advanced interaction.
  */
 Console::advancedInteraction();

@@ -46,7 +46,7 @@ class Event
     /**
      * Event ID key.
      */
-    const KEY_EVENT  = 0;
+    const KEY_EVENT = 0;
 
     /**
      * Source object key.
@@ -62,9 +62,7 @@ class Event
     /**
      * Collection of callables, i.e. observer objects.
      */
-    protected $_callable      = [];
-
-
+    protected $_callable = [];
 
     /**
      * Privatize the constructor.
@@ -78,12 +76,12 @@ class Event
      * Manage multiton of events, with the principle of asynchronous
      * attachments.
      */
-    public static function getEvent(string $eventId): Event
+    public static function getEvent(string $eventId): self
     {
         if (!isset(self::$_register[$eventId][self::KEY_EVENT])) {
             self::$_register[$eventId] = [
                 self::KEY_EVENT  => new self(),
-                self::KEY_SOURCE => null
+                self::KEY_SOURCE => null,
             ];
         }
 
@@ -94,34 +92,19 @@ class Event
      * Declares a new object in the observable collection.
      * Note: Hoa's libraries use `hoa://Event/anID` for their observable objects.
      */
-    public static function register(string $eventId, /*Source|string*/ $source)
+    public static function register(string $eventId, /* Source|string */ $source)
     {
         if (true === self::eventExists($eventId)) {
-            throw new EventException(
-                'Cannot redeclare an event with the same ID, i.e. the event ' .
-                'ID %s already exists.',
-                0,
-                $eventId
-            );
+            throw new EventException('Cannot redeclare an event with the same ID, i.e. the event '.'ID %s already exists.', 0, $eventId);
         }
 
-        if (is_object($source) && !($source instanceof EventSource)) {
-            throw new EventException(
-                'The source must implement \Hoa\Event\Source ' .
-                'interface; given %s.',
-                1,
-                get_class($source)
-            );
+        if (\is_object($source) && !($source instanceof EventSource)) {
+            throw new EventException('The source must implement \Hoa\Event\Source '.'interface; given %s.', 1, \get_class($source));
         } else {
             $reflection = new \ReflectionClass($source);
 
             if (false === $reflection->implementsInterface('\Psy\Readline\Hoa\EventSource')) {
-                throw new EventException(
-                    'The source must implement \Hoa\Event\Source ' .
-                    'interface; given %s.',
-                    2,
-                    $source
-                );
+                throw new EventException('The source must implement \Hoa\Event\Source '.'interface; given %s.', 2, $source);
             }
         }
 
@@ -155,7 +138,7 @@ class Event
      */
     public function attach($callable): self
     {
-        $callable                              = Xcallable::from($callable);
+        $callable = Xcallable::from($callable);
         $this->_callable[$callable->getHash()] = $callable;
 
         return $this;
@@ -187,11 +170,7 @@ class Event
     public static function notify(string $eventId, EventSource $source, EventBucket $data)
     {
         if (false === self::eventExists($eventId)) {
-            throw new EventException(
-                'Event ID %s does not exist, cannot send notification.',
-                3,
-                $eventId
-            );
+            throw new EventException('Event ID %s does not exist, cannot send notification.', 3, $eventId);
         }
 
         $data->setSource($source);
@@ -208,7 +187,7 @@ class Event
     public static function eventExists(string $eventId): bool
     {
         return
-            array_key_exists($eventId, self::$_register) &&
+            \array_key_exists($eventId, self::$_register) &&
             self::$_register[$eventId][self::KEY_SOURCE] !== null;
     }
 }

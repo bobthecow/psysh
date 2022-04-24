@@ -46,8 +46,6 @@ trait EventListens
      */
     protected $_listener = null;
 
-
-
     /**
      * Attaches a callable to a listenable component.
      */
@@ -56,12 +54,7 @@ trait EventListens
         $listener = $this->getListener();
 
         if (null === $listener) {
-            throw new EventException(
-                'Cannot attach a callable to the listener %s because ' .
-                'it has not been initialized yet.',
-                0,
-                get_class($this)
-            );
+            throw new EventException('Cannot attach a callable to the listener %s because '.'it has not been initialized yet.', 0, static::class);
         }
 
         $listener->attach($listenerId, $callable);
@@ -74,7 +67,7 @@ trait EventListens
      */
     protected function setListener(EventListener $listener)
     {
-        $old             = $this->_listener;
+        $old = $this->_listener;
         $this->_listener = $listener;
 
         return $old;

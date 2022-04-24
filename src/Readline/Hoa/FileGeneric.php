@@ -41,25 +41,19 @@ namespace Psy\Readline\Hoa;
  *
  * Describe a super-file.
  */
-abstract class FileGeneric
-    extends    Stream
-    implements StreamPathable,
-               StreamStatable,
-               StreamTouchable
+abstract class FileGeneric extends Stream implements StreamPathable, StreamStatable, StreamTouchable
 {
     /**
      * Mode.
      */
     protected $_mode = null;
 
-
-
     /**
      * Get filename component of path.
      */
     public function getBasename(): string
     {
-        return basename($this->getStreamName());
+        return \basename($this->getStreamName());
     }
 
     /**
@@ -67,7 +61,7 @@ abstract class FileGeneric
      */
     public function getDirname(): string
     {
-        return dirname($this->getStreamName());
+        return \dirname($this->getStreamName());
     }
 
     /**
@@ -79,7 +73,7 @@ abstract class FileGeneric
             return false;
         }
 
-        return filesize($this->getStreamName());
+        return \filesize($this->getStreamName());
     }
 
     /**
@@ -87,7 +81,7 @@ abstract class FileGeneric
      */
     public function getStatistic(): array
     {
-        return fstat($this->getStream());
+        return \fstat($this->getStream());
     }
 
     /**
@@ -95,7 +89,7 @@ abstract class FileGeneric
      */
     public function getATime(): int
     {
-        return fileatime($this->getStreamName());
+        return \fileatime($this->getStreamName());
     }
 
     /**
@@ -103,7 +97,7 @@ abstract class FileGeneric
      */
     public function getCTime(): int
     {
-        return filectime($this->getStreamName());
+        return \filectime($this->getStreamName());
     }
 
     /**
@@ -111,7 +105,7 @@ abstract class FileGeneric
      */
     public function getMTime(): int
     {
-        return filemtime($this->getStreamName());
+        return \filemtime($this->getStreamName());
     }
 
     /**
@@ -119,7 +113,7 @@ abstract class FileGeneric
      */
     public function getGroup(): int
     {
-        return filegroup($this->getStreamName());
+        return \filegroup($this->getStreamName());
     }
 
     /**
@@ -127,7 +121,7 @@ abstract class FileGeneric
      */
     public function getOwner(): int
     {
-        return fileowner($this->getStreamName());
+        return \fileowner($this->getStreamName());
     }
 
     /**
@@ -135,7 +129,7 @@ abstract class FileGeneric
      */
     public function getPermissions(): int
     {
-        return fileperms($this->getStreamName());
+        return \fileperms($this->getStreamName());
     }
 
     /**
@@ -154,37 +148,37 @@ abstract class FileGeneric
     {
         $p = $this->getPermissions();
 
-        if (($p & 0xC000) == 0xC000) {
+        if (($p & 0xC000) === 0xC000) {
             $out = 's';
-        } elseif (($p & 0xA000) == 0xA000) {
+        } elseif (($p & 0xA000) === 0xA000) {
             $out = 'l';
-        } elseif (($p & 0x8000) == 0x8000) {
+        } elseif (($p & 0x8000) === 0x8000) {
             $out = '-';
-        } elseif (($p & 0x6000) == 0x6000) {
+        } elseif (($p & 0x6000) === 0x6000) {
             $out = 'b';
-        } elseif (($p & 0x4000) == 0x4000) {
+        } elseif (($p & 0x4000) === 0x4000) {
             $out = 'd';
-        } elseif (($p & 0x2000) == 0x2000) {
+        } elseif (($p & 0x2000) === 0x2000) {
             $out = 'c';
-        } elseif (($p & 0x1000) == 0x1000) {
+        } elseif (($p & 0x1000) === 0x1000) {
             $out = 'p';
         } else {
             $out = 'u';
         }
 
         $out .=
-            (($p & 0x0100) ? 'r' : '-') .
-            (($p & 0x0080) ? 'w' : '-') .
+            (($p & 0x0100) ? 'r' : '-').
+            (($p & 0x0080) ? 'w' : '-').
             (($p & 0x0040) ?
             (($p & 0x0800) ? 's' : 'x') :
-            (($p & 0x0800) ? 'S' : '-')) .
-            (($p & 0x0020) ? 'r' : '-') .
-            (($p & 0x0010) ? 'w' : '-') .
+            (($p & 0x0800) ? 'S' : '-')).
+            (($p & 0x0020) ? 'r' : '-').
+            (($p & 0x0010) ? 'w' : '-').
             (($p & 0x0008) ?
             (($p & 0x0400) ? 's' : 'x') :
-            (($p & 0x0400) ? 'S' : '-')) .
-            (($p & 0x0004) ? 'r' : '-') .
-            (($p & 0x0002) ? 'w' : '-') .
+            (($p & 0x0400) ? 'S' : '-')).
+            (($p & 0x0004) ? 'r' : '-').
+            (($p & 0x0002) ? 'w' : '-').
             (($p & 0x0001) ?
             (($p & 0x0200) ? 't' : 'x') :
             (($p & 0x0200) ? 'T' : '-'));
@@ -197,7 +191,7 @@ abstract class FileGeneric
      */
     public function isReadable(): bool
     {
-        return is_readable($this->getStreamName());
+        return \is_readable($this->getStreamName());
     }
 
     /**
@@ -205,7 +199,7 @@ abstract class FileGeneric
      */
     public function isWritable(): bool
     {
-        return is_writable($this->getStreamName());
+        return \is_writable($this->getStreamName());
     }
 
     /**
@@ -213,7 +207,7 @@ abstract class FileGeneric
      */
     public function isExecutable(): bool
     {
-        return is_executable($this->getStreamName());
+        return \is_executable($this->getStreamName());
     }
 
     /**
@@ -221,7 +215,7 @@ abstract class FileGeneric
      */
     public function clearStatisticCache()
     {
-        clearstatcache(true, $this->getStreamName());
+        \clearstatcache(true, $this->getStreamName());
     }
 
     /**
@@ -229,7 +223,7 @@ abstract class FileGeneric
      */
     public static function clearAllStatisticCaches()
     {
-        clearstatcache();
+        \clearstatcache();
     }
 
     /**
@@ -238,14 +232,14 @@ abstract class FileGeneric
     public function touch(int $time = null, int $atime = null): bool
     {
         if (null === $time) {
-            $time  = time();
+            $time = \time();
         }
 
         if (null === $atime) {
             $atime = $time;
         }
 
-        return touch($this->getStreamName(), $time, $atime);
+        return \touch($this->getStreamName(), $time, $atime);
     }
 
     /**
@@ -257,15 +251,15 @@ abstract class FileGeneric
         $from = $this->getStreamName();
 
         if ($force === StreamTouchable::DO_NOT_OVERWRITE &&
-            true === file_exists($to)) {
+            true === \file_exists($to)) {
             return true;
         }
 
         if (null === $this->getStreamContext()) {
-            return @copy($from, $to);
+            return @\copy($from, $to);
         }
 
-        return @copy($from, $to, $this->getStreamContext()->getContext());
+        return @\copy($from, $to, $this->getStreamContext()->getContext());
     }
 
     /**
@@ -279,22 +273,22 @@ abstract class FileGeneric
         $from = $this->getStreamName();
 
         if ($force === StreamTouchable::DO_NOT_OVERWRITE &&
-            true === file_exists($name)) {
+            true === \file_exists($name)) {
             return false;
         }
 
         if (StreamTouchable::MAKE_DIRECTORY === $mkdir) {
             Directory::create(
-                dirname($name),
+                \dirname($name),
                 Directory::MODE_CREATE_RECURSIVE
             );
         }
 
         if (null === $this->getStreamContext()) {
-            return @rename($from, $name);
+            return @\rename($from, $name);
         }
 
-        return @rename($from, $name, $this->getStreamContext()->getContext());
+        return @\rename($from, $name, $this->getStreamContext()->getContext());
     }
 
     /**
@@ -303,10 +297,10 @@ abstract class FileGeneric
     public function delete(): bool
     {
         if (null === $this->getStreamContext()) {
-            return @unlink($this->getStreamName());
+            return @\unlink($this->getStreamName());
         }
 
-        return @unlink(
+        return @\unlink(
             $this->getStreamName(),
             $this->getStreamContext()->getContext()
         );
@@ -317,7 +311,7 @@ abstract class FileGeneric
      */
     public function changeGroup($group): bool
     {
-        return chgrp($this->getStreamName(), $group);
+        return \chgrp($this->getStreamName(), $group);
     }
 
     /**
@@ -325,7 +319,7 @@ abstract class FileGeneric
      */
     public function changeMode(int $mode): bool
     {
-        return chmod($this->getStreamName(), $mode);
+        return \chmod($this->getStreamName(), $mode);
     }
 
     /**
@@ -333,7 +327,7 @@ abstract class FileGeneric
      */
     public function changeOwner($user): bool
     {
-        return chown($this->getStreamName(), $user);
+        return \chown($this->getStreamName(), $user);
     }
 
     /**
@@ -342,10 +336,10 @@ abstract class FileGeneric
     public static function umask(int $umask = null): int
     {
         if (null === $umask) {
-            return umask();
+            return \umask();
         }
 
-        return umask($umask);
+        return \umask($umask);
     }
 
     /**
@@ -353,7 +347,7 @@ abstract class FileGeneric
      */
     public function isFile(): bool
     {
-        return is_file($this->getStreamName());
+        return \is_file($this->getStreamName());
     }
 
     /**
@@ -361,7 +355,7 @@ abstract class FileGeneric
      */
     public function isLink(): bool
     {
-        return is_link($this->getStreamName());
+        return \is_link($this->getStreamName());
     }
 
     /**
@@ -369,7 +363,7 @@ abstract class FileGeneric
      */
     public function isDirectory(): bool
     {
-        return is_dir($this->getStreamName());
+        return \is_dir($this->getStreamName());
     }
 
     /**
@@ -377,7 +371,7 @@ abstract class FileGeneric
      */
     public function isSocket(): bool
     {
-        return filetype($this->getStreamName()) == 'socket';
+        return \filetype($this->getStreamName()) === 'socket';
     }
 
     /**
@@ -385,7 +379,7 @@ abstract class FileGeneric
      */
     public function isFIFOPipe(): bool
     {
-        return filetype($this->getStreamName()) == 'fifo';
+        return \filetype($this->getStreamName()) === 'fifo';
     }
 
     /**
@@ -393,7 +387,7 @@ abstract class FileGeneric
      */
     public function isCharacterSpecial(): bool
     {
-        return filetype($this->getStreamName()) == 'char';
+        return \filetype($this->getStreamName()) === 'char';
     }
 
     /**
@@ -401,7 +395,7 @@ abstract class FileGeneric
      */
     public function isBlockSpecial(): bool
     {
-        return filetype($this->getStreamName()) == 'block';
+        return \filetype($this->getStreamName()) === 'block';
     }
 
     /**
@@ -409,7 +403,7 @@ abstract class FileGeneric
      */
     public function isUnknown(): bool
     {
-        return filetype($this->getStreamName()) == 'unknown';
+        return \filetype($this->getStreamName()) === 'unknown';
     }
 
     /**
@@ -417,7 +411,7 @@ abstract class FileGeneric
      */
     protected function setMode(string $mode)
     {
-        $old         = $this->_mode;
+        $old = $this->_mode;
         $this->_mode = $mode;
 
         return $old;
@@ -436,7 +430,7 @@ abstract class FileGeneric
      */
     public function getINode(): int
     {
-        return fileinode($this->getStreamName());
+        return \fileinode($this->getStreamName());
     }
 
     /**
@@ -445,8 +439,8 @@ abstract class FileGeneric
     public static function isCaseSensitive(): bool
     {
         return !(
-            file_exists(mb_strtolower(__FILE__)) &&
-            file_exists(mb_strtoupper(__FILE__))
+            \file_exists(\mb_strtolower(__FILE__)) &&
+            \file_exists(\mb_strtoupper(__FILE__))
         );
     }
 
@@ -455,7 +449,7 @@ abstract class FileGeneric
      */
     public function getRealPath(): string
     {
-        if (false === $out = realpath($this->getStreamName())) {
+        if (false === $out = \realpath($this->getStreamName())) {
             return $this->getStreamName();
         }
 
@@ -467,9 +461,9 @@ abstract class FileGeneric
      */
     public function getExtension(): string
     {
-        return pathinfo(
+        return \pathinfo(
             $this->getStreamName(),
-            PATHINFO_EXTENSION
+            \PATHINFO_EXTENSION
         );
     }
 
@@ -478,14 +472,14 @@ abstract class FileGeneric
      */
     public function getFilename(): string
     {
-        $file = basename($this->getStreamName());
+        $file = \basename($this->getStreamName());
 
-        if (defined('PATHINFO_FILENAME')) {
-            return pathinfo($file, PATHINFO_FILENAME);
+        if (\defined('PATHINFO_FILENAME')) {
+            return \pathinfo($file, \PATHINFO_FILENAME);
         }
 
-        if (strstr($file, '.')) {
-            return substr($file, 0, strrpos($file, '.'));
+        if (\strstr($file, '.')) {
+            return \substr($file, 0, \strrpos($file, '.'));
         }
 
         return $file;

@@ -50,7 +50,7 @@ class Ustring
      */
     public static function checkMbString(): bool
     {
-        return function_exists('mb_substr');
+        return \function_exists('mb_substr');
     }
 
     /**
@@ -68,38 +68,38 @@ class Ustring
     public static function getCharWidth(string $char): int
     {
         $char = (string) $char;
-        $c    = static::toCode($char);
+        $c = static::toCode($char);
 
         // Test for 8-bit control characters.
         if (0x0 === $c) {
             return 0;
         }
 
-        if (0x20 > $c || (0x7f <= $c && $c < 0xa0)) {
+        if (0x20 > $c || (0x7F <= $c && $c < 0xA0)) {
             return -1;
         }
 
         // Non-spacing characters.
-        if (0xad !== $c &&
-            0 !== preg_match('#^[\p{Mn}\p{Me}\p{Cf}\x{1160}-\x{11ff}\x{200b}]#u', $char)) {
+        if (0xAD !== $c &&
+            0 !== \preg_match('#^[\p{Mn}\p{Me}\p{Cf}\x{1160}-\x{11ff}\x{200b}]#u', $char)) {
             return 0;
         }
 
         // If we arrive here, $c is not a combining C0/C1 control character.
         return 1 +
             (0x1100 <= $c &&
-                (0x115f >= $c ||                        // Hangul Jamo init. consonants
-                 0x2329 === $c || 0x232a === $c ||
-                     (0x2e80 <= $c && 0xa4cf >= $c &&
-                      0x303f !== $c) ||                // CJK…Yi
-                     (0xac00 <= $c && 0xd7a3 >= $c) || // Hangul Syllables
-                     (0xf900 <= $c && 0xfaff >= $c) || // CJK Compatibility Ideographs
-                     (0xfe10 <= $c && 0xfe19 >= $c) || // Vertical forms
-                     (0xfe30 <= $c && 0xfe6f >= $c) || // CJK Compatibility Forms
-                     (0xff00 <= $c && 0xff60 >= $c) || // Fullwidth Forms
-                     (0xffe0 <= $c && 0xffe6 >= $c) ||
-                     (0x20000 <= $c && 0x2fffd >= $c) ||
-                     (0x30000 <= $c && 0x3fffd >= $c)));
+                (0x115F >= $c ||                        // Hangul Jamo init. consonants
+                 0x2329 === $c || 0x232A === $c ||
+                     (0x2E80 <= $c && 0xA4CF >= $c &&
+                      0x303F !== $c) ||                // CJK…Yi
+                     (0xAC00 <= $c && 0xD7A3 >= $c) || // Hangul Syllables
+                     (0xF900 <= $c && 0xFAFF >= $c) || // CJK Compatibility Ideographs
+                     (0xFE10 <= $c && 0xFE19 >= $c) || // Vertical forms
+                     (0xFE30 <= $c && 0xFE6F >= $c) || // CJK Compatibility Forms
+                     (0xFF00 <= $c && 0xFF60 >= $c) || // Fullwidth Forms
+                     (0xFFE0 <= $c && 0xFFE6 >= $c) ||
+                     (0x20000 <= $c && 0x2FFFD >= $c) ||
+                     (0x30000 <= $c && 0x3FFFD >= $c)));
     }
 
     /**
@@ -115,27 +115,27 @@ class Ustring
      */
     public static function toCode(string $char): int
     {
-        $char  = (string) $char;
-        $code  = ord($char[0]);
+        $char = (string) $char;
+        $code = \ord($char[0]);
         $bytes = 1;
 
         if (!($code & 0x80)) { // 0xxxxxxx
             return $code;
         }
 
-        if (($code & 0xe0) === 0xc0) { // 110xxxxx
+        if (($code & 0xE0) === 0xC0) { // 110xxxxx
             $bytes = 2;
-            $code  = $code & ~0xc0;
-        } elseif (($code & 0xf0) == 0xe0) { // 1110xxxx
+            $code = $code & ~0xC0;
+        } elseif (($code & 0xF0) === 0xE0) { // 1110xxxx
             $bytes = 3;
-            $code  = $code & ~0xe0;
-        } elseif (($code & 0xf8) === 0xf0) { // 11110xxx
+            $code = $code & ~0xE0;
+        } elseif (($code & 0xF8) === 0xF0) { // 11110xxx
             $bytes = 4;
-            $code  = $code & ~0xf0;
+            $code = $code & ~0xF0;
         }
 
         for ($i = 2; $i <= $bytes; $i++) { // 10xxxxxx
-            $code = ($code << 6) + (ord($char[$i - 1]) & ~0x80);
+            $code = ($code << 6) + (\ord($char[$i - 1]) & ~0x80);
         }
 
         return $code;

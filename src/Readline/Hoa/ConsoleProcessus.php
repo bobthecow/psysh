@@ -39,136 +39,132 @@ namespace Psy\Readline\Hoa;
 /**
  * Manipulate a processus as a stream.
  */
-class          ConsoleProcessus
-    extends    Stream
-    implements StreamIn,
-               StreamOut,
-               StreamPathable
+class ConsoleProcessus extends Stream implements StreamIn, StreamOut, StreamPathable
 {
     /**
      * Signal: terminal line hangup (terminate process).
      */
-    const SIGHUP    =  1;
+    const SIGHUP = 1;
 
     /**
      * Signal: interrupt program (terminate process).
      */
-    const SIGINT    =  2;
+    const SIGINT = 2;
 
     /**
      * Signal: quit program (create core image).
      */
-    const SIGQUIT   =  3;
+    const SIGQUIT = 3;
 
     /**
      * Signal: illegal instruction (create core image).
      */
-    const SIGILL    =  4;
+    const SIGILL = 4;
 
     /**
      * Signal: trace trap (create core image).
      */
-    const SIGTRAP   =  5;
+    const SIGTRAP = 5;
 
     /**
      * Signal: abort program, formerly SIGIOT (create core image).
      */
-    const SIGABRT   =  6;
+    const SIGABRT = 6;
 
     /**
      * Signal: emulate instruction executed (create core image).
      */
-    const SIGEMT    =  7;
+    const SIGEMT = 7;
 
     /**
      * Signal: floating-point exception (create core image).
      */
-    const SIGFPE    =  8;
+    const SIGFPE = 8;
 
     /**
      * Signal: kill program (terminate process).
      */
-    const SIGKILL   =  9;
+    const SIGKILL = 9;
 
     /**
      * Signal: bus error.
      */
-    const SIGBUS    = 10;
+    const SIGBUS = 10;
 
     /**
      * Signal: segmentation violation (create core image).
      */
-    const SIGSEGV   = 11;
+    const SIGSEGV = 11;
 
     /**
      * Signal: non-existent system call invoked (create core image).
      */
-    const SIGSYS    = 12;
+    const SIGSYS = 12;
 
     /**
      * Signal: write on a pipe with no reader (terminate process).
      */
-    const SIGPIPE   = 13;
+    const SIGPIPE = 13;
 
     /**
      * Signal: real-time timer expired (terminate process).
      */
-    const SIGALRM   = 14;
+    const SIGALRM = 14;
 
     /**
      * Signal: software termination signal (terminate process).
      */
-    const SIGTERM   = 15;
+    const SIGTERM = 15;
 
     /**
      * Signal: urgent condition present on socket (discard signal).
      */
-    const SIGURG    = 16;
+    const SIGURG = 16;
 
     /**
      * Signal: stop, cannot be caught or ignored  (stop proces).
      */
-    const SIGSTOP   = 17;
+    const SIGSTOP = 17;
 
     /**
      * Signal: stop signal generated from keyboard (stop process).
      */
-    const SIGTSTP   = 18;
+    const SIGTSTP = 18;
 
     /**
      * Signal: continue after stop (discard signal).
      */
-    const SIGCONT   = 19;
+    const SIGCONT = 19;
 
     /**
      * Signal: child status has changed (discard signal).
      */
-    const SIGCHLD   = 20;
+    const SIGCHLD = 20;
 
     /**
      * Signal: background read attempted from control terminal (stop process).
      */
-    const SIGTTIN   = 21;
+    const SIGTTIN = 21;
 
     /**
      * Signal: background write attempted to control terminal (stop process).
      */
-    const SIGTTOU   = 22;
+    const SIGTTOU = 22;
 
     /**
      * Signal: I/O is possible on a descriptor, see fcntl(2) (discard signal).
      */
-    const SIGIO     = 23;
+    const SIGIO = 23;
 
     /**
      * Signal: cpu time limit exceeded, see setrlimit(2) (terminate process).
      */
-    const SIGXCPU   = 24;
+    const SIGXCPU = 24;
 
     /**
      * Signal: file size limit exceeded, see setrlimit(2) (terminate process).
      */
-    const SIGXFSZ   = 25;
+    const SIGXFSZ = 25;
 
     /**
      * Signal: virtual time alarm, see setitimer(2) (terminate process).
@@ -178,42 +174,42 @@ class          ConsoleProcessus
     /**
      * Signal: profiling timer alarm, see setitimer(2) (terminate process).
      */
-    const SIGPROF   = 27;
+    const SIGPROF = 27;
 
     /**
      * Signal: Window size change (discard signal).
      */
-    const SIGWINCH  = 28;
+    const SIGWINCH = 28;
 
     /**
      * Signal: status request from keyboard (discard signal).
      */
-    const SIGINFO   = 29;
+    const SIGINFO = 29;
 
     /**
      * Signal: User defined signal 1 (terminate process).
      */
-    const SIGUSR1   = 30;
+    const SIGUSR1 = 30;
 
     /**
      * Signal: User defined signal 2 (terminate process).
      */
-    const SIGUSR2   = 31;
+    const SIGUSR2 = 31;
 
     /**
      * Command name.
      */
-    protected $_command     = null;
+    protected $_command = null;
 
     /**
      * Command options (options => value, or input).
      */
-    protected $_options     = [];
+    protected $_options = [];
 
     /**
      * Current working directory.
      */
-    protected $_cwd         = null;
+    protected $_cwd = null;
 
     /**
      * Environment.
@@ -223,7 +219,7 @@ class          ConsoleProcessus
     /**
      * Timeout.
      */
-    protected $_timeout     = 30;
+    protected $_timeout = 30;
 
     /**
      * Descriptor.
@@ -231,31 +227,29 @@ class          ConsoleProcessus
     protected $_descriptors = [
         0 => ['pipe', 'r'],
         1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
+        2 => ['pipe', 'w'],
     ];
 
     /**
      * Pipe descriptors of the processus.
      */
-    protected $_pipes       = null;
+    protected $_pipes = null;
 
     /**
      * Seekability of pipes.
      */
-    protected $_seekable    = [];
-
-
+    protected $_seekable = [];
 
     /**
      * Start a processus.
      */
     public function __construct(
         string $command,
-        array $options     = null,
+        array $options = null,
         array $descriptors = null,
-        string $cwd        = null,
+        string $cwd = null,
         array $environment = null,
-        int $timeout       = 30
+        int $timeout = 30
     ) {
         $this->setCommand($command);
 
@@ -268,19 +262,14 @@ class          ConsoleProcessus
 
             foreach ($descriptors as $descriptor => $nature) {
                 if (isset($this->_descriptors[$descriptor])) {
-                    throw new ConsoleException(
-                        'Pipe descriptor %d already exists, cannot ' .
-                        'redefine it.',
-                        0,
-                        $descriptor
-                    );
+                    throw new ConsoleException('Pipe descriptor %d already exists, cannot '.'redefine it.', 0, $descriptor);
                 }
 
                 $this->_descriptors[$descriptor] = $nature;
             }
         }
 
-        $this->setCwd($cwd ?: getcwd());
+        $this->setCwd($cwd ?: \getcwd());
 
         if (null !== $environment) {
             $this->setEnvironment($environment);
@@ -298,7 +287,7 @@ class          ConsoleProcessus
      */
     protected function &_open(string $streamName, StreamContext $context = null)
     {
-        $out = @proc_open(
+        $out = @\proc_open(
             $streamName,
             $this->_descriptors,
             $this->_pipes,
@@ -307,11 +296,7 @@ class          ConsoleProcessus
         );
 
         if (false === $out) {
-            throw new ConsoleException(
-                'Something wrong happen when running %s.',
-                1,
-                $streamName
-            );
+            throw new ConsoleException('Something wrong happen when running %s.', 1, $streamName);
         }
 
         return $out;
@@ -323,10 +308,10 @@ class          ConsoleProcessus
     protected function _close(): bool
     {
         foreach ($this->_pipes as $pipe) {
-            @fclose($pipe);
+            @\fclose($pipe);
         }
 
-        return (bool) @proc_close($this->getStream());
+        return (bool) @\proc_close($this->getStream());
     }
 
     /**
@@ -349,22 +334,22 @@ class          ConsoleProcessus
 
         $this->getListener()->fire('start', new EventBucket());
 
-        $_read   = [];
-        $_write  = [];
+        $_read = [];
+        $_write = [];
         $_except = [];
 
         foreach ($this->_pipes as $p => $pipe) {
             switch ($this->_descriptors[$p][1]) {
                 case 'r':
-                    stream_set_blocking($pipe, false);
+                    \stream_set_blocking($pipe, false);
                     $_write[] = $pipe;
 
                     break;
 
                 case 'w':
                 case 'a':
-                    stream_set_blocking($pipe, true);
-                    $_read[]  = $pipe;
+                    \stream_set_blocking($pipe, true);
+                    $_read[] = $pipe;
 
                     break;
             }
@@ -372,19 +357,19 @@ class          ConsoleProcessus
 
         while (true) {
             foreach ($_read as $i => $r) {
-                if (false === is_resource($r)) {
+                if (false === \is_resource($r)) {
                     unset($_read[$i]);
                 }
             }
 
             foreach ($_write as $i => $w) {
-                if (false === is_resource($w)) {
+                if (false === \is_resource($w)) {
                     unset($_write[$i]);
                 }
             }
 
             foreach ($_except as $i => $e) {
-                if (false === is_resource($e)) {
+                if (false === \is_resource($e)) {
                     unset($_except[$i]);
                 }
             }
@@ -393,10 +378,10 @@ class          ConsoleProcessus
                 break;
             }
 
-            $read   = $_read;
-            $write  = $_write;
+            $read = $_read;
+            $write = $_write;
             $except = $_except;
-            $select = stream_select($read, $write, $except, $this->getTimeout());
+            $select = \stream_select($read, $write, $except, $this->getTimeout());
 
             if (0 === $select) {
                 $this->getListener()->fire('timeout', new EventBucket());
@@ -405,7 +390,7 @@ class          ConsoleProcessus
             }
 
             foreach ($read as $i => $_r) {
-                $pipe = array_search($_r, $this->_pipes);
+                $pipe = \array_search($_r, $this->_pipes);
                 $line = $this->readLine($pipe);
 
                 if (false === $line) {
@@ -415,13 +400,13 @@ class          ConsoleProcessus
                         'output',
                         new EventBucket([
                             'pipe' => $pipe,
-                            'line' => $line
+                            'line' => $line,
                         ])
                     );
                 }
 
-                if (true === feof($_r) || in_array(false, $result, true)) {
-                    fclose($_r);
+                if (true === \feof($_r) || \in_array(false, $result, true)) {
+                    \fclose($_r);
                     unset($_read[$i]);
 
                     break;
@@ -432,12 +417,12 @@ class          ConsoleProcessus
                 $result = $this->getListener()->fire(
                     'input',
                     new EventBucket([
-                        'pipe' => array_search($_w, $this->_pipes)
+                        'pipe' => \array_search($_w, $this->_pipes),
                     ])
                 );
 
-                if (true === feof($_w) || in_array(false, $result, true)) {
-                    fclose($_w);
+                if (true === \feof($_w) || \in_array(false, $result, true)) {
+                    \fclose($_w);
                     unset($_write[$j]);
                 }
             }
@@ -458,11 +443,7 @@ class          ConsoleProcessus
     protected function getPipe(int $pipe)
     {
         if (!isset($this->_pipes[$pipe])) {
-            throw new ConsoleException(
-                'Pipe descriptor %d does not exist, cannot read from it.',
-                2,
-                $pipe
-            );
+            throw new ConsoleException('Pipe descriptor %d does not exist, cannot read from it.', 2, $pipe);
         }
 
         return $this->_pipes[$pipe];
@@ -474,8 +455,8 @@ class          ConsoleProcessus
     protected function isPipeSeekable(int $pipe): bool
     {
         if (!isset($this->_seekable[$pipe])) {
-            $_pipe                  = $this->getPipe($pipe);
-            $data                   = stream_get_meta_data($_pipe);
+            $_pipe = $this->getPipe($pipe);
+            $data = \stream_get_meta_data($_pipe);
             $this->_seekable[$pipe] = $data['seekable'];
         }
 
@@ -487,7 +468,7 @@ class          ConsoleProcessus
      */
     public function eof(int $pipe = 1): bool
     {
-        return feof($this->getPipe($pipe));
+        return \feof($this->getPipe($pipe));
     }
 
     /**
@@ -496,14 +477,10 @@ class          ConsoleProcessus
     public function read(int $length, int $pipe = 1)
     {
         if (0 > $length) {
-            throw new ConsoleException(
-                'Length must be greater than 0, given %d.',
-                3,
-                $length
-            );
+            throw new ConsoleException('Length must be greater than 0, given %d.', 3, $length);
         }
 
-        return fread($this->getPipe($pipe), $length);
+        return \fread($this->getPipe($pipe), $length);
     }
 
     /**
@@ -519,7 +496,7 @@ class          ConsoleProcessus
      */
     public function readCharacter(int $pipe = 1)
     {
-        return fgetc($this->getPipe($pipe));
+        return \fgetc($this->getPipe($pipe));
     }
 
     /**
@@ -560,7 +537,7 @@ class          ConsoleProcessus
      */
     public function readLine(int $pipe = 1)
     {
-        return stream_get_line($this->getPipe($pipe), 1 << 15, "\n");
+        return \stream_get_line($this->getPipe($pipe), 1 << 15, "\n");
     }
 
     /**
@@ -571,12 +548,12 @@ class          ConsoleProcessus
         $_pipe = $this->getPipe($pipe);
 
         if (true === $this->isPipeSeekable($pipe)) {
-            $offset += ftell($_pipe);
+            $offset += \ftell($_pipe);
         } else {
-            $offset  = -1;
+            $offset = -1;
         }
 
-        return stream_get_contents($_pipe, -1, $offset);
+        return \stream_get_contents($_pipe, -1, $offset);
     }
 
     /**
@@ -584,7 +561,7 @@ class          ConsoleProcessus
      */
     public function scanf(string $format, int $pipe = 1): array
     {
-        return fscanf($this->getPipe($pipe), $format);
+        return \fscanf($this->getPipe($pipe), $format);
     }
 
     /**
@@ -593,14 +570,10 @@ class          ConsoleProcessus
     public function write(string $string, int $length, int $pipe = 0)
     {
         if (0 > $length) {
-            throw new ConsoleException(
-                'Length must be greater than 0, given %d.',
-                4,
-                $length
-            );
+            throw new ConsoleException('Length must be greater than 0, given %d.', 4, $length);
         }
 
-        return fwrite($this->getPipe($pipe), $string, $length);
+        return \fwrite($this->getPipe($pipe), $string, $length);
     }
 
     /**
@@ -610,7 +583,7 @@ class          ConsoleProcessus
     {
         $string = (string) $string;
 
-        return $this->write($string, strlen($string), $pipe);
+        return $this->write($string, \strlen($string), $pipe);
     }
 
     /**
@@ -636,7 +609,7 @@ class          ConsoleProcessus
     {
         $integer = (string) (int) $integer;
 
-        return $this->write($integer, strlen($integer), $pipe);
+        return $this->write($integer, \strlen($integer), $pipe);
     }
 
     /**
@@ -646,7 +619,7 @@ class          ConsoleProcessus
     {
         $float = (string) (float) $float;
 
-        return $this->write($float, strlen($float), $pipe);
+        return $this->write($float, \strlen($float), $pipe);
     }
 
     /**
@@ -654,9 +627,9 @@ class          ConsoleProcessus
      */
     public function writeArray(array $array, int $pipe = 0)
     {
-        $array = var_export($array, true);
+        $array = \var_export($array, true);
 
-        return $this->write($array, strlen($array), $pipe);
+        return $this->write($array, \strlen($array), $pipe);
     }
 
     /**
@@ -664,13 +637,13 @@ class          ConsoleProcessus
      */
     public function writeLine(string $line, int $pipe = 0)
     {
-        if (false === $n = strpos($line, "\n")) {
-            return $this->write($line . "\n", strlen($line) + 1, $pipe);
+        if (false === $n = \strpos($line, "\n")) {
+            return $this->write($line."\n", \strlen($line) + 1, $pipe);
         }
 
         ++$n;
 
-        return $this->write(substr($line, 0, $n), $n, $pipe);
+        return $this->write(\substr($line, 0, $n), $n, $pipe);
     }
 
     /**
@@ -678,7 +651,7 @@ class          ConsoleProcessus
      */
     public function writeAll(string $string, int $pipe = 0)
     {
-        return $this->write($string, strlen($string), $pipe);
+        return $this->write($string, \strlen($string), $pipe);
     }
 
     /**
@@ -686,7 +659,7 @@ class          ConsoleProcessus
      */
     public function truncate(int $size, int $pipe = 0): bool
     {
-        return ftruncate($this->getPipe($pipe), $size);
+        return \ftruncate($this->getPipe($pipe), $size);
     }
 
     /**
@@ -694,7 +667,7 @@ class          ConsoleProcessus
      */
     public function getBasename(): string
     {
-        return basename($this->getCommand());
+        return \basename($this->getCommand());
     }
 
     /**
@@ -702,7 +675,7 @@ class          ConsoleProcessus
      */
     public function getDirname(): string
     {
-        return dirname($this->getCommand());
+        return \dirname($this->getCommand());
     }
 
     /**
@@ -710,11 +683,11 @@ class          ConsoleProcessus
      */
     public function getStatus(): array
     {
-        return proc_get_status($this->getStream());
+        return \proc_get_status($this->getStream());
     }
 
     /**
-     * Get exit code (alias of $this->getStatus()['exitcode']);
+     * Get exit code (alias of $this->getStatus()['exitcode']);.
      */
     public function getExitCode(): int
     {
@@ -726,7 +699,7 @@ class          ConsoleProcessus
     /**
      * Whether the processus have ended successfully.
      *
-     * @return  boolean
+     * @return bool
      */
     public function isSuccessful(): bool
     {
@@ -741,7 +714,7 @@ class          ConsoleProcessus
      */
     public function terminate(int $signal = self::SIGTERM): bool
     {
-        return proc_terminate($this->getStream(), $signal);
+        return \proc_terminate($this->getStream(), $signal);
     }
 
     /**
@@ -749,8 +722,8 @@ class          ConsoleProcessus
      */
     protected function setCommand(string $command)
     {
-        $old            = $this->_command;
-        $this->_command = escapeshellcmd($command);
+        $old = $this->_command;
+        $this->_command = \escapeshellcmd($command);
 
         return $old;
     }
@@ -769,10 +742,10 @@ class          ConsoleProcessus
     protected function setOptions(array $options): array
     {
         foreach ($options as &$option) {
-            $option = escapeshellarg($option);
+            $option = \escapeshellarg($option);
         }
 
-        $old            = $this->_options;
+        $old = $this->_options;
         $this->_options = $options;
 
         return $old;
@@ -794,10 +767,10 @@ class          ConsoleProcessus
         $out = $this->getCommand();
 
         foreach ($this->getOptions() as $key => $value) {
-            if (!is_int($key)) {
-                $out .= ' ' . $key . '=' . $value;
+            if (!\is_int($key)) {
+                $out .= ' '.$key.'='.$value;
             } else {
-                $out .= ' ' . $value;
+                $out .= ' '.$value;
             }
         }
 
@@ -809,7 +782,7 @@ class          ConsoleProcessus
      */
     protected function setCwd(string $cwd)
     {
-        $old        = $this->_cwd;
+        $old = $this->_cwd;
         $this->_cwd = $cwd;
 
         return $old;
@@ -828,7 +801,7 @@ class          ConsoleProcessus
      */
     protected function setEnvironment(array $environment)
     {
-        $old                = $this->_environment;
+        $old = $this->_environment;
         $this->_environment = $environment;
 
         return $old;
@@ -847,7 +820,7 @@ class          ConsoleProcessus
      */
     public function setTimeout(int $timeout)
     {
-        $old            = $this->_timeout;
+        $old = $this->_timeout;
         $this->_timeout = $timeout;
 
         return $old;
@@ -866,7 +839,7 @@ class          ConsoleProcessus
      */
     public static function setTitle(string $title)
     {
-        cli_set_process_title($title);
+        \cli_set_process_title($title);
     }
 
     /**
@@ -874,7 +847,7 @@ class          ConsoleProcessus
      */
     public static function getTitle()
     {
-        return cli_get_process_title();
+        return \cli_get_process_title();
     }
 
     /**
@@ -884,19 +857,19 @@ class          ConsoleProcessus
     {
         if (isset($_ENV['PATH'])) {
             $separator = ':';
-            $path      = &$_ENV['PATH'];
+            $path = &$_ENV['PATH'];
         } elseif (isset($_SERVER['PATH'])) {
             $separator = ':';
-            $path      = &$_SERVER['PATH'];
+            $path = &$_SERVER['PATH'];
         } elseif (isset($_SERVER['Path'])) {
             $separator = ';';
-            $path      = &$_SERVER['Path'];
+            $path = &$_SERVER['Path'];
         } else {
             return null;
         }
 
-        foreach (explode($separator, $path) as $directory) {
-            if (true === file_exists($out = $directory . DIRECTORY_SEPARATOR . $binary)) {
+        foreach (\explode($separator, $path) as $directory) {
+            if (true === \file_exists($out = $directory.\DIRECTORY_SEPARATOR.$binary)) {
                 return $out;
             }
         }
@@ -911,9 +884,9 @@ class          ConsoleProcessus
     public static function execute(string $commandLine, bool $escape = true): string
     {
         if (true === $escape) {
-            $commandLine = escapeshellcmd($commandLine);
+            $commandLine = \escapeshellcmd($commandLine);
         }
 
-        return rtrim(shell_exec($commandLine) ?? '');
+        return \rtrim(\shell_exec($commandLine) ?? '');
     }
 }

@@ -51,46 +51,44 @@ class FileFinder implements \IteratorAggregate
     /**
      * Paths where to look for.
      */
-    protected $_paths       = [];
+    protected $_paths = [];
 
     /**
      * Max depth in recursion.
      */
-    protected $_maxDepth    = -1;
+    protected $_maxDepth = -1;
 
     /**
      * Filters.
      */
-    protected $_filters     = [];
+    protected $_filters = [];
 
     /**
      * Flags.
      */
-    protected $_flags       = -1;
+    protected $_flags = -1;
 
     /**
      * Types of files to handle.
      */
-    protected $_types       = [];
+    protected $_types = [];
 
     /**
      * What comes first: parent or child?
      */
-    protected $_first       = -1;
+    protected $_first = -1;
 
     /**
      * Sorts.
      */
-    protected $_sorts       = [];
-
-
+    protected $_sorts = [];
 
     /**
      * Initialize.
      */
     public function __construct()
     {
-        $this->_flags =   IteratorFileSystem::KEY_AS_PATHNAME
+        $this->_flags = IteratorFileSystem::KEY_AS_PATHNAME
                         | IteratorFileSystem::CURRENT_AS_FILEINFO
                         | IteratorFileSystem::SKIP_DOTS;
         $this->_first = \RecursiveIteratorIterator::SELF_FIRST;
@@ -103,14 +101,14 @@ class FileFinder implements \IteratorAggregate
      */
     public function in($paths): self
     {
-        if (!is_array($paths)) {
+        if (!\is_array($paths)) {
             $paths = [$paths];
         }
 
         foreach ($paths as $path) {
-            if (1 === preg_match('/[\*\?\[\]]/', $path)) {
+            if (1 === \preg_match('/[\*\?\[\]]/', $path)) {
                 $iterator = new \CallbackFilterIterator(
-                    new \GlobIterator(rtrim($path, DIRECTORY_SEPARATOR)),
+                    new \GlobIterator(\rtrim($path, \DIRECTORY_SEPARATOR)),
                     function ($current) {
                         return $current->isDir();
                     }
@@ -184,12 +182,12 @@ class FileFinder implements \IteratorAggregate
     /**
      * Include files that match a regex.
      * Example:
-     *     $this->name('#\.php$#');
+     *     $this->name('#\.php$#');.
      */
     public function name(string $regex): self
     {
         $this->_filters[] = function (\SplFileInfo $current) use ($regex) {
-            return 0 !== preg_match($regex, $current->getBasename());
+            return 0 !== \preg_match($regex, $current->getBasename());
         };
 
         return $this;
@@ -198,13 +196,13 @@ class FileFinder implements \IteratorAggregate
     /**
      * Exclude directories that match a regex.
      * Example:
-     *      $this->notIn('#^\.(git|hg)$#');
+     *      $this->notIn('#^\.(git|hg)$#');.
      */
     public function notIn(string $regex): self
     {
         $this->_filters[] = function (\SplFileInfo $current) use ($regex) {
-            foreach (explode(DIRECTORY_SEPARATOR, $current->getPathname()) as $part) {
-                if (0 !== preg_match($regex, $part)) {
+            foreach (\explode(\DIRECTORY_SEPARATOR, $current->getPathname()) as $part) {
+                if (0 !== \preg_match($regex, $part)) {
                     return false;
                 }
             }
@@ -224,20 +222,19 @@ class FileFinder implements \IteratorAggregate
      *     • number is a positive integer;
      *     • unit could be: b (default), Kb, Mb, Gb, Tb, Pb, Eb, Zb, Yb.
      * Example:
-     *     $this->size('>= 12Kb');
+     *     $this->size('>= 12Kb');.
      */
     public function size(string $size): self
     {
-        if (0 === preg_match('#^(<|<=|>|>=|=)\s*(\d+)\s*((?:[KMGTPEZY])b)?$#', $size, $matches)) {
+        if (0 === \preg_match('#^(<|<=|>|>=|=)\s*(\d+)\s*((?:[KMGTPEZY])b)?$#', $size, $matches)) {
             return $this;
         }
 
-        $number   = floatval($matches[2]);
-        $unit     = $matches[3] ?? 'b';
+        $number = (float) ($matches[2]);
+        $unit = $matches[3] ?? 'b';
         $operator = $matches[1];
 
         switch ($unit) {
-
             case 'b':
                 break;
 
@@ -374,18 +371,18 @@ class FileFinder implements \IteratorAggregate
     {
         $operator = -1;
 
-        if (0 === preg_match('#\bago\b#', $date)) {
+        if (0 === \preg_match('#\bago\b#', $date)) {
             $date .= ' ago';
         }
 
-        if (0 !== preg_match('#^(since|until)\b(.+)$#', $date, $matches)) {
-            $time = strtotime($matches[2]);
+        if (0 !== \preg_match('#^(since|until)\b(.+)$#', $date, $matches)) {
+            $time = \strtotime($matches[2]);
 
             if ('until' === $matches[1]) {
                 $operator = 1;
             }
         } else {
-            $time = strtotime($date);
+            $time = \strtotime($date);
         }
 
         return $time;
@@ -394,7 +391,7 @@ class FileFinder implements \IteratorAggregate
     /**
      * Include files that have been changed from a certain date.
      * Example:
-     *     $this->changed('since 13 days');
+     *     $this->changed('since 13 days');.
      */
     public function changed(string $date): self
     {
@@ -416,7 +413,7 @@ class FileFinder implements \IteratorAggregate
     /**
      * Include files that have been modified from a certain date.
      * Example:
-     *     $this->modified('since 13 days');
+     *     $this->modified('since 13 days');.
      */
     public function modified(string $date): self
     {
@@ -443,7 +440,7 @@ class FileFinder implements \IteratorAggregate
      *     // Include files that are readable
      *     $this->filter(function ($current) {
      *         return $current->isReadable();
-     *     });
+     *     });.
      */
     public function filter($callback): self
     {
@@ -457,11 +454,11 @@ class FileFinder implements \IteratorAggregate
      * If \Collator exists (from ext/intl), the $locale argument will be used
      * for its constructor. Else, strcmp() will be used.
      * Example:
-     *     $this->sortByName('fr_FR');
+     *     $this->sortByName('fr_FR');.
      */
     public function sortByName(string $locale = 'root'): self
     {
-        if (true === class_exists('Collator', false)) {
+        if (true === \class_exists('Collator', false)) {
             $collator = new \Collator($locale);
 
             $this->_sorts[] = function (\SplFileInfo $a, \SplFileInfo $b) use ($collator) {
@@ -469,7 +466,7 @@ class FileFinder implements \IteratorAggregate
             };
         } else {
             $this->_sorts[] = function (\SplFileInfo $a, \SplFileInfo $b) {
-                return strcmp($a->getPathname(), $b->getPathname());
+                return \strcmp($a->getPathname(), $b->getPathname());
             };
         }
 
@@ -479,7 +476,7 @@ class FileFinder implements \IteratorAggregate
     /**
      * Sort result by size.
      * Example:
-     *     $this->sortBySize();
+     *     $this->sortBySize();.
      */
     public function sortBySize(): self
     {
@@ -498,7 +495,7 @@ class FileFinder implements \IteratorAggregate
      *     // Sort files by their modified time.
      *     $this->sort(function ($a, $b) {
      *         return $a->getMTime() < $b->getMTime();
-     *     });
+     *     });.
      */
     public function sort($callable): self
     {
@@ -523,19 +520,19 @@ class FileFinder implements \IteratorAggregate
     public function getIterator()
     {
         $_iterator = new \AppendIterator();
-        $types     = $this->getTypes();
+        $types = $this->getTypes();
 
         if (!empty($types)) {
             $this->_filters[] = function (\SplFileInfo $current) use ($types) {
-                return in_array($current->getType(), $types);
+                return \in_array($current->getType(), $types);
             };
         }
 
-        $maxDepth    = $this->getMaxDepth();
+        $maxDepth = $this->getMaxDepth();
         $splFileInfo = $this->getSplFileInfo();
 
         foreach ($this->getPaths() as $path) {
-            if (1 == $maxDepth) {
+            if (1 === $maxDepth) {
                 $iterator = new \IteratorIterator(
                     new IteratorRecursiveDirectory(
                         $path,
@@ -575,10 +572,10 @@ class FileFinder implements \IteratorAggregate
             return $_iterator;
         }
 
-        $array = iterator_to_array($_iterator);
+        $array = \iterator_to_array($_iterator);
 
         foreach ($sorts as $sort) {
-            uasort($array, $sort);
+            \uasort($array, $sort);
         }
 
         return new \ArrayIterator($array);
@@ -589,7 +586,7 @@ class FileFinder implements \IteratorAggregate
      */
     public function setSplFileInfo(string $splFileInfo): string
     {
-        $old                = $this->_splFileInfo;
+        $old = $this->_splFileInfo;
         $this->_splFileInfo = $splFileInfo;
 
         return $old;

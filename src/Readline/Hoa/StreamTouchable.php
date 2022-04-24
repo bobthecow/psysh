@@ -46,24 +46,22 @@ interface StreamTouchable extends IStream
     /**
      * Overwrite file if already exists.
      */
-    const OVERWRITE             = true;
+    const OVERWRITE = true;
 
     /**
      * Do not overwrite file if already exists.
      */
-    const DO_NOT_OVERWRITE      = false;
+    const DO_NOT_OVERWRITE = false;
 
     /**
      * Make directory if does not exist.
      */
-    const MAKE_DIRECTORY        = true;
+    const MAKE_DIRECTORY = true;
 
     /**
      * Do not make directory if does not exist.
      */
     const DO_NOT_MAKE_DIRECTORY = false;
-
-
 
     /**
      * Set access and modification time of file.
