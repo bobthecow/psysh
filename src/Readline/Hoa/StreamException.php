@@ -34,15 +34,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream;
-
-use Hoa\Exception as HoaException;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Stream\Exception.
  *
  * Extending the \Hoa\Exception\Exception class.
  */
-class Exception extends HoaException
+class StreamException extends Exception
 {
 }

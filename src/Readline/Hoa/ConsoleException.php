@@ -34,15 +34,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
-
-use Hoa\Exception as HoaException;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Exception.
  *
  * Extending the \Hoa\Exception\Exception class.
  */
-class Exception extends HoaException
+class ConsoleException extends Exception
 {
 }

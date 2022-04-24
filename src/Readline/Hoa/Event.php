@@ -34,9 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Event;
-
-use Hoa\Consistency;
+namespace Psy\Readline\Hoa;
 
 /**
  * Events are asynchronous at registration, anonymous at use (until we
@@ -99,7 +97,7 @@ class Event
     public static function register(string $eventId, /*Source|string*/ $source)
     {
         if (true === self::eventExists($eventId)) {
-            throw new Exception(
+            throw new EventException(
                 'Cannot redeclare an event with the same ID, i.e. the event ' .
                 'ID %s already exists.',
                 0,
@@ -107,8 +105,8 @@ class Event
             );
         }
 
-        if (is_object($source) && !($source instanceof Source)) {
-            throw new Exception(
+        if (is_object($source) && !($source instanceof EventSource)) {
+            throw new EventException(
                 'The source must implement \Hoa\Event\Source ' .
                 'interface; given %s.',
                 1,
@@ -117,8 +115,8 @@ class Event
         } else {
             $reflection = new \ReflectionClass($source);
 
-            if (false === $reflection->implementsInterface('\Hoa\Event\Source')) {
-                throw new Exception(
+            if (false === $reflection->implementsInterface('\Psy\Readline\Hoa\EventSource')) {
+                throw new EventException(
                     'The source must implement \Hoa\Event\Source ' .
                     'interface; given %s.',
                     2,
@@ -157,7 +155,7 @@ class Event
      */
     public function attach($callable): self
     {
-        $callable                              = xcallable($callable);
+        $callable                              = Xcallable::from($callable);
         $this->_callable[$callable->getHash()] = $callable;
 
         return $this;
@@ -170,7 +168,7 @@ class Event
      */
     public function detach($callable): self
     {
-        unset($this->_callable[xcallable($callable)->getHash()]);
+        unset($this->_callable[Xcallable::from($callable)->getHash()]);
 
         return $this;
     }
@@ -186,10 +184,10 @@ class Event
     /**
      * Notifies, i.e. send data to observers.
      */
-    public static function notify(string $eventId, Source $source, Bucket $data)
+    public static function notify(string $eventId, EventSource $source, EventBucket $data)
     {
         if (false === self::eventExists($eventId)) {
-            throw new Exception(
+            throw new EventException(
                 'Event ID %s does not exist, cannot send notification.',
                 3,
                 $eventId
@@ -214,8 +212,3 @@ class Event
             self::$_register[$eventId][self::KEY_SOURCE] !== null;
     }
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Event::class);

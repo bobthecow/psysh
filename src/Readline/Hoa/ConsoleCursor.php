@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Cursor.
  *
  * Allow to manipulate the cursor.
  */
-class Cursor
+class ConsoleCursor
 {
     /**
      * Move the cursor.
@@ -640,7 +640,7 @@ class Cursor
      */
     public static function setStyle(string $style, bool $blink = true)
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 

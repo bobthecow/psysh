@@ -34,10 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File;
-
-use Hoa\Consistency;
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File.
@@ -45,10 +42,10 @@ use Hoa\Stream;
  * File handler.
  */
 abstract class File
-    extends    Generic
-    implements Stream\IStream\Bufferable,
-               Stream\IStream\Lockable,
-               Stream\IStream\Pointable
+    extends    FileGeneric
+    implements StreamBufferable,
+               StreamLockable,
+               StreamPointable
 {
     /**
      * Open for reading only; place the file pointer at the beginning of the
@@ -140,7 +137,7 @@ abstract class File
                     if (PHP_VERSION_ID >= 50306) {
                         $streamName = 'php://fd/' . $streamName;
                     } else {
-                        throw new Exception(
+                        throw new FileException(
                             'You need PHP5.3.6 to use a file descriptor ' .
                             'other than 0, 1 or 2 (tried %d with PHP%s).',
                             0,
@@ -158,11 +155,11 @@ abstract class File
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, StreamContext $context = null)
     {
         if (substr($streamName, 0, 4) == 'file' &&
             false === is_dir(dirname($streamName))) {
-            throw new Exception(
+            throw new FileException(
                 'Directory %s does not exist. Could not open file %s.',
                 1,
                 [dirname($streamName), basename($streamName)]
@@ -171,7 +168,7 @@ abstract class File
 
         if (null === $context) {
             if (false === $out = @fopen($streamName, $this->getMode(), true)) {
-                throw new Exception(
+                throw new FileException(
                     'Failed to open stream %s.',
                     2,
                     $streamName
@@ -189,7 +186,7 @@ abstract class File
         );
 
         if (false === $out) {
-            throw new Exception(
+            throw new FileException(
                 'Failed to open stream %s.',
                 3,
                 $streamName
@@ -271,7 +268,7 @@ abstract class File
     /**
      * Seek on a stream pointer.
      */
-    public function seek(int $offset, int $whence = Stream\IStream\Pointable::SEEK_SET): int
+    public function seek(int $offset, int $whence = StreamPointable::SEEK_SET): int
     {
         return fseek($this->getStream(), $offset, $whence);
     }
@@ -302,8 +299,3 @@ abstract class File
         return touch($name);
     }
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(File::class);

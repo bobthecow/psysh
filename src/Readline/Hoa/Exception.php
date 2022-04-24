@@ -34,15 +34,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Exception;
-
-use Hoa\Consistency;
-use Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * Each exception must extend `Hoa\Exception\Exception`.
  */
-class Exception extends Idle implements Event\Source
+class Exception extends ExceptionIdle implements EventSource
 {
     /**
      * Allocates a new exception.
@@ -76,12 +73,7 @@ class Exception extends Idle implements Event\Source
         Event::notify(
             'hoa://Event/Exception',
             $this,
-            new Event\Bucket($this)
+            new EventBucket($this)
         );
     }
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Exception::class);

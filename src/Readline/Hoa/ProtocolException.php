@@ -34,13 +34,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Protocol;
-
-use Hoa\Exception as HoaException;
+namespace Psy\Readline\Hoa;
 
 /**
  * Extends the `Hoa\Exception\Exception` class.
  */
-class Exception extends HoaException
+class ProtocolException extends Exception
 {
 }

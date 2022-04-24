@@ -34,7 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Tput.
@@ -44,7 +44,7 @@ namespace Hoa\Console;
  *     • http://man.cx/terminfo(5),
  *     • http://pubs.opengroup.org/onlinepubs/7908799/xcurses/terminfo.html,
  */
-class Tput
+class ConsoleTput
 {
     /**
      * Booleans.
@@ -591,7 +591,7 @@ class Tput
     protected function parse(string $terminfo): array
     {
         if (!file_exists($terminfo)) {
-            throw new Exception(
+            throw new ConsoleException(
                 'Terminfo file %s does not exist.',
                 0,
                 $terminfo
@@ -755,7 +755,7 @@ class Tput
         return
             isset($_SERVER['TERM']) && !empty($_SERVER['TERM'])
                 ? $_SERVER['TERM']
-                : (OS_WIN ? 'windows-ansi' : 'xterm');
+                : (defined('PHP_WINDOWS_VERSION_PLATFORM') ? 'windows-ansi' : 'xterm');
     }
 
     /**
@@ -770,7 +770,7 @@ class Tput
         }
 
         if (isset($_SERVER['HOME'])) {
-            $paths[] = $_SERVER['HOME'] . DS . '.terminfo';
+            $paths[] = $_SERVER['HOME'] . DIRECTORY_SEPARATOR . '.terminfo';
         }
 
         if (isset($_SERVER['TERMINFO_DIRS'])) {
@@ -787,16 +787,16 @@ class Tput
         $paths[] = '/usr/local/share/lib/terminfo';
         $paths[] = '/usr/local/lib/terminfo';
         $paths[] = '/usr/local/ncurses/lib/terminfo';
-        $paths[] = 'hoa://Library/Console/Source/Terminfo';
+        $paths[] = 'hoa://Library/Terminfo';
 
         $term      = $term ?: static::getTerm();
-        $fileHexa  = dechex(ord($term[0])) . DS . $term;
-        $fileAlpha = $term[0] . DS . $term;
+        $fileHexa  = dechex(ord($term[0])) . DIRECTORY_SEPARATOR . $term;
+        $fileAlpha = $term[0] . DIRECTORY_SEPARATOR . $term;
         $pathname  = null;
 
         foreach ($paths as $path) {
-            if (file_exists($_ = $path . DS . $fileHexa) ||
-                file_exists($_ = $path . DS . $fileAlpha)) {
+            if (file_exists($_ = $path . DIRECTORY_SEPARATOR . $fileHexa) ||
+                file_exists($_ = $path . DIRECTORY_SEPARATOR . $fileAlpha)) {
                 $pathname = $_;
 
                 break;
@@ -807,6 +807,6 @@ class Tput
             return static::getTerminfo('xterm');
         }
 
-        return $pathname;
+        return $pathname ?? '';
     }
 }

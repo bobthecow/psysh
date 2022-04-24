@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Stream.
  *
  * Interface for all streams.
  */
-interface Stream
+interface IStream
 {
     /**
      * Get the current stream.

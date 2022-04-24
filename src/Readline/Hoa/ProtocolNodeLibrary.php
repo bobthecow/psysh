@@ -34,19 +34,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Protocol\Node;
+namespace Psy\Readline\Hoa;
 
 /**
  * The `hoa://Library/` node.
  */
-class Library extends Node
+class ProtocolNodeLibrary extends ProtocolNode
 {
     /**
      * Queue of the component.
      */
     public function reach(string $queue = null)
     {
-        if (!WITH_COMPOSER) {
+        $withComposer =  class_exists('Composer\Autoload\ClassLoader', false) ||
+            ('cli' === PHP_SAPI && file_exists(__DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . 'autoload.php'));
+
+        if ($withComposer) {
             return parent::reach($queue);
         }
 
@@ -62,25 +65,25 @@ class Library extends Node
 
             $out = [];
 
-            foreach (explode(RS, $this->_reach) as $part) {
+            foreach (explode(';', $this->_reach) as $part) {
                 $out[] = "\r" . $part . strtolower($head) . $queue;
             }
 
             $out[] = "\r" . dirname(__DIR__, 5) . $queue;
 
-            return implode(RS, $out);
+            return implode(';', $out);
         }
 
         $out = [];
 
-        foreach (explode(RS, $this->_reach) as $part) {
+        foreach (explode(';', $this->_reach) as $part) {
             $pos   = strrpos(rtrim($part, DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR) + 1;
             $head  = substr($part, 0, $pos);
             $tail  = substr($part, $pos);
             $out[] = $head . strtolower($tail);
         }
 
-        $this->_reach = implode(RS, $out);
+        $this->_reach = implode(';', $out);
 
         return parent::reach($queue);
     }

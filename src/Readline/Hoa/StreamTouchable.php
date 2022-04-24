@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Touchable.
  *
  * Interface for touchable input/output.
  */
-interface Touchable extends Stream
+interface StreamTouchable extends IStream
 {
     /**
      * Overwrite file if already exists.

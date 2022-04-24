@@ -34,15 +34,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * Each object which is listenable must implement this interface.
  */
-interface Listenable extends Source
+interface EventListenable extends EventSource
 {
     /**
      * Attaches a callable to a listenable component.
      */
-    public function on(string $listenerId, $callable): Listenable;
+    public function on(string $listenerId, $callable): EventListenable;
 }

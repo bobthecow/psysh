@@ -34,9 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console\Readline\Autocompleter;
-
-use Hoa\Consistency;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Console\Readline\Autocompleter.
@@ -57,8 +55,3 @@ interface Autocompleter
      */
     public function getWordDefinition(): string;
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Autocompleter::class);

@@ -34,10 +34,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Consistency;
+namespace Psy\Readline\Hoa;
 
-use Hoa\Event;
-use Hoa\Stream;
 use Reflector;
 use ReflectionClass;
 use ReflectionFunction;
@@ -60,8 +58,6 @@ class Xcallable
      * Callable hash.
      */
     protected $_hash     = null;
-
-
 
     /**
      * Allocates a xcallable based on a callback.
@@ -125,7 +121,7 @@ class Xcallable
 
                 list($call, $able) = explode('::', $call);
             } elseif (is_object($call)) {
-                if ($call instanceof Stream\IStream\Out) {
+                if ($call instanceof StreamOut) {
                     $able = null;
                 } elseif (method_exists($call, '__invoke')) {
                     $able = '__invoke';
@@ -190,7 +186,7 @@ class Xcallable
         if (null !== $head &&
             is_array($callback) &&
             null === $callback[1]) {
-            if ($head instanceof Event\Bucket) {
+            if ($head instanceof EventBucket) {
                 $head = $head->getData();
             }
 
@@ -304,5 +300,17 @@ class Xcallable
     public function __toString(): string
     {
         return $this->getHash();
+    }
+
+    /**
+     * Hoa's xcallable() helper.
+     */
+    public static function from($call, $able = '')
+    {
+        if ($call instanceof Xcallable) {
+            return $call;
+        }
+
+        return new Xcallable($call, $able);
     }
 }

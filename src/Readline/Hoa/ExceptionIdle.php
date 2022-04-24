@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Exception;
+namespace Psy\Readline\Hoa;
 
 /**
  * `Hoa\Exception\Idle` is the mother exception class of libraries. The only
  * difference between `Hoa\Exception\Idle` and its direct children
  * `Hoa\Exception` is that the latter fires events after beeing constructed.
  */
-class Idle extends \Exception
+class ExceptionIdle extends \Exception
 {
     /**
      * Delay processing on arguments.

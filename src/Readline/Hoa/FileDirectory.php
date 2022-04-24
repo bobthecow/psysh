@@ -34,16 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File;
-
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Directory.
  *
  * Directory handler.
  */
-class Directory extends Generic
+class FileDirectory extends FileGeneric
 {
     /**
      * Open for reading.
@@ -82,11 +80,11 @@ class Directory extends Generic
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, StreamContext $context = null)
     {
         if (false === is_dir($streamName)) {
             if ($this->getMode() == self::MODE_READ) {
-                throw new Exception\FileDoesNotExist(
+                throw new FileDoesNotExistException(
                     'Directory %s does not exist.',
                     0,
                     $streamName
@@ -118,10 +116,10 @@ class Directory extends Generic
     /**
      * Recursive copy of a directory.
      */
-    public function copy(string $to, bool $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE): bool
+    public function copy(string $to, bool $force = StreamTouchable::DO_NOT_OVERWRITE): bool
     {
         if (empty($to)) {
-            throw new Exception(
+            throw new FileException(
                 'The destination path (to copy) is empty.',
                 1
             );
@@ -129,14 +127,14 @@ class Directory extends Generic
 
         $from       = $this->getStreamName();
         $fromLength = strlen($from) + 1;
-        $finder     = new Finder();
+        $finder     = new FileFinder();
         $finder->in($from);
 
         self::create($to, self::MODE_CREATE_RECURSIVE);
 
         foreach ($finder as $file) {
             $relative = substr($file->getPathname(), $fromLength);
-            $_to      = $to . DS . $relative;
+            $_to      = $to . DIRECTORY_SEPARATOR . $relative;
 
             if (true === $file->isDir()) {
                 self::create($_to, self::MODE_CREATE);
@@ -152,11 +150,11 @@ class Directory extends Generic
             $handle = null;
 
             if (true === $file->isFile()) {
-                $handle = new Read($file->getPathname());
+                $handle = new FileRead($file->getPathname());
             } elseif (true === $file->isDir()) {
                 $handle = new self($file->getPathName());
             } elseif (true === $file->isLink()) {
-                $handle = new Link\Read($file->getPathName());
+                $handle = new FileLinkRead($file->getPathName());
             }
 
             if (null !== $handle) {
@@ -174,7 +172,7 @@ class Directory extends Generic
     public function delete(): bool
     {
         $from   = $this->getStreamName();
-        $finder = new Finder();
+        $finder = new FileFinder();
         $finder->in($from)
                ->childFirst();
 
@@ -207,15 +205,15 @@ class Directory extends Generic
         }
 
         if (null !== $context) {
-            if (false === Stream\Context::contextExists($context)) {
-                throw new Exception(
+            if (false === StreamContext::contextExists($context)) {
+                throw new FileException(
                     'Context %s was not previously declared, cannot retrieve ' .
                     'this context.',
                     2,
                     $context
                 );
             } else {
-                $context = Stream\Context::getInstance($context);
+                $context = StreamContext::getInstance($context);
             }
         }
 

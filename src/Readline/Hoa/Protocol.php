@@ -34,14 +34,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Protocol;
-
-use Hoa\Consistency;
+namespace Psy\Readline\Hoa;
 
 /**
  * Root of the `hoa://` protocol.
  */
-class Protocol extends Node
+class Protocol extends ProtocolNode
 {
     /**
      * No resolution value.
@@ -98,47 +96,47 @@ class Protocol extends Node
                 ? false !== $argv0 ? dirname($argv0) : ''
                 : getcwd();
 
-        $this[] = new Node(
+        $this[] = new ProtocolNode(
             'Application',
-            $cwd . DS,
+            $cwd . DIRECTORY_SEPARATOR,
             [
-                new Node('Public', 'Public' . DS)
+                new ProtocolNode('Public', 'Public' . DIRECTORY_SEPARATOR)
             ]
         );
 
-        $this[] = new Node(
+        $this[] = new ProtocolNode(
             'Data',
-            dirname($cwd) . DS,
+            dirname($cwd) . DIRECTORY_SEPARATOR,
             [
-                new Node(
+                new ProtocolNode(
                     'Etc',
-                    'Etc' . DS,
+                    'Etc' . DIRECTORY_SEPARATOR,
                     [
-                        new Node('Configuration', 'Configuration' . DS),
-                        new Node('Locale', 'Locale' . DS)
+                        new ProtocolNode('Configuration', 'Configuration' . DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Locale', 'Locale' . DIRECTORY_SEPARATOR)
                     ]
                 ),
-                new Node('Lost+found', 'Lost+found' . DS),
-                new Node('Temporary', 'Temporary' . DS),
-                new Node(
+                new ProtocolNode('Lost+found', 'Lost+found' . DIRECTORY_SEPARATOR),
+                new ProtocolNode('Temporary', 'Temporary' . DIRECTORY_SEPARATOR),
+                new ProtocolNode(
                     'Variable',
-                    'Variable' . DS,
+                    'Variable' . DIRECTORY_SEPARATOR,
                     [
-                        new Node('Cache', 'Cache' . DS),
-                        new Node('Database', 'Database' . DS),
-                        new Node('Log', 'Log' . DS),
-                        new Node('Private', 'Private' . DS),
-                        new Node('Run', 'Run' . DS),
-                        new Node('Test', 'Test' . DS)
+                        new ProtocolNode('Cache', 'Cache' . DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Database', 'Database' . DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Log', 'Log' . DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Private', 'Private' . DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Run', 'Run' . DIRECTORY_SEPARATOR),
+                        new ProtocolNode('Test', 'Test' . DIRECTORY_SEPARATOR)
                     ]
                 )
             ]
         );
 
-        $this[] = new Node\Library(
+        $this[] = new ProtocolNodeLibrary(
             'Library',
-            $root . DS . 'Hoathis' . DS . RS .
-            $root . DS . 'Hoa' . DS
+            $root . DIRECTORY_SEPARATOR . 'Hoathis' . DIRECTORY_SEPARATOR . ';' .
+            $root . DIRECTORY_SEPARATOR . 'Hoa' . DIRECTORY_SEPARATOR
         );
     }
 
@@ -225,8 +223,3 @@ class Protocol extends Node
         self::$_cache = [];
     }
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Protocol::class);

@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\In.
  *
  * Interface for input.
  */
-interface In extends Stream
+interface StreamIn extends IStream
 {
     /**
      * Test for end-of-stream.

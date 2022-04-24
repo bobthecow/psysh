@@ -34,7 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File\Exception;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Exception\FileDoesNotExist.
@@ -43,6 +43,6 @@ namespace Hoa\File\Exception;
  *
  * @license    New BSD License
  */
-class FileDoesNotExist extends Exception
+class FileDoesNotExistException extends FileException
 {
 }

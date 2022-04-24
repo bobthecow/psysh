@@ -34,12 +34,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * This class is the object which is transmit through event channels.
  */
-class Bucket
+class EventBucket
 {
     /**
      * The source object (must be of kind `Hoa\Event\Source`).
@@ -66,7 +66,7 @@ class Bucket
     /**
      * Sends this object on the event channel.
      */
-    public function send(string $eventId, Source $source)
+    public function send(string $eventId, EventSource $source)
     {
         return Event::notify($eventId, $source, $this);
     }
@@ -74,7 +74,7 @@ class Bucket
     /**
      * Sets a new source.
      */
-    public function setSource(Source $source)
+    public function setSource(EventSource $source)
     {
         $old           = $this->_source;
         $this->_source = $source;

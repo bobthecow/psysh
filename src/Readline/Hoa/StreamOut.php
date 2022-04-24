@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Out.
  *
  * Interface for output.
  */
-interface Out extends Stream
+interface StreamOut extends IStream
 {
     /**
      * Write n characters.

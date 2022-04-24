@@ -34,20 +34,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File\Link;
-
-use Hoa\File;
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Link\ReadWrite.
  *
  * File handler.
  */
-class          ReadWrite
-    extends    Link
-    implements Stream\IStream\In,
-               Stream\IStream\Out
+class          FileLinkReadWrite
+    extends    FileLink
+    implements StreamIn,
+               StreamOut
 {
     /**
      * Open a file.
@@ -66,7 +63,7 @@ class          ReadWrite
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, StreamContext $context = null)
     {
         static $createModes = [
             parent::MODE_READ_WRITE,
@@ -76,7 +73,7 @@ class          ReadWrite
         ];
 
         if (!in_array($this->getMode(), $createModes)) {
-            throw new File\Exception(
+            throw new FileException(
                 'Open mode are not supported; given %d. Only %s are supported.',
                 0,
                 [$this->getMode(), implode(', ', $createModes)]
@@ -88,7 +85,7 @@ class          ReadWrite
         if (((isset($match[1]) && $match[1] == 'file') || !isset($match[1])) &&
             !file_exists($streamName) &&
             parent::MODE_READ_WRITE == $this->getMode()) {
-            throw new File\Exception\FileDoesNotExist(
+            throw new FileDoesNotExistException(
                 'File %s does not exist.',
                 1,
                 $streamName
@@ -114,7 +111,7 @@ class          ReadWrite
     public function read(int $length)
     {
         if (0 > $length) {
-            throw new File\Exception(
+            throw new FileException(
                 'Length must be greater than 0, given %d.',
                 2,
                 $length
@@ -203,7 +200,7 @@ class          ReadWrite
     public function write(string $string, int $length)
     {
         if (0 > $length) {
-            throw new File\Exception(
+            throw new FileException(
                 'Length must be greater than 0, given %d.',
                 3,
                 $length

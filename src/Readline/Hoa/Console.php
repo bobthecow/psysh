@@ -34,9 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
-
-use Hoa\Consistency;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console.
@@ -126,7 +124,7 @@ class Console
             return self::$_advanced;
         }
 
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return self::$_advanced = false;
         }
 
@@ -136,8 +134,8 @@ class Console
             return self::$_advanced = false;
         }
 
-        self::$_old = Processus::execute('stty -g < /dev/tty', false);
-        Processus::execute('stty -echo -icanon min 1 time 0 < /dev/tty', false);
+        self::$_old = ConsoleProcessus::execute('stty -g < /dev/tty', false);
+        ConsoleProcessus::execute('stty -echo -icanon min 1 time 0 < /dev/tty', false);
 
         return self::$_advanced = true;
     }
@@ -151,7 +149,7 @@ class Console
             return;
         }
 
-        Processus::execute('stty ' . self::$_old . ' < /dev/tty', false);
+        ConsoleProcessus::execute('stty ' . self::$_old . ' < /dev/tty', false);
 
         return;
     }
@@ -270,7 +268,7 @@ class Console
     /**
      * Set input layer.
      */
-    public static function setInput(Input $input)
+    public static function setInput(ConsoleInput $input)
     {
         $old            = static::$_input;
         static::$_input = $input;
@@ -281,10 +279,10 @@ class Console
     /**
      * Get input layer.
      */
-    public static function getInput(): Input
+    public static function getInput(): ConsoleInput
     {
         if (null === static::$_input) {
-            static::$_input = new Input();
+            static::$_input = new ConsoleInput();
         }
 
         return static::$_input;
@@ -293,7 +291,7 @@ class Console
     /**
      * Set output layer.
      */
-    public static function setOutput(Output $output)
+    public static function setOutput(ConsoleOutput $output)
     {
         $old             = static::$_output;
         static::$_output = $output;
@@ -304,10 +302,10 @@ class Console
     /**
      * Get output layer.
      */
-    public static function getOutput(): Output
+    public static function getOutput(): ConsoleOutput
     {
         if (null === static::$_output) {
-            static::$_output = new Output();
+            static::$_output = new ConsoleOutput();
         }
 
         return static::$_output;
@@ -316,7 +314,7 @@ class Console
     /**
      * Set tput.
      */
-    public static function setTput(Tput $tput)
+    public static function setTput(ConsoleTput $tput)
     {
         $old           = static::$_tput;
         static::$_tput = $tput;
@@ -327,10 +325,10 @@ class Console
     /**
      * Get the current tput instance of the current process.
      */
-    public static function getTput(): Tput
+    public static function getTput(): ConsoleTput
     {
         if (null === static::$_tput) {
-            static::$_tput = new Tput();
+            static::$_tput = new ConsoleTput();
         }
 
         return static::$_tput;
@@ -348,9 +346,4 @@ class Console
 /**
  * Restore interaction.
  */
-Consistency::registerShutdownFunction(xcallable('Hoa\Console\Console::restoreInteraction'));
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Console::class);
+\register_shutdown_function([Console::class, 'restoreInteraction']);

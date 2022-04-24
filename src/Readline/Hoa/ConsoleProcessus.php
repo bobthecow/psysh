@@ -34,19 +34,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
-
-use Hoa\Event;
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Manipulate a processus as a stream.
  */
-class          Processus
+class          ConsoleProcessus
     extends    Stream
-    implements Stream\IStream\In,
-               Stream\IStream\Out,
-               Stream\IStream\Pathable
+    implements StreamIn,
+               StreamOut,
+               StreamPathable
 {
     /**
      * Signal: terminal line hangup (terminate process).
@@ -271,7 +268,7 @@ class          Processus
 
             foreach ($descriptors as $descriptor => $nature) {
                 if (isset($this->_descriptors[$descriptor])) {
-                    throw new Exception(
+                    throw new ConsoleException(
                         'Pipe descriptor %d already exists, cannot ' .
                         'redefine it.',
                         0,
@@ -299,7 +296,7 @@ class          Processus
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, StreamContext $context = null)
     {
         $out = @proc_open(
             $streamName,
@@ -310,7 +307,7 @@ class          Processus
         );
 
         if (false === $out) {
-            throw new Exception(
+            throw new ConsoleException(
                 'Something wrong happen when running %s.',
                 1,
                 $streamName
@@ -350,7 +347,7 @@ class          Processus
             ));
         }
 
-        $this->getListener()->fire('start', new Event\Bucket());
+        $this->getListener()->fire('start', new EventBucket());
 
         $_read   = [];
         $_write  = [];
@@ -402,7 +399,7 @@ class          Processus
             $select = stream_select($read, $write, $except, $this->getTimeout());
 
             if (0 === $select) {
-                $this->getListener()->fire('timeout', new Event\Bucket());
+                $this->getListener()->fire('timeout', new EventBucket());
 
                 break;
             }
@@ -416,7 +413,7 @@ class          Processus
                 } else {
                     $result = $this->getListener()->fire(
                         'output',
-                        new Event\Bucket([
+                        new EventBucket([
                             'pipe' => $pipe,
                             'line' => $line
                         ])
@@ -434,7 +431,7 @@ class          Processus
             foreach ($write as $j => $_w) {
                 $result = $this->getListener()->fire(
                     'input',
-                    new Event\Bucket([
+                    new EventBucket([
                         'pipe' => array_search($_w, $this->_pipes)
                     ])
                 );
@@ -450,7 +447,7 @@ class          Processus
             }
         }
 
-        $this->getListener()->fire('stop', new Event\Bucket());
+        $this->getListener()->fire('stop', new EventBucket());
 
         return;
     }
@@ -461,7 +458,7 @@ class          Processus
     protected function getPipe(int $pipe)
     {
         if (!isset($this->_pipes[$pipe])) {
-            throw new Exception(
+            throw new ConsoleException(
                 'Pipe descriptor %d does not exist, cannot read from it.',
                 2,
                 $pipe
@@ -499,7 +496,7 @@ class          Processus
     public function read(int $length, int $pipe = 1)
     {
         if (0 > $length) {
-            throw new Exception(
+            throw new ConsoleException(
                 'Length must be greater than 0, given %d.',
                 3,
                 $length
@@ -596,7 +593,7 @@ class          Processus
     public function write(string $string, int $length, int $pipe = 0)
     {
         if (0 > $length) {
-            throw new Exception(
+            throw new ConsoleException(
                 'Length must be greater than 0, given %d.',
                 4,
                 $length
@@ -899,7 +896,7 @@ class          Processus
         }
 
         foreach (explode($separator, $path) as $directory) {
-            if (true === file_exists($out = $directory . DS . $binary)) {
+            if (true === file_exists($out = $directory . DIRECTORY_SEPARATOR . $binary)) {
                 return $out;
             }
         }

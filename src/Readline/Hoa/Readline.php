@@ -34,11 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console\Readline;
-
-use Hoa\Consistency;
-use Hoa\Console;
-use Hoa\Ustring;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Readline.
@@ -119,23 +115,23 @@ class Readline
      */
     public function __construct()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
-        $this->_mapping["\033[A"] = xcallable($this, '_bindArrowUp');
-        $this->_mapping["\033[B"] = xcallable($this, '_bindArrowDown');
-        $this->_mapping["\033[C"] = xcallable($this, '_bindArrowRight');
-        $this->_mapping["\033[D"] = xcallable($this, '_bindArrowLeft');
-        $this->_mapping["\001"]   = xcallable($this, '_bindControlA');
-        $this->_mapping["\002"]   = xcallable($this, '_bindControlB');
-        $this->_mapping["\005"]   = xcallable($this, '_bindControlE');
-        $this->_mapping["\006"]   = xcallable($this, '_bindControlF');
+        $this->_mapping["\033[A"] = [$this, '_bindArrowUp'];
+        $this->_mapping["\033[B"] = [$this, '_bindArrowDown'];
+        $this->_mapping["\033[C"] = [$this, '_bindArrowRight'];
+        $this->_mapping["\033[D"] = [$this, '_bindArrowLeft'];
+        $this->_mapping["\001"]   = [$this, '_bindControlA'];
+        $this->_mapping["\002"]   = [$this, '_bindControlB'];
+        $this->_mapping["\005"]   = [$this, '_bindControlE'];
+        $this->_mapping["\006"]   = [$this, '_bindControlF'];
         $this->_mapping["\010"]   =
-        $this->_mapping["\177"]   = xcallable($this, '_bindBackspace');
-        $this->_mapping["\027"]   = xcallable($this, '_bindControlW');
-        $this->_mapping["\n"]     = xcallable($this, '_bindNewline');
-        $this->_mapping["\t"]     = xcallable($this, '_bindTab');
+        $this->_mapping["\177"]   = [$this, '_bindBackspace'];
+        $this->_mapping["\027"]   = [$this, '_bindControlW'];
+        $this->_mapping["\n"]     = [$this, '_bindNewline'];
+        $this->_mapping["\t"]     = [$this, '_bindTab'];
 
         return;
     }
@@ -154,7 +150,7 @@ class Readline
         $direct = Console::isDirect($input->getStream()->getStream());
         $output = Console::getOutput();
 
-        if (false === $direct || OS_WIN) {
+        if (false === $direct || defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             $out = $input->readLine();
 
             if (false === $out) {
@@ -217,7 +213,7 @@ class Readline
         if (isset($this->_mapping[$char])) {
             $this->_buffer = $this->_mapping[$char];
         } elseif (false === Ustring::isCharPrintable($char)) {
-            Console\Cursor::bip();
+            ConsoleCursor::bip();
 
             return static::STATE_CONTINUE | static::STATE_NO_ECHO;
         }
@@ -457,7 +453,7 @@ class Readline
     public function setLine(string $line)
     {
         $this->_line        = $line;
-        $this->_lineLength  = mb_strlen($this->_line);
+        $this->_lineLength  = mb_strlen($this->_line ?: '');
         $this->_lineCurrent = $this->_lineLength;
     }
 
@@ -492,10 +488,11 @@ class Readline
     public function _bindArrowUp(self $self): int
     {
         if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
-            Console\Cursor::clear('↔');
+            ConsoleCursor::clear('↔');
             Console::getOutput()->writeAll($self->getPrefix());
         }
-        $self->setBuffer($buffer = $self->previousHistory());
+        $buffer = $self->previousHistory() ?? '';
+        $self->setBuffer($buffer);
         $self->setLine($buffer);
 
         return static::STATE_CONTINUE;
@@ -509,7 +506,7 @@ class Readline
     public function _bindArrowDown(self $self): int
     {
         if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
-            Console\Cursor::clear('↔');
+            ConsoleCursor::clear('↔');
             Console::getOutput()->writeAll($self->getPrefix());
         }
 
@@ -527,13 +524,13 @@ class Readline
     {
         if ($self->getLineLength() > $self->getLineCurrent()) {
             if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
-                Console\Cursor::move('→');
+                ConsoleCursor::move('→');
             }
 
             $self->setLineCurrent($self->getLineCurrent() + 1);
         }
 
-        $self->setBuffer(null);
+        $self->setBuffer('');
 
         return static::STATE_CONTINUE;
     }
@@ -546,13 +543,13 @@ class Readline
     {
         if (0 < $self->getLineCurrent()) {
             if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
-                Console\Cursor::move('←');
+                ConsoleCursor::move('←');
             }
 
             $self->setLineCurrent($self->getLineCurrent() - 1);
         }
 
-        $self->setBuffer(null);
+        $self->setBuffer('');
 
         return static::STATE_CONTINUE;
     }
@@ -563,12 +560,12 @@ class Readline
      */
     public function _bindBackspace(self $self): int
     {
-        $buffer = null;
+        $buffer = '';
 
         if (0 < $self->getLineCurrent()) {
             if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
-                Console\Cursor::move('←');
-                Console\Cursor::clear('→');
+                ConsoleCursor::move('←');
+                ConsoleCursor::clear('→');
             }
 
             if ($self->getLineLength() == $current = $self->getLineCurrent()) {
@@ -775,9 +772,9 @@ class Readline
             $_solution = $solution;
             $count     = count($_solution) - 1;
             $cWidth    = 0;
-            $window    = Console\Window::getSize();
+            $window    = ConsoleWindow::getSize();
             $wWidth    = $window['x'];
-            $cursor    = Console\Cursor::getPosition();
+            $cursor    = ConsoleCursor::getPosition();
 
             array_walk($_solution, function (&$value) use (&$cWidth) {
                 $handle = mb_strlen($value);
@@ -806,14 +803,14 @@ class Readline
             $i        = 0;
 
             if (0 > $window['y'] - $cursor['y'] - $mLines) {
-                Console\Window::scroll('↑', $mLines);
-                Console\Cursor::move('↑', $mLines);
+                ConsoleWindow::scroll('↑', $mLines);
+                ConsoleCursor::move('↑', $mLines);
             }
 
-            Console\Cursor::save();
-            Console\Cursor::hide();
-            Console\Cursor::move('↓ LEFT');
-            Console\Cursor::clear('↓');
+            ConsoleCursor::save();
+            ConsoleCursor::hide();
+            ConsoleCursor::move('↓ LEFT');
+            ConsoleCursor::clear('↓');
 
             foreach ($_solution as $j => $s) {
                 $output->writeAll("\033[0m" . $s . "\033[0m");
@@ -829,8 +826,8 @@ class Readline
                 }
             }
 
-            Console\Cursor::restore();
-            Console\Cursor::show();
+            ConsoleCursor::restore();
+            ConsoleCursor::show();
 
             ++$mColumns;
             $input    = Console::getInput();
@@ -845,15 +842,15 @@ class Readline
                 &$_solution,
                 &$cWidth,
                 $output
-            ): void {
-                Console\Cursor::save();
-                Console\Cursor::hide();
-                Console\Cursor::move('↓ LEFT');
-                Console\Cursor::move('→', $mColumn * ($cWidth + 2));
-                Console\Cursor::move('↓', $mLine);
+            ) {
+                ConsoleCursor::save();
+                ConsoleCursor::hide();
+                ConsoleCursor::move('↓ LEFT');
+                ConsoleCursor::move('→', $mColumn * ($cWidth + 2));
+                ConsoleCursor::move('↓', $mLine);
                 $output->writeAll("\033[0m" . $_solution[$coord] . "\033[0m");
-                Console\Cursor::restore();
-                Console\Cursor::show();
+                ConsoleCursor::restore();
+                ConsoleCursor::show();
 
                 return;
             };
@@ -865,14 +862,14 @@ class Readline
                 &$cWidth,
                 $output
             ) {
-                Console\Cursor::save();
-                Console\Cursor::hide();
-                Console\Cursor::move('↓ LEFT');
-                Console\Cursor::move('→', $mColumn * ($cWidth + 2));
-                Console\Cursor::move('↓', $mLine);
+                ConsoleCursor::save();
+                ConsoleCursor::hide();
+                ConsoleCursor::move('↓ LEFT');
+                ConsoleCursor::move('→', $mColumn * ($cWidth + 2));
+                ConsoleCursor::move('↓', $mLine);
                 $output->writeAll("\033[7m" . $_solution[$coord] . "\033[0m");
-                Console\Cursor::restore();
-                Console\Cursor::show();
+                ConsoleCursor::restore();
+                ConsoleCursor::show();
 
                 return;
             };
@@ -974,11 +971,11 @@ class Readline
                                 $current + mb_strlen($solution[$coord])
                             );
 
-                            Console\Cursor::move('←', $length);
+                            ConsoleCursor::move('←', $length);
                             $output->writeAll($solution[$coord]);
-                            Console\Cursor::clear('→');
+                            ConsoleCursor::clear('→');
                             $output->writeAll($tail);
-                            Console\Cursor::move('←', mb_strlen($tail));
+                            ConsoleCursor::move('←', mb_strlen($tail));
                         }
 
                         // no break
@@ -986,10 +983,10 @@ class Readline
                         $mColumn = -1;
                         $mLine   = -1;
                         $coord   = -1;
-                        Console\Cursor::save();
-                        Console\Cursor::move('↓ LEFT');
-                        Console\Cursor::clear('↓');
-                        Console\Cursor::restore();
+                        ConsoleCursor::save();
+                        ConsoleCursor::move('↓ LEFT');
+                        ConsoleCursor::clear('↓');
+                        ConsoleCursor::restore();
 
                         if ("\033" !== $char && "\n" !== $char) {
                             $self->setBuffer($char);
@@ -1015,11 +1012,11 @@ class Readline
             $current + mb_strlen($solution)
         );
 
-        Console\Cursor::move('←', $length);
+        ConsoleCursor::move('←', $length);
         $output->writeAll($solution);
-        Console\Cursor::clear('→');
+        ConsoleCursor::clear('→');
         $output->writeAll($tail);
-        Console\Cursor::move('←', mb_strlen($tail));
+        ConsoleCursor::move('←', mb_strlen($tail));
 
         return $state;
     }
@@ -1029,8 +1026,3 @@ class Readline
  * Advanced interaction.
  */
 Console::advancedInteraction();
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Readline::class);

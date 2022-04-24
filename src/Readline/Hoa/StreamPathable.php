@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Pathable.
  *
  * Interface for pathable input/output.
  */
-interface Pathable extends Stream
+interface StreamPathable extends IStream
 {
     /**
      * Get filename component of path.

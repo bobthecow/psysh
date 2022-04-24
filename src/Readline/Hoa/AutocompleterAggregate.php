@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console\Readline\Autocompleter;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Readline\Autocompleter\Aggregate.
  *
  * Aggregate several autocompleters.
  */
-class Aggregate implements Autocompleter
+class AutocompleterAggregate implements Autocompleter
 {
     /**
      * List of autocompleters.

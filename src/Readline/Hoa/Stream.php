@@ -34,20 +34,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream;
-
-use Hoa\Consistency;
-use Hoa\Event;
-use Hoa\Protocol;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Stream.
  *
  * Static register for all streams (files, sockets etc.).
  */
-abstract class Stream implements IStream\Stream, Event\Listenable
+abstract class Stream implements IStream, EventListenable
 {
-    use Event\Listens;
+    use EventListens;
 
     /**
      * Name index in the stream bucket.
@@ -122,7 +118,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
         $this->_context         = $context;
         $this->_hasBeenDeferred = $wait;
         $this->setListener(
-            new Event\Listener(
+            new EventListener(
                 $this,
                 [
                     'authrequire',
@@ -153,7 +149,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * If the stream does not exist, try to open it by calling the
      * $handler->_open() method.
      */
-    final private static function &_getStream(
+    private static function &_getStream(
         string $streamName,
         Stream $handler,
         string $context = null
@@ -161,8 +157,8 @@ abstract class Stream implements IStream\Stream, Event\Listenable
         $name = md5($streamName);
 
         if (null !== $context) {
-            if (false === Context::contextExists($context)) {
-                throw new Exception(
+            if (false === StreamContext::contextExists($context)) {
+                throw new StreamException(
                     'Context %s was not previously declared, cannot retrieve ' .
                     'this context.',
                     0,
@@ -170,7 +166,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
                 );
             }
 
-            $context = Context::getInstance($context);
+            $context = StreamContext::getInstance($context);
         }
 
         if (!isset(self::$_register[$name])) {
@@ -206,7 +202,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * Note: This method is protected, but do not forget that it could be
      * overloaded into a public context.
      */
-    abstract protected function &_open(string $streamName, Context $context = null);
+    abstract protected function &_open(string $streamName, StreamContext $context = null);
 
     /**
      * Close the current stream.
@@ -224,13 +220,13 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
         if (true === $this->hasBeenDeferred()) {
             if (null === $context) {
-                $handle = Context::getInstance(uniqid());
+                $handle = StreamContext::getInstance(uniqid());
                 $handle->setParameters([
                     'notification' => [$this, '_notify']
                 ]);
                 $context = $handle->getId();
-            } elseif (true === Context::contextExists($context)) {
-                $handle     = Context::getInstance($context);
+            } elseif (true === StreamContext::contextExists($context)) {
+                $handle     = StreamContext::getInstance($context);
                 $parameters = $handle->getParameters();
 
                 if (!isset($parameters['notification'])) {
@@ -271,7 +267,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
         Event::notify(
             'hoa://Event/Stream/' . $streamName . ':close-before',
             $this,
-            new Event\Bucket()
+            new EventBucket()
         );
 
         if (false === $this->_close()) {
@@ -351,7 +347,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
         if (false === is_resource($stream) &&
             ('resource' !== gettype($stream) ||
              'Unknown' !== get_resource_type($stream))) {
-            throw new Exception(
+            throw new StreamException(
                 'Try to change the stream resource with an invalid one; ' .
                 'given %s.',
                 1,
@@ -497,7 +493,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
             STREAM_NOTIFY_FILE_SIZE_IS  => 'size'
         ];
 
-        $this->getListener()->fire($_map[$ncode], new Event\Bucket([
+        $this->getListener()->fire($_map[$ncode], new EventBucket([
             'code'        => $code,
             'severity'    => $severity,
             'message'     => $message,
@@ -552,7 +548,7 @@ abstract class Stream implements IStream\Stream, Event\Listenable
  *
  * @license    New BSD License
  */
-class _Protocol extends Protocol\Node
+class _Protocol extends ProtocolNode
 {
     /**
      * Component's name.
@@ -576,14 +572,10 @@ class _Protocol extends Protocol\Node
 }
 
 /**
- * Flex entity.
- */
-Consistency::flexEntity(Stream::class);
-
-/**
  * Shutdown method.
  */
-Consistency::registerShutdownFunction(xcallable('Hoa\Stream\Stream::_Hoa_Stream'));
+\register_shutdown_function([Stream::class, '_Hoa_Stream']);
+
 
 /**
  * Add the `hoa://Library/Stream` node. Should be use to reach/get an entry

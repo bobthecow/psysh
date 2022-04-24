@@ -34,15 +34,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Protocol\Node;
-
-use Hoa\Consistency;
-use Hoa\Protocol;
+namespace Psy\Readline\Hoa;
 
 /**
  * Abstract class for all `hoa://`'s nodes.
  */
-class Node implements \ArrayAccess, \IteratorAggregate
+class ProtocolNode implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * Node's name.
@@ -91,7 +88,7 @@ class Node implements \ArrayAccess, \IteratorAggregate
     public function offsetSet($name, $node)
     {
         if (!($node instanceof self)) {
-            throw new Protocol\Exception(
+            throw new ProtocolException(
                 'Protocol node must extend %s.',
                 0,
                 __CLASS__
@@ -103,7 +100,7 @@ class Node implements \ArrayAccess, \IteratorAggregate
         }
 
         if (empty($name)) {
-            throw new Protocol\Exception(
+            throw new ProtocolException(
                 'Cannot add a node to the `hoa://` protocol without a name.',
                 1
             );
@@ -118,7 +115,7 @@ class Node implements \ArrayAccess, \IteratorAggregate
     public function offsetGet($name): self
     {
         if (!isset($this[$name])) {
-            throw new Protocol\Exception(
+            throw new ProtocolException(
                 'Node %s does not exist.',
                 2,
                 $name
@@ -214,12 +211,12 @@ class Node implements \ArrayAccess, \IteratorAggregate
         }
 
         if (empty($accumulator)) {
-            $accumulator = explode(RS, $reach);
+            $accumulator = explode(';', $reach);
 
             return;
         }
 
-        if (false === strpos($reach, RS)) {
+        if (false === strpos($reach, ';')) {
             if (false !== $pos = strrpos($reach, "\r")) {
                 $reach = substr($reach, $pos + 1);
 
@@ -235,7 +232,7 @@ class Node implements \ArrayAccess, \IteratorAggregate
             return;
         }
 
-        $choices     = explode(RS, $reach);
+        $choices     = explode(';', $reach);
         $ref         = $accumulator;
         $accumulator = [];
 
@@ -273,7 +270,7 @@ class Node implements \ArrayAccess, \IteratorAggregate
      */
     public function reachId(string $id)
     {
-        throw new Protocol\Exception(
+        throw new ProtocolException(
             'The node %s has no ID support (tried to reach #%s).',
             4,
             [$this->getName(), $id]
@@ -318,7 +315,7 @@ class Node implements \ArrayAccess, \IteratorAggregate
     /**
      * Get root the protocol.
      */
-    public static function getRoot(): Protocol\Protocol
+    public static function getRoot(): Protocol
     {
         return Protocol::getInstance();
     }
@@ -341,8 +338,3 @@ class Node implements \ArrayAccess, \IteratorAggregate
         return $out;
     }
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Node::class);

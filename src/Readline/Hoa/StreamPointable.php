@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Pointable.
  *
  * Interface for pointable input/output.
  */
-interface Pointable extends Stream
+interface StreamPointable extends IStream
 {
     /**
      * Set position equal to $offset bytes.

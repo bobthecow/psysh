@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Iterator;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Iterator\SplFileInfo.
  *
  * Enhance SplFileInfo implementation.
  */
-class SplFileInfo extends \SplFileInfo
+class IteratorSplFileInfo extends \SplFileInfo
 {
     /**
      * Hash.

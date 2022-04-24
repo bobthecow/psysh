@@ -34,16 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File;
-
-use Hoa\Iterator;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Finder.
  *
  * This class allows to find files easily by using filters and flags.
  */
-class Finder implements Iterator\Aggregate
+class FileFinder implements \IteratorAggregate
 {
     /**
      * SplFileInfo classname.
@@ -92,10 +90,10 @@ class Finder implements Iterator\Aggregate
      */
     public function __construct()
     {
-        $this->_flags =   Iterator\FileSystem::KEY_AS_PATHNAME
-                        | Iterator\FileSystem::CURRENT_AS_FILEINFO
-                        | Iterator\FileSystem::SKIP_DOTS;
-        $this->_first = Iterator\Recursive\Iterator::SELF_FIRST;
+        $this->_flags =   IteratorFileSystem::KEY_AS_PATHNAME
+                        | IteratorFileSystem::CURRENT_AS_FILEINFO
+                        | IteratorFileSystem::SKIP_DOTS;
+        $this->_first = \RecursiveIteratorIterator::SELF_FIRST;
 
         return;
     }
@@ -111,8 +109,8 @@ class Finder implements Iterator\Aggregate
 
         foreach ($paths as $path) {
             if (1 === preg_match('/[\*\?\[\]]/', $path)) {
-                $iterator = new Iterator\CallbackFilter(
-                    new Iterator\Glob(rtrim($path, DS)),
+                $iterator = new \CallbackFilterIterator(
+                    new \GlobIterator(rtrim($path, DIRECTORY_SEPARATOR)),
                     function ($current) {
                         return $current->isDir();
                     }
@@ -175,9 +173,9 @@ class Finder implements Iterator\Aggregate
     public function followSymlinks(bool $flag = true): self
     {
         if (true === $flag) {
-            $this->_flags ^= Iterator\FileSystem::FOLLOW_SYMLINKS;
+            $this->_flags ^= IteratorFileSystem::FOLLOW_SYMLINKS;
         } else {
-            $this->_flags |= Iterator\FileSystem::FOLLOW_SYMLINKS;
+            $this->_flags |= IteratorFileSystem::FOLLOW_SYMLINKS;
         }
 
         return $this;
@@ -205,7 +203,7 @@ class Finder implements Iterator\Aggregate
     public function notIn(string $regex): self
     {
         $this->_filters[] = function (\SplFileInfo $current) use ($regex) {
-            foreach (explode(DS, $current->getPathname()) as $part) {
+            foreach (explode(DIRECTORY_SEPARATOR, $current->getPathname()) as $part) {
                 if (0 !== preg_match($regex, $part)) {
                     return false;
                 }
@@ -342,9 +340,9 @@ class Finder implements Iterator\Aggregate
     public function dots(bool $flag = true): self
     {
         if (true === $flag) {
-            $this->_flags ^= Iterator\FileSystem::SKIP_DOTS;
+            $this->_flags ^= IteratorFileSystem::SKIP_DOTS;
         } else {
-            $this->_flags |= Iterator\FileSystem::SKIP_DOTS;
+            $this->_flags |= IteratorFileSystem::SKIP_DOTS;
         }
 
         return $this;
@@ -514,7 +512,7 @@ class Finder implements Iterator\Aggregate
      */
     public function childFirst(): self
     {
-        $this->_first = Iterator\Recursive\Iterator::CHILD_FIRST;
+        $this->_first = \RecursiveIteratorIterator::CHILD_FIRST;
 
         return $this;
     }
@@ -524,7 +522,7 @@ class Finder implements Iterator\Aggregate
      */
     public function getIterator()
     {
-        $_iterator = new Iterator\Append();
+        $_iterator = new \AppendIterator();
         $types     = $this->getTypes();
 
         if (!empty($types)) {
@@ -538,8 +536,8 @@ class Finder implements Iterator\Aggregate
 
         foreach ($this->getPaths() as $path) {
             if (1 == $maxDepth) {
-                $iterator = new Iterator\IteratorIterator(
-                    new Iterator\Recursive\Directory(
+                $iterator = new \IteratorIterator(
+                    new IteratorRecursiveDirectory(
                         $path,
                         $this->getFlags(),
                         $splFileInfo
@@ -547,8 +545,8 @@ class Finder implements Iterator\Aggregate
                     $this->getFirst()
                 );
             } else {
-                $iterator = new Iterator\Recursive\Iterator(
-                    new Iterator\Recursive\Directory(
+                $iterator = new \RecursiveIteratorIterator(
+                    new IteratorRecursiveDirectory(
                         $path,
                         $this->getFlags(),
                         $splFileInfo
@@ -565,7 +563,7 @@ class Finder implements Iterator\Aggregate
         }
 
         foreach ($this->getFilters() as $filter) {
-            $_iterator = new Iterator\CallbackFilter(
+            $_iterator = new \CallbackFilterIterator(
                 $_iterator,
                 $filter
             );
@@ -583,7 +581,7 @@ class Finder implements Iterator\Aggregate
             uasort($array, $sort);
         }
 
-        return new Iterator\Map($array);
+        return new \ArrayIterator($array);
     }
 
     /**

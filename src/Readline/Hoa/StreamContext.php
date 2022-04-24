@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Stream\Context.
  *
  * Make a multiton of stream contexts.
  */
-class Context
+class StreamContext
 {
     /**
      * Context ID.

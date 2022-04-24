@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Iterator;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Iterator\FileSystem.
  *
  * Extending the SPL FileSystemIterator class.
  */
-class FileSystem extends \FilesystemIterator
+class IteratorFileSystem extends \FilesystemIterator
 {
     /**
      * SplFileInfo classname.

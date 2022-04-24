@@ -34,12 +34,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * Implementation of a listener.
  */
-trait Listens
+trait EventListens
 {
     /**
      * Listener instance of type `Hoa\Event\Listener`.
@@ -51,12 +51,12 @@ trait Listens
     /**
      * Attaches a callable to a listenable component.
      */
-    public function on(string $listenerId, $callable): Listenable
+    public function on(string $listenerId, $callable): EventListenable
     {
         $listener = $this->getListener();
 
         if (null === $listener) {
-            throw new Exception(
+            throw new EventException(
                 'Cannot attach a callable to the listener %s because ' .
                 'it has not been initialized yet.',
                 0,
@@ -72,7 +72,7 @@ trait Listens
     /**
      * Sets a new listener.
      */
-    protected function setListener(Listener $listener)
+    protected function setListener(EventListener $listener)
     {
         $old             = $this->_listener;
         $this->_listener = $listener;

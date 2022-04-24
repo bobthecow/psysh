@@ -34,9 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
-
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Output.
@@ -44,7 +42,7 @@ use Hoa\Stream;
  * This class represents the output of a program. Most of the time, this is
  * going to be STDOUT.
  */
-class Output implements Stream\IStream\Out
+class ConsoleOutput implements StreamOut
 {
     /**
      * Whether the multiplexer must be considered while writing on the output.
@@ -61,7 +59,7 @@ class Output implements Stream\IStream\Out
     /**
      * Wraps an `Hoa\Stream\IStream\Out` stream.
      */
-    public function __construct(Stream\IStream\Out $output = null)
+    public function __construct(StreamOut $output = null)
     {
         $this->_output = $output;
 
@@ -71,7 +69,7 @@ class Output implements Stream\IStream\Out
     /**
      * Get the real output stream.
      */
-    public function getStream(): Stream\IStream\Out
+    public function getStream(): StreamOut
     {
         return $this->_output;
     }
@@ -82,7 +80,7 @@ class Output implements Stream\IStream\Out
     public function write(string $string, int $length)
     {
         if (0 > $length) {
-            throw new Exception(
+            throw new ConsoleException(
                 'Length must be greater than 0, given %d.',
                 0,
                 $length
@@ -184,7 +182,7 @@ class Output implements Stream\IStream\Out
      */
     public function writeAll(string $string)
     {
-        return $this->write($string, strlen($string));
+        return $this->write($string ?: '', strlen($string ?: ''));
     }
 
     /**

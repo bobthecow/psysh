@@ -34,7 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Lockable.
@@ -43,7 +43,7 @@ namespace Hoa\Stream\IStream;
  *
  * @license    New BSD License
  */
-interface Lockable extends Stream
+interface StreamLockable extends IStream
 {
     /**
      * Acquire a shared lock (reader).

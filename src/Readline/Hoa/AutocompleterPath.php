@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console\Readline\Autocompleter;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Readline\Autocompleter\Path.
  *
  * Path autocompleter.
  */
-class Path implements Autocompleter
+class AutocompleterPath implements Autocompleter
 {
     /**
      * Root is the current working directory.
@@ -92,10 +92,10 @@ class Path implements Autocompleter
             $root = getcwd();
         }
 
-        $path = $root . DS . $prefix;
+        $path = $root . DIRECTORY_SEPARATOR . $prefix;
 
         if (!is_dir($path)) {
-            $path   = dirname($path) . DS;
+            $path   = dirname($path) . DIRECTORY_SEPARATOR;
             $prefix = basename($prefix);
         } else {
             $prefix = null;

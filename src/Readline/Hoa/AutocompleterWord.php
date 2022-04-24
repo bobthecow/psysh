@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console\Readline\Autocompleter;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Console\Readline\Autocompleter\Word.
  *
  * The simplest auto-completer: complete a word.
  */
-class Word implements Autocompleter
+class AutocompleterWord implements Autocompleter
 {
     /**
      * List of words.

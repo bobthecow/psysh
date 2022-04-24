@@ -34,7 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Bufferable.
@@ -43,7 +43,7 @@ namespace Hoa\Stream\IStream;
  * of Hoa\Stream (please, see *StreamBuffer*() methods). Classes implementing
  * this interface are able to create nested buffers, flush them etc.
  */
-interface Bufferable extends Stream
+interface StreamBufferable extends IStream
 {
     /**
      * Start a new buffer.

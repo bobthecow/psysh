@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Stream\IStream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Stream\IStream\Statable.
  *
  * Interface for statable input/output.
  */
-interface Statable extends Stream
+interface StreamStatable extends IStream
 {
     /**
      * Size is undefined.

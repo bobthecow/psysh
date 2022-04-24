@@ -34,11 +34,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * Each object which is listenable must implement this interface.
  */
-interface Source
+interface EventSource
 {
 }

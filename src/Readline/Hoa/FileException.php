@@ -34,10 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File\Exception;
-
-use Hoa\Consistency;
-use Hoa\Exception as HoaException;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Exception.
@@ -46,11 +43,6 @@ use Hoa\Exception as HoaException;
  *
  * @license    New BSD License
  */
-class Exception extends HoaException
+class FileException extends Exception
 {
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity('Hoa\File\Exception\Exception');

@@ -34,9 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
-
-use Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * Allow to manipulate the window.
@@ -45,7 +43,7 @@ use Hoa\Event;
  * if the window has been resized. Please, see the constructor documentation to
  * get more informations.
  */
-class Window implements Event\Source
+class ConsoleWindow implements EventSource
 {
     /**
      * Singleton (only for events).
@@ -86,7 +84,7 @@ class Window implements Event\Source
      */
     public static function setSize(int $x, int $y)
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -100,8 +98,8 @@ class Window implements Event\Source
      */
     public static function getSize(): array
     {
-        if (OS_WIN) {
-            $modecon = explode("\n", ltrim(Processus::execute('mode con')));
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
+            $modecon = explode("\n", ltrim(ConsoleProcessus::execute('mode con')));
 
             $_y = trim($modecon[2]);
             preg_match('#[^:]+:\s*([0-9]+)#', $_y, $matches);
@@ -186,7 +184,7 @@ class Window implements Event\Source
      */
     public static function moveTo(int $x, int $y)
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -201,7 +199,7 @@ class Window implements Event\Source
      */
     public static function getPosition(): array
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return ['x' => 0, 'y' => 0];
         }
 
@@ -249,7 +247,7 @@ class Window implements Event\Source
      */
     public static function scroll(string $directions, int $repeat = 1)
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -312,7 +310,7 @@ class Window implements Event\Source
      */
     public static function minimize()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -327,7 +325,7 @@ class Window implements Event\Source
      */
     public static function restore()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -341,7 +339,7 @@ class Window implements Event\Source
      */
     public static function raise()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -355,7 +353,7 @@ class Window implements Event\Source
      */
     public static function lower()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -369,7 +367,7 @@ class Window implements Event\Source
      */
     public static function setTitle(string $title)
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -384,7 +382,7 @@ class Window implements Event\Source
      */
     public static function getTitle()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return null;
         }
 
@@ -428,7 +426,7 @@ class Window implements Event\Source
      */
     public static function getLabel()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return null;
         }
 
@@ -472,7 +470,7 @@ class Window implements Event\Source
      */
     public static function refresh()
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -487,7 +485,7 @@ class Window implements Event\Source
      */
     public static function copy(string $data)
     {
-        if (OS_WIN) {
+        if (defined('PHP_WINDOWS_VERSION_PLATFORM')) {
             return;
         }
 
@@ -511,21 +509,21 @@ Console::advancedInteraction();
  * Event.
  */
 if (function_exists('pcntl_signal')) {
-    Window::getInstance();
+    ConsoleWindow::getInstance();
     pcntl_signal(
         SIGWINCH,
         function () {
             static $_window = null;
 
             if (null === $_window) {
-                $_window = Window::getInstance();
+                $_window = ConsoleWindow::getInstance();
             }
 
             Event::notify(
                 'hoa://Event/Console/Window:resize',
                 $_window,
-                new Event\Bucket([
-                    'size' => Window::getSize()
+                new EventBucket([
+                    'size' => ConsoleWindow::getSize()
                 ])
             );
         }

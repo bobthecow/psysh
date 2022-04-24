@@ -34,12 +34,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Protocol;
+namespace Psy\Readline\Hoa;
 
 /**
  * Stream wrapper for the `hoa://` protocol.
  */
-class Wrapper
+class ProtocolWrapper
 {
     /**
      * Opened stream as a resource.
@@ -64,7 +64,7 @@ class Wrapper
      */
     public static function realPath(string $path, bool $exists = true)
     {
-        return Node::getRoot()->resolve($path, $exists);
+        return ProtocolNode::getRoot()->resolve($path, $exists);
     }
 
     /**
@@ -472,4 +472,4 @@ class Wrapper
 /**
  * Register the `hoa://` protocol.
  */
-stream_wrapper_register('hoa', Wrapper::class);
+stream_wrapper_register('hoa', ProtocolWrapper::class);

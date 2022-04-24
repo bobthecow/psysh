@@ -34,14 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Iterator\Recursive;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\Iterator\Recursive\Directory.
  *
  * Extending the SPL RecursiveDirectoryIterator class.
  */
-class Directory extends \RecursiveDirectoryIterator
+class IteratorRecursiveDirectory extends \RecursiveDirectoryIterator
 {
     /**
      * SplFileInfo classname.
@@ -87,7 +87,7 @@ class Directory extends \RecursiveDirectoryIterator
             $out->setInfoClass($this->_splFileInfoClass);
             $out = $out->getFileInfo();
 
-            if ($out instanceof \Hoa\Iterator\SplFileInfo) {
+            if ($out instanceof IteratorSplFileInfo) {
                 $out->setRelativePath($this->getRelativePath());
             }
         }

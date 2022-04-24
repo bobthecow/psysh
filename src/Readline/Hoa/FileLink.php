@@ -34,17 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File\Link;
-
-use Hoa\Consistency;
-use Hoa\File;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Link.
  *
  * Link handler.
  */
-class Link extends File
+class FileLink extends File
 {
     /**
      * Open a link.
@@ -56,7 +53,7 @@ class Link extends File
         bool $wait      = false
     ) {
         if (!is_link($streamName)) {
-            throw new File\Exception(
+            throw new FileException(
                 'File %s is not a link.',
                 0,
                 $streamName
@@ -103,35 +100,35 @@ class Link extends File
     /**
      * Get the target of a symbolic link.
      */
-    public function getTarget(): File\Generic
+    public function getTarget(): FileGeneric
     {
-        $target  = dirname($this->getStreamName()) . DS .
+        $target  = dirname($this->getStreamName()) . DIRECTORY_SEPARATOR .
                    $this->getTargetName();
         $context = null !== $this->getStreamContext()
                        ? $this->getStreamContext()->getCurrentId()
                        : null;
 
         if (true === is_link($target)) {
-            return new ReadWrite(
+            return new FileLinkReadWrite(
                 $target,
                 File::MODE_APPEND_READ_WRITE,
                 $context
             );
         } elseif (true === is_file($target)) {
-            return new File\ReadWrite(
+            return new FileReadWrite(
                 $target,
                 File::MODE_APPEND_READ_WRITE,
                 $context
             );
         } elseif (true === is_dir($target)) {
-            return new File\Directory(
+            return new FileDirectory(
                 $target,
                 File::MODE_READ,
                 $context
             );
         }
 
-        throw new File\Exception(
+        throw new FileException(
             'Cannot find an appropriated object that matches with ' .
             'path %s when defining it.',
             1,
@@ -159,8 +156,3 @@ class Link extends File
         return symlink($target, $name);
     }
 }
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Link::class);

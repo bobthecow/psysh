@@ -34,10 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Console;
-
-use Hoa\File;
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Interface \Hoa\Console\Input.
@@ -46,7 +43,7 @@ use Hoa\Stream;
  * going to be `php://stdin` but it can be `/dev/tty` if the former has been
  * closed.
  */
-class Input implements Stream\IStream\In
+class ConsoleInput implements StreamIn
 {
     /**
      * Real input stream.
@@ -58,14 +55,14 @@ class Input implements Stream\IStream\In
     /**
      * Wraps an `Hoa\Stream\IStream\In` stream.
      */
-    public function __construct(Stream\IStream\In $input = null)
+    public function __construct(StreamIn $input = null)
     {
         if (null === $input) {
             if (defined('STDIN') &&
                 false !== @stream_get_meta_data(STDIN)) {
-                $input = new File\Read('php://stdin');
+                $input = new FileRead('php://stdin');
             } else {
-                $input = new File\Read('/dev/tty');
+                $input = new FileRead('/dev/tty');
             }
         }
 
@@ -77,7 +74,7 @@ class Input implements Stream\IStream\In
     /**
      * Get underlying stream.
      */
-    public function getStream(): Stream\IStream\In
+    public function getStream(): StreamIn
     {
         return $this->_input;
     }

@@ -34,11 +34,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Ustring;
+namespace Psy\Readline\Hoa;
 
 use ArrayIterator;
 use Collator;
-use Hoa\Consistency;
 use Transliterator;
 
 /**
@@ -372,10 +371,8 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Perform an uppercase folding on the current string.
-     *
-     * @return  \Hoa\Ustring
      */
-    public function toUpperCase(): \Hoa\Ustring
+    public function toUpperCase(): self
     {
         $this->_string = mb_strtoupper($this->_string);
 
@@ -413,7 +410,7 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
 
         if (false === class_exists('Normalizer')) {
             if (false === $try) {
-                throw new Exception(
+                throw new UstringException(
                     '%s needs the class Normalizer to work properly, ' .
                     'or you can force a try by using %1$s(true).',
                     0,
@@ -441,7 +438,7 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
     public function transliterate(string $identifier, int $start = 0, int $end = null): self
     {
         if (null === $transliterator = static::getTransliterator($identifier)) {
-            throw new Exception(
+            throw new UstringException(
                 '%s needs the class Transliterator to work properly.',
                 1,
                 __METHOD__
@@ -523,7 +520,7 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Set a specific character of the current string.
      */
-    public function offsetSet($offset, $value): self
+    public function offsetSet($offset, $value): void
     {
         $head   = null;
         $offset = $this->computeOffset($offset);
@@ -535,8 +532,6 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
         $tail             = mb_substr($this->_string, $offset + 1);
         $this->_string    = $head . $value . $tail;
         $this->_direction = null;
-
-        return $this;
     }
 
     /**
@@ -842,7 +837,7 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
     public static function transcode(string $string, string $from, string $to = 'UTF-8'): string
     {
         if (false === static::checkIconv()) {
-            throw new Exception(
+            throw new UstringException(
                 '%s needs the iconv extension.',
                 2,
                 __CLASS__
@@ -875,17 +870,4 @@ class Ustring implements \ArrayAccess, \Countable, \IteratorAggregate
     {
         return $this->_string;
     }
-}
-
-/**
- * Flex entity.
- */
-Consistency::flexEntity(Ustring::class);
-
-if (false === Ustring::checkMbString()) {
-    throw new Exception(
-        '%s needs the mbstring extension.',
-        0,
-        __NAMESPACE__ . '\Ustring'
-    );
 }

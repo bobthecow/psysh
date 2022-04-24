@@ -34,13 +34,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\Event;
+namespace Psy\Readline\Hoa;
 
 /**
  * A contrario of events, listeners are synchronous, identified at use and
  * useful for close interactions between one or some components.
  */
-class Listener
+class EventListener
 {
     /**
      * Source of listener (for `Hoa\Event\Bucket`).
@@ -57,7 +57,7 @@ class Listener
     /**
      * Build a listener.
      */
-    public function __construct(Listenable $source, array $ids)
+    public function __construct(EventListenable $source, array $ids)
     {
         $this->_source = $source;
         $this->addIds($ids);
@@ -81,14 +81,14 @@ class Listener
     public function attach(string $listenerId, $callable): self
     {
         if (false === $this->listenerExists($listenerId)) {
-            throw new Exception(
+            throw new EventException(
                 'Cannot listen %s because it is not defined.',
                 0,
                 $listenerId
             );
         }
 
-        $callable                                            = xcallable($callable);
+        $callable                                            = Xcallable::from($callable);
         $this->_callables[$listenerId][$callable->getHash()] = $callable;
 
         return $this;
@@ -99,7 +99,7 @@ class Listener
      */
     public function detach(string $listenerId, $callable): self
     {
-        unset($this->_callables[$listenerId][xcallable($callable)->getHash()]);
+        unset($this->_callables[$listenerId][Xcallable::from($callable)->getHash()]);
 
         return $this;
     }
@@ -125,10 +125,10 @@ class Listener
     /**
      * Sends/fires a bucket to a listener.
      */
-    public function fire(string $listenerId, Bucket $data): array
+    public function fire(string $listenerId, EventBucket $data): array
     {
         if (false === $this->listenerExists($listenerId)) {
-            throw new Exception(
+            throw new EventException(
                 'Cannot fire on %s because it is not defined.',
                 1,
                 $listenerId

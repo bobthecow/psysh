@@ -34,20 +34,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File;
-
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Generic.
  *
  * Describe a super-file.
  */
-abstract class Generic
+abstract class FileGeneric
     extends    Stream
-    implements Stream\IStream\Pathable,
-               Stream\IStream\Statable,
-               Stream\IStream\Touchable
+    implements StreamPathable,
+               StreamStatable,
+               StreamTouchable
 {
     /**
      * Mode.
@@ -254,11 +252,11 @@ abstract class Generic
      * Copy file.
      * Return the destination file path if succeed, false otherwise.
      */
-    public function copy(string $to, bool $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE): bool
+    public function copy(string $to, bool $force = StreamTouchable::DO_NOT_OVERWRITE): bool
     {
         $from = $this->getStreamName();
 
-        if ($force === Stream\IStream\Touchable::DO_NOT_OVERWRITE &&
+        if ($force === StreamTouchable::DO_NOT_OVERWRITE &&
             true === file_exists($to)) {
             return true;
         }
@@ -275,17 +273,17 @@ abstract class Generic
      */
     public function move(
         string $name,
-        bool $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE,
-        bool $mkdir = Stream\IStream\Touchable::DO_NOT_MAKE_DIRECTORY
+        bool $force = StreamTouchable::DO_NOT_OVERWRITE,
+        bool $mkdir = StreamTouchable::DO_NOT_MAKE_DIRECTORY
     ): bool {
         $from = $this->getStreamName();
 
-        if ($force === Stream\IStream\Touchable::DO_NOT_OVERWRITE &&
+        if ($force === StreamTouchable::DO_NOT_OVERWRITE &&
             true === file_exists($name)) {
             return false;
         }
 
-        if (Stream\IStream\Touchable::MAKE_DIRECTORY === $mkdir) {
+        if (StreamTouchable::MAKE_DIRECTORY === $mkdir) {
             Directory::create(
                 dirname($name),
                 Directory::MODE_CREATE_RECURSIVE

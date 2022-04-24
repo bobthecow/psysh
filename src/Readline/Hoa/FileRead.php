@@ -34,16 +34,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Hoa\File;
-
-use Hoa\Stream;
+namespace Psy\Readline\Hoa;
 
 /**
  * Class \Hoa\File\Read.
  *
  * File handler.
  */
-class Read extends File implements Stream\IStream\In
+class FileRead extends File implements StreamIn
 {
     /**
      * Open a file.
@@ -62,14 +60,14 @@ class Read extends File implements Stream\IStream\In
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, StreamContext $context = null)
     {
         static $createModes = [
             parent::MODE_READ
         ];
 
         if (!in_array($this->getMode(), $createModes)) {
-            throw new Exception(
+            throw new FileException(
                 'Open mode are not supported; given %d. Only %s are supported.',
                 0,
                 [$this->getMode(), implode(', ', $createModes)]
@@ -80,7 +78,7 @@ class Read extends File implements Stream\IStream\In
 
         if (((isset($match[1]) && $match[1] == 'file') || !isset($match[1])) &&
             !file_exists($streamName)) {
-            throw new Exception\FileDoesNotExist(
+            throw new FileDoesNotExistException(
                 'File %s does not exist.',
                 1,
                 $streamName
@@ -106,7 +104,7 @@ class Read extends File implements Stream\IStream\In
     public function read(int $length)
     {
         if (0 > $length) {
-            throw new Exception(
+            throw new FileException(
                 'Length must be greater than 0, given %d.',
                 2,
                 $length
