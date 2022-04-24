@@ -162,14 +162,6 @@ class Xcallable
     }
 
     /**
-     * Distributes arguments according to an array.
-     */
-    public function distributeArguments(array $arguments)
-    {
-        return $this->__invoke(...$arguments);
-    }
-
-    /**
      * Returns a valid PHP callback.
      */
     public function getValidCallback(array &$arguments = [])
@@ -258,40 +250,6 @@ class Xcallable
         }
 
         return $this->_hash = 'closure(' . spl_object_hash($_) . ')';
-    }
-
-    /**
-     * Returns the appropriated reflection instance.
-     */
-    public function getReflection(...$arguments): Reflector
-    {
-        $callback = $this->getValidCallback($arguments);
-
-        if (is_string($callback)) {
-            return new ReflectionFunction($callback);
-        }
-
-        if ($callback instanceof \Closure) {
-            return new ReflectionFunction($callback);
-        }
-
-        if (is_array($callback)) {
-            if (is_string($callback[0])) {
-                if (false === method_exists($callback[0], $callback[1])) {
-                    return new ReflectionClass($callback[0]);
-                }
-
-                return new ReflectionMethod($callback[0], $callback[1]);
-            }
-
-            $object = new ReflectionObject($callback[0]);
-
-            if (null === $callback[1]) {
-                return $object;
-            }
-
-            return $object->getMethod($callback[1]);
-        }
     }
 
     /**
