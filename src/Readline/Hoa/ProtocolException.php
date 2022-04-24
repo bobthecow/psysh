@@ -39,12 +39,7 @@ namespace Hoa\Protocol;
 use Hoa\Exception as HoaException;
 
 /**
- * Class \Hoa\Protocol\Exception.
- *
- * Extending the \Hoa\Exception\Exception class.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
+ * Extends the `Hoa\Exception\Exception` class.
  */
 class Exception extends HoaException
 {

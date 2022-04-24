@@ -37,21 +37,12 @@
 namespace Hoa\Event;
 
 /**
- * Interface \Hoa\Event\Listenable.
- *
  * Each object which is listenable must implement this interface.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Listenable extends Source
 {
     /**
-     * Attach a callable to a listenable component.
-     *
-     * @param   string  $listenerId    Listener ID.
-     * @param   mixed   $callable      Callable.
-     * @return  \Hoa\Event\Listenable
+     * Attaches a callable to a listenable component.
      */
-    public function on($listenerId, $callable);
+    public function on(string $listenerId, $callable): Listenable;
 }

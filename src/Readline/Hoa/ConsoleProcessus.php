@@ -40,12 +40,7 @@ use Hoa\Event;
 use Hoa\Stream;
 
 /**
- * Class \Hoa\Console\System.
- *
  * Manipulate a processus as a stream.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class          Processus
     extends    Stream
@@ -55,260 +50,186 @@ class          Processus
 {
     /**
      * Signal: terminal line hangup (terminate process).
-     *
-     * @const int
      */
     const SIGHUP    =  1;
 
     /**
      * Signal: interrupt program (terminate process).
-     *
-     * @const int
      */
     const SIGINT    =  2;
 
     /**
      * Signal: quit program (create core image).
-     *
-     * @const int
      */
     const SIGQUIT   =  3;
 
     /**
      * Signal: illegal instruction (create core image).
-     *
-     * @const int
      */
     const SIGILL    =  4;
 
     /**
      * Signal: trace trap (create core image).
-     *
-     * @const int
      */
     const SIGTRAP   =  5;
 
     /**
      * Signal: abort program, formerly SIGIOT (create core image).
-     *
-     * @const int
      */
     const SIGABRT   =  6;
 
     /**
      * Signal: emulate instruction executed (create core image).
-     *
-     * @const int
      */
     const SIGEMT    =  7;
 
     /**
      * Signal: floating-point exception (create core image).
-     *
-     * @const int
      */
     const SIGFPE    =  8;
 
     /**
      * Signal: kill program (terminate process).
-     *
-     * @const int
      */
     const SIGKILL   =  9;
 
     /**
      * Signal: bus error.
-     *
-     * @const int
      */
     const SIGBUS    = 10;
 
     /**
      * Signal: segmentation violation (create core image).
-     *
-     * @const int
      */
     const SIGSEGV   = 11;
 
     /**
      * Signal: non-existent system call invoked (create core image).
-     *
-     * @const int
      */
     const SIGSYS    = 12;
 
     /**
      * Signal: write on a pipe with no reader (terminate process).
-     *
-     * @const int
      */
     const SIGPIPE   = 13;
 
     /**
      * Signal: real-time timer expired (terminate process).
-     *
-     * @const int
      */
     const SIGALRM   = 14;
 
     /**
      * Signal: software termination signal (terminate process).
-     *
-     * @const int
      */
     const SIGTERM   = 15;
 
     /**
      * Signal: urgent condition present on socket (discard signal).
-     *
-     * @const int
      */
     const SIGURG    = 16;
 
     /**
      * Signal: stop, cannot be caught or ignored  (stop proces).
-     *
-     * @const int
      */
     const SIGSTOP   = 17;
 
     /**
      * Signal: stop signal generated from keyboard (stop process).
-     *
-     * @const int
      */
     const SIGTSTP   = 18;
 
     /**
      * Signal: continue after stop (discard signal).
-     *
-     * @const int
      */
     const SIGCONT   = 19;
 
     /**
      * Signal: child status has changed (discard signal).
-     *
-     * @const int
      */
     const SIGCHLD   = 20;
 
     /**
      * Signal: background read attempted from control terminal (stop process).
-     *
-     * @const int
      */
     const SIGTTIN   = 21;
 
     /**
      * Signal: background write attempted to control terminal (stop process).
-     *
-     * @const int
      */
     const SIGTTOU   = 22;
 
     /**
      * Signal: I/O is possible on a descriptor, see fcntl(2) (discard signal).
-     *
-     * @const int
      */
     const SIGIO     = 23;
 
     /**
      * Signal: cpu time limit exceeded, see setrlimit(2) (terminate process).
-     *
-     * @const int
      */
     const SIGXCPU   = 24;
 
     /**
      * Signal: file size limit exceeded, see setrlimit(2) (terminate process).
-     *
-     * @const int
      */
     const SIGXFSZ   = 25;
 
     /**
      * Signal: virtual time alarm, see setitimer(2) (terminate process).
-     *
-     * @const int
      */
     const SIGVTALRM = 26;
 
     /**
      * Signal: profiling timer alarm, see setitimer(2) (terminate process).
-     *
-     * @const int
      */
     const SIGPROF   = 27;
 
     /**
      * Signal: Window size change (discard signal).
-     *
-     * @const int
      */
     const SIGWINCH  = 28;
 
     /**
      * Signal: status request from keyboard (discard signal).
-     *
-     * @const int
      */
     const SIGINFO   = 29;
 
     /**
      * Signal: User defined signal 1 (terminate process).
-     *
-     * @const int
      */
     const SIGUSR1   = 30;
 
     /**
      * Signal: User defined signal 2 (terminate process).
-     *
-     * @const int
      */
     const SIGUSR2   = 31;
 
     /**
      * Command name.
-     *
-     * @var string
      */
     protected $_command     = null;
 
     /**
      * Command options (options => value, or input).
-     *
-     * @var array
      */
     protected $_options     = [];
 
     /**
      * Current working directory.
-     *
-     * @var string
      */
     protected $_cwd         = null;
 
     /**
      * Environment.
-     *
-     * @var array
      */
     protected $_environment = null;
 
     /**
      * Timeout.
-     *
-     * @var int
      */
     protected $_timeout     = 30;
 
     /**
      * Descriptor.
-     *
-     * @var array
      */
     protected $_descriptors = [
         0 => ['pipe', 'r'],
@@ -318,15 +239,11 @@ class          Processus
 
     /**
      * Pipe descriptors of the processus.
-     *
-     * @var array
      */
     protected $_pipes       = null;
 
     /**
      * Seekability of pipes.
-     *
-     * @var array
      */
     protected $_seekable    = [];
 
@@ -334,23 +251,14 @@ class          Processus
 
     /**
      * Start a processus.
-     *
-     * @param   string  $command        Command name.
-     * @param   array   $options        Command options.
-     * @param   array   $descriptors    Descriptors (descriptor => mode —r, w or
-     *                                  a—).
-     * @param   string  $cwd            Current working directory.
-     * @param   array   $environment    Environment.
-     * @param   int     $timeout        Timeout.
-     * @throws  \Hoa\Console\Exception
      */
     public function __construct(
-        $command,
+        string $command,
         array $options     = null,
         array $descriptors = null,
-        $cwd               = null,
+        string $cwd        = null,
         array $environment = null,
-        $timeout           = 30
+        int $timeout       = 30
     ) {
         $this->setCommand($command);
 
@@ -390,13 +298,8 @@ class          Processus
 
     /**
      * Open the stream and return the associated resource.
-     *
-     * @param   string               $streamName    Stream name (e.g. path or URL).
-     * @param   \Hoa\Stream\Context  $context       Context.
-     * @return  resource
-     * @throws  \Hoa\Console\Exception
      */
-    protected function &_open($streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, Stream\Context $context = null)
     {
         $out = @proc_open(
             $streamName,
@@ -419,16 +322,14 @@ class          Processus
 
     /**
      * Close the current stream.
-     *
-     * @return  bool
      */
-    protected function _close()
+    protected function _close(): bool
     {
         foreach ($this->_pipes as $pipe) {
             @fclose($pipe);
         }
 
-        return @proc_close($this->getStream());
+        return (bool) @proc_close($this->getStream());
     }
 
     /**
@@ -436,8 +337,6 @@ class          Processus
      * timeout).
      * If an event returns false, it will close the current pipe.
      * For a simple run without firing events, use the $this->open() method.
-     *
-     * @return  void
      */
     public function run()
     {
@@ -558,12 +457,8 @@ class          Processus
 
     /**
      * Get pipe resource.
-     *
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  resource
-     * @throws  \Hoa\Console\Exception
      */
-    protected function getPipe($pipe)
+    protected function getPipe(int $pipe)
     {
         if (!isset($this->_pipes[$pipe])) {
             throw new Exception(
@@ -578,11 +473,8 @@ class          Processus
 
     /**
      * Check if a pipe is seekable or not.
-     *
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  bool
      */
-    protected function isPipeSeekable($pipe)
+    protected function isPipeSeekable(int $pipe): bool
     {
         if (!isset($this->_seekable[$pipe])) {
             $_pipe                  = $this->getPipe($pipe);
@@ -595,24 +487,16 @@ class          Processus
 
     /**
      * Test for end-of-file.
-     *
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  bool
      */
-    public function eof($pipe = 1)
+    public function eof(int $pipe = 1): bool
     {
         return feof($this->getPipe($pipe));
     }
 
     /**
      * Read n characters.
-     *
-     * @param   int  $length    Length.
-     * @param   int  $pipe      Pipe descriptor.
-     * @return  string
-     * @throws  \Hoa\Console\Exception
      */
-    public function read($length, $pipe = 1)
+    public function read(int $length, int $pipe = 1)
     {
         if (0 > $length) {
             throw new Exception(
@@ -627,58 +511,40 @@ class          Processus
 
     /**
      * Alias of $this->read().
-     *
-     * @param   int  $length    Length.
-     * @param   int  $pipe      Pipe descriptor.
-     * @return  string
      */
-    public function readString($length, $pipe = 1)
+    public function readString(int $length, int $pipe = 1)
     {
         return $this->read($length, $pipe);
     }
 
     /**
      * Read a character.
-     *
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  string
      */
-    public function readCharacter($pipe = 1)
+    public function readCharacter(int $pipe = 1)
     {
         return fgetc($this->getPipe($pipe));
     }
 
     /**
      * Read a boolean.
-     *
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  bool
      */
-    public function readBoolean($pipe = 1)
+    public function readBoolean(int $pipe = 1)
     {
         return (bool) $this->read(1, $pipe);
     }
 
     /**
      * Read an integer.
-     *
-     * @param   int  $length    Length.
-     * @param   int  $pipe      Pipe descriptor.
-     * @return  int
      */
-    public function readInteger($length = 1, $pipe = 1)
+    public function readInteger(int $length = 1, int $pipe = 1)
     {
         return (int) $this->read($length, $pipe);
     }
 
     /**
      * Read a float.
-     *
-     * @param   int     $length    Length.
-     * @param   int     $pipe      Pipe descriptor.
-     * @return  float
      */
-    public function readFloat($length = 1, $pipe = 1)
+    public function readFloat(int $length = 1, int $pipe = 1)
     {
         return (float) $this->read($length, $pipe);
     }
@@ -686,35 +552,24 @@ class          Processus
     /**
      * Read an array.
      * Alias of the $this->scanf() method.
-     *
-     * @param   string  $format    Format (see printf's formats).
-     * @param   int     $pipe      Pipe descriptor.
-     * @return  array
      */
-    public function readArray($format = null, $pipe = 1)
+    public function readArray(string $format = null, int $pipe = 1)
     {
         return $this->scanf($format, $pipe);
     }
 
     /**
      * Read a line.
-     *
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  string
      */
-    public function readLine($pipe = 1)
+    public function readLine(int $pipe = 1)
     {
         return stream_get_line($this->getPipe($pipe), 1 << 15, "\n");
     }
 
     /**
      * Read all, i.e. read as much as possible.
-     *
-     * @param   int  $offset    Offset.
-     * @param   int  $pipe      Pipe descriptor.
-     * @return  string
      */
-    public function readAll($offset = -1, $pipe = 1)
+    public function readAll(int $offset = -1, int $pipe = 1)
     {
         $_pipe = $this->getPipe($pipe);
 
@@ -729,26 +584,16 @@ class          Processus
 
     /**
      * Parse input from a stream according to a format.
-     *
-     * @param   string  $format    Format (see printf's formats).
-     * @param   int     $pipe      Pipe descriptor.
-     * @return  array
      */
-    public function scanf($format, $pipe = 1)
+    public function scanf(string $format, int $pipe = 1): array
     {
         return fscanf($this->getPipe($pipe), $format);
     }
 
     /**
      * Write n characters.
-     *
-     * @param   string  $string    String.
-     * @param   int     $length    Length.
-     * @param   int     $pipe      Pipe descriptor.
-     * @return  mixed
-     * @throws  \Hoa\Console\Exception
      */
-    public function write($string, $length, $pipe = 0)
+    public function write(string $string, int $length, int $pipe = 0)
     {
         if (0 > $length) {
             throw new Exception(
@@ -763,12 +608,8 @@ class          Processus
 
     /**
      * Write a string.
-     *
-     * @param   string  $string    String.
-     * @param   int     $pipe      Pipe descriptor.
-     * @return  mixed
      */
-    public function writeString($string, $pipe = 0)
+    public function writeString(string $string, int $pipe = 0)
     {
         $string = (string) $string;
 
@@ -777,36 +618,24 @@ class          Processus
 
     /**
      * Write a character.
-     *
-     * @param   string  $char    Character.
-     * @param   int     $pipe    Pipe descriptor.
-     * @return  mixed
      */
-    public function writeCharacter($char, $pipe = 0)
+    public function writeCharacter(string $char, int $pipe = 0)
     {
         return $this->write((string) $char[0], 1, $pipe);
     }
 
     /**
      * Write a boolean.
-     *
-     * @param   bool  $boolean    Boolean.
-     * @param   int   $pipe       Pipe descriptor.
-     * @return  mixed
      */
-    public function writeBoolean($boolean, $pipe = 0)
+    public function writeBoolean(bool $boolean, int $pipe = 0)
     {
         return $this->write((string) (bool) $boolean, 1, $pipe);
     }
 
     /**
      * Write an integer.
-     *
-     * @param   int  $integer    Integer.
-     * @param   int  $pipe       Pipe descriptor.
-     * @return  mixed
      */
-    public function writeInteger($integer, $pipe = 0)
+    public function writeInteger(int $integer, int $pipe = 0)
     {
         $integer = (string) (int) $integer;
 
@@ -815,12 +644,8 @@ class          Processus
 
     /**
      * Write a float.
-     *
-     * @param   float   $float    Float.
-     * @param   int     $pipe     Pipe descriptor.
-     * @return  mixed
      */
-    public function writeFloat($float, $pipe = 0)
+    public function writeFloat(float $float, int $pipe = 0)
     {
         $float = (string) (float) $float;
 
@@ -829,12 +654,8 @@ class          Processus
 
     /**
      * Write an array.
-     *
-     * @param   array   $array    Array.
-     * @param   int     $pipe     Pipe descriptor.
-     * @return  mixed
      */
-    public function writeArray(array $array, $pipe = 0)
+    public function writeArray(array $array, int $pipe = 0)
     {
         $array = var_export($array, true);
 
@@ -843,12 +664,8 @@ class          Processus
 
     /**
      * Write a line.
-     *
-     * @param   string  $line    Line.
-     * @param   int     $pipe    Pipe descriptor.
-     * @return  mixed
      */
-    public function writeLine($line, $pipe = 0)
+    public function writeLine(string $line, int $pipe = 0)
     {
         if (false === $n = strpos($line, "\n")) {
             return $this->write($line . "\n", strlen($line) + 1, $pipe);
@@ -861,64 +678,48 @@ class          Processus
 
     /**
      * Write all, i.e. as much as possible.
-     *
-     * @param   string  $string    String.
-     * @param   int     $pipe      Pipe descriptor.
-     * @return  mixed
      */
-    public function writeAll($string, $pipe = 0)
+    public function writeAll(string $string, int $pipe = 0)
     {
         return $this->write($string, strlen($string), $pipe);
     }
 
     /**
      * Truncate a file to a given length.
-     *
-     * @param   int  $size    Size.
-     * @param   int  $pipe    Pipe descriptor.
-     * @return  bool
      */
-    public function truncate($size, $pipe = 0)
+    public function truncate(int $size, int $pipe = 0): bool
     {
         return ftruncate($this->getPipe($pipe), $size);
     }
 
     /**
      * Get filename component of path.
-     *
-     * @return  string
      */
-    public function getBasename()
+    public function getBasename(): string
     {
         return basename($this->getCommand());
     }
 
     /**
      * Get directory name component of path.
-     *
-     * @return  string
      */
-    public function getDirname()
+    public function getDirname(): string
     {
         return dirname($this->getCommand());
     }
 
     /**
      * Get status.
-     *
-     * @return  array
      */
-    public function getStatus()
+    public function getStatus(): array
     {
         return proc_get_status($this->getStream());
     }
 
     /**
      * Get exit code (alias of $this->getStatus()['exitcode']);
-     *
-     * @return  int
      */
-    public function getExitCode()
+    public function getExitCode(): int
     {
         $handle = $this->getStatus();
 
@@ -930,7 +731,7 @@ class          Processus
      *
      * @return  boolean
      */
-    public function isSuccessful()
+    public function isSuccessful(): bool
     {
         return 0 === $this->getExitCode();
     }
@@ -938,23 +739,18 @@ class          Processus
     /**
      * Terminate the process.
      *
-     * @param   int  $signal    Signal, amongst self::SIGHUP, SIGINT, SIGQUIT,
-     *                          SIGABRT, SIGKILL, SIGALRM and SIGTERM. Default
-     *                          is self::SIGTERM.
-     * @return  bool
+     * Valid signals are self::SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGKILL,
+     * SIGALRM and SIGTERM.
      */
-    public function terminate($signal = self::SIGTERM)
+    public function terminate(int $signal = self::SIGTERM): bool
     {
         return proc_terminate($this->getStream(), $signal);
     }
 
     /**
      * Set command name.
-     *
-     * @param   string  $command    Command name.
-     * @return  string
      */
-    protected function setCommand($command)
+    protected function setCommand(string $command)
     {
         $old            = $this->_command;
         $this->_command = escapeshellcmd($command);
@@ -964,8 +760,6 @@ class          Processus
 
     /**
      * Get command name.
-     *
-     * @return  string
      */
     public function getCommand()
     {
@@ -974,11 +768,8 @@ class          Processus
 
     /**
      * Set command options.
-     *
-     * @param   array  $options    Options (option => value, or input).
-     * @return  array
      */
-    protected function setOptions(array $options)
+    protected function setOptions(array $options): array
     {
         foreach ($options as &$option) {
             $option = escapeshellarg($option);
@@ -992,20 +783,16 @@ class          Processus
 
     /**
      * Get options.
-     *
-     * @return  array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->_options;
     }
 
     /**
      * Get command-line.
-     *
-     * @return  string
      */
-    public function getCommandLine()
+    public function getCommandLine(): string
     {
         $out = $this->getCommand();
 
@@ -1022,11 +809,8 @@ class          Processus
 
     /**
      * Set current working directory of the process.
-     *
-     * @param   string  $cwd    Current working directory.
-     * @return  string
      */
-    protected function setCwd($cwd)
+    protected function setCwd(string $cwd)
     {
         $old        = $this->_cwd;
         $this->_cwd = $cwd;
@@ -1036,19 +820,14 @@ class          Processus
 
     /**
      * Get current working directory of the process.
-     *
-     * @return  string
      */
-    public function getCwd()
+    public function getCwd(): string
     {
         return $this->_cwd;
     }
 
     /**
      * Set environment of the process.
-     *
-     * @param   array  $environment    Environment.
-     * @return  array
      */
     protected function setEnvironment(array $environment)
     {
@@ -1060,8 +839,6 @@ class          Processus
 
     /**
      * Get environment of the process.
-     *
-     * @return  array
      */
     public function getEnvironment()
     {
@@ -1070,11 +847,8 @@ class          Processus
 
     /**
      * Set timeout of the process.
-     *
-     * @param   int  $timeout    Timeout.
-     * @return  int
      */
-    public function setTimeout($timeout)
+    public function setTimeout(int $timeout)
     {
         $old            = $this->_timeout;
         $this->_timeout = $timeout;
@@ -1084,52 +858,32 @@ class          Processus
 
     /**
      * Get timeout of the process.
-     *
-     * @return  int
      */
-    public function getTimeout()
+    public function getTimeout(): int
     {
         return $this->_timeout;
     }
 
     /**
      * Set process title.
-     *
-     * @param   string  $title    Title.
-     * @return  void
      */
-    public static function setTitle($title)
+    public static function setTitle(string $title)
     {
-        if (PHP_VERSION_ID < 50500) {
-            return;
-        }
-
         cli_set_process_title($title);
-
-        return;
     }
 
     /**
      * Get process title.
-     *
-     * @return  string
      */
     public static function getTitle()
     {
-        if (PHP_VERSION_ID < 50500) {
-            return null;
-        }
-
         return cli_get_process_title();
     }
 
     /**
      * Found the place of a binary.
-     *
-     * @param   string  $binary    Binary.
-     * @return  string
      */
-    public static function locate($binary)
+    public static function locate(string $binary)
     {
         if (isset($_ENV['PATH'])) {
             $separator = ':';
@@ -1156,17 +910,13 @@ class          Processus
     /**
      * Quick process execution.
      * Returns only the STDOUT.
-     *
-     * @param   string  $commandLine    Command line to execute.
-     * @param   bool    $escape         Escape command.
-     * @return  string
      */
-    public static function execute($commandLine, $escape = true)
+    public static function execute(string $commandLine, bool $escape = true): string
     {
         if (true === $escape) {
             $commandLine = escapeshellcmd($commandLine);
         }
 
-        return rtrim(shell_exec($commandLine));
+        return rtrim(shell_exec($commandLine) ?? '');
     }
 }

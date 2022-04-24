@@ -44,9 +44,6 @@ use Hoa\Protocol;
  * Class \Hoa\Stream.
  *
  * Static register for all streams (files, sockets etc.).
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 abstract class Stream implements IStream\Stream, Event\Listenable
 {
@@ -54,85 +51,61 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Name index in the stream bucket.
-     *
-     * @const int
      */
     const NAME                = 0;
 
     /**
      * Handler index in the stream bucket.
-     *
-     * @const int
      */
     const HANDLER             = 1;
 
     /**
      * Resource index in the stream bucket.
-     *
-     * @const int
      */
     const RESOURCE            = 2;
 
     /**
      * Context index in the stream bucket.
-     *
-     * @const int
      */
     const CONTEXT             = 3;
 
     /**
      * Default buffer size.
-     *
-     * @const int
      */
     const DEFAULT_BUFFER_SIZE = 8192;
 
     /**
      * Current stream bucket.
-     *
-     * @var array
      */
     protected $_bucket          = [];
 
     /**
      * Static stream register.
-     *
-     * @var array
      */
     private static $_register   = [];
 
     /**
      * Buffer size (default is 8Ko).
-     *
-     * @var bool
      */
     protected $_bufferSize      = self::DEFAULT_BUFFER_SIZE;
 
     /**
      * Original stream name, given to the stream constructor.
-     *
-     * @var string
      */
     protected $_streamName      = null;
 
     /**
      * Context name.
-     *
-     * @var string
      */
     protected $_context         = null;
 
     /**
      * Whether the opening has been deferred.
-     *
-     * @var bool
      */
     protected $_hasBeenDeferred = false;
 
     /**
      * Whether this stream is already opened by another handler.
-     *
-     * @var bool
      */
     protected $_borrowing       = false;
 
@@ -142,13 +115,8 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * Set the current stream.
      * If not exists in the register, try to call the
      * `$this->_open()` method. Please, see the `self::_getStream()` method.
-     *
-     * @param   string  $streamName    Stream name (e.g. path or URL).
-     * @param   string  $context       Context ID (please, see the
-     *                                 `Hoa\Stream\Context` class).
-     * @param   bool    $wait          Differ opening or not.
      */
-    public function __construct($streamName, $context = null, $wait = false)
+    public function __construct(string $streamName, string $context = null, bool $wait = false)
     {
         $this->_streamName      = $streamName;
         $this->_context         = $context;
@@ -184,19 +152,12 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * Get a stream in the register.
      * If the stream does not exist, try to open it by calling the
      * $handler->_open() method.
-     *
-     * @param   string       $streamName    Stream name.
-     * @param   \Hoa\Stream  $handler       Stream handler.
-     * @param   string       $context       Context ID (please, see the
-     *                                      \Hoa\Stream\Context class).
-     * @return  array
-     * @throws  \Hoa\Stream\Exception
      */
     final private static function &_getStream(
-        $streamName,
+        string $streamName,
         Stream $handler,
-        $context = null
-    ) {
+        string $context = null
+    ): array {
         $name = md5($streamName);
 
         if (null !== $context) {
@@ -244,30 +205,20 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * Open the stream and return the associated resource.
      * Note: This method is protected, but do not forget that it could be
      * overloaded into a public context.
-     *
-     * @param   string               $streamName    Stream name (e.g. path or URL).
-     * @param   \Hoa\Stream\Context  $context       Context.
-     * @return  resource
-     * @throws  \Hoa\Exception\Exception
      */
-    abstract protected function &_open($streamName, Context $context = null);
+    abstract protected function &_open(string $streamName, Context $context = null);
 
     /**
      * Close the current stream.
      * Note: this method is protected, but do not forget that it could be
      * overloaded into a public context.
-     *
-     * @return  bool
      */
-    abstract protected function _close();
+    abstract protected function _close(): bool;
 
     /**
      * Open the stream.
-     *
-     * @return  \Hoa\Stream
-     * @throws  \Hoa\Stream\Exception
      */
-    final public function open()
+    final public function open(): self
     {
         $context = $this->_context;
 
@@ -302,13 +253,16 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Close the current stream.
-     *
-     * @return  void
      */
     final public function close()
     {
         $streamName = $this->getStreamName();
-        $name       = md5($streamName);
+
+        if (null === $streamName) {
+            return;
+        }
+
+        $name = md5($streamName);
 
         if (!isset(self::$_register[$name])) {
             return;
@@ -338,8 +292,6 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Get the current stream name.
-     *
-     * @return  string
      */
     public function getStreamName()
     {
@@ -352,8 +304,6 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Get the current stream.
-     *
-     * @return  resource
      */
     public function getStream()
     {
@@ -366,8 +316,6 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Get the current stream context.
-     *
-     * @return  \Hoa\Stream\Context
      */
     public function getStreamContext()
     {
@@ -380,11 +328,8 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Get stream handler according to its name.
-     *
-     * @param   string  $streamName    Stream name.
-     * @return  \Hoa\Stream
      */
-    public static function getStreamHandler($streamName)
+    public static function getStreamHandler(string $streamName)
     {
         $name = md5($streamName);
 
@@ -400,15 +345,12 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * and select). Notice that it could be unsafe to use this method without
      * taking time to think about it two minutes. Resource of type “Unknown” is
      * considered as valid.
-     *
-     * @return  resource
-     * @throws  \Hoa\Stream\Exception
      */
     public function _setStream($stream)
     {
         if (false === is_resource($stream) &&
             ('resource' !== gettype($stream) ||
-             'Unknown'  !== get_resource_type($stream))) {
+             'Unknown' !== get_resource_type($stream))) {
             throw new Exception(
                 'Try to change the stream resource with an invalid one; ' .
                 'given %s.',
@@ -425,22 +367,16 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Check if the stream is opened.
-     *
-     * @return  bool
      */
-    public function isOpened()
+    public function isOpened(): bool
     {
         return is_resource($this->getStream());
     }
 
     /**
      * Set the timeout period.
-     *
-     * @param   int     $seconds         Timeout period in seconds.
-     * @param   int     $microseconds    Timeout period in microseconds.
-     * @return  bool
      */
-    public function setStreamTimeout($seconds, $microseconds = 0)
+    public function setStreamTimeout(int $seconds, int $microseconds = 0): bool
     {
         return stream_set_timeout($this->getStream(), $seconds, $microseconds);
     }
@@ -457,10 +393,8 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * Check whether the connection has timed out or not.
      * This is basically a shortcut of `getStreamMetaData` + the `timed_out`
      * index, but the resulting code is more readable.
-     *
-     * @return bool
      */
-    public function hasTimedOut()
+    public function hasTimedOut(): bool
     {
         $metaData = $this->getStreamMetaData();
 
@@ -469,13 +403,10 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Set blocking/non-blocking mode.
-     *
-     * @param   bool    $mode    Blocking mode.
-     * @return  bool
      */
-    public function setStreamBlocking($mode)
+    public function setStreamBlocking(bool $mode): bool
     {
-        return stream_set_blocking($this->getStream(), (int) $mode);
+        return stream_set_blocking($this->getStream(), $mode);
     }
 
     /**
@@ -484,15 +415,8 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * This means that if there are two processes wanting to write to the same
      * output stream, each is paused after 8 Ko of data to allow the other to
      * write.
-     *
-     * @param   int     $buffer    Number of bytes to buffer. If zero, write
-     *                             operations are unbuffered. This ensures that
-     *                             all writes are completed before other
-     *                             processes are allowed to write to that output
-     *                             stream.
-     * @return  bool
      */
-    public function setStreamBuffer($buffer)
+    public function setStreamBuffer(int $buffer): bool
     {
         // Zero means success.
         $out = 0 === stream_set_write_buffer($this->getStream(), $buffer);
@@ -507,30 +431,24 @@ abstract class Stream implements IStream\Stream, Event\Listenable
     /**
      * Disable stream buffering.
      * Alias of $this->setBuffer(0).
-     *
-     * @return  bool
      */
-    public function disableStreamBuffer()
+    public function disableStreamBuffer(): bool
     {
         return $this->setStreamBuffer(0);
     }
 
     /**
      * Get stream buffer size.
-     *
-     * @return  int
      */
-    public function getStreamBufferSize()
+    public function getStreamBufferSize(): int
     {
         return $this->_bufferSize;
     }
 
     /**
      * Get stream wrapper name.
-     *
-     * @return  string
      */
-    public function getStreamWrapperName()
+    public function getStreamWrapperName(): string
     {
         if (false === $pos = strpos($this->getStreamName(), '://')) {
             return 'file';
@@ -541,41 +459,26 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Get stream meta data.
-     *
-     * @return  array
      */
-    public function getStreamMetaData()
+    public function getStreamMetaData(): array
     {
         return stream_get_meta_data($this->getStream());
     }
 
     /**
      * Whether this stream is already opened by another handler.
-     *
-     * @return  bool
      */
-    public function isBorrowing()
+    public function isBorrowing(): bool
     {
         return $this->_borrowing;
     }
 
     /**
      * Notification callback.
-     *
-     * @param   int     $ncode          Notification code. Please, see
-     *                                  STREAM_NOTIFY_* constants.
-     * @param   int     $severity       Severity. Please, see
-     *                                  STREAM_NOTIFY_SEVERITY_* constants.
-     * @param   string  $message        Message.
-     * @param   int     $code           Message code.
-     * @param   int     $transferred    If applicable, the number of transferred
-     *                                  bytes.
-     * @param   int     $max            If applicable, the number of max bytes.
-     * @return  void
      */
     public function _notify(
-        $ncode,
-        $severity,
+        int $ncode,
+        int $severity,
         $message,
         $code,
         $transferred,
@@ -601,8 +504,6 @@ abstract class Stream implements IStream\Stream, Event\Listenable
             'transferred' => $transferred,
             'max'         => $max
         ]));
-
-        return;
     }
 
     /**
@@ -611,8 +512,6 @@ abstract class Stream implements IStream\Stream, Event\Listenable
      * This method does not check the return value of $handler->close(). Thus,
      * if a stream is persistent, the $handler->close() should do anything. It
      * is a very generic method.
-     *
-     * @return  void
      */
     final public static function _Hoa_Stream()
     {
@@ -625,18 +524,14 @@ abstract class Stream implements IStream\Stream, Event\Listenable
 
     /**
      * Transform object to string.
-     *
-     * @return  string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getStreamName();
     }
 
     /**
      * Close the stream when destructing.
-     *
-     * @return  void
      */
     public function __destruct()
     {
@@ -655,7 +550,6 @@ abstract class Stream implements IStream\Stream, Event\Listenable
  *
  * The `hoa://Library/Stream` node.
  *
- * @copyright  Copyright © 2007-2017 Hoa community
  * @license    New BSD License
  */
 class _Protocol extends Protocol\Node
@@ -675,7 +569,7 @@ class _Protocol extends Protocol\Node
      * @param   string  $id    ID of the component.
      * @return  mixed
      */
-    public function reachId($id)
+    public function reachId(string $id)
     {
         return Stream::getStreamHandler($id);
     }
@@ -684,7 +578,7 @@ class _Protocol extends Protocol\Node
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\Stream\Stream');
+Consistency::flexEntity(Stream::class);
 
 /**
  * Shutdown method.

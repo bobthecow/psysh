@@ -44,100 +44,71 @@ use Hoa\Ustring;
  * Class \Hoa\Console\Readline.
  *
  * Read, edit, bind… a line from the input.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Readline
 {
     /**
      * State: continue to read.
-     *
-     * @const int
      */
     const STATE_CONTINUE = 1;
 
     /**
      * State: stop to read.
-     *
-     * @const int
      */
     const STATE_BREAK    = 2;
 
     /**
      * State: no output the current buffer.
-     *
-     * @const int
      */
     const STATE_NO_ECHO  = 4;
 
     /**
      * Current editing line.
-     *
-     * @var string
      */
     protected $_line           = null;
 
     /**
      * Current editing line seek.
-     *
-     * @var int
      */
     protected $_lineCurrent    = 0;
 
     /**
      * Current editing line length.
-     *
-     * @var int
      */
     protected $_lineLength     = 0;
 
     /**
      * Current buffer (most of the time, a char).
-     *
-     * @var string
      */
     protected $_buffer         = null;
 
     /**
      * Mapping.
-     *
-     * @var array
      */
     protected $_mapping        = [];
 
     /**
      * History.
-     *
-     * @var array
      */
     protected $_history        = [];
 
     /**
      * History current position.
-     *
-     * @var int
      */
     protected $_historyCurrent = 0;
 
     /**
      * History size.
-     *
-     * @var int
      */
     protected $_historySize    = 0;
 
     /**
      * Prefix.
-     *
-     * @var string
      */
     protected $_prefix         = null;
 
     /**
      * Autocompleter.
-     *
-     * @var \Hoa\Console\Readline\Autocompleter
      */
     protected $_autocompleter  = null;
 
@@ -145,7 +116,6 @@ class Readline
 
     /**
      * Initialize the readline editor.
-     *
      */
     public function __construct()
     {
@@ -172,11 +142,8 @@ class Readline
 
     /**
      * Read a line from the input.
-     *
-     * @param   string  $prefix    Prefix.
-     * @return  string
      */
-    public function readLine($prefix = null)
+    public function readLine(string $prefix = null)
     {
         $input = Console::getInput();
 
@@ -237,11 +204,8 @@ class Readline
 
     /**
      * Readline core.
-     *
-     * @param   string  $char    Char.
-     * @return  string
      */
-    public function _readLine($char)
+    public function _readLine(string $char)
     {
         if (isset($this->_mapping[$char]) &&
             is_callable($this->_mapping[$char])) {
@@ -279,17 +243,12 @@ class Readline
 
     /**
      * Add mappings.
-     *
-     * @param   array  $mappings    Mappings.
-     * @return  void
      */
     public function addMappings(array $mappings)
     {
         foreach ($mappings as $key => $mapping) {
             $this->addMapping($key, $mapping);
         }
-
-        return;
     }
 
     /**
@@ -300,12 +259,8 @@ class Readline
      *     • abc for a simple mapping.
      * A mapping is a callable that has only one parameter of type
      * Hoa\Console\Readline and that returns a self::STATE_* constant.
-     *
-     * @param   string  $key        Key.
-     * @param   mixed   $mapping    Mapping (a callable).
-     * @return  void
      */
-    public function addMapping($key, $mapping)
+    public function addMapping(string $key, $mapping)
     {
         if ('\e[' === substr($key, 0, 3)) {
             $this->_mapping["\033[" . substr($key, 3)] = $mapping;
@@ -315,17 +270,12 @@ class Readline
         } else {
             $this->_mapping[$key] = $mapping;
         }
-
-        return;
     }
 
     /**
      * Add an entry in the history.
-     *
-     * @param   string  $line    Line.
-     * @return  void
      */
-    public function addHistory($line = null)
+    public function addHistory(string $line = null)
     {
         if (empty($line)) {
             return;
@@ -333,14 +283,10 @@ class Readline
 
         $this->_history[]      = $line;
         $this->_historyCurrent = $this->_historySize++;
-
-        return;
     }
 
     /**
      * Clear history.
-     *
-     * @return  void
      */
     public function clearHistory()
     {
@@ -348,17 +294,12 @@ class Readline
         $this->_history        = [];
         $this->_historyCurrent = 0;
         $this->_historySize    = 1;
-
-        return;
     }
 
     /**
      * Get an entry in the history.
-     *
-     * @param   int  $i    Index of the entry.
-     * @return  string
      */
-    public function getHistory($i = null)
+    public function getHistory(int $i = null)
     {
         if (null === $i) {
             $i = $this->_historyCurrent;
@@ -373,8 +314,6 @@ class Readline
 
     /**
      * Go backward in the history.
-     *
-     * @return  string
      */
     public function previousHistory()
     {
@@ -387,8 +326,6 @@ class Readline
 
     /**
      * Go forward in the history.
-     *
-     * @return  string
      */
     public function nextHistory()
     {
@@ -401,8 +338,6 @@ class Readline
 
     /**
      * Get current line.
-     *
-     * @return  string
      */
     public function getLine()
     {
@@ -411,26 +346,18 @@ class Readline
 
     /**
      * Append to current line.
-     *
-     * @param   string  $append    String to append.
-     * @return  void
      */
-    public function appendLine($append)
+    public function appendLine(string $append)
     {
-        $this->_line       .= $append;
+        $this->_line .= $append;
         $this->_lineLength  = mb_strlen($this->_line);
         $this->_lineCurrent = $this->_lineLength;
-
-        return;
     }
 
     /**
      * Insert into current line at the current seek.
-     *
-     * @param   string  $insert    String to insert.
-     * @return  void
      */
-    public function insertLine($insert)
+    public function insertLine(string $insert)
     {
         if ($this->_lineLength == $this->_lineCurrent) {
             return $this->appendLine($insert);
@@ -447,24 +374,18 @@ class Readline
 
     /**
      * Reset current line.
-     *
-     * @return  void
      */
     protected function resetLine()
     {
         $this->_line        = null;
         $this->_lineCurrent = 0;
         $this->_lineLength  = 0;
-
-        return;
     }
 
     /**
      * Get current line seek.
-     *
-     * @return  int
      */
-    public function getLineCurrent()
+    public function getLineCurrent(): int
     {
         return $this->_lineCurrent;
     }
@@ -474,28 +395,21 @@ class Readline
      *
      * @return  int
      */
-    public function getLineLength()
+    public function getLineLength(): int
     {
         return $this->_lineLength;
     }
 
     /**
      * Set prefix.
-     *
-     * @param   string  $prefix    Prefix.
-     * @return  void
      */
-    public function setPrefix($prefix)
+    public function setPrefix(string $prefix)
     {
         $this->_prefix = $prefix;
-
-        return;
     }
 
     /**
      * Get prefix.
-     *
-     * @return  string
      */
     public function getPrefix()
     {
@@ -504,8 +418,6 @@ class Readline
 
     /**
      * Get buffer. Not for user.
-     *
-     * @return  string
      */
     public function getBuffer()
     {
@@ -514,9 +426,6 @@ class Readline
 
     /**
      * Set an autocompleter.
-     *
-     * @param   \Hoa\Console\Readline\Autocompleter  $autocompleter    Auto-completer.
-     * @return  \Hoa\Console\Readline\Autocompleter
      */
     public function setAutocompleter(Autocompleter $autocompleter)
     {
@@ -528,87 +437,59 @@ class Readline
 
     /**
      * Get the autocompleter.
-     *
-     * @return  \Hoa\Console\Readline\Autocompleter
      */
-    public function getAutocompleter()
+    public function getAutocompleter(): Autocompleter
     {
         return $this->_autocompleter;
     }
 
     /**
      * Read on input. Not for user.
-     *
-     * @param   int  $length    Length.
-     * @return  string
      */
-    public function _read($length = 512)
+    public function _read(int $length = 512): string
     {
         return Console::getInput()->read($length);
     }
 
     /**
      * Set current line. Not for user.
-     *
-     * @param   string  $line    Line.
-     * @return  void
      */
-    public function setLine($line)
+    public function setLine(string $line)
     {
         $this->_line        = $line;
         $this->_lineLength  = mb_strlen($this->_line);
         $this->_lineCurrent = $this->_lineLength;
-
-        return;
     }
 
     /**
      * Set current line seek. Not for user.
-     *
-     * @param   int  $current    Seek.
-     * @return  void
      */
-    public function setLineCurrent($current)
+    public function setLineCurrent(int $current)
     {
         $this->_lineCurrent = $current;
-
-        return;
     }
 
     /**
      * Set line length. Not for user.
-     *
-     * @param   int  $length    Length.
-     * @return  void
      */
-    public function setLineLength($length)
+    public function setLineLength(int $length)
     {
         $this->_lineLength = $length;
-
-        return;
     }
 
     /**
      * Set buffer. Not for user.
-     *
-     * @param   string  $buffer    Buffer.
-     * @return  string
      */
-    public function setBuffer($buffer)
+    public function setBuffer(string $buffer)
     {
         $this->_buffer = $buffer;
-
-        return;
     }
 
     /**
      * Up arrow binding.
      * Go backward in the history.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindArrowUp(Readline $self)
+    public function _bindArrowUp(self $self): int
     {
         if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
             Console\Cursor::clear('↔');
@@ -624,10 +505,8 @@ class Readline
      * Down arrow binding.
      * Go forward in the history.
      *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindArrowDown(Readline $self)
+    public function _bindArrowDown(self $self): int
     {
         if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
             Console\Cursor::clear('↔');
@@ -643,11 +522,8 @@ class Readline
     /**
      * Right arrow binding.
      * Move cursor to the right.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindArrowRight(Readline $self)
+    public function _bindArrowRight(self $self): int
     {
         if ($self->getLineLength() > $self->getLineCurrent()) {
             if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
@@ -665,11 +541,8 @@ class Readline
     /**
      * Left arrow binding.
      * Move cursor to the left.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindArrowLeft(Readline $self)
+    public function _bindArrowLeft(self $self): int
     {
         if (0 < $self->getLineCurrent()) {
             if (0 === (static::STATE_CONTINUE & static::STATE_NO_ECHO)) {
@@ -687,11 +560,8 @@ class Readline
     /**
      * Backspace and Control-H binding.
      * Delete the first character at the right of the cursor.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindBackspace(Readline $self)
+    public function _bindBackspace(self $self): int
     {
         $buffer = null;
 
@@ -721,11 +591,8 @@ class Readline
     /**
      * Control-A binding.
      * Move cursor to beginning of line.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindControlA(Readline $self)
+    public function _bindControlA(self $self): int
     {
         for ($i = $self->getLineCurrent() - 1; 0 <= $i; --$i) {
             $self->_bindArrowLeft($self);
@@ -737,11 +604,8 @@ class Readline
     /**
      * Control-B binding.
      * Move cursor backward one word.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindControlB(Readline $self)
+    public function _bindControlB(self $self): int
     {
         $current = $self->getLineCurrent();
 
@@ -772,11 +636,8 @@ class Readline
     /**
      * Control-E binding.
      * Move cursor to end of line.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindControlE(Readline $self)
+    public function _bindControlE(self $self): int
     {
         for (
             $i = $self->getLineCurrent(), $max = $self->getLineLength();
@@ -792,11 +653,8 @@ class Readline
     /**
      * Control-F binding.
      * Move cursor forward one word.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindControlF(Readline $self)
+    public function _bindControlF(self $self): int
     {
         $current = $self->getLineCurrent();
 
@@ -831,11 +689,8 @@ class Readline
     /**
      * Control-W binding.
      * Delete first backward word.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindControlW(Readline $self)
+    public function _bindControlW(self $self): int
     {
         $current = $self->getLineCurrent();
 
@@ -865,11 +720,8 @@ class Readline
 
     /**
      * Newline binding.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindNewline(Readline $self)
+    public function _bindNewline(self $self): int
     {
         $self->addHistory($self->getLine());
 
@@ -878,11 +730,8 @@ class Readline
 
     /**
      * Tab binding.
-     *
-     * @param   \Hoa\Console\Readline  $self    Self.
-     * @return  int
      */
-    public function _bindTab(Readline $self)
+    public function _bindTab(self $self): int
     {
         $output        = Console::getOutput();
         $autocompleter = $self->getAutocompleter();
@@ -996,7 +845,7 @@ class Readline
                 &$_solution,
                 &$cWidth,
                 $output
-            ) {
+            ): void {
                 Console\Cursor::save();
                 Console\Cursor::hide();
                 Console\Cursor::move('↓ LEFT');
@@ -1132,6 +981,7 @@ class Readline
                             Console\Cursor::move('←', mb_strlen($tail));
                         }
 
+                        // no break
                     default:
                         $mColumn = -1;
                         $mLine   = -1;
@@ -1183,4 +1033,4 @@ Console::advancedInteraction();
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\Console\Readline\Readline');
+Consistency::flexEntity(Readline::class);

@@ -42,32 +42,23 @@ use Hoa\Stream;
  * Class \Hoa\File\Directory.
  *
  * Directory handler.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Directory extends Generic
 {
     /**
      * Open for reading.
-     *
-     * @const string
      */
     const MODE_READ             = 'rb';
 
     /**
      * Open for reading and writing. If the directory does not exist, attempt to
      * create it.
-     *
-     * @const string
      */
     const MODE_CREATE           = 'xb';
 
     /**
      * Open for reading and writing. If the directory does not exist, attempt to
      * create it recursively.
-     *
-     * @const string
      */
     const MODE_CREATE_RECURSIVE = 'xrb';
 
@@ -75,18 +66,12 @@ class Directory extends Generic
 
     /**
      * Open a directory.
-     *
-     * @param   string  $streamName    Stream name.
-     * @param   string  $mode          Open mode, see the self::MODE* constants.
-     * @param   string  $context       Context ID (please, see the
-     *                                 \Hoa\Stream\Context class).
-     * @param   bool    $wait          Differ opening or not.
      */
     public function __construct(
-        $streamName,
-        $mode    = self::MODE_READ,
-        $context = null,
-        $wait    = false
+        string $streamName,
+        string $mode    = self::MODE_READ,
+        string $context = null,
+        bool $wait      = false
     ) {
         $this->setMode($mode);
         parent::__construct($streamName, $context, $wait);
@@ -96,14 +81,8 @@ class Directory extends Generic
 
     /**
      * Open the stream and return the associated resource.
-     *
-     * @param   string               $streamName    Stream name (e.g. path or URL).
-     * @param   \Hoa\Stream\Context  $context       Context.
-     * @return  resource
-     * @throws  \Hoa\File\Exception\FileDoesNotExist
-     * @throws  \Hoa\File\Exception
      */
-    protected function &_open($streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, Stream\Context $context = null)
     {
         if (false === is_dir($streamName)) {
             if ($this->getMode() == self::MODE_READ) {
@@ -130,25 +109,16 @@ class Directory extends Generic
 
     /**
      * Close the current stream.
-     *
-     * @return  bool
      */
-    protected function _close()
+    protected function _close(): bool
     {
         return true;
     }
 
     /**
      * Recursive copy of a directory.
-     *
-     * @param   string  $to       Destination path.
-     * @param   bool    $force    Force to copy if the file $to already exists.
-     *                            Use the \Hoa\Stream\IStream\Touchable::*OVERWRITE
-     *                            constants.
-     * @return  bool
-     * @throws  \Hoa\File\Exception
      */
-    public function copy($to, $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE)
+    public function copy(string $to, bool $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE): bool
     {
         if (empty($to)) {
             throw new Exception(
@@ -184,7 +154,7 @@ class Directory extends Generic
             if (true === $file->isFile()) {
                 $handle = new Read($file->getPathname());
             } elseif (true === $file->isDir()) {
-                $handle = new Directory($file->getPathName());
+                $handle = new self($file->getPathName());
             } elseif (true === $file->isLink()) {
                 $handle = new Link\Read($file->getPathName());
             }
@@ -200,10 +170,8 @@ class Directory extends Generic
 
     /**
      * Delete a directory.
-     *
-     * @return  bool
      */
-    public function delete()
+    public function delete(): bool
     {
         $from   = $this->getStreamName();
         $finder = new Finder();
@@ -224,20 +192,12 @@ class Directory extends Generic
 
     /**
      * Create a directory.
-     *
-     * @param   string  $name       Directory name.
-     * @param   string  $mode       Create mode. Please, see the self::MODE_CREATE*
-     *                              constants.
-     * @param   string  $context    Context ID (please, see the
-     *                              \Hoa\Stream\Context class).
-     * @return  bool
-     * @throws  \Hoa\File\Exception
      */
     public static function create(
-        $name,
-        $mode    = self::MODE_CREATE_RECURSIVE,
-        $context = null
-    ) {
+        string $name,
+        string $mode    = self::MODE_CREATE_RECURSIVE,
+        string $context = null
+    ): bool {
         if (true === is_dir($name)) {
             return true;
         }

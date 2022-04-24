@@ -39,43 +39,30 @@ namespace Hoa\Event;
 use Hoa\Consistency;
 
 /**
- * Class \Hoa\Event\Event.
- *
  * Events are asynchronous at registration, anonymous at use (until we
  * receive a bucket) and useful to largely spread data through components
  * without any known connection between them.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Event
 {
     /**
      * Event ID key.
-     *
-     * @const int
      */
     const KEY_EVENT  = 0;
 
     /**
      * Source object key.
-     *
-     * @const int
      */
     const KEY_SOURCE = 1;
 
     /**
-     * Static register of all observable objects, i.e. \Hoa\Event\Source
+     * Static register of all observable objects, i.e. `Hoa\Event\Source`
      * object, i.e. object that can send event.
-     *
-     * @var array
      */
     private static $_register = [];
 
     /**
-     * Callables, i.e. observer objects.
-     *
-     * @var array
+     * Collection of callables, i.e. observer objects.
      */
     protected $_callable      = [];
 
@@ -83,7 +70,6 @@ class Event
 
     /**
      * Privatize the constructor.
-     *
      */
     private function __construct()
     {
@@ -93,11 +79,8 @@ class Event
     /**
      * Manage multiton of events, with the principle of asynchronous
      * attachments.
-     *
-     * @param   string  $eventId    Event ID.
-     * @return  \Hoa\Event\Event
      */
-    public static function getEvent($eventId)
+    public static function getEvent(string $eventId): Event
     {
         if (!isset(self::$_register[$eventId][self::KEY_EVENT])) {
             self::$_register[$eventId] = [
@@ -110,15 +93,10 @@ class Event
     }
 
     /**
-     * Declare a new object in the observable collection.
-     * Note: Hoa's libraries use hoa://Event/AnID for their observable objects;
-     *
-     * @param   string                    $eventId    Event ID.
-     * @param   \Hoa\Event\Source|string  $source     Observable object or class.
-     * @return  void
-     * @throws  \Hoa\Event\Exception
+     * Declares a new object in the observable collection.
+     * Note: Hoa's libraries use `hoa://Event/anID` for their observable objects.
      */
-    public static function register($eventId, $source)
+    public static function register(string $eventId, /*Source|string*/ $source)
     {
         if (true === self::eventExists($eventId)) {
             throw new Exception(
@@ -154,38 +132,30 @@ class Event
         }
 
         self::$_register[$eventId][self::KEY_SOURCE] = $source;
-
-        return;
     }
 
     /**
-     * Undeclare an object in the observable collection.
+     * Undeclares an object in the observable collection.
      *
-     * @param   string  $eventId    Event ID.
-     * @param   bool    $hard       If false, just delete the source, else,
-     *                              delete source and attached callables.
-     * @return  void
+     * If `$hard` is set to `true, then the source and its attached callables
+     * will be deleted.
      */
-    public static function unregister($eventId, $hard = false)
+    public static function unregister(string $eventId, bool $hard = false)
     {
         if (false !== $hard) {
             unset(self::$_register[$eventId]);
         } else {
             self::$_register[$eventId][self::KEY_SOURCE] = null;
         }
-
-        return;
     }
 
     /**
      * Attach an object to an event.
-     * It can be a callable or an accepted callable form (please, see the
-     * \Hoa\Consistency\Xcallable class).
      *
-     * @param   mixed   $callable    Callable.
-     * @return  \Hoa\Event\Event
+     * It can be a callable or an accepted callable form (please, see the
+     * `Hoa\Consistency\Xcallable` class).
      */
-    public function attach($callable)
+    public function attach($callable): self
     {
         $callable                              = xcallable($callable);
         $this->_callable[$callable->getHash()] = $callable;
@@ -194,13 +164,11 @@ class Event
     }
 
     /**
-     * Detach an object to an event.
-     * Please see $this->attach() method.
+     * Detaches an object to an event.
      *
-     * @param   mixed   $callable    Callable.
-     * @return  \Hoa\Event\Event
+     * Please see `self::attach` method.
      */
-    public function detach($callable)
+    public function detach($callable): self
     {
         unset($this->_callable[xcallable($callable)->getHash()]);
 
@@ -208,25 +176,17 @@ class Event
     }
 
     /**
-     * Check if at least one callable is attached to an event.
-     *
-     * @return  bool
+     * Checks if at least one callable is attached to an event.
      */
-    public function isListened()
+    public function isListened(): bool
     {
         return !empty($this->_callable);
     }
 
     /**
-     * Notify, i.e. send data to observers.
-     *
-     * @param   string             $eventId    Event ID.
-     * @param   \Hoa\Event\Source  $source     Source.
-     * @param   \Hoa\Event\Bucket  $data       Data.
-     * @return  void
-     * @throws  \Hoa\Event\Exception
+     * Notifies, i.e. send data to observers.
      */
-    public static function notify($eventId, Source $source, Bucket $data)
+    public static function notify(string $eventId, Source $source, Bucket $data)
     {
         if (false === self::eventExists($eventId)) {
             throw new Exception(
@@ -242,17 +202,12 @@ class Event
         foreach ($event->_callable as $callable) {
             $callable($data);
         }
-
-        return;
     }
 
     /**
-     * Check whether an event exists.
-     *
-     * @param   string  $eventId    Event ID.
-     * @return  bool
+     * Checks whether an event exists.
      */
-    public static function eventExists($eventId)
+    public static function eventExists(string $eventId): bool
     {
         return
             array_key_exists($eventId, self::$_register) &&
@@ -263,4 +218,4 @@ class Event
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\Event\Event');
+Consistency::flexEntity(Event::class);

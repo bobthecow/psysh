@@ -40,37 +40,26 @@ namespace Hoa\Stream\IStream;
  * Interface \Hoa\Stream\IStream\Touchable.
  *
  * Interface for touchable input/output.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Touchable extends Stream
 {
     /**
      * Overwrite file if already exists.
-     *
-     * @const bool
      */
     const OVERWRITE             = true;
 
     /**
      * Do not overwrite file if already exists.
-     *
-     * @const bool
      */
     const DO_NOT_OVERWRITE      = false;
 
     /**
      * Make directory if does not exist.
-     *
-     * @const bool
      */
     const MAKE_DIRECTORY        = true;
 
     /**
      * Do not make directory if does not exist.
-     *
-     * @const bool
      */
     const DO_NOT_MAKE_DIRECTORY = false;
 
@@ -78,79 +67,46 @@ interface Touchable extends Stream
 
     /**
      * Set access and modification time of file.
-     *
-     * @param   int     $time     Time. If equals to -1, time() should be used.
-     * @param   int     $atime    Access time. If equals to -1, $time should be
-     *                            used.
-     * @return  bool
      */
-    public function touch($time = -1, $atime = -1);
+    public function touch(int $time = -1, int $atime = -1): bool;
 
     /**
      * Copy file.
      * Return the destination file path if succeed, false otherwise.
-     *
-     * @param   string  $to       Destination path.
-     * @param   bool    $force    Force to copy if the file $to already exists.
-     *                            Use the self::*OVERWRITE constants.
-     * @return  bool
      */
-    public function copy($to, $force = self::DO_NOT_OVERWRITE);
+    public function copy(string $to, bool $force = self::DO_NOT_OVERWRITE): bool;
 
     /**
      * Move a file.
-     *
-     * @param   string  $name     New name.
-     * @param   bool    $force    Force to move if the file $name already
-     *                            exists.
-     *                            Use the self::*OVERWRITE constants.
-     * @param   bool    $mkdir    Force to make directory if does not exist.
-     *                            Use the self::*DIRECTORY constants.
-     * @return  bool
      */
     public function move(
-        $name,
-        $force = self::DO_NOT_OVERWRITE,
-        $mkdir = self::DO_NOT_MAKE_DIRECTORY
-    );
+        string $name,
+        bool $force = self::DO_NOT_OVERWRITE,
+        bool $mkdir = self::DO_NOT_MAKE_DIRECTORY
+    ): bool;
 
     /**
      * Delete a file.
-     *
-     * @return  bool
      */
-    public function delete();
+    public function delete(): bool;
 
     /**
      * Change file group.
-     *
-     * @param   mixed   $group    Group name or number.
-     * @return  bool
      */
-    public function changeGroup($group);
+    public function changeGroup($group): bool;
 
     /**
      * Change file mode.
-     *
-     * @param   int     $mode    Mode (in octal!).
-     * @return  bool
      */
-    public function changeMode($mode);
+    public function changeMode(int $mode): bool;
 
     /**
      * Change file owner.
-     *
-     * @param   mixed   $user    User.
-     * @return  bool
      */
-    public function changeOwner($user);
+    public function changeOwner($user): bool;
 
     /**
      * Change the current umask.
-     *
-     * @param   int     $umask    Umask (in octal!). If null, given the current
-     *                            umask value.
-     * @return  int
      */
-    public static function umask($umask = null);
+    public static function umask(int $umask = null): int;
 }

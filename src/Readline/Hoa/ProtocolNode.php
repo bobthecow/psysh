@@ -40,33 +40,22 @@ use Hoa\Consistency;
 use Hoa\Protocol;
 
 /**
- * Class \Hoa\Protocol\Node\Node.
- *
  * Abstract class for all `hoa://`'s nodes.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Node implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * Node's name.
-     *
-     * @var string
      */
     protected $_name       = null;
 
     /**
      * Path for the `reach` method.
-     *
-     * @var string
      */
     protected $_reach      = null;
 
     /**
      * Children of the node.
-     *
-     * @var array
      */
     private $_children     = [];
 
@@ -77,12 +66,8 @@ class Node implements \ArrayAccess, \IteratorAggregate
      * If it is not a data object (i.e. if it does not extend this class to
      * overload the `$_name` attribute), we can set the `$_name` attribute
      * dynamically. This is useful to create a node on-the-fly.
-     *
-     * @param   string  $name        Node's name.
-     * @param   string  $reach       Path for the `reach` method.
-     * @param   array   $children    Node's children.
      */
-    public function __construct($name = null, $reach = null, array $children = [])
+    public function __construct(string $name = null, string $reach = null, array $children = [])
     {
         if (null !== $name) {
             $this->_name = $name;
@@ -101,13 +86,8 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Add a node.
-     *
-     * @param   string                  $name    Node's name. If null, will be
-     *                                           set to name of `$node`.
-     * @param   \Hoa\Protocol\Protocol  $node    Node to add.
-     * @return  \Hoa\Protocol\Protocol
-     * @throws  \Hoa\Protocol\Exception
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($name, $node)
     {
         if (!($node instanceof self)) {
@@ -130,18 +110,12 @@ class Node implements \ArrayAccess, \IteratorAggregate
         }
 
         $this->_children[$name] = $node;
-
-        return;
     }
 
     /**
      * Get a specific node.
-     *
-     * @param   string  $name    Node's name.
-     * @return  \Hoa\Protocol\Protocol
-     * @throws  \Hoa\Protocol\Exception
      */
-    public function offsetGet($name)
+    public function offsetGet($name): self
     {
         if (!isset($this[$name])) {
             throw new Protocol\Exception(
@@ -156,38 +130,26 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Check if a node exists.
-     *
-     * @param   string  $name    Node's name.
-     * @return  bool
      */
-    public function offsetExists($name)
+    public function offsetExists($name): bool
     {
         return true === array_key_exists($name, $this->_children);
     }
 
     /**
      * Remove a node.
-     *
-     * @param   string  $name    Node's name to remove.
-     * @return  void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($name)
     {
         unset($this->_children[$name]);
-
-        return;
     }
 
     /**
      * Resolve a path, i.e. iterate the nodes tree and reach the queue of
      * the path.
-     *
-     * @param   string  $path            Path to resolve.
-     * @param   array   &$accumulator    Combination of all possibles paths.
-     * @param   string  $id              ID.
-     * @return  mixed
      */
-    protected function _resolve($path, &$accumulator, $id = null)
+    protected function _resolve(string $path, &$accumulator, string $id = null)
     {
         if (substr($path, 0, 6) == 'hoa://') {
             $path = substr($path, 6);
@@ -244,13 +206,13 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Resolve choices, i.e. a reach value has a “;”.
-     *
-     * @param   string  $reach           Reach value.
-     * @param   array   &$accumulator    Combination of all possibles paths.
-     * @return  void
      */
-    protected function _resolveChoice($reach, array &$accumulator)
+    protected function _resolveChoice($reach, &$accumulator)
     {
+        if (null === $reach) {
+            $reach = '';
+        }
+
         if (empty($accumulator)) {
             $accumulator = explode(RS, $reach);
 
@@ -299,12 +261,8 @@ class Node implements \ArrayAccess, \IteratorAggregate
     /**
      * Queue of the node.
      * Generic one. Must be overrided in children classes.
-     *
-     * @param   string  $queue    Queue of the node (generally a filename,
-     *                            with probably a query).
-     * @return  mixed
      */
-    public function reach($queue = null)
+    public function reach(string $queue = null)
     {
         return empty($queue) ? $this->_reach : $queue;
     }
@@ -312,12 +270,8 @@ class Node implements \ArrayAccess, \IteratorAggregate
     /**
      * ID of the component.
      * Generic one. Should be overrided in children classes.
-     *
-     * @param   string  $id    ID of the component.
-     * @return  mixed
-     * @throws  \Hoa\Protocol\Exception
      */
-    public function reachId($id)
+    public function reachId(string $id)
     {
         throw new Protocol\Exception(
             'The node %s has no ID support (tried to reach #%s).',
@@ -328,11 +282,8 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Set a new reach value.
-     *
-     * @param   string  $reach    Reach value.
-     * @return  string
      */
-    public function setReach($reach)
+    public function setReach(string $reach)
     {
         $old          = $this->_reach;
         $this->_reach = $reach;
@@ -342,8 +293,6 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Get node's name.
-     *
-     * @return  string
      */
     public function getName()
     {
@@ -352,8 +301,6 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Get reach's root.
-     *
-     * @return  string
      */
     protected function getReach()
     {
@@ -362,30 +309,24 @@ class Node implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Get an iterator.
-     *
-     * @return  \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->_children);
     }
 
     /**
      * Get root the protocol.
-     *
-     * @return  \Hoa\Protocol\Protocol
      */
-    public static function getRoot()
+    public static function getRoot(): Protocol\Protocol
     {
         return Protocol::getInstance();
     }
 
     /**
      * Print a tree of component.
-     *
-     * @return  string
      */
-    public function __toString()
+    public function __toString(): string
     {
         static $i = 0;
 
@@ -404,4 +345,4 @@ class Node implements \ArrayAccess, \IteratorAggregate
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\Protocol\Node\Node');
+Consistency::flexEntity(Node::class);

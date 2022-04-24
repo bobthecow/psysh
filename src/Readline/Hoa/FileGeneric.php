@@ -42,9 +42,6 @@ use Hoa\Stream;
  * Class \Hoa\File\Generic.
  *
  * Describe a super-file.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 abstract class Generic
     extends    Stream
@@ -54,8 +51,6 @@ abstract class Generic
 {
     /**
      * Mode.
-     *
-     * @var string
      */
     protected $_mode = null;
 
@@ -63,30 +58,24 @@ abstract class Generic
 
     /**
      * Get filename component of path.
-     *
-     * @return  string
      */
-    public function getBasename()
+    public function getBasename(): string
     {
         return basename($this->getStreamName());
     }
 
     /**
      * Get directory name component of path.
-     *
-     * @return  string
      */
-    public function getDirname()
+    public function getDirname(): string
     {
         return dirname($this->getStreamName());
     }
 
     /**
      * Get size.
-     *
-     * @return  int
      */
-    public function getSize()
+    public function getSize(): int
     {
         if (false === $this->getStatistic()) {
             return false;
@@ -97,70 +86,56 @@ abstract class Generic
 
     /**
      * Get informations about a file.
-     *
-     * @return  array
      */
-    public function getStatistic()
+    public function getStatistic(): array
     {
         return fstat($this->getStream());
     }
 
     /**
      * Get last access time of file.
-     *
-     * @return  int
      */
-    public function getATime()
+    public function getATime(): int
     {
         return fileatime($this->getStreamName());
     }
 
     /**
      * Get inode change time of file.
-     *
-     * @return  int
      */
-    public function getCTime()
+    public function getCTime(): int
     {
         return filectime($this->getStreamName());
     }
 
     /**
      * Get file modification time.
-     *
-     * @return  int
      */
-    public function getMTime()
+    public function getMTime(): int
     {
         return filemtime($this->getStreamName());
     }
 
     /**
      * Get file group.
-     *
-     * @return  int
      */
-    public function getGroup()
+    public function getGroup(): int
     {
         return filegroup($this->getStreamName());
     }
 
     /**
      * Get file owner.
-     *
-     * @return  int
      */
-    public function getOwner()
+    public function getOwner(): int
     {
         return fileowner($this->getStreamName());
     }
 
     /**
      * Get file permissions.
-     *
-     * @return  int
      */
-    public function getPermissions()
+    public function getPermissions(): int
     {
         return fileperms($this->getStreamName());
     }
@@ -176,10 +151,8 @@ abstract class Generic
      *     * c: character special;
      *     * p: FIFO pipe;
      *     * u: unknown.
-     *
-     * @return  string
      */
-    public function getReadablePermissions()
+    public function getReadablePermissions(): string
     {
         $p = $this->getPermissions();
 
@@ -223,73 +196,54 @@ abstract class Generic
 
     /**
      * Check if the file is readable.
-     *
-     * @return  bool
      */
-    public function isReadable()
+    public function isReadable(): bool
     {
         return is_readable($this->getStreamName());
     }
 
     /**
      * Check if the file is writable.
-     *
-     * @return  bool
      */
-    public function isWritable()
+    public function isWritable(): bool
     {
         return is_writable($this->getStreamName());
     }
 
     /**
      * Check if the file is executable.
-     *
-     * @return  bool
      */
-    public function isExecutable()
+    public function isExecutable(): bool
     {
         return is_executable($this->getStreamName());
     }
 
     /**
      * Clear file status cache.
-     *
-     * @return  void
      */
     public function clearStatisticCache()
     {
         clearstatcache(true, $this->getStreamName());
-
-        return;
     }
 
     /**
      * Clear all files status cache.
-     *
-     * @return  void
      */
     public static function clearAllStatisticCaches()
     {
         clearstatcache();
-
-        return;
     }
 
     /**
      * Set access and modification time of file.
-     *
-     * @param   int     $time     Time. If equals to -1, time() should be used.
-     * @param   int     $atime    Access time. If equals to -1, $time should be
-     *                            used.
-     * @return  bool
      */
-    public function touch($time = -1, $atime = -1)
+    public function touch(int $time = null, int $atime = null): bool
     {
-        if ($time == -1) {
+        if (null === $time) {
             $time  = time();
         }
 
-        if ($atime == -1) {
+        if (null === $atime) {
             $atime = $time;
         }
 
@@ -299,19 +253,13 @@ abstract class Generic
     /**
      * Copy file.
      * Return the destination file path if succeed, false otherwise.
-     *
-     * @param   string  $to       Destination path.
-     * @param   bool    $force    Force to copy if the file $to already exists.
-     *                            Use the \Hoa\Stream\IStream\Touchable::*OVERWRITE
-     *                            constants.
-     * @return  bool
      */
-    public function copy($to, $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE)
+    public function copy(string $to, bool $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE): bool
     {
         $from = $this->getStreamName();
 
         if ($force === Stream\IStream\Touchable::DO_NOT_OVERWRITE &&
-            true   === file_exists($to)) {
+            true === file_exists($to)) {
             return true;
         }
 
@@ -324,26 +272,16 @@ abstract class Generic
 
     /**
      * Move a file.
-     *
-     * @param   string  $name     New name.
-     * @param   bool    $force    Force to move if the file $name already
-     *                            exists.
-     *                            Use the \Hoa\Stream\IStream\Touchable::*OVERWRITE
-     *                            constants.
-     * @param   bool    $mkdir    Force to make directory if does not exist.
-     *                            Use the \Hoa\Stream\IStream\Touchable::*DIRECTORY
-     *                            constants.
-     * @return  bool
      */
     public function move(
-        $name,
-        $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE,
-        $mkdir = Stream\IStream\Touchable::DO_NOT_MAKE_DIRECTORY
-    ) {
+        string $name,
+        bool $force = Stream\IStream\Touchable::DO_NOT_OVERWRITE,
+        bool $mkdir = Stream\IStream\Touchable::DO_NOT_MAKE_DIRECTORY
+    ): bool {
         $from = $this->getStreamName();
 
         if ($force === Stream\IStream\Touchable::DO_NOT_OVERWRITE &&
-            true   === file_exists($name)) {
+            true === file_exists($name)) {
             return false;
         }
 
@@ -363,10 +301,8 @@ abstract class Generic
 
     /**
      * Delete a file.
-     *
-     * @return  bool
      */
-    public function delete()
+    public function delete(): bool
     {
         if (null === $this->getStreamContext()) {
             return @unlink($this->getStreamName());
@@ -380,45 +316,32 @@ abstract class Generic
 
     /**
      * Change file group.
-     *
-     * @param   mixed   $group    Group name or number.
-     * @return  bool
      */
-    public function changeGroup($group)
+    public function changeGroup($group): bool
     {
         return chgrp($this->getStreamName(), $group);
     }
 
     /**
      * Change file mode.
-     *
-     * @param   int     $mode    Mode (in octal!).
-     * @return  bool
      */
-    public function changeMode($mode)
+    public function changeMode(int $mode): bool
     {
         return chmod($this->getStreamName(), $mode);
     }
 
     /**
      * Change file owner.
-     *
-     * @param   mixed   $user    User.
-     * @return  bool
      */
-    public function changeOwner($user)
+    public function changeOwner($user): bool
     {
         return chown($this->getStreamName(), $user);
     }
 
     /**
      * Change the current umask.
-     *
-     * @param   int     $umask    Umask (in octal!). If null, given the current
-     *                            umask value.
-     * @return  int
      */
-    public static function umask($umask = null)
+    public static function umask(int $umask = null): int
     {
         if (null === $umask) {
             return umask();
@@ -429,92 +352,72 @@ abstract class Generic
 
     /**
      * Check if it is a file.
-     *
-     * @return  bool
      */
-    public function isFile()
+    public function isFile(): bool
     {
         return is_file($this->getStreamName());
     }
 
     /**
      * Check if it is a link.
-     *
-     * @return  bool
      */
-    public function isLink()
+    public function isLink(): bool
     {
         return is_link($this->getStreamName());
     }
 
     /**
      * Check if it is a directory.
-     *
-     * @return  bool
      */
-    public function isDirectory()
+    public function isDirectory(): bool
     {
         return is_dir($this->getStreamName());
     }
 
     /**
      * Check if it is a socket.
-     *
-     * @return  bool
      */
-    public function isSocket()
+    public function isSocket(): bool
     {
         return filetype($this->getStreamName()) == 'socket';
     }
 
     /**
      * Check if it is a FIFO pipe.
-     *
-     * @return  bool
      */
-    public function isFIFOPipe()
+    public function isFIFOPipe(): bool
     {
         return filetype($this->getStreamName()) == 'fifo';
     }
 
     /**
      * Check if it is character special file.
-     *
-     * @return  bool
      */
-    public function isCharacterSpecial()
+    public function isCharacterSpecial(): bool
     {
         return filetype($this->getStreamName()) == 'char';
     }
 
     /**
      * Check if it is block special.
-     *
-     * @return  bool
      */
-    public function isBlockSpecial()
+    public function isBlockSpecial(): bool
     {
         return filetype($this->getStreamName()) == 'block';
     }
 
     /**
      * Check if it is an unknown type.
-     *
-     * @return  bool
      */
-    public function isUnknown()
+    public function isUnknown(): bool
     {
         return filetype($this->getStreamName()) == 'unknown';
     }
 
     /**
      * Set the open mode.
-     *
-     * @param   string     $mode    Open mode. Please, see the child::MODE_*
-     *                              constants.
-     * @return  string
      */
-    protected function setMode($mode)
+    protected function setMode(string $mode)
     {
         $old         = $this->_mode;
         $this->_mode = $mode;
@@ -524,8 +427,6 @@ abstract class Generic
 
     /**
      * Get the open mode.
-     *
-     * @return  string
      */
     public function getMode()
     {
@@ -534,20 +435,16 @@ abstract class Generic
 
     /**
      * Get inode.
-     *
-     * @return  int
      */
-    public function getINode()
+    public function getINode(): int
     {
         return fileinode($this->getStreamName());
     }
 
     /**
      * Check if the system is case sensitive or not.
-     *
-     * @return  bool
      */
-    public static function isCaseSensitive()
+    public static function isCaseSensitive(): bool
     {
         return !(
             file_exists(mb_strtolower(__FILE__)) &&
@@ -557,10 +454,8 @@ abstract class Generic
 
     /**
      * Get a canonicalized absolute pathname.
-     *
-     * @return  string
      */
-    public function getRealPath()
+    public function getRealPath(): string
     {
         if (false === $out = realpath($this->getStreamName())) {
             return $this->getStreamName();
@@ -571,10 +466,8 @@ abstract class Generic
 
     /**
      * Get file extension (if exists).
-     *
-     * @return  string
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return pathinfo(
             $this->getStreamName(),
@@ -584,10 +477,8 @@ abstract class Generic
 
     /**
      * Get filename without extension.
-     *
-     * @return  string
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         $file = basename($this->getStreamName());
 

@@ -37,12 +37,7 @@
 namespace Hoa\Event;
 
 /**
- * Interface \Hoa\Event\Source.
- *
  * Each object which is listenable must implement this interface.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Source
 {

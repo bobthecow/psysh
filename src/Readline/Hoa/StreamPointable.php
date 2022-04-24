@@ -40,30 +40,21 @@ namespace Hoa\Stream\IStream;
  * Interface \Hoa\Stream\IStream\Pointable.
  *
  * Interface for pointable input/output.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Pointable extends Stream
 {
     /**
      * Set position equal to $offset bytes.
-     *
-     * @const int
      */
     const SEEK_SET     = SEEK_SET;
 
     /**
      * Set position to current location plus $offset.
-     *
-     * @const int
      */
     const SEEK_CURRENT = SEEK_CUR;
 
     /**
      * Set position to end-of-file plus $offset.
-     *
-     * @const int
      */
     const SEEK_END     = SEEK_END;
 
@@ -71,24 +62,16 @@ interface Pointable extends Stream
 
     /**
      * Rewind the position of a stream pointer.
-     *
-     * @return  bool
      */
-    public function rewind();
+    public function rewind(): bool;
 
     /**
      * Seek on a stream pointer.
-     *
-     * @param   int     $offset    Offset (negative value should be supported).
-     * @param   int     $whence    Whence, use the self::SEEK_* constants.
-     * @return  int
      */
-    public function seek($offset, $whence = self::SEEK_SET);
+    public function seek(int $offset, int $whence = self::SEEK_SET): int;
 
     /**
      * Get the current position of the stream pointer.
-     *
-     * @return  int
      */
-    public function tell();
+    public function tell(): int;
 }

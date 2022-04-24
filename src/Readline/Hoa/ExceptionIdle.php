@@ -37,69 +37,50 @@
 namespace Hoa\Exception;
 
 /**
- * Class \Hoa\Exception\Idle.
- *
- * `\Hoa\Exception\Idle` is the mother exception class of libraries. The only
- * difference between `\Hoa\Exception\Idle` and its directly child
- * `\Hoa\Exception` is that the latter fires events after beeing constructed.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
+ * `Hoa\Exception\Idle` is the mother exception class of libraries. The only
+ * difference between `Hoa\Exception\Idle` and its direct children
+ * `Hoa\Exception` is that the latter fires events after beeing constructed.
  */
 class Idle extends \Exception
 {
     /**
      * Delay processing on arguments.
-     *
-     * @var array
      */
     protected $_tmpArguments = null;
 
     /**
-     * Arguments to format message.
-     *
-     * @var array
+     * List of arguments to format message.
      */
     protected $_arguments    = null;
 
     /**
      * Backtrace.
-     *
-     * @var array
      */
     protected $_trace        = null;
 
     /**
-     * Previous.
-     *
-     * @var \Exception
+     * Previous exception if any.
      */
     protected $_previous     = null;
 
     /**
-     * Original message.
-     *
-     * @var string
+     * Original exception message.
      */
     protected $_rawMessage   = null;
 
 
 
     /**
-     * Create an exception.
+     * Allocates a new exception.
+     *
      * An exception is built with a formatted message, a code (an ID) and an
      * array that contains the list of formatted strings for the message. If
      * chaining, we can add a previous exception.
-     *
-     * @param   string      $message      Formatted message.
-     * @param   int         $code         Code (the ID).
-     * @param   array       $arguments    Arguments to format message.
-     * @param   \Exception  $previous     Previous exception in chaining.
      */
     public function __construct(
-        $message,
-        $code = 0,
-        $arguments = [],
+        string $message,
+        int $code            = 0,
+        $arguments           = [],
         \Exception $previous = null
     ) {
         $this->_tmpArguments = $arguments;
@@ -111,10 +92,9 @@ class Idle extends \Exception
     }
 
     /**
-     * Get the backtrace.
-     * Do not use \Exception::getTrace() any more.
+     * Returns the backtrace.
      *
-     * @return  array
+     * Do not use `Exception::getTrace` any more.
      */
     public function getBacktrace()
     {
@@ -126,10 +106,9 @@ class Idle extends \Exception
     }
 
     /**
-     * Get previous.
-     * Do not use \Exception::getPrevious() any more.
+     * Returns the previous exception if any.
      *
-     * @return  \Exception
+     * Do not use `Exception::getPrevious` any more.
      */
     public function getPreviousThrow()
     {
@@ -141,9 +120,7 @@ class Idle extends \Exception
     }
 
     /**
-     * Get arguments for the message.
-     *
-     * @return  array
+     * Returns the arguments of the message.
      */
     public function getArguments()
     {
@@ -168,31 +145,25 @@ class Idle extends \Exception
     }
 
     /**
-     * Get the raw message.
-     *
-     * @return  string
+     * Returns the raw message.
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->_rawMessage;
     }
 
     /**
-     * Get the message already formatted.
-     *
-     * @return  string
+     * Returns the message already formatted.
      */
-    public function getFormattedMessage()
+    public function getFormattedMessage(): string
     {
         return $this->getMessage();
     }
 
     /**
-     * Get the source of the exception (class, method, function, main etc.).
-     *
-     * @return  string
+     * Returns the source of the exception (class, method, function, main etc.).
      */
-    public function getFrom()
+    public function getFrom(): string
     {
         $trace = $this->getBacktrace();
         $from  = '{main}';
@@ -214,12 +185,9 @@ class Idle extends \Exception
     }
 
     /**
-     * Raise an exception as a string.
-     *
-     * @param   bool    $previous    Whether raise previous exception if exists.
-     * @return  string
+     * Raises an exception as a string.
      */
-    public function raise($previous = false)
+    public function raise(bool $includePrevious = false): string
     {
         $message = $this->getFormattedMessage();
         $trace   = $this->getBacktrace();
@@ -228,8 +196,8 @@ class Idle extends \Exception
         $pre     = $this->getFrom();
 
         if (!empty($trace)) {
-            $file = isset($trace['file']) ? $trace['file'] : null;
-            $line = isset($trace['line']) ? $trace['line'] : null;
+            $file = $trace['file'] ?? null;
+            $line = $trace['line'] ?? null;
         }
 
         $pre .= ': ';
@@ -245,7 +213,7 @@ class Idle extends \Exception
                 'in ' . $file . ' around line ' . $line . '.';
         }
 
-        if (true === $previous &&
+        if (true === $includePrevious &&
             null !== $previous = $this->getPreviousThrow()) {
             $out .=
                 "\n\n" . '    ⬇' . "\n\n" .
@@ -259,13 +227,9 @@ class Idle extends \Exception
     }
 
     /**
-     * Catch uncaught exception (only \Hoa\Exception\Idle and children).
-     *
-     * @param   \Throwable  $exception    The exception.
-     * @return  void
-     * @throws  \Throwable
+     * Catches uncaught exception (only `Hoa\Exception\Idle` and children).
      */
-    public static function uncaught($exception)
+    public static function uncaught(\Throwable $exception)
     {
         if (!($exception instanceof self)) {
             throw $exception;
@@ -278,28 +242,22 @@ class Idle extends \Exception
         echo
             'Uncaught exception (' . get_class($exception) . '):' . "\n" .
             $exception->raise(true);
-
-        return;
     }
 
     /**
      * String representation of object.
-     *
-     * @return  string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->raise();
     }
 
     /**
-     * Enable uncaught exception handler.
-     * This is restricted to Hoa's exceptions only.
+     * Enables uncaught exception handler.
      *
-     * @param   bool  $enable    Enable.
-     * @return  mixed
+     * This is restricted to Hoa's exceptions only.
      */
-    public static function enableUncaughtHandler($enable = true)
+    public static function enableUncaughtHandler(bool $enable = true)
     {
         if (false === $enable) {
             return restore_exception_handler();

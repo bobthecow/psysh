@@ -40,23 +40,16 @@ namespace Hoa\Iterator;
  * Class \Hoa\Iterator\SplFileInfo.
  *
  * Enhance SplFileInfo implementation.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class SplFileInfo extends \SplFileInfo
 {
     /**
      * Hash.
-     *
-     * @var string
      */
     protected $_hash         = null;
 
     /**
      * Relative path.
-     *
-     * @var string
      */
     protected $_relativePath = null;
 
@@ -64,11 +57,8 @@ class SplFileInfo extends \SplFileInfo
 
     /**
      * Construct.
-     *
-     * @param   string  $filename        Filename.
-     * @param   string  $relativePath    Relative path.
      */
-    public function __construct($filename, $relativePath = null)
+    public function __construct(string $filename, string $relativePath = null)
     {
         parent::__construct($filename);
 
@@ -83,20 +73,16 @@ class SplFileInfo extends \SplFileInfo
 
     /**
      * Get the hash.
-     *
-     * @return  string
      */
-    public function getHash()
+    public function getHash(): string
     {
         return $this->_hash;
     }
 
     /**
      * Get the MTime.
-     *
-     * @return  int
      */
-    public function getMTime()
+    public function getMTime(): int
     {
         try {
             return parent::getMTime();
@@ -107,11 +93,8 @@ class SplFileInfo extends \SplFileInfo
 
     /**
      * Set relative path.
-     *
-     * @param   string  $relativePath    Relative path.
-     * @return  string
      */
-    public function setRelativePath($relativePath)
+    public function setRelativePath(string $relativePath)
     {
         $old                 = $this->_relativePath;
         $this->_relativePath = $relativePath;
@@ -121,8 +104,6 @@ class SplFileInfo extends \SplFileInfo
 
     /**
      * Get relative path (if given).
-     *
-     * @return  string
      */
     public function getRelativePath()
     {
@@ -131,10 +112,8 @@ class SplFileInfo extends \SplFileInfo
 
     /**
      * Get relative pathname (if possible).
-     *
-     * @return  string
      */
-    public function getRelativePathname()
+    public function getRelativePathname(): string
     {
         if (null === $relative = $this->getRelativePath()) {
             return $this->getPathname();

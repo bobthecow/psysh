@@ -37,23 +37,14 @@
 namespace Hoa\Protocol\Node;
 
 /**
- * Class \Hoa\Protocol\Node\Library.
- *
- * `hoa://Library/` node.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
+ * The `hoa://Library/` node.
  */
 class Library extends Node
 {
     /**
      * Queue of the component.
-     *
-     * @param   string  $queue    Queue of the component (generally, a filename,
-     *                            with probably a query).
-     * @return  mixed
      */
-    public function reach($queue = null)
+    public function reach(string $queue = null)
     {
         if (!WITH_COMPOSER) {
             return parent::reach($queue);
@@ -75,7 +66,7 @@ class Library extends Node
                 $out[] = "\r" . $part . strtolower($head) . $queue;
             }
 
-            $out[] = "\r" . dirname(dirname(dirname(dirname(__DIR__)))) . $queue;
+            $out[] = "\r" . dirname(__DIR__, 5) . $queue;
 
             return implode(RS, $out);
         }

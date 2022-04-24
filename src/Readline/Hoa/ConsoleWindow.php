@@ -39,23 +39,16 @@ namespace Hoa\Console;
 use Hoa\Event;
 
 /**
- * Class \Hoa\Console\Window.
- *
  * Allow to manipulate the window.
  *
  * We can listen the event channel hoa://Event/Console/Window:resize to detect
  * if the window has been resized. Please, see the constructor documentation to
  * get more informations.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Window implements Event\Source
 {
     /**
      * Singleton (only for events).
-     *
-     * @var \Hoa\Console\Window
      */
     private static $_instance = null;
 
@@ -65,7 +58,6 @@ class Window implements Event\Source
      * Set the event channel.
      * We need to declare(ticks = 1) in the main script to ensure that the event
      * is fired. Also, we need the pcntl_signal() function enabled.
-     *
      */
     private function __construct()
     {
@@ -79,10 +71,8 @@ class Window implements Event\Source
 
     /**
      * Singleton.
-     *
-     * @return  \Hoa\Console\Window
      */
-    public static function getInstance()
+    public static function getInstance(): self
     {
         if (null === static::$_instance) {
             static::$_instance = new static();
@@ -93,12 +83,8 @@ class Window implements Event\Source
 
     /**
      * Set size to X lines and Y columns.
-     *
-     * @param   int  $x    X coordinate.
-     * @param   int  $y    Y coordinate.
-     * @return  void
      */
-    public static function setSize($x, $y)
+    public static function setSize(int $x, int $y)
     {
         if (OS_WIN) {
             return;
@@ -111,21 +97,19 @@ class Window implements Event\Source
 
     /**
      * Get current size (x and y) of the window.
-     *
-     * @return  array
      */
-    public static function getSize()
+    public static function getSize(): array
     {
         if (OS_WIN) {
             $modecon = explode("\n", ltrim(Processus::execute('mode con')));
 
-            $_y      = trim($modecon[2]);
+            $_y = trim($modecon[2]);
             preg_match('#[^:]+:\s*([0-9]+)#', $_y, $matches);
-            $y       = (int) $matches[1];
+            $y  = (int) $matches[1];
 
-            $_x      = trim($modecon[3]);
+            $_x = trim($modecon[3]);
             preg_match('#[^:]+:\s*([0-9]+)#', $_x, $matches);
-            $x       = (int) $matches[1];
+            $x  = (int) $matches[1];
 
             return [
                 'x' => $x,
@@ -199,12 +183,8 @@ class Window implements Event\Source
 
     /**
      * Move to X and Y (in pixels).
-     *
-     * @param   int  $x    X coordinate.
-     * @param   int  $y    Y coordinate.
-     * @return  void
      */
-    public static function moveTo($x, $y)
+    public static function moveTo(int $x, int $y)
     {
         if (OS_WIN) {
             return;
@@ -218,13 +198,11 @@ class Window implements Event\Source
 
     /**
      * Get current position (x and y) of the window (in pixels).
-     *
-     * @return  array
      */
-    public static function getPosition()
+    public static function getPosition(): array
     {
         if (OS_WIN) {
-            return;
+            return ['x' => 0, 'y' => 0];
         }
 
         // DECSLPP.
@@ -268,12 +246,8 @@ class Window implements Event\Source
      *     • u, up,    ↑ : scroll whole page up;
      *     • d, down,  ↓ : scroll whole page down.
      * Directions can be concatenated by a single space.
-     *
-     * @param   string  $directions    Directions.
-     * @param   int     $repeat        How many times do we scroll?
-     * @return  void
      */
-    public static function scroll($directions, $repeat = 1)
+    public static function scroll(string $directions, int $repeat = 1)
     {
         if (OS_WIN) {
             return;
@@ -335,8 +309,6 @@ class Window implements Event\Source
 
     /**
      * Minimize the window.
-     *
-     * @return  void
      */
     public static function minimize()
     {
@@ -352,8 +324,6 @@ class Window implements Event\Source
 
     /**
      * Restore the window (de-minimize).
-     *
-     * @return  void
      */
     public static function restore()
     {
@@ -368,8 +338,6 @@ class Window implements Event\Source
 
     /**
      * Raise the window to the front of the stacking order.
-     *
-     * @return  void
      */
     public static function raise()
     {
@@ -384,8 +352,6 @@ class Window implements Event\Source
 
     /**
      * Lower the window to the bottom of the stacking order.
-     *
-     * @return  void
      */
     public static function lower()
     {
@@ -400,11 +366,8 @@ class Window implements Event\Source
 
     /**
      * Set title.
-     *
-     * @param   string  $title    Title.
-     * @return  void
      */
-    public static function setTitle($title)
+    public static function setTitle(string $title)
     {
         if (OS_WIN) {
             return;
@@ -418,13 +381,11 @@ class Window implements Event\Source
 
     /**
      * Get title.
-     *
-     * @return  string
      */
     public static function getTitle()
     {
         if (OS_WIN) {
-            return;
+            return null;
         }
 
         // DECSLPP.
@@ -464,13 +425,11 @@ class Window implements Event\Source
 
     /**
      * Get label.
-     *
-     * @return  string
      */
     public static function getLabel()
     {
         if (OS_WIN) {
-            return;
+            return null;
         }
 
         // DECSLPP.
@@ -510,8 +469,6 @@ class Window implements Event\Source
 
     /**
      * Refresh the window.
-     *
-     * @return  void
      */
     public static function refresh()
     {
@@ -527,11 +484,8 @@ class Window implements Event\Source
 
     /**
      * Set clipboard value.
-     *
-     * @param   string  $data    Data to copy.
-     * @return  void
      */
-    public static function copy($data)
+    public static function copy(string $data)
     {
         if (OS_WIN) {
             return;

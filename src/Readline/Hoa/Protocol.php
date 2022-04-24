@@ -39,12 +39,7 @@ namespace Hoa\Protocol;
 use Hoa\Consistency;
 
 /**
- * Class \Hoa\Protocol\Protocol.
- *
  * Root of the `hoa://` protocol.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Protocol extends Node
 {
@@ -57,23 +52,18 @@ class Protocol extends Node
 
     /**
      * Singleton.
-     *
-     * @var \Hoa\Protocol\Protocol
      */
     private static $_instance = null;
 
     /**
      * Cache of resolver.
-     *
-     * @var array
      */
-    private static $_cache = [];
+    private static $_cache    = [];
 
 
 
     /**
      * Initialize the protocol.
-     *
      */
     public function __construct()
     {
@@ -85,10 +75,8 @@ class Protocol extends Node
     /**
      * Singleton.
      * To use the `hoa://` protocol shared by everyone.
-     *
-     * @return  \Hoa\Protocol\Protocol
      */
-    public static function getInstance()
+    public static function getInstance(): Protocol
     {
         if (null === static::$_instance) {
             static::$_instance = new static();
@@ -99,15 +87,15 @@ class Protocol extends Node
 
     /**
      * Initialize the protocol.
-     *
-     * @return  void
      */
     protected function initialize()
     {
-        $root = dirname(dirname(__DIR__));
-        $cwd  =
+        $root  = dirname(__DIR__, 3);
+        $argv0 = realpath($_SERVER['argv'][0]);
+
+        $cwd =
             'cli' === PHP_SAPI
-                ? dirname(realpath($_SERVER['argv'][0]))
+                ? false !== $argv0 ? dirname($argv0) : ''
                 : getcwd();
 
         $this[] = new Node(
@@ -152,20 +140,16 @@ class Protocol extends Node
             $root . DS . 'Hoathis' . DS . RS .
             $root . DS . 'Hoa' . DS
         );
-
-        return;
     }
 
     /**
      * Resolve (unfold) an `hoa://` path to its real resource.
      *
-     * @param   string  $path      Path to resolve.
-     * @param   bool    $exists    If `true`, try to find the first that exists,
-     *                             else return the first solution.
-     * @param   bool    $unfold    Return all solutions instead of one.
-     * @return  mixed
+     * If `$exists` is set to `true`, try to find the first that exists,
+     * otherwise returns the first solution.  If `$unfold` is set to `true`,
+     * it returns all the paths.
      */
-    public function resolve($path, $exists = true, $unfold = false)
+    public function resolve(string $path, bool $exists = true, bool $unfold = false)
     {
         if (substr($path, 0, 6) !== 'hoa://') {
             if (true === is_dir($path)) {
@@ -235,18 +219,14 @@ class Protocol extends Node
 
     /**
      * Clear the cache.
-     *
-     * @return  void
      */
     public static function clearCache()
     {
         self::$_cache = [];
-
-        return;
     }
 }
 
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\Protocol\Protocol');
+Consistency::flexEntity(Protocol::class);

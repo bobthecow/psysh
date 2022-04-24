@@ -40,30 +40,21 @@ namespace Hoa\Console\Readline\Autocompleter;
  * Class \Hoa\Console\Readline\Autocompleter\Path.
  *
  * Path autocompleter.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Path implements Autocompleter
 {
     /**
      * Root is the current working directory.
-     *
-     * @const string
      */
     const PWD = null;
 
     /**
      * Root.
-     *
-     * @var string
      */
     protected $_root            = null;
 
     /**
      * Iterator factory. Please, see the self::setIteratorFactory method.
-     *
-     * @var \Closure
      */
     protected $_iteratorFactory = null;
 
@@ -71,35 +62,27 @@ class Path implements Autocompleter
 
     /**
      * Constructor.
-     *
-     * @param   string      $root               Root.
-     * @param   \Closure    $iteratorFactory    Iterator factory (please, see
-     *                                          the self::setIteratorFactory
-     *                                          method).
      */
     public function __construct(
-        $root                     = null,
+        string $root              = null,
         \Closure $iteratorFactory = null
     ) {
         if (null === $root) {
             $root = static::PWD;
         }
 
-        $this->setRoot($root);
+        if (null !== $root) {
+            $this->setRoot($root);
+        }
 
         if (null !== $iteratorFactory) {
             $this->setIteratorFactory($iteratorFactory);
         }
-
-        return;
     }
 
     /**
      * Complete a word.
      * Returns null for no word, a full-word or an array of full-words.
-     *
-     * @param   string  &$prefix    Prefix to autocomplete.
-     * @return  mixed
      */
     public function complete(&$prefix)
     {
@@ -157,21 +140,16 @@ class Path implements Autocompleter
 
     /**
      * Get definition of a word.
-     *
-     * @return  string
      */
-    public function getWordDefinition()
+    public function getWordDefinition(): string
     {
         return '/?[\w\d\\_\-\.]+(/[\w\d\\_\-\.]*)*';
     }
 
     /**
      * Set root.
-     *
-     * @param   string  $root    Root.
-     * @return  string
      */
-    public function setRoot($root)
+    public function setRoot(string $root)
     {
         $old         = $this->_root;
         $this->_root = $root;
@@ -181,8 +159,6 @@ class Path implements Autocompleter
 
     /**
      * Get root.
-     *
-     * @return  string
      */
     public function getRoot()
     {
@@ -191,10 +167,6 @@ class Path implements Autocompleter
 
     /**
      * Set iterator factory (a finder).
-     *
-     * @param   \Closure  $iteratorFactory    Closore with a single argument:
-     *                                        $path of the iterator.
-     * @return  string
      */
     public function setIteratorFactory(\Closure $iteratorFactory)
     {
@@ -206,8 +178,6 @@ class Path implements Autocompleter
 
     /**
      * Get iterator factory.
-     *
-     * @return  \Closure
      */
     public function getIteratorFactory()
     {
@@ -216,8 +186,6 @@ class Path implements Autocompleter
 
     /**
      * Get default iterator factory (based on \DirectoryIterator).
-     *
-     * @return  \Closure
      */
     public static function getDefaultIteratorFactory()
     {

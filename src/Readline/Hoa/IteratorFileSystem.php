@@ -40,16 +40,11 @@ namespace Hoa\Iterator;
  * Class \Hoa\Iterator\FileSystem.
  *
  * Extending the SPL FileSystemIterator class.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class FileSystem extends \FilesystemIterator
 {
     /**
      * SplFileInfo classname.
-     *
-     * @var string
      */
     protected $_splFileInfoClass = null;
 
@@ -59,12 +54,8 @@ class FileSystem extends \FilesystemIterator
      * Constructor.
      * Please, see \FileSystemIterator::__construct() method.
      * We add the $splFileInfoClass parameter.
-     *
-     * @param   string  $path                Path.
-     * @param   int     $flags               Flags.
-     * @param   string  $splFileInfoClass    SplFileInfo classname.
      */
-    public function __construct($path, $flags = null, $splFileInfoClass = null)
+    public function __construct(string $path, int $flags = null, string $splFileInfoClass = null)
     {
         $this->_splFileInfoClass = $splFileInfoClass;
 
@@ -80,8 +71,6 @@ class FileSystem extends \FilesystemIterator
     /**
      * Current.
      * Please, see \FileSystemIterator::current() method.
-     *
-     * @return  mixed
      */
     public function current()
     {

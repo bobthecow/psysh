@@ -44,7 +44,6 @@ use Hoa\Exception as HoaException;
  *
  * Extending the \Hoa\Exception\Exception class.
  *
- * @copyright  Copyright © 2007-2017 Hoa community
  * @license    New BSD License
  */
 class Exception extends HoaException

@@ -42,26 +42,17 @@ use Hoa\Stream;
  * Class \Hoa\File\Read.
  *
  * File handler.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Read extends File implements Stream\IStream\In
 {
     /**
      * Open a file.
-     *
-     * @param   string  $streamName    Stream name.
-     * @param   string  $mode          Open mode, see the self::MODE_* constants.
-     * @param   string  $context       Context ID (please, see the
-     *                                 \Hoa\Stream\Context class).
-     * @param   bool    $wait          Differ opening or not.
      */
     public function __construct(
-        $streamName,
-        $mode    = parent::MODE_READ,
-        $context = null,
-        $wait    = false
+        string $streamName,
+        string $mode    = parent::MODE_READ,
+        string $context = null,
+        bool $wait      = false
     ) {
         parent::__construct($streamName, $mode, $context, $wait);
 
@@ -70,14 +61,8 @@ class Read extends File implements Stream\IStream\In
 
     /**
      * Open the stream and return the associated resource.
-     *
-     * @param   string               $streamName    Stream name (e.g. path or URL).
-     * @param   \Hoa\Stream\Context  $context       Context.
-     * @return  resource
-     * @throws  \Hoa\File\Exception\FileDoesNotExist
-     * @throws  \Hoa\File\Exception
      */
-    protected function &_open($streamName, Stream\Context $context = null)
+    protected function &_open(string $streamName, Stream\Context $context = null)
     {
         static $createModes = [
             parent::MODE_READ
@@ -109,22 +94,16 @@ class Read extends File implements Stream\IStream\In
 
     /**
      * Test for end-of-file.
-     *
-     * @return  bool
      */
-    public function eof()
+    public function eof(): bool
     {
         return feof($this->getStream());
     }
 
     /**
      * Read n characters.
-     *
-     * @param   int     $length    Length.
-     * @return  string
-     * @throws  \Hoa\File\Exception
      */
-    public function read($length)
+    public function read(int $length)
     {
         if (0 > $length) {
             throw new Exception(
@@ -139,19 +118,14 @@ class Read extends File implements Stream\IStream\In
 
     /**
      * Alias of $this->read().
-     *
-     * @param   int     $length    Length.
-     * @return  string
      */
-    public function readString($length)
+    public function readString(int $length)
     {
         return $this->read($length);
     }
 
     /**
      * Read a character.
-     *
-     * @return  string
      */
     public function readCharacter()
     {
@@ -160,8 +134,6 @@ class Read extends File implements Stream\IStream\In
 
     /**
      * Read a boolean.
-     *
-     * @return  bool
      */
     public function readBoolean()
     {
@@ -170,22 +142,16 @@ class Read extends File implements Stream\IStream\In
 
     /**
      * Read an integer.
-     *
-     * @param   int     $length    Length.
-     * @return  int
      */
-    public function readInteger($length = 1)
+    public function readInteger(int $length = 1)
     {
         return (int) $this->read($length);
     }
 
     /**
      * Read a float.
-     *
-     * @param   int     $length    Length.
-     * @return  float
      */
-    public function readFloat($length = 1)
+    public function readFloat(int $length = 1)
     {
         return (float) $this->read($length);
     }
@@ -193,19 +159,14 @@ class Read extends File implements Stream\IStream\In
     /**
      * Read an array.
      * Alias of the $this->scanf() method.
-     *
-     * @param   string  $format    Format (see printf's formats).
-     * @return  array
      */
-    public function readArray($format = null)
+    public function readArray(string $format = null)
     {
         return $this->scanf($format);
     }
 
     /**
      * Read a line.
-     *
-     * @return  string
      */
     public function readLine()
     {
@@ -214,22 +175,16 @@ class Read extends File implements Stream\IStream\In
 
     /**
      * Read all, i.e. read as much as possible.
-     *
-     * @param   int  $offset    Offset.
-     * @return  string
      */
-    public function readAll($offset = 0)
+    public function readAll(int $offset = 0)
     {
         return stream_get_contents($this->getStream(), -1, $offset);
     }
 
     /**
      * Parse input from a stream according to a format.
-     *
-     * @param   string  $format    Format (see printf's formats).
-     * @return  array
      */
-    public function scanf($format)
+    public function scanf(string $format): array
     {
         return fscanf($this->getStream(), $format);
     }

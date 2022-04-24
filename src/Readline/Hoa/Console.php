@@ -42,107 +42,76 @@ use Hoa\Consistency;
  * Class \Hoa\Console.
  *
  * A set of utils and helpers about the console.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Console
 {
     /**
      * Pipe mode: FIFO.
-     *
-     * @var int
      */
     const IS_FIFO      = 0;
 
     /**
      * Pipe mode: character.
-     *
-     * @var int
      */
     const IS_CHARACTER = 1;
 
     /**
      * Pipe mode: directory.
-     *
-     * @var int
      */
     const IS_DIRECTORY = 2;
 
     /**
      * Pipe mode: block.
-     *
-     * @var int
      */
     const IS_BLOCK     = 3;
 
     /**
      * Pipe mode: regular.
-     *
-     * @var int
      */
     const IS_REGULAR   = 4;
 
     /**
      * Pipe mode: link.
-     *
-     * @var int
      */
     const IS_LINK      = 5;
 
     /**
      * Pipe mode: socket.
-     *
-     * @var int
      */
     const IS_SOCKET    = 6;
 
     /**
      * Pipe mode: whiteout.
-     *
-     * @var int
      */
     const IS_WHITEOUT  = 7;
 
     /**
      * Advanced interaction is on.
-     *
-     * @var bool
      */
     private static $_advanced = null;
 
     /**
      * Previous STTY configuration.
-     *
-     * @var string
      */
     private static $_old      = null;
 
     /**
      * Mode.
-     *
-     * @var array
      */
     protected static $_mode   = [];
 
     /**
      * Input.
-     *
-     * @var \Hoa\Console\Input
      */
     protected static $_input  = null;
 
     /**
      * Output.
-     *
-     * @var \Hoa\Console\Output
      */
     protected static $_output = null;
 
     /**
      * Tput.
-     *
-     * @var \Hoa\Console\Tput
      */
     protected static $_tput   = null;
 
@@ -150,11 +119,8 @@ class Console
 
     /**
      * Prepare the environment for advanced interactions.
-     *
-     * @param   bool  $force    Force it if STDIN is not direct.
-     * @return  bool
      */
-    public static function advancedInteraction($force = false)
+    public static function advancedInteraction(bool $force = false): bool
     {
         if (null !== self::$_advanced) {
             return self::$_advanced;
@@ -165,7 +131,7 @@ class Console
         }
 
         if (false === $force &&
-            true  === defined('STDIN') &&
+            true === defined('STDIN') &&
             false === self::isDirect(STDIN)) {
             return self::$_advanced = false;
         }
@@ -178,8 +144,6 @@ class Console
 
     /**
      * Restore previous interaction options.
-     *
-     * @return  void
      */
     public static function restoreInteraction()
     {
@@ -195,11 +159,8 @@ class Console
     /**
      * Get mode of a certain pipe.
      * Inspired by sys/stat.h.
-     *
-     * @param   resource  $pipe    Pipe.
-     * @return  int
      */
-    public static function getMode($pipe = STDIN)
+    public static function getMode($pipe = STDIN): int
     {
         $_pipe = (int) $pipe;
 
@@ -271,11 +232,8 @@ class Console
      * For example:
      *     $ php Mode.php
      * In this case, self::isDirect(STDOUT) will return true.
-     *
-     * @param   resource  $pipe    Pipe.
-     * @return  bool
      */
-    public static function isDirect($pipe)
+    public static function isDirect($pipe): bool
     {
         return self::IS_CHARACTER === self::getMode($pipe);
     }
@@ -285,11 +243,8 @@ class Console
      * For example:
      *     $ php Mode.php | foobar
      * In this case, self::isPipe(STDOUT) will return true.
-     *
-     * @param   resource  $pipe    Pipe.
-     * @return  bool
      */
-    public static function isPipe($pipe)
+    public static function isPipe($pipe): bool
     {
         return self::IS_FIFO === self::getMode($pipe);
     }
@@ -299,27 +254,21 @@ class Console
      * For example:
      *     $ php Mode.php < foobar
      * In this case, self::isRedirection(STDIN) will return true.
-     *
-     * @param   resource  $pipe    Pipe.
-     * @return  bool
      */
-    public static function isRedirection($pipe)
+    public static function isRedirection($pipe): bool
     {
         $mode = self::getMode($pipe);
 
         return
-            self::IS_REGULAR   === $mode ||
+            self::IS_REGULAR === $mode ||
             self::IS_DIRECTORY === $mode ||
-            self::IS_LINK      === $mode ||
-            self::IS_SOCKET    === $mode ||
-            self::IS_BLOCK     === $mode;
+            self::IS_LINK === $mode ||
+            self::IS_SOCKET === $mode ||
+            self::IS_BLOCK === $mode;
     }
 
     /**
      * Set input layer.
-     *
-     * @param   \Hoa\Console\Input  $input    Input.
-     * @return  \Hoa\Console\Input
      */
     public static function setInput(Input $input)
     {
@@ -331,10 +280,8 @@ class Console
 
     /**
      * Get input layer.
-     *
-     * @return  \Hoa\Console\Input
      */
-    public static function getInput()
+    public static function getInput(): Input
     {
         if (null === static::$_input) {
             static::$_input = new Input();
@@ -345,9 +292,6 @@ class Console
 
     /**
      * Set output layer.
-     *
-     * @param   \Hoa\Console\Output  $output    Output.
-     * @return  \Hoa\Console\Output
      */
     public static function setOutput(Output $output)
     {
@@ -359,10 +303,8 @@ class Console
 
     /**
      * Get output layer.
-     *
-     * @return  \Hoa\Console\Output
      */
-    public static function getOutput()
+    public static function getOutput(): Output
     {
         if (null === static::$_output) {
             static::$_output = new Output();
@@ -373,9 +315,6 @@ class Console
 
     /**
      * Set tput.
-     *
-     * @param   \Hoa\Console\Tput  $tput    Tput.
-     * @return  \Hoa\Console\Tput
      */
     public static function setTput(Tput $tput)
     {
@@ -387,10 +326,8 @@ class Console
 
     /**
      * Get the current tput instance of the current process.
-     *
-     * @return  \Hoa\Console\Tput
      */
-    public static function getTput()
+    public static function getTput(): Tput
     {
         if (null === static::$_tput) {
             static::$_tput = new Tput();
@@ -401,10 +338,8 @@ class Console
 
     /**
      * Check whether we are running behind TMUX(1).
-     *
-     * @return  bool
      */
-    public static function isTmuxRunning()
+    public static function isTmuxRunning(): bool
     {
         return isset($_SERVER['TMUX']);
     }
@@ -418,4 +353,4 @@ Consistency::registerShutdownFunction(xcallable('Hoa\Console\Console::restoreInt
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\Console\Console');
+Consistency::flexEntity(Console::class);

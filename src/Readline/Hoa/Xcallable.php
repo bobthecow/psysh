@@ -38,37 +38,34 @@ namespace Hoa\Consistency;
 
 use Hoa\Event;
 use Hoa\Stream;
+use Reflector;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionMethod;
+use ReflectionObject;
 
 /**
- * Class Hoa\Consistency\Xcallable.
- *
- * Build a callable object, i.e. function, class::method, object->method or
- * closure, they all have the same behaviour. This callable is an extension of
+ * Build a callable object, i.e. `function`, `class::method`, `object->method` or
+ * closure. They all have the same behaviour. This callable is an extension of
  * native PHP callable (aka callback) to integrate Hoa's structures.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Xcallable
 {
     /**
-     * Callback, with the PHP format.
-     *
-     * @var mixed
+     * Callback with the PHP format.
      */
     protected $_callback = null;
 
     /**
      * Callable hash.
-     *
-     * @var string
      */
     protected $_hash     = null;
 
 
 
     /**
-     * Build a callback.
+     * Allocates a xcallable based on a callback.
+     *
      * Accepted forms:
      *     * `'function'`,
      *     * `'class::method'`,
@@ -79,8 +76,21 @@ class Xcallable
      *     * `['class', 'method']`,
      *     * `[$object, 'method']`.
      *
-     * @param   mixed   $call    First callable part.
-     * @param   mixed   $able    Second callable part (if needed).
+     * # Examples
+     *
+     * ```php
+     * $toUpper = new Hoa\Consistency\Xcallable('strtoupper');
+     * assert('FOO' === $toUpper('foo'));
+     * ```
+     *
+     * # Exceptions
+     *
+     * A `Hoa\Consistency\Exception` exception is thrown if the callback form
+     * is invalid.
+     *
+     * ```php,must_throw(Hoa\Consistency\Exception)
+     * new Hoa\Consistency\Xcallable('Foo:');
+     * ```
      */
     public function __construct($call, $able = '')
     {
@@ -146,36 +156,25 @@ class Xcallable
     }
 
     /**
-     * Call the callable.
-     *
-     * @param   ...
-     * @return  mixed
+     * Calls the callable.
      */
-    public function __invoke()
+    public function __invoke(...$arguments)
     {
-        $arguments = func_get_args();
-        $valid     = $this->getValidCallback($arguments);
+        $callback = $this->getValidCallback($arguments);
 
-        return call_user_func_array($valid, $arguments);
+        return $callback(...$arguments);
     }
 
     /**
-     * Distribute arguments according to an array.
-     *
-     * @param   array  $arguments    Arguments.
-     * @return  mixed
+     * Distributes arguments according to an array.
      */
     public function distributeArguments(array $arguments)
     {
-        return call_user_func_array([$this, '__invoke'], $arguments);
+        return $this->__invoke(...$arguments);
     }
 
     /**
-     * Get a valid callback in the PHP meaning.
-     *
-     * @param   array   &$arguments    Arguments (could determine method on an
-     *                                 object if not precised).
-     * @return  mixed
+     * Returns a valid PHP callback.
      */
     public function getValidCallback(array &$arguments = [])
     {
@@ -229,16 +228,15 @@ class Xcallable
     }
 
     /**
-     * Get hash.
-     * Will produce:
-     *     * function#…;
-     *     * class#…::…;
-     *     * object(…)#…::…;
-     *     * closure(…).
+     * Computes the hash of this callable.
      *
-     * @return  string
+     * Will produce:
+     *     * `function#…`,
+     *     * `class#…::…`,
+     *     * `object(…)#…::…`,
+     *     * `closure(…)`.
      */
-    public function getHash()
+    public function getHash(): string
     {
         if (null !== $this->_hash) {
             return $this->_hash;
@@ -267,49 +265,43 @@ class Xcallable
     }
 
     /**
-     * Get appropriated reflection instance.
-     *
-     * @param   ...
-     * @return  \Reflector
+     * Returns the appropriated reflection instance.
      */
-    public function getReflection()
+    public function getReflection(...$arguments): Reflector
     {
-        $arguments = func_get_args();
-        $valid     = $this->getValidCallback($arguments);
+        $callback = $this->getValidCallback($arguments);
 
-        if (is_string($valid)) {
-            return new \ReflectionFunction($valid);
+        if (is_string($callback)) {
+            return new ReflectionFunction($callback);
         }
 
-        if ($valid instanceof \Closure) {
-            return new \ReflectionFunction($valid);
+        if ($callback instanceof \Closure) {
+            return new ReflectionFunction($callback);
         }
 
-        if (is_array($valid)) {
-            if (is_string($valid[0])) {
-                if (false === method_exists($valid[0], $valid[1])) {
-                    return new \ReflectionClass($valid[0]);
+        if (is_array($callback)) {
+            if (is_string($callback[0])) {
+                if (false === method_exists($callback[0], $callback[1])) {
+                    return new ReflectionClass($callback[0]);
                 }
 
-                return new \ReflectionMethod($valid[0], $valid[1]);
+                return new ReflectionMethod($callback[0], $callback[1]);
             }
 
-            $object = new \ReflectionObject($valid[0]);
+            $object = new ReflectionObject($callback[0]);
 
-            if (null === $valid[1]) {
+            if (null === $callback[1]) {
                 return $object;
             }
 
-            return $object->getMethod($valid[1]);
+            return $object->getMethod($callback[1]);
         }
     }
 
     /**
-     * Return the hash.
-     *
-     * @return  string
+     * The string representation of a callable is its hash.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getHash();
     }

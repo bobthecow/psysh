@@ -40,23 +40,16 @@ namespace Hoa\Stream;
  * Class \Hoa\Stream\Context.
  *
  * Make a multiton of stream contexts.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Context
 {
     /**
      * Context ID.
-     *
-     * @var string
      */
     protected $_id               = null;
 
     /**
      * Multiton.
-     *
-     * @var array
      */
     protected static $_instances = [];
 
@@ -64,7 +57,6 @@ class Context
 
     /**
      * Construct a context.
-     *
      */
     protected function __construct($id)
     {
@@ -76,17 +68,9 @@ class Context
 
     /**
      * Multiton.
-     *
-     * @param   string  $id    ID.
-     * @return  \Hoa\Stream\Context
-     * @throws  \Hoa\Stream\Exception
      */
-    public static function getInstance($id)
+    public static function getInstance(string $id): self
     {
-        if (empty($id)) {
-            throw new Exception('Context ID must not be null.', 0);
-        }
-
         if (false === static::contextExists($id)) {
             static::$_instances[$id] = new static($id);
         }
@@ -96,21 +80,16 @@ class Context
 
     /**
      * Get context ID.
-     *
-     * @return  string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->_id;
     }
 
     /**
      * Check if a context exists.
-     *
-     * @param   string  $id    ID.
-     * @return  bool
      */
-    public static function contextExists($id)
+    public static function contextExists(string $id): bool
     {
         return array_key_exists($id, static::$_instances);
     }
@@ -118,11 +97,8 @@ class Context
     /**
      * Set options.
      * Please, see http://php.net/context.
-     *
-     * @param   array   $options    Options.
-     * @return  bool
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): bool
     {
         return stream_context_set_option($this->getContext(), $options);
     }
@@ -130,39 +106,30 @@ class Context
     /**
      * Set parameters.
      * Please, see http://php.net/context.params.
-     *
-     * @param   array   $parameters    Parameters.
-     * @return  bool
      */
-    public function setParameters(array $parameters)
+    public function setParameters(array $parameters): bool
     {
         return stream_context_set_params($this->getContext(), $parameters);
     }
 
     /**
      * Get options.
-     *
-     * @return  array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return stream_context_get_options($this->getContext());
     }
 
     /**
      * Get parameters.
-     * .
-     * @return  array
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         return stream_context_get_params($this->getContext());
     }
 
     /**
      * Get context as a resource.
-     *
-     * @return  resource
      */
     public function getContext()
     {

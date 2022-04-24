@@ -40,16 +40,11 @@ namespace Hoa\Stream\IStream;
  * Interface \Hoa\Stream\IStream\Stream.
  *
  * Interface for all streams.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Stream
 {
     /**
      * Get the current stream.
-     *
-     * @return  resource
      */
     public function getStream();
 }

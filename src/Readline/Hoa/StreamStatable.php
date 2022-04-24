@@ -40,107 +40,76 @@ namespace Hoa\Stream\IStream;
  * Interface \Hoa\Stream\IStream\Statable.
  *
  * Interface for statable input/output.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Statable extends Stream
 {
     /**
      * Size is undefined.
-     *
-     * @const int
      */
     const SIZE_UNDEFINED = -1;
 
     /**
      * Get size.
-     *
-     * @return  int
      */
-    public function getSize();
+    public function getSize(): int;
 
     /**
      * Get informations about a file.
-     *
-     * @return  array
      */
-    public function getStatistic();
+    public function getStatistic(): array;
 
     /**
      * Get last access time of file.
-     *
-     * @return  int
      */
-    public function getATime();
+    public function getATime(): int;
 
     /**
      * Get inode change time of file.
-     *
-     * @return  int
      */
-    public function getCTime();
+    public function getCTime(): int;
 
     /**
      * Get file modification time.
-     *
-     * @return  int
      */
-    public function getMTime();
+    public function getMTime(): int;
 
     /**
      * Get file group.
-     *
-     * @return  int
      */
-    public function getGroup();
+    public function getGroup(): int;
 
     /**
      * Get file owner.
-     *
-     * @return  int
      */
-    public function getOwner();
+    public function getOwner(): int;
 
     /**
      * Get file permissions.
-     *
-     * @return  int
      */
-    public function getPermissions();
+    public function getPermissions(): int;
 
     /**
      * Check if the file is readable.
-     *
-     * @return  bool
      */
-    public function isReadable();
+    public function isReadable(): bool;
 
     /**
      * Check if the file is writable.
-     *
-     * @return  bool
      */
-    public function isWritable();
+    public function isWritable(): bool;
 
     /**
      * Check if the file is executable.
-     *
-     * @return  bool
      */
-    public function isExecutable();
+    public function isExecutable(): bool;
 
     /**
      * Clear file status cache.
-     *
-     * @return  void
      */
     public function clearStatisticCache();
 
     /**
      * Clear all files status cache.
-     *
-     * @return  void
      */
     public static function clearAllStatisticCaches();
 }

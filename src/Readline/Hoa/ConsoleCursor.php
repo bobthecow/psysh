@@ -40,9 +40,6 @@ namespace Hoa\Console;
  * Class \Hoa\Console\Cursor.
  *
  * Allow to manipulate the cursor.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Cursor
 {
@@ -58,12 +55,8 @@ class Cursor
      *     • l, left,  ← : move to the previous column;
      *     • L, LEFT     : move to the first column.
      * Steps can be concatened by a single space if $repeat is equal to 1.
-     *
-     * @param   string  $steps     Steps.
-     * @param   int     $repeat    How many times do we move?
-     * @return  void
      */
-    public static function move($steps, $repeat = 1)
+    public static function move(string $steps, int $repeat = 1)
     {
         if (1 > $repeat) {
             return;
@@ -155,19 +148,13 @@ class Cursor
                     break;
             }
         }
-
-        return;
     }
 
     /**
      * Move to the line X and the column Y.
      * If null, use the current coordinate.
-     *
-     * @param   int  $x    X coordinate.
-     * @param   int  $y    Y coordinate.
-     * @return  void
      */
-    public static function moveTo($x = null, $y = null)
+    public static function moveTo(int $x = null, int $y = null)
     {
         if (null === $x || null === $y) {
             $position = static::getPosition();
@@ -188,16 +175,12 @@ class Cursor
                 Console::getTput()->get('cursor_address')
             )
         );
-
-        return;
     }
 
     /**
      * Get current position (x and y) of the cursor.
-     *
-     * @return  array
      */
-    public static function getPosition()
+    public static function getPosition(): array
     {
         $tput  = Console::getTput();
         $user7 = $tput->get('user7');
@@ -245,30 +228,22 @@ class Cursor
 
     /**
      * Save current position.
-     *
-     * @return  void
      */
     public static function save()
     {
         Console::getOutput()->writeAll(
             Console::getTput()->get('save_cursor')
         );
-
-        return;
     }
 
     /**
      * Restore cursor to the last saved position.
-     *
-     * @return  void
      */
     public static function restore()
     {
         Console::getOutput()->writeAll(
             Console::getTput()->get('restore_cursor')
         );
-
-        return;
     }
 
     /**
@@ -281,11 +256,8 @@ class Cursor
      *     • l, left,  ← : clear from cursor to beginning of the screen;
      *     •    line,  ↔ : clear all the line and static::move(1).
      * Parts can be concatenated by a single space.
-     *
-     * @param   string  $parts    Parts to clean.
-     * @return  void
      */
-    public static function clear($parts = 'all')
+    public static function clear(string $parts = 'all')
     {
         $tput   = Console::getTput();
         $output = Console::getOutput();
@@ -335,36 +307,26 @@ class Cursor
                     break;
             }
         }
-
-        return;
     }
 
     /**
      * Hide the cursor.
-     *
-     * @return  void
      */
     public static function hide()
     {
         Console::getOutput()->writeAll(
             Console::getTput()->get('cursor_invisible')
         );
-
-        return;
     }
 
     /**
      * Show the cursor.
-     *
-     * @return  void
      */
     public static function show()
     {
         Console::getOutput()->writeAll(
             Console::getTput()->get('cursor_visible')
         );
-
-        return;
     }
 
     /**
@@ -394,11 +356,8 @@ class Cursor
      *     • 0-256 (classic palette);
      *     • #hexa.
      * Attributes can be concatenated by a single space.
-     *
-     * @param   string  $attributes    Attributes.
-     * @return  void
      */
-    public static function colorize($attributes)
+    public static function colorize(string $attributes)
     {
         static $_rgbTo256 = null;
 
@@ -590,28 +549,28 @@ class Cursor
                         default:
                             $_keyword = false;
 
-                            if (256 <=  $tput->count('max_colors') &&
+                            if (256 <= $tput->count('max_colors') &&
                                 '#' === $m[2][0]) {
                                 $rgb      = hexdec(substr($m[2], 1));
                                 $r        = ($rgb >> 16) & 255;
-                                $g        = ($rgb >>  8) & 255;
-                                $b        =  $rgb        & 255;
+                                $g        = ($rgb >> 8) & 255;
+                                $b        =  $rgb & 255;
                                 $distance = null;
 
                                 foreach ($_rgbTo256 as $i => $_rgb) {
                                     $_rgb = hexdec($_rgb);
                                     $_r   = ($_rgb >> 16) & 255;
-                                    $_g   = ($_rgb >>  8) & 255;
-                                    $_b   =  $_rgb        & 255;
+                                    $_g   = ($_rgb >> 8) & 255;
+                                    $_b   =  $_rgb & 255;
 
                                     $d = sqrt(
-                                        pow($_r - $r, 2)
-                                      + pow($_g - $g, 2)
-                                      + pow($_b - $b, 2)
+                                        ($_r - $r) ** 2
+                                      + ($_g - $g) ** 2
+                                      + ($_b - $b) ** 2
                                     );
 
                                     if (null === $distance ||
-                                        $d   <=  $distance) {
+                                        $d <= $distance) {
                                         $distance = $d;
                                         $_handle  = $i;
                                     }
@@ -636,12 +595,8 @@ class Cursor
 
     /**
      * Change color number to a specific RGB color.
-     *
-     * @param   int  $fromCode    Color number.
-     * @param   int  $toColor     RGB color.
-     * @return  void
      */
-    public static function changeColor($fromCode, $toColor)
+    public static function changeColor(int $fromCode, int $toColor)
     {
         $tput = Console::getTput();
 
@@ -650,8 +605,8 @@ class Cursor
         }
 
         $r = ($toColor >> 16) & 255;
-        $g = ($toColor >>  8) & 255;
-        $b =  $toColor        & 255;
+        $g = ($toColor >> 8) & 255;
+        $b =  $toColor & 255;
 
         Console::getOutput()->writeAll(
             str_replace(
@@ -682,12 +637,8 @@ class Cursor
      *     • b, block,     ▋: block;
      *     • u, underline, _: underline;
      *     • v, vertical,  |: vertical.
-     *
-     * @param   int   $style    Style.
-     * @param   bool  $blink    Whether the cursor is blink or steady.
-     * @return  void
      */
-    public static function setStyle($style, $blink = true)
+    public static function setStyle(string $style, bool $blink = true)
     {
         if (OS_WIN) {
             return;
@@ -728,16 +679,12 @@ class Cursor
 
     /**
      * Make a stupid “bip”.
-     *
-     * @return  void
      */
     public static function bip()
     {
         Console::getOutput()->writeAll(
             Console::getTput()->get('bell')
         );
-
-        return;
     }
 }
 

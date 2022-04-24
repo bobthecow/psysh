@@ -40,90 +40,56 @@ namespace Hoa\Stream\IStream;
  * Interface \Hoa\Stream\IStream\Out.
  *
  * Interface for output.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Out extends Stream
 {
     /**
      * Write n characters.
-     *
-     * @param   string  $string    String.
-     * @param   int     $length    Length.
-     * @return  mixed
      */
-    public function write($string, $length);
+    public function write(string $string, int $length);
 
     /**
      * Write a string.
-     *
-     * @param   string  $string    String.
-     * @return  mixed
      */
-    public function writeString($string);
+    public function writeString(string $string);
 
     /**
      * Write a character.
-     *
-     * @param   string  $character    Character.
-     * @return  mixed
      */
-    public function writeCharacter($character);
+    public function writeCharacter(string $character);
 
     /**
      * Write a boolean.
-     *
-     * @param   bool    $boolean    Boolean.
-     * @return  mixed
      */
-    public function writeBoolean($boolean);
+    public function writeBoolean(bool $boolean);
 
     /**
      * Write an integer.
-     *
-     * @param   int     $integer    Integer.
-     * @return  mixed
      */
-    public function writeInteger($integer);
+    public function writeInteger(int $integer);
 
     /**
      * Write a float.
-     *
-     * @param   float   $float    Float.
-     * @return  mixed
      */
-    public function writeFloat($float);
+    public function writeFloat(float $float);
 
     /**
      * Write an array.
-     *
-     * @param   array   $array    Array.
-     * @return  mixed
      */
     public function writeArray(array $array);
 
     /**
      * Write a line.
-     *
-     * @param   string  $line    Line.
-     * @return  mixed
      */
-    public function writeLine($line);
+    public function writeLine(string $line);
 
     /**
      * Write all, i.e. as much as possible.
-     *
-     * @param   string  $string    String.
-     * @return  mixed
      */
-    public function writeAll($string);
+    public function writeAll(string $string);
 
     /**
      * Truncate a stream to a given length.
-     *
-     * @param   int     $size    Size.
-     * @return  bool
      */
-    public function truncate($size);
+    public function truncate(int $size): bool;
 }

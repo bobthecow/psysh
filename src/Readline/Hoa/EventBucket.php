@@ -37,35 +37,24 @@
 namespace Hoa\Event;
 
 /**
- * Class \Hoa\Event\Bucket.
- *
  * This class is the object which is transmit through event channels.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Bucket
 {
     /**
-     * Source object.
-     *
-     * @var \Hoa\Event\Source
+     * The source object (must be of kind `Hoa\Event\Source`).
      */
     protected $_source = null;
 
     /**
-     * Data.
-     *
-     * @var mixed
+     * Data attached to the bucket.
      */
     protected $_data   = null;
 
 
 
     /**
-     * Set data.
-     *
-     * @param   mixed   $data    Data.
+     * Allocates a new bucket with various data attached to it.
      */
     public function __construct($data = null)
     {
@@ -75,22 +64,15 @@ class Bucket
     }
 
     /**
-     * Send this object on the event channel.
-     *
-     * @param   string             $eventId    Event ID.
-     * @param   \Hoa\Event\Source  $source     Source.
-     * @return  void
+     * Sends this object on the event channel.
      */
-    public function send($eventId, Source $source)
+    public function send(string $eventId, Source $source)
     {
         return Event::notify($eventId, $source, $this);
     }
 
     /**
-     * Set source.
-     *
-     * @param   \Hoa\Event\Source  $source    Source.
-     * @return  \Hoa\Event\Source
+     * Sets a new source.
      */
     public function setSource(Source $source)
     {
@@ -101,9 +83,7 @@ class Bucket
     }
 
     /**
-     * Get source.
-     *
-     * @return  \Hoa\Event\Source
+     * Returns the source.
      */
     public function getSource()
     {
@@ -111,10 +91,7 @@ class Bucket
     }
 
     /**
-     * Set data.
-     *
-     * @param   mixed   $data    Data.
-     * @return  mixed
+     * Sets new data.
      */
     public function setData($data)
     {
@@ -125,9 +102,7 @@ class Bucket
     }
 
     /**
-     * Get data.
-     *
-     * @return  mixed
+     * Returns the data.
      */
     public function getData()
     {

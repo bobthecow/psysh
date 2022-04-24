@@ -43,28 +43,17 @@ use Hoa\File;
  * Class \Hoa\File\Link.
  *
  * Link handler.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Link extends File
 {
     /**
      * Open a link.
-     *
-     * @param   string  $streamName    Stream name.
-     * @param   string  $mode          Open mode, see the parent::MODE_*
-     *                                 constants.
-     * @param   string  $context       Context ID (please, see the
-     *                                 \Hoa\Stream\Context class).
-     * @param   bool    $wait          Differ opening or not.
-     * @throws  \Hoa\File\Exception
      */
     public function __construct(
-        $streamName,
-        $mode,
-        $context = null,
-        $wait    = false
+        string $streamName,
+        string $mode,
+        string $context = null,
+        bool $wait      = false
     ) {
         if (!is_link($streamName)) {
             throw new File\Exception(
@@ -81,59 +70,46 @@ class Link extends File
 
     /**
      * Get informations about a link.
-     *
-     * @return  array
      */
-    public function getStatistic()
+    public function getStatistic(): array
     {
         return lstat($this->getStreamName());
     }
 
     /**
      * Change file group.
-     *
-     * @param   mixed   $group    Group name or number.
-     * @return  bool
      */
-    public function changeGroup($group)
+    public function changeGroup($group): bool
     {
         return lchgrp($this->getStreamName(), $group);
     }
 
     /**
      * Change file owner.
-     *
-     * @param   mixed   $user   User.
-     * @return  bool
      */
-    public function changeOwner($user)
+    public function changeOwner($user): bool
     {
         return lchown($this->getStreamName(), $user);
     }
 
     /**
      * Get file permissions.
-     *
-     * @return  int
      */
-    public function getPermissions()
+    public function getPermissions(): int
     {
         return 41453; // i.e. lrwxr-xr-x
     }
 
     /**
      * Get the target of a symbolic link.
-     *
-     * @return  \Hoa\File\Generic
-     * @throws  \Hoa\File\Exception
      */
-    public function getTarget()
+    public function getTarget(): File\Generic
     {
-        $target    = dirname($this->getStreamName()) . DS .
-                     $this->getTargetName();
-        $context   = null !== $this->getStreamContext()
-                         ? $this->getStreamContext()->getCurrentId()
-                         : null;
+        $target  = dirname($this->getStreamName()) . DS .
+                   $this->getTargetName();
+        $context = null !== $this->getStreamContext()
+                       ? $this->getStreamContext()->getCurrentId()
+                       : null;
 
         if (true === is_link($target)) {
             return new ReadWrite(
@@ -165,22 +141,16 @@ class Link extends File
 
     /**
      * Get the target name of a symbolic link.
-     *
-     * @return  string
      */
-    public function getTargetName()
+    public function getTargetName(): string
     {
         return readlink($this->getStreamName());
     }
 
     /**
      * Create a link.
-     *
-     * @param   string  $name      Link name.
-     * @param   string  $target    Target name.
-     * @return  bool
      */
-    public static function create($name, $target)
+    public static function create(string $name, string $target): bool
     {
         if (false != linkinfo($name)) {
             return true;
@@ -193,4 +163,4 @@ class Link extends File
 /**
  * Flex entity.
  */
-Consistency::flexEntity('Hoa\File\Link\Link');
+Consistency::flexEntity(Link::class);

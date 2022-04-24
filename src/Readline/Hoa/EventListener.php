@@ -37,27 +37,18 @@
 namespace Hoa\Event;
 
 /**
- * Class \Hoa\Event\Listener.
- *
  * A contrario of events, listeners are synchronous, identified at use and
  * useful for close interactions between one or some components.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Listener
 {
     /**
-     * Source of listener (for Bucket).
-     *
-     * @var \Hoa\Event\Listenable
+     * Source of listener (for `Hoa\Event\Bucket`).
      */
     protected $_source    = null;
 
     /**
      * All listener IDs and associated listeners.
-     *
-     * @var array
      */
     protected $_callables = [];
 
@@ -65,9 +56,6 @@ class Listener
 
     /**
      * Build a listener.
-     *
-     * @param   \Hoa\Event\Listenable  $source    Source (for Bucket).
-     * @param   array                  $ids       Accepted ID.
      */
     public function __construct(Listenable $source, array $ids)
     {
@@ -78,29 +66,19 @@ class Listener
     }
 
     /**
-     * Add acceptable ID (or reset).
-     *
-     * @param   array  $ids    Accepted ID.
-     * @return  void
+     * Adds acceptable ID (or reset).
      */
     public function addIds(array $ids)
     {
         foreach ($ids as $id) {
             $this->_callables[$id] = [];
         }
-
-        return;
     }
 
     /**
-     * Attach a callable to a listenable component.
-     *
-     * @param   string  $listenerId    Listener ID.
-     * @param   mixed   $callable      Callable.
-     * @return  \Hoa\Event\Listener
-     * @throws  \Hoa\Event\Exception
+     * Attaches a callable to a listenable component.
      */
-    public function attach($listenerId, $callable)
+    public function attach(string $listenerId, $callable): self
     {
         if (false === $this->listenerExists($listenerId)) {
             throw new Exception(
@@ -117,13 +95,9 @@ class Listener
     }
 
     /**
-     * Detach a callable from a listenable component.
-     *
-     * @param   string  $listenerId    Listener ID.
-     * @param   mixed   $callable      Callable.
-     * @return  \Hoa\Event\Listener
+     * Detaches a callable from a listenable component.
      */
-    public function detach($listenerId, $callable)
+    public function detach(string $listenerId, $callable): self
     {
         unset($this->_callables[$listenerId][xcallable($callable)->getHash()]);
 
@@ -131,12 +105,9 @@ class Listener
     }
 
     /**
-     * Detach all callables from a listenable component.
-     *
-     * @param  string  $listenerId    Listener ID.
-     * @return \Hoa\Event\Listener
+     * Detaches all callables from a listenable component.
      */
-    public function detachAll($listenerId)
+    public function detachAll(string $listenerId): self
     {
         unset($this->_callables[$listenerId]);
 
@@ -144,25 +115,17 @@ class Listener
     }
 
     /**
-     * Check if a listener exists.
-     *
-     * @param   string  $listenerId    Listener ID.
-     * @return  bool
+     * Checks if a listener exists.
      */
-    public function listenerExists($listenerId)
+    public function listenerExists(string $listenerId): bool
     {
         return array_key_exists($listenerId, $this->_callables);
     }
 
     /**
-     * Send/fire a bucket to a listener.
-     *
-     * @param   string             $listenerId    Listener ID.
-     * @param   \Hoa\Event\Bucket  $data          Data.
-     * @return  array
-     * @throws  \Hoa\Event\Exception
+     * Sends/fires a bucket to a listener.
      */
-    public function fire($listenerId, Bucket $data)
+    public function fire(string $listenerId, Bucket $data): array
     {
         if (false === $this->listenerExists($listenerId)) {
             throw new Exception(

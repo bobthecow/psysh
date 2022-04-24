@@ -40,16 +40,11 @@ namespace Hoa\Console\Readline\Autocompleter;
  * Class \Hoa\Console\Readline\Autocompleter\Word.
  *
  * The simplest auto-completer: complete a word.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Word implements Autocompleter
 {
     /**
      * List of words.
-     *
-     * @var array
      */
     protected $_words = null;
 
@@ -57,14 +52,10 @@ class Word implements Autocompleter
 
     /**
      * Constructor.
-     *
-     * @param   array  $words    Words.
      */
     public function __construct(array $words)
     {
         $this->setWords($words);
-
-        return;
     }
 
     /**
@@ -98,10 +89,8 @@ class Word implements Autocompleter
 
     /**
      * Get definition of a word.
-     *
-     * @return  string
      */
-    public function getWordDefinition()
+    public function getWordDefinition(): string
     {
         return '\b\w+';
     }
@@ -122,10 +111,8 @@ class Word implements Autocompleter
 
     /**
      * Get list of words.
-     *
-     * @return  array
      */
-    public function getWords()
+    public function getWords(): array
     {
         return $this->_words;
     }

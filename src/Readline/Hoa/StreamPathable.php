@@ -40,23 +40,16 @@ namespace Hoa\Stream\IStream;
  * Interface \Hoa\Stream\IStream\Pathable.
  *
  * Interface for pathable input/output.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 interface Pathable extends Stream
 {
     /**
      * Get filename component of path.
-     *
-     * @return  string
      */
-    public function getBasename();
+    public function getBasename(): string;
 
     /**
      * Get directory name component of path.
-     *
-     * @return  string
      */
-    public function getDirname();
+    public function getDirname(): string;
 }

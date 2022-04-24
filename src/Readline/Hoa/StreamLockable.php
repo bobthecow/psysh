@@ -41,7 +41,6 @@ namespace Hoa\Stream\IStream;
  *
  * Interface for lockable input/output.
  *
- * @copyright  Copyright © 2007-2017 Hoa community
  * @license    New BSD License
  */
 interface Lockable extends Stream
@@ -83,5 +82,5 @@ interface Lockable extends Stream
      * @param   int     $operation    Operation, use the self::LOCK_* constants.
      * @return  bool
      */
-    public function lock($operation);
+    public function lock(int $operation): bool;
 }

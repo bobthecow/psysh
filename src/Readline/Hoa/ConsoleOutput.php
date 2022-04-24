@@ -43,23 +43,16 @@ use Hoa\Stream;
  *
  * This class represents the output of a program. Most of the time, this is
  * going to be STDOUT.
- *
- * @copyright  Copyright © 2007-2017 Hoa community
- * @license    New BSD License
  */
 class Output implements Stream\IStream\Out
 {
     /**
      * Whether the multiplexer must be considered while writing on the output.
-     *
-     * @var bool
      */
     protected $_considerMultiplexer = false;
 
     /**
      * Real output stream.
-     *
-     * @var \Hoa\Stream\IStream\Out
      */
     protected $_output              = null;
 
@@ -67,8 +60,6 @@ class Output implements Stream\IStream\Out
 
     /**
      * Wraps an `Hoa\Stream\IStream\Out` stream.
-     *
-     * @param  \Hoa\Stream\IStream\Out  $output    Output.
      */
     public function __construct(Stream\IStream\Out $output = null)
     {
@@ -79,23 +70,16 @@ class Output implements Stream\IStream\Out
 
     /**
      * Get the real output stream.
-     *
-     * @return  \Hoa\Stream\IStream\Out
      */
-    public function getStream()
+    public function getStream(): Stream\IStream\Out
     {
         return $this->_output;
     }
 
     /**
      * Write n characters.
-     *
-     * @param   string  $string    String.
-     * @param   int     $length    Length.
-     * @return  void
-     * @throws  \Hoa\Console\Exception
      */
-    public function write($string, $length)
+    public function write(string $string, int $length)
     {
         if (0 > $length) {
             throw new Exception(
@@ -127,11 +111,8 @@ class Output implements Stream\IStream\Out
 
     /**
      * Write a string.
-     *
-     * @param   string  $string    String.
-     * @return  void
      */
-    public function writeString($string)
+    public function writeString(string $string)
     {
         $string = (string) $string;
 
@@ -140,33 +121,24 @@ class Output implements Stream\IStream\Out
 
     /**
      * Write a character.
-     *
-     * @param   string  $character    Character.
-     * @return  void
      */
-    public function writeCharacter($character)
+    public function writeCharacter(string $character)
     {
         return $this->write((string) $character[0], 1);
     }
 
     /**
      * Write a boolean.
-     *
-     * @param   bool  $boolean    Boolean.
-     * @return  void
      */
-    public function writeBoolean($boolean)
+    public function writeBoolean(bool $boolean)
     {
         return $this->write(((bool) $boolean) ? '1' : '0', 1);
     }
 
     /**
      * Write an integer.
-     *
-     * @param   int  $integer    Integer.
-     * @return  void
      */
-    public function writeInteger($integer)
+    public function writeInteger(int $integer)
     {
         $integer = (string) (int) $integer;
 
@@ -175,11 +147,8 @@ class Output implements Stream\IStream\Out
 
     /**
      * Write a float.
-     *
-     * @param   float  $float    Float.
-     * @return  void
      */
-    public function writeFloat($float)
+    public function writeFloat(float $float)
     {
         $float = (string) (float) $float;
 
@@ -188,9 +157,6 @@ class Output implements Stream\IStream\Out
 
     /**
      * Write an array.
-     *
-     * @param   array  $array    Array.
-     * @return  void
      */
     public function writeArray(array $array)
     {
@@ -201,11 +167,8 @@ class Output implements Stream\IStream\Out
 
     /**
      * Write a line.
-     *
-     * @param   string  $line    Line.
-     * @return  void
      */
-    public function writeLine($line)
+    public function writeLine(string $line)
     {
         if (false === $n = strpos($line, "\n")) {
             return $this->write($line . "\n", strlen($line) + 1);
@@ -218,33 +181,24 @@ class Output implements Stream\IStream\Out
 
     /**
      * Write all, i.e. as much as possible.
-     *
-     * @param   string  $string    String.
-     * @return  void
      */
-    public function writeAll($string)
+    public function writeAll(string $string)
     {
         return $this->write($string, strlen($string));
     }
 
     /**
      * Truncate a stream to a given length.
-     *
-     * @param   int  $size    Size.
-     * @return  bool
      */
-    public function truncate($size)
+    public function truncate(int $size): bool
     {
         return false;
     }
 
     /**
      * Consider the multiplexer (if running) while writing on the output.
-     *
-     * @param   bool  $consider    Consider the multiplexer or not.
-     * @return  bool
      */
-    public function considerMultiplexer($consider)
+    public function considerMultiplexer(bool $consider): bool
     {
         $old                        = $this->_considerMultiplexer;
         $this->_considerMultiplexer = $consider;
@@ -254,10 +208,8 @@ class Output implements Stream\IStream\Out
 
     /**
      * Check whether the multiplexer must be considered or not.
-     *
-     * @return  bool
      */
-    public function isMultiplexerConsidered()
+    public function isMultiplexerConsidered(): bool
     {
         return $this->_considerMultiplexer;
     }
