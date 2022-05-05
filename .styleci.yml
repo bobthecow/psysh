@@ -17,6 +17,8 @@ disabled:
   - yoda_style
 
 finder:
+  exclude:
+    - "src/Readline/Hoa"
   name:
     - "*.php"
     - "build-manual"
