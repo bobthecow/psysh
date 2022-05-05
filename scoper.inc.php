@@ -44,9 +44,9 @@ try {
 }
 
 return [
-    'whitelist' => [
-        'Psy\*',
-        'Symfony\Polyfill\*',
+    'exclude-namespaces' => [
+        'Psy',
+        'Symfony\Polyfill',
     ],
 
     'exclude-files' => \array_merge($polyfillsBootstraps, $polyfillsStubs),
