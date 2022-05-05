@@ -52,31 +52,6 @@ return [
     'exclude-files' => \array_merge($polyfillsBootstraps, $polyfillsStubs),
 
     'patchers' => [
-        // Un-patch overly enthusiastic internal constant patching.
-        // https://github.com/humbug/php-scoper/issues/356
-        static function (string $filePath, string $prefix, string $contents): string {
-            if ('src/Reflection/ReflectionClassConstant.php' !== $filePath) {
-                return $contents;
-            }
-
-            return \str_replace(
-                \sprintf("'%s\\\\ReflectionClassConstant'", $prefix),
-                "'\\\\ReflectionClassConstant'",
-                $contents
-            );
-        },
-        // https://github.com/bobthecow/psysh/issues/610
-        static function (string $filePath, string $prefix, string $contents): string {
-            if (!\in_array($filePath, ['vendor/symfony/var-dumper/Cloner/VarCloner.php', 'vendor/symfony/var-dumper/Caster/ReflectionCaster.php'], true)) {
-                return $contents;
-            }
-
-            return \str_replace(
-                \sprintf('\\%s\\ReflectionReference', $prefix),
-                '\\ReflectionReference',
-                $contents
-            );
-        },
         // https://github.com/humbug/php-scoper/issues/294
         // https://github.com/humbug/php-scoper/issues/286
         static function (string $filePath, string $prefix, string $contents): string {
