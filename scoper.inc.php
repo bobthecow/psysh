@@ -168,5 +168,20 @@ return [
                 $contents
             );
         },
+        // https://github.com/bobthecow/psysh/issues/714
+        static function (string $filePath, string $prefix, string $contents): string {
+            if ('vendor/symfony/polyfill-intl-grapheme/Grapheme.php' !== $filePath) {
+                return $contents;
+            }
+
+            return \str_replace(
+                ' SYMFONY_GRAPHEME_CLUSTER_RX ',
+                \sprintf(
+                    ' \\%s\\SYMFONY_GRAPHEME_CLUSTER_RX ',
+                    $prefix
+                ),
+                $contents
+            );
+        },
     ],
 ];
