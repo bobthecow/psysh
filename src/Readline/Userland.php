@@ -13,6 +13,7 @@ namespace Psy\Readline;
 
 use Psy\Exception\BreakException;
 use Psy\Readline\Hoa\Console as HoaConsole;
+use Psy\Readline\Hoa\ConsoleCursor as HoaConsoleCursor;
 use Psy\Readline\Hoa\ConsoleInput as HoaConsoleInput;
 use Psy\Readline\Hoa\ConsoleOutput as HoaConsoleOutput;
 use Psy\Readline\Hoa\ConsoleTput as HoaConsoleTput;
