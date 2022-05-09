@@ -1209,6 +1209,10 @@ class Configuration
     public function getPager()
     {
         if (!isset($this->pager) && $this->usePcntl()) {
+            if (\getenv('TERM') === 'dumb') {
+                return false;
+            }
+
             if ($pager = \ini_get('cli.pager')) {
                 // use the default pager
                 $this->pager = $pager;
