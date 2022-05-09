@@ -24,6 +24,7 @@ class ShellOutput extends ConsoleOutput
     const NUMBER_LINES = 128;
 
     private $paging = 0;
+    /** @var OutputPager */
     private $pager;
 
     /**
