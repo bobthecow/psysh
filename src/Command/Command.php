@@ -147,7 +147,7 @@ abstract class Command extends BaseCommand
 
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $argument->getDescription());
 
-                $messages[] = \sprintf(" <info>%-${max}s</info> %s%s", $argument->getName(), $description, $default);
+                $messages[] = \sprintf(" <info>%-{$max}s</info> %s%s", $argument->getName(), $description, $default);
             }
 
             $messages[] = '';
@@ -182,7 +182,7 @@ abstract class Command extends BaseCommand
 
                 $optionMax = $max - \strlen($option->getName()) - 2;
                 $messages[] = \sprintf(
-                    " <info>%s</info> %-${optionMax}s%s%s%s",
+                    " <info>%s</info> %-{$optionMax}s%s%s%s",
                     '--'.$option->getName(),
                     $option->getShortcut() ? \sprintf('(-%s) ', $option->getShortcut()) : '',
                     $description,
