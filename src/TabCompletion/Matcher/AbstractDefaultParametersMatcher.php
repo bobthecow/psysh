@@ -29,7 +29,7 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
 
             $defaultValue = $this->valueToShortString($parameter->getDefaultValue());
 
-            $parametersProcessed[] = "\${$parameter->getName()} = $defaultValue";
+            $parametersProcessed[] = \sprintf('$%s = %s', $parameter->getName(), $defaultValue);
         }
 
         if (empty($parametersProcessed)) {
