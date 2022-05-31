@@ -1124,7 +1124,7 @@ class Configuration
                 $this->getOutputVerbosity(),
                 null,
                 null,
-                $this->getPager()
+                $this->getPager() ?: null
             ));
 
             // This is racy because `getOutputDecorated` needs access to the
@@ -1179,13 +1179,19 @@ class Configuration
      * If a string is supplied, a ProcOutputPager will be used which shells out
      * to the specified command.
      *
+     * `cat` is special-cased to use the PassthruPager directly.
+     *
      * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance
      *
-     * @param string|OutputPager $pager
+     * @param string|OutputPager|false $pager
      */
     public function setPager($pager)
     {
-        if ($pager && !\is_string($pager) && !$pager instanceof OutputPager) {
+        if ($pager === null || $pager === false || $pager === 'cat') {
+            $pager = false;
+        }
+
+        if ($pager !== false && !\is_string($pager) && !$pager instanceof OutputPager) {
             throw new \InvalidArgumentException('Unexpected pager instance');
         }
 
@@ -1198,7 +1204,7 @@ class Configuration
      * If no Pager has been explicitly provided, and Pcntl is available, this
      * will default to `cli.pager` ini value, falling back to `which less`.
      *
-     * @return string|OutputPager
+     * @return string|OutputPager|false
      */
     public function getPager()
     {
