@@ -18,6 +18,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Return_;
+use PhpParser\Node\UnionType;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -105,6 +106,10 @@ class ReturnTypePass extends CodeCleanerPass
 
     private function typeName(Node $node): string
     {
+        if ($node instanceof UnionType) {
+            return \implode('|', \array_map([$this, 'typeName'], $node->types));
+        }
+
         if ($node instanceof NullableType) {
             return \strtolower($node->type->name);
         }
