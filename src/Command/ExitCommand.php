@@ -29,7 +29,7 @@ class ExitCommand extends Command
     {
         $this
             ->setName('exit')
-            ->setAliases(['quit', 'q'])
+            ->setAliases(['quit', 'q', ':q'])
             ->setDefinition([])
             ->setDescription('End the current session and return to caller.')
             ->setHelp(
