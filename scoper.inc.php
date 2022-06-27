@@ -19,7 +19,7 @@ $polyfillsBootstraps = \array_map(
         Finder::create()
             ->files()
             ->in(__DIR__.'/vendor/symfony/polyfill-*')
-            ->name('bootstrap.php'),
+            ->name('bootstrap*.php'),
         false
     )
  );
@@ -47,6 +47,11 @@ return [
     'exclude-namespaces' => [
         'Psy',
         'Symfony\Polyfill',
+    ],
+
+    'exclude-constants' => [
+        // Symfony global constants
+        '/^SYMFONY\_[\p{L}_]+$/',
     ],
 
     'exclude-files' => \array_merge($polyfillsBootstraps, $polyfillsStubs),
@@ -163,21 +168,6 @@ return [
                 '\'PhpParser\\\\Parser\\\\Tokens::\'',
                 \sprintf(
                     '\'%s\\\\PhpParser\\\\Parser\\\\Tokens::\'',
-                    $prefix
-                ),
-                $contents
-            );
-        },
-        // https://github.com/bobthecow/psysh/issues/714
-        static function (string $filePath, string $prefix, string $contents): string {
-            if ('vendor/symfony/polyfill-intl-grapheme/Grapheme.php' !== $filePath) {
-                return $contents;
-            }
-
-            return \str_replace(
-                ' SYMFONY_GRAPHEME_CLUSTER_RX ',
-                \sprintf(
-                    ' \\%s\\SYMFONY_GRAPHEME_CLUSTER_RX ',
                     $prefix
                 ),
                 $contents
