@@ -120,7 +120,7 @@ class ConsoleWindow implements EventSource
         }
 
         $command = $term.'tput cols && '.$term.'tput lines';
-        $tput = Processus::execute($command, false);
+        $tput = ConsoleProcessus::execute($command, false);
 
         if (!empty($tput)) {
             list($x, $y) = \explode("\n", $tput);
