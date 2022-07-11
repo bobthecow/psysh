@@ -58,9 +58,6 @@ class AutocompleterPath implements Autocompleter
      */
     protected $_iteratorFactory = null;
 
-    /**
-     * Constructor.
-     */
     public function __construct(
         string $root = null,
         \Closure $iteratorFactory = null
@@ -78,11 +75,7 @@ class AutocompleterPath implements Autocompleter
         }
     }
 
-    /**
-     * Complete a word.
-     * Returns null for no word, a full-word or an array of full-words.
-     */
-    public function complete(&$prefix)
+    public function complete(string $prefix, int $index, array $info)
     {
         $root = $this->getRoot();
 
@@ -136,9 +129,6 @@ class AutocompleterPath implements Autocompleter
         return $out;
     }
 
-    /**
-     * Get definition of a word.
-     */
     public function getWordDefinition(): string
     {
         return '/?[\w\d\\_\-\.]+(/[\w\d\\_\-\.]*)*';

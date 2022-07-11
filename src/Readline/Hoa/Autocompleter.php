@@ -46,8 +46,11 @@ interface Autocompleter
     /**
      * Complete a word.
      * Returns null for no word, a full-word or an array of full-words.
+     *
+     * @param array{line_buffer: string} $info A subset of {@see readline_info()}'s return value.
+     * @see https://www.php.net/readline_info
      */
-    public function complete(&$prefix);
+    public function complete(string $prefix, int $index, array $info);
 
     /**
      * Get definition of a word.
