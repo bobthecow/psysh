@@ -11,6 +11,8 @@
 
 namespace Psy\Readline;
 
+use Psy\TabCompletion\AutoCompleter;
+
 /**
  * An interface abstracting the various readline_* functions.
  */
@@ -80,4 +82,14 @@ interface Readline
      * @return bool Success
      */
     public function writeHistory(): bool;
+
+    /**
+     * Activete auto completer for tab completion.
+     */
+    public function activateAutoCompleter(AutoCompleter $autoCompleter): void;
+
+    /**
+     * Deactivete auto completer for tab completion.
+     */
+    public function deactivateAutoCompleter(): void;
 }

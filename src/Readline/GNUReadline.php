@@ -11,6 +11,8 @@
 
 namespace Psy\Readline;
 
+use Psy\TabCompletion\AutoCompleter;
+
 /**
  * A Readline interface implementation for GNU Readline.
  *
@@ -175,5 +177,19 @@ class GNUReadline implements Readline
         }
 
         return true;
+    }
+
+    public function activateAutoCompleter(AutoCompleter $autoCompleter): void
+    {
+        \readline_completion_function([$autoCompleter, 'callback']);
+    }
+
+    public function deactivateAutoCompleter(): void
+    {
+        // PHP didn't implement the whole readline API when they first switched
+        // to libedit. And they still haven't.
+        if (\function_exists('readline_callback_handler_remove')) {
+            \readline_callback_handler_remove();
+        }
     }
 }
