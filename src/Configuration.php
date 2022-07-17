@@ -1096,7 +1096,7 @@ class Configuration
     {
         // TODO: In the future, if stability other than GNU Readline improves,
         //       it will no longer depend on $this->hasNativeReadline property.
-        return isset($this->useTabCompletion) ? $this->useTabCompletion : $this->hasNativeReadline;
+        return $this->useTabCompletion ?? $this->hasNativeReadline;
     }
 
     /**
