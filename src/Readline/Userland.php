@@ -40,6 +40,8 @@ class Userland implements Readline
      */
     public static function isSupported(): bool
     {
+        static::bootstrapHoa();
+
         return HoaUstring::checkMbString() && HoaConsoleTput::isSupported();
     }
 
