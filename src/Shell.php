@@ -52,10 +52,10 @@ class Shell extends Application
 {
     const VERSION = 'v0.11.7';
 
-    const PROMPT = '> ';
-    const BUFF_PROMPT = '. ';
-    const REPLAY = '--> ';
-    const RETVAL = '';
+    const PROMPT = '>> ';
+    const BUFF_PROMPT = '.. ';
+    const REPLAY = '-> ';
+    const RETVAL = '=> ';
 
     private $config;
     private $cleaner;
@@ -1123,10 +1123,13 @@ class Shell extends Application
         if ($rawOutput) {
             $formatted = \var_export($ret, true);
         } else {
+            $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
-            $formatted = static::RETVAL.implode("\n", array_map(function ($line) {
-                return $this->grayExists() ? "<fg=gray;>│ </>$line" : "│ $line";
-            }, explode("\n", $formatted)));
+            $formattedRetValue = $this->grayExists()
+                ? sprintf('<fg=gray>%s</>', static::RETVAL)
+                : static::RETVAL;
+
+            $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
 
         if ($this->output instanceof ShellOutput) {
