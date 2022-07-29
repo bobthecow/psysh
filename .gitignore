@@ -1,9 +1,12 @@
 __pycache__
 *.pyc
 /.phpunit.result.cache
+/phpstan.neon
 /build/
 /composer.lock
 /dist/
 /vendor-bin/*/vendor/
 /vendor-bin/phpunit/composer.lock
+/vendor-bin/phpstan/composer.lock
 /vendor/
+/var/cache/

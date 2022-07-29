@@ -1,0 +1,12 @@
+includes:
+  - phpstan-baseline.neon
+
+parameters:
+  # See: https://phpstan.org/user-guide/rule-levels
+  level: 9
+  tmpDir: var/cache/phpstan
+  paths:
+    - src
+    - test
+  checkMissingIterableValueType: false
+  reportUnmatchedIgnoredErrors: true
