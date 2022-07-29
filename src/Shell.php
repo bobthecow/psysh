@@ -1223,7 +1223,9 @@ class Shell extends Application
      */
     public function formatException(\Exception $e): string
     {
-        if ($e instanceof PsyException) {
+        if ($e instanceof BreakException) {
+            return sprintf("  <fg=white;bg=blue;options=bold> INFO </> %s.", $e->getRawMessage());
+        } elseif ($e instanceof PsyException) {
             $message = \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine());
             $messageLabel = strtoupper($this->getMessageLabel($e));
         } else {
@@ -1249,10 +1251,6 @@ class Shell extends Application
         $message = str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
-
-       if ($e instanceof BreakException) {
-            return sprintf("  <fg=white;bg=blue;options=bold> INFO </> %s", $message);
-        }
 
         return \sprintf('  <%s> %s </%s> %s', $severity, $messageLabel, $severity, OutputFormatter::escape($message));
     }
