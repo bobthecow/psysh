@@ -239,7 +239,7 @@ class ShellTest extends TestCase
 
         $this->assertSame(<<<EOF
 
-           PARSE ERROR  PHP Parse error: message.
+           PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
 
 
         EOF, $streamContents);
@@ -266,13 +266,10 @@ class ShellTest extends TestCase
 
         $this->assertSame(<<<EOF
 
-          <warning> $label </warning> wheee.
+          <warning> $label </warning> wheee in src/Shell.php on line 13.
 
 
         EOF, $streamContents);
-
-        $this->assertStringContainsString('wheee', $streamContents);
-        $this->assertStringNotContainsString('line 13', $streamContents);
     }
 
     public function notSoBadErrors()
@@ -525,7 +522,7 @@ class ShellTest extends TestCase
         $shell = new Shell($this->getConfig());
         $shell->setOutput($output);
 
-        $shell->writeException(new BreakException('yeah.'));
+        $shell->writeException(new BreakException('yeah'));
         \rewind($stream);
         $this->assertSame(<<<EOF
 
