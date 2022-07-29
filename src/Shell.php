@@ -52,10 +52,10 @@ class Shell extends Application
 {
     const VERSION = 'v0.11.7';
 
-    const PROMPT = '>> ';
-    const BUFF_PROMPT = '.. ';
-    const REPLAY = '-> ';
-    const RETVAL = '=> ';
+    const PROMPT = '> ';
+    const BUFF_PROMPT = '. ';
+    const REPLAY = '- ';
+    const RETVAL = '= ';
 
     private $config;
     private $cleaner;
@@ -1244,9 +1244,6 @@ class Shell extends Application
         if (! empty($message) && ! in_array(substr($message, -1), ['.', '?', '!', ':'])) {
             $message = "$message.";
         }
-
-        // Ensures the given message only contains relative paths...
-        $message = str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
