@@ -10,6 +10,7 @@
 /codecov.yml export-ignore
 /Makefile export-ignore
 /phpunit.xml.dist export-ignore
+/phpstan.neon.dist export-ignore
 /scoper.inc.php export-ignore
 /test export-ignore
 /vendor-bin export-ignore
