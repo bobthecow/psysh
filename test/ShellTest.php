@@ -237,9 +237,12 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertStringContainsString('PHP Parse error', $streamContents);
-        $this->assertStringContainsString('message', $streamContents);
-        $this->assertStringContainsString('line 13', $streamContents);
+        $this->assertSame(<<<EOF
+
+           PARSE ERROR  PHP Parse error: message.
+
+
+        EOF, $streamContents);
     }
 
     /**
@@ -261,22 +264,28 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertStringContainsString($label, $streamContents);
+        $this->assertSame(<<<EOF
+
+          <warning> $label </warning> wheee.
+
+
+        EOF, $streamContents);
+
         $this->assertStringContainsString('wheee', $streamContents);
-        $this->assertStringContainsString('line 13', $streamContents);
+        $this->assertStringNotContainsString('line 13', $streamContents);
     }
 
     public function notSoBadErrors()
     {
         return [
-            [\E_WARNING, 'PHP Warning:'],
-            [\E_NOTICE, 'PHP Notice:'],
-            [\E_CORE_WARNING, 'PHP Warning:'],
-            [\E_COMPILE_WARNING, 'PHP Warning:'],
-            [\E_USER_WARNING, 'PHP Warning:'],
-            [\E_USER_NOTICE, 'PHP Notice:'],
-            [\E_DEPRECATED, 'PHP Deprecated:'],
-            [\E_USER_DEPRECATED, 'PHP Deprecated:'],
+            [\E_WARNING, 'WARNING'],
+            [\E_NOTICE, 'NOTICE'],
+            [\E_CORE_WARNING, 'CORE WARNING'],
+            [\E_COMPILE_WARNING, 'COMPILE WARNING'],
+            [\E_USER_WARNING, 'USER WARNING'],
+            [\E_USER_NOTICE, 'USER NOTICE'],
+            [\E_DEPRECATED, 'DEPRECATED'],
+            [\E_USER_DEPRECATED, 'USER DEPRECATED'],
         ];
     }
 
@@ -467,8 +476,8 @@ class ShellTest extends TestCase
     public function getReturnValues()
     {
         return [
-            ['{{return value}}', "=> \"\033[32m{{return value}}\033[39m\"".\PHP_EOL],
-            [1, "=> \033[35m1\033[39m".\PHP_EOL],
+            ['{{return value}}', "│ \"\033[32m{{return value}}\033[39m\"".\PHP_EOL],
+            [1, "│ \033[35m1\033[39m".\PHP_EOL],
         ];
     }
 
@@ -518,14 +527,25 @@ class ShellTest extends TestCase
 
         $shell->writeException(new BreakException('yeah.'));
         \rewind($stream);
-        $this->assertSame('Exit:  yeah.'.\PHP_EOL, \stream_get_contents($stream));
+        $this->assertSame(<<<EOF
+
+           INFO  yeah.
+
+
+        EOF, \stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
     {
-        return [
-            [new \Exception('{{message}}'), "Exception with message '{{message}}'".\PHP_EOL],
-        ];
+        return [[
+            new \Exception('{{message}}'),
+            <<<EOF
+
+               Exception  {{message}}.
+
+
+            EOF,
+        ]];
     }
 
     /**

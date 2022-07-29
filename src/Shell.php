@@ -28,6 +28,7 @@ use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -51,10 +52,10 @@ class Shell extends Application
 {
     const VERSION = 'v0.11.7';
 
-    const PROMPT = '>>> ';
-    const BUFF_PROMPT = '... ';
+    const PROMPT = '> ';
+    const BUFF_PROMPT = '. ';
     const REPLAY = '--> ';
-    const RETVAL = '=> ';
+    const RETVAL = '';
 
     private $config;
     private $cleaner;
@@ -1122,9 +1123,10 @@ class Shell extends Application
         if ($rawOutput) {
             $formatted = \var_export($ret, true);
         } else {
-            $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
-            $formatted = static::RETVAL.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
+            $formatted = static::RETVAL.implode("\n", array_map(function ($line) {
+                return $this->grayExists() ? "<fg=gray;>│ </>$line" : "│ $line";
+            }, explode("\n", $formatted)));
         }
 
         if ($this->output instanceof ShellOutput) {
@@ -1132,6 +1134,22 @@ class Shell extends Application
         } else {
             $this->output->writeln($formatted);
         }
+    }
+
+    /**
+     * Checks if the "gray" color exists on the output.
+     *
+     * @return bool
+     */
+    private function grayExists(): bool
+    {
+        try {
+            $this->output->write('<fg=gray></>');
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1163,7 +1181,8 @@ class Shell extends Application
         if ($output instanceof ConsoleOutput) {
             $output = $output->getErrorOutput();
         }
-        $output->writeln($this->formatException($e));
+
+        $output->writeln(['', $this->formatException($e), '']);
 
         // Include an exception trace (as long as this isn't a BreakException).
         if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
@@ -1201,13 +1220,12 @@ class Shell extends Application
      */
     public function formatException(\Exception $e): string
     {
-        $message = $e->getMessage();
-        if (!$e instanceof PsyException) {
-            if ($message === '') {
-                $message = \get_class($e);
-            } else {
-                $message = \sprintf('%s with message \'%s\'', \get_class($e), $message);
-            }
+        if ($e instanceof PsyException) {
+            $message = $e->getRawMessage();
+            $messageLabel = strtoupper($this->getMessageLabel($e));
+        } else {
+            $message = $e->getMessage();
+            $messageLabel = $this->getMessageLabel($e);
         }
 
         $message = \preg_replace(
@@ -1216,11 +1234,24 @@ class Shell extends Application
             $message
         );
 
-        $message = \str_replace(" in eval()'d code", ' in Psy Shell code', $message);
+        $message = \str_replace(" in eval()'d code", '', $message);
+        $message = trim($message);
+
+        // Ensures the given string ends with punctuation...
+        if (! empty($message) && ! in_array(substr($message, -1), ['.', '?', '!', ':'])) {
+            $message = "$message.";
+        }
+
+        // Ensures the given message only contains relative paths...
+        $message = str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
-        return \sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity);
+       if ($e instanceof BreakException) {
+            return sprintf("  <fg=white;bg=blue;options=bold> INFO </> %s", $message);
+        }
+
+        return \sprintf('  <%s> %s </%s> %s', $severity, $messageLabel, $severity, OutputFormatter::escape($message));
     }
 
     /**
@@ -1241,6 +1272,8 @@ class Shell extends Application
                 case \E_COMPILE_WARNING:
                 case \E_USER_WARNING:
                 case \E_USER_NOTICE:
+                case \E_USER_DEPRECATED:
+                case \E_DEPRECATED:
                 case \E_STRICT:
                     return 'warning';
 
@@ -1251,6 +1284,54 @@ class Shell extends Application
             // Since this is below the user's reporting threshold, it's always going to be a warning.
             return 'warning';
         }
+    }
+
+    /**
+     * Helper for getting an output style for the given ErrorException's level.
+     *
+     * @param \Exception $e
+     *
+     * @return string
+     */
+    protected function getMessageLabel(\Exception $e): string
+    {
+        if ($e instanceof ErrorException) {
+            $severity = $e->getSeverity();
+
+            if ($severity & \error_reporting()) {
+                switch ($severity) {
+                    case \E_WARNING:
+                        return 'Warning';
+                    case \E_NOTICE:
+                        return 'Notice';
+                    case \E_CORE_WARNING:
+                        return 'Core Warning';
+                    case \E_COMPILE_WARNING:
+                        return 'Compile Warning';
+                    case \E_USER_WARNING:
+                        return 'User Warning';
+                    case \E_USER_NOTICE:
+                        return 'User Notice';
+                    case \E_USER_DEPRECATED:
+                        return 'User Deprecated';
+                    case \E_DEPRECATED:
+                        return 'Deprecated';
+                    case \E_STRICT:
+                        return 'Strict';
+                }
+            }
+        }
+
+        if ($e instanceof PsyException) {
+            $message = $e->getRawMessage();
+            $exceptionShortName = (new \ReflectionClass($e))->getShortName();
+            $typeParts = preg_split('/(?=[A-Z])/', $exceptionShortName);
+            array_pop($typeParts); // Removes "Exception"
+
+            return trim(strtoupper(implode(' ', $typeParts)));
+        }
+
+        return get_class($e);
     }
 
     /**
@@ -1435,7 +1516,7 @@ class Shell extends Application
      */
     protected function getHeader(): string
     {
-        return \sprintf('<aside>%s by Justin Hileman</aside>', $this->getVersion());
+        return \sprintf('<fg=cyan;options=bold>%s by Justin Hileman</>', $this->getVersion());
     }
 
     /**
