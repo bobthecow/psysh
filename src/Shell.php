@@ -1224,7 +1224,7 @@ class Shell extends Application
     public function formatException(\Exception $e): string
     {
         if ($e instanceof PsyException) {
-            $message = $e->getRawMessage();
+            $message = \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine());
             $messageLabel = strtoupper($this->getMessageLabel($e));
         } else {
             $message = $e->getMessage();
@@ -1244,6 +1244,9 @@ class Shell extends Application
         if (! empty($message) && ! in_array(substr($message, -1), ['.', '?', '!', ':'])) {
             $message = "$message.";
         }
+
+        // Ensures the given message only contains relative paths...
+        $message = str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
