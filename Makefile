@@ -35,6 +35,9 @@ test: ## Run unit tests
 test: vendor/bin/phpunit
 	$< $(PHPUNIT_OPTS)
 
+sa: ## Run Static Analysis
+sa: vendor/bin/phpstan
+	vendor/bin/phpstan analyse
 
 # All the composer stuffs
 
@@ -52,6 +55,10 @@ vendor/bin/box: vendor/autoload.php
 
 vendor/bin/phpunit: vendor/autoload.php
 	composer bin phpunit install --ignore-platform-reqs
+	touch $@
+
+vendor/bin/phpstan: vendor/autoload.php
+	composer bin phpstan install --ignore-platform-reqs
 	touch $@
 
 
