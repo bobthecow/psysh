@@ -1,5 +1,5 @@
 includes:
-  - phpstan-baseline.neon
+  - vendor-bin/phpstan/baseline.neon
 
 parameters:
   # Enforce minimal supported version (note: 7.0 can't be set in PHPStan)
