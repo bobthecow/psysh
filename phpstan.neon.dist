@@ -2,6 +2,9 @@ includes:
   - phpstan-baseline.neon
 
 parameters:
+  # Enforce minimal supported version (note: 7.0 can't be set in PHPStan)
+  phpVersion: 70100
+
   # See: https://phpstan.org/user-guide/rule-levels
   level: 9
   tmpDir: var/cache/phpstan
