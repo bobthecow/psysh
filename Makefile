@@ -36,7 +36,7 @@ test: vendor/bin/phpunit
 	$< $(PHPUNIT_OPTS)
 
 sa: ## Run Static Analysis
-sa: vendor/bin/phpstan
+sa: vendor/bin/phpstan vendor/bin/phpunit
 	vendor/bin/phpstan analyse
 
 # All the composer stuffs

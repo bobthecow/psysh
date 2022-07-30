@@ -11,5 +11,7 @@ parameters:
   paths:
     - src
     - test
+  bootstrapFiles:
+    - vendor-bin/phpstan/bootstrap.php
   checkMissingIterableValueType: false
   reportUnmatchedIgnoredErrors: true
