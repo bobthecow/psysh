@@ -1224,7 +1224,7 @@ class Shell extends Application
     public function formatException(\Exception $e): string
     {
         if ($e instanceof BreakException) {
-            return sprintf('  <fg=white;bg=blue;options=bold> INFO </> %s.', rtrim($e->getRawMessage(), '.'));
+            return \sprintf('  <fg=white;bg=blue;options=bold> INFO </> %s.', rtrim($e->getRawMessage(), '.'));
         } elseif ($e instanceof PsyException) {
             $message = $e->getLine() > 1
                 ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())
@@ -1246,12 +1246,12 @@ class Shell extends Application
         $message = \trim($message);
 
         // Ensures the given string ends with punctuation...
-        if (!empty($message) && !in_array(substr($message, -1), ['.', '?', '!', ':'])) {
+        if (!empty($message) && !\in_array(\substr($message, -1), ['.', '?', '!', ':'])) {
             $message = "$message.";
         }
 
         // Ensures the given message only contains relative paths...
-        $message = \str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
+        $message = \str_replace(\getcwd().\DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
@@ -1331,7 +1331,7 @@ class Shell extends Application
             $typeParts = \preg_split('/(?=[A-Z])/', $exceptionShortName);
             \array_pop($typeParts); // Removes "Exception"
 
-            return \trim(strtoupper(implode(' ', $typeParts)));
+            return \trim(\strtoupper(\implode(' ', $typeParts)));
         }
 
         return \get_class($e);
