@@ -1125,9 +1125,7 @@ class Shell extends Application
         } else {
             $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
-            $formattedRetValue = $this->grayExists()
-                ? \sprintf('<fg=gray>%s</>', static::RETVAL)
-                : static::RETVAL;
+            $formattedRetValue = \sprintf('<whisper>%s</whisper>', static::RETVAL);
 
             $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
@@ -1137,22 +1135,6 @@ class Shell extends Application
         } else {
             $this->output->writeln($formatted);
         }
-    }
-
-    /**
-     * Checks if the "gray" color exists on the output.
-     *
-     * @return bool
-     */
-    private function grayExists(): bool
-    {
-        try {
-            $this->output->write('<fg=gray></>');
-        } catch (InvalidArgumentException $e) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -1491,7 +1473,7 @@ class Shell extends Application
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
             if (!$line instanceof SilentInput) {
-                $this->output->writeln(\sprintf('<aside>%s %s</aside>', static::REPLAY, OutputFormatter::escape($line)));
+                $this->output->writeln(\sprintf('<whisper>%s</whisper><aside>%s</aside>', static::REPLAY, OutputFormatter::escape($line)));
             }
 
             return $line;
@@ -1519,7 +1501,7 @@ class Shell extends Application
      */
     protected function getHeader(): string
     {
-        return \sprintf('<fg=cyan;options=bold>%s by Justin Hileman</>', $this->getVersion());
+        return \sprintf('<whisper>%s by Justin Hileman</whisper>', $this->getVersion());
     }
 
     /**

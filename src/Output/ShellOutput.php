@@ -181,6 +181,8 @@ class ShellOutput extends ConsoleOutput
         $errorFormatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
         $formatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
         $errorFormatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
+        $formatter->setStyle('whisper', new OutputFormatterStyle($this->grayExists() ? 'gray' : null));
+        $errorFormatter->setStyle('whisper', new OutputFormatterStyle($this->grayExists() ? 'gray' : null));
 
         $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
         $formatter->setStyle('strong', new OutputFormatterStyle(null, null, ['bold']));
@@ -211,5 +213,23 @@ class ShellOutput extends ConsoleOutput
 
         // Code-specific formatting
         $formatter->setStyle('inline_html', new OutputFormatterStyle('cyan'));
+    }
+
+
+
+    /**
+     * Checks if the "gray" color exists on the output.
+     *
+     * @return bool
+     */
+    private function grayExists(): bool
+    {
+        try {
+            $this->write('<fg=gray></>');
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
     }
 }
