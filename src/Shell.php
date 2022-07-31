@@ -1080,7 +1080,7 @@ class Shell extends Application
             // Write an extra newline if stdout didn't end with one
             if ($this->outputWantsNewline) {
                 if (!$this->config->rawOutput() && !$this->config->outputIsPiped()) {
-                    $this->output->writeln(\sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
+                    $this->output->writeln(\sprintf('<whisper>%s</whisper>', $this->config->useUnicode() ? '⏎' : '\\n'));
                 } else {
                     $this->output->writeln('');
                 }
