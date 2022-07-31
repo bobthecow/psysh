@@ -176,13 +176,17 @@ class ShellOutput extends ConsoleOutput
     {
         $formatter = $this->getFormatter();
         $errorFormatter = $this->getErrorOutput()->getFormatter();
+        $grayExists = $this->grayExists();
 
+        $formatter->setStyle('info', new OutputFormatterStyle('white', 'blue', ['bold']));
+        $errorFormatter->setStyle('info', new OutputFormatterStyle('white', 'blue', ['bold']));
         $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
         $errorFormatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
         $formatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
         $errorFormatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
+        $formatter->setStyle('whisper', new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
+        $errorFormatter->setStyle('whisper', new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
 
-        $formatter->setStyle('whisper', new OutputFormatterStyle($this->grayExists() ? 'gray' : 'blue'));
         $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
         $formatter->setStyle('strong', new OutputFormatterStyle(null, null, ['bold']));
         $formatter->setStyle('return', new OutputFormatterStyle('cyan'));

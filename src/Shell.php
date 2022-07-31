@@ -1206,7 +1206,7 @@ class Shell extends Application
     public function formatException(\Exception $e): string
     {
         if ($e instanceof BreakException) {
-            return \sprintf('  <fg=white;bg=blue;options=bold> INFO </> %s.', \rtrim($e->getRawMessage(), '.'));
+            return \sprintf("  <info> INFO </info> %s.", \rtrim($e->getRawMessage(), '.'));
         } elseif ($e instanceof PsyException) {
             $message = $e->getLine() > 1
                 ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())
