@@ -1324,7 +1324,6 @@ class Shell extends Application
         }
 
         if ($e instanceof PsyException) {
-            $message = $e->getRawMessage();
             $exceptionShortName = (new \ReflectionClass($e))->getShortName();
             $typeParts = preg_split('/(?=[A-Z])/', $exceptionShortName);
             array_pop($typeParts); // Removes "Exception"
