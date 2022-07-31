@@ -1226,7 +1226,10 @@ class Shell extends Application
         if ($e instanceof BreakException) {
             return sprintf('  <fg=white;bg=blue;options=bold> INFO </> %s.', rtrim($e->getRawMessage(), '.'));
         } elseif ($e instanceof PsyException) {
-            $message = \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine());
+            $message = $e->getLine() > 1
+                ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())
+                : \sprintf('%s in %s', $e->getRawMessage(), $e->getFile());
+
             $messageLabel = strtoupper($this->getMessageLabel($e));
         } else {
             $message = $e->getMessage();
