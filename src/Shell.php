@@ -27,8 +27,8 @@ use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -1126,7 +1126,7 @@ class Shell extends Application
             $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
             $formattedRetValue = $this->grayExists()
-                ? sprintf('<fg=gray>%s</>', static::RETVAL)
+                ? \sprintf('<fg=gray>%s</>', static::RETVAL)
                 : static::RETVAL;
 
             $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
@@ -1230,7 +1230,7 @@ class Shell extends Application
                 ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())
                 : \sprintf('%s in %s', $e->getRawMessage(), $e->getFile());
 
-            $messageLabel = strtoupper($this->getMessageLabel($e));
+            $messageLabel = \strtoupper($this->getMessageLabel($e));
         } else {
             $message = $e->getMessage();
             $messageLabel = $this->getMessageLabel($e);
@@ -1243,15 +1243,15 @@ class Shell extends Application
         );
 
         $message = \str_replace(" in eval()'d code", '', $message);
-        $message = trim($message);
+        $message = \trim($message);
 
         // Ensures the given string ends with punctuation...
-        if (! empty($message) && ! in_array(substr($message, -1), ['.', '?', '!', ':'])) {
+        if (!empty($message) && !in_array(substr($message, -1), ['.', '?', '!', ':'])) {
             $message = "$message.";
         }
 
         // Ensures the given message only contains relative paths...
-        $message = str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
+        $message = \str_replace(getcwd().DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
@@ -1328,13 +1328,13 @@ class Shell extends Application
 
         if ($e instanceof PsyException) {
             $exceptionShortName = (new \ReflectionClass($e))->getShortName();
-            $typeParts = preg_split('/(?=[A-Z])/', $exceptionShortName);
-            array_pop($typeParts); // Removes "Exception"
+            $typeParts = \preg_split('/(?=[A-Z])/', $exceptionShortName);
+            \array_pop($typeParts); // Removes "Exception"
 
-            return trim(strtoupper(implode(' ', $typeParts)));
+            return \trim(strtoupper(implode(' ', $typeParts)));
         }
 
-        return get_class($e);
+        return \get_class($e);
     }
 
     /**
