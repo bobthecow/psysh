@@ -229,7 +229,7 @@ class ShellOutput extends ConsoleOutput
     {
         try {
             $this->write('<fg=gray></>');
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             return false;
         }
 

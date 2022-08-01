@@ -264,12 +264,9 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertSame(<<<EOF
-
-          <warning> $label </warning> wheee in src/Shell.php on line 13.
-
-
-        EOF, $streamContents);
+        $this->assertStringContainsString($label, $streamContents);
+        $this->assertStringContainsString('wheee', $streamContents);
+        $this->assertStringContainsString('line 13', $streamContents);
     }
 
     public function notSoBadErrors()
