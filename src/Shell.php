@@ -27,7 +27,6 @@ use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -1206,7 +1205,7 @@ class Shell extends Application
     public function formatException(\Exception $e): string
     {
         if ($e instanceof BreakException) {
-            return \sprintf("  <info> INFO </info> %s.", \rtrim($e->getRawMessage(), '.'));
+            return \sprintf('  <info> INFO </info> %s.', \rtrim($e->getRawMessage(), '.'));
         } elseif ($e instanceof PsyException) {
             $message = $e->getLine() > 1
                 ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())

@@ -218,8 +218,6 @@ class ShellOutput extends ConsoleOutput
         $formatter->setStyle('inline_html', new OutputFormatterStyle('cyan'));
     }
 
-
-
     /**
      * Checks if the "gray" color exists on the output.
      *
