@@ -178,14 +178,14 @@ class ShellOutput extends ConsoleOutput
         $errorFormatter = $this->getErrorOutput()->getFormatter();
         $grayExists = $this->grayExists();
 
-        $formatter->setStyle('info', new OutputFormatterStyle('white', 'blue', ['bold']));
-        $errorFormatter->setStyle('info', new OutputFormatterStyle('white', 'blue', ['bold']));
-        $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $errorFormatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $formatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
-        $errorFormatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
-        $formatter->setStyle('whisper', new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
-        $errorFormatter->setStyle('whisper', new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
+        $formatter->setStyle('info', $outputFormatter = new OutputFormatterStyle('white', 'blue', ['bold']));
+        $errorFormatter->setStyle('info', $outputFormatter);
+        $formatter->setStyle('warning', $outputFormatter = new OutputFormatterStyle('black', 'yellow'));
+        $errorFormatter->setStyle('warning', $outputFormatter);
+        $formatter->setStyle('error', $outputFormatter = new OutputFormatterStyle('white', 'red', ['bold']));
+        $errorFormatter->setStyle('error', $outputFormatter);
+        $formatter->setStyle('whisper', $outputFormatter = new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
+        $errorFormatter->setStyle('whisper', $outputFormatter);
 
         $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
         $formatter->setStyle('strong', new OutputFormatterStyle(null, null, ['bold']));
