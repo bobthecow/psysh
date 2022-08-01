@@ -239,10 +239,10 @@ class ShellTest extends TestCase
 
         $this->assertSame(<<<EOF
 
-           PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
+   PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
 
 
-        EOF, $streamContents);
+EOF, $streamContents);
     }
 
     /**
@@ -523,10 +523,10 @@ class ShellTest extends TestCase
         \rewind($stream);
         $this->assertSame(<<<EOF
 
-           INFO  yeah.
+   INFO  yeah.
 
 
-        EOF, \stream_get_contents($stream));
+EOF, \stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
@@ -535,10 +535,10 @@ class ShellTest extends TestCase
             new \Exception('{{message}}'),
             <<<EOF
 
-               Exception  {{message}}.
+   Exception  {{message}}.
 
 
-            EOF,
+EOF,
         ]];
     }
 
