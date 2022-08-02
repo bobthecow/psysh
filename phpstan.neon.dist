@@ -1,16 +1,26 @@
 includes:
-  - vendor-bin/phpstan/baseline.neon
+  - vendor-bin/phpstan/ignore.neon
 
 parameters:
   # Enforce minimal supported version (note: 7.0 can't be set in PHPStan)
   phpVersion: 70100
 
   # See: https://phpstan.org/user-guide/rule-levels
-  level: 9
+  level: 0
   tmpDir: var/cache/phpstan
   paths:
     - src
     - test
+  excludePaths:
+    # Signature errors related to wide PHP version support.
+    # See: https://github.com/bobthecow/psysh/pull/738#issuecomment-1202622730
+    - src/Readline/Hoa/FileGeneric.php
+    - src/Readline/Hoa/FileLink.php
+    - src/Reflection/ReflectionClassConstant.php
+    - src/Reflection/ReflectionConstant_.php
+    - src/Reflection/ReflectionLanguageConstruct.php
+    - src/Reflection/ReflectionNamespace.php
+    - src/Util/Str.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
   checkMissingIterableValueType: false

@@ -49,6 +49,11 @@ class StreamContext
     protected $_id = null;
 
     /**
+     * @var resource
+     */
+    protected $_context;
+
+    /**
      * Multiton.
      */
     protected static $_instances = [];
@@ -70,7 +75,7 @@ class StreamContext
     public static function getInstance(string $id): self
     {
         if (false === static::contextExists($id)) {
-            static::$_instances[$id] = new static($id);
+            static::$_instances[$id] = new self($id);
         }
 
         return static::$_instances[$id];

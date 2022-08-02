@@ -11,6 +11,7 @@
 
 namespace Psy\Test;
 
+use Psy\Configuration;
 use Psy\Shell;
 
 class FakeShell extends Shell
