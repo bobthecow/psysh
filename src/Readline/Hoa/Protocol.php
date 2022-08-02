@@ -75,7 +75,7 @@ class Protocol extends ProtocolNode
     public static function getInstance(): self
     {
         if (null === static::$_instance) {
-            static::$_instance = new static();
+            static::$_instance = new self();
         }
 
         return static::$_instance;

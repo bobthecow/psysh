@@ -828,7 +828,7 @@ class ConsoleTput
             'user7',
         ];
 
-        $tput = new static();
+        $tput = new self();
 
         foreach ($requiredVars as $var) {
             if ($tput->get($var) === null) {

@@ -1183,6 +1183,8 @@ class Configuration
             case self::COLOR_MODE_DISABLED:
                 return false;
         }
+
+        return null;
     }
 
     /**
@@ -1193,12 +1195,13 @@ class Configuration
     public function getInputInteractive(): bool
     {
         switch ($this->interactiveMode()) {
-            case self::INTERACTIVE_MODE_AUTO:
-                return !$this->inputIsPiped();
             case self::INTERACTIVE_MODE_FORCED:
                 return true;
             case self::INTERACTIVE_MODE_DISABLED:
                 return false;
+            case self::INTERACTIVE_MODE_AUTO:
+            default:
+                return !$this->inputIsPiped();
         }
     }
 

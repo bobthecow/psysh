@@ -43,6 +43,9 @@ class IntervalChecker extends GitHubChecker
         return $release;
     }
 
+    /**
+     * @throws \RuntimeException if interval passed to constructor is not supported
+     */
     private function getDateInterval(): \DateInterval
     {
         switch ($this->interval) {
@@ -53,6 +56,8 @@ class IntervalChecker extends GitHubChecker
             case Checker::MONTHLY:
                 return new \DateInterval('P1M');
         }
+
+        throw new \RuntimeException('Invalid interval configured');
     }
 
     private function updateCache($release)

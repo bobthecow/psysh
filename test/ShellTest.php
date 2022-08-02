@@ -112,7 +112,7 @@ class ShellTest extends TestCase
         \sort($expected);
         \sort($actual);
 
-        return $this->assertSame($expected, $actual, $message);
+        $this->assertSame($expected, $actual, $message);
     }
 
     public function testNonInteractiveDoesNotUpdateContext()
