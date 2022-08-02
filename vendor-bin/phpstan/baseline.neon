@@ -1,0 +1,56 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Variable \\$_ might not be defined\\.$#"
+			count: 1
+			path: ../../src/Command/TimeitCommand.php
+
+		-
+			message: "#^Variable \\$_style might not be defined\\.$#"
+			count: 2
+			path: ../../src/Readline/Hoa/ConsoleCursor.php
+
+		-
+			message: "#^Variable \\$_except in empty\\(\\) always exists and is always falsy\\.$#"
+			count: 1
+			path: ../../src/Readline/Hoa/ConsoleProcessus.php
+
+		-
+			message: "#^Variable \\$read in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 2
+			path: ../../src/Readline/Hoa/Readline.php
+
+		-
+			message: "#^Constructor of class Psy\\\\Readline\\\\Transient has an unused parameter \\$historyFile\\.$#"
+			count: 1
+			path: ../../src/Readline/Transient.php
+
+		-
+			message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$eraseDups\\.$#"
+			count: 1
+			path: ../../src/Readline/Userland.php
+
+		-
+			message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historyFile\\.$#"
+			count: 1
+			path: ../../src/Readline/Userland.php
+
+		-
+			message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historySize\\.$#"
+			count: 1
+			path: ../../src/Readline/Userland.php
+
+		-
+			message: "#^Variable \\$config might not be defined\\.$#"
+			count: 2
+			path: ../../src/functions.php
+
+		-
+			message: "#^Constructor of class Psy\\\\Test\\\\FakeShell has an unused parameter \\$config\\.$#"
+			count: 1
+			path: ../../test/FakeShell.php
+
+		-
+			message: "#^Variable \\$config might not be defined\\.$#"
+			count: 1
+			path: ../../test/fixtures/config.php

@@ -1,4 +1,5 @@
 includes:
+  - vendor-bin/phpstan/baseline.neon
   - vendor-bin/phpstan/ignore.neon
 
 parameters:
@@ -6,7 +7,7 @@ parameters:
   phpVersion: 70100
 
   # See: https://phpstan.org/user-guide/rule-levels
-  level: 0
+  level: 1
   tmpDir: var/cache/phpstan
   paths:
     - src
