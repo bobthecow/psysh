@@ -237,12 +237,14 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $this->assertSame(<<<EOF
+        $expected = <<<EOF
 
    PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
 
 
-EOF, $streamContents);
+EOF;
+
+        $this->assertSame($expected, $streamContents);
     }
 
     /**
@@ -521,24 +523,29 @@ EOF, $streamContents);
 
         $shell->writeException(new BreakException('yeah'));
         \rewind($stream);
-        $this->assertSame(<<<EOF
+
+        $expected = <<<EOF
 
    INFO  yeah.
 
 
-EOF, \stream_get_contents($stream));
+EOF;
+
+        $this->assertSame($expected, \stream_get_contents($stream));
     }
 
     public function getRenderedExceptions()
     {
-        return [[
-            new \Exception('{{message}}'),
-            <<<EOF
+        $expected = <<<EOF
 
    Exception  {{message}}.
 
 
-EOF,
+EOF;
+
+        return [[
+            new \Exception('{{message}}'),
+            $expected,
         ]];
     }
 
