@@ -17,6 +17,15 @@ namespace Psy\Readline;
 interface Readline
 {
     /**
+     * Make sure all readline implementations take the same constructor arguments.
+     *
+     * @param string|false $historyFile
+     * @param int|null     $historySize
+     * @param bool|null    $eraseDups
+     */
+    public function __construct($historyFile = null, $historySize = 0, $eraseDups = false);
+
+    /**
      * Check whether this Readline class is supported by the current system.
      *
      * @return bool

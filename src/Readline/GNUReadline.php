@@ -54,13 +54,6 @@ class GNUReadline implements Readline
         return self::isSupported() && \stripos(\readline_info('library_version') ?: '', 'editline') === false;
     }
 
-    /**
-     * GNU Readline constructor.
-     *
-     * @param string|false $historyFile
-     * @param int          $historySize
-     * @param bool         $eraseDups
-     */
     public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
     {
         $this->historyFile = ($historyFile !== null) ? $historyFile : false;

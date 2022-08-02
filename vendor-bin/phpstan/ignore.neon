@@ -4,6 +4,7 @@ parameters:
     - "#^.*Symfony\\\\Component\\\\Console\\\\Helper\\\\TableHelper.*$#"
     # Runkit extension is optional, so we shouldn't warn about its functions
     - "#^Function runkit[a-zA-Z0-9_]+ not found\\.$#"
+    - "#^Constant RUNKIT_[a-zA-Z0-9_]+ not found\\.$#"
     # There's complex logic for defining Psy\Test\TestCase (test/TestCase.php) depending on PHPUnit's version
     - "#^Call to an undefined method Psy\\\\.*Test::assertString(Not)?ContainsString\\(\\)\\.$#"
     - "#^Call to an undefined method Psy\\\\.*Test::assertMatchesRegularExpression\\(\\)\\.$#"
@@ -14,3 +15,5 @@ parameters:
       message: "#^Class (UnitEnum|ReflectionUnionType)+ not found\\.$#"
       paths:
         - ../../src/ExecutionLoop/ProcessForker.php
+    # PHP8.0 introduced second argument for
+    - "#^Class IteratorIterator constructor invoked with 2 parameters, 1 required\\.$#"
