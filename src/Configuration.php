@@ -1216,7 +1216,7 @@ class Configuration
             if ($pager = \ini_get('cli.pager')) {
                 // use the default pager
                 $this->pager = $pager;
-            } elseif ($less = self::which('less')) {
+            } elseif ($less = $this->configPaths->which('less')) {
                 // check for the presence of less...
                 $this->pager = $less.' -R -F -X';
             }
@@ -1822,32 +1822,5 @@ class Configuration
         $mode = $stat['mode'] & 0170000;
 
         return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000;
-    }
-
-    /**
-     * Locate a command (an executable) in $PATH.
-     *
-     * Behaves like 'command -v COMMAND' or 'which COMMAND'.
-     * If $PATH is unset/empty it defaults to '/usr/sbin:/usr/bin:/sbin:/bin'.
-     *
-     * @param string $command the executable to locate
-     *
-     * @return string
-     */
-    private static function which($command)
-    {
-        $path = \getenv('PATH');
-        if (empty($path)) {
-            $path = '/usr/sbin:/usr/bin:/sbin:/bin';
-        }
-        $paths = \explode(\PATH_SEPARATOR, $path);
-        foreach ($paths as $path) {
-            $fullpath = $path.\DIRECTORY_SEPARATOR.$command;
-            if (@\is_file($fullpath) && @\is_executable($fullpath)) {
-                return $fullpath;
-            }
-        }
-
-        return null;
     }
 }
