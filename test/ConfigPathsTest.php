@@ -133,4 +133,85 @@ class ConfigPathsTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider envVariablesForPathDirs
+     */
+    public function testPathDirs($pathEnv, $expectedPaths)
+    {
+        $paths = new ConfigPaths([], new TestableEnv(['PATH' => $pathEnv]));
+        $this->assertEquals($expectedPaths, $paths->pathDirs());
+    }
+
+    public function envVariablesForPathDirs()
+    {
+        $base = \realpath(__DIR__.'/fixtures/which');
+
+        return [
+            [
+                null,
+                ['/usr/sbin', '/usr/bin', '/sbin', '/bin'],
+            ],
+            [
+                "$base/usr/sbin:$base/usr/bin:$base/sbin:$base/home/foo/bin:$base/bin",
+                [
+                    "$base/usr/sbin",
+                    "$base/usr/bin",
+                    "$base/sbin",
+                    "$base/home/foo/bin",
+                    "$base/bin",
+                ],
+            ],
+        ];
+    }
+
+    public function testWhich()
+    {
+        $base = \realpath(__DIR__.'/fixtures/which');
+
+        $paths = new ConfigPaths([], new TestableEnv([
+            'PATH' => "$base/home/username/bin:$base/usr/sbin:$base/usr/bin:$base/sbin:$base/bin",
+        ]));
+
+        $this->assertSame("$base/home/username/bin/foo", $paths->which('foo'));
+        $this->assertSame("$base/usr/bin/bar", $paths->which('bar'));
+        $this->assertNull($paths->which('baz'));
+
+        $paths = new ConfigPaths([], new TestableEnv([
+            'PATH' => "$base/usr/bin",
+        ]));
+
+        $this->assertSame("$base/usr/bin/foo", $paths->which('foo'));
+        $this->assertSame("$base/usr/bin/bar", $paths->which('bar'));
+        $this->assertNull($paths->which('baz'));
+
+        // Fakebin has a bunch of directories named the same thing as the
+        // commands we're looking for...
+        $paths = new ConfigPaths([], new TestableEnv([
+            'PATH' => "$base/fakebin:$base/usr/bin",
+        ]));
+
+        $this->assertSame("$base/usr/bin/foo", $paths->which('foo'));
+        $this->assertSame("$base/usr/bin/bar", $paths->which('bar'));
+        $this->assertNull($paths->which('baz'));
+
+        // Notexec has a bunch of files without an executable bit named the same
+        // thing as the commands we're looking for...
+        $paths = new ConfigPaths([], new TestableEnv([
+            'PATH' => "$base/notexec:$base/usr/bin",
+        ]));
+
+        $this->assertSame("$base/usr/bin/foo", $paths->which('foo'));
+        $this->assertSame("$base/usr/bin/bar", $paths->which('bar'));
+        $this->assertNull($paths->which('baz'));
+
+        // Paths defined but missing commands return null
+        $paths = new ConfigPaths([], new TestableEnv([
+            'PATH' => "$base",
+        ]));
+
+        $this->assertNull($paths->which('foo'));
+        $this->assertNull($paths->which('bar'));
+        $this->assertNull($paths->which('baz'));
+    }
 }
