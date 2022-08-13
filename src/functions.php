@@ -404,6 +404,7 @@ Options:
   -i, --interactive     Force PsySH to run in interactive mode.
   -n, --no-interactive  Run PsySH without interactive input. Requires input from stdin.
   -r, --raw-output      Print var_export-style return values (for non-interactive input)
+      --compact         Run PsySH with compact output.
   -q, --quiet           Shhhhhh.
   -v|vv|vvv, --verbose  Increase the verbosity of messages.
       --yolo            Run PsySH without input validation. You don't want this.

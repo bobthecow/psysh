@@ -50,6 +50,7 @@ class Configuration
         'codeCleaner',
         'colorMode',
         'configDir',
+        'compactOutput',
         'dataDir',
         'defaultIncludes',
         'eraseDuplicates',
@@ -104,6 +105,7 @@ class Configuration
     private $warnOnMultipleConfigs = false;
     private $colorMode = self::COLOR_MODE_AUTO;
     private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
+    private $compactOutput = false;
     private $updateCheck;
     private $startupMessage;
     private $forceArrayIndexes = false;
@@ -195,6 +197,11 @@ class Configuration
             $config->setInteractiveMode(self::INTERACTIVE_MODE_FORCED);
         } elseif (self::getOptionFromInput($input, ['no-interactive', 'no-interaction'], ['-n'])) {
             $config->setInteractiveMode(self::INTERACTIVE_MODE_DISABLED);
+        }
+
+        // Handle --compact
+        if (self::getOptionFromInput($input, ['compact'])) {
+            $config->setCompactOutput(true);
         }
 
         // Handle --raw-output
@@ -346,6 +353,7 @@ class Configuration
 
             new InputOption('quiet', 'q', InputOption::VALUE_NONE, 'Shhhhhh.'),
             new InputOption('verbose', 'v|vv|vvv', InputOption::VALUE_OPTIONAL, 'Increase the verbosity of messages.', '0'),
+            new InputOption('compact', null, InputOption::VALUE_NONE, 'Run PsySH with compact output.'),
             new InputOption('interactive', 'i|a', InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interactive', 'n', InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
             // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
@@ -1514,6 +1522,22 @@ class Configuration
     public function interactiveMode(): string
     {
         return $this->interactiveMode;
+    }
+
+    /**
+     * Set compact output.
+     */
+    public function setCompactOutput(bool $compactOutput)
+    {
+        $this->compactOutput = (bool) $compactOutput;
+    }
+
+    /**
+     * Get whether output is compact.
+     */
+    public function compactOutput(): bool
+    {
+        return $this->compactOutput;
     }
 
     /**

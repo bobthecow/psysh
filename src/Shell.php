@@ -1166,7 +1166,15 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
 
-        $output->writeln(['', $this->formatException($e), '']);
+        if (!$this->config->compactOutput()) {
+            $output->writeln('');
+        }
+
+        $output->writeln($this->formatException($e));
+
+        if (!$this->config->compactOutput()) {
+            $output->writeln('');
+        }
 
         // Include an exception trace (as long as this isn't a BreakException).
         if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
@@ -1204,8 +1212,10 @@ class Shell extends Application
      */
     public function formatException(\Exception $e): string
     {
+        $indent = $this->config->compactOutput() ? '' : '  ';
+
         if ($e instanceof BreakException) {
-            return \sprintf('  <info> INFO </info> %s.', \rtrim($e->getRawMessage(), '.'));
+            return \sprintf('%s<info> INFO </info> %s.', $indent, \rtrim($e->getRawMessage(), '.'));
         } elseif ($e instanceof PsyException) {
             $message = $e->getLine() > 1
                 ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())
@@ -1236,7 +1246,7 @@ class Shell extends Application
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
-        return \sprintf('  <%s> %s </%s> %s', $severity, $messageLabel, $severity, OutputFormatter::escape($message));
+        return \sprintf('%s<%s> %s </%s> %s', $indent, $severity, $messageLabel, $severity, OutputFormatter::escape($message));
     }
 
     /**
