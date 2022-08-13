@@ -176,11 +176,16 @@ class ShellOutput extends ConsoleOutput
     {
         $formatter = $this->getFormatter();
         $errorFormatter = $this->getErrorOutput()->getFormatter();
+        $grayExists = $this->grayExists();
 
-        $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $errorFormatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $formatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
-        $errorFormatter->setStyle('error', new OutputFormatterStyle('white', 'red', ['bold']));
+        $formatter->setStyle('info', $outputFormatter = new OutputFormatterStyle('white', 'blue', ['bold']));
+        $errorFormatter->setStyle('info', $outputFormatter);
+        $formatter->setStyle('warning', $outputFormatter = new OutputFormatterStyle('black', 'yellow'));
+        $errorFormatter->setStyle('warning', $outputFormatter);
+        $formatter->setStyle('error', $outputFormatter = new OutputFormatterStyle('white', 'red', ['bold']));
+        $errorFormatter->setStyle('error', $outputFormatter);
+        $formatter->setStyle('whisper', $outputFormatter = new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
+        $errorFormatter->setStyle('whisper', $outputFormatter);
 
         $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
         $formatter->setStyle('strong', new OutputFormatterStyle(null, null, ['bold']));
@@ -211,5 +216,21 @@ class ShellOutput extends ConsoleOutput
 
         // Code-specific formatting
         $formatter->setStyle('inline_html', new OutputFormatterStyle('cyan'));
+    }
+
+    /**
+     * Checks if the "gray" color exists on the output.
+     *
+     * @return bool
+     */
+    private function grayExists(): bool
+    {
+        try {
+            $this->write('<fg=gray></>');
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
     }
 }

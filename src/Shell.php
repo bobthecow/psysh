@@ -51,10 +51,10 @@ class Shell extends Application
 {
     const VERSION = 'v0.11.8';
 
-    const PROMPT = '>>> ';
-    const BUFF_PROMPT = '... ';
-    const REPLAY = '--> ';
-    const RETVAL = '=> ';
+    const PROMPT = '> ';
+    const BUFF_PROMPT = '. ';
+    const REPLAY = '- ';
+    const RETVAL = '= ';
 
     private $config;
     private $cleaner;
@@ -1079,7 +1079,7 @@ class Shell extends Application
             // Write an extra newline if stdout didn't end with one
             if ($this->outputWantsNewline) {
                 if (!$this->config->rawOutput() && !$this->config->outputIsPiped()) {
-                    $this->output->writeln(\sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
+                    $this->output->writeln(\sprintf('<whisper>%s</whisper>', $this->config->useUnicode() ? '⏎' : '\\n'));
                 } else {
                     $this->output->writeln('');
                 }
@@ -1124,7 +1124,9 @@ class Shell extends Application
         } else {
             $indent = \str_repeat(' ', \strlen(static::RETVAL));
             $formatted = $this->presentValue($ret);
-            $formatted = static::RETVAL.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
+            $formattedRetValue = \sprintf('<whisper>%s</whisper>', static::RETVAL);
+
+            $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
 
         if ($this->output instanceof ShellOutput) {
@@ -1163,7 +1165,8 @@ class Shell extends Application
         if ($output instanceof ConsoleOutput) {
             $output = $output->getErrorOutput();
         }
-        $output->writeln($this->formatException($e));
+
+        $output->writeln(['', $this->formatException($e), '']);
 
         // Include an exception trace (as long as this isn't a BreakException).
         if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
@@ -1201,13 +1204,17 @@ class Shell extends Application
      */
     public function formatException(\Exception $e): string
     {
-        $message = $e->getMessage();
-        if (!$e instanceof PsyException) {
-            if ($message === '') {
-                $message = \get_class($e);
-            } else {
-                $message = \sprintf('%s with message \'%s\'', \get_class($e), $message);
-            }
+        if ($e instanceof BreakException) {
+            return \sprintf('  <info> INFO </info> %s.', \rtrim($e->getRawMessage(), '.'));
+        } elseif ($e instanceof PsyException) {
+            $message = $e->getLine() > 1
+                ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())
+                : \sprintf('%s in %s', $e->getRawMessage(), $e->getFile());
+
+            $messageLabel = \strtoupper($this->getMessageLabel($e));
+        } else {
+            $message = $e->getMessage();
+            $messageLabel = $this->getMessageLabel($e);
         }
 
         $message = \preg_replace(
@@ -1216,11 +1223,20 @@ class Shell extends Application
             $message
         );
 
-        $message = \str_replace(" in eval()'d code", ' in Psy Shell code', $message);
+        $message = \str_replace(" in eval()'d code", '', $message);
+        $message = \trim($message);
+
+        // Ensures the given string ends with punctuation...
+        if (!empty($message) && !\in_array(\substr($message, -1), ['.', '?', '!', ':'])) {
+            $message = "$message.";
+        }
+
+        // Ensures the given message only contains relative paths...
+        $message = \str_replace(\getcwd().\DIRECTORY_SEPARATOR, '', $message);
 
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
-        return \sprintf('<%s>%s</%s>', $severity, OutputFormatter::escape($message), $severity);
+        return \sprintf('  <%s> %s </%s> %s', $severity, $messageLabel, $severity, OutputFormatter::escape($message));
     }
 
     /**
@@ -1241,6 +1257,8 @@ class Shell extends Application
                 case \E_COMPILE_WARNING:
                 case \E_USER_WARNING:
                 case \E_USER_NOTICE:
+                case \E_USER_DEPRECATED:
+                case \E_DEPRECATED:
                 case \E_STRICT:
                     return 'warning';
 
@@ -1251,6 +1269,53 @@ class Shell extends Application
             // Since this is below the user's reporting threshold, it's always going to be a warning.
             return 'warning';
         }
+    }
+
+    /**
+     * Helper for getting an output style for the given ErrorException's level.
+     *
+     * @param \Exception $e
+     *
+     * @return string
+     */
+    protected function getMessageLabel(\Exception $e): string
+    {
+        if ($e instanceof ErrorException) {
+            $severity = $e->getSeverity();
+
+            if ($severity & \error_reporting()) {
+                switch ($severity) {
+                    case \E_WARNING:
+                        return 'Warning';
+                    case \E_NOTICE:
+                        return 'Notice';
+                    case \E_CORE_WARNING:
+                        return 'Core Warning';
+                    case \E_COMPILE_WARNING:
+                        return 'Compile Warning';
+                    case \E_USER_WARNING:
+                        return 'User Warning';
+                    case \E_USER_NOTICE:
+                        return 'User Notice';
+                    case \E_USER_DEPRECATED:
+                        return 'User Deprecated';
+                    case \E_DEPRECATED:
+                        return 'Deprecated';
+                    case \E_STRICT:
+                        return 'Strict';
+                }
+            }
+        }
+
+        if ($e instanceof PsyException) {
+            $exceptionShortName = (new \ReflectionClass($e))->getShortName();
+            $typeParts = \preg_split('/(?=[A-Z])/', $exceptionShortName);
+            \array_pop($typeParts); // Removes "Exception"
+
+            return \trim(\strtoupper(\implode(' ', $typeParts)));
+        }
+
+        return \get_class($e);
     }
 
     /**
@@ -1407,7 +1472,7 @@ class Shell extends Application
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
             if (!$line instanceof SilentInput) {
-                $this->output->writeln(\sprintf('<aside>%s %s</aside>', static::REPLAY, OutputFormatter::escape($line)));
+                $this->output->writeln(\sprintf('<whisper>%s</whisper><aside>%s</aside>', static::REPLAY, OutputFormatter::escape($line)));
             }
 
             return $line;
@@ -1435,7 +1500,7 @@ class Shell extends Application
      */
     protected function getHeader(): string
     {
-        return \sprintf('<aside>%s by Justin Hileman</aside>', $this->getVersion());
+        return \sprintf('<whisper>%s by Justin Hileman</whisper>', $this->getVersion());
     }
 
     /**
