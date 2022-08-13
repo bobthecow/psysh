@@ -484,7 +484,7 @@ EOF;
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig());
+        $shell = new Shell($this->getConfig(['compactOutput' => true]));
         $shell->setOutput($output);
 
         $shell->writeException($exception);
@@ -500,7 +500,7 @@ EOF;
         $output = $this->getOutput();
         $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig());
+        $shell = new Shell($this->getConfig(['compactOutput' => true]));
         $shell->setOutput($output);
 
         $shell->writeException($exception);
@@ -513,40 +513,52 @@ EOF;
         $this->assertGreaterThan(4, $lineCount); // /shrug
     }
 
+    public function getRenderedExceptions()
+    {
+        return [[
+            new \Exception('{{message}}'),
+            " Exception  {{message}}.\n",
+        ]];
+    }
+
     public function testWriteExceptionVerboseButNotReallyBecauseItIsABreakException()
     {
         $output = $this->getOutput();
         $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig());
+        $shell = new Shell($this->getConfig(['compactOutput' => true]));
         $shell->setOutput($output);
 
         $shell->writeException(new BreakException('yeah'));
         \rewind($stream);
 
-        $expected = <<<EOF
+        $this->assertSame(" INFO  yeah.\n", \stream_get_contents($stream));
+    }
 
-   INFO  yeah.
+    /**
+     * @dataProvider getExceptionOutput
+     */
+    public function testCompactExceptionOutput($compactOutput, $exception, $expected)
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell = new Shell($this->getConfig(['compactOutput' => $compactOutput]));
+        $shell->setOutput($output);
 
-
-EOF;
+        $shell->writeException($exception);
+        \rewind($stream);
 
         $this->assertSame($expected, \stream_get_contents($stream));
     }
 
-    public function getRenderedExceptions()
+    public function getExceptionOutput()
     {
-        $expected = <<<EOF
-
-   Exception  {{message}}.
-
-
-EOF;
-
-        return [[
-            new \Exception('{{message}}'),
-            $expected,
-        ]];
+        return [
+            [true, new BreakException('break'), " INFO  break.\n"],
+            [false, new BreakException('break'), "\n   INFO  break.\n\n"],
+            [true, new \Exception('foo'), " Exception  foo.\n"],
+            [false, new \Exception('bar'), "\n   Exception  bar.\n\n"],
+        ];
     }
 
     /**
