@@ -242,9 +242,10 @@ HELP
     private function getManualDocById($id)
     {
         if ($db = $this->getApplication()->getManualDb()) {
-            return $db
-                ->query(\sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)))
-                ->fetchColumn(0);
+            $result = $db->query(\sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)));
+            if ($result !== false) {
+                return $result->fetchColumn(0);
+            }
         }
     }
 }
