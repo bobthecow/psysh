@@ -73,7 +73,7 @@ class ConfigurationTest extends TestCase
             'errorLoggingLevel' => \E_ERROR | \E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
             'startupMessage'    => 'Psysh is awesome!',
-            'showHeader'        => false
+            'showHeader'        => false,
         ]);
 
         $this->assertFalse($config->useReadline());
