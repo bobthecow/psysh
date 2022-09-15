@@ -372,7 +372,7 @@ class Shell extends Application
         $this->initializeTabCompletion();
         $this->readline->readHistory();
 
-        $this->output->writeln($this->getHeader());
+        if($this->config->showHeader()) $this->output->writeln($this->getHeader());
         $this->writeVersionInfo();
         $this->writeStartupMessage();
 
@@ -407,7 +407,7 @@ class Shell extends Application
 
         // If raw output is enabled (or output is piped) we don't want startup messages.
         if (!$rawOutput && !$this->config->outputIsPiped()) {
-            $this->output->writeln($this->getHeader());
+            if($this->config->showHeader()) $this->output->writeln($this->getHeader());
             $this->writeVersionInfo();
             $this->writeStartupMessage();
         }

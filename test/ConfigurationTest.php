@@ -42,6 +42,7 @@ class ConfigurationTest extends TestCase
         $this->assertFalse($config->requireSemicolons());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());
+        $this->assertTrue($config->showHeader());
     }
 
     public function testGettersAndSetters()
@@ -72,6 +73,7 @@ class ConfigurationTest extends TestCase
             'errorLoggingLevel' => \E_ERROR | \E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
             'startupMessage'    => 'Psysh is awesome!',
+            'showHeader'        => false
         ]);
 
         $this->assertFalse($config->useReadline());
@@ -82,6 +84,7 @@ class ConfigurationTest extends TestCase
         $this->assertSame(\E_ERROR | \E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
         $this->assertSame('Psysh is awesome!', $config->getStartupMessage());
+        $this->assertFalse($config->showHeader());
     }
 
     public function testLoadConfigFile()

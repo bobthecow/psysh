@@ -53,6 +53,7 @@ class Configuration
         'compactOutput',
         'dataDir',
         'defaultIncludes',
+        'showHeader',
         'eraseDuplicates',
         'errorLoggingLevel',
         'forceArrayIndexes',
@@ -86,6 +87,7 @@ class Configuration
     /** @var string|false */
     private $historyFile;
     private $historySize;
+    private $showHeader = true;
     private $eraseDuplicates;
     private $manualDbFile;
     private $hasReadline;
@@ -1651,6 +1653,26 @@ class Configuration
     public function getStartupMessage()
     {
         return $this->startupMessage;
+    }
+
+    /**
+     * Show or hide the header message in interactive sessions.
+     *
+     * @param bool $showHeader
+     */
+    public function setShowHeader(bool $showHeader)
+    {
+        $this->showHeader = (bool) $showHeader;
+    }
+
+    /**
+     * Determine if the header has been disabled.
+     *
+     * @return bool
+     */
+    public function showHeader(): bool
+    {
+        return $this->showHeader;
     }
 
     /**
