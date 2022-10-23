@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\VersionUpdater;
+namespace Psy\VersionUpdater\Checker;
 
 use Psy\Shell;
+use Psy\VersionUpdater\Checker;
 
 class GitHubChecker implements Checker
 {

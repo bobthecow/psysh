@@ -12,7 +12,7 @@
 namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
-use Psy\VersionUpdater\NoopChecker;
+use Psy\VersionUpdater\Checker\NoopChecker;
 
 class NoopCheckerTest extends \Psy\Test\TestCase
 {

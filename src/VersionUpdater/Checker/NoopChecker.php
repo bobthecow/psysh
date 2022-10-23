@@ -9,12 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\VersionUpdater;
+namespace Psy\VersionUpdater\Checker;
 
 use Psy\Shell;
+use Psy\VersionUpdater\Checker;
 
 /**
- * A version checker stub which always thinks the current verion is up to date.
+ * A version checker stub which always thinks the current version is up to date.
  */
 class NoopChecker implements Checker
 {

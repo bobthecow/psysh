@@ -19,9 +19,6 @@ use Psy\Output\ShellOutput;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
-use Psy\VersionUpdater\GitHubChecker;
-use Psy\VersionUpdater\IntervalChecker;
-use Psy\VersionUpdater\NoopChecker;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -1563,7 +1560,7 @@ class Configuration
             $interval = $this->getUpdateCheck();
             switch ($interval) {
                 case Checker::ALWAYS:
-                    $this->checker = new GitHubChecker();
+                    $this->checker = new Checker\GitHubChecker();
                     break;
 
                 case Checker::DAILY:
@@ -1571,14 +1568,14 @@ class Configuration
                 case Checker::MONTHLY:
                     $checkFile = $this->getUpdateCheckCacheFile();
                     if ($checkFile === false) {
-                        $this->checker = new NoopChecker();
+                        $this->checker = new Checker\NoopChecker();
                     } else {
-                        $this->checker = new IntervalChecker($checkFile, $interval);
+                        $this->checker = new Checker\IntervalChecker($checkFile, $interval);
                     }
                     break;
 
                 case Checker::NEVER:
-                    $this->checker = new NoopChecker();
+                    $this->checker = new Checker\NoopChecker();
                     break;
             }
         }
