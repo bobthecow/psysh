@@ -43,8 +43,8 @@ class CurlDownloader implements Downloader
             \CURLOPT_FOLLOWLOCATION => true,
             \CURLOPT_TIMEOUT        => 10,
             \CURLOPT_FILE           => $outputHandle,
-            \CURLOPT_HTTPHEADER => [
-                'User-Agent' => 'PsySH/'.Shell::VERSION
+            \CURLOPT_HTTPHEADER     => [
+                'User-Agent' => 'PsySH/'.Shell::VERSION,
             ]
         ]);
         \curl_setopt($curl, \CURLOPT_URL, $url);
