@@ -45,7 +45,7 @@ class CurlDownloader implements Downloader
             \CURLOPT_FILE           => $outputHandle,
             \CURLOPT_HTTPHEADER     => [
                 'User-Agent' => 'PsySH/'.Shell::VERSION,
-            ]
+            ],
         ]);
         \curl_setopt($curl, \CURLOPT_URL, $url);
         $result = \curl_exec($curl);
