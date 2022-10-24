@@ -1609,7 +1609,7 @@ class Shell extends Application
         try {
             $client = $this->config->getChecker();
             if (!$client->isLatest()) {
-                $this->output->writeln(\sprintf('<whisper>New version is available @ psysh.org/psysh (current: %s, latest: %s)</whisper>', self::VERSION, $client->getLatest()));
+                $this->output->writeln(\sprintf('<whisper>New version is available at psysh.org/psysh (current: %s, latest: %s)</whisper>', self::VERSION, $client->getLatest()));
             }
         } catch (\InvalidArgumentException $e) {
             $this->output->writeln($e->getMessage());
