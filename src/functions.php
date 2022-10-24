@@ -425,7 +425,7 @@ EOL;
             }
 
             // Handle --self-update
-            if ($input->getOption("self-update")) {
+            if ($input->getOption('self-update')) {
                 $selfUpdate = new SelfUpdate(new GitHubChecker());
                 $result = $selfUpdate->run($input, $config->getOutput());
                 exit($result);
