@@ -74,7 +74,7 @@ class SelfUpdate
         $output->write("Downloading PsySH $latestVersion ...");
 
         try {
-            $downloader = Downloader\Factory::GetDownloader();
+            $downloader = Downloader\Factory::getDownloader();
             $downloaded = $downloader->download($downloadUrl);
         } catch (ErrorException $e) {
             $output->write(' <error>Failed</error>');

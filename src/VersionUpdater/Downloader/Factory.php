@@ -21,7 +21,7 @@ class Factory
      *
      * @throws ErrorException If no downloaders can be used
      */
-    public static function GetDownloader(): Downloader
+    public static function getDownloader(): Downloader
     {
         if (\extension_loaded('curl')) {
             return new CurlDownloader();
