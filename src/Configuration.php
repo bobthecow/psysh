@@ -901,7 +901,17 @@ class Configuration
      */
     public function usePcntl(): bool
     {
-        return isset($this->usePcntl) ? ($this->hasPcntl && $this->usePcntl) : $this->hasPcntl;
+        if (!isset($this->usePcntl)) {
+            // Unless pcntl is explicitly *enabled*, don't use it while XDebug is debugging.
+            // See https://github.com/bobthecow/psysh/issues/742
+            if (\function_exists('xdebug_is_debugger_active') && \xdebug_is_debugger_active()) {
+                return false;
+            }
+
+            return $this->hasPcntl;
+        }
+
+        return $this->hasPcntl && $this->usePcntl;
     }
 
     /**
