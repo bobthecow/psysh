@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\VersionUpdater\Checker;
+namespace Psy\VersionUpdater;
 
 use Psy\Shell;
-use Psy\VersionUpdater\Checker;
 
 /**
  * A version checker stub which always thinks the current version is up to date.

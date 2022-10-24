@@ -12,7 +12,7 @@
 namespace Psy;
 
 use Psy\ExecutionLoop\ProcessForker;
-use Psy\VersionUpdater\Checker\GitHubChecker;
+use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\SelfUpdate;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;

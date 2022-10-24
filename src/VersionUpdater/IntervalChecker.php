@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Psy\VersionUpdater\Checker;
-
-use Psy\VersionUpdater\Checker;
+namespace Psy\VersionUpdater;
 
 class IntervalChecker extends GitHubChecker
 {
