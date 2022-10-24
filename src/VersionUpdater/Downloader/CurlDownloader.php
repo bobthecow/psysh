@@ -30,7 +30,7 @@ class CurlDownloader implements Downloader
     public function download(string $url): bool
     {
         $tempDir = $this->tempDir ?: \sys_get_temp_dir();
-        $this->outputFile = \tempnam($tempDir, "psysh-").".tar.gz";
+        $this->outputFile = \tempnam($tempDir, 'psysh-').'.tar.gz';
 
         $outputHandle = \fopen($this->outputFile, 'w');
         if (!$outputHandle) {
@@ -38,12 +38,12 @@ class CurlDownloader implements Downloader
         }
         $curl = \curl_init();
         \curl_setopt_array($curl, [
-            CURLOPT_FAILONERROR    => true,
-            CURLOPT_HEADER         => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT        => 10,
-            CURLOPT_FILE           => $outputHandle,
-            CURLOPT_HTTPHEADER => [
+            \CURLOPT_FAILONERROR    => true,
+            \CURLOPT_HEADER         => 0,
+            \CURLOPT_FOLLOWLOCATION => true,
+            \CURLOPT_TIMEOUT        => 10,
+            \CURLOPT_FILE           => $outputHandle,
+            \CURLOPT_HTTPHEADER => [
                 'User-Agent' => 'PsySH/'.Shell::VERSION
             ]
         ]);
@@ -55,7 +55,7 @@ class CurlDownloader implements Downloader
         \fclose($outputHandle);
 
         if (!$result) {
-            throw new ErrorException("cURL Error: ".$error);
+            throw new ErrorException('cURL Error: '.$error);
         }
 
         return (bool) $result;

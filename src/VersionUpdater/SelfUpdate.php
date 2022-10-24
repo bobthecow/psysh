@@ -38,6 +38,7 @@ class SelfUpdate
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     public function run(InputInterface $input, OutputInterface $output)
