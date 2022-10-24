@@ -13,6 +13,7 @@ namespace Psy;
 
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\VersionUpdater\Checker\GitHubChecker;
+use Psy\VersionUpdater\SelfUpdate;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -365,6 +366,8 @@ if (!\function_exists('Psy\\bin')) {
                 $input->bind(new InputDefinition(\array_merge(Configuration::getInputOptions(), [
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
+                    new InputOption('self-update', 'u', InputOption::VALUE_NONE),
+                    new InputOption('keep-backup', 'k', InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ])));
@@ -396,6 +399,8 @@ Usage:
 
 Options:
   -h, --help            Display this help message.
+  -u, --self-update     Install a newer version if available.
+  -k, --keep-backup     Keep the backup of the current version when updating.
   -c, --config FILE     Use an alternate PsySH config file location.
       --cwd PATH        Use an alternate working directory.
   -V, --version         Display the PsySH version.
@@ -417,6 +422,13 @@ EOL;
             if ($input->getOption('version')) {
                 echo Shell::getVersionHeader($config->useUnicode()).\PHP_EOL;
                 exit(0);
+            }
+
+            // Handle --self-update
+            if ($input->getOption("self-update")) {
+                $selfUpdate = new SelfUpdate(new GitHubChecker());
+                $result = $selfUpdate->run($input, $config->getOutput());
+                exit($result);
             }
 
             $shell = new Shell($config);
