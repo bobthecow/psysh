@@ -11,11 +11,9 @@
 
 namespace Psy\VersionUpdater;
 
-use Psy\Shell;
 use Psy\Exception\ErrorException;
-use Symfony\Component\Console\Input\InputDefinition;
+use Psy\Shell;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -25,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SelfUpdate
 {
-    const URL_PREFIX = "https://github.com/bobthecow/psysh/releases/download";
+    const URL_PREFIX = 'https://github.com/bobthecow/psysh/releases/download';
     const SUCCESS = 0;
     const FAILURE = 1;
 
-    /** @var Checker $checker */
+    /** @var Checker */
     private $checker;
 
     public function __construct(Checker $checker = null)
@@ -38,7 +36,7 @@ class SelfUpdate
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      * @return int
      */
@@ -52,22 +50,25 @@ class SelfUpdate
         // already have the latest version?
         if ($this->checker->isLatest()) {
             // current version is latest version...
-            $output->writeln("<info>Current version is up to date</info>");
+            $output->writeln('<info>Current version is up to date</info>');
+
             return self::SUCCESS;
         }
         // can overwrite current version?
-        if (!is_writable($installLocation)) {
+        if (!\is_writable($installLocation)) {
             $output->writeln("<error>Installed version is not writable: $installLocation</error>");
+
             return self::FAILURE;
         }
         // can create backup next to current version?
-        if (!is_writable(dirname($installLocation))) {
-            $output->writeln("<error>Install direction is not writable.</error>");
+        if (!\is_writable($installDirectory)) {
+            $output->writeln('<error>Install direction is not writable.</error>');
+
             return self::FAILURE;
         }
 
         $latestVersion = $this->checker->getLatest();
-        $downloadUrl = \sprintf("%s/%s/%s", self::URL_PREFIX, $latestVersion, "psysh-$latestVersion.tar.gz");
+        $downloadUrl = \sprintf('%s/%s/%s', self::URL_PREFIX, $latestVersion, "psysh-$latestVersion.tar.gz");
 
         $output->write("Downloading PsySH $latestVersion ...");
 
@@ -75,14 +76,16 @@ class SelfUpdate
             $downloader = Downloader\Factory::GetDownloader();
             $downloaded = $downloader->download($downloadUrl);
         } catch (ErrorException $e) {
-            $output->write("<error> Failed</error>");
-            $output->writeln(\sprintf("<error>%s</error>", $e->getMessage()));
+            $output->write(' <error>Failed</error>');
+            $output->writeln(\sprintf('<error>%s</error>', $e->getMessage()));
+
             return self::FAILURE;
         }
+
         $downloadedFile = $downloader->getFilename();
 
         if (!$downloaded) {
-            $output->writeln("<error>Download failed.</error>");
+            $output->writeln('<error>Download failed.</error>');
             if (\file_exists($downloadedFile)) {
                 \unlink($downloadedFile);
             }
@@ -93,32 +96,35 @@ class SelfUpdate
         $pharArchive = new \PharData($downloadedFile);
         if (!$pharArchive->valid()) {
             \unlink($downloadedFile);
-            $output->writeln("<error>Downloaded file is not a valid archive</error>");
+            $output->writeln('<error>Downloaded file is not a valid archive</error>');
+
             return self::FAILURE;
         }
 
         // backup: psysh -> psysh.old-version-number
-        $backupFilename = sprintf("%s/%s.%s", $installDirectory, $installFile, $oldVersion);
+        $backupFilename = \sprintf('%s/%s.%s', $installDirectory, $installFile, $oldVersion);
 
         // create backup as bin.old-version
         $backupCreated = \rename($installLocation, $backupFilename);
         if (!$backupCreated) {
             $output->writeln("<error>Failed to create backup: $backupFilename</error>");
+
             return self::FAILURE;
         }
 
         if ($pharArchive->extractTo(\dirname($installLocation), ['psysh'], true)) {
             \unlink($downloadedFile);
-            if ($input->getOption("keep-backup")) {
-                $output->writeln("Old version kept as: " . $backupFilename);
+            if ($input->getOption('keep-backup')) {
+                $output->writeln('Old version kept as: '.$backupFilename);
             } else {
-                $output->writeln("Removing backup.");
+                $output->writeln('Removing backup.');
                 \unlink($backupFilename);
             }
             $output->writeln("Updated PsySH from $oldVersion to <info>$latestVersion</info>");
         } else {
             \rename($backupFilename, $installLocation);
             $output->writeln("<error>Failed to install new PsySH version $latestVersion</error>");
+
             return self::FAILURE;
         }
 
