@@ -22,7 +22,9 @@ interface Downloader
 
     /**
      * @param string $url
+     *
      * @return bool
+     *
      * @throws ErrorException on failure
      */
     public function download(string $url): bool;

@@ -11,22 +11,23 @@
 
 namespace Psy\VersionUpdater\Downloader;
 
-use Psy\VersionUpdater\Downloader;
 use Psy\Exception\ErrorException;
+use Psy\VersionUpdater\Downloader;
 
 class Factory
 {
     /**
      * @return Downloader
+     *
      * @throws ErrorException If no downloaders can be used
      */
     public static function GetDownloader() : Downloader
     {
-        if (extension_loaded("curl")) {
+        if (\extension_loaded('curl')) {
             return new CurlDownloader();
-        } else if (\ini_get('allow_url_fopen')) {
+        } elseif (\ini_get('allow_url_fopen')) {
             return new FileDownloader();
         }
-        throw new ErrorException("No downloader available.");
+        throw new ErrorException('No downloader available.');
     }
 }

@@ -11,8 +11,8 @@
 
 namespace Psy\VersionUpdater\Downloader;
 
-use Psy\Shell;
 use Psy\Exception\ErrorException;
+use Psy\Shell;
 use Psy\VersionUpdater\Downloader;
 
 class CurlDownloader implements Downloader
@@ -20,17 +20,17 @@ class CurlDownloader implements Downloader
     private $tempDir = null;
     private $outputFile = null;
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function setTempDir(string $tempDir)
     {
         $this->tempDir = $tempDir;
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function download(string $url): bool
     {
         $tempDir = $this->tempDir ?: \sys_get_temp_dir();
-        $this->outputFile = \tempnam($tempDir, "psysh-") . ".tar.gz";
+        $this->outputFile = \tempnam($tempDir, "psysh-").".tar.gz";
 
         $outputHandle = \fopen($this->outputFile, 'w');
         if (!$outputHandle) {
@@ -38,16 +38,16 @@ class CurlDownloader implements Downloader
         }
         $curl = \curl_init();
         \curl_setopt_array($curl, [
-            CURLOPT_FAILONERROR => true,
-            CURLOPT_HEADER => 0,
+            CURLOPT_FAILONERROR    => true,
+            CURLOPT_HEADER         => 0,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT => 10,
-            CURLOPT_FILE => $outputHandle,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_FILE           => $outputHandle,
             CURLOPT_HTTPHEADER => [
                 'User-Agent' => 'PsySH/'.Shell::VERSION
             ]
         ]);
-        \curl_setopt($curl, CURLOPT_URL, $url);
+        \curl_setopt($curl, \CURLOPT_URL, $url);
         $result = \curl_exec($curl);
         $error = \curl_error($curl);
         \curl_close($curl);
@@ -55,13 +55,13 @@ class CurlDownloader implements Downloader
         \fclose($outputHandle);
 
         if (!$result) {
-            throw new ErrorException("cURL Error: " . $error);
+            throw new ErrorException("cURL Error: ".$error);
         }
 
-        return (bool)$result;
+        return (bool) $result;
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getFilename(): string
     {
         return $this->outputFile;
