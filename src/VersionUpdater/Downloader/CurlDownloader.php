@@ -66,5 +66,4 @@ class CurlDownloader implements Downloader
     {
         return $this->outputFile;
     }
-
 }
