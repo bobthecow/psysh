@@ -119,6 +119,7 @@ class SelfUpdate
         } else {
             \rename($backupFilename, $installLocation);
             $output->writeln("<error>Failed to install new PsySH version $latestVersion</error>");
+            return self::FAILURE;
         }
 
         return self::SUCCESS;
