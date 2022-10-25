@@ -130,9 +130,7 @@ class Shell extends Application
      */
     public static function isPhar(): bool
     {
-        $self = \realpath($_SERVER['argv'][0] ?? \getenv('_'));
-
-        return \class_exists("\Phar") && \Phar::running(false) === $self;
+        return \class_exists("\Phar") && \Phar::running() !== '' && \strpos(__FILE__, \Phar::running(true)) === 0;
     }
 
     /**
