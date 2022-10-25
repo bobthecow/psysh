@@ -126,6 +126,14 @@ class Shell extends Application
     }
 
     /**
+     * Check if the currently running PsySH bin is a phar archive
+     */
+    public static function isPhar(): bool
+    {
+        return class_exists("\Phar") && \Phar::running(false) !== "";
+    }
+
+    /**
      * Invoke a Psy Shell from the current context.
      *
      * @see Psy\debug
