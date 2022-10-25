@@ -180,7 +180,7 @@ class SelfUpdateTest extends \Psy\Test\TestCase
     private function getInput()
     {
         $input = new ArgvInput([]);
-        // build a mock input with options that are used in SelfUpdate
+        // build a simple input with options that are used in SelfUpdate
         $input->bind(new InputDefinition([
             new InputOption('verbose', 'v', InputOption::VALUE_NONE)
         ]));

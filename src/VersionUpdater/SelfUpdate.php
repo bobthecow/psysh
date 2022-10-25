@@ -109,14 +109,14 @@ class SelfUpdate
         // already have the latest version?
         if ($this->checker->isLatest()) {
             // current version is latest version...
-            $output->writeln('<info>Current version is up to date</info>');
+            $output->writeln('<info>Current version is up-to-date.</info>');
 
             return self::SUCCESS;
         }
 
         // can overwrite current version?
         if (!$this->installer->isInstallLocationWritable()) {
-            $output->writeln('<error>Installed version is not writable</error>');
+            $output->writeln('<error>Installed version is not writable.</error>');
 
             return self::FAILURE;
         }
@@ -137,7 +137,7 @@ class SelfUpdate
             $downloader->setTempDir($this->installer->getTempDirectory());
             $downloaded = $downloader->download($downloadUrl);
         } catch (ErrorException $e) {
-            $output->write(' <error>Failed</error>');
+            $output->write(' <error>Failed.</error>');
             $output->writeln(\sprintf('<error>%s</error>', $e->getMessage()));
 
             return self::FAILURE;
@@ -156,7 +156,7 @@ class SelfUpdate
 
         if (!$this->installer->isValidSource($downloadedFile)) {
             $downloader->cleanup();
-            $output->writeln('<error>Downloaded file is not a valid archive</error>');
+            $output->writeln('<error>Downloaded file is not a valid archive.</error>');
 
             return self::FAILURE;
         }
@@ -164,7 +164,8 @@ class SelfUpdate
         // create backup as bin.old-version in the temporary directory
         $backupCreated = $this->installer->createBackup($currentVersion);
         if (!$backupCreated) {
-            $output->writeln('<error>Failed to create a backup of the current version</error>');
+            $downloader->cleanup();
+            $output->writeln('<error>Failed to create a backup of the current version.</error>');
 
             return self::FAILURE;
         } else if ($input->getOption('verbose')) {
@@ -174,7 +175,8 @@ class SelfUpdate
 
         if (!$this->installer->install($downloadedFile)) {
             $this->installer->restoreFromBackup($currentVersion);
-            $output->writeln("<error>Failed to install new PsySH version $latestVersion</error>");
+            $downloader->cleanup();
+            $output->writeln("<error>Failed to install new PsySH version $latestVersion.</error>");
 
             return self::FAILURE;
         }

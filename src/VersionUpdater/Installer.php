@@ -70,7 +70,7 @@ class Installer
      */
     public function isValidSource(string $sourceArchive): bool
     {
-        if (!class_exists('\PharData')) {
+        if (!\class_exists('\PharData')) {
             return false;
         }
         $pharArchive = new \PharData($sourceArchive);
@@ -138,6 +138,6 @@ class Installer
     {
         $installFilename = \basename($this->installLocation);
 
-        return sprintf('%s/%s.%s', $this->tempDirectory, $installFilename, $version);
+        return \sprintf('%s/%s.%s', $this->tempDirectory, $installFilename, $version);
     }
 }
