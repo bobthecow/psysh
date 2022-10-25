@@ -28,7 +28,7 @@ class Installer
     public function __construct(string $tempDirectory = null)
     {
         $this->tempDirectory = $tempDirectory ?: \sys_get_temp_dir();
-        $this->installLocation = \realpath($_SERVER['argv'][0]);
+        $this->installLocation = \Phar::running(false);
     }
 
     /**
