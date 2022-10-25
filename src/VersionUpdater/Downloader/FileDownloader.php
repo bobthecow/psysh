@@ -18,11 +18,13 @@ class FileDownloader implements Downloader
     private $tempDir = null;
     private $outputFile = null;
 
+    /** {@inheritDoc} */
     public function setTempDir(string $tempDir)
     {
         $this->tempDir = $tempDir;
     }
 
+    /** {@inheritDoc} */
     public function download(string $url): bool
     {
         $tempDir = $this->tempDir ?: \sys_get_temp_dir();
@@ -31,8 +33,17 @@ class FileDownloader implements Downloader
         return (bool) \file_put_contents($this->outputFile, \file_get_contents($url));
     }
 
+    /** {@inheritDoc} */
     public function getFilename(): string
     {
         return $this->outputFile;
+    }
+
+    /** {@inheritDoc} */
+    public function cleanup()
+    {
+        if (\file_exists($this->outputFile)) {
+            \unlink($this->outputFile);
+        }
     }
 }

@@ -66,4 +66,12 @@ class CurlDownloader implements Downloader
     {
         return $this->outputFile;
     }
+
+    /** {@inheritDoc} */
+    public function cleanup()
+    {
+        if (\file_exists($this->outputFile)) {
+            \unlink($this->outputFile);
+        }
+    }
 }
