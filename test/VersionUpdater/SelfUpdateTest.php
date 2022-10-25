@@ -188,11 +188,28 @@ class SelfUpdateTest extends \Psy\Test\TestCase
         return $input;
     }
 
+    /**
+     * Use the more strict onlyMethods if it's available, otherwise use the deprecated setMethods.
+     *
+     * @var MockBuilder $mockBuilder
+     * @var array $methods
+     *
+     * @return void
+     */
+    private function setMockMethods($mockBuilder, array $methods)
+    {
+        if (\method_exists($mockBuilder, 'onlyMethods')) {
+            $mockBuilder->onlyMethods($methods);
+        } else {
+            $mockBuilder->setMethods($methods);
+        }
+    }
+
     private function getMockChecker(bool $isLatest = false, string $version = Shell::VERSION)
     {
-        $checker = $this->getMockBuilder(Checker::class)
-            ->onlyMethods(['getLatest', 'isLatest'])
-            ->getMock();
+        $builder = $this->getMockBuilder(Checker::class);
+        $this->setMockMethods($builder, ['getLatest', 'isLatest']);
+        $checker = $builder->getMock();
         $checker->method('getLatest')->willReturn($version);
         $checker->method('isLatest')->willReturn($isLatest);
 
@@ -202,9 +219,9 @@ class SelfUpdateTest extends \Psy\Test\TestCase
     private function getMockInstaller(array $skipMethods = [])
     {
         $methods = \get_class_methods(Installer::class);
-        $installer = $this->getMockBuilder(Installer::class)
-            ->onlyMethods($methods)
-            ->getMock();
+        $builder = $this->getMockBuilder(Installer::class);
+        $this->setMockMethods($builder, $methods);
+        $installer = $builder->getMock();
 
         $skipMethods = \array_merge($skipMethods, ['getTempDirectory', 'getBackupFilename', '__construct']);
         foreach ($methods as $method) {
@@ -219,9 +236,9 @@ class SelfUpdateTest extends \Psy\Test\TestCase
     private function getMockDownloader(array $skipMethods = [])
     {
         $methods = \get_class_methods(Downloader::class);
-        $downloader = $this->getMockBuilder(Downloader::class)
-            ->onlyMethods($methods)
-            ->getMock();
+        $builder = $this->getMockBuilder(Downloader::class);
+        $this->setMockMethods($builder, $methods);
+        $downloader = $builder->getMock();
 
         $skipMethods = \array_merge($skipMethods, ['getFilename', '__construct']);
         foreach ($methods as $method) {
@@ -236,9 +253,9 @@ class SelfUpdateTest extends \Psy\Test\TestCase
     private function getMockOutput(string $expectOutput = null)
     {
         $methods = \get_class_methods(OutputInterface::class);
-        $output = $this->getMockBuilder(OutputInterface::class)
-            ->onlyMethods($methods)
-            ->getMock();
+        $builder = $this->getMockBuilder(OutputInterface::class);
+        $this->setMockMethods($builder, $methods);
+        $output = $builder->getMock();
 
         if ($expectOutput) {
             $output
