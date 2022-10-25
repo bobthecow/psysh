@@ -1603,7 +1603,6 @@ class Shell extends Application
     }
 
     /**
-     * @todo Implement self-update
      * @todo Implement prompt to start update
      *
      * @return void|string
