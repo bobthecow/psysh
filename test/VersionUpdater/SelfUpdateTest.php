@@ -201,14 +201,14 @@ class SelfUpdateTest extends \Psy\Test\TestCase
 
     private function getMockInstaller(array $skipMethods = [])
     {
-        $methods = get_class_methods(Installer::class);
+        $methods = \get_class_methods(Installer::class);
         $installer = $this->getMockBuilder(Installer::class)
             ->onlyMethods($methods)
             ->getMock();
 
-        $skipMethods = array_merge($skipMethods, ['getTempDirectory', 'getBackupFilename', '__construct']);
+        $skipMethods = \array_merge($skipMethods, ['getTempDirectory', 'getBackupFilename', '__construct']);
         foreach ($methods as $method) {
-            if (!in_array($method, $skipMethods)) {
+            if (!\in_array($method, $skipMethods)) {
                 $installer->method($method)->willReturn(true);
             }
         }
@@ -218,14 +218,14 @@ class SelfUpdateTest extends \Psy\Test\TestCase
 
     private function getMockDownloader(array $skipMethods = [])
     {
-        $methods = get_class_methods(Downloader::class);
+        $methods = \get_class_methods(Downloader::class);
         $downloader = $this->getMockBuilder(Downloader::class)
             ->onlyMethods($methods)
             ->getMock();
 
-        $skipMethods = array_merge($skipMethods, ['getFilename', '__construct']);
+        $skipMethods = \array_merge($skipMethods, ['getFilename', '__construct']);
         foreach ($methods as $method) {
-            if (!in_array($method, $skipMethods)) {
+            if (!\in_array($method, $skipMethods)) {
                 $downloader->method($method)->willReturn(true);
             }
         }
@@ -235,7 +235,7 @@ class SelfUpdateTest extends \Psy\Test\TestCase
 
     private function getMockOutput(string $expectOutput = null)
     {
-        $methods = get_class_methods(OutputInterface::class);
+        $methods = \get_class_methods(OutputInterface::class);
         $output = $this->getMockBuilder(OutputInterface::class)
             ->onlyMethods($methods)
             ->getMock();
