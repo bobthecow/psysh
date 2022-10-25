@@ -179,6 +179,9 @@ class SelfUpdate
             return self::FAILURE;
         }
 
+        // Remove the downloaded archive file from the temporary directory
+        $downloader->cleanup();
+
         $output->writeln("Updated PsySH from $currentVersion to <info>$latestVersion</info>");
 
         return self::SUCCESS;
