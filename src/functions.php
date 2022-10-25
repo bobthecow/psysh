@@ -360,6 +360,7 @@ if (!\function_exists('Psy\\bin')) {
             }
 
             $usageException = null;
+            $shellIsPhar = Shell::isPhar();
 
             $input = new ArgvInput();
             try {
@@ -426,6 +427,10 @@ EOL;
 
             // Handle --self-update
             if ($input->getOption('self-update')) {
+                if (!$shellIsPhar) {
+                    \fwrite(\STDERR, 'The --self-update option can only be used with with a phar based install.'.\PHP_EOL);
+                    exit(1);
+                }
                 $selfUpdate = new SelfUpdate(new GitHubChecker());
                 $result = $selfUpdate->run($input, $config->getOutput());
                 exit($result);
