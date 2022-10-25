@@ -12,7 +12,7 @@
 namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
-use Psy\VersionUpdater\Checker\GitHubChecker;
+use Psy\VersionUpdater\GitHubChecker;
 
 class GitHubCheckerTest extends \Psy\Test\TestCase
 {

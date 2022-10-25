@@ -16,7 +16,7 @@ use Psy\Configuration;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
-use Psy\VersionUpdater\Checker\GitHubChecker;
+use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
