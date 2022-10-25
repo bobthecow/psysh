@@ -16,7 +16,7 @@ use Psy\Exception\ErrorException;
 interface Downloader
 {
     /**
-     * Set the directory where the download will be written to
+     * Set the directory where the download will be written to.
      *
      * @param string $tempDir
      */
@@ -32,17 +32,16 @@ interface Downloader
     public function download(string $url): bool;
 
     /**
-     * Get the temporary file name the download was written to
+     * Get the temporary file name the download was written to.
      *
      * @return string
      */
     public function getFilename(): string;
 
     /**
-     * Delete the downloaded file if it exists
+     * Delete the downloaded file if it exists.
      *
      * @return void
      */
     public function cleanup();
-
 }

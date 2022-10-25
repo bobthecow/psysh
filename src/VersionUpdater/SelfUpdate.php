@@ -43,7 +43,7 @@ class SelfUpdate
     }
 
     /**
-     * Allow the downloader to be injected for testing
+     * Allow the downloader to be injected for testing.
      *
      * @param Downloader $downloader
      *
@@ -55,7 +55,7 @@ class SelfUpdate
     }
 
     /**
-     * Get the currently set Downloader or create one based on the capabilities of the php environment
+     * Get the currently set Downloader or create one based on the capabilities of the php environment.
      *
      * @return Downloader
      *
@@ -66,11 +66,12 @@ class SelfUpdate
         if (!isset($this->downloader)) {
             return Downloader\Factory::getDownloader();
         }
+
         return $this->downloader;
     }
 
     /**
-     * Build the download URL for the latest release
+     * Build the download URL for the latest release.
      *
      * The file name used in the URL will include the flavour postfix extracted from the current version
      * if it's present
@@ -81,11 +82,11 @@ class SelfUpdate
      */
     private function getAssetUrl(string $latestVersion): string
     {
-        $versionPostfix = "";
+        $versionPostfix = '';
         if (\strpos(Shell::VERSION, '-')) {
             $versionPostfix = \substr(Shell::VERSION, \strpos(Shell::VERSION, '-'));
         }
-        $downloadFilename = \sprintf("psysh-%s%s.tar.gz", $latestVersion, $versionPostfix);
+        $downloadFilename = \sprintf('psysh-%s%s.tar.gz', $latestVersion, $versionPostfix);
 
         // check if latest release data contains an asset matching the filename?
 
@@ -93,7 +94,7 @@ class SelfUpdate
     }
 
     /**
-     * Execute the self-update process
+     * Execute the self-update process.
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
@@ -168,7 +169,7 @@ class SelfUpdate
             $output->writeln('<error>Failed to create a backup of the current version.</error>');
 
             return self::FAILURE;
-        } else if ($input->getOption('verbose')) {
+        } elseif ($input->getOption('verbose')) {
             $backupFilename = $this->installer->getBackupFilename($currentVersion);
             $output->writeln('Created backup of current version: '.$backupFilename);
         }

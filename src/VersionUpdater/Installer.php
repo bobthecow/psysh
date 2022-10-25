@@ -32,7 +32,7 @@ class Installer
     }
 
     /**
-     * Public to allow the Downloader to use the temporary directory if it's been set
+     * Public to allow the Downloader to use the temporary directory if it's been set.
      *
      * @return string
      */
@@ -42,7 +42,7 @@ class Installer
     }
 
     /**
-     * Verify the currently installed PsySH phar is writable so it can be replaced
+     * Verify the currently installed PsySH phar is writable so it can be replaced.
      *
      * @return bool
      */
@@ -52,7 +52,7 @@ class Installer
     }
 
     /**
-     * Verify the temporary directory is writable so downloads and backups can be saved there
+     * Verify the temporary directory is writable so downloads and backups can be saved there.
      *
      * @return bool
      */
@@ -62,7 +62,7 @@ class Installer
     }
 
     /**
-     * Verifies the downloaded archive can be extracted with \PharData
+     * Verifies the downloaded archive can be extracted with \PharData.
      *
      * @param string $sourceArchive
      *
@@ -79,7 +79,7 @@ class Installer
     }
 
     /**
-     * Extract the "psysh" phar from the archive and move it, replacing the currently installed phar
+     * Extract the "psysh" phar from the archive and move it, replacing the currently installed phar.
      *
      * @param string $sourceArchive
      *
@@ -94,7 +94,7 @@ class Installer
     }
 
     /**
-     * Create a backup of the currently installed PsySH phar in the temporary directory with a version number postfix
+     * Create a backup of the currently installed PsySH phar in the temporary directory with a version number postfix.
      *
      * @param string $version
      *
@@ -108,7 +108,7 @@ class Installer
     }
 
     /**
-     * Restore the backup file to the original PsySH install location
+     * Restore the backup file to the original PsySH install location.
      *
      * @param string $version
      *
@@ -128,7 +128,7 @@ class Installer
     }
 
     /**
-     * Get the full path for the backup target file location
+     * Get the full path for the backup target file location.
      *
      * @param string $version
      *

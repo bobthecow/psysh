@@ -126,11 +126,11 @@ class Shell extends Application
     }
 
     /**
-     * Check if the currently running PsySH bin is a phar archive
+     * Check if the currently running PsySH bin is a phar archive.
      */
     public static function isPhar(): bool
     {
-        return class_exists("\Phar") && \Phar::running(false) !== "";
+        return \class_exists("\Phar") && \Phar::running(false) !== '';
     }
 
     /**
