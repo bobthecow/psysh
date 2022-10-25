@@ -19,7 +19,7 @@ use Psy\Output\ShellOutput;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
-use Psy\VersionUpdater\GithubChecker;
+use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\IntervalChecker;
 use Psy\VersionUpdater\NoopChecker;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
