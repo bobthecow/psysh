@@ -13,6 +13,7 @@ namespace Psy;
 
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\VersionUpdater\GitHubChecker;
+use Psy\VersionUpdater\Installer;
 use Psy\VersionUpdater\SelfUpdate;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -368,7 +369,6 @@ if (!\function_exists('Psy\\bin')) {
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
                     new InputOption('self-update', 'u', InputOption::VALUE_NONE),
-                    new InputOption('keep-backup', 'k', InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ])));
@@ -400,11 +400,18 @@ Usage:
 
 Options:
   -h, --help            Display this help message.
-  -u, --self-update     Install a newer version if available.
-  -k, --keep-backup     Keep the backup of the current version when updating.
   -c, --config FILE     Use an alternate PsySH config file location.
       --cwd PATH        Use an alternate working directory.
   -V, --version         Display the PsySH version.
+
+EOL;
+                if ($shellIsPhar) {
+                    echo <<<EOL
+  -u, --self-update     Install a newer version if available.
+
+EOL;
+                }
+                echo <<<EOL
       --color           Force colors in output.
       --no-color        Disable colors in output.
   -i, --interactive     Force PsySH to run in interactive mode.
@@ -416,6 +423,7 @@ Options:
       --yolo            Run PsySH without input validation. You don't want this.
 
 EOL;
+
                 exit($usageException === null ? 0 : 1);
             }
 
@@ -431,7 +439,7 @@ EOL;
                     \fwrite(\STDERR, 'The --self-update option can only be used with with a phar based install.'.\PHP_EOL);
                     exit(1);
                 }
-                $selfUpdate = new SelfUpdate(new GitHubChecker());
+                $selfUpdate = new SelfUpdate(new GitHubChecker(), new Installer());
                 $result = $selfUpdate->run($input, $config->getOutput());
                 exit($result);
             }
