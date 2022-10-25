@@ -11,7 +11,6 @@
 
 namespace Psy\Test\VersionUpdater;
 
-use Psy\Configuration;
 use Psy\Exception\ErrorException;
 use Psy\Shell;
 use Psy\VersionUpdater\Downloader;
@@ -20,6 +19,7 @@ use Psy\VersionUpdater\SelfUpdate;
 use Psy\VersionUpdater\Installer;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateTest extends \Psy\Test\TestCase
@@ -180,7 +180,10 @@ class SelfUpdateTest extends \Psy\Test\TestCase
     private function getInput()
     {
         $input = new ArgvInput([]);
-        $input->bind(new InputDefinition(Configuration::getInputOptions()));
+        // build a mock input with options that are used in SelfUpdate
+        $input->bind(new InputDefinition([
+            new InputOption('verbose', 'v', InputOption::VALUE_NONE)
+        ]));
 
         return $input;
     }
