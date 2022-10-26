@@ -28,7 +28,14 @@ class FileDownloader implements Downloader
     public function download(string $url): bool
     {
         $tempDir = $this->tempDir ?: \sys_get_temp_dir();
-        $this->outputFile = \tempnam($tempDir, 'psysh-').'.tar.gz';
+        $this->outputFile = \tempnam($tempDir, 'psysh-archive-');
+        $targetName = $this->outputFile.'.tar.gz';
+
+        if (!\rename($this->outputFile, $targetName)) {
+            return false;
+        }
+
+        $this->outputFile = $targetName;
 
         return (bool) \file_put_contents($this->outputFile, \file_get_contents($url));
     }

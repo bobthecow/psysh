@@ -30,7 +30,14 @@ class CurlDownloader implements Downloader
     public function download(string $url): bool
     {
         $tempDir = $this->tempDir ?: \sys_get_temp_dir();
-        $this->outputFile = \tempnam($tempDir, 'psysh-').'.tar.gz';
+        $this->outputFile = \tempnam($tempDir, 'psysh-archive-');
+        $targetName = $this->outputFile.'.tar.gz';
+
+        if (!\rename($this->outputFile, $targetName)) {
+            return false;
+        }
+
+        $this->outputFile = $targetName;
 
         $outputHandle = \fopen($this->outputFile, 'w');
         if (!$outputHandle) {
