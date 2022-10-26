@@ -88,9 +88,21 @@ class Installer
     public function install(string $sourceArchive): bool
     {
         $pharArchive = new \PharData($sourceArchive);
-        $pharArchive->extractTo($this->tempDirectory, ['psysh'], true);
+        $outputDirectory = \tempnam($this->tempDirectory, 'psysh-');
 
-        return \rename($this->tempDirectory.'/psysh', $this->installLocation);
+        // remove the temp file, and replace it with a sub-directory
+        if (!\unlink($outputDirectory) || !\mkdir($outputDirectory, 0700)) {
+            return false;
+        }
+
+        $pharArchive->extractTo($outputDirectory, ['psysh'], true);
+
+        $renamed = \rename($outputDirectory.'/psysh', $this->installLocation);
+
+        // Remove the sub-directory created to extract the psysh binary/phar
+        \rmdir($outputDirectory);
+
+        return $renamed;
     }
 
     /**
