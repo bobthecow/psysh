@@ -83,8 +83,8 @@ class SelfUpdate
     private function getAssetUrl(string $latestVersion): string
     {
         $versionPostfix = '';
-        if (\strpos(Shell::VERSION, '-')) {
-            $versionPostfix = \substr(Shell::VERSION, \strpos(Shell::VERSION, '-'));
+        if (\strpos(Shell::VERSION, '+')) {
+            $versionPostfix = '-'.\substr(Shell::VERSION, \strpos(Shell::VERSION, '+') + 1);
         }
         $downloadFilename = \sprintf('psysh-%s%s.tar.gz', $latestVersion, $versionPostfix);
 
