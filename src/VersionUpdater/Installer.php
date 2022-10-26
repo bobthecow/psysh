@@ -116,6 +116,10 @@ class Installer
     {
         $backupFilename = $this->getBackupFilename($version);
 
+        if (\file_exists($backupFilename) && !\is_writable($backupFilename)) {
+            return false;
+        }
+
         return \rename($this->installLocation, $backupFilename);
     }
 
