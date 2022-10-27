@@ -126,6 +126,14 @@ class Shell extends Application
     }
 
     /**
+     * Check if the currently running PsySH bin is a phar archive.
+     */
+    public static function isPhar(): bool
+    {
+        return \class_exists("\Phar") && \Phar::running() !== '' && \strpos(__FILE__, \Phar::running(true)) === 0;
+    }
+
+    /**
      * Invoke a Psy Shell from the current context.
      *
      * @see Psy\debug
@@ -1595,7 +1603,6 @@ class Shell extends Application
     }
 
     /**
-     * @todo Implement self-update
      * @todo Implement prompt to start update
      *
      * @return void|string

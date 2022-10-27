@@ -14,7 +14,7 @@ namespace Psy\VersionUpdater;
 use Psy\Shell;
 
 /**
- * A version checker stub which always thinks the current verion is up to date.
+ * A version checker stub which always thinks the current version is up to date.
  */
 class NoopChecker implements Checker
 {

@@ -13,6 +13,8 @@ namespace Psy;
 
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\VersionUpdater\GitHubChecker;
+use Psy\VersionUpdater\Installer;
+use Psy\VersionUpdater\SelfUpdate;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -359,12 +361,14 @@ if (!\function_exists('Psy\\bin')) {
             }
 
             $usageException = null;
+            $shellIsPhar = Shell::isPhar();
 
             $input = new ArgvInput();
             try {
                 $input->bind(new InputDefinition(\array_merge(Configuration::getInputOptions(), [
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
+                    new InputOption('self-update', 'u', InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ])));
@@ -399,6 +403,15 @@ Options:
   -c, --config FILE     Use an alternate PsySH config file location.
       --cwd PATH        Use an alternate working directory.
   -V, --version         Display the PsySH version.
+
+EOL;
+                if ($shellIsPhar) {
+                    echo <<<EOL
+  -u, --self-update     Install a newer version if available.
+
+EOL;
+                }
+                echo <<<EOL
       --color           Force colors in output.
       --no-color        Disable colors in output.
   -i, --interactive     Force PsySH to run in interactive mode.
@@ -410,6 +423,7 @@ Options:
       --yolo            Run PsySH without input validation. You don't want this.
 
 EOL;
+
                 exit($usageException === null ? 0 : 1);
             }
 
@@ -417,6 +431,17 @@ EOL;
             if ($input->getOption('version')) {
                 echo Shell::getVersionHeader($config->useUnicode()).\PHP_EOL;
                 exit(0);
+            }
+
+            // Handle --self-update
+            if ($input->getOption('self-update')) {
+                if (!$shellIsPhar) {
+                    \fwrite(\STDERR, 'The --self-update option can only be used with with a phar based install.'.\PHP_EOL);
+                    exit(1);
+                }
+                $selfUpdate = new SelfUpdate(new GitHubChecker(), new Installer());
+                $result = $selfUpdate->run($input, $config->getOutput());
+                exit($result);
             }
 
             $shell = new Shell($config);
