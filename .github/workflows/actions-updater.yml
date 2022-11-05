@@ -1,4 +1,4 @@
-name: GitHub Actions Version Updater
+name: GitHub Actions updater
 
 on:
   schedule:
