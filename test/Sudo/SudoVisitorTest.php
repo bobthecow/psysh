@@ -142,4 +142,22 @@ class SudoVisitorTest extends ParserTestCase
             ['A::B', "\Psy\Sudo::fetchClassConst('A', 'B');"],
         ];
     }
+
+    /**
+     * @dataProvider newInstances
+     */
+    public function testNewInstance($from, $to)
+    {
+        $this->assertProcessesAs($from, $to);
+    }
+
+    public function newInstances()
+    {
+        return [
+            ['new A', "\Psy\Sudo::newInstance('A');"],
+            ['new A($b)', "\Psy\Sudo::newInstance('A', \$b);"],
+            ["new A(\$b, 'c')", "\Psy\Sudo::newInstance('A', \$b, 'c');"],
+            ["new \$a(\$b, 'c')", "\Psy\Sudo::newInstance(\$a, \$b, 'c');"],
+        ];
+    }
 }

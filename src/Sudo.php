@@ -150,6 +150,24 @@ class Sudo
     }
 
     /**
+     * Construct an instance of a class, bypassing private constructors.
+     *
+     * @param string $class   class name
+     * @param mixed  $args...
+     */
+    public static function newInstance(string $class, ...$args)
+    {
+        $refl = new \ReflectionClass($class);
+        $instance = $refl->newInstanceWithoutConstructor();
+
+        $constructor = $refl->getConstructor();
+        $constructor->setAccessible(true);
+        $constructor->invokeArgs($instance, $args);
+
+        return $instance;
+    }
+
+    /**
      * Get a ReflectionProperty from an object (or its parent classes).
      *
      * @throws \ReflectionException if neither the object nor any of its parents has this property

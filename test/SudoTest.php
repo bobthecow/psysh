@@ -130,4 +130,16 @@ class SudoTest extends TestCase
         $obj = new ClassWithSecretiveParent();
         $this->assertSame('private and const', Sudo::fetchClassConst($obj, 'PRIVATE_CONST'));
     }
+
+    public function testNewInstance()
+    {
+        $obj = Sudo::newInstance(ClassWithSecretConstructor::class);
+        $this->assertSame('private prop', Sudo::fetchProperty($obj, 'privateProp'));
+    }
+
+    public function testParentNewInstance()
+    {
+        $obj = Sudo::newInstance(ClassWithSecretParentConstructor::class, ['foo', 2]);
+        $this->assertSame('private prop ["foo",2]', Sudo::fetchProperty($obj, 'privateProp'));
+    }
 }
