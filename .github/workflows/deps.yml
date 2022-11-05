@@ -3,6 +3,7 @@ name: Dependency tests
 on:
   schedule:
     - cron: '1 3 * * *'
+  workflow_dispatch:
 
 jobs:
   stable:
