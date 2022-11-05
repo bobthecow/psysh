@@ -190,9 +190,9 @@ class ShellOutput extends ConsoleOutput
      */
     private function initFormatters()
     {
-        $grayExists = $this->grayExists();
-        $this->theme->applyStyles($this->getFormatter(), $grayExists);
-        $this->theme->applyErrorStyles($this->getErrorOutput()->getFormatter(), $grayExists);
+        $useGrayFallback = !$this->grayExists();
+        $this->theme->applyStyles($this->getFormatter(), $useGrayFallback);
+        $this->theme->applyErrorStyles($this->getErrorOutput()->getFormatter(), $useGrayFallback);
     }
 
     /**
@@ -203,7 +203,6 @@ class ShellOutput extends ConsoleOutput
     private function grayExists(): bool
     {
         try {
-            new OutputFormatterStyle('gray'); // Support for older Symfony (needed for PHP 7.0 and 7.1)
             $this->write('<fg=gray></>');
         } catch (\InvalidArgumentException $e) {
             return false;

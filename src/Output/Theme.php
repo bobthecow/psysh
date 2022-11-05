@@ -259,27 +259,27 @@ class Theme
     /**
      * Apply the current output formatter styles.
      */
-    public function applyStyles(OutputFormatterInterface $formatter, bool $useGreyFallback)
+    public function applyStyles(OutputFormatterInterface $formatter, bool $useGrayFallback)
     {
         foreach (\array_keys(static::DEFAULT_STYLES) as $name) {
-            $formatter->setStyle($name, new OutputFormatterStyle(...$this->getStyle($name, $useGreyFallback)));
+            $formatter->setStyle($name, new OutputFormatterStyle(...$this->getStyle($name, $useGrayFallback)));
         }
     }
 
     /**
      * Apply the current output formatter error styles.
      */
-    public function applyErrorStyles(OutputFormatterInterface $errorFormatter, bool $useGreyFallback)
+    public function applyErrorStyles(OutputFormatterInterface $errorFormatter, bool $useGrayFallback)
     {
         foreach (static::ERROR_STYLES as $name) {
-            $errorFormatter->setStyle($name, new OutputFormatterStyle(...$this->getStyle($name, $useGreyFallback)));
+            $errorFormatter->setStyle($name, new OutputFormatterStyle(...$this->getStyle($name, $useGrayFallback)));
         }
     }
 
-    private function getStyle(string $name, bool $useGreyFallback): array
+    private function getStyle(string $name, bool $useGrayFallback): array
     {
-        return \array_map(function ($style) use ($useGreyFallback) {
-            return ($useGreyFallback && $style === 'gray') ? $this->grayFallback : $style;
+        return \array_map(function ($style) use ($useGrayFallback) {
+            return ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style;
         }, $this->styles[$name]);
     }
 }
