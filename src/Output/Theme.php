@@ -152,7 +152,7 @@ class Theme
     /**
      * Enable or disable compact output.
      */
-    public function setCompact(bool $compact): void
+    public function setCompact(bool $compact)
     {
         $this->compact = $compact;
     }
@@ -168,7 +168,7 @@ class Theme
     /**
      * Set the prompt string.
      */
-    public function setPrompt(string $prompt): void
+    public function setPrompt(string $prompt)
     {
         $this->prompt = $prompt;
     }
@@ -184,7 +184,7 @@ class Theme
     /**
      * Set the buffer prompt string (used for multi-line input continuation).
      */
-    public function setBufferPrompt(string $bufferPrompt): void
+    public function setBufferPrompt(string $bufferPrompt)
     {
         $this->bufferPrompt = $bufferPrompt;
     }
@@ -200,7 +200,7 @@ class Theme
     /**
      * Set the prompt string used when replaying history.
      */
-    public function setReplayPrompt(string $replayPrompt): void
+    public function setReplayPrompt(string $replayPrompt)
     {
         $this->replayPrompt = $replayPrompt;
     }
@@ -216,7 +216,7 @@ class Theme
     /**
      * Set the return value marker.
      */
-    public function setReturnValue(string $returnValue): void
+    public function setReturnValue(string $returnValue)
     {
         $this->returnValue = $returnValue;
     }
@@ -232,7 +232,7 @@ class Theme
     /**
      * Set the fallback color when "gray" is unavailable.
      */
-    public function setGrayFallback(string $grayFallback): void
+    public function setGrayFallback(string $grayFallback)
     {
         $this->grayFallback = $grayFallback;
     }
@@ -249,7 +249,7 @@ class Theme
      *
      * Foreground, background or options can be null, or even omitted entirely.
      */
-    public function setStyles(array $styles): void
+    public function setStyles(array $styles)
     {
         foreach (\array_keys(static::DEFAULT_STYLES) as $name) {
             $this->styles[$name] = $styles[$name] ?? static::DEFAULT_STYLES[$name];
@@ -259,7 +259,7 @@ class Theme
     /**
      * Apply the current output formatter styles.
      */
-    public function applyStyles(OutputFormatterInterface $formatter, bool $useGreyFallback): void
+    public function applyStyles(OutputFormatterInterface $formatter, bool $useGreyFallback)
     {
         foreach (\array_keys(static::DEFAULT_STYLES) as $name) {
             $formatter->setStyle($name, new OutputFormatterStyle(...$this->getStyle($name, $useGreyFallback)));
@@ -269,7 +269,7 @@ class Theme
     /**
      * Apply the current output formatter error styles.
      */
-    public function applyErrorStyles(OutputFormatterInterface $errorFormatter, bool $useGreyFallback): void
+    public function applyErrorStyles(OutputFormatterInterface $errorFormatter, bool $useGreyFallback)
     {
         foreach (static::ERROR_STYLES as $name) {
             $errorFormatter->setStyle($name, new OutputFormatterStyle(...$this->getStyle($name, $useGreyFallback)));
