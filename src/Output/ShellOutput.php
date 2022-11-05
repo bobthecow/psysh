@@ -13,7 +13,6 @@ namespace Psy\Output;
 
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -24,8 +23,12 @@ class ShellOutput extends ConsoleOutput
     const NUMBER_LINES = 128;
 
     private $paging = 0;
+
     /** @var OutputPager */
     private $pager;
+
+    /** @var Theme */
+    private $theme;
 
     /**
      * Construct a ShellOutput instance.
@@ -35,10 +38,11 @@ class ShellOutput extends ConsoleOutput
      * @param OutputFormatterInterface|null $formatter (default: null)
      * @param string|OutputPager|null       $pager     (default: null)
      */
-    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null)
+    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null, $theme = null)
     {
         parent::__construct($verbosity, $decorated, $formatter);
 
+        $this->theme = $theme ?? new Theme('modern');
         $this->initFormatters();
 
         if ($pager === null) {
@@ -160,6 +164,17 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
+     * Set the output Theme.
+     *
+     * @param Theme
+     */
+    public function setTheme(Theme $theme)
+    {
+        $this->theme = $theme;
+        $this->initFormatters();
+    }
+
+    /**
      * Flush and close the output pager.
      */
     private function closePager()
@@ -174,48 +189,9 @@ class ShellOutput extends ConsoleOutput
      */
     private function initFormatters()
     {
-        $formatter = $this->getFormatter();
-        $errorFormatter = $this->getErrorOutput()->getFormatter();
         $grayExists = $this->grayExists();
-
-        $formatter->setStyle('info', $outputFormatter = new OutputFormatterStyle('white', 'blue', ['bold']));
-        $errorFormatter->setStyle('info', $outputFormatter);
-        $formatter->setStyle('warning', $outputFormatter = new OutputFormatterStyle('black', 'yellow'));
-        $errorFormatter->setStyle('warning', $outputFormatter);
-        $formatter->setStyle('error', $outputFormatter = new OutputFormatterStyle('white', 'red', ['bold']));
-        $errorFormatter->setStyle('error', $outputFormatter);
-        $formatter->setStyle('whisper', $outputFormatter = new OutputFormatterStyle($grayExists ? 'gray' : 'blue'));
-        $errorFormatter->setStyle('whisper', $outputFormatter);
-
-        $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
-        $formatter->setStyle('strong', new OutputFormatterStyle(null, null, ['bold']));
-        $formatter->setStyle('return', new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('urgent', new OutputFormatterStyle('red'));
-        $formatter->setStyle('hidden', new OutputFormatterStyle('black'));
-
-        // Visibility
-        $formatter->setStyle('public', new OutputFormatterStyle(null, null, ['bold']));
-        $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('private', new OutputFormatterStyle('red'));
-        $formatter->setStyle('global', new OutputFormatterStyle('cyan', null, ['bold']));
-        $formatter->setStyle('const', new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
-        $formatter->setStyle('function', new OutputFormatterStyle(null));
-        $formatter->setStyle('default', new OutputFormatterStyle(null));
-
-        // Types
-        $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
-        $formatter->setStyle('integer', new OutputFormatterStyle('magenta'));
-        $formatter->setStyle('float', new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('string', new OutputFormatterStyle('green'));
-        $formatter->setStyle('bool', new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('comment', new OutputFormatterStyle('blue'));
-        $formatter->setStyle('object', new OutputFormatterStyle('blue'));
-        $formatter->setStyle('resource', new OutputFormatterStyle('yellow'));
-
-        // Code-specific formatting
-        $formatter->setStyle('inline_html', new OutputFormatterStyle('cyan'));
+        $this->theme->applyStyles($this->getFormatter(), $grayExists);
+        $this->theme->applyErrorStyles($this->getErrorOutput()->getFormatter(), $grayExists);
     }
 
     /**

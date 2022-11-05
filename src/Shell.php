@@ -51,10 +51,14 @@ class Shell extends Application
 {
     const VERSION = 'v0.11.8';
 
-    const PROMPT = '> ';
-    const BUFF_PROMPT = '. ';
-    const REPLAY = '- ';
-    const RETVAL = '= ';
+    /** @deprecated */
+    const PROMPT = '>>> ';
+    /** @deprecated */
+    const BUFF_PROMPT = '... ';
+    /** @deprecated */
+    const REPLAY = '--> ';
+    /** @deprecated */
+    const RETVAL = '=> ';
 
     private $config;
     private $cleaner;
@@ -1130,9 +1134,10 @@ class Shell extends Application
         if ($rawOutput) {
             $formatted = \var_export($ret, true);
         } else {
-            $indent = \str_repeat(' ', \strlen(static::RETVAL));
+            $prompt = $this->config->theme()->returnValue();
+            $indent = \str_repeat(' ', \strlen($prompt));
             $formatted = $this->presentValue($ret);
-            $formattedRetValue = \sprintf('<whisper>%s</whisper>', static::RETVAL);
+            $formattedRetValue = \sprintf('<whisper>%s</whisper>', $prompt);
 
             $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
@@ -1174,13 +1179,13 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
 
-        if (!$this->config->compactOutput()) {
+        if (!$this->config->theme()->compact()) {
             $output->writeln('');
         }
 
         $output->writeln($this->formatException($e));
 
-        if (!$this->config->compactOutput()) {
+        if (!$this->config->theme()->compact()) {
             $output->writeln('');
         }
 
@@ -1220,7 +1225,7 @@ class Shell extends Application
      */
     public function formatException(\Exception $e): string
     {
-        $indent = $this->config->compactOutput() ? '' : '  ';
+        $indent = $this->config->theme()->compact() ? '' : '  ';
 
         if ($e instanceof BreakException) {
             return \sprintf('%s<info> INFO </info> %s.', $indent, \rtrim($e->getRawMessage(), '.'));
@@ -1465,11 +1470,13 @@ class Shell extends Application
             return null;
         }
 
+        $theme = $this->config->theme();
+
         if ($this->hasCode()) {
-            return static::BUFF_PROMPT;
+            return $theme->bufferPrompt();
         }
 
-        return $this->config->getPrompt() ?: static::PROMPT;
+        return $theme->prompt();
     }
 
     /**
@@ -1487,10 +1494,12 @@ class Shell extends Application
      */
     protected function readline(bool $interactive = true)
     {
+        $prompt = $this->config->theme()->replayPrompt();
+
         if (!empty($this->inputBuffer)) {
             $line = \array_shift($this->inputBuffer);
             if (!$line instanceof SilentInput) {
-                $this->output->writeln(\sprintf('<whisper>%s</whisper><aside>%s</aside>', static::REPLAY, OutputFormatter::escape($line)));
+                $this->output->writeln(\sprintf('<whisper>%s</whisper><aside>%s</aside>', $prompt, OutputFormatter::escape($line)));
             }
 
             return $line;

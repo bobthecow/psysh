@@ -16,6 +16,7 @@ use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
+use Psy\Output\Theme;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
@@ -50,7 +51,6 @@ class Configuration
         'codeCleaner',
         'colorMode',
         'configDir',
-        'compactOutput',
         'dataDir',
         'defaultIncludes',
         'eraseDuplicates',
@@ -67,6 +67,7 @@ class Configuration
         'requireSemicolons',
         'runtimeDir',
         'startupMessage',
+        'theme',
         'updateCheck',
         'useBracketedPaste',
         'usePcntl',
@@ -105,13 +106,14 @@ class Configuration
     private $warnOnMultipleConfigs = false;
     private $colorMode = self::COLOR_MODE_AUTO;
     private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
-    private $compactOutput = false;
     private $updateCheck;
     private $startupMessage;
     private $forceArrayIndexes = false;
     private $formatterStyles = [];
     private $verbosity = self::VERBOSITY_NORMAL;
     private $yolo = false;
+    /** @var Theme */
+    private $theme;
 
     // services
     private $readline;
@@ -201,7 +203,7 @@ class Configuration
 
         // Handle --compact
         if (self::getOptionFromInput($input, ['compact'])) {
-            $config->setCompactOutput(true);
+            $config->setTheme('compact');
         }
 
         // Handle --raw-output
@@ -1123,6 +1125,11 @@ class Configuration
     {
         $this->output = $output;
         $this->pipedOutput = null; // Reset cached pipe info
+
+        if (isset($this->theme)) {
+            $output->setTheme($this->theme);
+        }
+
         $this->applyFormatterStyles();
     }
 
@@ -1144,7 +1151,8 @@ class Configuration
                 $this->getOutputVerbosity(),
                 null,
                 null,
-                $this->getPager() ?: null
+                $this->getPager() ?: null,
+                $this->theme()
             ));
 
             // This is racy because `getOutputDecorated` needs access to the
@@ -1537,22 +1545,6 @@ class Configuration
     }
 
     /**
-     * Set compact output.
-     */
-    public function setCompactOutput(bool $compactOutput)
-    {
-        $this->compactOutput = (bool) $compactOutput;
-    }
-
-    /**
-     * Get whether output is compact.
-     */
-    public function compactOutput(): bool
-    {
-        return $this->compactOutput;
-    }
-
-    /**
      * Set an update checker service instance.
      *
      * @param Checker $checker
@@ -1706,6 +1698,37 @@ class Configuration
     }
 
     /**
+     * Set the current output Theme.
+     *
+     * @param Theme|string|array Theme (or Theme config)
+     */
+    public function setTheme($theme)
+    {
+        if (!$theme instanceof Theme) {
+            $theme = new Theme($theme);
+        }
+
+        $this->theme = $theme;
+
+        if (isset($this->output)) {
+            $this->output->setTheme($theme);
+            $this->applyFormatterStyles();
+        }
+    }
+
+    /**
+     * Get the current output Theme.
+     */
+    public function theme(): Theme
+    {
+        if (!isset($this->theme)) {
+            $this->theme = new Theme();
+        }
+
+        return $this->theme;
+    }
+
+    /**
      * Set the shell output formatter styles.
      *
      * Accepts a map from style name to [fg, bg, options], for example:
@@ -1717,6 +1740,9 @@ class Configuration
      *
      * Foreground, background or options can be null, or even omitted entirely.
      *
+     * This method will likely be deprecated and replaced by Themes. In the meantime, styles are
+     * applied first by the theme, then overridden by any explicitly defined formatter styles.
+     *
      * @see ShellOutput::initFormatters
      *
      * @param array $formatterStyles
@@ -1724,8 +1750,7 @@ class Configuration
     public function setFormatterStyles(array $formatterStyles)
     {
         foreach ($formatterStyles as $name => $style) {
-            list($fg, $bg, $opts) = \array_pad($style, 3, null);
-            $this->formatterStyles[$name] = new OutputFormatterStyle($fg ?: null, $bg ?: null, $opts ?: []);
+            $this->formatterStyles[$name] = new OutputFormatterStyle(...$style);
         }
 
         if (isset($this->output)) {
@@ -1744,6 +1769,13 @@ class Configuration
         $formatter = $this->output->getFormatter();
         foreach ($this->formatterStyles as $name => $style) {
             $formatter->setStyle($name, $style);
+        }
+
+        $errorFormatter = $this->output->getErrorOutput()->getFormatter();
+        foreach (Theme::ERROR_STYLES as $name) {
+            if (isset($this->formatterStyles[$name])) {
+                $errorFormatter->setStyle($name, $this->formatterStyles[$name]);
+            }
         }
     }
 

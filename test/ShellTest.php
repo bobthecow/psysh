@@ -445,7 +445,7 @@ EOF;
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig());
+        $shell = new Shell($this->getConfig(['theme' => 'modern']));
         $shell->setOutput($output);
 
         $shell->writeReturnValue($input);
@@ -461,7 +461,7 @@ EOF;
         $output = $this->getOutput();
         $output->setVerbosity(StreamOutput::VERBOSITY_QUIET);
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig());
+        $shell = new Shell($this->getConfig(['theme' => 'modern']));
         $shell->setOutput($output);
 
         $shell->writeReturnValue($input);
@@ -484,7 +484,7 @@ EOF;
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig(['compactOutput' => true]));
+        $shell = new Shell($this->getConfig(['theme' => 'compact']));
         $shell->setOutput($output);
 
         $shell->writeException($exception);
@@ -500,7 +500,7 @@ EOF;
         $output = $this->getOutput();
         $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig(['compactOutput' => true]));
+        $shell = new Shell($this->getConfig(['theme' => 'compact']));
         $shell->setOutput($output);
 
         $shell->writeException($exception);
@@ -526,7 +526,7 @@ EOF;
         $output = $this->getOutput();
         $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig(['compactOutput' => true]));
+        $shell = new Shell($this->getConfig(['theme' => 'compact']));
         $shell->setOutput($output);
 
         $shell->writeException(new BreakException('yeah'));
@@ -538,11 +538,11 @@ EOF;
     /**
      * @dataProvider getExceptionOutput
      */
-    public function testCompactExceptionOutput($compactOutput, $exception, $expected)
+    public function testCompactExceptionOutput($theme, $exception, $expected)
     {
         $output = $this->getOutput();
         $stream = $output->getStream();
-        $shell = new Shell($this->getConfig(['compactOutput' => $compactOutput]));
+        $shell = new Shell($this->getConfig(['theme' => $theme]));
         $shell->setOutput($output);
 
         $shell->writeException($exception);
@@ -554,10 +554,10 @@ EOF;
     public function getExceptionOutput()
     {
         return [
-            [true, new BreakException('break'), " INFO  break.\n"],
-            [false, new BreakException('break'), "\n   INFO  break.\n\n"],
-            [true, new \Exception('foo'), " Exception  foo.\n"],
-            [false, new \Exception('bar'), "\n   Exception  bar.\n\n"],
+            ['compact', new BreakException('break'), " INFO  break.\n"],
+            ['modern', new BreakException('break'), "\n   INFO  break.\n\n"],
+            ['compact', new \Exception('foo'), " Exception  foo.\n"],
+            ['modern', new \Exception('bar'), "\n   Exception  bar.\n\n"],
         ];
     }
 
