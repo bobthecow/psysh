@@ -137,9 +137,9 @@ class ConfigurationTest extends TestCase
         $this->fail();
     }
 
-    private function joinPath()
+    private function joinPath(...$parts)
     {
-        return \implode(\DIRECTORY_SEPARATOR, \func_get_args());
+        return \implode(\DIRECTORY_SEPARATOR, $parts);
     }
 
     public function testConfigIncludes()

@@ -58,12 +58,8 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callMethod($object, string $method, $args = null)
+    public static function callMethod($object, string $method, ...$args)
     {
-        $args = \func_get_args();
-        $object = \array_shift($args);
-        $method = \array_shift($args);
-
         $refl = new \ReflectionObject($object);
         $reflMethod = $refl->getMethod($method);
         $reflMethod->setAccessible(true);
@@ -113,12 +109,8 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callStatic($class, string $method, $args = null)
+    public static function callStatic($class, string $method, ...$args)
     {
-        $args = \func_get_args();
-        $class = \array_shift($args);
-        $method = \array_shift($args);
-
         $refl = new \ReflectionClass($class);
         $reflMethod = $refl->getMethod($method);
         $reflMethod->setAccessible(true);
