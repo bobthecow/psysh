@@ -13,6 +13,7 @@ namespace Psy\Output;
 
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -202,6 +203,7 @@ class ShellOutput extends ConsoleOutput
     private function grayExists(): bool
     {
         try {
+            new OutputFormatterStyle('gray'); // Support for older Symfony (needed for PHP 7.0 and 7.1)
             $this->write('<fg=gray></>');
         } catch (\InvalidArgumentException $e) {
             return false;
