@@ -109,6 +109,7 @@ class Configuration
     private $updateCheck;
     private $startupMessage;
     private $forceArrayIndexes = false;
+    /** @deprecated */
     private $formatterStyles = [];
     private $verbosity = self::VERBOSITY_NORMAL;
     private $yolo = false;
@@ -1740,12 +1741,9 @@ class Configuration
      *
      * Foreground, background or options can be null, or even omitted entirely.
      *
-     * This method will likely be deprecated and replaced by Themes. In the meantime, styles are
-     * applied first by the theme, then overridden by any explicitly defined formatter styles.
-     *
-     * @see ShellOutput::initFormatters
-     *
-     * @param array $formatterStyles
+     * @deprecated The `formatterStyles` configuration has been replaced by Themes and support will
+     * eventually be removed. In the meantime, styles are applied first by the Theme, then
+     * overridden by any explicitly defined formatter styles.
      */
     public function setFormatterStyles(array $formatterStyles)
     {
@@ -1763,6 +1761,10 @@ class Configuration
      *
      * This is called on initialization of the shell output, and again if the
      * formatter styles config is updated.
+     *
+     * @deprecated The `formatterStyles` configuration has been replaced by Themes and support will
+     * eventually be removed. In the meantime, styles are applied first by the Theme, then
+     * overridden by any explicitly defined formatter styles.
      */
     private function applyFormatterStyles()
     {
