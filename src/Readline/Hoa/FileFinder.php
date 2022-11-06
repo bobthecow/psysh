@@ -46,7 +46,7 @@ class FileFinder implements \IteratorAggregate
     /**
      * SplFileInfo classname.
      */
-    protected $_splFileInfo = IteratorSplFileInfo::class;
+    protected $_splFileInfo = \SplFileInfo::class;
 
     /**
      * Paths where to look for.

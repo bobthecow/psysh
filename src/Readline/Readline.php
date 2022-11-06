@@ -17,8 +17,6 @@ namespace Psy\Readline;
 interface Readline
 {
     /**
-     * Make sure all readline implementations take the same constructor arguments.
-     *
      * @param string|false $historyFile
      * @param int|null     $historySize
      * @param bool|null    $eraseDups

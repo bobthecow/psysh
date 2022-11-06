@@ -25,7 +25,10 @@ class WhereamiCommand extends Command
 {
     private $backtrace;
 
-    public function __construct()
+    /**
+     * @param string|null $colorMode (deprecated and ignored)
+     */
+    public function __construct($colorMode = null)
     {
         $this->backtrace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
 

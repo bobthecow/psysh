@@ -645,13 +645,6 @@ class ConsoleCursor
         }
 
         switch ($style) {
-            case 'b':
-            case 'block':
-            case '▋':
-                $_style = 1;
-
-                break;
-
             case 'u':
             case 'underline':
             case '_':
@@ -663,6 +656,14 @@ class ConsoleCursor
             case 'vertical':
             case '|':
                 $_style = 5;
+
+                break;
+
+            case 'b':
+            case 'block':
+            case '▋':
+            default:
+                $_style = 1;
 
                 break;
         }

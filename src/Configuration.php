@@ -1176,15 +1176,14 @@ class Configuration
     public function getOutputDecorated()
     {
         switch ($this->colorMode()) {
-            case self::COLOR_MODE_AUTO:
-                return $this->outputIsPiped() ? false : null;
             case self::COLOR_MODE_FORCED:
                 return true;
             case self::COLOR_MODE_DISABLED:
                 return false;
+            case self::COLOR_MODE_AUTO:
+            default:
+                return $this->outputIsPiped() ? false : null;
         }
-
-        return null;
     }
 
     /**
