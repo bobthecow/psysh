@@ -30,7 +30,7 @@ class RequirePass extends CodeCleanerPass
     /**
      * {@inheritdoc}
      *
-     * @return null|int|Node Replacement node (or special return value)
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $origNode)
     {

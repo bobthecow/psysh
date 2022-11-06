@@ -41,7 +41,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
      *
      * @param Node $node
      *
-     * @return null|int|Node Replacement node (or special return value)
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

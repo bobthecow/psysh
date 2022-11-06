@@ -42,7 +42,7 @@ class LabelContextPass extends CodeCleanerPass
     /**
      * @param array $nodes
      *
-     * @return null|Node[] Array of nodes
+     * @return Node[]|null Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {
@@ -52,7 +52,7 @@ class LabelContextPass extends CodeCleanerPass
     }
 
     /**
-     * @return null|int|Node Replacement node (or special return value)
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
@@ -77,7 +77,7 @@ class LabelContextPass extends CodeCleanerPass
     /**
      * @param \PhpParser\Node $node
      *
-     * @return null|int|Node|Node[] Replacement node (or special return value)
+     * @return int|Node|Node[]|null Replacement node (or special return value)
      */
     public function leaveNode(Node $node)
     {
@@ -87,7 +87,7 @@ class LabelContextPass extends CodeCleanerPass
     }
 
     /**
-     * @return null|Node[] Array of nodes
+     * @return Node[]|null Array of nodes
      */
     public function afterTraverse(array $nodes)
     {

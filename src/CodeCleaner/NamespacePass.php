@@ -47,7 +47,7 @@ class NamespacePass extends CodeCleanerPass
      *
      * @param array $nodes
      *
-     * @return null|Node[] Array of nodes
+     * @return Node[]|null Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {
