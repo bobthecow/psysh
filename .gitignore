@@ -9,4 +9,3 @@ __pycache__
 /vendor-bin/phpunit/composer.lock
 /vendor-bin/phpstan/composer.lock
 /vendor/
-/var/cache/

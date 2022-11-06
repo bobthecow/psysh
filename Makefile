@@ -13,7 +13,7 @@ endif
 
 # Commands
 
-.PHONY: help build clean dist test
+.PHONY: help build clean dist test phpstan
 .DEFAULT_GOAL := help
 
 help:
@@ -35,9 +35,9 @@ test: ## Run unit tests
 test: vendor/bin/phpunit
 	$< $(PHPUNIT_OPTS)
 
-sa: ## Run Static Analysis
-sa: vendor/bin/phpstan vendor/bin/phpunit
-	vendor/bin/phpstan analyse
+phpstan: ## Run static analysis
+phpstan: vendor/bin/phpstan vendor/bin/phpunit
+	vendor/bin/phpstan --memory-limit=1G analyse
 
 # All the composer stuffs
 

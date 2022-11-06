@@ -3,12 +3,11 @@ includes:
   - vendor-bin/phpstan/ignore.neon
 
 parameters:
-  # Enforce minimal supported version (note: 7.0 can't be set in PHPStan)
-  phpVersion: 70100
+  # Test on PHP 7.4 (we support 7.0, but PHPStan doesn't)
+  phpVersion: 70400
 
   # See: https://phpstan.org/user-guide/rule-levels
   level: 1
-  tmpDir: var/cache/phpstan
   paths:
     - src
     - test
@@ -22,6 +21,7 @@ parameters:
     - src/Reflection/ReflectionLanguageConstruct.php
     - src/Reflection/ReflectionNamespace.php
     - src/Util/Str.php
+    - test/TestCase.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
   checkMissingIterableValueType: false

@@ -1,66 +1,40 @@
-name: Run tests
+name: Static analysis
 
 on:
-  workflow_call:
-    inputs:
-      deps:
-        type: string
-        required: false
-        default: stable
-      continue_on_error:
-        type: boolean
-        required: false
-        default: false
+  push:
+  pull_request:
 
 jobs:
   test:
-    name: PHPStan ${{ matrix.php }}
+    name: PHPStan
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        php: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.22.0
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '7.4'
           tools: composer:v2
           coverage: none
 
-      - name: Update to dev stability
-        if: inputs.deps == 'dev'
-        run: |
-          composer config minimum-stability dev
-          composer config prefer-stable false
-
       - name: Install dependencies
-        if: inputs.deps != 'lowest'
-        uses: nick-invision/retry@v1
+        uses: nick-fields/retry@v2.8.2
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --no-interaction --no-progress
 
-      - name: Install dependencies (--prefer-lowest)
-        if: inputs.deps == 'lowest'
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
-
       - name: Install PHPStan
-        uses: nick-invision/retry@v1
+        uses: nick-fields/retry@v2.8.2
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer bin phpstan update --no-interaction --no-progress
 
-      - name: Run Static Analysis
-        if: inputs.continue_on_error == false
-        run: make sa
+      - name: Run static analysis
+        run: make phpstan
