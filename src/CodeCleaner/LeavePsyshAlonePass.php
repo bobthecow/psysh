@@ -26,6 +26,8 @@ class LeavePsyshAlonePass extends CodeCleanerPass
      * @throws RuntimeException if the user is messing with $__psysh__
      *
      * @param Node $node
+     *
+     * @return null|int|Node Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

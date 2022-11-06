@@ -35,6 +35,8 @@ class TimeitVisitor extends NodeVisitorAbstract
 
     /**
      * {@inheritdoc}
+     *
+     * @return null|Node[] Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {
@@ -43,6 +45,8 @@ class TimeitVisitor extends NodeVisitorAbstract
 
     /**
      * {@inheritdoc}
+     *
+     * @return null|int|Node Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
@@ -62,6 +66,8 @@ class TimeitVisitor extends NodeVisitorAbstract
 
     /**
      * {@inheritdoc}
+     *
+     * @return null|int|Node|Node[] Replacement node (or special return value)
      */
     public function leaveNode(Node $node)
     {
@@ -72,6 +78,8 @@ class TimeitVisitor extends NodeVisitorAbstract
 
     /**
      * {@inheritdoc}
+     *
+     * @return null|Node[] Array of nodes
      */
     public function afterTraverse(array $nodes)
     {

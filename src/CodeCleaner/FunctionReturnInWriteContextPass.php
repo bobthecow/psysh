@@ -40,6 +40,8 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
      * @throws FatalErrorException if a value is assigned to a function
      *
      * @param Node $node
+     *
+     * @return null|int|Node Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

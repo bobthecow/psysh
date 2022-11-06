@@ -29,6 +29,8 @@ class AssignThisVariablePass extends CodeCleanerPass
      * @throws FatalErrorException if the user assign the `$this` variable
      *
      * @param Node $node
+     *
+     * @return null|int|Node Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
