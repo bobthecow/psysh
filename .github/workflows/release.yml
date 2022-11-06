@@ -54,7 +54,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.22.0
         with:
           php-version: 7.4
           tools: composer:v2

@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v3.1.0
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.22.0
         with:
           php-version: '7.4'
           tools: composer:v2
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3.1.0
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.22.0
         with:
           php-version: '7.0'
           tools: composer:v2
