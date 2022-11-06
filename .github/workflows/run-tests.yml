@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         if: inputs.deps != 'lowest'
-        uses: nick-invision/retry@v1
+        uses: nick-fields/retry@v2.8.2
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -51,14 +51,14 @@ jobs:
 
       - name: Install dependencies (--prefer-lowest)
         if: inputs.deps == 'lowest'
-        uses: nick-invision/retry@v1
+        uses: nick-fields/retry@v2.8.2
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
 
       - name: Install PHPUnit
-        uses: nick-invision/retry@v1
+        uses: nick-fields/retry@v2.8.2
         with:
           timeout_minutes: 5
           max_attempts: 5
