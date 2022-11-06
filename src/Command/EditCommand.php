@@ -74,6 +74,8 @@ class EditCommand extends Command implements ContextAware
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
+     * @return int 0 if everything went fine, or an exit code
+     *
      * @throws \InvalidArgumentException when both exec and no-exec flags are given or if a given variable is not found in the current context
      * @throws \UnexpectedValueException if file_get_contents on the edited file returns false instead of a string
      */

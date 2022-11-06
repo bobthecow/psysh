@@ -34,6 +34,8 @@ class PassableByReferencePass extends CodeCleanerPass
      * @throws FatalErrorException if non-variables are passed by reference
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

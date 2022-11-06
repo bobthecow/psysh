@@ -25,6 +25,9 @@ class EmptyArrayDimFetchPass extends CodeCleanerPass
 
     private $theseOnesAreFine = [];
 
+    /**
+     * @return Node[]|null Array of nodes
+     */
     public function beforeTraverse(array $nodes)
     {
         $this->theseOnesAreFine = [];
@@ -34,6 +37,8 @@ class EmptyArrayDimFetchPass extends CodeCleanerPass
      * @throws FatalErrorException if the user used empty empty array dim fetch outside of assignment
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

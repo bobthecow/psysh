@@ -29,6 +29,8 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      * use afterTraverse or call parent::beforeTraverse() when overloading.
      *
      * Reset the namespace and the current scope before beginning analysis
+     *
+     * @return Node[]|null Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {
@@ -41,6 +43,8 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      * leaveNode or call parent::enterNode() when overloading
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

@@ -46,6 +46,8 @@ class ValidClassNamePass extends NamespaceAwarePass
      * trait methods.
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
@@ -70,6 +72,8 @@ class ValidClassNamePass extends NamespaceAwarePass
 
     /**
      * @param Node $node
+     *
+     * @return int|Node|Node[]|null Replacement node (or special return value)
      */
     public function leaveNode(Node $node)
     {

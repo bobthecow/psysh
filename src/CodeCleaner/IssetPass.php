@@ -31,6 +31,8 @@ class IssetPass extends CodeCleanerPass
      * @throws FatalErrorException
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

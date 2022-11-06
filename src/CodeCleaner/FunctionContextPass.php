@@ -23,12 +23,17 @@ class FunctionContextPass extends CodeCleanerPass
 
     /**
      * @param array $nodes
+     *
+     * @return Node[]|null Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {
         $this->functionDepth = 0;
     }
 
+    /**
+     * @return int|Node|null Replacement node (or special return value)
+     */
     public function enterNode(Node $node)
     {
         if ($node instanceof FunctionLike) {
@@ -51,6 +56,8 @@ class FunctionContextPass extends CodeCleanerPass
 
     /**
      * @param \PhpParser\Node $node
+     *
+     * @return int|Node|Node[]|null Replacement node (or special return value)
      */
     public function leaveNode(Node $node)
     {

@@ -42,6 +42,8 @@ class StrictTypesPass extends CodeCleanerPass
      * @throws FatalErrorException if an invalid `strict_types` declaration is found
      *
      * @param array $nodes
+     *
+     * @return Node[]|null Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {

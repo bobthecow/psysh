@@ -87,6 +87,8 @@ HELP
     /**
      * {@inheritdoc}
      *
+     * @return int 0 if everything went fine, or an exit code
+     *
      * @throws \InvalidArgumentException if there is no exception to throw
      */
     protected function execute(InputInterface $input, OutputInterface $output)

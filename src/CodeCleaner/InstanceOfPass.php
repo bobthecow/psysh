@@ -43,6 +43,8 @@ class InstanceOfPass extends CodeCleanerPass
      * @throws FatalErrorException if a scalar or a non-class constant is given
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

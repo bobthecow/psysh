@@ -35,6 +35,8 @@ class CallTimePassByReferencePass extends CodeCleanerPass
      * @throws FatalErrorException if the user used call-time pass-by-reference
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {

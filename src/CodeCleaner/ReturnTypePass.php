@@ -42,6 +42,8 @@ class ReturnTypePass extends CodeCleanerPass
 
     /**
      * {@inheritdoc}
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
@@ -87,6 +89,8 @@ class ReturnTypePass extends CodeCleanerPass
 
     /**
      * {@inheritdoc}
+     *
+     * @return int|Node|Node[]|null Replacement node (or special return value)
      */
     public function leaveNode(Node $node)
     {
