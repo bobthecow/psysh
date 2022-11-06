@@ -30,6 +30,7 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
 
 ### [🛠 Configuration](https://github.com/bobthecow/psysh/wiki/Configuration)
  * [🎛 Config options](https://github.com/bobthecow/psysh/wiki/Config-options)
+ * [🎨 Themes](https://github.com/bobthecow/psysh/wiki/Themes)
  * [📄 Sample config file](https://github.com/bobthecow/psysh/wiki/Sample-config)
 
 ### [🔌 Integrations](https://github.com/bobthecow/psysh/wiki/Integrations)
