@@ -12,9 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\BreakException;
-use Psy\Exception\ErrorException;
 use Psy\Exception\ThrowUpException;
-use Psy\Exception\TypeErrorException;
 
 /**
  * The Psy Shell's execution loop scope.
@@ -80,11 +78,7 @@ class ExecutionLoopClosure extends ExecutionClosure
                     $__psysh__->writeException($_e);
 
                     throw $_e;
-                } catch (\TypeError $_e) {
-                    $__psysh__->writeException(TypeErrorException::fromTypeError($_e));
-                } catch (\Error $_e) {
-                    $__psysh__->writeException(ErrorException::fromError($_e));
-                } catch (\Exception $_e) {
+                } catch (\Throwable $_e) {
                     $__psysh__->writeException($_e);
                 }
 

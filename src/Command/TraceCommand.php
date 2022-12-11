@@ -81,18 +81,18 @@ HELP
     }
 
     /**
-     * Get a backtrace for an exception.
+     * Get a backtrace for an exception or error.
      *
      * Optionally limit the number of rows to include with $count, and exclude
      * Psy from the trace.
      *
-     * @param \Exception $e          The exception with a backtrace
+     * @param \Throwable $e          The exception or error with a backtrace
      * @param int        $count      (default: PHP_INT_MAX)
      * @param bool       $includePsy (default: true)
      *
      * @return array Formatted stacktrace lines
      */
-    protected function getBacktrace(\Exception $e, int $count = null, bool $includePsy = true): array
+    protected function getBacktrace(\Throwable $e, int $count = null, bool $includePsy = true): array
     {
         return TraceFormatter::formatTrace($e, $this->filter, $count, $includePsy);
     }

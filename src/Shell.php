@@ -16,7 +16,6 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
 use Psy\Exception\ThrowUpException;
-use Psy\Exception\TypeErrorException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\Formatter\TraceFormatter;
@@ -339,7 +338,7 @@ class Shell extends Application
 
         try {
             return parent::run($input, $output);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->writeException($e);
         }
 
@@ -349,7 +348,7 @@ class Shell extends Application
     /**
      * Runs PsySH.
      *
-     * @throws \Exception if thrown via the `throw-up` command
+     * @throws \Throwable if thrown via the `throw-up` command
      *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
@@ -375,7 +374,7 @@ class Shell extends Application
      * Initializes tab completion and readline history, then spins up the
      * execution loop.
      *
-     * @throws \Exception if thrown via the `throw-up` command
+     * @throws \Throwable if thrown via the `throw-up` command
      *
      * @return int 0 if everything went fine, or an error code
      */
@@ -471,8 +470,6 @@ class Shell extends Application
             foreach ($__psysh__->getIncludes() as $__psysh_include__) {
                 try {
                     include_once $__psysh_include__;
-                } catch (\Error $_e) {
-                    $__psysh__->writeException(ErrorException::fromError($_e));
                 } catch (\Exception $_e) {
                     $__psysh__->writeException($_e);
                 }
@@ -1150,16 +1147,16 @@ class Shell extends Application
     }
 
     /**
-     * Renders a caught Exception.
+     * Renders a caught Exception or Error.
      *
      * Exceptions are formatted according to severity. ErrorExceptions which were
      * warnings or Strict errors aren't rendered as harshly as real errors.
      *
      * Stores $e as the last Exception in the Shell Context.
      *
-     * @param \Exception $e An exception instance
+     * @param \Throwable $e An exception or error instance
      */
-    public function writeException(\Exception $e)
+    public function writeException(\Throwable $e)
     {
         // No need to write the break exception during a non-interactive run.
         if ($e instanceof BreakException && $this->nonInteractive) {
@@ -1215,15 +1212,15 @@ class Shell extends Application
     }
 
     /**
-     * Helper for formatting an exception for writeException().
+     * Helper for formatting an exception or error for writeException().
      *
      * @todo extract this to somewhere it makes more sense
      *
-     * @param \Exception $e
+     * @param \Throwable $e
      *
      * @return string
      */
-    public function formatException(\Exception $e): string
+    public function formatException(\Throwable $e): string
     {
         $indent = $this->config->theme()->compact() ? '' : '  ';
 
@@ -1297,13 +1294,13 @@ class Shell extends Application
     /**
      * Helper for getting an output style for the given ErrorException's level.
      *
-     * @param \Exception $e
+     * @param \Throwable $e
      *
      * @return string
      */
-    protected function getMessageLabel(\Exception $e): string
+    protected function getMessageLabel(\Throwable $e): string
     {
-        if ($e instanceof ErrorException) {
+        if ($e instanceof \ErrorException) {
             $severity = $e->getSeverity();
 
             if ($severity & \error_reporting()) {
@@ -1360,11 +1357,7 @@ class Shell extends Application
 
         try {
             return $closure->execute();
-        } catch (\TypeError $_e) {
-            $this->writeException(TypeErrorException::fromTypeError($_e));
-        } catch (\Error $_e) {
-            $this->writeException(ErrorException::fromError($_e));
-        } catch (\Exception $_e) {
+        } catch (\Throwable $_e) {
             $this->writeException($_e);
         }
     }

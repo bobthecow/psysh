@@ -13,7 +13,6 @@ namespace Psy\Command;
 
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
@@ -94,7 +93,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $args = $this->prepareArgs($input->getArgument('exception'));
-        $throwStmt = new Throw_(new StaticCall(new FullyQualifiedName(ThrowUpException::class), 'fromThrowable', $args));
+        $throwStmt = new Throw_(new New_(new FullyQualifiedName(ThrowUpException::class), $args));
         $throwCode = $this->printer->prettyPrint([$throwStmt]);
 
         $shell = $this->getApplication();

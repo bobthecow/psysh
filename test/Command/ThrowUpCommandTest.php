@@ -40,7 +40,7 @@ class ThrowUpCommandTest extends \Psy\Test\TestCase
 
     public function executeThis()
     {
-        $throw = 'throw \Psy\Exception\ThrowUpException::fromThrowable';
+        $throw = 'throw new \Psy\Exception\ThrowUpException';
 
         return [
             [[], false, $throw.'($_e);'],

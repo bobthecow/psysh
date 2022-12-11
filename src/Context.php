@@ -168,21 +168,21 @@ class Context
     }
 
     /**
-     * Set the most recent Exception.
+     * Set the most recent Exception or Error.
      *
-     * @param \Exception $e
+     * @param \Throwable $e
      */
-    public function setLastException(\Exception $e)
+    public function setLastException(\Throwable $e)
     {
         $this->lastException = $e;
     }
 
     /**
-     * Get the most recent Exception.
+     * Get the most recent Exception or Error.
      *
      * @throws \InvalidArgumentException If no Exception has been caught
      *
-     * @return \Exception|null
+     * @return \Throwable|null
      */
     public function getLastException()
     {
