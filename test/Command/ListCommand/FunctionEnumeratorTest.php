@@ -76,7 +76,7 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
             $this->assertArrayNotHasKey($name, $functions);
         }
 
-        $expected = ['composer\\autoload\\includefile', 'dump', 'psy\\sh', 'psy\\debug', 'psy\\info', 'psy\\bin'];
+        $expected = ['dump', 'psy\\sh', 'psy\\debug', 'psy\\info', 'psy\\bin'];
         foreach ($expected as $name) {
             $this->assertArrayHasKey($name, $functions);
             $signature = SignatureFormatter::format(new \ReflectionFunction($name));
