@@ -191,9 +191,6 @@ class SelfUpdateTest extends \Psy\Test\TestCase
     /**
      * Use the more strict onlyMethods if it's available, otherwise use the deprecated setMethods.
      *
-     * @var MockBuilder
-     * @var array
-     *
      * @return void
      */
     private function setMockMethods($mockBuilder, array $methods)

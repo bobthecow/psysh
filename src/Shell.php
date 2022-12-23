@@ -15,6 +15,7 @@ use Psy\CodeCleaner\NoReturnValue;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
+use Psy\Exception\RuntimeException;
 use Psy\Exception\ThrowUpException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
@@ -936,6 +937,9 @@ class Shell extends Application
 
         if ($input->hasParameterOption(['--help', '-h'])) {
             $helpCommand = $this->get('help');
+            if (!$helpCommand instanceof Command\HelpCommand) {
+                throw new RuntimeException('Invalid help command instance');
+            }
             $helpCommand->setCommand($command);
 
             return $helpCommand->run(new StringInput(''), $this->output);

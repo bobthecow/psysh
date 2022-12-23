@@ -21,7 +21,7 @@ class DocblockFormatterTest extends \Psy\Test\TestCase
      *
      * @author Justin Hileman <justin@justinhileman.info>
      *
-     * @throws InvalidArgumentException if $foo is empty
+     * @throws \InvalidArgumentException if $foo is empty
      *
      * @param mixed $foo It's a foo thing
      * @param int   $bar

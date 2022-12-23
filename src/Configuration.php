@@ -1703,7 +1703,7 @@ class Configuration
     /**
      * Set the current output Theme.
      *
-     * @param Theme|string|array Theme (or Theme config)
+     * @param Theme|string|array $theme Theme (or Theme config)
      */
     public function setTheme($theme)
     {

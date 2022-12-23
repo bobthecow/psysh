@@ -74,7 +74,10 @@ class Docblock
     public function __construct(\Reflector $reflector)
     {
         $this->reflector = $reflector;
-        $this->setComment($reflector->getDocComment());
+
+        if ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionClassConstant || $reflector instanceof \ReflectionFunctionAbstract || $reflector instanceof \ReflectionProperty) {
+            $this->setComment($reflector->getDocComment());
+        }
     }
 
     /**

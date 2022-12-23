@@ -27,7 +27,7 @@ class Sudo
      */
     public static function fetchProperty($object, string $property)
     {
-        $prop = static::getProperty(new \ReflectionObject($object), $property);
+        $prop = self::getProperty(new \ReflectionObject($object), $property);
 
         return $prop->getValue($object);
     }
@@ -43,7 +43,7 @@ class Sudo
      */
     public static function assignProperty($object, string $property, $value)
     {
-        $prop = static::getProperty(new \ReflectionObject($object), $property);
+        $prop = self::getProperty(new \ReflectionObject($object), $property);
         $prop->setValue($object, $value);
 
         return $value;
@@ -77,7 +77,7 @@ class Sudo
      */
     public static function fetchStaticProperty($class, string $property)
     {
-        $prop = static::getProperty(new \ReflectionClass($class), $property);
+        $prop = self::getProperty(new \ReflectionClass($class), $property);
         $prop->setAccessible(true);
 
         return $prop->getValue();
@@ -94,7 +94,7 @@ class Sudo
      */
     public static function assignStaticProperty($class, string $property, $value)
     {
-        $prop = static::getProperty(new \ReflectionClass($class), $property);
+        $prop = self::getProperty(new \ReflectionClass($class), $property);
         $prop->setValue($value);
 
         return $value;

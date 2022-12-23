@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Declare_;

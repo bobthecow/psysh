@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Namespace_;
 use Psy\CodeCleaner;
