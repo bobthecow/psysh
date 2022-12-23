@@ -45,7 +45,7 @@ class DocblockFormatterTest extends \Psy\Test\TestCase
   This is a docblock!
 
 <comment>Throws:</comment>
-  <info>InvalidArgumentException </info> if \$foo is empty
+  <info>\\InvalidArgumentException </info> if \$foo is empty
 
 <comment>Param:</comment>
   <info>mixed </info> <strong>\$foo </strong> It's a foo thing
