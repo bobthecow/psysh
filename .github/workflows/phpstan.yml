@@ -13,24 +13,24 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.22.0
+        uses: shivammathur/setup-php@2.23.0
         with:
           php-version: '7.4'
           tools: composer:v2
           coverage: none
 
       - name: Install dependencies
-        uses: nick-fields/retry@v2.8.2
+        uses: nick-fields/retry@v2.8.3
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --no-interaction --no-progress
 
       - name: Install PHPStan
-        uses: nick-fields/retry@v2.8.2
+        uses: nick-fields/retry@v2.8.3
         with:
           timeout_minutes: 5
           max_attempts: 5
