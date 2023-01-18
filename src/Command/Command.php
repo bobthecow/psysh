@@ -274,19 +274,4 @@ abstract class Command extends BaseCommand
             ->setHorizontalBorderChar('')
             ->setCrossingChar('');
     }
-
-    /**
-     * Gets the application instance for this command.
-     *
-     * @return Shell|null
-     */
-    public function getApplication()
-    {
-        $app = parent::getApplication();
-        if ($app !== null && !$app instanceof Shell) {
-            throw new \RuntimeException('Invalid app instance');
-        }
-
-        return $app;
-    }
 }
