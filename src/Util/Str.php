@@ -59,7 +59,7 @@ EOS;
      */
     public static function unvis(string $input): string
     {
-        $output = \preg_replace_callback(self::UNVIS_RX, 'self::unvisReplace', $input);
+        $output = \preg_replace_callback(self::UNVIS_RX, [self::class, 'unvisReplace'], $input);
         // other escapes & octal are handled by stripcslashes
         return \stripcslashes($output);
     }
