@@ -25,16 +25,12 @@ interface Downloader
     /**
      * @param string $url
      *
-     * @return bool
-     *
      * @throws ErrorException on failure
      */
     public function download(string $url): bool;
 
     /**
      * Get the temporary file name the download was written to.
-     *
-     * @return string
      */
     public function getFilename(): string;
 

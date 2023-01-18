@@ -90,8 +90,6 @@ class Presenter
      * Present a reference to the value.
      *
      * @param mixed $value
-     *
-     * @return string
      */
     public function presentRef($value): string
     {
@@ -106,8 +104,6 @@ class Presenter
      * @param mixed $value
      * @param int   $depth   (default: null)
      * @param int   $options One of Presenter constants
-     *
-     * @return string
      */
     public function present($value, int $depth = null, int $options = 0): string
     {

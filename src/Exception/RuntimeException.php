@@ -33,8 +33,6 @@ class RuntimeException extends \RuntimeException implements Exception
 
     /**
      * Return a raw (unformatted) version of the error message.
-     *
-     * @return string
      */
     public function getRawMessage(): string
     {

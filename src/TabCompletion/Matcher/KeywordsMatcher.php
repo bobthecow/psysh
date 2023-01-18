@@ -32,7 +32,7 @@ class KeywordsMatcher extends AbstractMatcher
     /**
      * Get all (completable) PHP keywords.
      *
-     * @return array
+     * @return string[]
      */
     public function getKeywords(): array
     {
@@ -43,8 +43,6 @@ class KeywordsMatcher extends AbstractMatcher
      * Check whether $keyword is a (completable) PHP keyword.
      *
      * @param string $keyword
-     *
-     * @return bool
      */
     public function isKeyword(string $keyword): bool
     {

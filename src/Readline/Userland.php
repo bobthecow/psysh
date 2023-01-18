@@ -35,9 +35,6 @@ class Userland implements Readline
     private $input;
     private $output;
 
-    /**
-     * @return bool
-     */
     public static function isSupported(): bool
     {
         static::bootstrapHoa();

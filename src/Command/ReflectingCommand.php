@@ -92,8 +92,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @param string $name
      * @param bool   $includeFunctions (default: false)
-     *
-     * @return string
      */
     protected function resolveName(string $name, bool $includeFunctions = false): string
     {

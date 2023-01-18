@@ -27,7 +27,7 @@ class ParserFactory
     /**
      * Possible kinds of parsers for the factory, from PHP parser library.
      *
-     * @return array
+     * @return string[]
      */
     public static function getPossibleKinds(): array
     {
@@ -48,8 +48,6 @@ class ParserFactory
      * New parser instance with given kind.
      *
      * @param string|null $kind One of class constants (only for PHP parser 2.0 and above)
-     *
-     * @return Parser
      */
     public function createParser($kind = null): Parser
     {

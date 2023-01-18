@@ -73,8 +73,6 @@ class ErrorException extends \ErrorException implements Exception
 
     /**
      * Get the raw (unformatted) message for this error.
-     *
-     * @return string
      */
     public function getRawMessage(): string
     {
@@ -106,8 +104,6 @@ class ErrorException extends \ErrorException implements Exception
      * @deprecated psySH no longer wraps Errors
      *
      * @param \Error $e
-     *
-     * @return self
      */
     public static function fromError(\Error $e): self
     {

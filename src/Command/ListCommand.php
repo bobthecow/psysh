@@ -225,8 +225,6 @@ HELP
      * Format an item name given its visibility.
      *
      * @param array $item
-     *
-     * @return string
      */
     private function formatItemName(array $item): string
     {

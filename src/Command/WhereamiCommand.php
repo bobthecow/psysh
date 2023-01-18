@@ -144,8 +144,6 @@ HELP
      * Replace the given directory from the start of a filepath.
      *
      * @param string $file
-     *
-     * @return string
      */
     private function replaceCwd(string $file): string
     {

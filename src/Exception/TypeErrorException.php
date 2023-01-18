@@ -36,8 +36,6 @@ class TypeErrorException extends \Exception implements Exception
 
     /**
      * Get the raw (unformatted) message for this error.
-     *
-     * @return string
      */
     public function getRawMessage(): string
     {
@@ -50,8 +48,6 @@ class TypeErrorException extends \Exception implements Exception
      * @deprecated psySH no longer wraps TypeErrors
      *
      * @param \TypeError $e
-     *
-     * @return self
      */
     public static function fromTypeError(\TypeError $e): self
     {

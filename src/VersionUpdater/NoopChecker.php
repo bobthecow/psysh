@@ -18,17 +18,11 @@ use Psy\Shell;
  */
 class NoopChecker implements Checker
 {
-    /**
-     * @return bool
-     */
     public function isLatest(): bool
     {
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function getLatest(): string
     {
         return Shell::VERSION;

@@ -42,8 +42,6 @@ class FatalErrorException extends \ErrorException implements Exception
 
     /**
      * Return a raw (unformatted) version of the error message.
-     *
-     * @return string
      */
     public function getRawMessage(): string
     {

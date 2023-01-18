@@ -27,8 +27,6 @@ class ThrowUpException extends \Exception implements Exception
 
     /**
      * Return a raw (unformatted) version of the error message.
-     *
-     * @return string
      */
     public function getRawMessage(): string
     {
@@ -41,8 +39,6 @@ class ThrowUpException extends \Exception implements Exception
      * @deprecated psySH no longer wraps Throwables
      *
      * @param \Throwable $throwable
-     *
-     * @return self
      */
     public static function fromThrowable($throwable): self
     {

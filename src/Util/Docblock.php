@@ -201,8 +201,6 @@ class Docblock
      * Whether or not a docblock contains a given @tag.
      *
      * @param string $tag The name of the @tag to check for
-     *
-     * @return bool
      */
     public function hasTag(string $tag): bool
     {
@@ -225,8 +223,6 @@ class Docblock
      * Whether or not a string begins with a @tag.
      *
      * @param string $str
-     *
-     * @return bool
      */
     public static function isTagged(string $str): bool
     {

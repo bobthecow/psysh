@@ -173,8 +173,6 @@ class SignatureFormatter implements ReflectorFormatter
      * Helper for getting output style for a given value's type.
      *
      * @param mixed $value
-     *
-     * @return string
      */
     private static function getTypeStyle($value): string
     {
@@ -324,8 +322,6 @@ class SignatureFormatter implements ReflectorFormatter
      * Print function param or return type(s).
      *
      * @param \ReflectionType $type
-     *
-     * @return string
      */
     private static function formatReflectionType(\ReflectionType $type = null): string
     {

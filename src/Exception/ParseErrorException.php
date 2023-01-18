@@ -32,8 +32,6 @@ class ParseErrorException extends \PhpParser\Error implements Exception
      * Create a ParseErrorException from a PhpParser Error.
      *
      * @param \PhpParser\Error $e
-     *
-     * @return self
      */
     public static function fromParseError(\PhpParser\Error $e): self
     {

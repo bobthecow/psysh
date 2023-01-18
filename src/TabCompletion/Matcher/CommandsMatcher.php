@@ -55,8 +55,6 @@ class CommandsMatcher extends AbstractMatcher
      * Check whether a command $name is defined.
      *
      * @param string $name
-     *
-     * @return bool
      */
     protected function isCommand(string $name): bool
     {
@@ -67,8 +65,6 @@ class CommandsMatcher extends AbstractMatcher
      * Check whether input matches a defined command.
      *
      * @param string $name
-     *
-     * @return bool
      */
     protected function matchCommand(string $name): bool
     {

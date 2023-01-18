@@ -68,8 +68,6 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @param array $vector
      * @param array $lines
-     *
-     * @return string
      */
     private static function formatVector(array $vector, array $lines): string
     {
@@ -133,8 +131,6 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @param string $type Vector type
      * @param int    $max  Pad width
-     *
-     * @return string
      */
     private static function getVectorParamTemplate(string $type, int $max): string
     {
@@ -150,8 +146,6 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @param string $text   String to indent
      * @param string $indent (default: '  ')
-     *
-     * @return string
      */
     private static function indent(string $text, string $indent = '  '): string
     {
@@ -162,8 +156,6 @@ class DocblockFormatter implements ReflectorFormatter
      * Convert underscored or whitespace separated words into sentence case.
      *
      * @param string $text
-     *
-     * @return string
      */
     private static function inflect(string $text): string
     {

@@ -20,8 +20,6 @@ interface Listener
 {
     /**
      * Determines whether this listener should be active.
-     *
-     * @return bool
      */
     public static function isSupported(): bool;
 

@@ -58,8 +58,6 @@ class FinalClassPass extends CodeCleanerPass
 
     /**
      * @param string $name Class name
-     *
-     * @return bool
      */
     private function isFinalClass(string $name): bool
     {

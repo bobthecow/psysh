@@ -19,13 +19,7 @@ interface Checker
     const MONTHLY = 'monthly';
     const NEVER = 'never';
 
-    /**
-     * @return bool
-     */
     public function isLatest(): bool;
 
-    /**
-     * @return string
-     */
     public function getLatest(): string;
 }

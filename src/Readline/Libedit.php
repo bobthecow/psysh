@@ -29,8 +29,6 @@ class Libedit extends GNUReadline
 
     /**
      * Let's emulate GNU Readline by manually reading and parsing the history file!
-     *
-     * @return bool
      */
     public static function isSupported(): bool
     {

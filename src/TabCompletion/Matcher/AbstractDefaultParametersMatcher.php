@@ -45,8 +45,6 @@ abstract class AbstractDefaultParametersMatcher extends AbstractContextAwareMatc
      * This is not 100% true to the original (newlines are inlined, for example).
      *
      * @param mixed $value
-     *
-     * @return string
      */
     private function valueToShortString($value): string
     {

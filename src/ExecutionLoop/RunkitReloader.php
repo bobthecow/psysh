@@ -25,8 +25,6 @@ class RunkitReloader extends AbstractListener
 
     /**
      * Only enabled if Runkit is installed.
-     *
-     * @return bool
      */
     public static function isSupported(): bool
     {
@@ -127,8 +125,6 @@ class RunkitReloader extends AbstractListener
      * Use PHP-Parser to ensure that the file is valid PHP.
      *
      * @param string $file
-     *
-     * @return bool
      */
     private function lintFile(string $file): bool
     {

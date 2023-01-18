@@ -41,8 +41,6 @@ class ProcessForker extends AbstractListener
 
     /**
      * Process forker is supported if pcntl and posix extensions are available.
-     *
-     * @return bool
      */
     public static function isSupported(): bool
     {
@@ -250,8 +248,6 @@ class ProcessForker extends AbstractListener
      * we can.
      *
      * @param array $return
-     *
-     * @return string
      */
     private function serializeReturn(array $return): string
     {

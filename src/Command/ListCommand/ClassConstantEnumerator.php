@@ -110,8 +110,6 @@ class ClassConstantEnumerator extends Enumerator
      * Get a label for the particular kind of "class" represented.
      *
      * @param \ReflectionClass $reflector
-     *
-     * @return string
      */
     protected function getKindLabel(\ReflectionClass $reflector): string
     {

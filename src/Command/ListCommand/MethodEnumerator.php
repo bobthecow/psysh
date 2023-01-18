@@ -112,8 +112,6 @@ class MethodEnumerator extends Enumerator
      * Get a label for the particular kind of "class" represented.
      *
      * @param \ReflectionClass $reflector
-     *
-     * @return string
      */
     protected function getKindLabel(\ReflectionClass $reflector): string
     {
@@ -130,8 +128,6 @@ class MethodEnumerator extends Enumerator
      * Get output style for the given method's visibility.
      *
      * @param \ReflectionMethod $method
-     *
-     * @return string
      */
     private function getVisibilityStyle(\ReflectionMethod $method): string
     {

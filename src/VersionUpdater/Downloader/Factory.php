@@ -17,8 +17,6 @@ use Psy\VersionUpdater\Downloader;
 class Factory
 {
     /**
-     * @return Downloader
-     *
      * @throws ErrorException If no downloaders can be used
      */
     public static function getDownloader(): Downloader

@@ -95,8 +95,6 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
 
     /**
      * Get language construct name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -105,8 +103,6 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
 
     /**
      * None of these return references.
-     *
-     * @return bool
      */
     public function returnsReference(): bool
     {
@@ -145,8 +141,6 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
 
     /**
      * To string.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -157,8 +151,6 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      * Check whether keyword is a (known) language construct.
      *
      * @param string $keyword
-     *
-     * @return bool
      */
     public static function isLanguageConstruct(string $keyword): bool
     {

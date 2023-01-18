@@ -119,8 +119,6 @@ class TimeitVisitor extends NodeVisitorAbstract
      * Optionally pass in a return value.
      *
      * @param Expr|null $arg
-     *
-     * @return \PhpParser\Node\Expr\StaticCall
      */
     private function getEndCall(Expr $arg = null): StaticCall
     {

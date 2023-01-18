@@ -57,8 +57,6 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
      * Get a fully-qualified name (class, function, interface, etc).
      *
      * @param mixed $name
-     *
-     * @return string
      */
     protected function getFullyQualifiedName($name): string
     {

@@ -18,8 +18,6 @@ interface ReflectorFormatter
 {
     /**
      * @param \Reflector $reflector
-     *
-     * @return string
      */
     public static function format(\Reflector $reflector): string;
 }

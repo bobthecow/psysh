@@ -19,9 +19,6 @@ class GitHubChecker implements Checker
 
     private $latest;
 
-    /**
-     * @return bool
-     */
     public function isLatest(): bool
     {
         // version_compare doesn't handle semver completely;
@@ -31,9 +28,6 @@ class GitHubChecker implements Checker
         return \version_compare($version, $this->getLatest(), '>=');
     }
 
-    /**
-     * @return string
-     */
     public function getLatest(): string
     {
         if (!isset($this->latest)) {

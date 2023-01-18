@@ -115,8 +115,6 @@ class ImplicitReturnPass extends CodeCleanerPass
      * we'll exclude them here.
      *
      * @param Node $node
-     *
-     * @return bool
      */
     private static function isNonExpressionStmt(Node $node): bool
     {

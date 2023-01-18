@@ -154,8 +154,6 @@ class ConfigPaths
      * everywhere else).
      *
      * @see self::homeConfigDir
-     *
-     * @return string
      */
     public function currentConfigDir(): string
     {
@@ -258,8 +256,6 @@ class ConfigPaths
      * Get a runtime directory.
      *
      * Defaults to `/psysh` inside the system's temp dir.
-     *
-     * @return string
      */
     public function runtimeDir(): string
     {

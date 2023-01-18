@@ -94,8 +94,6 @@ class ReflectionConstant_ implements \Reflector
 
     /**
      * Gets the constant name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -106,8 +104,6 @@ class ReflectionConstant_ implements \Reflector
      * Gets the namespace name.
      *
      * Returns '' when the constant is not namespaced.
-     *
-     * @return string
      */
     public function getNamespaceName(): string
     {
@@ -130,8 +126,6 @@ class ReflectionConstant_ implements \Reflector
 
     /**
      * Checks if this constant is defined in a namespace.
-     *
-     * @return bool
      */
     public function inNamespace(): bool
     {
@@ -140,8 +134,6 @@ class ReflectionConstant_ implements \Reflector
 
     /**
      * To string.
-     *
-     * @return string
      */
     public function __toString(): string
     {

@@ -194,8 +194,6 @@ class ShellOutput extends ConsoleOutput
 
     /**
      * Checks if the "gray" color exists on the output.
-     *
-     * @return bool
      */
     private function grayExists(): bool
     {

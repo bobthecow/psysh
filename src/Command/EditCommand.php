@@ -114,8 +114,6 @@ class EditCommand extends Command implements ContextAware
      * @param bool        $execOption
      * @param bool        $noExecOption
      * @param string|null $filePath
-     *
-     * @return bool
      */
     private function shouldExecuteFile(bool $execOption, bool $noExecOption, string $filePath = null): bool
     {
@@ -153,8 +151,6 @@ class EditCommand extends Command implements ContextAware
     /**
      * @param string $filePath
      * @param bool   $shouldRemoveFile
-     *
-     * @return string
      *
      * @throws \UnexpectedValueException if file_get_contents on $filePath returns false instead of a string
      */

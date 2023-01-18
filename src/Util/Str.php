@@ -56,8 +56,6 @@ EOS;
      * except for the \s sequence (ASCII space).
      *
      * @param string $input The string to decode
-     *
-     * @return string
      */
     public static function unvis(string $input): string
     {
@@ -70,8 +68,6 @@ EOS;
      * Callback for Str::unvis.
      *
      * @param array $match The matches passed by preg_replace_callback
-     *
-     * @return string
      */
     protected static function unvisReplace(array $match): string
     {

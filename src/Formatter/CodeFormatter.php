@@ -122,8 +122,6 @@ class CodeFormatter implements ReflectorFormatter
      * This is typehinted as \Reflector but we've narrowed the input via self::isReflectable already.
      *
      * @param \ReflectionClass|\ReflectionFunctionAbstract $reflector
-     *
-     * @return int
      */
     private static function getStartLine(\Reflector $reflector): int
     {
@@ -312,8 +310,6 @@ class CodeFormatter implements ReflectorFormatter
      * @phpstan-assert-if-true \ReflectionClass|\ReflectionFunctionAbstract $reflector
      *
      * @param \Reflector $reflector
-     *
-     * @return bool
      */
     private static function isReflectable(\Reflector $reflector): bool
     {

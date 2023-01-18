@@ -57,8 +57,6 @@ class SelfUpdate
     /**
      * Get the currently set Downloader or create one based on the capabilities of the php environment.
      *
-     * @return Downloader
-     *
      * @throws ErrorException if a downloader cannot be created for the php environment
      */
     private function getDownloader(): Downloader
@@ -77,8 +75,6 @@ class SelfUpdate
      * if it's present
      *
      * @param string $latestVersion
-     *
-     * @return string
      */
     private function getAssetUrl(string $latestVersion): string
     {
@@ -100,8 +96,6 @@ class SelfUpdate
      * @param OutputInterface $output
      *
      * @throws ErrorException if the current version is not restored when installation fails
-     *
-     * @return int
      */
     public function run(InputInterface $input, OutputInterface $output): int
     {

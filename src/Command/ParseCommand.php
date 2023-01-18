@@ -162,8 +162,6 @@ HELP
      * Get (or create) the Parser instance.
      *
      * @param string|null $kind One of Psy\ParserFactory constants (only for PHP parser 2.0 and above)
-     *
-     * @return Parser
      */
     private function getParser(string $kind = null): Parser
     {

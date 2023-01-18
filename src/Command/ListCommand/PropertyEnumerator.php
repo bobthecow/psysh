@@ -112,8 +112,6 @@ class PropertyEnumerator extends Enumerator
      * Get a label for the particular kind of "class" represented.
      *
      * @param \ReflectionClass $reflector
-     *
-     * @return string
      */
     protected function getKindLabel(\ReflectionClass $reflector): string
     {
@@ -128,8 +126,6 @@ class PropertyEnumerator extends Enumerator
      * Get output style for the given property's visibility.
      *
      * @param \ReflectionProperty $property
-     *
-     * @return string
      */
     private function getVisibilityStyle(\ReflectionProperty $property): string
     {
@@ -147,8 +143,6 @@ class PropertyEnumerator extends Enumerator
      *
      * @param \ReflectionProperty $property
      * @param mixed               $target
-     *
-     * @return string
      */
     protected function presentValue(\ReflectionProperty $property, $target): string
     {

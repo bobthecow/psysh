@@ -92,8 +92,6 @@ class Context
 
     /**
      * Get all defined variables.
-     *
-     * @return array
      */
     public function getAll(): array
     {
@@ -102,8 +100,6 @@ class Context
 
     /**
      * Get all defined magic variables: $_, $_e, $__out, $__class, $__file, etc.
-     *
-     * @return array
      */
     public function getSpecialVariables(): array
     {
@@ -285,8 +281,6 @@ class Context
 
     /**
      * Get command-scope magic variables: $__class, $__file, etc.
-     *
-     * @return array
      */
     public function getCommandScopeVariables(): array
     {
@@ -310,8 +304,6 @@ class Context
      * Check whether a variable name is a magic variable.
      *
      * @param string $name
-     *
-     * @return bool
      */
     public static function isSpecialVariableName(string $name): bool
     {

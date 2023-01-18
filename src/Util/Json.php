@@ -21,8 +21,6 @@ class Json
      *
      * @param mixed $val
      * @param int   $opt
-     *
-     * @return string
      */
     public static function encode($val, int $opt = 0): string
     {

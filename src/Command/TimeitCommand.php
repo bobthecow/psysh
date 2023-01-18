@@ -166,8 +166,6 @@ HELP
      * accurate times are recorded for just the code being executed.
      *
      * @param string $code
-     *
-     * @return string
      */
     private function instrumentCode(string $code): string
     {

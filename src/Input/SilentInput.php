@@ -34,8 +34,6 @@ class SilentInput
 
     /**
      * To. String.
-     *
-     * @return string
      */
     public function __toString(): string
     {

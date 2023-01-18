@@ -25,15 +25,11 @@ interface Readline
 
     /**
      * Check whether this Readline class is supported by the current system.
-     *
-     * @return bool
      */
     public static function isSupported(): bool;
 
     /**
      * Check whether this Readline class supports bracketed paste.
-     *
-     * @return bool
      */
     public static function supportsBracketedPaste(): bool;
 
@@ -56,7 +52,7 @@ interface Readline
     /**
      * List the command history.
      *
-     * @return array
+     * @return string[]
      */
     public function listHistory(): array;
 
