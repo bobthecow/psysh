@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.23.0
@@ -49,7 +49,7 @@ jobs:
         run: make build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: binaries
           path: build/*/psysh
@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.23.0
@@ -74,7 +74,7 @@ jobs:
           coverage: none
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3.0.1
+        uses: actions/download-artifact@v3.0.2
         with:
           name: binaries
           path: build
