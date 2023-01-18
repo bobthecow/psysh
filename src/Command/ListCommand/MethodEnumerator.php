@@ -55,13 +55,13 @@ class MethodEnumerator extends Enumerator
     /**
      * Get defined methods for the given class or object Reflector.
      *
-     * @param bool       $showAll   Include private and protected methods
-     * @param \Reflector $reflector
-     * @param bool       $noInherit Exclude inherited methods
+     * @param bool             $showAll   Include private and protected methods
+     * @param \ReflectionClass $reflector
+     * @param bool             $noInherit Exclude inherited methods
      *
      * @return array
      */
-    protected function getMethods(bool $showAll, \Reflector $reflector, bool $noInherit = false): array
+    protected function getMethods(bool $showAll, \ReflectionClass $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 

@@ -56,13 +56,13 @@ class PropertyEnumerator extends Enumerator
     /**
      * Get defined properties for the given class or object Reflector.
      *
-     * @param bool       $showAll   Include private and protected properties
-     * @param \Reflector $reflector
-     * @param bool       $noInherit Exclude inherited properties
+     * @param bool             $showAll   Include private and protected properties
+     * @param \ReflectionClass $reflector
+     * @param bool             $noInherit Exclude inherited properties
      *
      * @return array
      */
-    protected function getProperties(bool $showAll, \Reflector $reflector, bool $noInherit = false): array
+    protected function getProperties(bool $showAll, \ReflectionClass $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 

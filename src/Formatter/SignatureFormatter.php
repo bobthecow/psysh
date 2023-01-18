@@ -63,7 +63,7 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Print the signature name.
      *
-     * @param \Reflector $reflector
+     * @param \ReflectionClass|ReflectionClassConstant|\ReflectionClassConstant|\ReflectionFunctionAbstract $reflector
      *
      * @return string Formatted name
      */
@@ -75,7 +75,7 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Print the method, property or class modifiers.
      *
-     * @param \Reflector $reflector
+     * @param \ReflectionMethod|\ReflectionProperty|\ReflectionClass $reflector
      *
      * @return string Formatted modifiers
      */

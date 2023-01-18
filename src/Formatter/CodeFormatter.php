@@ -309,6 +309,8 @@ class CodeFormatter implements ReflectorFormatter
     /**
      * Check whether a Reflector instance is reflectable by this formatter.
      *
+     * @phpstan-assert-if-true \ReflectionClass|\ReflectionFunctionAbstract $reflector
+     *
      * @param \Reflector $reflector
      *
      * @return bool

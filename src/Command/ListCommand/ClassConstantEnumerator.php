@@ -56,12 +56,12 @@ class ClassConstantEnumerator extends Enumerator
     /**
      * Get defined constants for the given class or object Reflector.
      *
-     * @param \Reflector $reflector
-     * @param bool       $noInherit Exclude inherited constants
+     * @param \ReflectionClass $reflector
+     * @param bool             $noInherit Exclude inherited constants
      *
      * @return array
      */
-    protected function getConstants(\Reflector $reflector, bool $noInherit = false): array
+    protected function getConstants(\ReflectionClass $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 

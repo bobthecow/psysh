@@ -118,6 +118,7 @@ class Configuration
 
     // services
     private $readline;
+    /** @var ShellOutput */
     private $output;
     private $shell;
     private $cleaner;
@@ -1855,7 +1856,7 @@ class Configuration
     public function inputIsPiped(): bool
     {
         if ($this->pipedInput === null) {
-            $this->pipedInput = \defined('STDIN') && static::looksLikeAPipe(\STDIN);
+            $this->pipedInput = \defined('STDIN') && self::looksLikeAPipe(\STDIN);
         }
 
         return $this->pipedInput;
@@ -1871,7 +1872,7 @@ class Configuration
     public function outputIsPiped(): bool
     {
         if ($this->pipedOutput === null) {
-            $this->pipedOutput = static::looksLikeAPipe($this->getOutput()->getStream());
+            $this->pipedOutput = self::looksLikeAPipe($this->getOutput()->getStream());
         }
 
         return $this->pipedOutput;
