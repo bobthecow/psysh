@@ -212,9 +212,9 @@ class Docblock
      *
      * @param string $tag
      *
-     * @return array
+     * @return array|null
      */
-    public function tag(string $tag): array
+    public function tag(string $tag): ?array
     {
         return $this->hasTag($tag) ? $this->tags[$tag] : null;
     }
