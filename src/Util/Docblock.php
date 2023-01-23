@@ -217,7 +217,7 @@ class Docblock
     public function tag(string $tag)
     {
         // TODO: Add proper null-type return values once the lowest PHP version supported is 7.1
-        
+
         return $this->hasTag($tag) ? $this->tags[$tag] : null;
     }
 
