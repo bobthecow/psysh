@@ -176,7 +176,7 @@ class ConsoleOutput implements StreamOut
      */
     public function writeAll(string $string)
     {
-        return $this->write($string ?: '', \strlen($string ?: ''));
+        return $this->write($string ?? '', \strlen($string ?? ''));
     }
 
     /**
