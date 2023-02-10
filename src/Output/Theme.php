@@ -139,10 +139,6 @@ class Theme
                 case 'grayFallback':
                     $this->setGrayFallback($value);
                     break;
-
-                case 'compact':
-                    $this->setCompact($value);
-                    break;
             }
         }
 
