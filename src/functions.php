@@ -226,7 +226,6 @@ if (!\function_exists('Psy\\info')) {
             'output decorated' => $config->getOutputDecorated(),
             'output verbosity' => $config->verbosity(),
             'output pager'     => $config->getPager(),
-            'theme'            => $themeConfig,
         ];
 
         $theme = $config->theme();
