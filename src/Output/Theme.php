@@ -95,7 +95,7 @@ class Theme
                     $config = static::MODERN_THEME;
                     break;
 
-                    case 'compact':
+                case 'compact':
                     $config = static::COMPACT_THEME;
                     break;
 

@@ -24,6 +24,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
      * @param string $line
      * @param array  $mustContain
      * @param array  $mustNotContain
+     *
      * @dataProvider classesInput
      */
     public function testClassesCompletion($line, $mustContain, $mustNotContain)

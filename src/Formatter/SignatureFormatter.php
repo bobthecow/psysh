@@ -38,8 +38,8 @@ class SignatureFormatter implements ReflectorFormatter
             case $reflector instanceof ReflectionLanguageConstruct:
                 return self::formatFunction($reflector);
 
-            // this case also covers \ReflectionObject:
             case $reflector instanceof \ReflectionClass:
+                // this case also covers \ReflectionObject
                 return self::formatClass($reflector);
 
             case $reflector instanceof ReflectionClassConstant:

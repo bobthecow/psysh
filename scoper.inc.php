@@ -22,7 +22,7 @@ $polyfillsBootstraps = \array_map(
             ->name('bootstrap*.php'),
         false
     )
- );
+);
 
 $polyfillsStubs = [];
 
