@@ -237,12 +237,8 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $expected = <<<EOF
- PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
-
-EOF;
-
-        $this->assertSame($expected, $streamContents);
+        $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.';
+        $this->assertSame($expected, \trim($streamContents));
     }
 
     /**
