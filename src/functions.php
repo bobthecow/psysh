@@ -226,6 +226,17 @@ if (!\function_exists('Psy\\info')) {
             'output decorated' => $config->getOutputDecorated(),
             'output verbosity' => $config->verbosity(),
             'output pager'     => $config->getPager(),
+            'theme'            => $themeConfig,
+        ];
+
+        $theme = $config->theme();
+        // TODO: show styles (but only if they're different than default?)
+        $output['theme'] = [
+            'compact'      => $theme->compact(),
+            'prompt'       => $theme->prompt(),
+            'bufferPrompt' => $theme->bufferPrompt(),
+            'replayPrompt' => $theme->replayPrompt(),
+            'returnValue'  => $theme->returnValue(),
         ];
 
         $pcntl = [

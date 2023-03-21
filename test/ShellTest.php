@@ -238,9 +238,7 @@ class ShellTest extends TestCase
         $streamContents = \stream_get_contents($stream);
 
         $expected = <<<EOF
-
-   PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
-
+ PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.
 
 EOF;
 
