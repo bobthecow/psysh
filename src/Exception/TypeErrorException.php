@@ -21,7 +21,7 @@ class TypeErrorException extends \Exception implements Exception
     /**
      * Constructor!
      *
-     * @deprecated psySH no longer wraps TypeErrors
+     * @deprecated PsySH no longer wraps TypeErrors
      *
      * @param string          $message  (default: "")
      * @param int             $code     (default: 0)
@@ -45,7 +45,7 @@ class TypeErrorException extends \Exception implements Exception
     /**
      * Create a TypeErrorException from a TypeError.
      *
-     * @deprecated psySH no longer wraps TypeErrors
+     * @deprecated PsySH no longer wraps TypeErrors
      *
      * @param \TypeError $e
      */
