@@ -32,7 +32,7 @@ class CodeFormatter implements ReflectorFormatter
     const HIGHLIGHT_CONST = 'const';
     const HIGHLIGHT_NUMBER = 'number';
     const HIGHLIGHT_STRING = 'string';
-    const HIGHLIGHT_COMMENT = 'comment';
+    const HIGHLIGHT_COMMENT = 'code_comment';
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
     private static $tokenMap = [
