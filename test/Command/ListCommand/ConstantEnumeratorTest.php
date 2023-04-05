@@ -15,10 +15,12 @@ use Psy\Command\ListCommand\ConstantEnumerator;
 use Psy\Reflection\ReflectionNamespace;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-\define('Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT', 42);
+const SOME_CONSTANT = 42;
 
 class ConstantEnumeratorTest extends EnumeratorTestCase
 {
+    const TEST_CONST = 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT';
+
     public function testEnumerateReturnsNothingWithoutFlag()
     {
         $enumerator = new ConstantEnumerator($this->getPresenter());
@@ -75,9 +77,8 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
             $this->assertArrayNotHasKey($internalConst, $constants);
         }
 
-        $name = 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT';
-        $this->assertArrayHasKey($name, $constants);
-        $this->assertSame(['name' => $name, 'style' => 'const', 'value' => $this->presentNumber(42)], $constants[$name]);
+        $this->assertArrayHasKey(self::TEST_CONST, $constants);
+        $this->assertSame(['name' => self::TEST_CONST, 'style' => 'const', 'value' => $this->presentNumber(42)], $constants[self::TEST_CONST]);
     }
 
     /**
@@ -103,9 +104,9 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
     public function categoryConstants()
     {
         return [
-            ['core', 'Core Constants', ['E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE'], ['Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT']],
-            ['internal', 'Internal Constants', ['JSON_UNESCAPED_SLASHES', 'E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE'], ['Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT']],
-            ['user', 'User Constants', ['Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT'], ['JSON_UNESCAPED_SLASHES', 'E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE']],
+            ['core', 'Core Constants', ['E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE'], [self::TEST_CONST]],
+            ['internal', 'Internal Constants', ['JSON_UNESCAPED_SLASHES', 'E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE'], [self::TEST_CONST]],
+            ['user', 'User Constants', [self::TEST_CONST], ['JSON_UNESCAPED_SLASHES', 'E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE']],
             ['date', 'Date Constants', ['DATE_ISO8601', 'DATE_COOKIE'], ['E_USER_ERROR', 'JSON_UNESCAPED_SLASHES', 'FALSE']],
             ['json', 'JSON Constants', ['JSON_UNESCAPED_SLASHES'], ['E_USER_ERROR', 'PHP_VERSION', 'PHP_EOL', 'TRUE']],
         ];
