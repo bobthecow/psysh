@@ -50,6 +50,11 @@ class EmptyArrayDimFetchPass extends CodeCleanerPass
             $this->theseOnesAreFine[] = $node->expr;
         } elseif ($node instanceof Foreach_ && $node->valueVar instanceof ArrayDimFetch) {
             $this->theseOnesAreFine[] = $node->valueVar;
+        } elseif ($node instanceof ArrayDimFetch && $node->var instanceof ArrayDimFetch) {
+            // $a[]['b'] = 'c'
+            if (\in_array($node, $this->theseOnesAreFine)) {
+                $this->theseOnesAreFine[] = $node->var;
+            }
         }
 
         if ($node instanceof ArrayDimFetch && $node->dim === null) {

@@ -62,6 +62,7 @@ class EmptyArrayDimFetchPassTest extends CodeCleanerTestCase
             ['$foo->{$bar}[] = 1'],
             ['foreach ($bar as $foo[]) {}'],
             ['$bar = &$foo[]'],
+            ['$foo[]["bar"] = "baz"'],
         ];
 
         return $data;
