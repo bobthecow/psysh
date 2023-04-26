@@ -28,6 +28,7 @@ class TimeitCommand extends Command
     const RESULT_MSG = '<info>Command took %.6f seconds to complete.</info>';
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
+    private static $useHrtime;
     private static $start = null;
     private static $times = [];
 
@@ -40,6 +41,9 @@ class TimeitCommand extends Command
      */
     public function __construct($name = null)
     {
+        // @todo Remove microtime use after we drop support for PHP < 7.3
+        self::$useHrtime = \function_exists('hrtime');
+
         $parserFactory = new ParserFactory();
         $this->parser = $parserFactory->createParser();
 
@@ -121,7 +125,7 @@ HELP
      */
     public static function markStart()
     {
-        self::$start = \microtime(true);
+        self::$start = self::$useHrtime ? (\hrtime(true) / 1e+9) : \microtime(true);
     }
 
     /**
@@ -140,7 +144,7 @@ HELP
      */
     public static function markEnd($ret = null)
     {
-        self::$times[] = \microtime(true) - self::$start;
+        self::$times[] = (self::$useHrtime ? (\hrtime(true) / 1e+9) : \microtime(true)) - self::$start;
         self::$start = null;
 
         return $ret;
