@@ -49,7 +49,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.11.15';
+    const VERSION = 'v0.11.16';
 
     /** @deprecated */
     const PROMPT = '>>> ';
