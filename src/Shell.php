@@ -626,7 +626,7 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
 
-        $output->writeln(\sprintf('<aside>%s</aside>', OutputFormatter::escape($code)), ConsoleOutput::VERBOSITY_DEBUG);
+        $output->writeln(\sprintf('<whisper>%s</whisper>', OutputFormatter::escape($code)), ConsoleOutput::VERBOSITY_DEBUG);
 
         return $code;
     }
