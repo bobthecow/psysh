@@ -155,6 +155,9 @@ if (!\function_exists('Psy\\info')) {
 
         $config = $lastConfig ?: new Configuration();
         $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;
+        if ($configEnv === false && \PHP_SAPI === 'cli-server') {
+            $configEnv = \getenv('PSYSH_CONFIG');
+        }
 
         $shellInfo = [
             'PsySH version' => Shell::VERSION,

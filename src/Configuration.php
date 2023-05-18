@@ -147,6 +147,8 @@ class Configuration
             $this->configFile = $config['configFile'];
         } elseif (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) {
             $this->configFile = $_SERVER['PSYSH_CONFIG'];
+        } elseif (\PHP_SAPI === 'cli-server' && ($configFile = \getenv('PSYSH_CONFIG'))) {
+            $this->configFile = $configFile;
         }
 
         // legacy baseDir option
