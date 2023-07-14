@@ -642,4 +642,21 @@ class ShellTest extends TestCase
 
         return new Configuration(\array_merge($defaults, $config));
     }
+
+    public function testStrictTypesExecute()
+    {
+        $shell = new Shell($this->getConfig(['strictTypes' => false]));
+        $shell->setOutput($this->getOutput());
+        $shell->execute('(function(): int { return 1.1; })()', true);
+        $this->assertTrue(true);
+    }
+
+    public function testLaxTypesExecute()
+    {
+        $this->expectException(\TypeError::class);
+
+        $shell = new Shell($this->getConfig(['strictTypes' => true]));
+        $shell->setOutput($this->getOutput());
+        $shell->execute('(function(): int { return 1.1; })()', true);
+    }
 }

@@ -35,6 +35,14 @@ class StrictTypesPass extends CodeCleanerPass
     private $strictTypes = false;
 
     /**
+     * @param bool $strictTypes enforce strict types by default
+     */
+    public function __construct(bool $strictTypes = false)
+    {
+        $this->strictTypes = $strictTypes;
+    }
+
+    /**
      * If this is a standalone strict types declaration, remember it for later.
      *
      * Otherwise, apply remembered strict types declaration to to the code until
