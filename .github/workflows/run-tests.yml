@@ -23,10 +23,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.5.3
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.24.0
+        uses: shivammathur/setup-php@2.25.4
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
@@ -74,4 +74,4 @@ jobs:
         continue-on-error: true
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3.1.1
+        uses: codecov/codecov-action@v3.1.4
