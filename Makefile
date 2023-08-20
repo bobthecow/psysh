@@ -39,6 +39,7 @@ phpstan: ## Run static analysis
 phpstan: vendor/bin/phpstan vendor/bin/phpunit
 	vendor/bin/phpstan --memory-limit=1G analyse
 
+
 # All the composer stuffs
 
 composer.lock: composer.json
@@ -49,17 +50,21 @@ vendor/autoload.php: composer.lock
 	composer install
 	touch $@
 
-vendor/bin/box: vendor/autoload.php
+vendor-bin/%/vendor/autoload.php: vendor/autoload.php vendor-bin/%/composer.json
+	composer bin $* install
+	touch $@
+
+vendor/bin/box: vendor-bin/box/vendor/autoload.php
 	composer bin box install
-	touch $@
+	ln -sf ../../vendor-bin/box/vendor/humbug/box/bin/box $@
 
-vendor/bin/phpunit: vendor/autoload.php
+vendor/bin/phpunit: vendor-bin/phpunit/vendor/autoload.php
 	composer bin phpunit install --ignore-platform-reqs
-	touch $@
+	ln -sf ../../vendor-bin/phpunit/vendor/phpunit/phpunit/phpunit $@
 
-vendor/bin/phpstan: vendor/autoload.php
+vendor/bin/phpstan: vendor-bin/phpstan/vendor/autoload.php
 	composer bin phpstan install --ignore-platform-reqs
-	touch $@
+	ln -sf ../../vendor-bin/phpstan/vendor/phpstan/phpstan/phpstan $@
 
 
 # Lots of PHARs
