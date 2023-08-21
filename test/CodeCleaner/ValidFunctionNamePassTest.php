@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ValidFunctionNamePass;
 
+/**
+ * @group isolation-fail
+ */
 class ValidFunctionNamePassTest extends CodeCleanerTestCase
 {
     /**

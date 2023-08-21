@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ImplicitReturnPass;
 
+/**
+ * @group isolation-fail
+ */
 class ImplicitReturnPassTest extends CodeCleanerTestCase
 {
     /**

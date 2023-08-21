@@ -15,6 +15,9 @@ use Psy\Input\FilterOptions;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\StringInput;
 
+/**
+ * @group isolation-fail
+ */
 class FilterOptionsTest extends \Psy\Test\TestCase
 {
     public function testGetOptions()

@@ -14,6 +14,9 @@ namespace Psy\Test\CodeCleaner;
 use Psy\CodeCleaner\ListPass;
 use Psy\Exception\ParseErrorException;
 
+/**
+ * @group isolation-fail
+ */
 class ListPassTest extends CodeCleanerTestCase
 {
     /**

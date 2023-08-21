@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\PassableByReferencePass;
 
+/**
+ * @group isolation-fail
+ */
 class PassableByReferencePassTest extends CodeCleanerTestCase
 {
     /**

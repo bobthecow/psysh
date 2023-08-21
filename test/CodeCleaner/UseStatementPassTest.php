@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\UseStatementPass;
 
+/**
+ * @group isolation-fail
+ */
 class UseStatementPassTest extends CodeCleanerTestCase
 {
     /**

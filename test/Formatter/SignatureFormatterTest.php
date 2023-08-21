@@ -17,6 +17,9 @@ use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Test\Formatter\Fixtures\BoringTrait;
 
+/**
+ * @group isolation-fail
+ */
 class SignatureFormatterTest extends \Psy\Test\TestCase
 {
     const FOO = 'foo value';

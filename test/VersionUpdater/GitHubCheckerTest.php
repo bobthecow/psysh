@@ -38,6 +38,8 @@ class GitHubCheckerTest extends \Psy\Test\TestCase
     /**
      * @dataProvider jsonResults
      *
+     * @group isolation-fail
+     *
      * @param bool  $assertion
      * @param mixed $input
      */

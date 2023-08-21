@@ -14,6 +14,9 @@ namespace Psy\Test;
 use PhpParser\ParserFactory as OriginalParserFactory;
 use Psy\ParserFactory;
 
+/**
+ * @group isolation-fail
+ */
 class ParserFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetPossibleKinds()

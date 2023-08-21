@@ -17,6 +17,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * @group isolation-fail
+ */
 class ShellInputTest extends \Psy\Test\TestCase
 {
     public function testThrowsWhenCodeArgumentNotInFinalPosition()

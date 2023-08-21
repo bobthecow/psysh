@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ValidConstructorPass;
 
+/**
+ * @group isolation-fail
+ */
 class ValidConstructorPassTest extends CodeCleanerTestCase
 {
     /**

@@ -14,6 +14,9 @@ namespace Psy\Test\Command\ListCommand;
 use Psy\Command\ListCommand\GlobalVariableEnumerator;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
+/**
+ * @group isolation-fail
+ */
 class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

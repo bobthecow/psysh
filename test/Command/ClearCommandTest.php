@@ -14,6 +14,9 @@ namespace Psy\Test\Command;
 use Psy\Command\ClearCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @group isolation-fail
+ */
 class ClearCommandTest extends \Psy\Test\TestCase
 {
     public function testExecute()

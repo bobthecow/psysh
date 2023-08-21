@@ -15,6 +15,9 @@ use PhpParser\Node\Stmt\Expression;
 use Psy\CodeCleaner\NoReturnValue;
 use Psy\Test\ParserTestCase;
 
+/**
+ * @group isolation-fail
+ */
 class NoReturnValueTest extends ParserTestCase
 {
     public function testCreate()

@@ -15,6 +15,9 @@ use PhpParser\NodeTraverser;
 use Psy\Sudo\SudoVisitor;
 use Psy\Test\ParserTestCase;
 
+/**
+ * @group isolation-fail
+ */
 class SudoVisitorTest extends ParserTestCase
 {
     /**

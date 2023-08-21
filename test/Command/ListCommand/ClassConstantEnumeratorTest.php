@@ -14,6 +14,9 @@ namespace Psy\Test\Command\ListCommand;
 use Psy\Command\ListCommand\ClassConstantEnumerator;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
+/**
+ * @group isolation-fail
+ */
 class ClassConstantEnumeratorTest extends EnumeratorTestCase
 {
     /**

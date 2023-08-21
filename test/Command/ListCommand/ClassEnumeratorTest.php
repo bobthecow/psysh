@@ -14,6 +14,9 @@ namespace Psy\Test\Command\ListCommand;
 use Psy\Command\ListCommand\ClassEnumerator;
 use Psy\Reflection\ReflectionNamespace;
 
+/**
+ * @group isolation-fail
+ */
 class ClassEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingForTarget()

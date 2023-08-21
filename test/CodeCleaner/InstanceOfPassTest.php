@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\InstanceOfPass;
 
+/**
+ * @group isolation-fail
+ */
 class InstanceOfPassTest extends CodeCleanerTestCase
 {
     /**

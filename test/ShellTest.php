@@ -77,6 +77,9 @@ class ShellTest extends TestCase
         $this->fail();
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testIncludesWithScopeVariables()
     {
         $one = 'banana';
@@ -115,6 +118,9 @@ class ShellTest extends TestCase
         $this->assertSame($expected, $actual, $message);
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testNonInteractiveDoesNotUpdateContext()
     {
         $config = $this->getConfig([
@@ -134,6 +140,9 @@ class ShellTest extends TestCase
         $this->assertNotContains('var', $shell->getScopeVariableNames());
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testNonInteractiveRawOutput()
     {
         $config = $this->getConfig([
@@ -216,6 +225,9 @@ class ShellTest extends TestCase
         $this->assertSame([$matcher], $shell->matchers);
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testRenderingExceptions()
     {
         $shell = new Shell($this->getConfig());
@@ -237,12 +249,14 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 224.';
+        $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 236.';
         $this->assertSame($expected, \trim($streamContents));
     }
 
     /**
      * @dataProvider notSoBadErrors
+     *
+     * @group isolation-fail
      */
     public function testReportsErrors($errno, $label)
     {
@@ -304,6 +318,9 @@ class ShellTest extends TestCase
         ];
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testVersion()
     {
         $shell = new Shell($this->getConfig());
@@ -385,6 +402,9 @@ class ShellTest extends TestCase
         $this->assertSame($shell->flushCode(), 'return $test();');
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testWriteStdout()
     {
         $output = $this->getOutput();
@@ -400,6 +420,9 @@ class ShellTest extends TestCase
         $this->assertSame('{{stdout}}'.\PHP_EOL, $streamContents);
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testWriteStdoutWithoutNewline()
     {
         $this->markTestSkipped('This test won\'t work on CI without overriding pipe detection');
@@ -417,6 +440,9 @@ class ShellTest extends TestCase
         $this->assertSame('{{stdout}}<aside>⏎</aside>'.\PHP_EOL, $streamContents);
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testWriteStdoutRawOutputWithoutNewline()
     {
         $output = $this->getOutput();
@@ -434,6 +460,8 @@ class ShellTest extends TestCase
 
     /**
      * @dataProvider getReturnValues
+     *
+     * @group isolation-fail
      */
     public function testWriteReturnValue($input, $expected)
     {
@@ -449,6 +477,8 @@ class ShellTest extends TestCase
 
     /**
      * @dataProvider getReturnValues
+     *
+     * @group isolation-fail
      */
     public function testDoNotWriteReturnValueWhenQuiet($input, $expected)
     {
@@ -473,6 +503,8 @@ class ShellTest extends TestCase
 
     /**
      * @dataProvider getRenderedExceptions
+     *
+     * @group isolation-fail
      */
     public function testWriteException($exception, $expected)
     {
@@ -488,6 +520,8 @@ class ShellTest extends TestCase
 
     /**
      * @dataProvider getRenderedExceptions
+     *
+     * @group isolation-fail
      */
     public function testWriteExceptionVerbose($exception, $expected)
     {
@@ -515,6 +549,9 @@ class ShellTest extends TestCase
         ]];
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testWriteExceptionVerboseButNotReallyBecauseItIsABreakException()
     {
         $output = $this->getOutput();
@@ -531,6 +568,8 @@ class ShellTest extends TestCase
 
     /**
      * @dataProvider getExceptionOutput
+     *
+     * @group isolation-fail
      */
     public function testCompactExceptionOutput($theme, $exception, $expected)
     {
@@ -557,6 +596,8 @@ class ShellTest extends TestCase
 
     /**
      * @dataProvider getExecuteValues
+     *
+     * @group isolation-fail
      */
     public function testShellExecute($input, $expected)
     {
@@ -643,6 +684,9 @@ class ShellTest extends TestCase
         return new Configuration(\array_merge($defaults, $config));
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testStrictTypesExecute()
     {
         $shell = new Shell($this->getConfig(['strictTypes' => false]));
@@ -651,6 +695,9 @@ class ShellTest extends TestCase
         $this->assertTrue(true);
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testLaxTypesExecute()
     {
         $this->expectException(\TypeError::class);

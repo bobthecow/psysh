@@ -15,6 +15,9 @@ use PhpParser\NodeTraverser;
 use Psy\Command\TimeitCommand\TimeitVisitor;
 use Psy\Test\ParserTestCase;
 
+/**
+ * @group isolation-fail
+ */
 class TimeitVisitorTest extends ParserTestCase
 {
     /**

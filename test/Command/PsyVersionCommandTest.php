@@ -15,6 +15,9 @@ use Psy\Command\PsyVersionCommand;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @group isolation-fail
+ */
 class PsyVersionCommandTest extends \Psy\Test\TestCase
 {
     public function testExecute()

@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\EmptyArrayDimFetchPass;
 
+/**
+ * @group isolation-fail
+ */
 class EmptyArrayDimFetchPassTest extends CodeCleanerTestCase
 {
     /**

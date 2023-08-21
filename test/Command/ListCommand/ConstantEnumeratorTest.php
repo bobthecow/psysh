@@ -17,6 +17,9 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 
 const SOME_CONSTANT = 42;
 
+/**
+ * @group isolation-fail
+ */
 class ConstantEnumeratorTest extends EnumeratorTestCase
 {
     const TEST_CONST = 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT';

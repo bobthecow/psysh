@@ -13,6 +13,9 @@ namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\PropertyEnumerator;
 
+/**
+ * @group isolation-fail
+ */
 class PropertyEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

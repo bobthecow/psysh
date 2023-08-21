@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\AssignThisVariablePass;
 
+/**
+ * @group isolation-fail
+ */
 class AssignThisVariablePassTest extends CodeCleanerTestCase
 {
     /**

@@ -15,6 +15,9 @@ use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Context;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
+/**
+ * @group isolation-fail
+ */
 class VariableEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

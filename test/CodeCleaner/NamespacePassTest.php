@@ -14,6 +14,9 @@ namespace Psy\Test\CodeCleaner;
 use Psy\CodeCleaner;
 use Psy\CodeCleaner\NamespacePass;
 
+/**
+ * @group isolation-fail
+ */
 class NamespacePassTest extends CodeCleanerTestCase
 {
     private $cleaner;

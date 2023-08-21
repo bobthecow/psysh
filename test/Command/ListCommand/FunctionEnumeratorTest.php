@@ -17,6 +17,9 @@ use Psy\Reflection\ReflectionNamespace;
 
 require_once __DIR__.'/Fixtures/functions.php';
 
+/**
+ * @group isolation-fail
+ */
 class FunctionEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

@@ -15,6 +15,9 @@ use Psy\Command\HelpCommand;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @group isolation-fail
+ */
 class HelpCommandTest extends \Psy\Test\TestCase
 {
     public function testExecute()

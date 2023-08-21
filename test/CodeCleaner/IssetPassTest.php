@@ -15,6 +15,8 @@ use Psy\CodeCleaner\IssetPass;
 
 /**
  * Code cleaner to check for invalid isset() arguments.
+ *
+ * @group isolation-fail
  */
 class IssetPassTest extends CodeCleanerTestCase
 {

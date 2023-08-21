@@ -57,6 +57,9 @@ class ConfigurationTest extends TestCase
         $this->assertSame('wheee', $config->getConfigDir());
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testLoadConfig()
     {
         $config = $this->getConfig();
@@ -233,7 +236,11 @@ class ConfigurationTest extends TestCase
         ];
     }
 
-    /** @dataProvider getOutputVerbosityProvider */
+    /**
+     * @dataProvider getOutputVerbosityProvider
+     *
+     * @group isolation-fail
+     */
     public function testGetOutputVerbosity($expectation, $verbosity)
     {
         $config = $this->getConfig();
@@ -432,6 +439,8 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider inputStrings
+     *
+     * @group isolation-fail
      */
     public function testConfigurationFromInput($inputString, $verbosity, $colorMode, $interactiveMode, $rawOutput, $yolo)
     {
@@ -463,6 +472,9 @@ class ConfigurationTest extends TestCase
         ];
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testConfigurationFromInputSpecificity()
     {
         $input = $this->getBoundStringInput('--raw-output --color --interactive --verbose');
@@ -481,6 +493,8 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider verbosityInputStrings
+     *
+     * @group isolation-fail
      */
     public function testConfigurationFromInputVerbosityLevels($inputString, $verbosity)
     {
@@ -515,6 +529,8 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider shortInputStrings
+     *
+     * @group isolation-fail
      */
     public function testConfigurationFromInputShortOptions($inputString, $verbosity, $interactiveMode, $rawOutput, $skipUnbound = false)
     {
@@ -547,6 +563,9 @@ class ConfigurationTest extends TestCase
         ];
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testConfigurationFromInputAliases()
     {
         $input = $this->getBoundStringInput('--ansi --interaction');

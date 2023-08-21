@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\StrictTypesPass;
 
+/**
+ * @group isolation-fail
+ */
 class StrictTypesPassTest extends CodeCleanerTestCase
 {
     /**

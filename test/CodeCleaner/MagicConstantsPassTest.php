@@ -13,6 +13,9 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\MagicConstantsPass;
 
+/**
+ * @group isolation-fail
+ */
 class MagicConstantsPassTest extends CodeCleanerTestCase
 {
     /**

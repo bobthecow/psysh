@@ -14,6 +14,9 @@ namespace Psy\Test\Input;
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\InputArgument;
 
+/**
+ * @group isolation-fail
+ */
 class CodeArgumentTest extends \Psy\Test\TestCase
 {
     /**

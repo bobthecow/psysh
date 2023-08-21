@@ -13,6 +13,9 @@ namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\MethodEnumerator;
 
+/**
+ * @group isolation-fail
+ */
 class MethodEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()
