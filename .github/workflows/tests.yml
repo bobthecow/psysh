@@ -57,30 +57,7 @@ jobs:
       - name: Smoke test
         run: .github/bin/smoketest.sh
 
-  php70-phar:
-    name: PHP 7.0 Phar smoke test
+  phar:
+    name: Test Phar
     needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3.5.3
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@2.25.4
-        with:
-          php-version: '7.0'
-          tools: composer:v2
-          coverage: none
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: binaries
-          path: build
-
-      - name: Make binaries executable
-        run: chmod +x build/*/psysh
-
-      - name: Smoke test
-        run: .github/bin/smoketest.sh psysh-php70
+    uses: ./.github/workflows/run-phar-tests.yml

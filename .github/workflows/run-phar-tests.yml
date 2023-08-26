@@ -1,0 +1,68 @@
+name: Run Phar tests
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }} (${{ matrix.build_version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_version: [psysh, psysh-php70]
+        php: ['7.2', '7.3', '7.4', '8.0']
+        include:
+          - build_version: psysh
+            php: '8.1'
+          - build_version: psysh
+            php: '8.2'
+          - build_version: psysh-php70
+            php: '7.0'
+          - build_version: psysh-php70
+            php: '7.1'
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.5.3
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github
+            test
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@2.25.4
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: binaries
+          path: build
+
+      - name: Make binaries executable
+        run: chmod +x build/*/psysh
+
+      - name: Smoke test
+        run: .github/bin/smoketest.sh ${{ matrix.build_version }}
+
+      - name: Set up problem matchers
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Composer init
+        run: composer init --no-interaction --name=psy/test --autoload=test/
+
+      - name: Install PHPUnit
+        uses: nick-fields/retry@v2.8.3
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: composer require --no-interaction --no-progress "phpunit/phpunit:^6.5.14|^7.5.15|^8.5|^9.4"
+
+      - name: Run test suite
+        run: vendor/bin/phpunit --bootstrap build/${{ matrix.build_version }}/psysh --exclude-group isolation-fail test/
