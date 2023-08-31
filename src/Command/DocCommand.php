@@ -15,7 +15,7 @@ use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\Output\ShellOutput;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -151,7 +151,7 @@ HELP
                 $id = $reflector->class.'::'.$reflector->name;
                 break;
 
-            case ReflectionConstant_::class:
+            case ReflectionConstant::class:
                 $id = $reflector->name;
                 break;
 

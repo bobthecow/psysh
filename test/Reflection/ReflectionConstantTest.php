@@ -11,7 +11,7 @@
 
 namespace Psy\Test\Reflection;
 
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 
 const SOME_CONSTANT = 'yep';
 
@@ -19,7 +19,7 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
 {
     public function testConstruction()
     {
-        $refl = new ReflectionConstant_('Psy\\Test\\Reflection\\SOME_CONSTANT');
+        $refl = new ReflectionConstant('Psy\\Test\\Reflection\\SOME_CONSTANT');
 
         $this->assertFalse($refl->getDocComment());
         $this->assertSame('Psy\\Test\\Reflection\\SOME_CONSTANT', $refl->getName());
@@ -32,7 +32,7 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
 
     public function testBuiltInConstant()
     {
-        $refl = new ReflectionConstant_('PHP_VERSION');
+        $refl = new ReflectionConstant('PHP_VERSION');
 
         $this->assertSame('PHP_VERSION', $refl->getName());
         $this->assertSame('PHP_VERSION', (string) $refl);
@@ -46,7 +46,7 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
      */
     public function testIsMagicConstant($name, $is)
     {
-        $this->assertSame($is, ReflectionConstant_::isMagicConstant($name));
+        $this->assertSame($is, ReflectionConstant::isMagicConstant($name));
     }
 
     public function magicConstants()
@@ -71,26 +71,26 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
     public function testUnknownConstantThrowsException()
     {
         $this->expectException(\InvalidArgumentException::class);
-        new ReflectionConstant_('UNKNOWN_CONSTANT');
+        new ReflectionConstant('UNKNOWN_CONSTANT');
 
         $this->fail();
     }
 
     public function testExport()
     {
-        $ret = ReflectionConstant_::export('Psy\\Test\\Reflection\\SOME_CONSTANT', true);
+        $ret = ReflectionConstant::export('Psy\\Test\\Reflection\\SOME_CONSTANT', true);
         $this->assertSame($ret, 'Constant [ string Psy\\Test\\Reflection\\SOME_CONSTANT ] { yep }');
     }
 
     public function testExportOutput()
     {
         $this->expectOutputString("Constant [ string Psy\\Test\\Reflection\\SOME_CONSTANT ] { yep }\n");
-        ReflectionConstant_::export('Psy\\Test\\Reflection\\SOME_CONSTANT', false);
+        ReflectionConstant::export('Psy\\Test\\Reflection\\SOME_CONSTANT', false);
     }
 
     public function testGetFileName()
     {
-        $refl = new ReflectionConstant_('Psy\\Test\\Reflection\\SOME_CONSTANT');
+        $refl = new ReflectionConstant('Psy\\Test\\Reflection\\SOME_CONSTANT');
         $this->assertNull($refl->getFileName());
     }
 
@@ -101,7 +101,7 @@ class ReflectionConstantTest extends \Psy\Test\TestCase
     {
         $this->expectException(\RuntimeException::class);
 
-        $refl = new ReflectionConstant_('Psy\\Test\\Reflection\\SOME_CONSTANT');
+        $refl = new ReflectionConstant('Psy\\Test\\Reflection\\SOME_CONSTANT');
         $refl->$method();
 
         $this->fail();

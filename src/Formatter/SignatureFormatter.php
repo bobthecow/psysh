@@ -11,7 +11,7 @@
 
 namespace Psy\Formatter;
 
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -50,7 +50,7 @@ class SignatureFormatter implements ReflectorFormatter
             case $reflector instanceof \ReflectionProperty:
                 return self::formatProperty($reflector);
 
-            case $reflector instanceof ReflectionConstant_:
+            case $reflector instanceof ReflectionConstant:
                 return self::formatConstant($reflector);
 
             default:
@@ -149,11 +149,11 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Format a constant signature.
      *
-     * @param ReflectionConstant_ $reflector
+     * @param ReflectionConstant $reflector
      *
      * @return string Formatted signature
      */
-    private static function formatConstant(ReflectionConstant_ $reflector): string
+    private static function formatConstant(ReflectionConstant $reflector): string
     {
         $value = $reflector->getValue();
         $style = self::getTypeStyle($value);

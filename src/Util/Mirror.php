@@ -12,7 +12,7 @@
 namespace Psy\Util;
 
 use Psy\Exception\RuntimeException;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionNamespace;
 
 /**
@@ -47,8 +47,8 @@ class Mirror
         if ($member === null && \is_string($value)) {
             if (\function_exists($value)) {
                 return new \ReflectionFunction($value);
-            } elseif (\defined($value) || ReflectionConstant_::isMagicConstant($value)) {
-                return new ReflectionConstant_($value);
+            } elseif (\defined($value) || ReflectionConstant::isMagicConstant($value)) {
+                return new ReflectionConstant($value);
             }
         }
 

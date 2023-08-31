@@ -19,7 +19,7 @@ use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Sudo\SudoVisitor;
 use Psy\Util\Mirror;
 
@@ -325,7 +325,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case ReflectionConstant_::class:
+            case ReflectionConstant::class:
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }

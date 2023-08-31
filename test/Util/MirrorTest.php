@@ -11,7 +11,7 @@
 
 namespace Psy\Test\Util;
 
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionNamespace;
 use Psy\Util\Mirror;
 
@@ -41,7 +41,7 @@ class MirrorTest extends \Psy\Test\TestCase
         $this->assertInstanceOf(\ReflectionClassConstant::class, $refl);
 
         $refl = Mirror::get('PHP_VERSION');
-        $this->assertInstanceOf(ReflectionConstant_::class, $refl);
+        $this->assertInstanceOf(ReflectionConstant::class, $refl);
 
         $refl = Mirror::get($this, 'bar');
         $this->assertInstanceOf(\ReflectionProperty::class, $refl);
