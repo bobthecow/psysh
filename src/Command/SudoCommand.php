@@ -14,7 +14,6 @@ namespace Psy\Command;
 use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Input\CodeArgument;
-use Psy\ParserFactory;
 use Psy\Readline\Readline;
 use Psy\Sudo\SudoVisitor;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,8 +34,7 @@ class SudoCommand extends Command
      */
     public function __construct($name = null)
     {
-        $parserFactory = new ParserFactory();
-        $this->parser = $parserFactory->createParser();
+        $this->parser = new CodeArgumentParser();
 
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new SudoVisitor());
@@ -111,37 +109,12 @@ HELP
             $code = $history[\count($history) - 2];
         }
 
-        if (\strpos($code, '<?') === false) {
-            $code = '<?php '.$code;
-        }
-
-        $nodes = $this->traverser->traverse($this->parse($code));
+        $nodes = $this->traverser->traverse($this->parser->parse($code));
 
         $sudoCode = $this->printer->prettyPrint($nodes);
         $shell = $this->getApplication();
         $shell->addCode($sudoCode, !$shell->hasCode());
 
         return 0;
-    }
-
-    /**
-     * Lex and parse a string of code into statements.
-     *
-     * @param string $code
-     *
-     * @return array Statements
-     */
-    private function parse(string $code): array
-    {
-        try {
-            return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
-                throw $e;
-            }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code.';');
-        }
     }
 }

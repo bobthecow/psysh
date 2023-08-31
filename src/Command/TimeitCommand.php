@@ -15,7 +15,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Command\TimeitCommand\TimeitVisitor;
 use Psy\Input\CodeArgument;
-use Psy\ParserFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,8 +44,7 @@ class TimeitCommand extends Command
         // @todo Remove microtime use after we drop support for PHP < 7.3
         self::$useHrtime = \function_exists('hrtime');
 
-        $parserFactory = new ParserFactory();
-        $this->parser = $parserFactory->createParser();
+        $this->parser = new CodeArgumentParser();
 
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new TimeitVisitor());
@@ -169,34 +167,9 @@ HELP
      *
      * This inserts `markStart` and `markEnd` calls to ensure that (reasonably)
      * accurate times are recorded for just the code being executed.
-     *
-     * @param string $code
      */
     private function instrumentCode(string $code): string
     {
-        return $this->printer->prettyPrint($this->traverser->traverse($this->parse($code)));
-    }
-
-    /**
-     * Lex and parse a string of code into statements.
-     *
-     * @param string $code
-     *
-     * @return array Statements
-     */
-    private function parse(string $code): array
-    {
-        $code = '<?php '.$code;
-
-        try {
-            return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
-                throw $e;
-            }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code.';');
-        }
+        return $this->printer->prettyPrint($this->traverser->traverse($this->parser->parse($code)));
     }
 }

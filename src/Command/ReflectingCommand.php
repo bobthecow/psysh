@@ -19,7 +19,6 @@ use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
-use Psy\ParserFactory;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Sudo\SudoVisitor;
@@ -51,8 +50,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     public function __construct($name = null)
     {
-        $parserFactory = new ParserFactory();
-        $this->parser = $parserFactory->createParser();
+        $this->parser = new CodeArgumentParser();
 
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new SudoVisitor());
@@ -195,7 +193,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     {
         try {
             // Add an implicit `sudo` to target resolution.
-            $nodes = $this->traverser->traverse($this->parse($code));
+            $nodes = $this->traverser->traverse($this->parser->parse($code));
             $sudoCode = $this->printer->prettyPrint($nodes);
             $value = $this->getApplication()->execute($sudoCode, true);
         } catch (\Throwable $e) {
@@ -207,29 +205,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         return $value;
-    }
-
-    /**
-     * Lex and parse a string of code into statements.
-     *
-     * @param string $code
-     *
-     * @return array Statements
-     */
-    private function parse($code)
-    {
-        $code = '<?php '.$code;
-
-        try {
-            return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
-                throw $e;
-            }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code.';');
-        }
     }
 
     /**
