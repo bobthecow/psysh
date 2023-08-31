@@ -3,7 +3,7 @@ includes:
   - vendor-bin/phpstan/ignore.neon
 
 parameters:
-  # Test on PHP 7.4 (we support 7.0, but PHPStan doesn't)
+  # Test on PHP 7.4
   phpVersion: 70400
 
   # See: https://phpstan.org/user-guide/rule-levels
@@ -14,14 +14,8 @@ parameters:
   excludePaths:
     # Signature errors related to wide PHP version support.
     # See: https://github.com/bobthecow/psysh/pull/738#issuecomment-1202622730
-    - src/Readline/Hoa/FileGeneric.php
     - src/Readline/Hoa/FileLink.php
-    - src/Reflection/ReflectionClassConstant.php
-    - src/Reflection/ReflectionConstant_.php
-    - src/Reflection/ReflectionLanguageConstruct.php
-    - src/Reflection/ReflectionNamespace.php
     - src/Util/Str.php
-    - test/TestCase.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
   checkMissingIterableValueType: false
