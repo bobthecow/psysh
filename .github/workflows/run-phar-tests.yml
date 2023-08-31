@@ -64,7 +64,7 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer require --no-interaction --no-progress "phpunit/phpunit:^6.5.14|^7.5.15|^8.5|^9.4"
+          command: composer require --no-interaction --no-progress "phpunit/phpunit:^9.6"
 
       - name: Run test suite
         run: vendor/bin/phpunit --bootstrap build/${{ matrix.build_version }}/psysh --exclude-group isolation-fail test/
