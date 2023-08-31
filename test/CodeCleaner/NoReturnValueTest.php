@@ -22,14 +22,9 @@ class NoReturnValueTest extends ParserTestCase
 {
     public function testCreate()
     {
-        $stmt = NoReturnValue::create();
-        if (\class_exists(Expression::class)) {
-            $stmt = new Expression($stmt);
-        }
-
         $this->assertSame(
             $this->prettyPrint($this->parse('new \\Psy\CodeCleaner\\NoReturnValue()')),
-            $this->prettyPrint([$stmt])
+            $this->prettyPrint([new Expression(NoReturnValue::create())])
         );
     }
 }

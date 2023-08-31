@@ -79,8 +79,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         if (self::isConditional($node)) {
             $this->conditionalScopes--;
-
-            return;
         }
     }
 

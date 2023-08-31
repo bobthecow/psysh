@@ -12,7 +12,6 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Namespace_;
@@ -91,24 +90,18 @@ class ValidConstructorPass extends CodeCleanerPass
     private function validateConstructor(Node $constructor, Node $classNode)
     {
         if ($constructor->isStatic()) {
-            // For PHP Parser 4.x
-            $className = $classNode->name instanceof Identifier ? $classNode->name->toString() : $classNode->name;
-
             $msg = \sprintf(
                 'Constructor %s::%s() cannot be static',
-                \implode('\\', \array_merge($this->namespace, (array) $className)),
+                \implode('\\', \array_merge($this->namespace, (array) $classNode->name->toString())),
                 $constructor->name
             );
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getLine());
         }
 
         if (\method_exists($constructor, 'getReturnType') && $constructor->getReturnType()) {
-            // For PHP Parser 4.x
-            $className = $classNode->name instanceof Identifier ? $classNode->name->toString() : $classNode->name;
-
             $msg = \sprintf(
                 'Constructor %s::%s() cannot declare a return type',
-                \implode('\\', \array_merge($this->namespace, (array) $className)),
+                \implode('\\', \array_merge($this->namespace, (array) $classNode->name->toString())),
                 $constructor->name
             );
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getLine());

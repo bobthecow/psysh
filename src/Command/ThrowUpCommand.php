@@ -123,9 +123,7 @@ HELP
         }
 
         $node = $nodes[0];
-
-        // Make this work for PHP Parser v3.x
-        $expr = isset($node->expr) ? $node->expr : $node;
+        $expr = $node->expr;
 
         $args = [new Arg($expr, false, false, $node->getAttributes())];
 
