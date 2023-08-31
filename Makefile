@@ -21,7 +21,7 @@ help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-7s\033[0m %s\n", $$1, $$2}'
 
 build: ## Compile PHARs (use `build/psysh/psysh` for just the default build!)
-build: build/psysh/psysh build/psysh-php70/psysh
+build: build/psysh/psysh
 
 clean: ## Clean all created artifacts
 	rm -rf build/*
@@ -29,7 +29,7 @@ clean: ## Clean all created artifacts
 	rm -rf vendor-bin/*/vendor/
 
 dist: ## Build tarballs for distribution
-dist: dist/psysh-$(VERSION).tar.gz dist/psysh-$(VERSION)-php70.tar.gz
+dist: dist/psysh-$(VERSION).tar.gz
 
 test: ## Run unit tests
 test: vendor/bin/phpunit
@@ -77,18 +77,8 @@ build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
 	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)'/" $@/src/Shell.php
-	composer config --working-dir $@ platform.php 7.2.5
-	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.2.5'
-	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring
-	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) --dev roave/security-advisories:dev-latest
-	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
-
-build/psysh-php70: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
-	rm -rf $@ || true
-	mkdir $@
-	cp -R $(PSYSH_SRC) $@/
-	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)+php70'/" $@/src/Shell.php
-	composer config --working-dir $@ platform.php 7.0.8
+	composer config --working-dir $@ platform.php 7.4
+	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.4'
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) symfony/polyfill-iconv symfony/polyfill-mbstring
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) --dev roave/security-advisories:dev-latest
 	composer update --working-dir $@ $(COMPOSER_UPDATE_OPTS)
@@ -100,9 +90,5 @@ build/%/psysh: vendor/bin/box build/%
 # Dist packages
 
 dist/psysh-$(VERSION).tar.gz: build/psysh/psysh
-	@mkdir -p $(@D)
-	tar -C $(dir $<) -czf $@ $(notdir $<)
-
-dist/psysh-$(VERSION)-%.tar.gz: build/psysh-%/psysh
 	@mkdir -p $(@D)
 	tar -C $(dir $<) -czf $@ $(notdir $<)
