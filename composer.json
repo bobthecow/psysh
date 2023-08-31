@@ -52,7 +52,7 @@
         },
         "bamarni-bin": {
             "bin-links": false,
-            "forward-command": true
+            "forward-command": false
         }
     },
     "conflict": {
