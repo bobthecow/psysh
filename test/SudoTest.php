@@ -15,16 +15,6 @@ use Psy\Sudo;
 
 class SudoTest extends TestCase
 {
-    /**
-     * @before
-     */
-    public function getReady()
-    {
-        if (\version_compare(\PHP_VERSION, '7.1.0', '<')) {
-            $this->markTestSkipped('YOLO');
-        }
-    }
-
     public function testFetchProperty()
     {
         $obj = new ClassWithSecrets();

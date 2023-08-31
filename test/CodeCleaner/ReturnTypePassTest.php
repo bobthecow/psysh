@@ -23,10 +23,6 @@ class ReturnTypePassTest extends CodeCleanerTestCase
      */
     public function getReady()
     {
-        if (\version_compare(\PHP_VERSION, '7.1', '<')) {
-            $this->markTestSkipped();
-        }
-
         $this->setPass(new ReturnTypePass());
     }
 

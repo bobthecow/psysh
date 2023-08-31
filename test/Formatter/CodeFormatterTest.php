@@ -85,17 +85,12 @@ EOS;
 
     public function invalidReflectors()
     {
-        $reflectors = [
+        return [
             [new \ReflectionExtension('json')],
             [new \ReflectionParameter([SomeClass::class, 'someMethod'], 'someParam')],
             [new \ReflectionProperty(SomeClass::class, 'someProp')],
+            [new \ReflectionClassConstant(SomeClass::class, 'SOME_CONST')],
         ];
-
-        if (\version_compare(\PHP_VERSION, '7.1.0', '>=')) {
-            $reflectors[] = [new \ReflectionClassConstant(SomeClass::class, 'SOME_CONST')];
-        }
-
-        return $reflectors;
     }
 
     /**
