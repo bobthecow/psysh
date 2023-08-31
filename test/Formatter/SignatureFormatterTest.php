@@ -13,7 +13,6 @@ namespace Psy\Test\Formatter;
 
 use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Formatter\SignatureFormatter;
-use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Test\Formatter\Fixtures\BoringTrait;
 
@@ -45,7 +44,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
     {
         $values = [
             [
-                ReflectionClassConstant::create($this, 'FOO'),
+                new \ReflectionClassConstant($this, 'FOO'),
                 'const FOO = "foo value"',
             ],
             [

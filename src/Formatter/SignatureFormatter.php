@@ -11,7 +11,6 @@
 
 namespace Psy\Formatter;
 
-use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Json;
@@ -42,7 +41,6 @@ class SignatureFormatter implements ReflectorFormatter
                 // this case also covers \ReflectionObject
                 return self::formatClass($reflector);
 
-            case $reflector instanceof ReflectionClassConstant:
             case $reflector instanceof \ReflectionClassConstant:
                 return self::formatClassConstant($reflector);
 
@@ -63,7 +61,7 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Print the signature name.
      *
-     * @param \ReflectionClass|ReflectionClassConstant|\ReflectionClassConstant|\ReflectionFunctionAbstract $reflector
+     * @param \ReflectionClass|\ReflectionClassConstant|\ReflectionFunctionAbstract $reflector
      *
      * @return string Formatted name
      */
@@ -130,7 +128,7 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Format a constant signature.
      *
-     * @param ReflectionClassConstant|\ReflectionClassConstant $reflector
+     * @param \ReflectionClassConstant $reflector
      *
      * @return string Formatted signature
      */

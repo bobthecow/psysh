@@ -11,7 +11,6 @@
 
 namespace Psy\Test\Util;
 
-use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Reflection\ReflectionNamespace;
 use Psy\Util\Mirror;

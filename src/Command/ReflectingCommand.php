@@ -19,7 +19,6 @@ use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
-use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
 use Psy\Sudo\SudoVisitor;
 use Psy\Util\Mirror;
@@ -314,7 +313,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
             case \ReflectionProperty::class:
             case \ReflectionClassConstant::class:
-            case ReflectionClassConstant::class:
                 $classReflector = $reflector->getDeclaringClass();
                 $vars['__class'] = $classReflector->name;
                 if ($classReflector->inNamespace()) {
