@@ -85,7 +85,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $code = $input->getArgument('code');
-        $num = \intval($input->getOption('num') ?: 1);
+        $num = (int) ($input->getOption('num') ?: 1);
         $shell = $this->getApplication();
 
         $instrumentedCode = $this->instrumentCode($code);
