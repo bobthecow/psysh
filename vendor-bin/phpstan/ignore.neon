@@ -1,7 +1,5 @@
 parameters:
   ignoreErrors:
-    # Because of supporting PHP 7.0+ some really old versions of symfony/console might be installed
-    - "#^.*Symfony\\\\Component\\\\Console\\\\Helper\\\\TableHelper.*$#"
     # Runkit extension is optional, so we shouldn't warn about its functions
     - "#^Function runkit[a-zA-Z0-9_]+ not found\\.$#"
     - "#^Constant RUNKIT_[a-zA-Z0-9_]+ not found\\.$#"
