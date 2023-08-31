@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Variable \\$_ might not be defined\\.$#"
-			count: 1
-			path: ../../src/Command/TimeitCommand.php
-
-		-
 			message: "#^Variable \\$_except in empty\\(\\) always exists and is always falsy\\.$#"
 			count: 1
 			path: ../../src/Readline/Hoa/ConsoleProcessus.php

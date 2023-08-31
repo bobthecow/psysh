@@ -85,17 +85,17 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $code = $input->getArgument('code');
-        $num = $input->getOption('num') ?: 1;
+        $num = \intval($input->getOption('num') ?: 1);
         $shell = $this->getApplication();
 
         $instrumentedCode = $this->instrumentCode($code);
 
         self::$times = [];
 
-        for ($i = 0; $i < $num; $i++) {
+        do {
             $_ = $shell->execute($instrumentedCode);
             $this->ensureEndMarked();
-        }
+        } while (\count(self::$times) < $num);
 
         $shell->writeReturnValue($_);
 
