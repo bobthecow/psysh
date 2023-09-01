@@ -23,3 +23,11 @@ parameters:
     - message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historySize\\.$#"
       count: 1
       path: ../../src/Readline/Userland.php
+
+    # Going away with the next release
+    - message: "#^Constructor of class Psy\\\\Command\\\\ShowCommand has an unused parameter \\$colorMode\\.$#"
+      count: 1
+      path: ../../src/Command/ShowCommand.php
+    - message: "#^Constructor of class Psy\\\\Command\\\\WhereamiCommand has an unused parameter \\$colorMode\\.$#"
+      count: 1
+      path: ../../src/Command/WhereamiCommand.php
