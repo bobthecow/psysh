@@ -20,7 +20,8 @@ class FakeShell extends Shell
 
     public function __construct(Configuration $config = null)
     {
-        // This space intentionally left blank
+        // Do something (silly) with $config for phpstan's sake.
+        $config = null;
     }
 
     public function addMatchers(array $matchers)

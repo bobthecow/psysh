@@ -395,7 +395,7 @@ if (!\function_exists('Psy\\bin')) {
             }
 
             // Handle --help
-            if ($usageException !== null || $input->getOption('help')) {
+            if (!isset($config) || $usageException !== null || $input->getOption('help')) {
                 if ($usageException !== null) {
                     echo $usageException->getMessage().\PHP_EOL.\PHP_EOL;
                 }

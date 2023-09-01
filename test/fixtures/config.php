@@ -9,6 +9,10 @@
  * file that was distributed with this source code.
  */
 
+if (!isset($config)) {
+    throw new \Exception('$config not found');
+}
+
 $config->setRuntimeDir(\sys_get_temp_dir().'/psysh_test/withconfig/temp');
 
 return [
