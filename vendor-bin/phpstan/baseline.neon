@@ -1,36 +1,25 @@
 parameters:
-	ignoreErrors:
-		-
-			message: '#^Variable \$string on left side of \?\? always exists and is not nullable\.$#'
-			path: ../../src/Readline/Hoa/ConsoleOutput.php
+  ignoreErrors:
+    # Ignore a few issues with legacy vendored code
+    - message: '#^Variable \$string on left side of \?\? always exists and is not nullable\.$#'
+      path: ../../src/Readline/Hoa/ConsoleOutput.php
+    - message: "#^Variable \\$_except in empty\\(\\) always exists and is always falsy\\.$#"
+      count: 1
+      path: ../../src/Readline/Hoa/ConsoleProcessus.php
+    - message: "#^Variable \\$read in empty\\(\\) always exists and is not falsy\\.$#"
+      count: 2
+      path: ../../src/Readline/Hoa/Readline.php
 
-		-
-			message: "#^Variable \\$_except in empty\\(\\) always exists and is always falsy\\.$#"
-			count: 1
-			path: ../../src/Readline/Hoa/ConsoleProcessus.php
-
-		-
-			message: "#^Variable \\$read in empty\\(\\) always exists and is not falsy\\.$#"
-			count: 2
-			path: ../../src/Readline/Hoa/Readline.php
-
-		# PHPStan appears incapable of dealing with constructor parameters required by an interface, so...
-		-
-			message: "#^Constructor of class Psy\\\\Readline\\\\Transient has an unused parameter \\$historyFile\\.$#"
-			count: 1
-			path: ../../src/Readline/Transient.php
-
-		-
-			message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$eraseDups\\.$#"
-			count: 1
-			path: ../../src/Readline/Userland.php
-
-		-
-			message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historyFile\\.$#"
-			count: 1
-			path: ../../src/Readline/Userland.php
-
-		-
-			message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historySize\\.$#"
-			count: 1
-			path: ../../src/Readline/Userland.php
+    # PHPStan appears incapable of dealing with constructor parameters required by an interface, so...
+    - message: "#^Constructor of class Psy\\\\Readline\\\\Transient has an unused parameter \\$historyFile\\.$#"
+      count: 1
+      path: ../../src/Readline/Transient.php
+    - message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$eraseDups\\.$#"
+      count: 1
+      path: ../../src/Readline/Userland.php
+    - message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historyFile\\.$#"
+      count: 1
+      path: ../../src/Readline/Userland.php
+    - message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$historySize\\.$#"
+      count: 1
+      path: ../../src/Readline/Userland.php
