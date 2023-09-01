@@ -108,15 +108,4 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
         $e = new ErrorException('{{message}}', 0, 1, '/fake/path/to/Psy/File.php');
         $this->assertNotEmpty($e->getFile());
     }
-
-    public function testFromError()
-    {
-        $error = new \Error('{{message}}', 0);
-        $exception = ErrorException::fromError($error);
-
-        $this->assertStringContainsString('PHP Error:  {{message}}', $exception->getMessage());
-        $this->assertSame(0, $exception->getCode());
-        $this->assertSame($error->getFile(), $exception->getFile());
-        $this->assertSame($exception->getPrevious(), $error);
-    }
 }

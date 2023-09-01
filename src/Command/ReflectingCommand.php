@@ -227,20 +227,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
     }
 
     /**
-     * @deprecated Use `resolveCode` instead
-     *
-     * @param string $name
-     *
-     * @return mixed Variable instance
-     */
-    protected function resolveInstance(string $name)
-    {
-        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', \E_USER_DEPRECATED);
-
-        return $this->resolveCode($name);
-    }
-
-    /**
      * Get a variable from the current shell scope.
      *
      * @param string $name

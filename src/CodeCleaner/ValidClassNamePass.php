@@ -260,30 +260,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     }
 
     /**
-     * Get a symbol type key for storing in the scope name cache.
-     *
-     * @deprecated No longer used. Scope type should be passed into ensureCanDefine directly.
-     *
-     * @codeCoverageIgnore
-     *
-     * @throws FatalErrorException
-     *
-     * @param Stmt $stmt
-     */
-    protected function getScopeType(Stmt $stmt): string
-    {
-        if ($stmt instanceof Class_) {
-            return self::CLASS_TYPE;
-        } elseif ($stmt instanceof Interface_) {
-            return self::INTERFACE_TYPE;
-        } elseif ($stmt instanceof Trait_) {
-            return self::TRAIT_TYPE;
-        }
-
-        throw $this->createError('Unsupported statement type', $stmt);
-    }
-
-    /**
      * Check whether a class exists, or has been defined in the current code snippet.
      *
      * Gives `self`, `static` and `parent` a free pass.

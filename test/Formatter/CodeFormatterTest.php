@@ -11,7 +11,6 @@
 
 namespace Psy\Test\Formatter;
 
-use Psy\Configuration;
 use Psy\Formatter\CodeFormatter;
 use Psy\Test\Formatter\Fixtures\SomeClass;
 
@@ -22,7 +21,7 @@ class CodeFormatterTest extends \Psy\Test\TestCase
      */
     public function testFormat($reflector, $expected)
     {
-        $formatted = CodeFormatter::format($reflector, Configuration::COLOR_MODE_FORCED);
+        $formatted = CodeFormatter::format($reflector);
         $formattedWithoutColors = self::stripTags($formatted);
 
         $this->assertSame($expected, self::trimLines($formattedWithoutColors));

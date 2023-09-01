@@ -76,12 +76,11 @@ class CodeFormatter implements ReflectorFormatter
     /**
      * Format the code represented by $reflector for shell output.
      *
-     * @param \Reflector  $reflector
-     * @param string|null $colorMode (deprecated and ignored)
+     * @param \Reflector $reflector
      *
      * @return string formatted code
      */
-    public static function format(\Reflector $reflector, string $colorMode = null): string
+    public static function format(\Reflector $reflector): string
     {
         if (self::isReflectable($reflector)) {
             if ($code = @\file_get_contents($reflector->getFileName())) {
