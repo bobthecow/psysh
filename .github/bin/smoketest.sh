@@ -5,7 +5,7 @@ failed=0
 if [ "$#" -gt 0 ]; then
   build_versions=$@
 else
-  build_versions=(psysh psysh-php70)
+  build_versions=(psysh)
 fi
 
 fail() {

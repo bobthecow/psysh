@@ -43,10 +43,6 @@ jobs:
     needs: draft_release
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        package: ['', '-php70']
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3.5.3
@@ -68,7 +64,7 @@ jobs:
           command: composer update --no-interaction --no-progress
 
       - name: Build release asset
-        run: make dist/psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
+        run: make dist/psysh-${{ needs.draft_release.outputs.tag_name }}.tar.gz
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1.0.2
@@ -76,6 +72,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_path: ./dist/psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
-          asset_name: psysh-${{ needs.draft_release.outputs.tag_name }}${{ matrix.package }}.tar.gz
+          asset_path: ./dist/psysh-${{ needs.draft_release.outputs.tag_name }}.tar.gz
+          asset_name: psysh-${{ needs.draft_release.outputs.tag_name }}.tar.gz
           asset_content_type: application/gzip

@@ -13,8 +13,7 @@ namespace Psy\Test\Formatter;
 
 use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Formatter\SignatureFormatter;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Test\Formatter\Fixtures\BoringTrait;
 
 /**
@@ -45,7 +44,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
     {
         $values = [
             [
-                ReflectionClassConstant::create($this, 'FOO'),
+                new \ReflectionClassConstant($this, 'FOO'),
                 'const FOO = "foo value"',
             ],
             [
@@ -71,15 +70,15 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
                 'public function boringMethod($one = 1)',
             ],
             [
-                new ReflectionConstant_('E_ERROR'),
+                new ReflectionConstant('E_ERROR'),
                 'define("E_ERROR", 1)',
             ],
             [
-                new ReflectionConstant_('PHP_VERSION'),
+                new ReflectionConstant('PHP_VERSION'),
                 'define("PHP_VERSION", "'.\PHP_VERSION.'")',
             ],
             [
-                new ReflectionConstant_('__LINE__'),
+                new ReflectionConstant('__LINE__'),
                 'define("__LINE__", null)', // @todo show this as `unknown` in red or something?
             ],
             [

@@ -105,8 +105,8 @@ class ErrorException extends \ErrorException implements Exception
      *
      * @param \Error $e
      */
-    public static function fromError(\Error $e): self
+    public static function fromError(\Error $e)
     {
-        return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
+        @\trigger_error('PsySH no longer wraps Errors', \E_USER_DEPRECATED);
     }
 }

@@ -19,8 +19,7 @@ use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Sudo\SudoVisitor;
 use Psy\Util\Mirror;
 
@@ -228,20 +227,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
     }
 
     /**
-     * @deprecated Use `resolveCode` instead
-     *
-     * @param string $name
-     *
-     * @return mixed Variable instance
-     */
-    protected function resolveInstance(string $name)
-    {
-        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', \E_USER_DEPRECATED);
-
-        return $this->resolveCode($name);
-    }
-
-    /**
      * Get a variable from the current shell scope.
      *
      * @param string $name
@@ -314,7 +299,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
             case \ReflectionProperty::class:
             case \ReflectionClassConstant::class:
-            case ReflectionClassConstant::class:
                 $classReflector = $reflector->getDeclaringClass();
                 $vars['__class'] = $classReflector->name;
                 if ($classReflector->inNamespace()) {
@@ -327,7 +311,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case ReflectionConstant_::class:
+            case ReflectionConstant::class:
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }

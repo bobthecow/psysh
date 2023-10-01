@@ -13,12 +13,12 @@
         }
     ],
     "require": {
-        "php": "^8.0 || ^7.0.8",
+        "php": "^8.0 || ^7.4",
         "ext-json": "*",
         "ext-tokenizer": "*",
         "symfony/console": "^6.0 || ^5.0 || ^4.0 || ^3.4",
         "symfony/var-dumper": "^6.0 || ^5.0 || ^4.0 || ^3.4",
-        "nikic/php-parser": "^4.0 || ^3.1"
+        "nikic/php-parser": "^4.0"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.2"

@@ -79,8 +79,6 @@ class ValidClassNamePass extends NamespaceAwarePass
     {
         if (self::isConditional($node)) {
             $this->conditionalScopes--;
-
-            return;
         }
     }
 
@@ -259,30 +257,6 @@ class ValidClassNamePass extends NamespaceAwarePass
                 throw $this->createError(\sprintf('Interface \'%s\' not found', $name), $stmt);
             }
         }
-    }
-
-    /**
-     * Get a symbol type key for storing in the scope name cache.
-     *
-     * @deprecated No longer used. Scope type should be passed into ensureCanDefine directly.
-     *
-     * @codeCoverageIgnore
-     *
-     * @throws FatalErrorException
-     *
-     * @param Stmt $stmt
-     */
-    protected function getScopeType(Stmt $stmt): string
-    {
-        if ($stmt instanceof Class_) {
-            return self::CLASS_TYPE;
-        } elseif ($stmt instanceof Interface_) {
-            return self::INTERFACE_TYPE;
-        } elseif ($stmt instanceof Trait_) {
-            return self::TRAIT_TYPE;
-        }
-
-        throw $this->createError('Unsupported statement type', $stmt);
     }
 
     /**

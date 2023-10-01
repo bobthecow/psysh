@@ -110,7 +110,6 @@ class IssetPassTest extends CodeCleanerTestCase
     {
         return [
             // isset() can be used on dereferences of temporary expressions
-            // TODO: as of which version?
             ['isset([0, 1][0])'],
             ['isset(([0, 1] + [])[0])'],
             ['isset([[0, 1]][0][0])'],

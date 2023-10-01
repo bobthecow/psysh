@@ -30,14 +30,6 @@ class ShowCommand extends ReflectingCommand
     private $lastExceptionIndex;
 
     /**
-     * @param string|null $colorMode (deprecated and ignored)
-     */
-    public function __construct($colorMode = null)
-    {
-        parent::__construct();
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function configure()

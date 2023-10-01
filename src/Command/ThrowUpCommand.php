@@ -18,8 +18,6 @@ use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Throw_;
 use PhpParser\PrettyPrinter\Standard as Printer;
-use Psy\Context;
-use Psy\ContextAware;
 use Psy\Exception\ThrowUpException;
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Throw an exception or error out of the Psy Shell.
  */
-class ThrowUpCommand extends Command implements ContextAware
+class ThrowUpCommand extends Command
 {
     private $parser;
     private $printer;
@@ -42,16 +40,6 @@ class ThrowUpCommand extends Command implements ContextAware
         $this->printer = new Printer();
 
         parent::__construct($name);
-    }
-
-    /**
-     * @deprecated throwUp no longer needs to be ContextAware
-     *
-     * @param Context $context
-     */
-    public function setContext(Context $context)
-    {
-        // Do nothing
     }
 
     /**
@@ -123,9 +111,7 @@ HELP
         }
 
         $node = $nodes[0];
-
-        // Make this work for PHP Parser v3.x
-        $expr = isset($node->expr) ? $node->expr : $node;
+        $expr = $node->expr;
 
         $args = [new Arg($expr, false, false, $node->getAttributes())];
 

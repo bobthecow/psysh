@@ -11,7 +11,6 @@
 
 namespace Psy\Test\Formatter;
 
-use Psy\Configuration;
 use Psy\Formatter\CodeFormatter;
 use Psy\Test\Formatter\Fixtures\SomeClass;
 
@@ -22,7 +21,7 @@ class CodeFormatterTest extends \Psy\Test\TestCase
      */
     public function testFormat($reflector, $expected)
     {
-        $formatted = CodeFormatter::format($reflector, Configuration::COLOR_MODE_FORCED);
+        $formatted = CodeFormatter::format($reflector);
         $formattedWithoutColors = self::stripTags($formatted);
 
         $this->assertSame($expected, self::trimLines($formattedWithoutColors));
@@ -85,17 +84,12 @@ EOS;
 
     public function invalidReflectors()
     {
-        $reflectors = [
+        return [
             [new \ReflectionExtension('json')],
             [new \ReflectionParameter([SomeClass::class, 'someMethod'], 'someParam')],
             [new \ReflectionProperty(SomeClass::class, 'someProp')],
+            [new \ReflectionClassConstant(SomeClass::class, 'SOME_CONST')],
         ];
-
-        if (\version_compare(\PHP_VERSION, '7.1.0', '>=')) {
-            $reflectors[] = [new \ReflectionClassConstant(SomeClass::class, 'SOME_CONST')];
-        }
-
-        return $reflectors;
     }
 
     /**

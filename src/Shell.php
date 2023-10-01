@@ -52,15 +52,6 @@ class Shell extends Application
 {
     const VERSION = 'v0.11.21';
 
-    /** @deprecated */
-    const PROMPT = '>>> ';
-    /** @deprecated */
-    const BUFF_PROMPT = '... ';
-    /** @deprecated */
-    const REPLAY = '--> ';
-    /** @deprecated */
-    const RETVAL = '=> ';
-
     private $config;
     private $cleaner;
     private $output;
@@ -151,6 +142,8 @@ class Shell extends Application
      */
     public static function debug(array $vars = [], $bindTo = null): array
     {
+        @\trigger_error('`Psy\\Shell::debug` is deprecated; call `Psy\\debug` instead.', \E_USER_DEPRECATED);
+
         return \Psy\debug($vars, $bindTo);
     }
 
@@ -256,14 +249,6 @@ class Shell extends Application
     }
 
     /**
-     * @deprecated Nothing should use this anymore
-     */
-    protected function getTabCompletionMatchers()
-    {
-        @\trigger_error('getTabCompletionMatchers is no longer used', \E_USER_DEPRECATED);
-    }
-
-    /**
      * Gets the default command loop listeners.
      *
      * @return array An array of Execution Loop Listener instances
@@ -304,6 +289,8 @@ class Shell extends Application
      */
     public function addTabCompletionMatchers(array $matchers)
     {
+        @\trigger_error('`addTabCompletionMatchers` is deprecated; call `addMatchers` instead.', \E_USER_DEPRECATED);
+
         $this->addMatchers($matchers);
     }
 
@@ -1532,6 +1519,8 @@ class Shell extends Application
      */
     public function getVersion(): string
     {
+        @\trigger_error('`getVersion` is deprecated; call `self::getVersionHeader` instead.', \E_USER_DEPRECATED);
+
         return self::getVersionHeader($this->config->useUnicode());
     }
 
@@ -1555,14 +1544,6 @@ class Shell extends Application
     public function getManualDb()
     {
         return $this->config->getManualDb();
-    }
-
-    /**
-     * @deprecated Tab completion is provided by the AutoCompleter service
-     */
-    protected function autocomplete($text)
-    {
-        @\trigger_error('Tab completion is provided by the AutoCompleter service', \E_USER_DEPRECATED);
     }
 
     /**
