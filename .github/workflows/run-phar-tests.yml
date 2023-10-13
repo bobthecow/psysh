@@ -18,6 +18,10 @@ jobs:
             php: '8.1'
           - build_version: psysh
             php: '8.2'
+          - build_version: psysh
+            php: '8.3'
+          - build_version: psysh
+            php: '8.4'
           - build_version: psysh-php70
             php: '7.0'
           - build_version: psysh-php70
