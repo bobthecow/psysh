@@ -48,7 +48,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      *
      * @throws \RuntimeException When unable to write output (should never happen)
      */
-    public function doWrite($message, $newline)
+    public function doWrite($message, $newline): void
     {
         $pipe = $this->getPipe();
         if (false === @\fwrite($pipe, $message.($newline ? \PHP_EOL : ''))) {

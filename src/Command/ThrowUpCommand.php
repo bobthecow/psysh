@@ -75,7 +75,7 @@ HELP
      *
      * @throws \InvalidArgumentException if there is no exception to throw
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $args = $this->prepareArgs($input->getArgument('exception'));
         $throwStmt = new Throw_(new New_(new FullyQualifiedName(ThrowUpException::class), $args));

@@ -119,7 +119,7 @@ class ShellOutput extends ConsoleOutput
      * @param bool         $newline  Whether to add a newline or not
      * @param int          $type     The type of output
      */
-    public function write($messages, $newline = false, $type = 0)
+    public function write($messages, $newline = false, $type = 0): void
     {
         if ($this->getVerbosity() === self::VERBOSITY_QUIET) {
             return;
@@ -154,7 +154,7 @@ class ShellOutput extends ConsoleOutput
      * @param string $message A message to write to the output
      * @param bool   $newline Whether to add a newline or not
      */
-    public function doWrite($message, $newline)
+    public function doWrite($message, $newline): void
     {
         if ($this->paging > 0) {
             $this->pager->doWrite($message, $newline);

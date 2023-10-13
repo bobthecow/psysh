@@ -23,9 +23,9 @@ class Dumper extends CliDumper
     private $formatter;
     private $forceArrayIndexes;
 
-    const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
-    const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';
-    const CONTROL_CHARS_MAP = [
+    private const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
+    private const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';
+    private const CONTROL_CHARS_MAP = [
         "\0"   => '\0',
         "\t"   => '\t',
         "\n"   => '\n',
@@ -46,7 +46,7 @@ class Dumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    public function enterHash(Cursor $cursor, $type, $class, $hasChild)
+    public function enterHash(Cursor $cursor, $type, $class, $hasChild): void
     {
         if (Cursor::HASH_INDEXED === $type || Cursor::HASH_ASSOC === $type) {
             $class = 0;
@@ -57,7 +57,7 @@ class Dumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    protected function dumpKey(Cursor $cursor)
+    protected function dumpKey(Cursor $cursor): void
     {
         if ($this->forceArrayIndexes || Cursor::HASH_INDEXED !== $cursor->hashType) {
             parent::dumpKey($cursor);
@@ -97,7 +97,7 @@ class Dumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    protected function dumpLine($depth, $endOfValue = false)
+    protected function dumpLine($depth, $endOfValue = false): void
     {
         if ($endOfValue && 0 < $depth) {
             $this->line .= ',';

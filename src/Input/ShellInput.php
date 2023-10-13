@@ -47,7 +47,7 @@ class ShellInput extends StringInput
      *
      * @throws \InvalidArgumentException if $definition has CodeArgument before the final argument position
      */
-    public function bind(InputDefinition $definition)
+    public function bind(InputDefinition $definition): void
     {
         $hasCodeArgument = false;
 
@@ -68,7 +68,7 @@ class ShellInput extends StringInput
 
         $this->hasCodeArgument = $hasCodeArgument;
 
-        return parent::bind($definition);
+        parent::bind($definition);
     }
 
     /**
@@ -121,7 +121,7 @@ class ShellInput extends StringInput
     /**
      * Same as parent, but with some bonus handling for code arguments.
      */
-    protected function parse()
+    protected function parse(): void
     {
         $parseOptions = true;
         $this->parsed = $this->tokenPairs;
