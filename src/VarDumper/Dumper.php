@@ -23,9 +23,9 @@ class Dumper extends CliDumper
     private $formatter;
     private $forceArrayIndexes;
 
-    protected static $onlyControlCharsRx = '/^[\x00-\x1F\x7F]+$/';
-    protected static $controlCharsRx = '/([\x00-\x1F\x7F]+)/';
-    protected static $controlCharsMap = [
+    const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
+    const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';
+    const CONTROL_CHARS_MAP = [
         "\0"   => '\0',
         "\t"   => '\t',
         "\n"   => '\n',
@@ -71,16 +71,15 @@ class Dumper extends CliDumper
         }
 
         $styled = '';
-        $map = self::$controlCharsMap;
         $cchr = $this->styles['cchr'];
 
-        $chunks = \preg_split(self::$controlCharsRx, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+        $chunks = \preg_split(self::CONTROL_CHARS, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
         foreach ($chunks as $chunk) {
-            if (\preg_match(self::$onlyControlCharsRx, $chunk)) {
+            if (\preg_match(self::ONLY_CONTROL_CHARS, $chunk)) {
                 $chars = '';
                 $i = 0;
                 do {
-                    $chars .= isset($map[$chunk[$i]]) ? $map[$chunk[$i]] : \sprintf('\x%02X', \ord($chunk[$i]));
+                    $chars .= isset(self::CONTROL_CHARS_MAP[$chunk[$i]]) ? self::CONTROL_CHARS_MAP[$chunk[$i]] : \sprintf('\x%02X', \ord($chunk[$i]));
                 } while (isset($chunk[++$i]));
 
                 $chars = $this->formatter->escape($chars);
