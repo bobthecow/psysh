@@ -26,7 +26,6 @@
     "suggest": {
         "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
         "ext-posix": "If you have PCNTL, you'll want the POSIX extension as well.",
-        "ext-readline": "Enables support for arrow-key history navigation, and showing and manipulating command history.",
         "ext-pdo-sqlite": "The doc command requires SQLite to work."
     },
     "autoload": {
