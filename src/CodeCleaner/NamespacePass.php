@@ -86,6 +86,16 @@ class NamespacePass extends CodeCleanerPass
     private function setNamespace($namespace)
     {
         $this->namespace = $namespace;
-        $this->cleaner->setNamespace($namespace === null ? null : $namespace->parts);
+        $this->cleaner->setNamespace($namespace === null ? null : $this->getParts($namespace));
+    }
+
+    /**
+     * Backwards compatibility shim for PHP-Parser 4.x
+     *
+     * At some point we might want to make the namespace a plain string, to match how Name works?
+     */
+    protected function getParts(Name $name): array
+    {
+        return method_exists($name, 'getParts') ? $name->getParts() : $name->parts;
     }
 }

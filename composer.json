@@ -18,7 +18,7 @@
         "ext-tokenizer": "*",
         "symfony/console": "^7.0 || ^6.0 || ^5.0 || ^4.0 || ^3.4",
         "symfony/var-dumper": "^7.0 || ^6.0 || ^5.0 || ^4.0 || ^3.4",
-        "nikic/php-parser": "^4.0"
+        "nikic/php-parser": "^5.0 || ^4.0"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.2"

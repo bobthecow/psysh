@@ -17,6 +17,7 @@ use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
+use PhpParser\Node\Stmt\UseItem;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeTraverser;
 
@@ -72,9 +73,8 @@ class UseStatementPass extends CodeCleanerPass
     {
         // Store a reference to every "use" statement, because we'll need them in a bit.
         if ($node instanceof Use_) {
-            foreach ($node->uses as $use) {
-                $alias = $use->alias ?: \end($use->name->parts);
-                $this->aliases[\strtolower($alias)] = $use->name;
+            foreach ($node->uses as $useItem) {
+                $this->aliases[\strtolower($useItem->getAlias())] = $useItem->name;
             }
 
             return NodeTraverser::REMOVE_NODE;
@@ -82,11 +82,10 @@ class UseStatementPass extends CodeCleanerPass
 
         // Expand every "use" statement in the group into a full, standalone "use" and store 'em with the others.
         if ($node instanceof GroupUse) {
-            foreach ($node->uses as $use) {
-                $alias = $use->alias ?: \end($use->name->parts);
-                $this->aliases[\strtolower($alias)] = Name::concat($node->prefix, $use->name, [
+            foreach ($node->uses as $useItem) {
+                $this->aliases[\strtolower($useItem->getAlias())] = Name::concat($node->prefix, $useItem->name, [
                     'startLine' => $node->prefix->getAttribute('startLine'),
-                    'endLine'   => $use->name->getAttribute('endLine'),
+                    'endLine'   => $useItem->name->getAttribute('endLine'),
                 ]);
             }
 
@@ -102,8 +101,9 @@ class UseStatementPass extends CodeCleanerPass
             return;
         }
 
-        // Do nothing with UseUse; this an entry in the list of uses in the use statement.
-        if ($node instanceof UseUse) {
+        // Do nothing with UseItem; this an entry in the list of uses in the use statement.
+        // @todo Remove UseUse once we drop support for PHP-Parser 4.x
+        if ($node instanceof UseUse || $node instanceof UseItem) {
             return;
         }
 

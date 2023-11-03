@@ -77,9 +77,9 @@ class ListPass extends CodeCleanerPass
     /**
      * Validate whether a given item in an array is valid for short assignment.
      *
-     * @param Expr $item
+     * @param Node $item
      */
-    private static function isValidArrayItem(Expr $item): bool
+    private static function isValidArrayItem(Node $item): bool
     {
         $value = ($item instanceof ArrayItem) ? $item->value : $item;
 
