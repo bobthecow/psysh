@@ -68,9 +68,9 @@ class LabelContextPass extends CodeCleanerPass
         }
 
         if ($node instanceof Goto_) {
-            $this->labelGotos[\strtolower($node->name)] = $node->getLine();
+            $this->labelGotos[\strtolower($node->name)] = $node->getStartLine();
         } elseif ($node instanceof Label) {
-            $this->labelDeclarations[\strtolower($node->name)] = $node->getLine();
+            $this->labelDeclarations[\strtolower($node->name)] = $node->getStartLine();
         }
     }
 

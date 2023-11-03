@@ -52,7 +52,10 @@ class ListPass extends CodeCleanerPass
         $items = isset($node->var->items) ? $node->var->items : $node->var->vars;
 
         if ($items === [] || $items === [null]) {
-            throw new ParseErrorException('Cannot use empty list', $node->var->getLine());
+            throw new ParseErrorException('Cannot use empty list', [
+                'startLine' => $node->var->getStartLine(),
+                'endLine' => $node->var->getEndLine(),
+            ]);
         }
 
         $itemFound = false;
@@ -65,7 +68,10 @@ class ListPass extends CodeCleanerPass
 
             if (!self::isValidArrayItem($item)) {
                 $msg = 'Assignments can only happen to writable values';
-                throw new ParseErrorException($msg, $item->getLine());
+                throw new ParseErrorException($msg, [
+                    'startLine' => $item->getStartLine(),
+                    'endLine' => $item->getEndLine(),
+                ]);
             }
         }
 
