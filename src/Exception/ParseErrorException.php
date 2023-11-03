@@ -27,7 +27,7 @@ class ParseErrorException extends \PhpParser\Error implements Exception
     {
         $message = \sprintf('PHP Parse error: %s', $message);
 
-        if (!is_array($attributes)) {
+        if (!\is_array($attributes)) {
             $attributes = ['startLine' => $attributes];
         }
 

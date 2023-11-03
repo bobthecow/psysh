@@ -110,12 +110,12 @@ class ValidConstructorPass extends CodeCleanerPass
     }
 
     /**
-     * Backwards compatibility shim for PHP-Parser 4.x
+     * Backwards compatibility shim for PHP-Parser 4.x.
      *
      * At some point we might want to make $namespace a plain string, to match how Name works?
      */
     protected function getParts(Name $name): array
     {
-        return method_exists($name, 'getParts') ? $name->getParts() : $name->parts;
+        return \method_exists($name, 'getParts') ? $name->getParts() : $name->parts;
     }
 }
