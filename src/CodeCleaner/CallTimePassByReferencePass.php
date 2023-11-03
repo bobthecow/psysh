@@ -50,7 +50,7 @@ class CallTimePassByReferencePass extends CodeCleanerPass
             }
 
             if ($arg->byRef) {
-                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
     }

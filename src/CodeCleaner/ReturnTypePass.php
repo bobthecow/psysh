@@ -72,7 +72,7 @@ class ReturnTypePass extends CodeCleanerPass
             }
 
             if ($msg !== null) {
-                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
     }

@@ -53,7 +53,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                 }
 
                 if ($item && $item->byRef && $this->isCallNode($item->value)) {
-                    throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                    throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                 }
             }
         } elseif ($node instanceof Isset_ || $node instanceof Unset_) {
@@ -63,10 +63,10 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
                 }
 
                 $msg = $node instanceof Isset_ ? self::ISSET_MESSAGE : self::EXCEPTION_MESSAGE;
-                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         } elseif ($node instanceof Assign && $this->isCallNode($node->var)) {
-            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
         }
     }
 

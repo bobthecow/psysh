@@ -59,7 +59,7 @@ class EmptyArrayDimFetchPass extends CodeCleanerPass
 
         if ($node instanceof ArrayDimFetch && $node->dim === null) {
             if (!\in_array($node, $this->theseOnesAreFine)) {
-                throw new FatalErrorException(self::EXCEPTION_MESSAGE, $node->getLine());
+                throw new FatalErrorException(self::EXCEPTION_MESSAGE, $node->getStartLine());
             }
         }
     }

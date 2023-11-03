@@ -63,7 +63,7 @@ class StrictTypesPass extends CodeCleanerPass
                     if ($declare->key->toString() === 'strict_types') {
                         $value = $declare->value;
                         if (!$value instanceof LNumber || ($value->value !== 0 && $value->value !== 1)) {
-                            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                         }
 
                         $this->strictTypes = $value->value === 1;

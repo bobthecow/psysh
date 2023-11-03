@@ -96,7 +96,7 @@ class ValidConstructorPass extends CodeCleanerPass
                 \implode('\\', \array_merge($this->namespace, (array) $classNode->name->toString())),
                 $constructor->name
             );
-            throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getLine());
+            throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getStartLine());
         }
 
         if (\method_exists($constructor, 'getReturnType') && $constructor->getReturnType()) {
@@ -105,7 +105,7 @@ class ValidConstructorPass extends CodeCleanerPass
                 \implode('\\', \array_merge($this->namespace, (array) $classNode->name->toString())),
                 $constructor->name
             );
-            throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getLine());
+            throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getStartLine());
         }
     }
 

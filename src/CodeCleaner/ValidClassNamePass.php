@@ -321,6 +321,6 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function createError(string $msg, Stmt $stmt): FatalErrorException
     {
-        return new FatalErrorException($msg, 0, \E_ERROR, null, $stmt->getLine());
+        return new FatalErrorException($msg, 0, \E_ERROR, null, $stmt->getStartLine());
     }
 }

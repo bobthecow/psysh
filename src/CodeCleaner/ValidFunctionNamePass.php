@@ -53,7 +53,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
                 if (\function_exists($name) ||
                     isset($this->currentScope[\strtolower($name)])) {
                     $msg = \sprintf('Cannot redeclare %s()', $name);
-                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
                 }
             }
 
