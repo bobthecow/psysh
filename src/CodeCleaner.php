@@ -70,12 +70,7 @@ class CodeCleaner
         $this->yolo = $yolo;
         $this->strictTypes = $strictTypes;
 
-        if ($parser === null) {
-            $parserFactory = new ParserFactory();
-            $parser = $parserFactory->createParser();
-        }
-
-        $this->parser = $parser;
+        $this->parser = $parser ?? (new ParserFactory())->createParser();
         $this->printer = $printer ?: new Printer();
         $this->traverser = $traverser ?: new NodeTraverser();
 

@@ -41,8 +41,7 @@ class RunkitReloader extends AbstractListener
      */
     public function __construct()
     {
-        $parserFactory = new ParserFactory();
-        $this->parser = $parserFactory->createParser();
+        $this->parser = (new ParserFactory())->createParser();
     }
 
     /**
