@@ -119,7 +119,25 @@ class IssetPassTest extends CodeCleanerTestCase
             ['isset("str"->a)'],
             ['isset((["a" => "b"] + [])->a)'],
             ['isset((["a" => "b"] + [])->a->b)'],
+        ];
+    }
 
+    /**
+     * @dataProvider validPHP8Statements
+     */
+    public function testValidPHP8Statements($code)
+    {
+        $this->parseAndTraverse($code);
+        $this->assertTrue(true);
+    }
+
+    public function validPHP8Statements()
+    {
+        if (\version_compare(\PHP_VERSION, '8.0', '<')) {
+            $this->markTestSkipped();
+        }
+
+        return [
             // Nullsafe operator
             ['isset($foo?->bar)'],
             ['isset($foo?->bar->baz)'],
