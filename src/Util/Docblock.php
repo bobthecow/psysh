@@ -214,10 +214,8 @@ class Docblock
      *
      * @return array|null
      */
-    public function tag(string $tag)
+    public function tag(string $tag): ?array
     {
-        // TODO: Add proper null-type return values once the lowest PHP version supported is 7.1
-
         return $this->hasTag($tag) ? $this->tags[$tag] : null;
     }
 
