@@ -36,8 +36,6 @@ class RunkitReloader extends AbstractListener
 
     /**
      * Construct a Runkit Reloader.
-     *
-     * @todo Pass in Parser Factory instance for dependency injection?
      */
     public function __construct()
     {

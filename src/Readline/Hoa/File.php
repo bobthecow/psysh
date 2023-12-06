@@ -185,7 +185,7 @@ abstract class File extends FileGeneric implements StreamBufferable, StreamLocka
     {
         $this->setStreamBuffer($size);
 
-        // @TODO manage $callable as a filter?
+        // @todo manage $callable as a filter?
 
         return 1;
     }
