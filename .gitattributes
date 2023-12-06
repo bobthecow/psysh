@@ -9,8 +9,8 @@
 /box.json.dist export-ignore
 /codecov.yml export-ignore
 /Makefile export-ignore
-/phpunit.xml.dist export-ignore
 /phpstan.neon.dist export-ignore
+/phpunit.xml.dist export-ignore
 /scoper.inc.php export-ignore
 /test export-ignore
 /vendor-bin export-ignore
