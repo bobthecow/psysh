@@ -32,6 +32,11 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
     {
     }
 
+    private function nullableFakeMethod(?bool $one, ?string $two = null, $three = null): ?array
+    {
+        return null;
+    }
+
     /**
      * @dataProvider signatureReflectors
      */
@@ -84,6 +89,10 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
             [
                 new \ReflectionMethod($this, 'anotherFakeMethod'),
                 'private function anotherFakeMethod(array $one = [], $two = 2, $three = null)',
+            ],
+            [
+                new \ReflectionMethod($this, 'nullableFakeMethod'),
+                'private function nullableFakeMethod(?bool $one, string $two = null, $three = null): ?array',
             ],
         ];
 

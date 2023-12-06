@@ -232,7 +232,7 @@ class SignatureFormatter implements ReflectorFormatter
             return '';
         }
 
-        return \sprintf(': %s', self::formatReflectionType($reflector->getReturnType()));
+        return \sprintf(': %s', self::formatReflectionType($reflector->getReturnType(), true));
     }
 
     /**
@@ -265,7 +265,9 @@ class SignatureFormatter implements ReflectorFormatter
             $hint = '';
             try {
                 if (\method_exists($param, 'getType')) {
-                    $hint = self::formatReflectionType($param->getType());
+                    // Only include the inquisitive nullable type iff param default value is not null.
+                    $defaultIsNull = $param->isOptional() && $param->isDefaultValueAvailable() && $param->getDefaultValue() === null;
+                    $hint = self::formatReflectionType($param->getType(), !$defaultIsNull);
                 } else {
                     if ($param->isArray()) {
                         $hint = '<keyword>array</keyword>';
@@ -321,25 +323,36 @@ class SignatureFormatter implements ReflectorFormatter
      *
      * @param \ReflectionType $type
      */
-    private static function formatReflectionType(\ReflectionType $type = null): string
+    private static function formatReflectionType(?\ReflectionType $type, bool $indicateNullable): string
     {
         if ($type === null) {
             return '';
         }
 
-        $types = $type instanceof \ReflectionUnionType ? $type->getTypes() : [$type];
-        $formattedTypes = [];
-
-        foreach ($types as $type) {
-            $typeStyle = $type->isBuiltin() ? 'keyword' : 'class';
-
-            // PHP 7.0 didn't have `getName` on reflection types, so wheee!
-            $typeName = \method_exists($type, 'getName') ? $type->getName() : (string) $type;
-
-            // @todo Do we want to include the ? for nullable types? Maybe only sometimes?
-            $formattedTypes[] = \sprintf('<%s>%s</%s>', $typeStyle, OutputFormatter::escape($typeName), $typeStyle);
+        if ($type instanceof \ReflectionUnionType) {
+            $delimeter = '|';
+        } elseif ($type instanceof \ReflectionIntersectionType) {
+            $delimeter = '&';
+        } else {
+            return self::formatReflectionNamedType($type, $indicateNullable);
         }
 
-        return \implode('|', $formattedTypes);
+        $formattedTypes = [];
+        foreach ($type->getTypes() as $namedType) {
+            $formattedTypes[] = self::formatReflectionNamedType($namedType, $indicateNullable);
+        }
+
+        return \implode($delimeter, $formattedTypes);
+    }
+
+    /**
+     * Print a single named type.
+     */
+    private static function formatReflectionNamedType(\ReflectionNamedType $type, bool $indicateNullable): string
+    {
+        $typeStyle = $type->isBuiltin() ? 'keyword' : 'class';
+        $nullable = $indicateNullable && $type->allowsNull() ? '?' : '';
+
+        return \sprintf('<%s>%s%s</%s>', $typeStyle, $nullable, OutputFormatter::escape($type->getName()), $typeStyle);
     }
 }
