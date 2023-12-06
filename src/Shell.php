@@ -654,7 +654,7 @@ class Shell extends Application
      *
      * @param bool $includeBoundObject Pass false to exclude 'this'. If you're
      *                                 passing the scope variables to `extract`
-     *                                 in PHP 7.1+, you _must_ exclude 'this'
+     *                                 you _must_ exclude 'this'
      *
      * @return array Associative array of scope variables
      */
@@ -674,7 +674,7 @@ class Shell extends Application
      *
      * @param bool $includeBoundObject Pass false to exclude 'this'. If you're
      *                                 passing the scope variables to `extract`
-     *                                 in PHP 7.1+, you _must_ exclude 'this'
+     *                                 you _must_ exclude 'this'
      *
      * @return array Associative array of magic scope variables
      */
