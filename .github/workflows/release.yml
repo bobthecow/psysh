@@ -82,6 +82,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_path: ./build/composer.lock
+          asset_path: ./build/psysh/composer.lock
           asset_name: composer-${{ needs.draft_release.outputs.tag_name }}.lock
           asset_content_type: application/gzip
