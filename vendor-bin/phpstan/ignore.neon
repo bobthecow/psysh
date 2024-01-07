@@ -9,5 +9,6 @@ parameters:
         - ../../src/ExecutionLoop/ProcessForker.php
     # PHP8.0 introduced second argument for
     - "#^Class IteratorIterator constructor invoked with 2 parameters, 1 required\\.$#"
-    # Forward-compatiblity with PHP-Parser 5.x
+    # Backwards-compatiblity with PHP-Parser 4.x
     - "#^Class PhpParser\\\\Node\\\\Stmt\\\\UseItem not found\\.$#"
+    - "#^Access to undefined constant PhpParser\\\\ParserFactory::PREFER_PHP7\\.$#"
