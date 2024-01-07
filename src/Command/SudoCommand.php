@@ -36,6 +36,7 @@ class SudoCommand extends Command
     {
         $this->parser = new CodeArgumentParser();
 
+        // @todo Pass visitor directly to once we drop support for PHP-Parser 4.x
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new SudoVisitor());
 

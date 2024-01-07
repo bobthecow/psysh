@@ -49,6 +49,7 @@ class RequirePass extends CodeCleanerPass
          *
          *   $foo = require \Psy\CodeCleaner\RequirePass::resolve($bar)
          */
+        // @todo Rename LNumber to Int_ once we drop support for PHP-Parser 4.x
         $node->expr = new StaticCall(
             new FullyQualifiedName(self::class),
             'resolve',

@@ -62,6 +62,7 @@ class StrictTypesPass extends CodeCleanerPass
                 foreach ($node->declares as $declare) {
                     if ($declare->key->toString() === 'strict_types') {
                         $value = $declare->value;
+                        // @todo Rename LNumber to Int_ once we drop support for PHP-Parser 4.x
                         if (!$value instanceof LNumber || ($value->value !== 0 && $value->value !== 1)) {
                             throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                         }
@@ -75,6 +76,8 @@ class StrictTypesPass extends CodeCleanerPass
         if ($prependStrictTypes) {
             $first = \reset($nodes);
             if (!$first instanceof Declare_) {
+                // @todo Switch to PhpParser\Node\DeclareItem once we drop support for PHP-Parser 4.x
+                // @todo Rename LNumber to Int_ once we drop support for PHP-Parser 4.x
                 $declare = new Declare_([new DeclareDeclare('strict_types', new LNumber(1))]);
                 \array_unshift($nodes, $declare);
             }

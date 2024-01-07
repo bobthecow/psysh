@@ -25,6 +25,7 @@ class TimeitVisitorTest extends ParserTestCase
      */
     public function getReady()
     {
+        // @todo Pass visitor directly to once we drop support for PHP-Parser 4.x
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new TimeitVisitor());
     }

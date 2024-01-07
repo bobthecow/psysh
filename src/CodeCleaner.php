@@ -197,6 +197,7 @@ class CodeCleaner
             }
 
             // Set up a clean traverser for just these code cleaner passes
+            // @todo Pass visitors directly to once we drop support for PHP-Parser 4.x
             $traverser = new NodeTraverser();
             foreach ($passes as $pass) {
                 $traverser->addVisitor($pass);

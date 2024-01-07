@@ -77,6 +77,7 @@ class UseStatementPass extends CodeCleanerPass
                 $this->aliases[\strtolower($useItem->getAlias())] = $useItem->name;
             }
 
+            // @todo Rename to Node_Visitor::REMOVE_NODE once we drop support for PHP-Parser 4.x
             return NodeTraverser::REMOVE_NODE;
         }
 
@@ -89,6 +90,7 @@ class UseStatementPass extends CodeCleanerPass
                 ]);
             }
 
+            // @todo Rename to Node_Visitor::REMOVE_NODE once we drop support for PHP-Parser 4.x
             return NodeTraverser::REMOVE_NODE;
         }
 
