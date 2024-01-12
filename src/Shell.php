@@ -1509,7 +1509,7 @@ class Shell extends Application
      */
     protected function getHeader(): string
     {
-        return \sprintf('<whisper>%s by Justin Hileman</whisper>', $this->getVersion());
+        return \sprintf('<whisper>%s by Justin Hileman</whisper>', self::getVersionHeader($this->config->useUnicode()));
     }
 
     /**
