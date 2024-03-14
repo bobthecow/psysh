@@ -66,7 +66,7 @@ class FileDirectory extends FileGeneric
     public function __construct(
         string $streamName,
         string $mode = self::MODE_READ,
-        string $context = null,
+        ?string $context = null,
         bool $wait = false
     ) {
         $this->setMode($mode);
@@ -78,7 +78,7 @@ class FileDirectory extends FileGeneric
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, StreamContext $context = null)
+    protected function &_open(string $streamName, ?StreamContext $context = null)
     {
         if (false === \is_dir($streamName)) {
             if ($this->getMode() === self::MODE_READ) {
@@ -185,7 +185,7 @@ class FileDirectory extends FileGeneric
     public static function create(
         string $name,
         string $mode = self::MODE_CREATE_RECURSIVE,
-        string $context = null
+        ?string $context = null
     ): bool {
         if (true === \is_dir($name)) {
             return true;

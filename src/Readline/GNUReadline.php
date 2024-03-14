@@ -105,7 +105,7 @@ class GNUReadline implements Readline
     /**
      * {@inheritdoc}
      */
-    public function readline(string $prompt = null)
+    public function readline(?string $prompt = null)
     {
         return \readline($prompt);
     }

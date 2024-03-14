@@ -92,7 +92,7 @@ HELP
      *
      * @return array Formatted stacktrace lines
      */
-    protected function getBacktrace(\Throwable $e, int $count = null, bool $includePsy = true): array
+    protected function getBacktrace(\Throwable $e, ?int $count = null, bool $includePsy = true): array
     {
         return TraceFormatter::formatTrace($e, $this->filter, $count, $includePsy);
     }

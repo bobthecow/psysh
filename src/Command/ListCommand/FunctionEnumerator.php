@@ -22,7 +22,7 @@ class FunctionEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
+    protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null): array
     {
         // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
@@ -67,7 +67,7 @@ class FunctionEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getFunctions(string $type = null): array
+    protected function getFunctions(?string $type = null): array
     {
         $funcs = \get_defined_functions();
 
@@ -86,7 +86,7 @@ class FunctionEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareFunctions(array $functions, string $prefix = null): array
+    protected function prepareFunctions(array $functions, ?string $prefix = null): array
     {
         \natcasesort($functions);
 

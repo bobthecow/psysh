@@ -21,7 +21,7 @@ class ClassConstantEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
+    protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null): array
     {
         // only list constants when a Reflector is present.
         if ($reflector === null) {

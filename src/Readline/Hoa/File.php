@@ -105,7 +105,7 @@ abstract class File extends FileGeneric implements StreamBufferable, StreamLocka
     public function __construct(
         string $streamName,
         string $mode,
-        string $context = null,
+        ?string $context = null,
         bool $wait = false
     ) {
         $this->setMode($mode);
@@ -140,7 +140,7 @@ abstract class File extends FileGeneric implements StreamBufferable, StreamLocka
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, StreamContext $context = null)
+    protected function &_open(string $streamName, ?StreamContext $context = null)
     {
         if (\substr($streamName, 0, 4) === 'file' &&
             false === \is_dir(\dirname($streamName))) {
@@ -181,7 +181,7 @@ abstract class File extends FileGeneric implements StreamBufferable, StreamLocka
      * Start a new buffer.
      * The callable acts like a light filter.
      */
-    public function newBuffer($callable = null, int $size = null): int
+    public function newBuffer($callable = null, ?int $size = null): int
     {
         $this->setStreamBuffer($size);
 

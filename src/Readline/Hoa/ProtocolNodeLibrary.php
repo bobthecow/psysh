@@ -44,7 +44,7 @@ class ProtocolNodeLibrary extends ProtocolNode
     /**
      * Queue of the component.
      */
-    public function reach(string $queue = null)
+    public function reach(?string $queue = null)
     {
         $withComposer = \class_exists('Composer\Autoload\ClassLoader', false) ||
             ('cli' === \PHP_SAPI && \file_exists(__DIR__.\DIRECTORY_SEPARATOR.'..'.\DIRECTORY_SEPARATOR.'..'.\DIRECTORY_SEPARATOR.'..'.\DIRECTORY_SEPARATOR.'..'.\DIRECTORY_SEPARATOR.'autoload.php'));

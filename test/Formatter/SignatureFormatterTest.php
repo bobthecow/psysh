@@ -24,7 +24,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
     const FOO = 'foo value';
     private static $bar = 'bar value';
 
-    private function someFakeMethod(array $one, $two = 'TWO', \Reflector $three = null)
+    private function someFakeMethod(array $one, $two = 'TWO', ?\Reflector $three = null)
     {
     }
 

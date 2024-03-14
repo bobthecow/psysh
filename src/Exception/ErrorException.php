@@ -28,7 +28,7 @@ class ErrorException extends \ErrorException implements Exception
      * @param int|null        $lineno   (default: null)
      * @param \Throwable|null $previous (default: null)
      */
-    public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, \Throwable $previous = null)
+    public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, ?\Throwable $previous = null)
     {
         $this->rawMessage = $message;
 

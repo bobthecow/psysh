@@ -65,7 +65,7 @@ class CodeCleaner
      * @param bool               $yolo        run without input validation
      * @param bool               $strictTypes enforce strict types by default
      */
-    public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null, bool $yolo = false, bool $strictTypes = false)
+    public function __construct(?Parser $parser = null, ?Printer $printer = null, ?NodeTraverser $traverser = null, bool $yolo = false, bool $strictTypes = false)
     {
         $this->yolo = $yolo;
         $this->strictTypes = $strictTypes;
@@ -284,7 +284,7 @@ class CodeCleaner
      *
      * @param array|null $namespace (default: null)
      */
-    public function setNamespace(array $namespace = null)
+    public function setNamespace(?array $namespace = null)
     {
         $this->namespace = $namespace;
     }

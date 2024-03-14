@@ -49,7 +49,7 @@ class ConstantEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
+    protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null): array
     {
         // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
@@ -122,7 +122,7 @@ class ConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getConstants(string $category = null): array
+    protected function getConstants(?string $category = null): array
     {
         if (!$category) {
             return \get_defined_constants();

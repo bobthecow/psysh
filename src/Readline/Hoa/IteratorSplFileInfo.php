@@ -56,7 +56,7 @@ class IteratorSplFileInfo extends \SplFileInfo
     /**
      * Construct.
      */
-    public function __construct(string $filename, string $relativePath = null)
+    public function __construct(string $filename, ?string $relativePath = null)
     {
         parent::__construct($filename);
 
