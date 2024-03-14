@@ -154,7 +154,7 @@ class ConsoleCursor
      * Move to the line X and the column Y.
      * If null, use the current coordinate.
      */
-    public static function moveTo(int $x = null, int $y = null)
+    public static function moveTo(?int $x = null, ?int $y = null)
     {
         if (null === $x || null === $y) {
             $position = static::getPosition();

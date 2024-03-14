@@ -250,7 +250,7 @@ class SelfUpdateTest extends \Psy\Test\TestCase
         return $downloader;
     }
 
-    private function getMockOutput(string $expectOutput = null)
+    private function getMockOutput(?string $expectOutput = null)
     {
         $methods = \get_class_methods(OutputInterface::class);
         $builder = $this->getMockBuilder(OutputInterface::class);

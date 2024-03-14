@@ -128,7 +128,7 @@ if (!\function_exists('Psy\\info')) {
      *
      * @return array|null
      */
-    function info(Configuration $config = null)
+    function info(?Configuration $config = null)
     {
         static $lastConfig;
         if ($config !== null) {

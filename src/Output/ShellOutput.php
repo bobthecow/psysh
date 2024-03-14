@@ -38,7 +38,7 @@ class ShellOutput extends ConsoleOutput
      * @param OutputFormatterInterface|null $formatter (default: null)
      * @param string|OutputPager|null       $pager     (default: null)
      */
-    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null, $theme = null)
+    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, ?OutputFormatterInterface $formatter = null, $pager = null, $theme = null)
     {
         parent::__construct($verbosity, $decorated, $formatter);
 

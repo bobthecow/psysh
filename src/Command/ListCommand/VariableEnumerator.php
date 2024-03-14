@@ -45,7 +45,7 @@ class VariableEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
+    protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null): array
     {
         // only list variables when no Reflector is present.
         if ($reflector !== null || $target !== null) {

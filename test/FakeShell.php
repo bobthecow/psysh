@@ -18,7 +18,7 @@ class FakeShell extends Shell
 {
     public $matchers;
 
-    public function __construct(Configuration $config = null)
+    public function __construct(?Configuration $config = null)
     {
         // Do something (silly) with $config for phpstan's sake.
         $config = null;

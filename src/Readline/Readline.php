@@ -70,7 +70,7 @@ interface Readline
      *
      * @return false|string
      */
-    public function readline(string $prompt = null);
+    public function readline(?string $prompt = null);
 
     /**
      * Redraw readline to redraw the display.

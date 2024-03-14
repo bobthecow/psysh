@@ -49,7 +49,7 @@ class FileRead extends File implements StreamIn
     public function __construct(
         string $streamName,
         string $mode = parent::MODE_READ,
-        string $context = null,
+        ?string $context = null,
         bool $wait = false
     ) {
         parent::__construct($streamName, $mode, $context, $wait);
@@ -60,7 +60,7 @@ class FileRead extends File implements StreamIn
     /**
      * Open the stream and return the associated resource.
      */
-    protected function &_open(string $streamName, StreamContext $context = null)
+    protected function &_open(string $streamName, ?StreamContext $context = null)
     {
         static $createModes = [
             parent::MODE_READ,
@@ -146,7 +146,7 @@ class FileRead extends File implements StreamIn
      * Read an array.
      * Alias of the $this->scanf() method.
      */
-    public function readArray(string $format = null)
+    public function readArray(?string $format = null)
     {
         return $this->scanf($format);
     }

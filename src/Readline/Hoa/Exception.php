@@ -52,7 +52,7 @@ class Exception extends ExceptionIdle implements EventSource
         string $message,
         int $code = 0,
         $arguments = [],
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $arguments, $previous);
 

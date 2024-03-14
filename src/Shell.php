@@ -79,7 +79,7 @@ class Shell extends Application
      *
      * @param Configuration|null $config (default: null)
      */
-    public function __construct(Configuration $config = null)
+    public function __construct(?Configuration $config = null)
     {
         $this->config = $config ?: new Configuration();
         $this->cleaner = $this->config->getCodeCleaner();
@@ -313,7 +313,7 @@ class Shell extends Application
      *
      * @return int 0 if everything went fine, or an error code
      */
-    public function run(InputInterface $input = null, OutputInterface $output = null): int
+    public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
         // We'll just ignore the input passed in, and set up our own!
         $input = new ArrayInput([]);

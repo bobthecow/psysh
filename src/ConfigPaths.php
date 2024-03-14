@@ -31,7 +31,7 @@ class ConfigPaths
      * @param string[]     $overrides Directory overrides
      * @param EnvInterface $env
      */
-    public function __construct(array $overrides = [], EnvInterface $env = null)
+    public function __construct(array $overrides = [], ?EnvInterface $env = null)
     {
         $this->overrideDirs($overrides);
 

@@ -99,7 +99,7 @@ HELP
      *
      * @return Arg[]
      */
-    private function prepareArgs(string $code = null): array
+    private function prepareArgs(?string $code = null): array
     {
         if (!$code) {
             // Default to last exception if nothing else was supplied
