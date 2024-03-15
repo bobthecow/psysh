@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
         with:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
@@ -23,14 +23,14 @@ jobs:
             test
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.25.4
+        uses: shivammathur/setup-php@2.30.0
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: none
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.1.4
         with:
           name: binaries
           path: build
@@ -48,7 +48,7 @@ jobs:
         run: composer init --no-interaction --name=psy/test --autoload=test/
 
       - name: Install PHPUnit
-        uses: nick-fields/retry@v2.8.3
+        uses: nick-fields/retry@v3.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
