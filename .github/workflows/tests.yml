@@ -39,7 +39,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        uses: nick-fields/retry@v2.8.3
+        uses: nick-fields/retry@v3.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
