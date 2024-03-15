@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
         with:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
