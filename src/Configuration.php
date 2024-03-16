@@ -1253,6 +1253,16 @@ class Configuration
                 $this->pager = $pager;
             } elseif ($less = $this->configPaths->which('less')) {
                 // check for the presence of less...
+
+                // n.b. The busybox less implementation is a bit broken, so
+                // let's not use it by default.
+                //
+                // See https://github.com/bobthecow/psysh/issues/778
+                $link = @\readlink($less);
+                if ($link !== false && \strpos($link, 'busybox') !== false) {
+                    return false;
+                }
+
                 $this->pager = $less.' -R -F -X';
             }
         }
