@@ -11,6 +11,7 @@
 
 namespace Psy\TabCompletion;
 
+use Psy\Readline\Readline;
 use Psy\TabCompletion\Matcher\AbstractMatcher;
 
 /**
@@ -23,6 +24,9 @@ class AutoCompleter
     /** @var Matcher\AbstractMatcher[] */
     protected $matchers;
 
+    /** @var ?Readline */
+    protected $readline;
+
     /**
      * Register a tab completion Matcher.
      *
@@ -34,23 +38,15 @@ class AutoCompleter
     }
 
     /**
-     * Activate readline tab completion.
-     */
-    public function activate()
-    {
-        \readline_completion_function([&$this, 'callback']);
-    }
-
-    /**
      * Handle readline completion.
      *
      * @param string $input Readline current word
      * @param int    $index Current word index
-     * @param array  $info  readline_info() data
+     * @phpstan-param array{line_buffer: string, end: int} $info {@see readline_info()} data
      *
-     * @return array
+     * @return list<string>
      */
-    public function processCallback(string $input, int $index, array $info = []): array
+    public function complete(string $input, int $index, array $info = []): array
     {
         // Some (Windows?) systems provide incomplete `readline_info`, so let's
         // try to work around it.
@@ -78,15 +74,13 @@ class AutoCompleter
             }
         }
 
-        $matches = \array_unique($matches);
-
-        return !empty($matches) ? $matches : [''];
+        return \array_values(\array_unique($matches)) ?: [''];
     }
 
     /**
      * The readline_completion_function callback handler.
      *
-     * @see processCallback
+     * @see AutoCompleter::complete()
      *
      * @param string $input
      * @param int    $index
@@ -95,7 +89,7 @@ class AutoCompleter
      */
     public function callback(string $input, int $index): array
     {
-        return $this->processCallback($input, $index, \readline_info());
+        return $this->complete($input, $index, \readline_info());
     }
 
     /**
@@ -103,10 +97,9 @@ class AutoCompleter
      */
     public function __destruct()
     {
-        // PHP didn't implement the whole readline API when they first switched
-        // to libedit. And they still haven't.
-        if (\function_exists('readline_callback_handler_remove')) {
-            \readline_callback_handler_remove();
+        if (isset($this->readline)) {
+            $this->readline->deactivateCompletion();
+            $this->readline = null;
         }
     }
 }

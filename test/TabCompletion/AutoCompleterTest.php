@@ -60,7 +60,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
 
         $context->setAll(['foo' => 12, 'bar' => new \DOMDocument()]);
 
-        $code = $tabCompletion->processCallback('', 0, [
+        $code = $tabCompletion->complete('', 0, [
            'line_buffer' => $line,
            'point'       => 0,
            'end'         => \strlen($line),

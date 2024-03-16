@@ -19,6 +19,7 @@ use Psy\Readline\Hoa\ConsoleOutput as HoaConsoleOutput;
 use Psy\Readline\Hoa\ConsoleTput as HoaConsoleTput;
 use Psy\Readline\Hoa\Readline as HoaReadline;
 use Psy\Readline\Hoa\Ustring as HoaUstring;
+use Psy\TabCompletion\AutoCompleter;
 
 /**
  * Userland Readline implementation.
@@ -161,5 +162,15 @@ class Userland implements Readline
     public function writeHistory(): bool
     {
         return true;
+    }
+
+    public function activateAutoCompleter(AutoCompleter $autoCompleter): void
+    {
+        $this->hoaReadline->setAutocompleter(new HoaAutocompleterAdapter($autoCompleter));
+    }
+
+    public function deactivateAutoCompleter(): void
+    {
+        // noop
     }
 }

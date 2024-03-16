@@ -56,15 +56,7 @@ class AutocompleterWord implements Autocompleter
         $this->setWords($words);
     }
 
-    /**
-     * Complete a word.
-     * Returns null for no word, a full-word or an array of full-words.
-     *
-     * @param string &$prefix Prefix to autocomplete
-     *
-     * @return mixed
-     */
-    public function complete(&$prefix)
+    public function complete(string $prefix, int $index, array $info)
     {
         $out = [];
         $length = \mb_strlen($prefix);
@@ -86,9 +78,6 @@ class AutocompleterWord implements Autocompleter
         return $out;
     }
 
-    /**
-     * Get definition of a word.
-     */
     public function getWordDefinition(): string
     {
         return '\b\w+';

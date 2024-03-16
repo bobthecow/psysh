@@ -12,6 +12,7 @@
 namespace Psy\Readline;
 
 use Psy\Exception\BreakException;
+use Psy\TabCompletion\AutoCompleter;
 
 /**
  * An array-based Readline emulation implementation.
@@ -151,5 +152,15 @@ class Transient implements Readline
         }
 
         return $this->stdin;
+    }
+
+    public function activateAutoCompleter(AutoCompleter $autoCompleter): void
+    {
+        // noop
+    }
+
+    public function deactivateAutoCompleter(): void
+    {
+        // noop
     }
 }
