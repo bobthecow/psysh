@@ -1250,10 +1250,13 @@ class Configuration
 
             if ($pager = \ini_get('cli.pager')) {
                 // use the default pager
-                $this->pager = $pager;
-            } elseif ($less = $this->configPaths->which('less')) {
-                // check for the presence of less...
-                $this->pager = $less.' -R -F -X';
+                return $this->pager = $pager;
+            }
+
+            $lessPath = $this->configPaths->which('less');
+
+            if($lessPath !== null && (!is_link($lessPath) || readlink($lessPath) !== '/bin/busybox')) {
+                return $this->pager = $lessPath.' -R -F -X';
             }
         }
 
