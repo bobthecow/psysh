@@ -69,6 +69,7 @@ class SudoTest extends TestCase
     {
         $obj = new ClassWithSecrets();
         $this->assertSame('private and const', Sudo::fetchClassConst($obj, 'PRIVATE_CONST'));
+        $this->assertSame(ClassWithSecrets::class, Sudo::fetchClassConst($obj, 'class'));
     }
 
     public function testParentProperties()

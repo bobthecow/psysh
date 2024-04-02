@@ -136,6 +136,11 @@ class Sudo
     {
         $refl = new \ReflectionClass($class);
 
+        // Special case the ::class magic constant, because `getConstant` does the wrong thing here.
+        if ($const === 'class') {
+            return $refl->getName();
+        }
+
         do {
             if ($refl->hasConstant($const)) {
                 return $refl->getConstant($const);
