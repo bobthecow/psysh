@@ -59,9 +59,14 @@ class PassableByReferencePass extends CodeCleanerPass
                 return;
             }
 
+            $args = [];
+            foreach ($node->args as $position => $arg) {
+                $args[$arg->name !== null ? $arg->name->name : $position] = $arg;
+            }
+
             foreach ($refl->getParameters() as $key => $param) {
-                if (\array_key_exists($key, $node->args)) {
-                    $arg = $node->args[$key];
+                if (\array_key_exists($key, $args) || \array_key_exists($param->name, $args)) {
+                    $arg = $args[$param->name] ?? $args[$key];
                     if ($param->isPassedByReference() && !$this->isPassableByReference($arg)) {
                         throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                     }
