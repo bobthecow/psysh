@@ -39,11 +39,17 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function invalidStatements()
     {
-        return [
+        $values = [
             ['array_pop([])'],
             ['array_pop([$foo])'],
             ['array_shift([])'],
         ];
+
+        if (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+            $values[] = ['preg_match(\'/\d+/\', \'123456\', matches: [])'];
+        }
+
+        return $values;
     }
 
     /**
@@ -57,7 +63,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
 
     public function validStatements()
     {
-        return [
+        $values = [
             ['array_pop(json_decode("[]"))'],
             ['array_pop($foo)'],
             ['array_pop($foo->bar)'],
@@ -66,6 +72,12 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             ['array_pop($foo["quux"])'],
             ['end(...[$a])'],
         ];
+
+        if (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+            $values[] = ['preg_match(\'/\d+/\', \'123456\', offset: 2)'];
+        }
+
+        return $values;
     }
 
     /**
