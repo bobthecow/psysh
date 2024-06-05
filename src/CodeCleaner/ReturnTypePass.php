@@ -15,6 +15,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Return_;
@@ -105,6 +106,10 @@ class ReturnTypePass extends CodeCleanerPass
         }
 
         if ($node instanceof Identifier) {
+            return \strtolower($node->name);
+        }
+
+        if ($node instanceof Name) {
             return \strtolower($node->name);
         }
 
