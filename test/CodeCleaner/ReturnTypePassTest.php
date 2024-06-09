@@ -27,6 +27,22 @@ class ReturnTypePassTest extends CodeCleanerTestCase
     }
 
     /**
+     * @dataProvider happyPaths
+     */
+    public function testHappyPath($code)
+    {
+        $result = $this->parseAndTraverse($code);
+        $this->assertIsArray($result);
+    }
+
+    public function happyPaths()
+    {
+        return [
+            ['$x = function(): DateTime { return new DateTime(); };'],
+        ];
+    }
+
+    /**
      * @dataProvider missingReturns
      */
     public function testMissingReturn($code)
