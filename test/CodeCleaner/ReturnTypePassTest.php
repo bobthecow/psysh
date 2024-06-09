@@ -39,6 +39,11 @@ class ReturnTypePassTest extends CodeCleanerTestCase
     {
         return [
             ['$x = function(): DateTime { return new DateTime(); };'],
+            ['$x = function(): ?DateTime { return new DateTime(); };'],
+            ['$x = function(): A|B { return new C(); };'],
+            ['$x = function(): A|DateTime { return new C(); };'],
+            ['$x = function(): A&B { return new C(); };'],
+            ['$x = function(): A&DateTime { return new C(); };'],
         ];
     }
 
