@@ -105,8 +105,12 @@ class ReturnTypePass extends CodeCleanerPass
             return \strtolower($node->type->name);
         }
 
-        if ($node instanceof Identifier || $node instanceof Name) {
+        if ($node instanceof Identifier) {
             return \strtolower($node->name);
+        }
+
+        if ($node instanceof Name) {
+            return $node->toLowerString();
         }
 
         throw new \InvalidArgumentException('Unable to find type name');
