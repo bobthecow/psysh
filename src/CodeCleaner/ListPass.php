@@ -12,10 +12,11 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
-// @todo Switch to PhpParser\Node\ArrayItem once we drop support for PHP-Parser 4.x
-use PhpParser\Node\Expr\ArrayItem;
+// @todo Drop PhpParser\Node\Expr\ArrayItem once we drop support for PHP-Parser 4.x
+use PhpParser\Node\Expr\ArrayItem as LegacyArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\List_;
@@ -81,7 +82,7 @@ class ListPass extends CodeCleanerPass
      */
     private static function isValidArrayItem(Node $item): bool
     {
-        $value = ($item instanceof ArrayItem) ? $item->value : $item;
+        $value = ($item instanceof ArrayItem || $item instanceof LegacyArrayItem) ? $item->value : $item;
 
         while ($value instanceof ArrayDimFetch || $value instanceof PropertyFetch) {
             $value = $value->var;
