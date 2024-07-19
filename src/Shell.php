@@ -214,7 +214,7 @@ class Shell extends Application
             new Command\TraceCommand(),
             new Command\BufferCommand(),
             new Command\ClearCommand(),
-            new Command\EditCommand($this->config->getRuntimeDir()),
+            new Command\EditCommand($this->config->getRuntimeDir(false)),
             // new Command\PsyVersionCommand(),
             $sudo,
             $hist,

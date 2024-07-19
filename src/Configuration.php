@@ -623,16 +623,18 @@ class Configuration
     /**
      * Get the shell's temporary directory location.
      *
-     * Defaults to  `/psysh` inside the system's temp dir unless explicitly
+     * Defaults to `/psysh` inside the system's temp dir unless explicitly
      * overridden.
      *
      * @throws RuntimeException if no temporary directory is set and it is not possible to create one
+     *
+     * @param bool $create False to suppress directory creation if it does not exist
      */
-    public function getRuntimeDir(): string
+    public function getRuntimeDir($create = true): string
     {
         $runtimeDir = $this->configPaths->runtimeDir();
 
-        if (!\is_dir($runtimeDir)) {
+        if ($create && !\is_dir($runtimeDir)) {
             if (!@\mkdir($runtimeDir, 0700, true)) {
                 throw new RuntimeException(\sprintf('Unable to create PsySH runtime directory. Make sure PHP is able to write to %s in order to continue.', \dirname($runtimeDir)));
             }

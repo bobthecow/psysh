@@ -57,6 +57,21 @@ class ConfigurationTest extends TestCase
         $this->assertSame('wheee', $config->getConfigDir());
     }
 
+    public function testGetRuntimeDir()
+    {
+        $dirName = \tempnam(\sys_get_temp_dir(), 'psysh-config-test-');
+        \unlink($dirName);
+
+        $config = $this->getConfig();
+        $config->setRuntimeDir($dirName);
+
+        $this->assertSame($config->getRuntimeDir(false), $dirName);
+        $this->assertDirectoryDoesNotExist($dirName);
+
+        $this->assertSame($config->getRuntimeDir(true), $dirName);
+        $this->assertDirectoryExists($dirName);
+    }
+
     /**
      * @group isolation-fail
      */
