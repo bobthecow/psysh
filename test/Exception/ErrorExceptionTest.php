@@ -68,7 +68,7 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
             [\E_DEPRECATED,        'Deprecated'],
             [\E_USER_DEPRECATED,   'Deprecated'],
             [\E_RECOVERABLE_ERROR, 'Recoverable fatal error'],
-            [0,                   'Error'],
+            [0,                    'Error'],
         ];
     }
 
@@ -77,6 +77,10 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
      */
     public function testThrowExceptionAsErrorHandler($level, $type)
     {
+        // if (\version_compare(\PHP_VERSION, '8.4', '>=') && $level === \E_USER_ERROR) {
+        //     $this->markTestSkipped('Passing E_USER_ERROR to trigger_error() is deprecated since 8.4');
+        // }
+
         \set_error_handler([ErrorException::class, 'throwException']);
         try {
             \trigger_error('{whot}', $level);
