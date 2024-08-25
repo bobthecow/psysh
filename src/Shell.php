@@ -919,17 +919,58 @@ class Shell extends Application
 
         $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, " \t\n\r\0\x0B;")));
 
-        if ($input->hasParameterOption(['--help', '-h'])) {
-            $helpCommand = $this->get('help');
-            if (!$helpCommand instanceof Command\HelpCommand) {
-                throw new RuntimeException('Invalid help command instance');
-            }
-            $helpCommand->setCommand($command);
+        if (!$input->hasParameterOption(['--help', '-h'])) {
+            try {
+                return $command->run($input, $this->output);
+            } catch (\Exception $e) {
+                if (!self::needsInputHelp($e)) {
+                    throw $e;
+                }
 
-            return $helpCommand->run(new StringInput(''), $this->output);
+                $this->writeException($e);
+
+                $this->output->writeln('--');
+                if (!$this->config->theme()->compact()) {
+                    $this->output->writeln('');
+                }
+            }
         }
 
-        return $command->run($input, $this->output);
+        $helpCommand = $this->get('help');
+        if (!$helpCommand instanceof Command\HelpCommand) {
+            throw new RuntimeException('Invalid help command instance');
+        }
+        $helpCommand->setCommand($command);
+
+        return $helpCommand->run(new StringInput(''), $this->output);
+    }
+
+    /**
+     * Check whether a given input error would benefit from --help.
+     *
+     * @return bool
+     */
+    private static function needsInputHelp(\Exception $e): bool
+    {
+        if (!($e instanceof \RuntimeException || $e instanceof SymfonyConsoleException)) {
+            return false;
+        }
+
+        $inputErrors = [
+            'Not enough arguments',
+            'option does not accept a value',
+            'option does not exist',
+            'option requires a value',
+        ];
+
+        $msg = $e->getMessage();
+        foreach ($inputErrors as $errorMsg) {
+            if (\strpos($msg, $errorMsg) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
