@@ -74,7 +74,7 @@ class AutoCompleter
         $matches = [];
         foreach ($this->matchers as $matcher) {
             if ($matcher->hasMatched($tokens)) {
-                $matches = \array_merge($matcher->getMatches($tokens), $matches);
+                $matches = \array_merge($matcher->getMatches($tokens, $info), $matches);
             }
         }
 
