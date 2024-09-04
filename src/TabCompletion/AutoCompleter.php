@@ -74,7 +74,13 @@ class AutoCompleter
         $matches = [];
         foreach ($this->matchers as $matcher) {
             if ($matcher->hasMatched($tokens)) {
-                $matches = \array_merge($matcher->getMatches($tokens), $matches);
+                $foundMatches = $matcher->getMatches($tokens);
+
+                if ($foundMatches && $matcher instanceof NonCombinableMatcher) {
+                    return $foundMatches;
+                }
+
+                $matches = \array_merge($foundMatches, $matches);
             }
         }
 
