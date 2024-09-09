@@ -1263,7 +1263,7 @@ class Configuration
                 // let's not use it by default.
                 //
                 // See https://github.com/bobthecow/psysh/issues/778
-                $link = @\readlink($less);
+                $link = @\is_link($less) ? @\readlink($less) : $less;
                 if ($link !== false && \strpos($link, 'busybox') !== false) {
                     return false;
                 }
