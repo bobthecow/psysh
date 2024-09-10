@@ -1263,9 +1263,11 @@ class Configuration
                 // let's not use it by default.
                 //
                 // See https://github.com/bobthecow/psysh/issues/778
-                $link = @\is_link($less) ? @\readlink($less) : $less;
-                if ($link !== false && \strpos($link, 'busybox') !== false) {
-                    return false;
+                if (@\is_link($less)) {
+                    $link = @\readlink($less);
+                    if ($link !== false && \strpos($link, 'busybox') !== false) {
+                        return false;
+                    }
                 }
 
                 $this->pager = $less.' -R -F -X';
