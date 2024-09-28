@@ -1023,7 +1023,11 @@ class Configuration
      */
     public function setErrorLoggingLevel($errorLoggingLevel)
     {
-        $this->errorLoggingLevel = (\E_ALL | \E_STRICT) & $errorLoggingLevel;
+        if (\PHP_VERSION_ID < 80400) {
+            $this->errorLoggingLevel = (\E_ALL | \E_STRICT) & $errorLoggingLevel;
+        } else {
+            $this->errorLoggingLevel = \E_ALL & $errorLoggingLevel;
+        }
     }
 
     /**

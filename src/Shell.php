@@ -1302,10 +1302,13 @@ class Shell extends Application
                 case \E_USER_NOTICE:
                 case \E_USER_DEPRECATED:
                 case \E_DEPRECATED:
-                case \E_STRICT:
                     return 'warning';
 
                 default:
+                    if ((\PHP_VERSION_ID < 80400) && $severity === \E_STRICT) {
+                        return 'warning';
+                    }
+
                     return 'error';
             }
         } else {

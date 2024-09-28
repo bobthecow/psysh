@@ -59,17 +59,19 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
 
     public function getLevels()
     {
-        return [
-            [\E_WARNING,           'Warning'],
-            [\E_CORE_WARNING,      'Warning'],
-            [\E_COMPILE_WARNING,   'Warning'],
-            [\E_USER_WARNING,      'Warning'],
-            [\E_STRICT,            'Strict error'],
-            [\E_DEPRECATED,        'Deprecated'],
-            [\E_USER_DEPRECATED,   'Deprecated'],
-            [\E_RECOVERABLE_ERROR, 'Recoverable fatal error'],
-            [0,                    'Error'],
-        ];
+        yield [\E_WARNING,           'Warning'];
+        yield [\E_CORE_WARNING,      'Warning'];
+        yield [\E_COMPILE_WARNING,   'Warning'];
+        yield [\E_USER_WARNING,      'Warning'];
+
+        if (\PHP_VERSION_ID < 80400) {
+            yield [\E_STRICT,            'Strict error'];
+        }
+
+        yield [\E_DEPRECATED,        'Deprecated'];
+        yield [\E_USER_DEPRECATED,   'Deprecated'];
+        yield [\E_RECOVERABLE_ERROR, 'Recoverable fatal error'];
+        yield [0,                    'Error'];
     }
 
     /**
