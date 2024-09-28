@@ -37,10 +37,6 @@ class ErrorException extends \ErrorException implements Exception
         }
 
         switch ($severity) {
-            case \E_STRICT:
-                $type = 'Strict error';
-                break;
-
             case \E_NOTICE:
             case \E_USER_NOTICE:
                 $type = 'Notice';
@@ -63,6 +59,10 @@ class ErrorException extends \ErrorException implements Exception
                 break;
 
             default:
+                if (\PHP_VERSION_ID < 80400 && $severity === \E_STRICT) {
+                    $type = 'Strict error';
+                    break;
+                }
                 $type = 'Error';
                 break;
         }
