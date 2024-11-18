@@ -62,7 +62,7 @@ class PassableByReferencePass extends CodeCleanerPass
 
             $args = [];
             foreach ($node->args as $position => $arg) {
-                if ($node instanceof VariadicPlaceholder) {
+                if ($arg instanceof VariadicPlaceholder) {
                     continue;
                 }
 
