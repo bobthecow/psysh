@@ -77,6 +77,10 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             $values[] = ['preg_match(\'/\d+/\', \'123456\', offset: 2)'];
         }
 
+        if (\version_compare(\PHP_VERSION, '8.1', '>=')) {
+            $values[] = ['intval(...)'];
+        }
+
         return $values;
     }
 
