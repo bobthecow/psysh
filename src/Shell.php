@@ -1609,7 +1609,7 @@ class Shell extends Application
         $this->addMatchersToAutoCompleter($this->getDefaultMatchers());
         $this->addMatchersToAutoCompleter($this->matchers);
 
-        $this->autoCompleter->activate();
+        $this->readline->activateAutoCompleter($this->autoCompleter);
     }
 
     /**

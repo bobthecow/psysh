@@ -90,7 +90,8 @@ class Configuration
     private $historySize;
     private $eraseDuplicates;
     private $manualDbFile;
-    private $hasReadline;
+    /** @bool Native readline implementation provided by {@see readline()} function */
+    private $hasNativeReadline;
     private $useReadline;
     private $useBracketedPaste;
     private $hasPcntl;
@@ -392,7 +393,7 @@ class Configuration
     public function init()
     {
         // feature detection
-        $this->hasReadline = \function_exists('readline');
+        $this->hasNativeReadline = \function_exists('readline');
         $this->hasPcntl = ProcessForker::isSupported();
 
         if ($configFile = $this->getConfigFile()) {
@@ -753,13 +754,25 @@ class Configuration
     }
 
     /**
-     * Check whether this PHP instance has Readline available.
+     * Check whether this PHP instance has native readline available.
+     *
+     * @deprecated Call {@see Configuration::hasNativeReadline()} instead
      *
      * @return bool True if Readline is available
      */
     public function hasReadline(): bool
     {
-        return $this->hasReadline;
+        return $this->hasNativeReadline;
+    }
+
+    /**
+     * Check whether this PHP instance has native readline available.
+     *
+     * @return bool True if Readline is available
+     */
+    public function hasNativeReadline(): bool
+    {
+        return $this->hasNativeReadline;
     }
 
     /**
@@ -782,7 +795,7 @@ class Configuration
      */
     public function useReadline(): bool
     {
-        return isset($this->useReadline) ? ($this->hasReadline && $this->useReadline) : $this->hasReadline;
+        return isset($this->useReadline) ? ($this->hasNativeReadline && $this->useReadline) : $this->hasNativeReadline;
     }
 
     /**
@@ -1121,7 +1134,9 @@ class Configuration
      */
     public function useTabCompletion(): bool
     {
-        return isset($this->useTabCompletion) ? ($this->hasReadline && $this->useTabCompletion) : $this->hasReadline;
+        // TODO: In the future, if stability other than GNU Readline improves,
+        //       it will no longer depend on $this->hasNativeReadline property.
+        return $this->useTabCompletion ?? $this->hasNativeReadline;
     }
 
     /**

@@ -35,7 +35,7 @@ class ConfigurationTest extends TestCase
     {
         $config = $this->getConfig();
 
-        $this->assertSame(\function_exists('readline'), $config->hasReadline());
+        $this->assertSame(\function_exists('readline'), $config->hasNativeReadline());
         $this->assertSame(\function_exists('readline'), $config->useReadline());
         $this->assertSame(ProcessForker::isSupported(), $config->hasPcntl());
         $this->assertSame($config->hasPcntl(), $config->usePcntl());

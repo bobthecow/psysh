@@ -764,7 +764,10 @@ class Readline
             return $state;
         }
 
-        $solution = $autocompleter->complete($word);
+        $solution = $autocompleter->complete($word, $current, [
+            'line_buffer' => $line,
+        ]);
+
         $length = \mb_strlen($word);
 
         if (null === $solution) {

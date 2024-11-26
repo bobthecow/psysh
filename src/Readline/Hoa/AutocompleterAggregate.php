@@ -48,9 +48,6 @@ class AutocompleterAggregate implements Autocompleter
      */
     protected $_autocompleters = null;
 
-    /**
-     * Constructor.
-     */
     public function __construct(array $autocompleters)
     {
         $this->setAutocompleters($autocompleters);
@@ -58,11 +55,7 @@ class AutocompleterAggregate implements Autocompleter
         return;
     }
 
-    /**
-     * Complete a word.
-     * Returns null for no word, a full-word or an array of full-words.
-     */
-    public function complete(&$prefix)
+    public function complete(string $prefix, int $index, array $info)
     {
         foreach ($this->getAutocompleters() as $autocompleter) {
             $preg = \preg_match(
@@ -108,9 +101,6 @@ class AutocompleterAggregate implements Autocompleter
         return $this->_autocompleters;
     }
 
-    /**
-     * Get definition of a word.
-     */
     public function getWordDefinition(): string
     {
         return '.*';
