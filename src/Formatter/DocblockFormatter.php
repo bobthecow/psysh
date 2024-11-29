@@ -19,7 +19,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class DocblockFormatter implements ReflectorFormatter
 {
-    private static $vectorParamTemplates = [
+    private const VECTOR_PARAM_TEMPLATES = [
         'type' => 'info',
         'var'  => 'strong',
     ];
@@ -134,11 +134,11 @@ class DocblockFormatter implements ReflectorFormatter
      */
     private static function getVectorParamTemplate(string $type, int $max): string
     {
-        if (!isset(self::$vectorParamTemplates[$type])) {
+        if (!isset(self::VECTOR_PARAM_TEMPLATES[$type])) {
             return \sprintf('%%-%ds', $max);
         }
 
-        return \sprintf('<%s>%%-%ds</%s>', self::$vectorParamTemplates[$type], $max, self::$vectorParamTemplates[$type]);
+        return \sprintf('<%s>%%-%ds</%s>', self::VECTOR_PARAM_TEMPLATES[$type], $max, self::VECTOR_PARAM_TEMPLATES[$type]);
     }
 
     /**

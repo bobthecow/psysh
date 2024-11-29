@@ -47,7 +47,7 @@ class Configuration
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
     const VERBOSITY_DEBUG = 'debug';
 
-    private static $AVAILABLE_OPTIONS = [
+    private const AVAILABLE_OPTIONS = [
         'codeCleaner',
         'colorMode',
         'configDir',
@@ -466,7 +466,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (self::$AVAILABLE_OPTIONS as $option) {
+        foreach (self::AVAILABLE_OPTIONS as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.\ucfirst($option);
                 $this->$method($options[$option]);

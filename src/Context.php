@@ -19,11 +19,11 @@ namespace Psy;
  */
 class Context
 {
-    private static $specialNames = ['_', '_e', '__out', '__psysh__', 'this'];
+    private const SPECIAL_NAMES = ['_', '_e', '__out', '__psysh__', 'this'];
 
     // Include a very limited number of command-scope magic variable names.
     // This might be a bad idea, but future me can sort it out.
-    private static $commandScopeNames = [
+    private const COMMAND_SCOPE_NAMES = [
         '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
     ];
 
@@ -128,11 +128,11 @@ class Context
      */
     public function setAll(array $vars)
     {
-        foreach (self::$specialNames as $key) {
+        foreach (self::SPECIAL_NAMES as $key) {
             unset($vars[$key]);
         }
 
-        foreach (self::$commandScopeNames as $key) {
+        foreach (self::COMMAND_SCOPE_NAMES as $key) {
             unset($vars[$key]);
         }
 
@@ -263,7 +263,7 @@ class Context
         $vars = [];
         foreach ($commandScopeVariables as $key => $value) {
             // kind of type check
-            if (\is_scalar($value) && \in_array($key, self::$commandScopeNames)) {
+            if (\is_scalar($value) && \in_array($key, self::COMMAND_SCOPE_NAMES)) {
                 $vars[$key] = $value;
             }
         }
@@ -289,7 +289,7 @@ class Context
      */
     public function getUnusedCommandScopeVariableNames(): array
     {
-        return \array_diff(self::$commandScopeNames, \array_keys($this->commandScopeVariables));
+        return \array_diff(self::COMMAND_SCOPE_NAMES, \array_keys($this->commandScopeVariables));
     }
 
     /**
@@ -297,6 +297,6 @@ class Context
      */
     public static function isSpecialVariableName(string $name): bool
     {
-        return \in_array($name, self::$specialNames) || \in_array($name, self::$commandScopeNames);
+        return \in_array($name, self::SPECIAL_NAMES) || \in_array($name, self::COMMAND_SCOPE_NAMES);
     }
 }
