@@ -18,7 +18,7 @@ class ExecutionClosure
 {
     const NOOP_INPUT = 'return null;';
 
-    private $closure;
+    private \Closure $closure;
 
     /**
      * @param Shell $__psysh__
