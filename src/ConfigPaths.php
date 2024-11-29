@@ -88,13 +88,16 @@ class ConfigPaths
         return null;
     }
 
-    private function homeConfigDir()
+    private function homeConfigDir(): ?string
     {
         if ($homeConfigDir = $this->getEnv('XDG_CONFIG_HOME')) {
             return $homeConfigDir;
         }
 
         $homeDir = $this->homeDir();
+        if ($homeDir === null) {
+            return null;
+        }
 
         return $homeDir === '/' ? $homeDir.'.config' : $homeDir.'/.config';
     }
@@ -130,7 +133,7 @@ class ConfigPaths
      *
      * @see self::homeConfigDir
      */
-    public function currentConfigDir(): string
+    public function currentConfigDir(): ?string
     {
         if ($this->configDir !== null) {
             return $this->configDir;
@@ -144,7 +147,7 @@ class ConfigPaths
             }
         }
 
-        return $configDirs[0];
+        return $configDirs[0] ?? null;
     }
 
     /**
@@ -259,6 +262,7 @@ class ConfigPaths
      */
     private function allDirNames(array $baseDirs): array
     {
+        $baseDirs = \array_filter($baseDirs);
         $dirs = \array_map(function ($dir) {
             return \strtr($dir, '\\', '/').'/psysh';
         }, $baseDirs);

@@ -659,7 +659,7 @@ class Configuration
      * Defaults to `/history` inside the shell's base config dir unless
      * explicitly overridden.
      */
-    public function getHistoryFile(): string
+    public function getHistoryFile(): ?string
     {
         if (isset($this->historyFile)) {
             return $this->historyFile;
@@ -676,6 +676,10 @@ class Configuration
             $this->setHistoryFile($files[0]);
         } else {
             // fallback: create our own history file
+            $currentConfDir = $this->configPaths->currentConfigDir();
+            if ($currentConfDir === null) {
+                return null;
+            }
             $this->setHistoryFile($this->configPaths->currentConfigDir().'/psysh_history');
         }
 
