@@ -45,8 +45,6 @@ class SelfUpdate
     /**
      * Allow the downloader to be injected for testing.
      *
-     * @param Downloader $downloader
-     *
      * @return void
      */
     public function setDownloader(Downloader $downloader)
@@ -73,8 +71,6 @@ class SelfUpdate
      *
      * The file name used in the URL will include the flavour postfix extracted from the current version
      * if it's present
-     *
-     * @param string $latestVersion
      */
     private function getAssetUrl(string $latestVersion): string
     {
@@ -91,9 +87,6 @@ class SelfUpdate
 
     /**
      * Execute the self-update process.
-     *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
      *
      * @throws ErrorException if the current version is not restored when installation fails
      */

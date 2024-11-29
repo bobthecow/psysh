@@ -40,8 +40,6 @@ class Context
      *
      * @throws \InvalidArgumentException If the variable is not found in the current context
      *
-     * @param string $name
-     *
      * @return mixed
      */
     public function get(string $name)
@@ -127,8 +125,6 @@ class Context
      *
      * This method does *not* set any of the magic variables: $_, $_e, $__out,
      * $__class, $__file, etc.
-     *
-     * @param array $vars
      */
     public function setAll(array $vars)
     {
@@ -191,8 +187,6 @@ class Context
 
     /**
      * Set the most recent output from evaluated code.
-     *
-     * @param string $lastStdout
      */
     public function setLastStdout(string $lastStdout)
     {
@@ -263,8 +257,6 @@ class Context
 
     /**
      * Set command-scope magic variables: $__class, $__file, etc.
-     *
-     * @param array $commandScopeVariables
      */
     public function setCommandScopeVariables(array $commandScopeVariables)
     {
@@ -302,8 +294,6 @@ class Context
 
     /**
      * Check whether a variable name is a magic variable.
-     *
-     * @param string $name
      */
     public static function isSpecialVariableName(string $name): bool
     {
