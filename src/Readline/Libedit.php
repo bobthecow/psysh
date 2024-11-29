@@ -48,6 +48,10 @@ class Libedit extends GNUReadline
      */
     public function listHistory(): array
     {
+        if ($this->historyFile === false) {
+            return [];
+        }
+
         $history = \file_get_contents($this->historyFile);
         if (!$history) {
             return [];

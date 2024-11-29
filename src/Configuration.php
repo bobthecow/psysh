@@ -676,11 +676,12 @@ class Configuration
             $this->setHistoryFile($files[0]);
         } else {
             // fallback: create our own history file
-            $currentConfDir = $this->configPaths->currentConfigDir();
-            if ($currentConfDir === null) {
+            $configDir = $this->configPaths->currentConfigDir();
+            if ($configDir === null) {
                 return null;
             }
-            $this->setHistoryFile($this->configPaths->currentConfigDir().'/psysh_history');
+
+            $this->setHistoryFile($configDir.'/psysh_history');
         }
 
         return $this->historyFile;
@@ -1658,7 +1659,12 @@ class Configuration
      */
     public function getUpdateCheckCacheFile()
     {
-        return ConfigPaths::touchFileWithMkdir($this->configPaths->currentConfigDir().'/update_check.json');
+        $configDir = $this->configPaths->currentConfigDir();
+        if ($configDir === null) {
+            return false;
+        }
+
+        return ConfigPaths::touchFileWithMkdir($configDir.'/update_check.json');
     }
 
     /**

@@ -63,10 +63,8 @@ class ConfigPaths
 
     /**
      * Get the current home directory.
-     *
-     * @return string|null
      */
-    public function homeDir()
+    public function homeDir(): ?string
     {
         if ($homeDir = $this->getEnv('HOME') ?: $this->windowsHomeDir()) {
             return \strtr($homeDir, '\\', '/');
@@ -75,7 +73,7 @@ class ConfigPaths
         return null;
     }
 
-    private function windowsHomeDir()
+    private function windowsHomeDir(): ?string
     {
         if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
             $homeDrive = $this->getEnv('HOMEDRIVE');
@@ -234,10 +232,8 @@ class ConfigPaths
      * If $PATH is unset/empty it defaults to '/usr/sbin:/usr/bin:/sbin:/bin'.
      *
      * @param string $command the executable to locate
-     *
-     * @return string
      */
-    public function which($command)
+    public function which($command): ?string
     {
         foreach ($this->pathDirs() as $path) {
             $fullpath = $path.\DIRECTORY_SEPARATOR.$command;
