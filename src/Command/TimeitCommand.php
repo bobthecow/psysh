@@ -28,12 +28,12 @@ class TimeitCommand extends Command
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
     // All times stored as nanoseconds!
-    private static $start = null;
-    private static $times = [];
+    private static ?int $start = null;
+    private static array $times = [];
 
-    private $parser;
-    private $traverser;
-    private $printer;
+    private CodeArgumentParser $parser;
+    private NodeTraverser $traverser;
+    private Printer $printer;
 
     /**
      * {@inheritdoc}

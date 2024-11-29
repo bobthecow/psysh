@@ -21,7 +21,7 @@ use Symfony\Component\VarDumper\Cloner\VarCloner;
  */
 class Cloner extends VarCloner
 {
-    private $filter = 0;
+    private int $filter = 0;
 
     /**
      * {@inheritdoc}

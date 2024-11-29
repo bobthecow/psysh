@@ -48,13 +48,13 @@ use Psy\Exception\ParseErrorException;
  */
 class CodeCleaner
 {
-    private $yolo = false;
-    private $strictTypes = false;
+    private bool $yolo = false;
+    private bool $strictTypes = false;
 
-    private $parser;
-    private $printer;
-    private $traverser;
-    private $namespace;
+    private Parser $parser;
+    private Printer $printer;
+    private NodeTraverser $traverser;
+    private ?array $namespace = null;
 
     /**
      * CodeCleaner constructor.

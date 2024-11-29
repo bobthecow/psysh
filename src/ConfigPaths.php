@@ -16,10 +16,10 @@ namespace Psy;
  */
 class ConfigPaths
 {
-    private $configDir;
-    private $dataDir;
-    private $runtimeDir;
-    private $env;
+    private ?string $configDir = null;
+    private ?string $dataDir = null;
+    private ?string $runtimeDir = null;
+    private EnvInterface $env;
 
     /**
      * ConfigPaths constructor.

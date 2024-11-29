@@ -27,13 +27,14 @@ class Context
         '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
     ];
 
-    private $scopeVariables = [];
-    private $commandScopeVariables = [];
-    private $returnValue;
-    private $lastException;
-    private $lastStdout;
-    private $boundObject;
-    private $boundClass;
+    private array $scopeVariables = [];
+    private array $commandScopeVariables = [];
+    /** @var mixed */
+    private $returnValue = null;
+    private ?\Throwable $lastException = null;
+    private ?string $lastStdout = null;
+    private ?object $boundObject = null;
+    private ?string $boundClass = null;
 
     /**
      * Get a context variable.

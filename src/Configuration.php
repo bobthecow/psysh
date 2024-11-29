@@ -87,8 +87,8 @@ class Configuration
     private $configFile;
     /** @var string|false */
     private $historyFile;
-    private $historySize;
-    private $eraseDuplicates;
+    private int $historySize = 0;
+    private ?bool $eraseDuplicates = null;
     private $manualDbFile;
     private $hasReadline;
     private $useReadline;

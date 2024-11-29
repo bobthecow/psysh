@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Exception\RuntimeException;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

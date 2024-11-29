@@ -13,8 +13,8 @@ namespace Psy\VersionUpdater;
 
 class IntervalChecker extends GitHubChecker
 {
-    private $cacheFile;
-    private $interval;
+    private string $cacheFile;
+    private string $interval;
 
     public function __construct($cacheFile, $interval)
     {

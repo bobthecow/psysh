@@ -30,7 +30,7 @@ use Psy\Exception\FatalErrorException;
  */
 class LoopContextPass extends CodeCleanerPass
 {
-    private $loopDepth;
+    private int $loopDepth = 0;
 
     /**
      * {@inheritdoc}

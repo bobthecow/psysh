@@ -17,7 +17,7 @@ class GitHubChecker implements Checker
 {
     const URL = 'https://api.github.com/repos/bobthecow/psysh/releases/latest';
 
-    private $latest;
+    private ?string $latest = null;
 
     public function isLatest(): bool
     {

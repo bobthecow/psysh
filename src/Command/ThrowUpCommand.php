@@ -29,8 +29,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ThrowUpCommand extends Command
 {
-    private $parser;
-    private $printer;
+    private CodeArgumentParser $parser;
+    private Printer $printer;
 
     /**
      * {@inheritdoc}

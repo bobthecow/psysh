@@ -24,10 +24,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SudoCommand extends Command
 {
-    private $readline;
-    private $parser;
-    private $traverser;
-    private $printer;
+    private Readline $readline;
+    private CodeArgumentParser $parser;
+    private NodeTraverser $traverser;
+    private Printer $printer;
 
     /**
      * {@inheritdoc}

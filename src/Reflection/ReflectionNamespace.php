@@ -16,7 +16,7 @@ namespace Psy\Reflection;
  */
 class ReflectionNamespace implements \Reflector
 {
-    private $name;
+    private string $name;
 
     /**
      * Construct a ReflectionNamespace object.

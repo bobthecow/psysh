@@ -23,7 +23,8 @@ use Psy\Shell;
  */
 class ProcessForker extends AbstractListener
 {
-    private $savegame;
+    private ?int $savegame = null;
+    /** @var resource */
     private $up;
 
     private const PCNTL_FUNCTIONS = [

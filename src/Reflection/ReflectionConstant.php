@@ -19,6 +19,7 @@ namespace Psy\Reflection;
 class ReflectionConstant implements \Reflector
 {
     public $name;
+    /** @var mixed */
     private $value;
 
     private const MAGIC_CONSTANTS = [

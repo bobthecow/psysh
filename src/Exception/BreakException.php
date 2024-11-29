@@ -16,7 +16,7 @@ namespace Psy\Exception;
  */
 class BreakException extends \Exception implements Exception
 {
-    private $rawMessage;
+    private string $rawMessage;
 
     /**
      * {@inheritdoc}

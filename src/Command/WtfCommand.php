@@ -25,12 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class WtfCommand extends TraceCommand implements ContextAware
 {
-    /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
-     */
-    protected $context;
+    protected Context $context;
 
     /**
      * ContextAware interface.

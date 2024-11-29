@@ -27,14 +27,9 @@ class SelfUpdate
     const SUCCESS = 0;
     const FAILURE = 1;
 
-    /** @var Checker */
-    private $checker;
-
-    /** @var Installer */
-    private $installer;
-
-    /** @var Downloader */
-    private $downloader;
+    private Checker $checker;
+    private Installer $installer;
+    private ?Downloader $downloader = null;
 
     public function __construct(Checker $checker, Installer $installer)
     {

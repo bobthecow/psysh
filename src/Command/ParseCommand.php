@@ -12,6 +12,7 @@
 namespace Psy\Command;
 
 use PhpParser\Node;
+use PhpParser\Parser;
 use Psy\Context;
 use Psy\ContextAware;
 use Psy\Input\CodeArgument;
@@ -28,15 +29,9 @@ use Symfony\Component\VarDumper\Caster\Caster;
  */
 class ParseCommand extends Command implements ContextAware, PresenterAware
 {
-    /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
-     */
-    protected $context;
-
-    private $presenter;
-    private $parser;
+    protected Context $context;
+    private Presenter $presenter;
+    private Parser $parser;
 
     /**
      * {@inheritdoc}

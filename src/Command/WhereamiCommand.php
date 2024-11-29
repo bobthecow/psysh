@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class WhereamiCommand extends Command
 {
-    private $backtrace;
+    private array $backtrace;
 
     public function __construct()
     {

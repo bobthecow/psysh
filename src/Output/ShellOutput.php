@@ -22,13 +22,9 @@ class ShellOutput extends ConsoleOutput
 {
     const NUMBER_LINES = 128;
 
-    private $paging = 0;
-
-    /** @var OutputPager */
-    private $pager;
-
-    /** @var Theme */
-    private $theme;
+    private int $paging = 0;
+    private OutputPager $pager;
+    private Theme $theme;
 
     /**
      * Construct a ShellOutput instance.

@@ -22,8 +22,8 @@ class Presenter
 {
     const VERBOSE = 1;
 
-    private $cloner;
-    private $dumper;
+    private Cloner $cloner;
+    private Dumper $dumper;
 
     private const IMPORTANT_EXCEPTIONS = [
         "\0*\0message",
