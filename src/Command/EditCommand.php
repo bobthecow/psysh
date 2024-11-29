@@ -104,7 +104,7 @@ class EditCommand extends Command implements ContextAware
         $editedContent = $this->editFile($filePath, $shouldRemoveFile);
 
         if ($execute) {
-            $this->getApplication()->addInput($editedContent);
+            $this->getShell()->addInput($editedContent);
         }
 
         return 0;

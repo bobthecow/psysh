@@ -167,7 +167,7 @@ HELP
         $this->lastException = $exception;
         $this->lastExceptionIndex = $index;
 
-        $output->writeln($this->getApplication()->formatException($exception));
+        $output->writeln($this->getShell()->formatException($exception));
         $output->writeln('--');
         $this->writeTraceLine($output, $trace, $index);
         $this->writeTraceCodeSnippet($output, $trace, $index);

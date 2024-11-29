@@ -52,14 +52,11 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $app = $this->getApplication();
-        if (!$app instanceof \Psy\Shell) {
-            throw new RuntimeException('Buffer command requires a \Psy\Shell application');
-        }
+        $shell = $this->getShell();
 
-        $buf = $app->getCodeBuffer();
+        $buf = $shell->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $app->resetCodeBuffer();
+            $shell->resetCodeBuffer();
             $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
         } else {
             $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);

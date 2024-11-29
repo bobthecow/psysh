@@ -83,7 +83,8 @@ HELP
     {
         $code = $input->getArgument('code');
         $num = (int) ($input->getOption('num') ?: 1);
-        $shell = $this->getApplication();
+
+        $shell = $this->getShell();
 
         $instrumentedCode = $this->instrumentCode($code);
 
