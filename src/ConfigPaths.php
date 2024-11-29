@@ -362,12 +362,12 @@ class ConfigPaths
         return $file;
     }
 
-    private function getEnv($key)
+    private function getEnv(string $key)
     {
         return $this->env->get($key);
     }
 
-    private function getEnvArray($key)
+    private function getEnvArray(string $key)
     {
         if ($value = $this->getEnv($key)) {
             return \explode(\PATH_SEPARATOR, $value);

@@ -83,7 +83,7 @@ class NamespacePass extends CodeCleanerPass
      *
      * @param Name|null $namespace
      */
-    private function setNamespace($namespace)
+    private function setNamespace(?Name $namespace)
     {
         $this->namespace = $namespace;
         $this->cleaner->setNamespace($namespace === null ? null : $this->getParts($namespace));

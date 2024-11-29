@@ -42,10 +42,7 @@ class GitHubChecker implements Checker
         $this->latest = $version;
     }
 
-    /**
-     * @return string|null
-     */
-    private function getVersionFromTag()
+    private function getVersionFromTag(): ?string
     {
         $contents = $this->fetchLatestRelease();
         if (!$contents || !isset($contents->tag_name)) {

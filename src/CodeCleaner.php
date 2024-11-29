@@ -348,12 +348,12 @@ class CodeCleaner
         return true;
     }
 
-    private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, $code): bool
+    private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, string $code): bool
     {
         return $e->getRawMessage() === 'Unterminated comment';
     }
 
-    private function parseErrorIsTrailingComma(\PhpParser\Error $e, $code): bool
+    private function parseErrorIsTrailingComma(\PhpParser\Error $e, string $code): bool
     {
         return ($e->getRawMessage() === 'A trailing comma is not allowed here') && (\substr(\rtrim($code), -1) === ',');
     }
