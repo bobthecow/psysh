@@ -18,5 +18,4 @@ parameters:
     - src/Util/Str.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
-  checkMissingIterableValueType: false
   reportUnmatchedIgnoredErrors: true
