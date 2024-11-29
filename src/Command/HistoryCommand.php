@@ -157,12 +157,12 @@ HELP
      *
      * @param string $range
      *
-     * @return array [ start, end ]
+     * @return int[] [ start, end ]
      */
     private function extractRange(string $range): array
     {
         if (\preg_match('/^\d+$/', $range)) {
-            return [$range, $range + 1];
+            return [(int) $range, (int) $range + 1];
         }
 
         $matches = [];
@@ -207,7 +207,7 @@ HELP
                 throw new \InvalidArgumentException('Please specify an integer argument for --tail');
             }
 
-            $start = \count($history) - $tail;
+            $start = \count($history) - (int) $tail;
             $length = (int) $tail + 1;
         } else {
             return $history;

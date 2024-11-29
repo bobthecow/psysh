@@ -235,6 +235,10 @@ class ConfigPaths
      */
     public function which($command): ?string
     {
+        if (!\is_string($command) || $command === '') {
+            return null;
+        }
+
         foreach ($this->pathDirs() as $path) {
             $fullpath = $path.\DIRECTORY_SEPARATOR.$command;
             if (@\is_file($fullpath) && @\is_executable($fullpath)) {
