@@ -23,10 +23,11 @@ use Psy\Shell;
  */
 class ProcessForker extends AbstractListener
 {
-    private $savegame;
+    private ?int $savegame = null;
+    /** @var resource */
     private $up;
 
-    private static $pcntlFunctions = [
+    private const PCNTL_FUNCTIONS = [
         'pcntl_fork',
         'pcntl_signal_dispatch',
         'pcntl_signal',
@@ -34,7 +35,7 @@ class ProcessForker extends AbstractListener
         'pcntl_wexitstatus',
     ];
 
-    private static $posixFunctions = [
+    private const POSIX_FUNCTIONS = [
         'posix_getpid',
         'posix_kill',
     ];
@@ -52,7 +53,7 @@ class ProcessForker extends AbstractListener
      */
     public static function isPcntlSupported(): bool
     {
-        foreach (self::$pcntlFunctions as $func) {
+        foreach (self::PCNTL_FUNCTIONS as $func) {
             if (!\function_exists($func)) {
                 return false;
             }
@@ -66,7 +67,7 @@ class ProcessForker extends AbstractListener
      */
     public static function disabledPcntlFunctions()
     {
-        return self::checkDisabledFunctions(self::$pcntlFunctions);
+        return self::checkDisabledFunctions(self::PCNTL_FUNCTIONS);
     }
 
     /**
@@ -74,7 +75,7 @@ class ProcessForker extends AbstractListener
      */
     public static function isPosixSupported(): bool
     {
-        foreach (self::$posixFunctions as $func) {
+        foreach (self::POSIX_FUNCTIONS as $func) {
             if (!\function_exists($func)) {
                 return false;
             }
@@ -88,7 +89,7 @@ class ProcessForker extends AbstractListener
      */
     public static function disabledPosixFunctions()
     {
-        return self::checkDisabledFunctions(self::$posixFunctions);
+        return self::checkDisabledFunctions(self::POSIX_FUNCTIONS);
     }
 
     private static function checkDisabledFunctions(array $functions): array

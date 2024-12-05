@@ -33,16 +33,10 @@ abstract class ReflectingCommand extends Command implements ContextAware
     const CLASS_STATIC = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER = '/^(\$\w+)(::|->)(\w+)$/';
 
-    /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
-     */
-    protected $context;
-
-    private $parser;
-    private $traverser;
-    private $printer;
+    protected Context $context;
+    private CodeArgumentParser $parser;
+    private NodeTraverser $traverser;
+    private Printer $printer;
 
     /**
      * {@inheritdoc}
@@ -117,7 +111,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function resolveName(string $name, bool $includeFunctions = false): string
     {
-        $shell = $this->getApplication();
+        $shell = $this->getShell();
 
         // While not *technically* 100% accurate, let's treat `self` and `static` as equivalent.
         if (\in_array(\strtolower($name), ['self', 'static'])) {
@@ -195,7 +189,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
             // Add an implicit `sudo` to target resolution.
             $nodes = $this->traverser->traverse($this->parser->parse($code));
             $sudoCode = $this->printer->prettyPrint($nodes);
-            $value = $this->getApplication()->execute($sudoCode, true);
+            $value = $this->getShell()->execute($sudoCode, true);
         } catch (\Throwable $e) {
             // Swallow all exceptions?
         }

@@ -25,7 +25,7 @@ use Psy\Util\Str;
  */
 class Libedit extends GNUReadline
 {
-    private $hasWarnedOwnership = false;
+    private bool $hasWarnedOwnership = false;
 
     /**
      * Let's emulate GNU Readline by manually reading and parsing the history file!

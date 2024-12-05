@@ -22,10 +22,9 @@ class GNUReadline implements Readline
 {
     /** @var string|false */
     protected $historyFile;
-    /** @var int */
-    protected $historySize;
-    /** @var bool */
-    protected $eraseDups;
+    protected int $historySize;
+    // @todo better type for this
+    protected ?bool $eraseDups;
 
     /**
      * GNU Readline is supported iff `readline_list_history` is defined. PHP

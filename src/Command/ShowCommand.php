@@ -26,8 +26,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ShowCommand extends ReflectingCommand
 {
-    private $lastException;
-    private $lastExceptionIndex;
+    private ?\Throwable $lastException = null;
+    private ?int $lastExceptionIndex = null;
 
     /**
      * {@inheritdoc}
@@ -167,7 +167,7 @@ HELP
         $this->lastException = $exception;
         $this->lastExceptionIndex = $index;
 
-        $output->writeln($this->getApplication()->formatException($exception));
+        $output->writeln($this->getShell()->formatException($exception));
         $output->writeln('--');
         $this->writeTraceLine($output, $trace, $index);
         $this->writeTraceCodeSnippet($output, $trace, $index);

@@ -17,7 +17,7 @@ class GitHubChecker implements Checker
 {
     const URL = 'https://api.github.com/repos/bobthecow/psysh/releases/latest';
 
-    private $latest;
+    private ?string $latest = null;
 
     public function isLatest(): bool
     {
@@ -37,18 +37,12 @@ class GitHubChecker implements Checker
         return $this->latest;
     }
 
-    /**
-     * @param string $version
-     */
     public function setLatest(string $version)
     {
         $this->latest = $version;
     }
 
-    /**
-     * @return string|null
-     */
-    private function getVersionFromTag()
+    private function getVersionFromTag(): ?string
     {
         $contents = $this->fetchLatestRelease();
         if (!$contents || !isset($contents->tag_name)) {

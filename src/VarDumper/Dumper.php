@@ -20,8 +20,8 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
  */
 class Dumper extends CliDumper
 {
-    private $formatter;
-    private $forceArrayIndexes;
+    private OutputFormatter $formatter;
+    private bool $forceArrayIndexes;
 
     private const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
     private const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';

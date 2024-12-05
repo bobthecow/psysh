@@ -33,9 +33,9 @@ use PhpParser\NodeTraverser;
  */
 class UseStatementPass extends CodeCleanerPass
 {
-    private $aliases = [];
-    private $lastAliases = [];
-    private $lastNamespace = null;
+    private array $aliases = [];
+    private array $lastAliases = [];
+    private ?Name $lastNamespace = null;
 
     /**
      * Re-load the last set of use statements on re-entering a namespace.

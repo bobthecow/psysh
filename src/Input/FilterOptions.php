@@ -21,10 +21,10 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class FilterOptions
 {
-    private $filter = false;
-    private $pattern;
-    private $insensitive;
-    private $invert;
+    private bool $filter = false;
+    private ?string $pattern = null;
+    private bool $insensitive = false;
+    private bool $invert = false;
 
     /**
      * Get input option definitions for filtering.

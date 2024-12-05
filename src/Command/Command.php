@@ -40,6 +40,19 @@ abstract class Command extends BaseCommand
     }
 
     /**
+     * getApplication, but is guaranteed to return a Shell instance.
+     */
+    protected function getShell(): Shell
+    {
+        $shell = $this->getApplication();
+        if (!$shell instanceof Shell) {
+            throw new \RuntimeException('PsySH Commands require an instance of Psy\Shell');
+        }
+
+        return $shell;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function asText(): string

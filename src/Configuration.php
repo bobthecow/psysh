@@ -47,7 +47,7 @@ class Configuration
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
     const VERBOSITY_DEBUG = 'debug';
 
-    private static $AVAILABLE_OPTIONS = [
+    private const AVAILABLE_OPTIONS = [
         'codeCleaner',
         'colorMode',
         'configDir',
@@ -80,58 +80,57 @@ class Configuration
         'yolo',
     ];
 
-    private $defaultIncludes;
-    private $configDir;
-    private $dataDir;
-    private $runtimeDir;
-    private $configFile;
-    /** @var string|false */
+    private ?array $defaultIncludes = null;
+    private ?string $configDir = null;
+    private ?string $dataDir = null;
+    private ?string $runtimeDir = null;
+    private ?string $configFile = null;
+    /** @var string|false|null */
     private $historyFile;
-    private $historySize;
-    private $eraseDuplicates;
-    private $manualDbFile;
-    private $hasReadline;
-    private $useReadline;
-    private $useBracketedPaste;
-    private $hasPcntl;
-    private $usePcntl;
-    private $newCommands = [];
-    private $pipedInput;
-    private $pipedOutput;
-    private $rawOutput = false;
-    private $requireSemicolons = false;
-    private $strictTypes = false;
-    private $useUnicode;
-    private $useTabCompletion;
-    private $newMatchers = [];
-    private $errorLoggingLevel = \E_ALL;
-    private $warnOnMultipleConfigs = false;
-    private $colorMode = self::COLOR_MODE_AUTO;
-    private $interactiveMode = self::INTERACTIVE_MODE_AUTO;
-    private $updateCheck;
-    private $startupMessage;
-    private $forceArrayIndexes = false;
+    private int $historySize = 0;
+    private ?bool $eraseDuplicates = null;
+    private ?string $manualDbFile = null;
+    private bool $hasReadline;
+    private ?bool $useReadline = null;
+    private bool $useBracketedPaste = false;
+    private bool $hasPcntl;
+    private ?bool $usePcntl = null;
+    private array $newCommands = [];
+    private ?bool $pipedInput = null;
+    private ?bool $pipedOutput = null;
+    private bool $rawOutput = false;
+    private bool $requireSemicolons = false;
+    private bool $strictTypes = false;
+    private ?bool $useUnicode = null;
+    private ?bool $useTabCompletion = null;
+    private array $newMatchers = [];
+    private int $errorLoggingLevel = \E_ALL;
+    private bool $warnOnMultipleConfigs = false;
+    private string $colorMode = self::COLOR_MODE_AUTO;
+    private string $interactiveMode = self::INTERACTIVE_MODE_AUTO;
+    private ?string $updateCheck = null;
+    private ?string $startupMessage = null;
+    private bool $forceArrayIndexes = false;
     /** @deprecated */
-    private $formatterStyles = [];
-    private $verbosity = self::VERBOSITY_NORMAL;
-    private $yolo = false;
-    /** @var Theme */
-    private $theme;
+    private array $formatterStyles = [];
+    private string $verbosity = self::VERBOSITY_NORMAL;
+    private bool $yolo = false;
+    private ?Theme $theme = null;
 
     // services
-    private $readline;
-    /** @var ShellOutput */
-    private $output;
-    private $shell;
-    private $cleaner;
-    private $pager;
-    private $manualDb;
-    private $presenter;
-    private $autoCompleter;
-    private $checker;
+    private ?Readline\Readline $readline = null;
+    private ?ShellOutput $output = null;
+    private ?Shell $shell = null;
+    private ?CodeCleaner $cleaner = null;
+    /** @var string|OutputPager|false|null */
+    private $pager = null;
+    private ?\PDO $manualDb = null;
+    private ?Presenter $presenter = null;
+    private ?AutoCompleter $autoCompleter = null;
+    private ?Checker $checker = null;
     /** @deprecated */
-    private $prompt;
-    private $configPaths;
+    private ?string $prompt = null;
+    private ConfigPaths $configPaths;
 
     /**
      * Construct a Configuration instance.
@@ -466,7 +465,7 @@ class Configuration
      */
     public function loadConfig(array $options)
     {
-        foreach (self::$AVAILABLE_OPTIONS as $option) {
+        foreach (self::AVAILABLE_OPTIONS as $option) {
             if (isset($options[$option])) {
                 $method = 'set'.\ucfirst($option);
                 $this->$method($options[$option]);

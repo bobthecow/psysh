@@ -20,7 +20,7 @@ use Psy\ParserFactory;
  */
 class CodeArgumentParser
 {
-    private $parser;
+    private Parser $parser;
 
     public function __construct(?Parser $parser = null)
     {

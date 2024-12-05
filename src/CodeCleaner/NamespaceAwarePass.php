@@ -21,8 +21,8 @@ use PhpParser\Node\Stmt\Namespace_;
  */
 abstract class NamespaceAwarePass extends CodeCleanerPass
 {
-    protected $namespace;
-    protected $currentScope;
+    protected array $namespace = [];
+    protected array $currentScope = [];
 
     /**
      * @todo should this be final? Extending classes should be sure to either
