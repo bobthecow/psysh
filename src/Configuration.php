@@ -713,7 +713,7 @@ class Configuration
      */
     public function setEraseDuplicates(bool $value)
     {
-        $this->eraseDuplicates = (bool) $value;
+        $this->eraseDuplicates = $value;
     }
 
     /**
@@ -819,7 +819,7 @@ class Configuration
             $this->readline = new $className(
                 $this->getHistoryFile(),
                 $this->getHistorySize(),
-                $this->getEraseDuplicates()
+                $this->getEraseDuplicates() ?? false
             );
         }
 

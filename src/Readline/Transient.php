@@ -50,7 +50,7 @@ class Transient implements Readline
         // don't do anything with the history file...
         $this->history = [];
         $this->historySize = $historySize;
-        $this->eraseDups = $eraseDups;
+        $this->eraseDups = $eraseDups ?? false;
     }
 
     /**
