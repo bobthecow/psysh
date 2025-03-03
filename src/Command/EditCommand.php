@@ -90,7 +90,7 @@ class EditCommand extends Command implements ContextAware
         $shouldRemoveFile = false;
 
         if ($filePath === null) {
-            $filePath = \tempnam($this->runtimeDir, 'psysh-edit-command');
+            $filePath = @\tempnam($this->runtimeDir, 'psysh-edit-command');
             $shouldRemoveFile = true;
         }
 
