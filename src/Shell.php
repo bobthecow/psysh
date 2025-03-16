@@ -53,7 +53,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.12.7';
+    const VERSION = 'v0.12.8';
 
     private Configuration $config;
     private CodeCleaner $cleaner;
