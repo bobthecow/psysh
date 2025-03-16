@@ -20,7 +20,7 @@ help:
 	@echo "\033[33mUsage:\033[0m\n  make TARGET\n\n\033[33mTargets:\033[0m"
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-7s\033[0m %s\n", $$1, $$2}'
 
-build: ## Compile PHARs (use `build/psysh/psysh` for just the default build!)
+build: ## Compile psysh PHAR
 build: build/psysh/psysh
 
 clean: ## Clean all created artifacts
