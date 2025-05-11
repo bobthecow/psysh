@@ -56,9 +56,12 @@ class ProcOutputPager extends StreamOutput implements OutputPager
         $pipe = $this->getPipe();
         if (false === @\fwrite($pipe, $message.($newline ? \PHP_EOL : ''))) {
             // @codeCoverageIgnoreStart
-            // should never happen
+            // When the message is sufficiently long, writing to the pipe fails
+            // if the pager process is closed before the entire message is read.
+            //
+            // This is a normal condition, so we just close the pipe and return.
             $this->close();
-            throw new \RuntimeException('Unable to write output');
+            return;
             // @codeCoverageIgnoreEnd
         }
 
