@@ -80,7 +80,7 @@ class ImplicitReturnPass extends CodeCleanerPass
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
             ]);
-        // @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
             $nodes[\count($nodes) - 1] = new Return_($last->expr, [
                 'startLine' => $last->getStartLine(),

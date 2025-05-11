@@ -61,6 +61,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
             //
             // This is a normal condition, so we just close the pipe and return.
             $this->close();
+
             return;
             // @codeCoverageIgnoreEnd
         }
