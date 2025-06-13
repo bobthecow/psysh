@@ -23,7 +23,7 @@ jobs:
             test
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.32.0
+        uses: shivammathur/setup-php@2.34.1
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
