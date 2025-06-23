@@ -69,7 +69,7 @@ class ValidConstructorPass extends CodeCleanerPass
                     }
 
                     // We found a possible old-style constructor (unless there is also a __construct method)
-                    if (empty($this->namespace) && \strtolower($node->name) === \strtolower($stmt->name)) {
+                    if (empty($this->namespace) && $node->name !== null && \strtolower($node->name) === \strtolower($stmt->name)) {
                         $constructor = $stmt;
                     }
                 }

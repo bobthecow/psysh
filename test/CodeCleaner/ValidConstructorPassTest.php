@@ -90,4 +90,22 @@ class ValidConstructorPassTest extends CodeCleanerTestCase
             ['namespace B; class A { private static function A(): ?array {}}'],
         ];
     }
+
+    /**
+     * @dataProvider anonymousClasses
+     */
+    public function testAnonymousClasses($code)
+    {
+        $this->parseAndTraverse($code);
+        $this->assertTrue(true);
+    }
+
+    public function anonymousClasses()
+    {
+        return [
+            ['new class() { public function __construct() {} }'],
+            ['new class() { public function f(): void {} }'],
+            ['new class() { private function f(): void {} public function __construct() {} }'],
+        ];
+    }
 }
