@@ -266,7 +266,7 @@ class SignatureFormatter implements ReflectorFormatter
             try {
                 if (\method_exists($param, 'getType')) {
                     // Only include the inquisitive nullable type iff param default value is not null.
-                    $defaultIsNull = $param->isOptional() && $param->isDefaultValueAvailable() && $param->getDefaultValue() === null;
+                    $defaultIsNull = $param->isOptional() && $param->isDefaultValueAvailable() && @$param->getDefaultValue() === null;
                     $hint = self::formatReflectionType($param->getType(), !$defaultIsNull);
                 } else {
                     if ($param->isArray()) {
@@ -296,7 +296,7 @@ class SignatureFormatter implements ReflectorFormatter
                     $value = 'unknown';
                     $typeStyle = 'urgent';
                 } else {
-                    $value = $param->getDefaultValue();
+                    $value = @$param->getDefaultValue();
                     $typeStyle = self::getTypeStyle($value);
                     $value = \is_array($value) ? '[]' : ($value === null ? 'null' : \var_export($value, true));
                 }
