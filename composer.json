@@ -3,13 +3,12 @@
     "description": "An interactive shell for modern PHP.",
     "type": "library",
     "keywords": ["console", "interactive", "shell", "repl"],
-    "homepage": "http://psysh.org",
+    "homepage": "https://psysh.org",
     "license": "MIT",
     "authors": [
         {
             "name": "Justin Hileman",
-            "email": "justin@justinhileman.info",
-            "homepage": "http://justinhileman.com"
+            "email": "justin@justinhileman.info"
         }
     ],
     "require": {
