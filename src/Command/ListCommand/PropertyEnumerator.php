@@ -168,7 +168,9 @@ class PropertyEnumerator extends Enumerator
             return '';
         }
 
-        $property->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $value = $property->getValue($target);
 
         return $this->presentRef($value);
