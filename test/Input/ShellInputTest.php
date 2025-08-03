@@ -101,7 +101,9 @@ class ShellInputTest extends \Psy\Test\TestCase
         $input = new ShellInput($input);
         $r = new \ReflectionClass(ShellInput::class);
         $p = $r->getProperty('tokenPairs');
-        $p->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $p->setAccessible(true);
+        }
         $this->assertSame($tokens, $p->getValue($input), $message);
     }
 

@@ -629,7 +629,9 @@ class ShellTest extends TestCase
         // :-/
         $refl = new \ReflectionClass(Shell::class);
         $method = $refl->getMethod('hasCommand');
-        $method->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $this->assertSame($method->invokeArgs($shell, [$command]), $has);
     }
