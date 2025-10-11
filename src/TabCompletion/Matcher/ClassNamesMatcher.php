@@ -14,7 +14,7 @@ namespace Psy\TabCompletion\Matcher;
 /**
  * A class name tab completion Matcher.
  *
- * This matcher provides completion for all declared classes.
+ * This matcher provides completion for all declared classes, interfaces, and traits.
  *
  * @author Marc Garcia <markcial@gmail.com>
  */
@@ -41,7 +41,7 @@ class ClassNamesMatcher extends AbstractMatcher
                 return \implode('\\', \array_slice($pieces, $nsPos, \count($pieces)));
             },
             \array_filter(
-                \array_merge(\get_declared_classes(), \get_declared_interfaces()),
+                \array_merge(\get_declared_classes(), \get_declared_interfaces(), \get_declared_traits()),
                 function ($className) use ($quotedClass) {
                     return AbstractMatcher::startsWith($quotedClass, $className);
                 }
