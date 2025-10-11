@@ -21,7 +21,7 @@ use Psy\TabCompletion\Matcher\AbstractMatcher;
 class AutoCompleter
 {
     /** @var Matcher\AbstractMatcher[] */
-    protected $matchers;
+    protected $matchers = [];
 
     /**
      * Register a tab completion Matcher.
