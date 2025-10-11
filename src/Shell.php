@@ -101,6 +101,46 @@ class Shell extends Application
 
         // Register the current shell session's config with \Psy\info
         \Psy\info($this->config);
+
+        $this->warmAutoloader();
+    }
+
+    /**
+     * Warm the autoloader by loading classes at startup.
+     *
+     * This improves tab completion by making classes available via get_declared_classes()
+     * rather than maintaining a separate list of available classes.
+     */
+    private function warmAutoloader(): void
+    {
+        $warmers = $this->config->getAutoloadWarmers();
+        if (empty($warmers)) {
+            return;
+        }
+
+        $output = $this->config->getOutput();
+        if ($output instanceof ConsoleOutput) {
+            $output = $output->getErrorOutput();
+        }
+
+        $start = \microtime(true);
+        $loadedCount = 0;
+
+        foreach ($warmers as $warmer) {
+            try {
+                $loadedCount += $warmer->warm();
+            } catch (\Throwable $e) {
+                $output->writeln($this->formatException($e), OutputInterface::VERBOSITY_DEBUG);
+            }
+        }
+
+        $message = \sprintf(
+            '<whisper>Autoload warming: loaded %d classes in %.1fms</whisper>',
+            $loadedCount,
+            (\microtime(true) - $start) * 1000
+        );
+
+        $output->writeln($message, OutputInterface::VERBOSITY_DEBUG);
     }
 
     /**

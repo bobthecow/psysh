@@ -20,12 +20,14 @@
         "symfony/var-dumper": "^7.0 || ^6.0 || ^5.0 || ^4.0 || ^3.4"
     },
     "require-dev": {
-        "bamarni/composer-bin-plugin": "^1.2"
+        "bamarni/composer-bin-plugin": "^1.2",
+        "composer/class-map-generator": "^1.6"
     },
     "suggest": {
         "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
         "ext-posix": "If you have PCNTL, you'll want the POSIX extension as well.",
-        "ext-pdo-sqlite": "The doc command requires SQLite to work."
+        "ext-pdo-sqlite": "The doc command requires SQLite to work.",
+        "composer/class-map-generator": "Improved tab completion performance with better class discovery."
     },
     "autoload": {
         "files": ["src/functions.php"],

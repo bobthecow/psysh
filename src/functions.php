@@ -301,6 +301,51 @@ if (!\function_exists('Psy\\info')) {
             'bracketed paste'        => $config->useBracketedPaste(),
         ];
 
+        $warmers = $config->getAutoloadWarmers();
+        $autoload = [
+            'autoload warming enabled' => !empty($warmers),
+            'warmers configured'       => \count($warmers),
+        ];
+
+        if (!empty($warmers)) {
+            $autoload['warmer types'] = \array_map('get_class', $warmers);
+
+            // Add extended info for ComposerAutoloadWarmer
+            foreach ($warmers as $warmer) {
+                if ($warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer) {
+                    try {
+                        $autoload['composer warmer config'] = [
+                            'include vendor' => Sudo::fetchProperty($warmer, 'includeVendor'),
+                            'include tests'  => Sudo::fetchProperty($warmer, 'includeTests'),
+                            'vendor dir'     => Sudo::fetchProperty($warmer, 'vendorDir'),
+                            'phar prefix'    => Sudo::fetchProperty($warmer, 'pharPrefix'),
+                        ];
+
+                        $includeNamespaces = Sudo::fetchProperty($warmer, 'includeNamespaces');
+                        $excludeNamespaces = Sudo::fetchProperty($warmer, 'excludeNamespaces');
+                        $includeVendorNamespaces = Sudo::fetchProperty($warmer, 'includeVendorNamespaces');
+                        $excludeVendorNamespaces = Sudo::fetchProperty($warmer, 'excludeVendorNamespaces');
+
+                        if (!empty($includeNamespaces)) {
+                            $autoload['composer warmer config']['include namespaces'] = $includeNamespaces;
+                        }
+                        if (!empty($excludeNamespaces)) {
+                            $autoload['composer warmer config']['exclude namespaces'] = $excludeNamespaces;
+                        }
+                        if (!empty($includeVendorNamespaces)) {
+                            $autoload['composer warmer config']['include vendor namespaces'] = $includeVendorNamespaces;
+                        }
+                        if (!empty($excludeVendorNamespaces)) {
+                            $autoload['composer warmer config']['exclude vendor namespaces'] = $excludeVendorNamespaces;
+                        }
+                    } catch (\ReflectionException $e) {
+                        // shrug
+                    }
+                    break; // Only show info for the first ComposerAutoloadWarmer
+                }
+            }
+        }
+
         // Shenanigans, but totally justified.
         try {
             if ($shell = Sudo::fetchProperty($config, 'shell')) {
@@ -332,7 +377,7 @@ if (!\function_exists('Psy\\info')) {
 
         // @todo Show Presenter / custom casters.
 
-        return \array_merge($shellInfo, $core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
+        return \array_merge($shellInfo, $core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete', 'autoload'));
     }
 }
 

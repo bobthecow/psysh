@@ -76,6 +76,7 @@ class Configuration
         'useTabCompletion',
         'useUnicode',
         'verbosity',
+        'warmAutoload',
         'warnOnMultipleConfigs',
         'yolo',
     ];
@@ -104,6 +105,7 @@ class Configuration
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
     private array $newMatchers = [];
+    private ?array $autoloadWarmers = null;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
@@ -1347,6 +1349,102 @@ class Configuration
             $this->shell->addMatchers($this->newMatchers);
             $this->newMatchers = [];
         }
+    }
+
+    /**
+     * Configure autoload warming.
+     *
+     * @param bool|array $config False to disable, true for defaults, or array for custom config
+     */
+    public function setWarmAutoload($config): void
+    {
+        if (!\is_bool($config) && !\is_array($config)) {
+            throw new \InvalidArgumentException('warmAutoload must be a boolean or configuration array');
+        }
+
+        // Parse and store warmers immediately
+        $this->autoloadWarmers = $this->parseWarmAutoloadConfig($config);
+    }
+
+    /**
+     * Get configured autoload warmers.
+     *
+     * If no warmers are explicitly configured, returns a default ComposerAutoloadWarmer
+     * with smart settings that work for most projects.
+     *
+     * To disable autoload warming, set 'warmAutoload' to false.
+     *
+     * @return TabCompletion\AutoloadWarmer\AutoloadWarmerInterface[]
+     */
+    public function getAutoloadWarmers(): array
+    {
+        if ($this->autoloadWarmers === null) {
+            $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
+        }
+
+        return $this->autoloadWarmers;
+    }
+
+    /**
+     * Parse warmAutoload configuration into autoload warmers.
+     *
+     * Accepts three types of configuration:
+     * - true: Enable with default ComposerAutoloadWarmer
+     * - false: Disable warming entirely (default)
+     * - array: Custom configuration for ComposerAutoloadWarmer and/or custom warmers
+     *
+     * When a config array is provided:
+     * - Empty array [] disables warming
+     * - 'warmers' key provides custom warmer instances
+     * - Other keys configure a ComposerAutoloadWarmer (implicitly enables)
+     * - Both can be combined: custom warmers + configured ComposerAutoloadWarmer
+     *
+     * @param bool|array $config Configuration value
+     *
+     * @return TabCompletion\AutoloadWarmer\AutoloadWarmerInterface[]
+     */
+    private function parseWarmAutoloadConfig($config): array
+    {
+        // false = disable entirely
+        if ($config === false) {
+            return [];
+        }
+
+        // true = use default ComposerAutoloadWarmer
+        if ($config === true) {
+            return [new TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer()];
+        }
+
+        // array = custom configuration
+        if (!\is_array($config)) {
+            throw new \InvalidArgumentException('warmAutoload must be a boolean or configuration array');
+        }
+
+        $warmers = [];
+
+        // Extract explicit warmers if provided
+        if (isset($config['warmers'])) {
+            $explicitWarmers = $config['warmers'];
+            if (!\is_array($explicitWarmers)) {
+                throw new \InvalidArgumentException('warmAutoload[\'warmers\'] must be an array');
+            }
+
+            foreach ($explicitWarmers as $warmer) {
+                if (!$warmer instanceof TabCompletion\AutoloadWarmer\AutoloadWarmerInterface) {
+                    throw new \InvalidArgumentException('Autoload warmers must implement AutoloadWarmerInterface');
+                }
+                $warmers[] = $warmer;
+            }
+
+            unset($config['warmers']);
+        }
+
+        // If there are remaining config options, create a ComposerAutoloadWarmer with them
+        if (!empty($config)) {
+            $warmers[] = new TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer($config);
+        }
+
+        return $warmers;
     }
 
     /**

@@ -122,4 +122,24 @@ class ClassNamesMatcherTest extends TestCase
 
         $this->assertFalse($matcher->hasMatched($tokens));
     }
+
+    public function testMatchesWithClassesLoadedByWarmer()
+    {
+        // This test verifies that if a warmer has loaded classes at Shell startup,
+        // they appear in tab completion
+
+        $matcher = new ClassNamesMatcher();
+
+        // Get current declared classes
+        $declaredClasses = \get_declared_classes();
+
+        $tokens = [[\T_OPEN_TAG, '<?php ', 1], [\T_STRING, '', 1]];
+
+        $matches = $matcher->getMatches($tokens);
+
+        // All declared classes should be in matches
+        foreach ($declaredClasses as $class) {
+            $this->assertContains($class, $matches);
+        }
+    }
 }

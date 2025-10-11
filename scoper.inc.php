@@ -44,6 +44,8 @@ try {
 }
 
 return [
+    'prefix' => '_Psy'.\bin2hex(\random_bytes(6)),
+
     'exclude-namespaces' => [
         'Psy',
         'Symfony\Polyfill',
