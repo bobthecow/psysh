@@ -37,7 +37,7 @@ class IssetPass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if (!$node instanceof Isset_) {
-            return;
+            return null;
         }
 
         foreach ($node->vars as $var) {
@@ -45,5 +45,7 @@ class IssetPass extends CodeCleanerPass
                 throw new FatalErrorException(self::EXCEPTION_MSG, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 }

@@ -72,6 +72,8 @@ class ReflectionConstant implements \Reflector
         }
 
         echo $str."\n";
+
+        return null;
     }
 
     public static function isMagicConstant($name)

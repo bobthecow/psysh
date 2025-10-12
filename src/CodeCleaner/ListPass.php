@@ -42,15 +42,15 @@ class ListPass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if (!$node instanceof Assign) {
-            return;
+            return null;
         }
 
         if (!$node->var instanceof Array_ && !$node->var instanceof List_) {
-            return;
+            return null;
         }
 
         // Polyfill for PHP-Parser 2.x
-        $items = isset($node->var->items) ? $node->var->items : $node->var->vars;
+        $items = isset($node->var->items) ? $node->var->items : (\property_exists($node->var, 'vars') ? $node->var->vars : []);
 
         if ($items === [] || $items === [null]) {
             throw new ParseErrorException('Cannot use empty list', ['startLine' => $node->var->getStartLine(), 'endLine' => $node->var->getEndLine()]);
@@ -73,6 +73,8 @@ class ListPass extends CodeCleanerPass
         if (!$itemFound) {
             throw new ParseErrorException('Cannot use empty list');
         }
+
+        return null;
     }
 
     /**

@@ -40,6 +40,8 @@ class LoopContextPass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $this->loopDepth = 0;
+
+        return null;
     }
 
     /**
@@ -95,6 +97,8 @@ class LoopContextPass extends CodeCleanerPass
                 }
                 break;
         }
+
+        return null;
     }
 
     /**
@@ -113,5 +117,7 @@ class LoopContextPass extends CodeCleanerPass
                 $this->loopDepth--;
                 break;
         }
+
+        return null;
     }
 }

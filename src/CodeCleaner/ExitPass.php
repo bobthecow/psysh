@@ -31,5 +31,7 @@ class ExitPass extends CodeCleanerPass
         if ($node instanceof Exit_) {
             return new StaticCall(new FullyQualifiedName(BreakException::class), 'exitShell');
         }
+
+        return null;
     }
 }

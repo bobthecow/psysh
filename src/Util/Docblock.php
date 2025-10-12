@@ -241,5 +241,7 @@ class Docblock
         if (\preg_match('/^@[a-z0-9_]+/', $str, $matches)) {
             return $matches[0];
         }
+
+        return null;
     }
 }

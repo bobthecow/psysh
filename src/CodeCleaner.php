@@ -235,6 +235,8 @@ class CodeCleaner
 
             return $stackFrame['file'];
         }
+
+        return null;
     }
 
     /**

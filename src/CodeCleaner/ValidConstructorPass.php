@@ -41,6 +41,8 @@ class ValidConstructorPass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $this->namespace = [];
+
+        return null;
     }
 
     /**
@@ -62,14 +64,14 @@ class ValidConstructorPass extends CodeCleanerPass
             foreach ($node->stmts as $stmt) {
                 if ($stmt instanceof ClassMethod) {
                     // If we find a new-style constructor, no need to look for the old-style
-                    if ('__construct' === \strtolower($stmt->name)) {
+                    if (\property_exists($stmt, 'name') && \strtolower($stmt->name) === '__construct') {
                         $this->validateConstructor($stmt, $node);
 
-                        return;
+                        return null;
                     }
 
                     // We found a possible old-style constructor (unless there is also a __construct method)
-                    if (empty($this->namespace) && $node->name !== null && \strtolower($node->name) === \strtolower($stmt->name)) {
+                    if (empty($this->namespace) && $node->name !== null && \property_exists($stmt, 'name') && \strtolower($node->name) === \strtolower($stmt->name)) {
                         $constructor = $stmt;
                     }
                 }
@@ -79,6 +81,8 @@ class ValidConstructorPass extends CodeCleanerPass
                 $this->validateConstructor($constructor, $node);
             }
         }
+
+        return null;
     }
 
     /**
@@ -90,11 +94,11 @@ class ValidConstructorPass extends CodeCleanerPass
      */
     private function validateConstructor(Node $constructor, Node $classNode)
     {
-        if ($constructor->isStatic()) {
+        if (\method_exists($constructor, 'isStatic') && $constructor->isStatic()) {
             $msg = \sprintf(
                 'Constructor %s::%s() cannot be static',
                 \implode('\\', \array_merge($this->namespace, (array) $classNode->name->toString())),
-                $constructor->name
+                \property_exists($constructor, 'name') ? $constructor->name : '__construct'
             );
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getStartLine());
         }
@@ -103,7 +107,7 @@ class ValidConstructorPass extends CodeCleanerPass
             $msg = \sprintf(
                 'Constructor %s::%s() cannot declare a return type',
                 \implode('\\', \array_merge($this->namespace, (array) $classNode->name->toString())),
-                $constructor->name
+                \property_exists($constructor, 'name') ? $constructor->name : '__construct'
             );
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $classNode->getStartLine());
         }

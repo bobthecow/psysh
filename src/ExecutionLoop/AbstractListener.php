@@ -37,6 +37,7 @@ abstract class AbstractListener implements Listener
      */
     public function onInput(Shell $shell, string $input)
     {
+        return null;
     }
 
     /**
@@ -44,6 +45,7 @@ abstract class AbstractListener implements Listener
      */
     public function onExecute(Shell $shell, string $code)
     {
+        return null;
     }
 
     /**

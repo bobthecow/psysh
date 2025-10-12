@@ -33,6 +33,8 @@ class EmptyArrayDimFetchPass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $this->theseOnesAreFine = [];
+
+        return null;
     }
 
     /**
@@ -62,5 +64,7 @@ class EmptyArrayDimFetchPass extends CodeCleanerPass
                 throw new FatalErrorException(self::EXCEPTION_MESSAGE, $node->getStartLine());
             }
         }
+
+        return null;
     }
 }

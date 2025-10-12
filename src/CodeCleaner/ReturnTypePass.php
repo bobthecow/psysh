@@ -44,15 +44,15 @@ class ReturnTypePass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if ($this->isFunctionNode($node)) {
-            $this->returnTypeStack[] = $node->returnType;
+            $this->returnTypeStack[] = \property_exists($node, 'returnType') ? $node->returnType : null;
 
-            return;
+            return null;
         }
 
         if (!empty($this->returnTypeStack) && $node instanceof Return_) {
             $expectedType = \end($this->returnTypeStack);
             if ($expectedType === null) {
-                return;
+                return null;
             }
 
             $msg = null;
@@ -77,6 +77,8 @@ class ReturnTypePass extends CodeCleanerPass
                 throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 
     /**
@@ -89,6 +91,8 @@ class ReturnTypePass extends CodeCleanerPass
         if (!empty($this->returnTypeStack) && $this->isFunctionNode($node)) {
             \array_pop($this->returnTypeStack);
         }
+
+        return null;
     }
 
     private function isFunctionNode(Node $node): bool

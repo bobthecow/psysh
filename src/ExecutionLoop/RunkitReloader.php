@@ -52,6 +52,8 @@ class RunkitReloader extends AbstractListener
     public function onInput(Shell $shell, string $input)
     {
         $this->reload($shell);
+
+        return null;
     }
 
     /**

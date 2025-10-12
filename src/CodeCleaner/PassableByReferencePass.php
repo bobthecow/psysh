@@ -44,7 +44,7 @@ class PassableByReferencePass extends CodeCleanerPass
         if ($node instanceof FuncCall) {
             // if function name is an expression or a variable, give it a pass for now.
             if ($node->name instanceof Expr || $node->name instanceof Variable) {
-                return;
+                return null;
             }
 
             $name = (string) $node->name;
@@ -57,7 +57,7 @@ class PassableByReferencePass extends CodeCleanerPass
                 $refl = new \ReflectionFunction($name);
             } catch (\ReflectionException $e) {
                 // Well, we gave it a shot!
-                return;
+                return null;
             }
 
             $args = [];
@@ -78,13 +78,19 @@ class PassableByReferencePass extends CodeCleanerPass
                 }
             }
         }
+
+        return null;
     }
 
     private function isPassableByReference(Node $arg): bool
     {
+        if (!\property_exists($arg, 'value')) {
+            return false;
+        }
+
         // Unpacked arrays can be passed by reference
         if ($arg->value instanceof Array_) {
-            return $arg->unpack;
+            return \property_exists($arg, 'unpack') && $arg->unpack;
         }
 
         // FuncCall, MethodCall and StaticCall are all PHP _warnings_ not fatal errors, so we'll let

@@ -41,7 +41,7 @@ class CallTimePassByReferencePass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if (!$node instanceof FuncCall && !$node instanceof MethodCall && !$node instanceof StaticCall) {
-            return;
+            return null;
         }
 
         foreach ($node->args as $arg) {
@@ -53,5 +53,7 @@ class CallTimePassByReferencePass extends CodeCleanerPass
                 throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 }

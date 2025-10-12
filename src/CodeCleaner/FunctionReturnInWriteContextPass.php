@@ -68,6 +68,8 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
         } elseif ($node instanceof Assign && $this->isCallNode($node->var)) {
             throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
         }
+
+        return null;
     }
 
     private function isCallNode(Node $node): bool

@@ -1092,6 +1092,8 @@ class Shell extends Application
 
             return $code;
         }
+
+        return null;
     }
 
     /**
@@ -1160,6 +1162,8 @@ class Shell extends Application
         if ($namespace = $this->cleaner->getNamespace()) {
             return \implode('\\', $namespace);
         }
+
+        return null;
     }
 
     /**
@@ -1548,6 +1552,8 @@ class Shell extends Application
         if ($name = $input->getFirstArgument()) {
             return $this->get($name);
         }
+
+        return null;
     }
 
     /**

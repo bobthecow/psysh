@@ -28,6 +28,8 @@ class FunctionContextPass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $this->functionDepth = 0;
+
+        return null;
     }
 
     /**
@@ -38,12 +40,12 @@ class FunctionContextPass extends CodeCleanerPass
         if ($node instanceof FunctionLike) {
             $this->functionDepth++;
 
-            return;
+            return null;
         }
 
         // node is inside function context
         if ($this->functionDepth !== 0) {
-            return;
+            return null;
         }
 
         // It causes fatal error.
@@ -51,6 +53,8 @@ class FunctionContextPass extends CodeCleanerPass
             $msg = 'The "yield" expression can only be used inside a function';
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
         }
+
+        return null;
     }
 
     /**
@@ -63,5 +67,7 @@ class FunctionContextPass extends CodeCleanerPass
         if ($node instanceof FunctionLike) {
             $this->functionDepth--;
         }
+
+        return null;
     }
 }

@@ -7,7 +7,7 @@ parameters:
   phpVersion: 70400
 
   # See: https://phpstan.org/user-guide/rule-levels
-  level: 1
+  level: 2
   paths:
     - src
     - test

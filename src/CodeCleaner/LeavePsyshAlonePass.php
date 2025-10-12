@@ -34,5 +34,7 @@ class LeavePsyshAlonePass extends CodeCleanerPass
         if ($node instanceof Variable && $node->name === '__psysh__') {
             throw new RuntimeException('Don\'t mess with $__psysh__; bad things will happen');
         }
+
+        return null;
     }
 }

@@ -38,5 +38,7 @@ class MagicConstantsPass extends CodeCleanerPass
         } elseif ($node instanceof File) {
             return new String_('', $node->getAttributes());
         }
+
+        return null;
     }
 }

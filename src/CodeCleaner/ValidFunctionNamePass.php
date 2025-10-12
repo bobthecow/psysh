@@ -59,6 +59,8 @@ class ValidFunctionNamePass extends NamespaceAwarePass
 
             $this->currentScope[\strtolower($name)] = true;
         }
+
+        return null;
     }
 
     /**
@@ -71,6 +73,8 @@ class ValidFunctionNamePass extends NamespaceAwarePass
         if (self::isConditional($node)) {
             $this->conditionalScopes--;
         }
+
+        return null;
     }
 
     private static function isConditional(Node $node)

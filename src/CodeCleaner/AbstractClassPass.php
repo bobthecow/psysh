@@ -47,6 +47,8 @@ class AbstractClassPass extends CodeCleanerPass
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -71,5 +73,7 @@ class AbstractClassPass extends CodeCleanerPass
                 throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 }

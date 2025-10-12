@@ -57,6 +57,8 @@ class UseStatementPass extends CodeCleanerPass
                 $this->aliases = $this->lastAliases;
             }
         }
+
+        return null;
     }
 
     /**
@@ -100,13 +102,13 @@ class UseStatementPass extends CodeCleanerPass
             $this->lastAliases = $this->aliases;
             $this->aliases = [];
 
-            return;
+            return null;
         }
 
         // Do nothing with UseItem; this an entry in the list of uses in the use statement.
         // @todo Remove UseUse once we drop support for PHP-Parser 4.x
         if ($node instanceof UseUse || $node instanceof UseItem) {
-            return;
+            return null;
         }
 
         // For everything else, we'll implicitly thunk all aliases into fully-qualified names.
@@ -138,5 +140,7 @@ class UseStatementPass extends CodeCleanerPass
                 return new FullyQualifiedName($prefix->toString().\substr($name, \strlen($alias)));
             }
         }
+
+        return null;
     }
 }

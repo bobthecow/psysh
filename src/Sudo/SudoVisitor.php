@@ -123,6 +123,8 @@ class SudoVisitor extends NodeVisitorAbstract
             // not using prepareCall because the $node->args we started with are already Arg instances
             return new StaticCall(new FullyQualifiedName(Sudo::class), self::NEW_INSTANCE, $args);
         }
+
+        return null;
     }
 
     private function prepareCall(string $method, array $args): StaticCall

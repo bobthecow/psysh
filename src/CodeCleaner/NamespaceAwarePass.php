@@ -36,6 +36,8 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
     {
         $this->namespace = [];
         $this->currentScope = [];
+
+        return null;
     }
 
     /**
@@ -51,6 +53,8 @@ abstract class NamespaceAwarePass extends CodeCleanerPass
         if ($node instanceof Namespace_) {
             $this->namespace = isset($node->name) ? $this->getParts($node->name) : [];
         }
+
+        return null;
     }
 
     /**

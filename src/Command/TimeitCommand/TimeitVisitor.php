@@ -41,6 +41,8 @@ class TimeitVisitor extends NodeVisitorAbstract
     public function beforeTraverse(array $nodes)
     {
         $this->functionDepth = 0;
+
+        return null;
     }
 
     /**
@@ -55,13 +57,15 @@ class TimeitVisitor extends NodeVisitorAbstract
         if ($node instanceof FunctionLike) {
             $this->functionDepth++;
 
-            return;
+            return null;
         }
 
         // replace any top-level `return` statements with a `markEnd` call
         if ($this->functionDepth === 0 && $node instanceof Return_) {
             return new Return_($this->getEndCall($node->expr), $node->getAttributes());
         }
+
+        return null;
     }
 
     /**
@@ -74,6 +78,8 @@ class TimeitVisitor extends NodeVisitorAbstract
         if ($node instanceof FunctionLike) {
             $this->functionDepth--;
         }
+
+        return null;
     }
 
     /**

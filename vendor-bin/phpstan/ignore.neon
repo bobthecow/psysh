@@ -3,6 +3,7 @@ parameters:
     # Runkit extension is optional, so we shouldn't warn about its functions
     - "#^Function runkit[a-zA-Z0-9_]+ not found\\.$#"
     - "#^Constant RUNKIT_[a-zA-Z0-9_]+ not found\\.$#"
+    - "#^Unary operation .* on mixed results in an error\\.$#"
     # PHP8 classes are used only after explicit check for runtime version, so let's ignore it
     - message: "#^Class (UnitEnum|ReflectionUnionType)+ not found\\.$#"
       paths:
@@ -12,3 +13,24 @@ parameters:
     # Backwards-compatiblity with PHP-Parser 4.x
     - "#^Class PhpParser\\\\Node\\\\Stmt\\\\UseItem not found\\.$#"
     - "#^Access to undefined constant PhpParser\\\\ParserFactory::PREFER_PHP7\\.$#"
+    # Symfony Console method compatibility - wide version support (3.4 - 7.x)
+    - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setVerticalBorderChar\\(\\)\\.$#"
+    - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setHorizontalBorderChar\\(\\)\\.$#"
+    - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setCrossingChar\\(\\)\\.$#"
+    - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Output\\\\OutputInterface::page\\(\\)\\.$#"
+    - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Command\\\\Command::asText\\(\\)\\.$#"
+    # PHP-Parser method compatibility: wide version support (4.x - 5.x)
+    - "#^Call to an undefined method PhpParser\\\\ParserFactory::create\\(\\)\\.$#"
+    # PHP-Parser property access - backwards compatibility with 4.x (uses ->parts fallback)
+    - "#^Access to an undefined property PhpParser\\\\Node\\\\Name::\\$parts\\.$#"
+    # PHP-Parser property access - protected by instanceof checks or isCallNode guards
+    - "#^Access to an undefined property PhpParser\\\\Node::\\$args\\.$#"
+    - "#^Access to an undefined property PhpParser\\\\Node::\\$expr\\.$#"
+    - "#^Access to an undefined property PhpParser\\\\Node::\\$name\\.$#"
+    # Hoa library errors - legacy code not maintained by PsySH
+    - message: "#.*#"
+      paths:
+        - ../../src/Readline/Hoa/ConsoleWindow.php
+        - ../../src/Readline/Hoa/FileLinkRead.php
+        - ../../src/Readline/Hoa/IteratorRecursiveDirectory.php
+        - ../../src/Readline/Hoa/Protocol.php

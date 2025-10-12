@@ -350,6 +350,8 @@ class Configuration
         if ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1', true) || $input->hasParameterOption('--verbose', true)) {
             return self::VERBOSITY_VERBOSE;
         }
+
+        return null;
     }
 
     /**
@@ -449,6 +451,8 @@ class Configuration
 
             return $files[0];
         }
+
+        return null;
     }
 
     /**
@@ -466,6 +470,8 @@ class Configuration
         if (@\is_file($localConfig)) {
             return $localConfig;
         }
+
+        return null;
     }
 
     /**
@@ -1191,7 +1197,7 @@ class Configuration
             // output stream to figure out if it's piped or not, so create it
             // first, then update after we have a stream.
             $decorated = $this->getOutputDecorated();
-            if ($decorated !== null) {
+            if ($decorated !== null && $this->output !== null) {
                 $this->output->setDecorated($decorated);
             }
         }
@@ -1598,6 +1604,8 @@ class Configuration
 
             return $this->manualDbFile = $files[0];
         }
+
+        return null;
     }
 
     /**

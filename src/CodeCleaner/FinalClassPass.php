@@ -30,6 +30,8 @@ class FinalClassPass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $this->finalClasses = [];
+
+        return null;
     }
 
     /**
@@ -54,6 +56,8 @@ class FinalClassPass extends CodeCleanerPass
                 $this->finalClasses[\strtolower($node->name)] = true;
             }
         }
+
+        return null;
     }
 
     /**
