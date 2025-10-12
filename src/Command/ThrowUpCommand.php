@@ -118,7 +118,7 @@ HELP
 
         // Allow throwing via a string, e.g. `throw-up "SUP"`
         if ($expr instanceof String_) {
-            return [new New_(new FullyQualifiedName(\Exception::class), $args)];
+            return [new Arg(new New_(new FullyQualifiedName(\Exception::class), $args))];
         }
 
         return $args;

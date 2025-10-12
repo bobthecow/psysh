@@ -48,7 +48,7 @@ abstract class AbstractMatcher
      *
      * @param array $tokens Tokenized readline input
      *
-     * @return false
+     * @return bool
      */
     public function hasMatched(array $tokens): bool
     {

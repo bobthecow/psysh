@@ -112,6 +112,7 @@ class UseStatementPass extends CodeCleanerPass
         }
 
         // For everything else, we'll implicitly thunk all aliases into fully-qualified names.
+        // @phpstan-ignore-next-line foreach.nonIterable (Node implements Traversable)
         foreach ($node as $name => $subNode) {
             if ($subNode instanceof Name) {
                 if ($replacement = $this->findAlias($subNode)) {

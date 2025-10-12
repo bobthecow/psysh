@@ -325,7 +325,7 @@ class Configuration
                 case 'vvvvvvv':
                     return self::VERBOSITY_DEBUG;
                 default: // implicitly normal, config file default wins
-                    return;
+                    return null;
             }
         }
 

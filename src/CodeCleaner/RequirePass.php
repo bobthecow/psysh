@@ -36,7 +36,7 @@ class RequirePass extends CodeCleanerPass
     public function enterNode(Node $origNode)
     {
         if (!$this->isRequireNode($origNode)) {
-            return;
+            return null;
         }
 
         $node = clone $origNode;

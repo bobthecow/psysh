@@ -134,7 +134,7 @@ if (!\function_exists('Psy\\info')) {
         if ($config !== null) {
             $lastConfig = $config;
 
-            return;
+            return null;
         }
 
         $prettyPath = function ($path) {

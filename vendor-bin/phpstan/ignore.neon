@@ -1,9 +1,15 @@
 parameters:
   ignoreErrors:
-    # Runkit extension is optional, so we shouldn't warn about its functions
-    - "#^Function runkit[a-zA-Z0-9_]+ not found\\.$#"
-    - "#^Constant RUNKIT_[a-zA-Z0-9_]+ not found\\.$#"
-    - "#^Unary operation .* on mixed results in an error\\.$#"
+    # Runkit extension is optional, so we shouldn't warn about its functions/constants
+    - message: "#^Function runkit[a-zA-Z0-9_]+ not found\\.$#"
+      paths:
+        - ../../src/ExecutionLoop/RunkitReloader.php
+    - message: "#^Constant RUNKIT_[a-zA-Z0-9_]+ not found\\.$#"
+      paths:
+        - ../../src/ExecutionLoop/RunkitReloader.php
+    - message: "#^Unary operation .* on mixed results in an error\\.$#"
+      paths:
+        - ../../src/ExecutionLoop/RunkitReloader.php
     # PHP8 classes are used only after explicit check for runtime version, so let's ignore it
     - message: "#^Class (UnitEnum|ReflectionUnionType)+ not found\\.$#"
       paths:
@@ -21,16 +27,31 @@ parameters:
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Command\\\\Command::asText\\(\\)\\.$#"
     # PHP-Parser method compatibility: wide version support (4.x - 5.x)
     - "#^Call to an undefined method PhpParser\\\\ParserFactory::create\\(\\)\\.$#"
-    # PHP-Parser property access - backwards compatibility with 4.x (uses ->parts fallback)
-    - "#^Access to an undefined property PhpParser\\\\Node\\\\Name::\\$parts\\.$#"
-    # PHP-Parser property access - protected by instanceof checks or isCallNode guards
-    - "#^Access to an undefined property PhpParser\\\\Node::\\$args\\.$#"
-    - "#^Access to an undefined property PhpParser\\\\Node::\\$expr\\.$#"
-    - "#^Access to an undefined property PhpParser\\\\Node::\\$name\\.$#"
-    # Hoa library errors - legacy code not maintained by PsySH
+    # PHP-Parser property access: backwards compatibility with 4.x (uses ->parts fallback via getParts() method)
+    - message: "#^Access to an undefined property PhpParser\\\\Node\\\\Name::\\$parts\\.$#"
+      paths:
+        - ../../src/CodeCleaner/ImplicitUsePass.php
+        - ../../src/CodeCleaner/NamespaceAwarePass.php
+        - ../../src/CodeCleaner/NamespacePass.php
+        - ../../src/CodeCleaner/ValidConstructorPass.php
+    # PHP-Parser property access: protected by isCallNode() guard in FunctionReturnInWriteContextPass
+    - message: "#^Access to an undefined property PhpParser\\\\Node::\\$args\\.$#"
+      paths:
+        - ../../src/CodeCleaner/FunctionReturnInWriteContextPass.php
+        - ../../src/CodeCleaner/PassableByReferencePass.php
+    # PHP-Parser property access: protected by isRequireNode() instanceof check in RequirePass
+    - message: "#^Access to an undefined property PhpParser\\\\Node::\\$expr\\.$#"
+      paths:
+        - ../../src/CodeCleaner/RequirePass.php
+    # PHP-Parser property access: protected by instanceof checks in ValidConstructorPass
+    - message: "#^Access to an undefined property PhpParser\\\\Node::\\$name\\.$#"
+      paths:
+        - ../../src/CodeCleaner/ValidConstructorPass.php
+    # Hoa library errors: legacy code not maintained by PsySH
     - message: "#.*#"
       paths:
         - ../../src/Readline/Hoa/ConsoleWindow.php
+        - ../../src/Readline/Hoa/FileGeneric.php
         - ../../src/Readline/Hoa/FileLinkRead.php
         - ../../src/Readline/Hoa/IteratorRecursiveDirectory.php
         - ../../src/Readline/Hoa/Protocol.php

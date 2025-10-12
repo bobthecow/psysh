@@ -108,7 +108,7 @@ class Libedit extends GNUReadline
     {
         // empty line, comment or timestamp
         if (!$line || $line[0] === "\0") {
-            return;
+            return null;
         }
         // if "\0" is found in an entry, then
         // everything from it until the end of line is a comment.
