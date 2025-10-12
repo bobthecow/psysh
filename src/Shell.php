@@ -141,6 +141,10 @@ class Shell extends Application
         );
 
         $output->writeln($message, OutputInterface::VERBOSITY_DEBUG);
+
+        if (!\class_exists('Composer\\ClassMapGenerator\\ClassMapGenerator', false)) {
+            $output->writeln('<whisper>Autoload warming works best with composer/class-map-generator installed</whisper>');
+        }
     }
 
     /**
