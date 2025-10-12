@@ -477,6 +477,7 @@ EOL;
       --compact         Run PsySH with compact output.
   -q, --quiet           Shhhhhh.
   -v|vv|vvv, --verbose  Increase the verbosity of messages.
+      --warm-autoload   Enable autoload warming for better tab completion.
       --yolo            Run PsySH without input validation. You don't want this.
 
 EOL;

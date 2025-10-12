@@ -220,6 +220,11 @@ class Configuration
             }
         }
 
+        // Handle --warm-autoload
+        if (self::getOptionFromInput($input, ['warm-autoload'])) {
+            $config->setWarmAutoload(true);
+        }
+
         // Handle --yolo
         if (self::getOptionFromInput($input, ['yolo'])) {
             $config->setYolo(true);
@@ -377,6 +382,7 @@ class Configuration
             new InputOption('self-update', 'u', InputOption::VALUE_NONE, 'Update to the latest version'),
 
             new InputOption('yolo', null, InputOption::VALUE_NONE, 'Run PsySH with minimal input validation. You probably don\'t want this.'),
+            new InputOption('warm-autoload', null, InputOption::VALUE_NONE, 'Enable autoload warming for better tab completion.'),
         ];
     }
 

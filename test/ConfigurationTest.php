@@ -594,6 +594,24 @@ class ConfigurationTest extends TestCase
         $this->assertSame(Configuration::INTERACTIVE_MODE_DISABLED, $config->interactiveMode());
     }
 
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputWarmAutoload()
+    {
+        // Test without --warm-autoload flag (default is no warmers)
+        $input = $this->getBoundStringInput('');
+        $config = Configuration::fromInput($input);
+        $this->assertCount(0, $config->getAutoloadWarmers());
+
+        // Test with --warm-autoload flag (should enable default warmer)
+        $input = $this->getBoundStringInput('--warm-autoload');
+        $config = Configuration::fromInput($input);
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(1, $warmers);
+        $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
+    }
+
     private function getBoundStringInput($string, $configFile = null)
     {
         $input = $this->getUnboundStringInput($string, $configFile);
