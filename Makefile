@@ -13,7 +13,7 @@ endif
 
 # Commands
 
-.PHONY: help build clean dist test phpstan
+.PHONY: help build clean dist test smoketest phpstan
 .DEFAULT_GOAL := help
 
 help:
@@ -34,6 +34,9 @@ dist: dist/psysh-$(VERSION).tar.gz
 test: ## Run unit tests
 test: vendor/bin/phpunit
 	$< $(PHPUNIT_OPTS)
+
+smoketest: ## Run smoke tests on existing binaries
+	test/smoketest.sh
 
 phpstan: ## Run static analysis
 phpstan: vendor/bin/phpstan vendor/bin/phpunit

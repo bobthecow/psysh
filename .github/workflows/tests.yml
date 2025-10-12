@@ -55,7 +55,7 @@ jobs:
           path: build/*/psysh
 
       - name: Smoke test
-        run: .github/bin/smoketest.sh
+        run: make smoketest
 
   phar:
     name: Test Phar

@@ -39,7 +39,7 @@ jobs:
         run: chmod +x build/*/psysh
 
       - name: Smoke test
-        run: .github/bin/smoketest.sh psysh
+        run: test/smoketest.sh build/*/psysh
 
       - name: Set up problem matchers
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
