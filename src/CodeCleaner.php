@@ -25,6 +25,7 @@ use Psy\CodeCleaner\FinalClassPass;
 use Psy\CodeCleaner\FunctionContextPass;
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 use Psy\CodeCleaner\ImplicitReturnPass;
+use Psy\CodeCleaner\ImplicitUsePass;
 use Psy\CodeCleaner\IssetPass;
 use Psy\CodeCleaner\LabelContextPass;
 use Psy\CodeCleaner\LeavePsyshAlonePass;
@@ -50,11 +51,13 @@ class CodeCleaner
 {
     private bool $yolo = false;
     private bool $strictTypes = false;
+    private $implicitUse = false;
 
     private Parser $parser;
     private Printer $printer;
     private NodeTraverser $traverser;
     private ?array $namespace = null;
+    private array $messages = [];
 
     /**
      * CodeCleaner constructor.
@@ -64,11 +67,13 @@ class CodeCleaner
      * @param NodeTraverser|null $traverser   A PhpParser NodeTraverser instance. One will be created if not explicitly supplied
      * @param bool               $yolo        run without input validation
      * @param bool               $strictTypes enforce strict types by default
+     * @param false|array        $implicitUse disable implicit use statements (false) or configure with namespace filters (array)
      */
-    public function __construct(?Parser $parser = null, ?Printer $printer = null, ?NodeTraverser $traverser = null, bool $yolo = false, bool $strictTypes = false)
+    public function __construct(?Parser $parser = null, ?Printer $printer = null, ?NodeTraverser $traverser = null, bool $yolo = false, bool $strictTypes = false, $implicitUse = false)
     {
         $this->yolo = $yolo;
         $this->strictTypes = $strictTypes;
+        $this->implicitUse = \is_array($implicitUse) ? $implicitUse : false;
 
         $this->parser = $parser ?? (new ParserFactory())->createParser();
         $this->printer = $printer ?: new Printer();
@@ -101,13 +106,19 @@ class CodeCleaner
         // based on the file in which the `debug` call was made.
         $this->addImplicitDebugContext([$useStatementPass, $namespacePass]);
 
+        // Add implicit use pass if enabled (must run before use statement pass)
+        $usePasses = [$useStatementPass];
+        if ($this->implicitUse) {
+            \array_unshift($usePasses, new ImplicitUsePass($this->implicitUse, $this));
+        }
+
         // A set of code cleaner passes that don't try to do any validation, and
         // only do minimal rewriting to make things work inside the REPL.
         //
         // When in --yolo mode, these are the only code cleaner passes used.
         $rewritePasses = [
             new LeavePsyshAlonePass(),
-            $useStatementPass,        // must run before the namespace pass
+            ...$usePasses,            // must run before namespace pass
             new ExitPass(),
             new ImplicitReturnPass(),
             new MagicConstantsPass(),
@@ -237,6 +248,9 @@ class CodeCleaner
      */
     public function clean(array $codeLines, bool $requireSemicolons = false)
     {
+        // Clear messages from previous clean
+        $this->messages = [];
+
         $stmts = $this->parse('<?php '.\implode(\PHP_EOL, $codeLines).\PHP_EOL, $requireSemicolons);
         if ($stmts === false) {
             return false;
@@ -273,6 +287,26 @@ class CodeCleaner
     public function getNamespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * Log a message from a CodeCleaner pass.
+     *
+     * @param string $message Message text to display
+     */
+    public function log(string $message): void
+    {
+        $this->messages[] = $message;
+    }
+
+    /**
+     * Get all logged messages from the last clean operation.
+     *
+     * @return string[] Array of message strings
+     */
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 
     /**

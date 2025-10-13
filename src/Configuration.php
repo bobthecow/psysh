@@ -59,6 +59,7 @@ class Configuration
         'formatterStyles',
         'historyFile',
         'historySize',
+        'implicitUse',
         'interactiveMode',
         'manualDbFile',
         'pager',
@@ -106,6 +107,7 @@ class Configuration
     private ?bool $useTabCompletion = null;
     private array $newMatchers = [];
     private ?array $autoloadWarmers = null;
+    private $implicitUse = false;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
@@ -1079,7 +1081,7 @@ class Configuration
     public function getCodeCleaner(): CodeCleaner
     {
         if (!isset($this->cleaner)) {
-            $this->cleaner = new CodeCleaner(null, null, null, $this->yolo(), $this->strictTypes());
+            $this->cleaner = new CodeCleaner(null, null, null, $this->yolo(), $this->strictTypes(), $this->implicitUse);
         }
 
         return $this->cleaner;
@@ -1451,6 +1453,62 @@ class Configuration
         }
 
         return $warmers;
+    }
+
+    /**
+     * Set implicit use statement configuration.
+     *
+     * Automatically adds use statements for unqualified class references when
+     * a single, non-ambiguous match is found among currently defined classes,
+     * interfaces, and traits within the configured namespaces.
+     *
+     * Works great with autoload warming (--warm-autoload) to pre-load classes
+     * for better resolution. Also works with dynamically defined classes.
+     *
+     * Examples:
+     *
+     *     // Disable implicit use (default)
+     *     $config->setImplicitUse(false);
+     *
+     *     // Enable for specific namespaces
+     *     $config->setImplicitUse([
+     *         'includeNamespaces' => ['App\\', 'Domain\\'],
+     *     ]);
+     *
+     *     // Enable with exclusions
+     *     $config->setImplicitUse([
+     *         'includeNamespaces' => ['App\\'],
+     *         'excludeNamespaces' => ['App\\Legacy\\'],
+     *     ]);
+     *
+     * Note: At least one of includeNamespaces or excludeNamespaces must be provided.
+     * If neither is provided, implicit use effectively does nothing.
+     *
+     * @param false|array $config False to disable, or array with includeNamespaces/excludeNamespaces
+     */
+    public function setImplicitUse($config): void
+    {
+        if ($config === false) {
+            $this->implicitUse = false;
+
+            return;
+        }
+
+        if (!\is_array($config)) {
+            throw new \InvalidArgumentException('implicitUse must be false or a configuration array with includeNamespaces and/or excludeNamespaces');
+        }
+
+        $this->implicitUse = $config;
+    }
+
+    /**
+     * Get implicit use configuration.
+     *
+     * @return bool|array Implicit use configuration
+     */
+    public function getImplicitUse()
+    {
+        return $this->implicitUse;
     }
 
     /**

@@ -894,6 +894,10 @@ class Shell extends Application
 
             $this->codeBuffer[] = $silent ? new SilentInput($code) : $code;
             $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
+
+            if (!$silent && $this->code !== false) {
+                $this->writeCleanerMessages();
+            }
         } catch (\Throwable $e) {
             // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
@@ -1019,6 +1023,25 @@ class Shell extends Application
         }
 
         return false;
+    }
+
+    /**
+     * Whisper messages from CodeCleaner passes.
+     */
+    private function writeCleanerMessages(): void
+    {
+        if (!isset($this->output)) {
+            return;
+        }
+
+        $output = $this->output;
+        if ($output instanceof ConsoleOutput) {
+            $output = $output->getErrorOutput();
+        }
+
+        foreach ($this->cleaner->getMessages() as $message) {
+            $output->writeln(\sprintf('<whisper>%s</whisper>', OutputFormatter::escape($message)));
+        }
     }
 
     /**
