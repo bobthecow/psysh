@@ -16,14 +16,25 @@ use Psy\Test\TestCase;
 
 class ComposerAutoloadWarmerTest extends TestCase
 {
+    /**
+     * Get fixture vendor directory for fast, deterministic testing.
+     *
+     * Most tests use this minimal fixture instead of the real vendor directory
+     * to avoid the performance overhead of scanning hundreds of real packages.
+     */
+    private function getFixtureVendorDir(): string
+    {
+        return __DIR__.'/../../fixtures/autoload-warmer-vendor';
+    }
+
+    /**
+     * Get real project vendor directory for integration tests.
+     *
+     * Only used by tests that need to verify behavior with real Composer data.
+     */
     private function getProjectVendorDir(): string
     {
-        // Get the real path to the project vendor directory
-        // __DIR__ points to test/TabCompletion/AutoloadWarmer
-        // We need to go up 3 levels to get to the project root
-        $vendorDir = \dirname(__DIR__, 3).'/vendor';
-
-        // Ensure we get the real path (resolves symlinks like /private/tmp -> /tmp)
+        $vendorDir = __DIR__.'/../../../vendor';
         $realPath = \realpath($vendorDir);
 
         return $realPath !== false ? $realPath : $vendorDir;
@@ -34,7 +45,7 @@ class ComposerAutoloadWarmerTest extends TestCase
      */
     public function testWarmLoadsClasses()
     {
-        $warmer = new ComposerAutoloadWarmer([], $this->getProjectVendorDir());
+        $warmer = new ComposerAutoloadWarmer([], $this->getFixtureVendorDir());
 
         $classesBefore = \count(\get_declared_classes()) +
                         \count(\get_declared_interfaces()) +
@@ -57,25 +68,17 @@ class ComposerAutoloadWarmerTest extends TestCase
      */
     public function testGetClassesToLoadWithoutVendor()
     {
-        $warmer = new ComposerAutoloadWarmer([], $this->getProjectVendorDir());
+        $warmer = new ComposerAutoloadWarmer([], $this->getFixtureVendorDir());
         $classes = $warmer->getClassNames();
 
         // Should return an array
         $this->assertIsArray($classes);
 
-        // Count vendor classes - most should be excluded
-        // Note: Some Composer classes may be in the optimized classmap
-        $vendorCount = 0;
+        // Should only include Psy classes (non-vendor)
         foreach ($classes as $class) {
-            if (\strpos($class, 'Symfony\\') === 0 ||
-                \strpos($class, 'Composer\\') === 0 ||
-                \strpos($class, 'nikic\\') === 0) {
-                $vendorCount++;
-            }
+            $this->assertStringStartsWith('Psy\\', $class, 'Should only include Psy classes without includeVendor');
+            $this->assertStringNotContainsString('\\Test', $class, 'Should not include test classes by default');
         }
-
-        // Should have minimal vendor classes (some may be in optimized classmap)
-        $this->assertLessThan(10, $vendorCount, 'Too many vendor classes loaded without includeVendor');
     }
 
     /**
@@ -83,8 +86,8 @@ class ComposerAutoloadWarmerTest extends TestCase
      */
     public function testGetClassesToLoadWithVendor()
     {
-        $warmerWithoutVendor = new ComposerAutoloadWarmer([], $this->getProjectVendorDir());
-        $warmerWithVendor = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getProjectVendorDir());
+        $warmerWithoutVendor = new ComposerAutoloadWarmer([], $this->getFixtureVendorDir());
+        $warmerWithVendor = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getFixtureVendorDir());
 
         $classesWithoutVendor = $warmerWithoutVendor->getClassNames();
         $classesWithVendor = $warmerWithVendor->getClassNames();
@@ -101,7 +104,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor'     => true,
             'includeNamespaces' => ['Psy\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
 
@@ -120,7 +123,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor'     => true,
             'excludeNamespaces' => ['Symfony\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertGreaterThanOrEqual(0, \count($classes));
@@ -133,7 +136,7 @@ class ComposerAutoloadWarmerTest extends TestCase
 
     public function testExcludeTestsByDefault()
     {
-        $warmer = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getProjectVendorDir());
+        $warmer = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getFixtureVendorDir());
         $classes = $warmer->getClassNames();
         $this->assertGreaterThanOrEqual(0, \count($classes));
 
@@ -152,12 +155,12 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor' => true,
             'includeTests'  => true,
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $warmerWithoutTests = new ComposerAutoloadWarmer([
             'includeVendor' => true,
             'includeTests'  => false,
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classesWithTests = $warmer->getClassNames();
         $classesWithoutTests = $warmerWithoutTests->getClassNames();
@@ -171,6 +174,7 @@ class ComposerAutoloadWarmerTest extends TestCase
 
     public function testMultipleWarmCallsAreSafe()
     {
+        // Integration test - uses real vendor to actually load classes
         $warmer = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getProjectVendorDir());
 
         // First warm
@@ -192,7 +196,7 @@ class ComposerAutoloadWarmerTest extends TestCase
                 'Symfony\\',       // No leading, has trailing (already normalized)
                 '\\Composer\\',    // Both leading and trailing
             ],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertGreaterThanOrEqual(0, \count($classes));
@@ -212,7 +216,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor'     => true,
             'includeNamespaces' => ['Psy\\', 'Symfony\\Console\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
 
@@ -233,7 +237,7 @@ class ComposerAutoloadWarmerTest extends TestCase
     {
         $warmer = new ComposerAutoloadWarmer([
             'includeVendorNamespaces' => ['Symfony\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertIsArray($classes);
@@ -263,7 +267,7 @@ class ComposerAutoloadWarmerTest extends TestCase
     {
         $warmer = new ComposerAutoloadWarmer([
             'includeVendorNamespaces' => ['Symfony\\Console\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertIsArray($classes);
@@ -296,7 +300,7 @@ class ComposerAutoloadWarmerTest extends TestCase
     {
         $warmer = new ComposerAutoloadWarmer([
             'excludeVendorNamespaces' => ['Symfony\\Debug\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertIsArray($classes);
@@ -323,7 +327,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor'           => true,
             'excludeVendorNamespaces' => ['Symfony\\VarDumper\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertIsArray($classes);
@@ -342,7 +346,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         new ComposerAutoloadWarmer([
             'includeVendor'           => false,
             'includeVendorNamespaces' => ['Symfony\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
     }
 
     public function testConflictingIncludeVendorFalseWithExcludeVendorNamespaces()
@@ -353,7 +357,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         new ComposerAutoloadWarmer([
             'includeVendor'           => false,
             'excludeVendorNamespaces' => ['Symfony\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
     }
 
     public function testCombineVendorAndNonVendorNamespaceFilters()
@@ -361,7 +365,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([
             'includeNamespaces'       => ['Psy\\TabCompletion\\'],
             'includeVendorNamespaces' => ['Symfony\\Console\\'],
-        ], $this->getProjectVendorDir());
+        ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
         $this->assertIsArray($classes);
@@ -378,6 +382,7 @@ class ComposerAutoloadWarmerTest extends TestCase
 
     public function testExcludesPharScopedClasses()
     {
+        // Integration test - uses real vendor to check for actual PHAR scoped classes
         $warmer = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getProjectVendorDir());
         $classes = $warmer->getClassNames();
 
