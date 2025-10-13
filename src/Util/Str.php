@@ -108,4 +108,20 @@ EOS;
             return \chr($cp);
         }
     }
+
+    /**
+     * Check whether a given string is a valid PHP class name.
+     *
+     * Validates that the name follows PHP identifier rules, with optional
+     * namespace separators.
+     *
+     * @param string $name The name to check
+     *
+     * @return bool True if the name is syntactically valid
+     */
+    public static function isValidClassName(string $name): bool
+    {
+        // Regex based on https://www.php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class
+        return \preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(\\\\[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)*$/', $name) === 1;
+    }
 }

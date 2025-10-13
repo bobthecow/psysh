@@ -211,6 +211,10 @@ class Shell extends Application
                 $ret->setContext($this->context);
             }
 
+            if ($ret instanceof CodeCleanerAware) {
+                $ret->setCodeCleaner($this->cleaner);
+            }
+
             if ($ret instanceof PresenterAware) {
                 $ret->setPresenter($this->config->getPresenter());
             }

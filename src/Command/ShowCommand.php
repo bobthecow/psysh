@@ -103,7 +103,7 @@ HELP
     private function writeCodeContext(InputInterface $input, OutputInterface $output)
     {
         try {
-            list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'));
+            list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'), $output);
         } catch (UnexpectedTargetException $e) {
             // If we didn't get a target and Reflector, maybe we got a filename?
             $target = $e->getTarget();

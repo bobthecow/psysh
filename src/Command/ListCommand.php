@@ -122,7 +122,7 @@ HELP
         $method = $input->getOption('long') ? 'writeLong' : 'write';
 
         if ($target = $input->getArgument('target')) {
-            list($target, $reflector) = $this->getTargetAndReflector($target);
+            list($target, $reflector) = $this->getTargetAndReflector($target, $output);
         } else {
             $reflector = null;
         }

@@ -69,7 +69,7 @@ HELP
             $reflector = new ReflectionLanguageConstruct($value);
             $doc = $this->getManualDocById($value);
         } else {
-            list($target, $reflector) = $this->getTargetAndReflector($value);
+            list($target, $reflector) = $this->getTargetAndReflector($value, $output);
             $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
         }
 

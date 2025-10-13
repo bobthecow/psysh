@@ -11,6 +11,10 @@
 
 namespace Psy;
 
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser;
 use PhpParser\PrettyPrinter\Standard as Printer;
@@ -42,6 +46,7 @@ use Psy\CodeCleaner\ValidClassNamePass;
 use Psy\CodeCleaner\ValidConstructorPass;
 use Psy\CodeCleaner\ValidFunctionNamePass;
 use Psy\Exception\ParseErrorException;
+use Psy\Util\Str;
 
 /**
  * A service to clean up user input, detect parse errors before they happen,
@@ -56,6 +61,7 @@ class CodeCleaner
     private Parser $parser;
     private Printer $printer;
     private NodeTraverser $traverser;
+    private NodeTraverser $nameResolver;
     private ?array $namespace = null;
     private array $messages = [];
 
@@ -78,9 +84,18 @@ class CodeCleaner
         $this->parser = $parser ?? (new ParserFactory())->createParser();
         $this->printer = $printer ?: new Printer();
         $this->traverser = $traverser ?: new NodeTraverser();
+        $this->nameResolver = new NodeTraverser();
 
         foreach ($this->getDefaultPasses() as $pass) {
             $this->traverser->addVisitor($pass);
+
+            // Add only name resolution passes to the name resolver traverser
+            // These share state with the main traverser since they're the same instances
+            if ($pass instanceof UseStatementPass ||
+                $pass instanceof ImplicitUsePass ||
+                $pass instanceof NamespacePass) {
+                $this->nameResolver->addVisitor($pass);
+            }
         }
     }
 
@@ -287,6 +302,62 @@ class CodeCleaner
     public function getNamespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * Resolve a class name using current use statements and namespace.
+     *
+     * This is used by commands to resolve short names the same way code execution does.
+     * Uses a minimal traverser with only name resolution passes (no validation).
+     *
+     * @param string $name Class name to resolve (e.g., "NoopChecker" or "Bar\Baz")
+     *
+     * @return string Resolved class name (may be FQN, or original name if no resolution found)
+     */
+    public function resolveClassName(string $name): string
+    {
+        // Clear messages from previous resolution
+        $this->messages = [];
+
+        // Only attempt resolution if it's a valid class name, and not already fully qualified
+        if (\substr($name, 0, 1) === '\\' || !Str::isValidClassName($name)) {
+            return $name;
+        }
+
+        try {
+            // Parse as a class name constant, and transform using name resolution passes
+            $stmts = $this->parser->parse('<?php '.$name.'::class;');
+            $stmts = $this->nameResolver->traverse($stmts);
+
+            // Extract resolved name from transformed AST
+            if (isset($stmts[0]) && $stmts[0] instanceof Expression) {
+                $expr = $stmts[0]->expr;
+                if ($expr instanceof ClassConstFetch) {
+                    $class = $expr->class;
+                    if ($class instanceof FullyQualified) {
+                        return '\\'.$class->toString();
+                    } elseif ($class instanceof Name) {
+                        // Not fully qualified, might be in current namespace
+                        $resolved = $class->toString();
+                        if ($this->namespace) {
+                            $namespacedName = \implode('\\', $this->namespace).'\\'.$resolved;
+                            // Check if it exists in current namespace
+                            if (\class_exists($namespacedName, false) ||
+                                \interface_exists($namespacedName, false) ||
+                                \trait_exists($namespacedName, false)) {
+                                return $namespacedName;
+                            }
+                        }
+
+                        return $resolved;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fall through to return original name
+        }
+
+        return $name;
     }
 
     /**
