@@ -123,4 +123,62 @@ class CodeCleanerTest extends TestCase
             ['$foo \'bar'],
         ];
     }
+
+    public function testLooksLikeActionWithAssignment()
+    {
+        $cc = new CodeCleaner();
+        $this->assertTrue($cc->codeLooksLikeAction(['$x = new stdClass()']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$x += 5']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$x[] = 42']));
+    }
+
+    public function testLooksLikeActionWithMethodCalls()
+    {
+        $cc = new CodeCleaner();
+        $this->assertTrue($cc->codeLooksLikeAction(['$obj->setName("test")']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$model->save()']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$obj->set_name("test")']));
+    }
+
+    public function testLooksLikeInspectionWithVariable()
+    {
+        $cc = new CodeCleaner();
+        $this->assertFalse($cc->codeLooksLikeAction(['$x']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$obj->property']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$obj["foo"][$bar]']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$x ?? []']));
+    }
+
+    public function testLooksLikeInspectionWithGetters()
+    {
+        $cc = new CodeCleaner();
+        $this->assertFalse($cc->codeLooksLikeAction(['$obj->getName()']));
+        $this->assertFalse($cc->codeLooksLikeAction(['User::find(1)']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$x->isValid()']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$x->toArray()']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$x->asString()']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$x->is_valid()']));
+        $this->assertFalse($cc->codeLooksLikeAction(['$x->to_array()']));
+    }
+
+    public function testPrefixMatchingAvoidsFalsePositives()
+    {
+        $cc = new CodeCleaner();
+        // These should NOT match "is", "to", "as" prefixes, and since they don't
+        // match inspection prefixes, they're treated as actions
+        $this->assertTrue($cc->codeLooksLikeAction(['$x->issue()']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$x->top()']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$x->asset()']));
+        $this->assertTrue($cc->codeLooksLikeAction(['$x->total()']));
+    }
+
+    public function testActionDetectionWithNamespace()
+    {
+        $cc = new CodeCleaner();
+        // Code within a namespace should still be detected correctly
+        $this->assertTrue($cc->codeLooksLikeAction(['namespace Foo; $x = 1']));
+        $this->assertFalse($cc->codeLooksLikeAction(['namespace Foo; $x']));
+        $this->assertTrue($cc->codeLooksLikeAction(['namespace Foo; $obj->setName("test")']));
+        $this->assertFalse($cc->codeLooksLikeAction(['namespace Foo; $obj->getName()']));
+    }
 }
