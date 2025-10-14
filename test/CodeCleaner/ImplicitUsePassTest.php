@@ -16,6 +16,8 @@ use Psy\CodeCleaner\ImplicitUsePass;
 /**
  * Tests automatic addition of use statements for unqualified class references
  * when there's a single non-ambiguous match in configured namespaces.
+ *
+ * @group isolation-fail
  */
 class ImplicitUsePassTest extends CodeCleanerTestCase
 {
