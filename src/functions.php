@@ -346,6 +346,20 @@ if (!\function_exists('Psy\\info')) {
             }
         }
 
+        $implicitUse = [];
+        $implicitUseConfig = $config->getImplicitUse();
+        if (\is_array($implicitUseConfig)) {
+            if (!empty($implicitUseConfig['includeNamespaces'])) {
+                $implicitUse['include namespaces'] = $implicitUseConfig['includeNamespaces'];
+            }
+            if (!empty($implicitUseConfig['excludeNamespaces'])) {
+                $implicitUse['exclude namespaces'] = $implicitUseConfig['excludeNamespaces'];
+            }
+        }
+        if (empty($implicitUse)) {
+            $implicitUse = false;
+        }
+
         // Shenanigans, but totally justified.
         try {
             if ($shell = Sudo::fetchProperty($config, 'shell')) {
@@ -377,7 +391,24 @@ if (!\function_exists('Psy\\info')) {
 
         // @todo Show Presenter / custom casters.
 
-        return \array_merge($shellInfo, $core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete', 'autoload'));
+        return \array_merge(
+            $shellInfo,
+            $core,
+            \compact(
+                'updates',
+                'pcntl',
+                'input',
+                'readline',
+                'output',
+                'history',
+                'docs',
+                'autocomplete',
+                'autoload'
+            ),
+            [
+                'implicit use' => $implicitUse,
+            ],
+        );
     }
 }
 
