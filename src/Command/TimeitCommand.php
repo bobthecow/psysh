@@ -91,7 +91,7 @@ HELP
         self::$times = [];
 
         do {
-            $_ = $shell->execute($instrumentedCode);
+            $_ = $shell->execute($instrumentedCode, true);
             $this->ensureEndMarked();
         } while (\count(self::$times) < $num);
 
