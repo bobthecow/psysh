@@ -13,7 +13,9 @@ namespace Psy\ExecutionLoop;
 
 use Psy\Context;
 use Psy\Exception\BreakException;
+use Psy\Exception\InterruptException;
 use Psy\Shell;
+use Psy\Util\DependencyChecker;
 
 /**
  * An execution loop listener that forks the process before executing code.
@@ -26,8 +28,10 @@ class ProcessForker extends AbstractListener
     private ?int $savegame = null;
     /** @var resource */
     private $up;
+    private bool $sigintHandlerInstalled = false;
+    private bool $restoreStty = false;
 
-    private const PCNTL_FUNCTIONS = [
+    public const PCNTL_FUNCTIONS = [
         'pcntl_fork',
         'pcntl_signal_dispatch',
         'pcntl_signal',
@@ -35,7 +39,7 @@ class ProcessForker extends AbstractListener
         'pcntl_wexitstatus',
     ];
 
-    private const POSIX_FUNCTIONS = [
+    public const POSIX_FUNCTIONS = [
         'posix_getpid',
         'posix_kill',
     ];
@@ -45,56 +49,48 @@ class ProcessForker extends AbstractListener
      */
     public static function isSupported(): bool
     {
-        return self::isPcntlSupported() && !self::disabledPcntlFunctions() && self::isPosixSupported() && !self::disabledPosixFunctions();
+        return DependencyChecker::functionsAvailable(self::PCNTL_FUNCTIONS)
+            && DependencyChecker::functionsAvailable(self::POSIX_FUNCTIONS);
     }
 
     /**
      * Verify that all required pcntl functions are, in fact, available.
+     *
+     * @deprecated
      */
     public static function isPcntlSupported(): bool
     {
-        foreach (self::PCNTL_FUNCTIONS as $func) {
-            if (!\function_exists($func)) {
-                return false;
-            }
-        }
-
-        return true;
+        return DependencyChecker::functionsAvailable(self::PCNTL_FUNCTIONS);
     }
 
     /**
      * Check whether required pcntl functions are disabled.
+     *
+     * @deprecated
      */
     public static function disabledPcntlFunctions()
     {
-        return self::checkDisabledFunctions(self::PCNTL_FUNCTIONS);
+        return DependencyChecker::functionsDisabled(self::PCNTL_FUNCTIONS);
     }
 
     /**
      * Verify that all required posix functions are, in fact, available.
+     *
+     * @deprecated
      */
     public static function isPosixSupported(): bool
     {
-        foreach (self::POSIX_FUNCTIONS as $func) {
-            if (!\function_exists($func)) {
-                return false;
-            }
-        }
-
-        return true;
+        return DependencyChecker::functionsAvailable(self::POSIX_FUNCTIONS);
     }
 
     /**
      * Check whether required posix functions are disabled.
+     *
+     * @deprecated
      */
     public static function disabledPosixFunctions()
     {
-        return self::checkDisabledFunctions(self::POSIX_FUNCTIONS);
-    }
-
-    private static function checkDisabledFunctions(array $functions): array
-    {
-        return \array_values(\array_intersect($functions, \array_map('strtolower', \array_map('trim', \explode(',', \ini_get('disable_functions'))))));
+        return DependencyChecker::functionsDisabled(self::POSIX_FUNCTIONS);
     }
 
     /**
@@ -107,7 +103,15 @@ class ProcessForker extends AbstractListener
      */
     public function beforeRun(Shell $shell)
     {
+        // Temporarily disable socket timeout for IPC sockets, to avoid losing our child process
+        // communication after 60 seconds.
+        $originalTimeout = @\ini_set('default_socket_timeout', '-1');
+
         list($up, $down) = \stream_socket_pair(\STREAM_PF_UNIX, \STREAM_SOCK_STREAM, \STREAM_IPPROTO_IP);
+
+        if ($originalTimeout !== false) {
+            @\ini_set('default_socket_timeout', $originalTimeout);
+        }
 
         if (!$up) {
             throw new \RuntimeException('Unable to create socket pair');
@@ -117,10 +121,19 @@ class ProcessForker extends AbstractListener
         if ($pid < 0) {
             throw new \RuntimeException('Unable to start execution loop');
         } elseif ($pid > 0) {
-            // This is the main thread. We'll just wait for a while.
+            // This is the main (parent) process. Install SIGINT handler and wait for child.
 
             // We won't be needing this one.
             \fclose($up);
+
+            // Install SIGINT handler in parent to interrupt child
+            \pcntl_async_signals(true);
+            $interrupted = false;
+            $sigintHandlerInstalled = \pcntl_signal(\SIGINT, function () use (&$interrupted, $pid) {
+                $interrupted = true;
+                // Send SIGINT to child so it can handle interruption gracefully
+                \posix_kill($pid, \SIGINT);
+            });
 
             // Wait for a return value from the loop process.
             $read = [$down];
@@ -128,6 +141,28 @@ class ProcessForker extends AbstractListener
             $except = null;
 
             do {
+                if ($interrupted) {
+                    // Wait for child to exit (it should handle SIGINT gracefully)
+                    \pcntl_waitpid($pid, $status);
+
+                    // Try to read any final output from child before it exited
+                    $content = @\stream_get_contents($down);
+                    \fclose($down);
+
+                    if ($sigintHandlerInstalled) {
+                        \pcntl_signal(\SIGINT, \SIG_DFL);
+                    }
+
+                    $this->clearStdinBuffer();
+
+                    // Restore scope variables if child sent any
+                    if ($content) {
+                        $shell->setScopeVariables(@\unserialize($content));
+                    }
+
+                    throw new BreakException('Exiting main thread');
+                }
+
                 $n = @\stream_select($read, $write, $except, null);
 
                 if ($n === 0) {
@@ -147,6 +182,11 @@ class ProcessForker extends AbstractListener
 
             $content = \stream_get_contents($down);
             \fclose($down);
+
+            // Restore default SIGINT handler
+            if ($sigintHandlerInstalled) {
+                \pcntl_signal(\SIGINT, \SIG_DFL);
+            }
 
             if ($content) {
                 $shell->setScopeVariables(@\unserialize($content));
@@ -171,6 +211,30 @@ class ProcessForker extends AbstractListener
     }
 
     /**
+     * Install SIGINT handler before executing user code.
+     */
+    public function onExecute(Shell $shell, string $code)
+    {
+        // Only handle SIGINT in the child process
+        if (isset($this->up)) {
+            // Ensure signal processing is enabled so Ctrl-C can interrupt execution
+            if (@\posix_isatty(\STDIN)) {
+                @\shell_exec('stty isig 2>/dev/null');
+                $this->restoreStty = true;
+            }
+
+            \pcntl_async_signals(true);
+
+            // Install SIGINT handler that throws exception during execution
+            \pcntl_signal(\SIGINT, function () {
+                throw new InterruptException('Ctrl+C');
+            });
+        }
+
+        return null;
+    }
+
+    /**
      * Create a savegame at the start of each loop iteration.
      *
      * @param Shell $shell
@@ -183,10 +247,25 @@ class ProcessForker extends AbstractListener
     /**
      * Clean up old savegames at the end of each loop iteration.
      *
-     * @param Shell $shell
+     * Restores terminal state and clears stdin if execution was interrupted.
      */
     public function afterLoop(Shell $shell)
     {
+        // Only handle cleanup in child process
+        if (isset($this->up)) {
+            // Restore default SIGINT handler after execution
+            if (!$this->sigintHandlerInstalled) {
+                \pcntl_signal(\SIGINT, \SIG_DFL);
+            }
+
+            // Restore terminal to raw mode after execution
+            // This prevents Ctrl-C at the prompt from generating SIGINT
+            if ($this->restoreStty) {
+                @\shell_exec('stty -isig 2>/dev/null');
+                $this->restoreStty = false;
+            }
+        }
+
         // if there's an old savegame hanging around, let's kill it.
         if (isset($this->savegame)) {
             \posix_kill($this->savegame, \SIGKILL);
@@ -204,8 +283,9 @@ class ProcessForker extends AbstractListener
     {
         // We're a child thread. Send the scope variables back up to the main thread.
         if (isset($this->up)) {
-            \fwrite($this->up, $this->serializeReturn($shell->getScopeVariables(false)));
-            \fclose($this->up);
+            // Suppress errors in case the pipe is broken (e.g., if parent was interrupted)
+            @\fwrite($this->up, $this->serializeReturn($shell->getScopeVariables(false)));
+            @\fclose($this->up);
 
             \posix_kill(\posix_getpid(), \SIGKILL);
         }
@@ -238,6 +318,28 @@ class ProcessForker extends AbstractListener
             // worker didn't exit cleanly, we'll need to have another go
             $this->createSavegame();
         }
+    }
+
+    /**
+     * Clear stdin buffer after interruption, in case SIGINT left the stream in a bad state.
+     */
+    private function clearStdinBuffer(): void
+    {
+        if (!\defined('STDIN') || !\is_resource(\STDIN)) {
+            return;
+        }
+
+        // Check if the stream is still usable
+        $meta = @\stream_get_meta_data(\STDIN);
+        if (!$meta || ($meta['eof'] ?? false)) {
+            return;
+        }
+
+        // Drain any buffered input, suppressing I/O errors
+        @\stream_set_blocking(\STDIN, false);
+        while (@\fgetc(\STDIN) !== false) {
+        }
+        @\stream_set_blocking(\STDIN, true);
     }
 
     /**

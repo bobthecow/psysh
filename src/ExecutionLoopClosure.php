@@ -12,6 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\BreakException;
+use Psy\Exception\InterruptException;
 use Psy\Exception\ThrowUpException;
 
 /**
@@ -70,18 +71,24 @@ class ExecutionLoopClosure extends ExecutionClosure
 
                     $__psysh__->writeReturnValue($_);
                 } catch (BreakException $_e) {
+                    // ctrl-d exits the REPL
                     $__psysh__->writeException($_e);
 
                     return;
                 } catch (ThrowUpException $_e) {
+                    // `throw-up` command throws the exception out of the REPL
                     $__psysh__->writeException($_e);
 
                     throw $_e;
-                } catch (\Throwable $_e) {
+                } catch (InterruptException $_e) {
+                    // ctrl-c stops execution, but continues the REPL
                     $__psysh__->writeException($_e);
+                } catch (\Throwable $_e) {
+                    // Everything else gets printed to the shell output
+                    $__psysh__->writeException($_e);
+                } finally {
+                    $__psysh__->afterLoop();
                 }
-
-                $__psysh__->afterLoop();
             }
         });
     }

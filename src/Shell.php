@@ -15,10 +15,12 @@ use Psy\CodeCleaner\NoReturnValue;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
+use Psy\Exception\InterruptException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\ThrowUpException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
+use Psy\ExecutionLoop\SignalHandler;
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
@@ -313,6 +315,10 @@ class Shell extends Application
 
         if (ProcessForker::isSupported() && $this->config->usePcntl()) {
             $listeners[] = new ProcessForker();
+        } elseif (SignalHandler::isSupported()) {
+            // Only use SignalHandler when process forking is disabled
+            // ProcessForker handles SIGINT in the parent process, which is cleaner
+            $listeners[] = new SignalHandler();
         }
 
         if (RunkitReloader::isSupported()) {
@@ -678,7 +684,7 @@ class Shell extends Application
      */
     public function afterLoop()
     {
-        foreach ($this->loopListeners as $listener) {
+        foreach (\array_reverse($this->loopListeners) as $listener) {
             $listener->afterLoop($this);
         }
     }
@@ -688,7 +694,7 @@ class Shell extends Application
      */
     protected function afterRun()
     {
-        foreach ($this->loopListeners as $listener) {
+        foreach (\array_reverse($this->loopListeners) as $listener) {
             $listener->afterRun($this);
         }
     }
@@ -1340,6 +1346,8 @@ class Shell extends Application
 
         if ($e instanceof BreakException) {
             return \sprintf('%s<info> INFO </info> %s.', $indent, \rtrim($e->getRawMessage(), '.'));
+        } elseif ($e instanceof InterruptException) {
+            return \sprintf('%s<warning> INTERRUPT </warning> %s.', $indent, $e->getRawMessage());
         } elseif ($e instanceof PsyException) {
             $message = $e->getLine() > 1
                 ? \sprintf('%s in %s on line %d', $e->getRawMessage(), $e->getFile(), $e->getLine())

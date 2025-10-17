@@ -12,6 +12,7 @@
 namespace Psy;
 
 use Psy\ExecutionLoop\ProcessForker;
+use Psy\Util\DependencyChecker;
 use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\Installer;
 use Psy\VersionUpdater\SelfUpdate;
@@ -243,15 +244,15 @@ if (!\function_exists('Psy\\info')) {
         ];
 
         $pcntl = [
-            'pcntl available' => ProcessForker::isPcntlSupported(),
-            'posix available' => ProcessForker::isPosixSupported(),
+            'pcntl available' => DependencyChecker::functionsAvailable(ProcessForker::PCNTL_FUNCTIONS),
+            'posix available' => DependencyChecker::functionsAvailable(ProcessForker::POSIX_FUNCTIONS),
         ];
 
-        if ($disabledPcntl = ProcessForker::disabledPcntlFunctions()) {
+        if ($disabledPcntl = DependencyChecker::functionsDisabled(ProcessForker::PCNTL_FUNCTIONS)) {
             $pcntl['disabled pcntl functions'] = $disabledPcntl;
         }
 
-        if ($disabledPosix = ProcessForker::disabledPosixFunctions()) {
+        if ($disabledPosix = DependencyChecker::functionsDisabled(ProcessForker::POSIX_FUNCTIONS)) {
             $pcntl['disabled posix functions'] = $disabledPosix;
         }
 
