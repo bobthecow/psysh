@@ -279,14 +279,20 @@ test_error_handling() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
+  local exit_code
+  set +e  # Disable exit on error for this test
   output=$(cd "$test_dir" && echo 'invalid php syntax here; exit' | php "$resolved_target" --no-interactive 2>&1)
-  if [ $? != 0 ]; then
-    fail "Error handling test failed: $output"
-    return
-  fi
+  exit_code=$?
+  set -e  # Re-enable exit on error
 
   # Should handle the error gracefully and show a parse error
   [[ "$output" =~ "Parse error" ]] || { fail "Expected parse error message"; return; }
+
+  # Should exit with non-zero code after error
+  if [ $exit_code == 0 ]; then
+    fail "Expected non-zero exit code after parse error, got 0"
+    return
+  fi
 
   pass
 }
@@ -310,6 +316,52 @@ test_exit_cleanly() {
 
   # Should not contain error messages
   [[ "$output" =~ "error" || "$output" =~ "Error" ]] && { fail "Exit contained error messages"; return; }
+
+  pass
+}
+
+test_exit_status() {
+  local target="$1"
+  echo -n "  Exit status:       "
+
+  local test_dir
+  test_dir=$(get_test_dir "$target")
+
+  local resolved_target
+  resolved_target=$(resolve_target_path "$target")
+
+  # Test exit with integer status code
+  local output
+  local exit_code
+  set +e  # Temporarily disable exit on error for this test
+  output=$(cd "$test_dir" && echo 'exit(42)' | php "$resolved_target" --no-interactive 2>&1)
+  exit_code=$?
+  set -e  # Re-enable exit on error
+  if [ $exit_code != 42 ]; then
+    fail "Expected exit code 42, got $exit_code"
+    return
+  fi
+
+  # Test exit with string message (should exit with code 0)
+  # Note: In non-interactive mode, BreakException messages aren't displayed
+  set +e
+  output=$(cd "$test_dir" && echo 'exit("Custom message")' | php "$resolved_target" --no-interactive 2>&1)
+  exit_code=$?
+  set -e
+  if [ $exit_code != 0 ]; then
+    fail "Expected exit code 0 for string message, got $exit_code"
+    return
+  fi
+
+  # Test default exit (should be code 0)
+  set +e
+  output=$(cd "$test_dir" && echo 'exit()' | php "$resolved_target" --no-interactive 2>&1)
+  exit_code=$?
+  set -e
+  if [ $exit_code != 0 ]; then
+    fail "Expected exit code 0 for default exit, got $exit_code"
+    return
+  fi
 
   pass
 }
@@ -343,6 +395,7 @@ for target in "${test_targets[@]}"; do
   test_cli_options "$target"
   test_error_handling "$target"
   test_exit_cleanly "$target"
+  test_exit_status "$target"
 
   echo
 done
