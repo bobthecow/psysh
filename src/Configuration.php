@@ -387,6 +387,7 @@ class Configuration
 
             new InputOption('yolo', null, InputOption::VALUE_NONE, 'Run PsySH with minimal input validation. You probably don\'t want this.'),
             new InputOption('warm-autoload', null, InputOption::VALUE_NONE, 'Enable autoload warming for better tab completion.'),
+            new InputOption('info', null, InputOption::VALUE_NONE, 'Display PsySH environment and configuration info.'),
         ];
     }
 

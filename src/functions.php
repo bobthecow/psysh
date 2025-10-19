@@ -458,6 +458,7 @@ if (!\function_exists('Psy\\bin')) {
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
                     new InputOption('self-update', 'u', InputOption::VALUE_NONE),
+                    new InputOption('info', null, InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ])));
@@ -491,6 +492,7 @@ Options:
   -h, --help            Display this help message.
   -c, --config FILE     Use an alternate PsySH config file location.
       --cwd PATH        Use an alternate working directory.
+      --info            Display PsySH environment and configuration info.
   -V, --version         Display the PsySH version.
 
 EOL;
@@ -520,6 +522,23 @@ EOL;
             // Handle --version
             if ($input->getOption('version')) {
                 echo Shell::getVersionHeader($config->useUnicode()).\PHP_EOL;
+                exit(0);
+            }
+
+            // Handle --info
+            if ($input->getOption('info')) {
+                // Store config for info() function
+                info($config);
+                $infoData = info();
+
+                // Format and display the info
+                $output = $config->getOutput();
+                if ($config->rawOutput()) {
+                    $output->writeln(\var_export($infoData, true));
+                } else {
+                    $presenter = $config->getPresenter();
+                    $output->writeln($presenter->present($infoData));
+                }
                 exit(0);
             }
 
