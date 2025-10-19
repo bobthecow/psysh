@@ -45,7 +45,7 @@ class TimeitCommandTest extends \Psy\Test\TestCase
 
         // Request 5 iterations, but should stop after first one throws
         $tester->execute([
-            'code' => '1 + 1',
+            'code'  => '1 + 1',
             '--num' => '5',
         ]);
 
@@ -66,6 +66,7 @@ class TimeitCommandTest extends \Psy\Test\TestCase
                 // Simulate the instrumented code calling markStart/markEnd
                 TimeitCommand::markStart();
                 $result = 42;
+
                 return TimeitCommand::markEnd($result);
             });
 
@@ -97,6 +98,7 @@ class TimeitCommandTest extends \Psy\Test\TestCase
                 // Simulate the instrumented code calling markStart/markEnd
                 TimeitCommand::markStart();
                 $result = 42;
+
                 return TimeitCommand::markEnd($result);
             });
 
@@ -109,7 +111,7 @@ class TimeitCommandTest extends \Psy\Test\TestCase
         $tester = new CommandTester($command);
 
         $tester->execute([
-            'code' => '1 + 1',
+            'code'  => '1 + 1',
             '--num' => '3',
         ]);
 
