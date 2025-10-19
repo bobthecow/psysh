@@ -14,6 +14,7 @@ namespace Psy;
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ProcessForker;
+use Psy\Formatter\SignatureFormatter;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Output\Theme;
@@ -1570,6 +1571,9 @@ class Configuration
         $this->shell = $shell;
         $this->doAddCommands();
         $this->doAddMatchers();
+
+        // Configure SignatureFormatter for hyperlinks
+        SignatureFormatter::setManualDb($this->getManualDb());
     }
 
     /**
@@ -1583,6 +1587,9 @@ class Configuration
     public function setManualDbFile(string $filename)
     {
         $this->manualDbFile = (string) $filename;
+
+        // Reconfigure SignatureFormatter with new manual database
+        SignatureFormatter::setManualDb($this->getManualDb());
     }
 
     /**

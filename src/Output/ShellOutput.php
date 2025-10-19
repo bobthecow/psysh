@@ -11,6 +11,7 @@
 
 namespace Psy\Output;
 
+use Psy\Formatter\SignatureFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -187,6 +188,9 @@ class ShellOutput extends ConsoleOutput
         $useGrayFallback = !$this->grayExists();
         $this->theme->applyStyles($this->getFormatter(), $useGrayFallback);
         $this->theme->applyErrorStyles($this->getErrorOutput()->getFormatter(), $useGrayFallback);
+
+        // Set inline styles for SignatureFormatter hyperlinks
+        SignatureFormatter::setStyles($this->theme->getInlineStyles($useGrayFallback));
     }
 
     /**
