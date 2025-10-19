@@ -71,10 +71,10 @@ class ExecutionLoopClosure extends ExecutionClosure
 
                     $__psysh__->writeReturnValue($_);
                 } catch (BreakException $_e) {
-                    // ctrl-d exits the REPL
+                    // exit() or ctrl-d exits the REPL
                     $__psysh__->writeException($_e);
 
-                    return;
+                    return $_e->getCode();
                 } catch (ThrowUpException $_e) {
                     // `throw-up` command throws the exception out of the REPL
                     $__psysh__->writeException($_e);

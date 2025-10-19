@@ -155,12 +155,18 @@ class ProcessForker extends AbstractListener
 
                     $this->clearStdinBuffer();
 
-                    // Restore scope variables if child sent any
+                    // Restore scope variables and exit code if child sent any
+                    // If child didn't send data, use the actual process exit status
+                    $exitCode = \pcntl_wexitstatus($status);
                     if ($content) {
-                        $shell->setScopeVariables(@\unserialize($content));
+                        $data = @\unserialize($content);
+                        if (\is_array($data) && isset($data['exitCode'], $data['scopeVars'])) {
+                            $exitCode = $data['exitCode'];
+                            $shell->setScopeVariables($data['scopeVars']);
+                        }
                     }
 
-                    throw new BreakException('Exiting main thread');
+                    throw new BreakException('Exiting main thread', $exitCode);
                 }
 
                 $n = @\stream_select($read, $write, $except, null);
@@ -183,16 +189,25 @@ class ProcessForker extends AbstractListener
             $content = \stream_get_contents($down);
             \fclose($down);
 
+            // Wait for child to exit and get its exit status
+            \pcntl_waitpid($pid, $status);
+
             // Restore default SIGINT handler
             if ($sigintHandlerInstalled) {
                 \pcntl_signal(\SIGINT, \SIG_DFL);
             }
 
+            // If child didn't send data, use the actual process exit status
+            $exitCode = \pcntl_wexitstatus($status);
             if ($content) {
-                $shell->setScopeVariables(@\unserialize($content));
+                $data = @\unserialize($content);
+                if (\is_array($data) && isset($data['exitCode'], $data['scopeVars'])) {
+                    $exitCode = $data['exitCode'];
+                    $shell->setScopeVariables($data['scopeVars']);
+                }
             }
 
-            throw new BreakException('Exiting main thread');
+            throw new BreakException('Exiting main thread', $exitCode);
         }
 
         // This is the child process. It's going to do all the work.
@@ -277,14 +292,16 @@ class ProcessForker extends AbstractListener
      * After the REPL session ends, send the scope variables back up to the main
      * thread (if this is a child thread).
      *
-     * @param Shell $shell
+     * {@inheritdoc}
      */
-    public function afterRun(Shell $shell)
+    public function afterRun(Shell $shell, int $exitCode = 0)
     {
-        // We're a child thread. Send the scope variables back up to the main thread.
+        // We're a child thread. Send the scope variables and exit code back up to the main thread.
         if (isset($this->up)) {
+            $data = $this->serializeReturn($exitCode, $shell->getScopeVariables(false));
+
             // Suppress errors in case the pipe is broken (e.g., if parent was interrupted)
-            @\fwrite($this->up, $this->serializeReturn($shell->getScopeVariables(false)));
+            @\fwrite($this->up, $data);
             @\fclose($this->up);
 
             \posix_kill(\posix_getpid(), \SIGKILL);
@@ -343,20 +360,23 @@ class ProcessForker extends AbstractListener
     }
 
     /**
-     * Serialize all serializable return values.
+     * Serialize exit code and scope variables for transmission to parent process.
      *
      * A naïve serialization will run into issues if there is a Closure or
      * SimpleXMLElement (among other things) in scope when exiting the execution
      * loop. We'll just ignore these unserializable classes, and serialize what
      * we can.
      *
-     * @param array $return
+     * @param int   $exitCode  Exit code from the child process
+     * @param array $scopeVars Scope variables to serialize
+     *
+     * @return string Serialized data array containing exitCode and scopeVars
      */
-    private function serializeReturn(array $return): string
+    private function serializeReturn(int $exitCode, array $scopeVars): string
     {
         $serializable = [];
 
-        foreach ($return as $key => $value) {
+        foreach ($scopeVars as $key => $value) {
             // No need to return magic variables
             if (Context::isSpecialVariableName($key)) {
                 continue;
@@ -383,6 +403,9 @@ class ProcessForker extends AbstractListener
             }
         }
 
-        return @\serialize($serializable);
+        return @\serialize([
+            'exitCode'  => $exitCode,
+            'scopeVars' => $serializable,
+        ]);
     }
 }

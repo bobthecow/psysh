@@ -21,7 +21,7 @@ class ExitPassTest extends CodeCleanerTestCase
     /**
      * @var string
      */
-    private $expectedExceptionString = '\\Psy\\Exception\\BreakException::exitShell()';
+    private $expectedExceptionString = '\\Psy\\Exception\\BreakException::exitShell(%s)';
 
     /**
      * @before
@@ -40,6 +40,18 @@ class ExitPassTest extends CodeCleanerTestCase
     }
 
     /**
+     * Helper to generate exit call with optional arguments.
+     *
+     * @param string $args Arguments to pass to exitShell
+     *
+     * @return string
+     */
+    protected function exitCall($args = '')
+    {
+        return \sprintf($this->expectedExceptionString, $args);
+    }
+
+    /**
      * Data provider for testExitStatement.
      *
      * @return array
@@ -47,19 +59,22 @@ class ExitPassTest extends CodeCleanerTestCase
     public function dataProviderExitStatement()
     {
         return [
-            ['exit;', "{$this->expectedExceptionString};"],
-            ['exit();', "{$this->expectedExceptionString};"],
-            ['die;', "{$this->expectedExceptionString};"],
-            ['exit(die(die));', "{$this->expectedExceptionString};"],
-            ['if (true) { exit; }', "if (true) { {$this->expectedExceptionString}; }"],
-            ['if (false) { exit; }', "if (false) { {$this->expectedExceptionString}; }"],
-            ['1 and exit();', "1 and {$this->expectedExceptionString};"],
-            ['foo() or die', "foo() or {$this->expectedExceptionString};"],
-            ['exit and 1;', "{$this->expectedExceptionString} and 1;"],
-            ['if (exit) { echo $wat; }', "if ({$this->expectedExceptionString}) { echo \$wat; }"],
-            ['exit or die;', "{$this->expectedExceptionString} or {$this->expectedExceptionString};"],
-            ['switch (die) { }', "switch ({$this->expectedExceptionString}) {}"],
-            ['for ($i = 1; $i < 10; die) {}', "for (\$i = 1; \$i < 10; {$this->expectedExceptionString}) {}"],
+            ['exit;', "{$this->exitCall()};"],
+            ['exit();', "{$this->exitCall()};"],
+            ['die;', "{$this->exitCall()};"],
+            ['exit(die(die));', "{$this->exitCall($this->exitCall($this->exitCall()))};"],
+            ['if (true) { exit; }', "if (true) {\n    {$this->exitCall()};\n}"],
+            ['if (false) { exit; }', "if (false) {\n    {$this->exitCall()};\n}"],
+            ['1 and exit();', "1 and {$this->exitCall()};"],
+            ['foo() or die', "foo() or {$this->exitCall()};"],
+            ['exit and 1;', "{$this->exitCall()} and 1;"],
+            ['if (exit) { echo $wat; }', "if ({$this->exitCall()}) {\n    echo \$wat;\n}"],
+            ['exit or die;', "{$this->exitCall()} or {$this->exitCall()};"],
+            ['switch (die) { }', "switch ({$this->exitCall()}) {\n}"],
+            ['for ($i = 1; $i < 10; die) {}', "for (\$i = 1; \$i < 10; {$this->exitCall()}) {\n}"],
+            ['exit(1);', "{$this->exitCall('1')};"],
+            ['die(42);', "{$this->exitCall('42')};"],
+            ['exit($x = 1);', "{$this->exitCall('$x = 1')};"],
         ];
     }
 }

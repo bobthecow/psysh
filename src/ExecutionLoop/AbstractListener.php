@@ -58,7 +58,7 @@ abstract class AbstractListener implements Listener
     /**
      * {@inheritdoc}
      */
-    public function afterRun(Shell $shell)
+    public function afterRun(Shell $shell, int $exitCode = 0)
     {
     }
 }

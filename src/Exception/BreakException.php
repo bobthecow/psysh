@@ -40,10 +40,12 @@ class BreakException extends \Exception implements Exception
      *
      * Since `throw` can not be inserted into arbitrary expressions, it wraps with function call.
      *
+     * @param int|string|null $status Exit status code or message
+     *
      * @throws BreakException
      */
-    public static function exitShell()
+    public static function exitShell($status = 0)
     {
-        throw new self('Goodbye');
+        throw new self(\is_string($status) ? $status : 'Goodbye', \is_int($status) ? $status : 0);
     }
 }

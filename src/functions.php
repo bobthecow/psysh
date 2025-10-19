@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use Psy\Exception\BreakException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Util\DependencyChecker;
 use Psy\VersionUpdater\GitHubChecker;
@@ -560,15 +561,17 @@ EOL;
 
             try {
                 // And go!
-                $shell->run();
+                $exitCode = $shell->run();
+                if ($exitCode !== 0) {
+                    exit($exitCode);
+                }
+            } catch (BreakException $e) {
+                // BreakException can escape if thrown before the execution loop starts
+                // (though it shouldn't in normal operation)
+                exit($e->getCode());
             } catch (\Throwable $e) {
                 \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
-
-                // @todo this triggers the "exited unexpectedly" logic in the
-                // ForkingLoop, so we can't exit(1) after starting the shell...
-                // fix this :)
-
-                // exit(1);
+                exit(1);
             }
         };
     }

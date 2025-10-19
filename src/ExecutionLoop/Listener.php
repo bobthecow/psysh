@@ -76,6 +76,7 @@ interface Listener
      * Called once after the REPL session ends.
      *
      * @param Shell $shell
+     * @param int   $exitCode Exit code from the execution loop
      */
-    public function afterRun(Shell $shell);
+    public function afterRun(Shell $shell, int $exitCode = 0);
 }

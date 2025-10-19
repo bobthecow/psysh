@@ -387,6 +387,9 @@ class Shell extends Application
 
         try {
             return parent::run($input, $output);
+        } catch (BreakException $e) {
+            // BreakException from ProcessForker or exit() - return its exit code
+            return $e->getCode();
         } catch (\Throwable $e) {
             $this->writeException($e);
         }
@@ -440,15 +443,16 @@ class Shell extends Application
             $this->beforeRun();
             $this->loadIncludes();
             $loop = new ExecutionLoopClosure($this);
-            $loop->execute();
-            $this->afterRun();
+            $exitCode = $loop->execute();
+            $this->afterRun($exitCode ?? 0);
+
+            return $exitCode ?? 0;
         } catch (ThrowUpException $e) {
             throw $e->getPrevious();
         } catch (BreakException $e) {
             // The ProcessForker throws a BreakException to finish the main thread.
+            return $e->getCode();
         }
-
-        return 0;
     }
 
     /**
@@ -482,12 +486,20 @@ class Shell extends Application
             $this->getInput(false);
         }
 
-        if ($this->hasCode()) {
-            $ret = $this->execute($this->flushCode());
-            $this->writeReturnValue($ret, $rawOutput);
+        try {
+            if ($this->hasCode()) {
+                $ret = $this->execute($this->flushCode());
+                $this->writeReturnValue($ret, $rawOutput);
+            }
+        } catch (BreakException $e) {
+            // User called exit() in non-interactive mode
+            $this->afterRun($e->getCode());
+            $this->nonInteractive = false;
+
+            return $e->getCode();
         }
 
-        $this->afterRun();
+        $this->afterRun(0);
         $this->nonInteractive = false;
 
         return 0;
@@ -691,11 +703,13 @@ class Shell extends Application
 
     /**
      * Run execution loop listers after the shell session.
+     *
+     * @param int $exitCode Exit code from the execution loop
      */
-    protected function afterRun()
+    protected function afterRun(int $exitCode = 0)
     {
         foreach (\array_reverse($this->loopListeners) as $listener) {
-            $listener->afterRun($this);
+            $listener->afterRun($this, $exitCode);
         }
     }
 
@@ -1489,6 +1503,9 @@ class Shell extends Application
 
         try {
             return $closure->execute();
+        } catch (BreakException $_e) {
+            // Re-throw BreakException so it can propagate exit codes
+            throw $_e;
         } catch (\Throwable $_e) {
             $this->writeException($_e);
         }
