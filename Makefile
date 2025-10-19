@@ -36,6 +36,7 @@ test: vendor/bin/phpunit
 	$< $(PHPUNIT_OPTS)
 
 smoketest: ## Run smoke tests on existing binaries
+smoketest: build/psysh/psysh
 	test/smoketest.sh
 
 phpstan: ## Run static analysis
