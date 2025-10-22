@@ -13,8 +13,11 @@ namespace Psy;
 
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
+use Psy\ExecutionLoop\ExecutionLoggingListener;
+use Psy\ExecutionLoop\InputLoggingListener;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Formatter\SignatureFormatter;
+use Psy\Logger\CallbackLogger;
 use Psy\Manual\ManualInterface;
 use Psy\Manual\V2Manual;
 use Psy\Manual\V3Manual;
@@ -65,6 +68,7 @@ class Configuration
         'historySize',
         'implicitUse',
         'interactiveMode',
+        'logging',
         'manualDbFile',
         'pager',
         'prompt',
@@ -113,6 +117,7 @@ class Configuration
     private array $newMatchers = [];
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
+    private ?ShellLogger $logger = null;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
@@ -1525,6 +1530,164 @@ class Configuration
     public function getImplicitUse()
     {
         return $this->implicitUse;
+    }
+
+    /**
+     * Configure logging.
+     *
+     * Logs PsySH input, commands, and executed code to the provided logger.
+     * Accepts a PSR-3 logger, a simple callback, or an array for more control
+     * over log levels.
+     *
+     * Examples:
+     *
+     *     // Simple callback logging
+     *     $config->setLogging(function ($kind, $data) {
+     *         $line = sprintf("[%s] %s\n", $kind, $data);
+     *         file_put_contents('/tmp/psysh.log', $line, FILE_APPEND);
+     *     });
+     *
+     *     // PSR-3 logger with defaults (input=info, command=info, execute=debug)
+     *     $config->setLogging($psrLogger);
+     *
+     *     // Set single level for all event types
+     *     $config->setLogging([
+     *         'logger' => $psrLogger,
+     *         'level' => 'debug',
+     *     ]);
+     *
+     *     // Granular control over each event type
+     *     $config->setLogging([
+     *         'logger' => $psrLogger,
+     *         'level' => [
+     *             'input'   => 'info',
+     *             'command' => false, // disable logging
+     *             'execute' => 'debug',
+     *         ],
+     *     ]);
+     *
+     * @param \Psr\Log\LoggerInterface|callable|array $logging
+     */
+    public function setLogging($logging): void
+    {
+        $this->logger = $this->parseLoggingConfig($logging);
+    }
+
+    /**
+     * Get a ShellLogger instance if logging is configured.
+     *
+     * @return ShellLogger|null
+     */
+    public function getLogger(): ?ShellLogger
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Get an InputLoggingListener if input logging is enabled.
+     *
+     * @return InputLoggingListener|null
+     */
+    public function getInputLogger(): ?InputLoggingListener
+    {
+        $logger = $this->getLogger();
+        if ($logger === null || $logger->isInputDisabled()) {
+            return null;
+        }
+
+        return new InputLoggingListener($logger);
+    }
+
+    /**
+     * Get an ExecutionLoggingListener if execution logging is enabled.
+     *
+     * @return ExecutionLoggingListener|null
+     */
+    public function getExecutionLogger(): ?ExecutionLoggingListener
+    {
+        $logger = $this->getLogger();
+        if ($logger === null || $logger->isExecuteDisabled()) {
+            return null;
+        }
+
+        return new ExecutionLoggingListener($logger);
+    }
+
+    /**
+     * Parse logging configuration.
+     *
+     * @param \Psr\Log\LoggerInterface|Logger\CallbackLogger|callable|array $config
+     *
+     * @return ShellLogger
+     */
+    private function parseLoggingConfig($config): ShellLogger
+    {
+        if (!\is_array($config)) {
+            $config = ['logger' => $config];
+        }
+
+        if (!isset($config['logger'])) {
+            throw new \InvalidArgumentException('Logging config array must include a "logger" key');
+        }
+
+        $logger = $config['logger'];
+
+        if (\is_callable($logger)) {
+            $logger = new CallbackLogger($logger);
+        }
+
+        if (!$this->isLogger($logger)) {
+            throw new \InvalidArgumentException('Logging "logger" must be a logger instance or callable');
+        }
+
+        $defaults = [
+            'input'   => 'info',
+            'command' => 'info',
+            'execute' => 'debug',
+        ];
+
+        if (isset($config['level'])) {
+            $level = $config['level'];
+
+            // String: apply same level to all types
+            if (\is_string($level)) {
+                $levels = [
+                    'input'   => $level,
+                    'command' => $level,
+                    'execute' => $level,
+                ];
+            } elseif (\is_array($level)) {
+                // Array: granular per-type levels
+                $levels = [
+                    'input'   => $level['input'] ?? $defaults['input'],
+                    'command' => $level['command'] ?? $defaults['command'],
+                    'execute' => $level['execute'] ?? $defaults['execute'],
+                ];
+            } else {
+                throw new \InvalidArgumentException('Logging "level" must be a string or array');
+            }
+        } else {
+            $levels = $defaults;
+        }
+
+        return new ShellLogger($logger, $levels);
+    }
+
+    /**
+     * Check if a value is a valid logger instance.
+     *
+     * @param mixed $logger
+     *
+     * @return bool
+     */
+    private function isLogger($logger): bool
+    {
+        if ($logger instanceof CallbackLogger) {
+            return true;
+        }
+
+        // Safe check for LoggerInterface without requiring psr/log as a dependency
+        return \interface_exists('Psr\Log\LoggerInterface') && $logger instanceof \Psr\Log\LoggerInterface;
     }
 
     /**

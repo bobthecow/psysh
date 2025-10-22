@@ -313,6 +313,10 @@ class Shell extends Application
     {
         $listeners = [];
 
+        if ($inputLogger = $this->config->getInputLogger()) {
+            $listeners[] = $inputLogger;
+        }
+
         if (ProcessForker::isSupported() && $this->config->usePcntl()) {
             $listeners[] = new ProcessForker();
         } elseif (SignalHandler::isSupported()) {
@@ -323,6 +327,10 @@ class Shell extends Application
 
         if (RunkitReloader::isSupported()) {
             $listeners[] = new RunkitReloader();
+        }
+
+        if ($executionLogger = $this->config->getExecutionLogger()) {
+            $listeners[] = $executionLogger;
         }
 
         return $listeners;
@@ -1000,6 +1008,10 @@ class Shell extends Application
             throw new \InvalidArgumentException('Command not found: '.$input);
         }
 
+        if ($logger = $this->config->getLogger()) {
+            $logger->logCommand($input);
+        }
+
         $input = new ShellInput(\str_replace('\\', '\\\\', \rtrim($input, " \t\n\r\0\x0B;")));
 
         if (!$input->hasParameterOption(['--help', '-h'])) {
@@ -1497,6 +1509,11 @@ class Shell extends Application
     public function execute(string $code, bool $throwExceptions = false)
     {
         $this->setCode($code, true);
+
+        if ($logger = $this->config->getLogger()) {
+            $logger->logExecute($code);
+        }
+
         $closure = new ExecutionClosure($this);
 
         if ($throwExceptions) {
