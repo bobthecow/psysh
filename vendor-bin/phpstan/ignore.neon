@@ -1,5 +1,7 @@
 parameters:
   ignoreErrors:
+    # PSR-3 is an optional dependency (psr/log is not required)
+    - "#Parameter \\$[a-z]+ of method .* has invalid type Psr\\\\Log\\\\LoggerInterface\\.#"
     # Runkit extension is optional, so we shouldn't warn about its functions/constants
     - message: "#^Function runkit[a-zA-Z0-9_]+ not found\\.$#"
       paths:
