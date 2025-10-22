@@ -16,6 +16,8 @@ parameters:
     # See: https://github.com/bobthecow/psysh/pull/738#issuecomment-1202622730
     - src/Readline/Hoa/FileLink.php
     - src/Util/Str.php
+    # Fake PSR-3 logger implements interface that may not exist when psr/log isn't installed
+    - test/Util/FakePsrLogger.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
   reportUnmatchedIgnoredErrors: true

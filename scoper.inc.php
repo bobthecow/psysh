@@ -48,6 +48,7 @@ return [
 
     'exclude-namespaces' => [
         'Psy',
+        'Psr\Log',
         'Symfony\Polyfill',
     ],
 
