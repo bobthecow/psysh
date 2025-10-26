@@ -11,6 +11,7 @@
 
 namespace Psy\Formatter;
 
+use Psy\Manual\ManualInterface;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Json;
@@ -21,25 +22,39 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class SignatureFormatter implements ReflectorFormatter
 {
-    private static array $styles = [];
-    private static ?\PDO $manualDb = null;
+    private static ?ManualInterface $manual = null;
+
+    /**
+     * Set the manual interface for generating hyperlinks.
+     */
+    public static function setManual(?ManualInterface $manual): void
+    {
+        self::$manual = $manual;
+    }
 
     /**
      * Set styles for formatting hyperlinks.
+     *
+     * @deprecated Use LinkFormatter::setStyles() instead
      *
      * @param array $styles Map of style name to inline style string
      */
     public static function setStyles(array $styles): void
     {
-        self::$styles = $styles;
+        // Delegate to LinkFormatter which now handles this
+        LinkFormatter::setStyles($styles);
     }
 
     /**
      * Set the manual database for generating hyperlinks.
+     *
+     * @deprecated Manual database is now set via Configuration::setManual()
+     *
+     * @param \PDO|null $db
      */
     public static function setManualDb(?\PDO $db): void
     {
-        self::$manualDb = $db;
+        // The functionality is now handled through setManual()
     }
 
     /**
@@ -127,12 +142,12 @@ class SignatureFormatter implements ReflectorFormatter
             $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
         }
 
-        $chunks[] = self::styleWithHref('class', self::formatName($reflector), self::getManualHref($reflector));
+        $chunks[] = LinkFormatter::styleWithHref('class', self::formatName($reflector), self::getManualHref($reflector));
 
         if ($parent = $reflector->getParentClass()) {
             $chunks[] = 'extends';
             $parentHref = self::getManualHref($parent);
-            $chunks[] = self::styleWithHref('class', $parent->getName(), $parentHref);
+            $chunks[] = LinkFormatter::styleWithHref('class', $parent->getName(), $parentHref);
         }
 
         $interfaces = $reflector->getInterfaceNames();
@@ -147,7 +162,7 @@ class SignatureFormatter implements ReflectorFormatter
                     $interfaceHref = null;
                 }
 
-                return self::styleWithHref('class', $name, $interfaceHref);
+                return LinkFormatter::styleWithHref('class', $name, $interfaceHref);
             }, $interfaces));
         }
 
@@ -168,7 +183,7 @@ class SignatureFormatter implements ReflectorFormatter
 
         return \sprintf(
             '<keyword>const</keyword> %s = <%s>%s</%s>',
-            self::styleWithHref('const', self::formatName($reflector), self::getManualHref($reflector)),
+            LinkFormatter::styleWithHref('const', self::formatName($reflector), self::getManualHref($reflector)),
             $style,
             OutputFormatter::escape(Json::encode($value)),
             $style
@@ -242,7 +257,7 @@ class SignatureFormatter implements ReflectorFormatter
         return \sprintf(
             '<keyword>function</keyword> %s%s(%s)%s',
             $reflector->returnsReference() ? '&' : '',
-            self::styleWithHref('function', self::formatName($reflector), self::getManualHref($reflector)),
+            LinkFormatter::styleWithHref('function', self::formatName($reflector), self::getManualHref($reflector)),
             \implode(', ', self::formatFunctionParams($reflector)),
             self::formatFunctionReturnType($reflector)
         );
@@ -301,7 +316,7 @@ class SignatureFormatter implements ReflectorFormatter
                     if ($param->isArray()) {
                         $hint = '<keyword>array</keyword>';
                     } elseif ($class = $param->getClass()) {
-                        $hint = self::styleWithHref('class', $class->getName(), self::getManualHref($class));
+                        $hint = LinkFormatter::styleWithHref('class', $class->getName(), self::getManualHref($class));
                     }
                 }
             } catch (\Throwable $e) {
@@ -395,11 +410,13 @@ class SignatureFormatter implements ReflectorFormatter
             // Class doesn't exist or can't be reflected, no href
         }
 
-        return $nullable.self::styleWithHref('class', $typeName, $href);
+        return $nullable.LinkFormatter::styleWithHref('class', $typeName, $href);
     }
 
     /**
      * Wrap text in a style tag, optionally including an href.
+     *
+     * @deprecated use LinkFormatter::styleWithHref directly
      *
      * @param string      $style The style name (e.g., 'class', 'function')
      * @param string      $text  The text to wrap
@@ -409,37 +426,7 @@ class SignatureFormatter implements ReflectorFormatter
      */
     private static function styleWithHref(string $style, string $text, ?string $href = null): string
     {
-        if ($href !== null && self::supportsLinks()) {
-            // Encode href for OSC 8 compatibility (must be printable ASCII 32-126)
-            $href = self::encodeHrefForOsc8($href);
-            $inline = self::$styles[$style] ?? '';
-            $inlineStyle = $inline !== '' ? \sprintf('%s;href=%s', $inline, $href) : \sprintf('href=%s', $href);
-
-            return \sprintf('<%s>%s</>', $inlineStyle, $text);
-        }
-
-        return \sprintf('<%s>%s</%s>', $style, $text, $style);
-    }
-
-    /**
-     * Check if the current Symfony Console version supports hyperlinks.
-     *
-     * Note that certain known-bad terminal emulators will be excluded at the time of rendering the
-     * actual styles, and terminals that are OSC-aware but don't have OSC 8 support will not
-     * actually render a link /shrug
-     */
-    private static function supportsLinks(): bool
-    {
-        static $supports = null;
-
-        if ($supports === null) {
-            $supports = \method_exists(
-                \Symfony\Component\Console\Formatter\OutputFormatterStyle::class,
-                'setHref'
-            );
-        }
-
-        return $supports;
+        return LinkFormatter::styleWithHref($style, $text, $href);
     }
 
     /**
@@ -481,32 +468,18 @@ class SignatureFormatter implements ReflectorFormatter
     }
 
     /**
-     * Encode a string for use in OSC 8 hyperlink URIs.
-     *
-     * Per OSC 8 spec, URIs must only contain bytes in the 32-126 range.
-     * Encodes any characters outside this range for portability.
-     *
-     * @param string $str String to encode
-     *
-     * @return string URI-encoded string safe for OSC 8
-     */
-    private static function encodeHrefForOsc8(string $str): string
-    {
-        // Encode any character outside printable ASCII range (32-126)
-        return \preg_replace_callback('/[^\x20-\x7E]/', function ($matches) {
-            return \rawurlencode($matches[0]);
-        }, $str);
-    }
-
-    /**
      * Get manual documentation for a reflector.
      *
      * @param \Reflector $reflector
      *
-     * @return string|false Documentation string or false if not found
+     * @return string|array|false Documentation string or structured data, or false if not found
      */
     private static function getManualDoc(\Reflector $reflector)
     {
+        if (!self::$manual) {
+            return false;
+        }
+
         switch (\get_class($reflector)) {
             case \ReflectionClass::class:
             case \ReflectionObject::class:
@@ -534,13 +507,6 @@ class SignatureFormatter implements ReflectorFormatter
                 return false;
         }
 
-        if (self::$manualDb) {
-            $result = self::$manualDb->query(\sprintf('SELECT doc FROM php_manual WHERE id = %s', self::$manualDb->quote($id)));
-            if ($result !== false) {
-                return $result->fetchColumn(0);
-            }
-        }
-
-        return false;
+        return self::$manual->get($id) ?? false;
     }
 }

@@ -266,36 +266,32 @@ if (!\function_exists('Psy\\info')) {
             'erase duplicates' => $config->getEraseDuplicates(),
         ];
 
-        $docs = [
-            'manual db file'   => $prettyPath($config->getManualDbFile()),
-            'sqlite available' => true,
-        ];
+        $manualDbFile = $config->getManualDbFile();
+        $manual = $config->getManual();
 
-        try {
-            if ($db = $config->getManualDb()) {
-                if ($q = $db->query('SELECT * FROM meta;')) {
-                    $q->setFetchMode(\PDO::FETCH_KEY_PAIR);
-                    $meta = $q->fetchAll();
+        // If we have a manual but no db file path, it's bundled in the PHAR
+        if ($manual && !$manualDbFile && \Phar::running(false)) {
+            $docs = [
+                'manual db file' => '<bundled>',
+            ];
+        } else {
+            $docs = [
+                'manual db file' => $prettyPath($manualDbFile),
+            ];
+        }
 
-                    foreach ($meta as $key => $val) {
-                        switch ($key) {
-                            case 'built_at':
-                                $d = new \DateTime('@'.$val);
-                                $val = $d->format(\DateTime::RFC2822);
-                                break;
-                        }
-                        $key = 'db '.\str_replace('_', ' ', $key);
-                        $docs[$key] = $val;
-                    }
-                } else {
-                    $docs['db schema'] = '0.1.0';
+        if ($manual) {
+            $meta = $manual->getMeta();
+
+            foreach ($meta as $key => $val) {
+                switch ($key) {
+                    case 'built_at':
+                        $d = new \DateTime('@'.$val);
+                        $val = $d->format(\DateTime::RFC2822);
+                        break;
                 }
-            }
-        } catch (Exception\RuntimeException $e) {
-            if ($e->getMessage() === 'SQLite PDO driver not found') {
-                $docs['sqlite available'] = false;
-            } else {
-                throw $e;
+                $key = 'manual '.\str_replace('_', ' ', $key);
+                $docs[$key] = $val;
             }
         }
 
