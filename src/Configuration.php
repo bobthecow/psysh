@@ -75,6 +75,7 @@ class Configuration
         'strictTypes',
         'theme',
         'updateCheck',
+        'updateManualCheck',
         'useBracketedPaste',
         'usePcntl',
         'useReadline',
@@ -117,6 +118,7 @@ class Configuration
     private string $colorMode = self::COLOR_MODE_AUTO;
     private string $interactiveMode = self::INTERACTIVE_MODE_AUTO;
     private ?string $updateCheck = null;
+    private ?string $updateManualCheck = null;
     private ?string $startupMessage = null;
     private bool $forceArrayIndexes = false;
     /** @deprecated */
@@ -1964,6 +1966,144 @@ class Configuration
         }
 
         return ConfigPaths::touchFileWithMkdir($configDir.'/update_check.json');
+    }
+
+    /**
+     * Get the current manual update check interval.
+     *
+     * One of 'always', 'daily', 'weekly', 'monthly' or 'never'. If none is
+     * explicitly set, default to 'weekly'.
+     */
+    public function getUpdateManualCheck(): string
+    {
+        return isset($this->updateManualCheck) ? $this->updateManualCheck : ManualUpdater\Checker::WEEKLY;
+    }
+
+    /**
+     * Set the manual update check interval.
+     *
+     * @throws \InvalidArgumentException if the update check interval is unknown
+     *
+     * @param string $interval
+     */
+    public function setUpdateManualCheck(string $interval)
+    {
+        $validIntervals = [
+            ManualUpdater\Checker::ALWAYS,
+            ManualUpdater\Checker::DAILY,
+            ManualUpdater\Checker::WEEKLY,
+            ManualUpdater\Checker::MONTHLY,
+            ManualUpdater\Checker::NEVER,
+        ];
+
+        if (!\in_array($interval, $validIntervals)) {
+            throw new \InvalidArgumentException('Invalid manual update check interval: '.$interval);
+        }
+
+        $this->updateManualCheck = $interval;
+    }
+
+    /**
+     * Get a manual update checker.
+     *
+     * If none has been explicitly defined, this will create a new instance.
+     *
+     * @param string|null $lang   Override language (otherwise uses current manual's language or 'en')
+     * @param bool        $always Force immediate check, ignoring interval setting
+     *
+     * @return ManualUpdater\Checker|null
+     */
+    public function getManualChecker(?string $lang = null, bool $always = false): ?ManualUpdater\Checker
+    {
+        // Get current manual info
+        $manualFile = $this->getManualDbFile();
+        $currentMeta = null;
+        if ($manualFile && \file_exists($manualFile)) {
+            $manual = $this->getManual();
+            if ($manual) {
+                $currentMeta = $manual->getMeta();
+            }
+        }
+
+        $currentVersion = $currentMeta['version'] ?? null;
+        $currentLang = $currentMeta['lang'] ?? null;
+
+        // Determine language (priority: explicit param, current manual, default to English)
+        if ($lang === null) {
+            $lang = $currentLang ?? 'en';
+        }
+
+        // Determine format from current manual file extension, default to v3
+        $format = 'php';
+        if ($manualFile && \str_ends_with($manualFile, '.sqlite')) {
+            $format = 'sqlite';
+        }
+
+        $interval = $always ? ManualUpdater\Checker::ALWAYS : $this->getUpdateManualCheck();
+        switch ($interval) {
+            case ManualUpdater\Checker::ALWAYS:
+                // Use GH CLI if available, otherwise GitHub API
+                if (\shell_exec('which gh 2>/dev/null')) {
+                    return new ManualUpdater\GhChecker($lang, $format, $currentVersion, $currentLang);
+                }
+
+                return new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
+
+            case ManualUpdater\Checker::DAILY:
+            case ManualUpdater\Checker::WEEKLY:
+            case ManualUpdater\Checker::MONTHLY:
+                $checkFile = $this->getManualUpdateCheckCacheFile();
+                if ($checkFile === false) {
+                    return null; // No writable cache file
+                }
+
+                // Create base checker (GH CLI or GitHub API)
+                if (\shell_exec('which gh 2>/dev/null')) {
+                    $baseChecker = new ManualUpdater\GhChecker($lang, $format, $currentVersion, $currentLang);
+                } else {
+                    $baseChecker = new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
+                }
+
+                return new ManualUpdater\IntervalChecker($baseChecker, $checkFile, $interval);
+
+            case ManualUpdater\Checker::NEVER:
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Get a cache file path for the manual update checker.
+     *
+     * @return string|false Return false if config file/directory is not writable
+     */
+    public function getManualUpdateCheckCacheFile()
+    {
+        $configDir = $this->configPaths->currentConfigDir();
+        if ($configDir === null) {
+            return false;
+        }
+
+        return ConfigPaths::touchFileWithMkdir($configDir.'/manual_update_check.json');
+    }
+
+    /**
+     * Get the manual installation directory path.
+     *
+     * @return string|false Return false if data directory is not writable
+     */
+    public function getManualInstallDir()
+    {
+        $dataDir = $this->configPaths->currentDataDir();
+        if ($dataDir === null) {
+            return false;
+        }
+
+        if (!ConfigPaths::ensureDir($dataDir)) {
+            return false;
+        }
+
+        return $dataDir;
     }
 
     /**

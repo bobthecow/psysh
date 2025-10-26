@@ -185,6 +185,32 @@ class ConfigPaths
     }
 
     /**
+     * Get the current home data directory.
+     *
+     * Returns the highest precedence home data directory which actually
+     * exists and is writable. If none of them exists, returns the highest
+     * precedence home data directory.
+     */
+    public function currentDataDir(): ?string
+    {
+        if ($this->dataDir !== null) {
+            return $this->dataDir;
+        }
+
+        $dataDirs = $this->dataDirs();
+
+        // Find first writable directory
+        foreach ($dataDirs as $dir) {
+            if (@\is_dir($dir) && @\is_writable($dir)) {
+                return $dir;
+            }
+        }
+
+        // Return first (user) directory even if it doesn't exist yet
+        return $dataDirs[0] ?? null;
+    }
+
+    /**
      * Find real data files in config directories.
      *
      * @param string[] $names Config file names

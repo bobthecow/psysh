@@ -13,6 +13,7 @@ namespace Psy;
 
 use Psy\Exception\BreakException;
 use Psy\ExecutionLoop\ProcessForker;
+use Psy\ManualUpdater\ManualUpdate;
 use Psy\Util\DependencyChecker;
 use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\Installer;
@@ -456,6 +457,7 @@ if (!\function_exists('Psy\\bin')) {
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
                     new InputOption('self-update', 'u', InputOption::VALUE_NONE),
+                    new InputOption('update-manual', null, InputOption::VALUE_OPTIONAL, '', false),
                     new InputOption('info', null, InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
@@ -509,6 +511,7 @@ $version
   <info>-h, --help</info>              Display this help message
       <info>--info</info>              Display PsySH environment and configuration info
   <info>-V, --version</info>           Display the PsySH version{$selfUpdateOption}
+      <info>--update-manual[=LANG]</info> Download and install the latest PHP manual (optional language code)
 
       <info>--warm-autoload</info>     Enable autoload warming for better tab completion
       <info>--yolo</info>              Run PsySH without input validation (you don't want this)
@@ -575,6 +578,13 @@ EOL;
                 }
                 $selfUpdate = new SelfUpdate(new GitHubChecker(), new Installer());
                 $result = $selfUpdate->run($input, $config->getOutput());
+                exit($result);
+            }
+
+            // Handle --update-manual
+            if ($input->getOption('update-manual') !== false) {
+                $manualUpdate = ManualUpdate::fromConfig($config, $input);
+                $result = $manualUpdate->run($input, $config->getOutput());
                 exit($result);
             }
 

@@ -437,6 +437,7 @@ class Shell extends Application
 
         $this->output->writeln($this->getHeader());
         $this->writeVersionInfo();
+        $this->writeManualUpdateInfo();
         $this->writeStartupMessage();
 
         try {
@@ -473,6 +474,7 @@ class Shell extends Application
         if (!$rawOutput && !$this->config->outputIsPiped()) {
             $this->output->writeln($this->getHeader());
             $this->writeVersionInfo();
+            $this->writeManualUpdateInfo();
             $this->writeStartupMessage();
         }
 
@@ -1774,6 +1776,25 @@ class Shell extends Application
             }
         } catch (\InvalidArgumentException $e) {
             $this->output->writeln($e->getMessage());
+        }
+    }
+
+    /**
+     * Check for manual updates and write notification if available.
+     */
+    protected function writeManualUpdateInfo()
+    {
+        if (\PHP_SAPI !== 'cli') {
+            return;
+        }
+
+        try {
+            $checker = $this->config->getManualChecker();
+            if ($checker && !$checker->isLatest()) {
+                $this->output->writeln(\sprintf('<whisper>New PHP manual is available (latest: %s). Update with `--update-manual`</whisper>', $checker->getLatest()));
+            }
+        } catch (\Exception $e) {
+            // Silently ignore manual update check failures
         }
     }
 
