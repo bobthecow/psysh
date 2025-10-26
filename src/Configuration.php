@@ -15,6 +15,9 @@ use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Formatter\SignatureFormatter;
+use Psy\Manual\ManualInterface;
+use Psy\Manual\V2Manual;
+use Psy\Manual\V3Manual;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Output\Theme;
@@ -130,6 +133,7 @@ class Configuration
     /** @var string|OutputPager|false|null */
     private $pager = null;
     private ?\PDO $manualDb = null;
+    private ?ManualInterface $manual = null;
     private ?Presenter $presenter = null;
     private ?AutoCompleter $autoCompleter = null;
     private ?Checker $checker = null;
@@ -1573,7 +1577,7 @@ class Configuration
         $this->doAddMatchers();
 
         // Configure SignatureFormatter for hyperlinks
-        SignatureFormatter::setManualDb($this->getManualDb());
+        SignatureFormatter::setManual($this->getManual());
     }
 
     /**
@@ -1589,13 +1593,17 @@ class Configuration
         $this->manualDbFile = (string) $filename;
 
         // Reconfigure SignatureFormatter with new manual database
-        SignatureFormatter::setManualDb($this->getManualDb());
+        SignatureFormatter::setManual($this->getManual());
     }
 
     /**
      * Get the current PHP manual database file.
      *
-     * @return string|null Default: '~/.local/share/psysh/php_manual.sqlite'
+     * Searches for manual files in order of preference:
+     *  1. php_manual.php (v3 format)
+     *  2. php_manual.sqlite (v2 format, legacy)
+     *
+     * @return string|null Default: '~/.local/share/psysh/php_manual.*'
      */
     public function getManualDbFile()
     {
@@ -1603,7 +1611,8 @@ class Configuration
             return $this->manualDbFile;
         }
 
-        $files = $this->configPaths->dataFiles(['php_manual.sqlite']);
+        // Prefer v3 format over v2
+        $files = $this->configPaths->dataFiles(['php_manual.php', 'php_manual.sqlite']);
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
                 $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $files), $files[0]);
@@ -1619,13 +1628,15 @@ class Configuration
     /**
      * Get a PHP manual database connection.
      *
+     * @deprecated Use getManual() instead for unified access to all manual formats
+     *
      * @return \PDO|null
      */
     public function getManualDb()
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
-            if ($dbFile !== null && \is_file($dbFile)) {
+            if ($dbFile !== null && \is_file($dbFile) && \str_ends_with($dbFile, '.sqlite')) {
                 try {
                     $this->manualDb = new \PDO('sqlite:'.$dbFile);
                 } catch (\PDOException $e) {
@@ -1639,6 +1650,117 @@ class Configuration
         }
 
         return $this->manualDb;
+    }
+
+    /**
+     * Get a PHP manual instance.
+     *
+     * Automatically detects the manual format and returns the appropriate manual type.
+     * Supports v2 (SQLite) and v3 (PHP) formats.
+     *
+     * @return ManualInterface|null
+     */
+    public function getManual()
+    {
+        if (!isset($this->manual)) {
+            $this->manual = $this->loadManual();
+        }
+
+        return $this->manual;
+    }
+
+    /**
+     * Load manual from filesystem or bundled Phar, preferring newest English version.
+     *
+     * Priority:
+     *  1. Explicit config: if user configured a specific file, use it
+     *  2. Local non-English: user downloaded a specific language
+     *  3. Newest English: compare local vs bundled
+     *
+     * @return ManualInterface|null
+     */
+    private function loadManual()
+    {
+        // Priority 1: If user explicitly configured a manual file, use it
+        if (isset($this->manualDbFile)) {
+            $manual = $this->loadManualFromFile($this->manualDbFile);
+            if ($manual !== null) {
+                return $manual;
+            }
+        }
+
+        // Check filesystem locations (auto-discovered)
+        $localFile = $this->getManualDbFile();
+        $localManual = null;
+        $localMeta = null;
+
+        if ($localFile !== null && \is_file($localFile)) {
+            $localManual = $this->loadManualFromFile($localFile);
+            if ($localManual !== null) {
+                $localMeta = $localManual->getMeta();
+            }
+        }
+
+        // Check bundled manual in Phar
+        $bundledManual = null;
+        $bundledMeta = null;
+
+        if (\Phar::running(false)) {
+            $bundledFile = 'phar://'.\Phar::running(false).'/php_manual.php';
+            if (\is_file($bundledFile)) {
+                $bundledManual = $this->loadManualFromFile($bundledFile);
+                if ($bundledManual !== null) {
+                    $bundledMeta = $bundledManual->getMeta();
+                }
+            }
+        }
+
+        // Priority 2: If local exists and is not English, use local (user wants that language)
+        // Priority 3: Otherwise, use newest English (compare local vs bundled)
+
+        if ($localManual !== null) {
+            $localLang = $localMeta['lang'] ?? 'en';
+
+            // Non-English local manual takes priority
+            if ($localLang !== 'en') {
+                return $localManual;
+            }
+
+            // Both are English, pick newest
+            $localTimestamp = $localMeta['built_at'] ?? 0;
+            $bundledTimestamp = $bundledMeta['built_at'] ?? 0;
+
+            if ($localTimestamp >= $bundledTimestamp) {
+                return $localManual;
+            } else {
+                return $bundledManual;
+            }
+        }
+
+        // No local manual, use bundled if available
+        return $bundledManual;
+    }
+
+    /**
+     * Load a manual from a file path.
+     *
+     * @param string $file
+     *
+     * @return ManualInterface|null
+     */
+    private function loadManualFromFile(string $file)
+    {
+        // Detect format by extension
+        if (\str_ends_with($file, '.php')) {
+            return new V3Manual($file);
+        } elseif (\str_ends_with($file, '.sqlite')) {
+            // Legacy v2 format
+            if ($db = $this->getManualDb()) {
+                return new V2Manual($db);
+            }
+        }
+
+        return null;
     }
 
     /**

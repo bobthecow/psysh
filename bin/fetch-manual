@@ -1,0 +1,159 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2025 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+// Fetch the latest manual from GitHub releases for bundling in PHAR builds
+
+const RELEASES_URL = 'https://api.github.com/repos/bobthecow/psysh-manual/releases';
+
+function fetchLatestManual(): bool {
+    echo "Fetching latest manual release info...\n";
+
+    $context = stream_context_create([
+        'http' => [
+            'user_agent' => 'PsySH Manual Fetcher',
+            'timeout'    => 10.0,
+        ],
+    ]);
+
+    $result = @file_get_contents(RELEASES_URL, false, $context);
+    if (!$result) {
+        echo "Failed to fetch releases from GitHub\n";
+        return false;
+    }
+
+    $releases = json_decode($result, true);
+    if (!$releases || !is_array($releases)) {
+        echo "Invalid response from GitHub releases API\n";
+        return false;
+    }
+
+    // Find the first release with a manifest
+    foreach ($releases as $release) {
+        $manifest = fetchManifest($release, $context);
+        if ($manifest === null) {
+            continue;
+        }
+
+        // Find English PHP format manual in the manifest
+        foreach ($manifest['manuals'] as $manual) {
+            if ($manual['lang'] === 'en' && $manual['format'] === 'php') {
+                echo "Found manual v{$manual['version']} (en, php format)\n";
+
+                // Find the download URL for the manual
+                $filename = sprintf('psysh-manual-v%s-en.tar.gz', $manual['version']);
+                $downloadUrl = null;
+
+                foreach ($release['assets'] as $asset) {
+                    if ($asset['name'] === $filename) {
+                        $downloadUrl = $asset['browser_download_url'];
+                        break;
+                    }
+                }
+
+                if ($downloadUrl === null) {
+                    echo "Could not find download URL for $filename\n";
+                    return false;
+                }
+
+                // Download and extract the manual
+                return downloadAndExtractManual($downloadUrl, $filename, $context);
+            }
+        }
+    }
+
+    echo "No English PHP manual found in releases\n";
+    return false;
+}
+
+function fetchManifest(array $release, $context): ?array {
+    foreach ($release['assets'] as $asset) {
+        if ($asset['name'] === 'manifest.json') {
+            $manifestContent = @file_get_contents($asset['browser_download_url'], false, $context);
+            if ($manifestContent) {
+                return json_decode($manifestContent, true);
+            }
+        }
+    }
+    return null;
+}
+
+function downloadAndExtractManual(string $downloadUrl, string $filename, $context): bool {
+    echo "Downloading $filename...\n";
+
+    $tempFile = sys_get_temp_dir() . '/' . $filename;
+    $content = @file_get_contents($downloadUrl, false, $context);
+
+    if (!$content) {
+        echo "Failed to download manual\n";
+        return false;
+    }
+
+    if (!file_put_contents($tempFile, $content)) {
+        echo "Failed to save manual to $tempFile\n";
+        return false;
+    }
+
+    echo "Extracting manual...\n";
+
+    // Create temp directory for extraction
+    $tempDir = sys_get_temp_dir() . '/psysh-manual-' . uniqid();
+    if (!mkdir($tempDir)) {
+        echo "Failed to create temp directory\n";
+        unlink($tempFile);
+        return false;
+    }
+
+    try {
+        // Extract using PharData
+        $phar = new PharData($tempFile);
+        $phar->extractTo($tempDir);
+
+        // Find the php_manual.php file
+        $extractedFile = $tempDir . '/php_manual.php';
+        if (!file_exists($extractedFile)) {
+            echo "php_manual.php not found in extracted archive\n";
+            return false;
+        }
+
+        // Copy to current directory
+        if (!copy($extractedFile, 'php_manual.php')) {
+            echo "Failed to copy manual to current directory\n";
+            return false;
+        }
+
+        echo "Successfully fetched manual to php_manual.php\n";
+        return true;
+    } catch (Exception $e) {
+        echo "Failed to extract manual: " . $e->getMessage() . "\n";
+        return false;
+    } finally {
+        // Clean up
+        @unlink($tempFile);
+        removeDirectory($tempDir);
+    }
+}
+
+function removeDirectory(string $dir) {
+    if (!is_dir($dir)) {
+        return;
+    }
+
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        $path = $dir . '/' . $file;
+        is_dir($path) ? removeDirectory($path) : unlink($path);
+    }
+    rmdir($dir);
+}
+
+// Main execution
+exit(fetchLatestManual() ? 0 : 1);

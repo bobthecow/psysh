@@ -80,6 +80,14 @@ build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES)
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
+	@# Fetch and include latest PHP manual
+	@if bin/fetch-manual; then \
+		echo "Including bundled manual..."; \
+		cp php_manual.php $@/; \
+		rm php_manual.php; \
+	else \
+		echo "Manual fetch failed, continuing without bundled manual"; \
+	fi
 	sed -i -e "/^ *const VERSION =/ s/'.*'/'$(VERSION)'/" $@/src/Shell.php
 	composer config --working-dir $@ platform.php 7.4
 	composer require --working-dir $@ $(COMPOSER_REQUIRE_OPTS) php:'>=7.4'

@@ -1710,6 +1710,16 @@ class Shell extends Application
     }
 
     /**
+     * Get a PHP manual loader.
+     *
+     * @return Manual\ManualInterface|null
+     */
+    public function getManual()
+    {
+        return $this->config->getManual();
+    }
+
+    /**
      * Initialize tab completion matchers.
      *
      * If tab completion is enabled this adds tab completion matchers to the

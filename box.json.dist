@@ -1,6 +1,9 @@
 {
     "stub": "stub",
     "output": "psysh",
+    "files-bin": [
+        "php_manual.php"
+    ],
     "compactors": [
         "KevinGH\\Box\\Compactor\\Php",
         "KevinGH\\Box\\Compactor\\PhpScoper"
