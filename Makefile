@@ -13,7 +13,7 @@ endif
 
 # Commands
 
-.PHONY: help build clean dist test smoketest phpstan
+.PHONY: help build clean dist test test-phar smoketest phpstan
 .DEFAULT_GOAL := help
 
 help:
@@ -34,6 +34,18 @@ dist: dist/psysh-$(VERSION).tar.gz
 test: ## Run unit tests
 test: vendor/bin/phpunit
 	$< $(PHPUNIT_OPTS)
+
+test-phar: ## Run unit tests with PHAR bootstrap
+test-phar: build/psysh/psysh
+	$(eval PHAR_TEST_DIR := $(shell mktemp -d))
+	@echo "Setting up isolated test environment in $(PHAR_TEST_DIR)..."
+	@cp -r test $(PHAR_TEST_DIR)/
+	@cp $< $(PHAR_TEST_DIR)/
+	@cd $(PHAR_TEST_DIR) && \
+		COMPOSER_ROOT_VERSION=1.0.0 composer init --no-interaction --name=psy/test --autoload=test/ 2>&1 | grep -v "PSR-4" || true && \
+		COMPOSER_ROOT_VERSION=1.0.0 composer require --no-interaction --no-progress "phpunit/phpunit:^9.6" 2>&1 | grep -v "locking\|Extracting" | head -3 || true && \
+		vendor/bin/phpunit --bootstrap psysh --exclude-group isolation-fail test/
+	@rm -rf $(PHAR_TEST_DIR)
 
 smoketest: ## Run smoke tests on existing binaries
 smoketest: build/psysh/psysh
