@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\ConfigPaths;
 use Psy\Input\FilterOptions;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Readline;
@@ -125,7 +126,7 @@ HELP
         }
 
         if ($save = $input->getOption('save')) {
-            $output->writeln(\sprintf('Saving history in %s...', $save));
+            $output->writeln(\sprintf('Saving history in %s...', ConfigPaths::prettyPath($save)));
             \file_put_contents($save, \implode(\PHP_EOL, $history).\PHP_EOL);
             $output->writeln('<info>History saved.</info>');
         } elseif ($input->getOption('replay')) {

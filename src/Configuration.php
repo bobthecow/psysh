@@ -453,7 +453,8 @@ class Configuration
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode(', ', $files), $files[0]);
+                $prettyFiles = \array_map([ConfigPaths::class, 'prettyPath'], $files);
+                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode(', ', $prettyFiles), $prettyFiles[0]);
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 
@@ -534,7 +535,7 @@ class Configuration
     public function loadConfigFile(string $file)
     {
         if (!\is_file($file)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid configuration file specified, %s does not exist', $file));
+            throw new \InvalidArgumentException(\sprintf('Invalid configuration file specified, %s does not exist', ConfigPaths::prettyPath($file)));
         }
 
         $__psysh_config_file__ = $file;
@@ -692,7 +693,8 @@ class Configuration
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode(', ', $files), $files[0]);
+                $prettyFiles = \array_map([ConfigPaths::class, 'prettyPath'], $files);
+                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode(', ', $prettyFiles), $prettyFiles[0]);
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 
@@ -1617,7 +1619,8 @@ class Configuration
         $files = $this->configPaths->dataFiles(['php_manual.php', 'php_manual.sqlite']);
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $files), $files[0]);
+                $prettyFiles = \array_map([ConfigPaths::class, 'prettyPath'], $files);
+                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $prettyFiles), $prettyFiles[0]);
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 

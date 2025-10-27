@@ -11,6 +11,7 @@
 
 namespace Psy\ManualUpdater;
 
+use Psy\ConfigPaths;
 use Psy\Configuration;
 use Psy\Exception\ErrorException;
 use Psy\VersionUpdater\Downloader;
@@ -167,7 +168,7 @@ class ManualUpdate
         // Clean up downloaded file
         $downloader->cleanup();
 
-        $installPath = $this->installer->getInstallPath();
+        $installPath = ConfigPaths::prettyPath($this->installer->getInstallPath());
         $output->writeln("Installed manual v{$latestVersion} to <info>{$installPath}</info>");
 
         return self::SUCCESS;

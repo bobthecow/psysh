@@ -214,4 +214,177 @@ class ConfigPathsTest extends TestCase
         $this->assertNull($paths->which('bar'));
         $this->assertNull($paths->which('baz'));
     }
+
+    /**
+     * @dataProvider prettyPathProvider
+     */
+    public function testPrettyPath($path, $expected, $relativeTo, $homeDir)
+    {
+        $result = ConfigPaths::prettyPath($path, $relativeTo, $homeDir);
+        $this->assertSame($expected, $result);
+    }
+
+    public function prettyPathProvider()
+    {
+        return [
+            // Non-string inputs
+            'non-string: false' => [false, false, null, null],
+            'non-string: null'  => [null, null, null, null],
+            'non-string: int'   => [42, 42, null, null],
+
+            // Unix/Linux/macOS: Current directory relative (relativeTo takes priority)
+            'relative to cwd' => [
+                '/home/user/project/foo.php',
+                './foo.php',
+                '/home/user/project',
+                '/home/user',
+            ],
+            'relative to cwd nested' => [
+                '/home/user/project/src/Bar.php',
+                './src/Bar.php',
+                '/home/user/project',
+                '/home/user',
+            ],
+            'relative to cwd with trailing slash' => [
+                '/home/user/project/foo.php',
+                './foo.php',
+                '/home/user/project/',
+                '/home/user',
+            ],
+
+            // Unix/Linux/macOS: Home directory relative (when not in relativeTo)
+            'home relative file' => [
+                '/home/user/foo.php',
+                '~/foo.php',
+                '/tmp',
+                '/home/user',
+            ],
+            'home relative nested' => [
+                '/home/user/.config/psysh/config.php',
+                '~/.config/psysh/config.php',
+                '/tmp',
+                '/home/user',
+            ],
+            'home with trailing slash' => [
+                '/home/user/foo.php',
+                '~/foo.php',
+                '/tmp',
+                '/home/user/',
+            ],
+
+            // Priority: relativeTo over home (both would match)
+            'relativeTo priority over home' => [
+                '/home/user/project/foo.php',
+                './foo.php',
+                '/home/user/project',
+                '/home/user',
+            ],
+
+            // Global system paths (no replacement)
+            'system path /usr' => [
+                '/usr/local/share/psysh/manual.sqlite',
+                '/usr/local/share/psysh/manual.sqlite',
+                '/home/user/project',
+                '/home/user',
+            ],
+            'system path /var' => [
+                '/var/log/app.log',
+                '/var/log/app.log',
+                '/home/user',
+                '/home/user',
+            ],
+            'system path /etc' => [
+                '/etc/psysh/config.php',
+                '/etc/psysh/config.php',
+                '/home/user',
+                '/home/user',
+            ],
+
+            // Edge cases
+            'root home' => [
+                '/root/.config/psysh/config.php',
+                '~/.config/psysh/config.php',
+                '/tmp',
+                '/root',
+            ],
+            'home is root' => [
+                '/foo.php',
+                '/foo.php',
+                '/tmp',
+                '/',
+            ],
+            'relativeTo is home' => [
+                '/home/user/foo.php',
+                './foo.php',
+                '/home/user',
+                '/home/user',
+            ],
+
+            // Windows paths (forward slashes)
+            'windows relative to cwd C drive' => [
+                'C:/Users/user/project/foo.php',
+                './foo.php',
+                'C:/Users/user/project',
+                'C:/Users/user',
+            ],
+            'windows home relative' => [
+                'C:/Users/user/Documents/foo.php',
+                '~/Documents/foo.php',
+                'C:/temp',
+                'C:/Users/user',
+            ],
+            'windows system path' => [
+                'C:/Program Files/PHP/php.exe',
+                'C:/Program Files/PHP/php.exe',
+                'C:/Users/user/project',
+                'C:/Users/user',
+            ],
+            'windows D drive not relative' => [
+                'D:/data/file.php',
+                'D:/data/file.php',
+                'C:/Users/user/project',
+                'C:/Users/user',
+            ],
+
+            // Windows paths (backslashes normalized to forward slashes)
+            'windows backslash relative to cwd' => [
+                'C:\\Users\\user\\project\\foo.php',
+                './foo.php',
+                'C:\\Users\\user\\project',
+                'C:\\Users\\user',
+            ],
+            'windows backslash home relative' => [
+                'C:\\Users\\user\\Documents\\foo.php',
+                '~/Documents/foo.php',
+                'C:\\temp',
+                'C:\\Users\\user',
+            ],
+            'windows backslash system path' => [
+                'C:\\Windows\\System32\\php.exe',
+                'C:/Windows/System32/php.exe',
+                'C:\\Users\\user\\project',
+                'C:\\Users\\user',
+            ],
+            'windows backslash mixed with forward slash relativeTo' => [
+                'C:\\Users\\user\\project\\foo.php',
+                './foo.php',
+                'C:/Users/user/project',
+                'C:/Users/user',
+            ],
+
+            // Null parameters (use defaults from environment)
+            'null relativeTo uses cwd' => [
+                \getcwd().'/foo.php',
+                './foo.php',
+                null,
+                '/home/user',
+            ],
+            'null homeDir uses actual home' => [
+                (\getenv('HOME') ?: '/home/user').'/foo.php',
+                '~/foo.php',
+                '/tmp',
+                null,
+            ],
+        ];
+    }
 }

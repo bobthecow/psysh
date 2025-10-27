@@ -141,22 +141,6 @@ if (!\function_exists('Psy\\info')) {
             return null;
         }
 
-        $prettyPath = function ($path) {
-            return $path;
-        };
-
-        $homeDir = (new ConfigPaths())->homeDir();
-        if ($homeDir && $homeDir = \rtrim($homeDir, '/')) {
-            $homePattern = '#^'.\preg_quote($homeDir, '#').'/#';
-            $prettyPath = function ($path) use ($homePattern) {
-                if (\is_string($path)) {
-                    return \preg_replace($homePattern, '~/', $path);
-                } else {
-                    return $path;
-                }
-            };
-        }
-
         $config = $lastConfig ?: new Configuration();
         $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;
         if ($configEnv === false && \PHP_SAPI === 'cli-server') {
@@ -175,9 +159,9 @@ if (!\function_exists('Psy\\info')) {
             'strict types'        => $config->strictTypes(),
             'error logging level' => $config->errorLoggingLevel(),
             'config file'         => [
-                'default config file' => $prettyPath($config->getConfigFile()),
-                'local config file'   => $prettyPath($config->getLocalConfigFile()),
-                'PSYSH_CONFIG env'    => $prettyPath($configEnv),
+                'default config file' => ConfigPaths::prettyPath($config->getConfigFile()),
+                'local config file'   => ConfigPaths::prettyPath($config->getLocalConfigFile()),
+                'PSYSH_CONFIG env'    => ConfigPaths::prettyPath($configEnv),
             ],
             // 'config dir'  => $config->getConfigDir(),
             // 'data dir'    => $config->getDataDir(),
@@ -198,7 +182,7 @@ if (!\function_exists('Psy\\info')) {
             'update available'       => $updateAvailable,
             'latest release version' => $latest,
             'update check interval'  => $config->getUpdateCheck(),
-            'update cache file'      => $prettyPath($config->getUpdateCheckCacheFile()),
+            'update cache file'      => ConfigPaths::prettyPath($config->getUpdateCheckCacheFile()),
         ];
 
         $input = [
@@ -262,7 +246,7 @@ if (!\function_exists('Psy\\info')) {
         $pcntl['use pcntl'] = $config->usePcntl();
 
         $history = [
-            'history file'     => $prettyPath($config->getHistoryFile()),
+            'history file'     => ConfigPaths::prettyPath($config->getHistoryFile()),
             'history size'     => $config->getHistorySize(),
             'erase duplicates' => $config->getEraseDuplicates(),
         ];
@@ -277,7 +261,7 @@ if (!\function_exists('Psy\\info')) {
             ];
         } else {
             $docs = [
-                'manual db file' => $prettyPath($manualDbFile),
+                'manual db file' => ConfigPaths::prettyPath($manualDbFile),
             ];
         }
 
