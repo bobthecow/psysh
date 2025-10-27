@@ -2208,11 +2208,6 @@ class Configuration
         $interval = $always ? ManualUpdater\Checker::ALWAYS : $this->getUpdateManualCheck();
         switch ($interval) {
             case ManualUpdater\Checker::ALWAYS:
-                // Use GH CLI if available, otherwise GitHub API
-                if (\shell_exec('which gh 2>/dev/null')) {
-                    return new ManualUpdater\GhChecker($lang, $format, $currentVersion, $currentLang);
-                }
-
                 return new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
 
             case ManualUpdater\Checker::DAILY:
@@ -2223,12 +2218,7 @@ class Configuration
                     return null; // No writable cache file
                 }
 
-                // Create base checker (GH CLI or GitHub API)
-                if (\shell_exec('which gh 2>/dev/null')) {
-                    $baseChecker = new ManualUpdater\GhChecker($lang, $format, $currentVersion, $currentLang);
-                } else {
-                    $baseChecker = new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
-                }
+                $baseChecker = new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
 
                 return new ManualUpdater\IntervalChecker($baseChecker, $checkFile, $interval);
 

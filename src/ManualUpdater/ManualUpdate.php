@@ -78,14 +78,8 @@ class ManualUpdate
         }
 
         $installer = new Installer($dataDir, $format);
-        $manualUpdate = new self($checker, $installer);
 
-        // If using GH CLI, set the custom downloader
-        if ($checker instanceof GhChecker || ($checker instanceof IntervalChecker && \shell_exec('which gh 2>/dev/null'))) {
-            $manualUpdate->setDownloader(new GhDownloader());
-        }
-
-        return $manualUpdate;
+        return new self($checker, $installer);
     }
 
     /**
