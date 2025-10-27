@@ -26,7 +26,6 @@
     "suggest": {
         "ext-pcntl": "Enabling the PCNTL extension makes PsySH a lot happier :)",
         "ext-posix": "If you have PCNTL, you'll want the POSIX extension as well.",
-        "ext-pdo-sqlite": "The doc command requires SQLite to work.",
         "composer/class-map-generator": "Improved tab completion performance with better class discovery."
     },
     "autoload": {
