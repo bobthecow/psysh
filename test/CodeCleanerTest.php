@@ -181,4 +181,56 @@ class CodeCleanerTest extends TestCase
         $this->assertTrue($cc->codeLooksLikeAction(['namespace Foo; $obj->setName("test")']));
         $this->assertFalse($cc->codeLooksLikeAction(['namespace Foo; $obj->getName()']));
     }
+
+    public function testNamespaceReEntryResetsUseStatements()
+    {
+        $cc = new CodeCleaner();
+
+        // Enter namespace A and add a use statement
+        $cc->clean(['namespace A;']);
+        $cc->clean(['use StdClass as Foo;']);
+
+        // Re-enter namespace A - should clear previous use statements
+        $cc->clean(['namespace A;']);
+
+        // Should be able to use same alias for a different class
+        $result = $cc->clean(['use DateTime as Foo;']);
+        $this->assertNotFalse($result);
+        $this->assertStringContainsString('DateTime', $result);
+    }
+
+    public function testGlobalNamespaceReEntryResetsUseStatements()
+    {
+        $cc = new CodeCleaner();
+
+        // Add use statement in global namespace
+        $cc->clean(['use StdClass as Bar;']);
+
+        // Enter braced global namespace - should clear previous use statements
+        $cc->clean(['namespace {}']);
+
+        // Should be able to use same alias for a different class
+        $result = $cc->clean(['use DateTime as Bar;']);
+        $this->assertNotFalse($result);
+        $this->assertStringContainsString('DateTime', $result);
+    }
+
+    public function testUseStatementsPersistWithinNamespace()
+    {
+        $cc = new CodeCleaner();
+
+        // Enter namespace and add use statement
+        $cc->clean(['namespace Foo;']);
+        $cc->clean(['use StdClass as Bar;']);
+
+        // Execute code without namespace declaration - use statement should persist
+        // and code should be wrapped in the namespace
+        $result = $cc->clean(['$x = new Bar();']);
+        $this->assertNotFalse($result);
+        $this->assertStringContainsString('namespace Foo', $result);
+
+        // The use statement should persist for resolveClassName
+        $resolved = $cc->resolveClassName('Bar');
+        $this->assertSame('\\StdClass', $resolved);
+    }
 }

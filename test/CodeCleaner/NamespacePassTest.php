@@ -27,7 +27,9 @@ class NamespacePassTest extends CodeCleanerTestCase
     public function getReady()
     {
         $this->cleaner = new CodeCleaner();
-        $this->setPass(new NamespacePass($this->cleaner));
+        $pass = new NamespacePass();
+        $pass->setCleaner($this->cleaner);
+        $this->setPass($pass);
     }
 
     public function testProcess()
