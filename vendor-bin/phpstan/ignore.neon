@@ -19,7 +19,6 @@ parameters:
     # PHP8.0 introduced second argument for
     - "#^Class IteratorIterator constructor invoked with 2 parameters, 1 required\\.$#"
     # Backwards-compatiblity with PHP-Parser 4.x
-    - "#^Class PhpParser\\\\Node\\\\Stmt\\\\UseItem not found\\.$#"
     - "#^Access to undefined constant PhpParser\\\\ParserFactory::PREFER_PHP7\\.$#"
     # Symfony Console method compatibility - wide version support (3.4 - 7.x)
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setVerticalBorderChar\\(\\)\\.$#"
@@ -32,6 +31,7 @@ parameters:
     # PHP-Parser property access: backwards compatibility with 4.x (uses ->parts fallback via getParts() method)
     - message: "#^Access to an undefined property PhpParser\\\\Node\\\\Name::\\$parts\\.$#"
       paths:
+        - ../../src/CodeCleaner.php
         - ../../src/CodeCleaner/ImplicitUsePass.php
         - ../../src/CodeCleaner/NamespaceAwarePass.php
         - ../../src/CodeCleaner/NamespacePass.php

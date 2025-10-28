@@ -33,6 +33,8 @@ class NamespacePass extends NamespaceAwarePass
      * @deprecated use cleaner instance from NamespaceAwarePass
      *
      * @param ?CodeCleaner $cleaner
+     *
+     * @phpstan-ignore-next-line method.unused
      */
     public function __construct(?CodeCleaner $cleaner = null)
     {
