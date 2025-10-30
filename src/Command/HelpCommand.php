@@ -12,6 +12,7 @@
 namespace Psy\Command;
 
 use Psy\Output\ShellOutput;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -63,7 +64,21 @@ class HelpCommand extends Command
             $this->command = null;
         } elseif ($name = $input->getArgument('command_name')) {
             // help for an individual command
-            $output->page($this->getApplication()->get($name)->asText());
+            try {
+                $cmd = $this->getApplication()->get($name);
+            } catch (CommandNotFoundException $e) {
+                $this->getShell()->writeException($e);
+                $output->writeln('');
+                $output->writeln(\sprintf(
+                    '<aside>To read PHP documentation, use <return>doc %s</return></aside>',
+                    $name
+                ));
+                $output->writeln('');
+
+                return 1;
+            }
+
+            $output->page($cmd->asText());
         } else {
             // list available commands
             $commands = $this->getApplication()->all();
