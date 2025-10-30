@@ -111,11 +111,31 @@ HELP
         $code = $input->getArgument('code');
         $depth = $input->getOption('depth');
 
-        $nodes = $this->parser->parse($code);
+        if (!\preg_match('/^\s*<\\?/', $code)) {
+            $code = '<?php '.$code;
+        }
+
+        try {
+            $nodes = $this->parser->parse($code);
+        } catch (\PhpParser\Error $e) {
+            if ($this->parseErrorIsEOF($e)) {
+                $nodes = $this->parser->parse($code.';');
+            } else {
+                throw $e;
+            }
+        }
+
         $output->page($this->presenter->present($nodes, $depth));
 
         $this->context->setReturnValue($nodes);
 
         return 0;
+    }
+
+    private function parseErrorIsEOF(\PhpParser\Error $e): bool
+    {
+        $msg = $e->getRawMessage();
+
+        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }
