@@ -12,6 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\DeprecatedException;
+use Psy\Exception\InvalidManualException;
 use Psy\Exception\RuntimeException;
 use Psy\ExecutionLoop\ExecutionLoggingListener;
 use Psy\ExecutionLoop\InputLoggingListener;
@@ -1760,7 +1761,12 @@ class Configuration
         $this->manualDbFile = (string) $filename;
 
         // Reconfigure SignatureFormatter with new manual database
-        SignatureFormatter::setManual($this->getManual());
+        try {
+            SignatureFormatter::setManual($this->getManual());
+        } catch (InvalidManualException $e) {
+            // Show user-friendly error for invalid explicitly configured manual
+            throw new \InvalidArgumentException($e->getMessage(), 0, $e);
+        }
     }
 
     /**
@@ -1807,11 +1813,17 @@ class Configuration
             if ($dbFile !== null && \is_file($dbFile) && \str_ends_with($dbFile, '.sqlite')) {
                 try {
                     $this->manualDb = new \PDO('sqlite:'.$dbFile);
+
+                    // Validate the database has the required structure
+                    $result = $this->manualDb->query("SELECT name FROM sqlite_master WHERE type='table' AND name='php_manual'");
+                    if ($result === false || $result->fetchColumn() === false) {
+                        throw new InvalidManualException('Manual database is missing required tables', $dbFile);
+                    }
                 } catch (\PDOException $e) {
                     if ($e->getMessage() === 'could not find driver') {
                         throw new RuntimeException('SQLite PDO driver not found', 0, $e);
                     } else {
-                        throw $e;
+                        throw new InvalidManualException('Invalid SQLite manual database: '.$e->getMessage(), $dbFile, 0, $e);
                     }
                 }
             }
@@ -1863,9 +1875,13 @@ class Configuration
         $localMeta = null;
 
         if ($localFile !== null && \is_file($localFile)) {
-            $localManual = $this->loadManualFromFile($localFile);
-            if ($localManual !== null) {
-                $localMeta = $localManual->getMeta();
+            try {
+                $localManual = $this->loadManualFromFile($localFile);
+                if ($localManual !== null) {
+                    $localMeta = $localManual->getMeta();
+                }
+            } catch (InvalidManualException $e) {
+                // Auto-discovered file is invalid - fall back to bundled
             }
         }
 
@@ -1915,6 +1931,8 @@ class Configuration
      * @param string $file
      *
      * @return ManualInterface|null
+     *
+     * @throws InvalidManualException if manual file is invalid
      */
     private function loadManualFromFile(string $file)
     {

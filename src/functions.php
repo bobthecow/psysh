@@ -12,6 +12,7 @@
 namespace Psy;
 
 use Psy\Exception\BreakException;
+use Psy\Exception\InvalidManualException;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ManualUpdater\ManualUpdate;
 use Psy\Util\DependencyChecker;
@@ -252,7 +253,14 @@ if (!\function_exists('Psy\\info')) {
         ];
 
         $manualDbFile = $config->getManualDbFile();
-        $manual = $config->getManual();
+        $manual = null;
+        $manualError = null;
+
+        try {
+            $manual = $config->getManual();
+        } catch (InvalidManualException $e) {
+            $manualError = $e->getMessage();
+        }
 
         // If we have a manual but no db file path, it's bundled in the PHAR
         if ($manual && !$manualDbFile && \Phar::running(false)) {
@@ -265,7 +273,9 @@ if (!\function_exists('Psy\\info')) {
             ];
         }
 
-        if ($manual) {
+        if ($manualError) {
+            $docs['manual error'] = $manualError;
+        } elseif ($manual) {
             $meta = $manual->getMeta();
 
             foreach ($meta as $key => $val) {
@@ -567,9 +577,14 @@ EOL;
 
             // Handle --update-manual
             if ($input->getOption('update-manual') !== false) {
-                $manualUpdate = ManualUpdate::fromConfig($config, $input);
-                $result = $manualUpdate->run($input, $config->getOutput());
-                exit($result);
+                try {
+                    $manualUpdate = ManualUpdate::fromConfig($config, $input, $config->getOutput());
+                    $result = $manualUpdate->run($input, $config->getOutput());
+                    exit($result);
+                } catch (\RuntimeException $e) {
+                    \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
+                    exit(1);
+                }
             }
 
             $shell = new Shell($config);

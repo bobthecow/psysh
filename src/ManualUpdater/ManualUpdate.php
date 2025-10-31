@@ -14,9 +14,12 @@ namespace Psy\ManualUpdater;
 use Psy\ConfigPaths;
 use Psy\Configuration;
 use Psy\Exception\ErrorException;
+use Psy\Exception\InvalidManualException;
 use Psy\VersionUpdater\Downloader;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Manual update command.
@@ -41,12 +44,13 @@ class ManualUpdate
     /**
      * Create a ManualUpdate instance from Configuration and command-line input.
      *
-     * @param Configuration  $config Configuration instance
-     * @param InputInterface $input  Input interface
+     * @param Configuration   $config Configuration instance
+     * @param InputInterface  $input  Input interface
+     * @param OutputInterface $output Output interface
      *
      * @return self
      */
-    public static function fromConfig(Configuration $config, InputInterface $input): self
+    public static function fromConfig(Configuration $config, InputInterface $input, OutputInterface $output): self
     {
         // Determine language from command line option (or use current/default)
         $lang = $input->getOption('update-manual') ?: null;
@@ -55,6 +59,22 @@ class ManualUpdate
         $cacheFile = $config->getManualUpdateCheckCacheFile();
         if ($cacheFile && \file_exists($cacheFile)) {
             @\unlink($cacheFile);
+        }
+
+        // Get current manual language before we potentially delete the file
+        $currentLang = null;
+        $manualFile = $config->getManualDbFile();
+        if ($manualFile && \file_exists($manualFile)) {
+            try {
+                $manual = $config->getManual();
+                if ($manual) {
+                    $currentMeta = $manual->getMeta();
+                    $currentLang = $currentMeta['lang'] ?? null;
+                }
+            } catch (InvalidManualException $e) {
+                // Handle invalid manual file if detected
+                self::handleInvalidManual($e, $input, $output);
+            }
         }
 
         // Get checker (force immediate check for explicit --update-manual command)
@@ -71,10 +91,17 @@ class ManualUpdate
         }
 
         // Determine format from current manual file extension, default to v3
-        $manualFile = $config->getManualDbFile();
         $format = 'php';
         if ($manualFile && \str_ends_with($manualFile, '.sqlite')) {
-            $format = 'sqlite';
+            // Prompt to migrate from legacy SQLite format to new PHP format
+            if (self::promptMigrateToV3($input, $output, $manualFile)) {
+                $format = 'php';
+                // Recreate checker for PHP format, preserving language preference
+                $migrateLang = $lang ?: $currentLang ?: 'en';
+                $checker = new GitHubChecker($migrateLang, 'php', null, null);
+            } else {
+                $format = 'sqlite';
+            }
         }
 
         $installer = new Installer($dataDir, $format);
@@ -166,5 +193,66 @@ class ManualUpdate
         $output->writeln("Installed manual v{$latestVersion} to <info>{$installPath}</info>");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Handle an invalid manual file by prompting the user to remove it.
+     *
+     * @param InvalidManualException $e      The exception containing invalid manual details
+     * @param InputInterface         $input  Input interface
+     * @param OutputInterface        $output Output interface
+     *
+     * @throws \RuntimeException if user declines to remove the file or removal fails
+     */
+    private static function handleInvalidManual(InvalidManualException $e, InputInterface $input, OutputInterface $output): void
+    {
+        $prettyPath = ConfigPaths::prettyPath($e->getManualFile());
+        $output->writeln(\sprintf('<error>Invalid manual file detected:</error> <info>%s</info>', $prettyPath));
+        $output->writeln('');
+
+        $helper = new QuestionHelper();
+        $question = new ConfirmationQuestion('Remove this file and continue? [Y/n] ', true);
+
+        if (!$helper->ask($input, $output, $question)) {
+            throw new \RuntimeException('Manual update cancelled.');
+        }
+
+        if (!\unlink($e->getManualFile())) {
+            throw new \RuntimeException(\sprintf('Failed to remove file: %s', $prettyPath));
+        }
+
+        $output->writeln('<info>Invalid manual file removed.</info>');
+        $output->writeln('');
+    }
+
+    /**
+     * Prompt user to migrate from legacy SQLite format to new PHP format.
+     *
+     * @param InputInterface  $input      Input interface
+     * @param OutputInterface $output     Output interface
+     * @param string          $manualFile Path to current SQLite manual file
+     *
+     * @return bool True if user wants to migrate, false to keep SQLite format
+     */
+    private static function promptMigrateToV3(InputInterface $input, OutputInterface $output, string $manualFile): bool
+    {
+        $prettyPath = ConfigPaths::prettyPath($manualFile);
+        $output->writeln(\sprintf('You have a legacy SQLite manual: <info>%s</info>', $prettyPath));
+        $output->writeln('');
+
+        $helper = new QuestionHelper();
+        $question = new ConfirmationQuestion('Migrate to the new PHP format? [Y/n] ', true);
+
+        if ($helper->ask($input, $output, $question)) {
+            // Remove the old SQLite file if it still exists
+            if (\file_exists($manualFile) && \unlink($manualFile)) {
+                $output->writeln('<info>Legacy manual removed.</info>');
+                $output->writeln('');
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

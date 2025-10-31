@@ -11,6 +11,8 @@
 
 namespace Psy\Manual;
 
+use Psy\Exception\InvalidManualException;
+
 /**
  * V3 manual format loader.
  *
@@ -31,7 +33,7 @@ class V3Manual implements ManualInterface
      *
      * @param string $filePath Path to the PHP manual file
      *
-     * @throws \InvalidArgumentException if file doesn't return a valid manual data object
+     * @throws InvalidManualException if file doesn't return a valid manual data object
      */
     public function __construct(string $filePath)
     {
@@ -40,19 +42,25 @@ class V3Manual implements ManualInterface
         if (isset(self::$cache[$filePath])) {
             $data = self::$cache[$filePath];
         } else {
-            $data = require $filePath;
+            // Suppress output from invalid/corrupted manual files
+            \ob_start();
+            try {
+                $data = require $filePath;
+            } finally {
+                \ob_end_clean();
+            }
             self::$cache[$filePath] = $data;
         }
 
         // Validate that the file returned an object with the expected interface
         if (!\is_object($data)) {
-            throw new \InvalidArgumentException(\sprintf('Manual file "%s" must return an object, got %s', $filePath, \gettype($data)));
+            throw new InvalidManualException(\sprintf('Manual file "%s" must return an object, got %s', $filePath, \gettype($data)), $filePath);
         }
 
         $requiredMethods = ['get', 'getMeta'];
         foreach ($requiredMethods as $method) {
             if (!\method_exists($data, $method)) {
-                throw new \InvalidArgumentException(\sprintf('Manual data object must have a %s() method', $method));
+                throw new InvalidManualException(\sprintf('Manual data object must have a %s() method', $method), $filePath);
             }
         }
 
@@ -60,7 +68,7 @@ class V3Manual implements ManualInterface
         $meta = $data->getMeta();
         if (!isset($meta['version']) || !\preg_match('/^3\./', (string) $meta['version'])) {
             $version = $meta['version'] ?? 'unknown';
-            throw new \InvalidArgumentException(\sprintf('Manual file "%s" must be v3.x format, got version %s', $filePath, $version));
+            throw new InvalidManualException(\sprintf('Manual file "%s" must be v3.x format, got version %s', $filePath, $version), $filePath);
         }
 
         $this->data = $data;

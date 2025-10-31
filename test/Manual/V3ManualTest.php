@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Manual;
 
+use Psy\Exception\InvalidManualException;
 use Psy\Manual\V3Manual;
 use Psy\Test\TestCase;
 
@@ -57,8 +58,30 @@ class V3ManualTest extends TestCase
         $filePath = $this->tempDir.'/invalid_array.php';
         \file_put_contents($filePath, '<?php return ["not" => "an object"];');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidManualException::class);
         $this->expectExceptionMessage('must return an object, got array');
+
+        new V3Manual($filePath);
+    }
+
+    public function testConstructorRejectsInteger()
+    {
+        $filePath = $this->tempDir.'/invalid_integer.php';
+        \file_put_contents($filePath, '<?php return 1;');
+
+        $this->expectException(InvalidManualException::class);
+        $this->expectExceptionMessage('must return an object, got integer');
+
+        new V3Manual($filePath);
+    }
+
+    public function testConstructorRejectsCorruptedFile()
+    {
+        $filePath = $this->tempDir.'/corrupted.php';
+        \file_put_contents($filePath, 'wat');
+
+        $this->expectException(InvalidManualException::class);
+        $this->expectExceptionMessage('must return an object, got integer');
 
         new V3Manual($filePath);
     }
@@ -73,7 +96,7 @@ class ManualDataNoGet {
 return new ManualDataNoGet();';
         \file_put_contents($filePath, $code);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidManualException::class);
         $this->expectExceptionMessage('must have a get() method');
 
         new V3Manual($filePath);
@@ -89,7 +112,7 @@ class ManualDataNoGetMeta {
 return new ManualDataNoGetMeta();';
         \file_put_contents($filePath, $code);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidManualException::class);
         $this->expectExceptionMessage('must have a getMeta() method');
 
         new V3Manual($filePath);
@@ -102,7 +125,7 @@ return new ManualDataNoGetMeta();';
             'language' => 'en',
         ]);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidManualException::class);
         $this->expectExceptionMessage('must be v3.x format, got version 2.0');
 
         new V3Manual($filePath);
@@ -114,7 +137,7 @@ return new ManualDataNoGetMeta();';
             'language' => 'en',
         ]);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidManualException::class);
         $this->expectExceptionMessage('must be v3.x format, got version unknown');
 
         new V3Manual($filePath);
