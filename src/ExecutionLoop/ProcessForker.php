@@ -333,6 +333,7 @@ class ProcessForker extends AbstractListener
             }
 
             // worker didn't exit cleanly, we'll need to have another go
+            // @phan-suppress-next-line PhanPossiblyInfiniteRecursionSameParams - recursion exits via posix_kill above
             $this->createSavegame();
         }
     }

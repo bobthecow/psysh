@@ -129,6 +129,7 @@ class FilterOptions
     {
         \set_error_handler([ErrorException::class, 'throwException']);
         try {
+            // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally testing regex against empty string
             \preg_match($pattern, '');
         } catch (ErrorException $e) {
             throw new RuntimeException(\str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));

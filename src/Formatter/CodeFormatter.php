@@ -83,7 +83,9 @@ class CodeFormatter implements ReflectorFormatter
     public static function format(\Reflector $reflector): string
     {
         if (self::isReflectable($reflector)) {
+            // @phan-suppress-next-line PhanUndeclaredMethod - getFileName/getEndLine exist on ReflectionClass/ReflectionFunctionAbstract
             if ($code = @\file_get_contents($reflector->getFileName())) {
+                // @phan-suppress-next-line PhanUndeclaredMethod - getEndLine exists on ReflectionClass/ReflectionFunctionAbstract
                 return self::formatCode($code, self::getStartLine($reflector), $reflector->getEndLine());
             }
         }

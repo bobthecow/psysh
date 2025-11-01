@@ -13,7 +13,7 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
+use PhpParser\Node\Name; // @phan-suppress-current-line PhanUnreferencedUseNormal - used for type checks
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseItem;

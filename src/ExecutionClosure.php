@@ -28,6 +28,7 @@ class ExecutionClosure
         $this->setClosure($__psysh__, function () use ($__psysh__) {
             try {
                 // Restore execution scope variables
+                // @phan-suppress-next-line PhanTypeNonVarPassByRef assigning to a temp variable pollutes scope
                 \extract($__psysh__->getScopeVariables(false));
 
                 // Buffer stdout; we'll need it later

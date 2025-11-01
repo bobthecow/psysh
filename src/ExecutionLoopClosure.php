@@ -29,6 +29,7 @@ class ExecutionLoopClosure extends ExecutionClosure
     {
         $this->setClosure($__psysh__, function () use ($__psysh__) {
             // Restore execution scope variables
+            // @phan-suppress-next-line PhanTypeNonVarPassByRef assigning to a temp variable pollutes scope
             \extract($__psysh__->getScopeVariables(false));
 
             while (true) {
@@ -40,6 +41,7 @@ class ExecutionLoopClosure extends ExecutionClosure
                     try {
                         // Pull in any new execution scope variables
                         if ($__psysh__->getLastExecSuccess()) {
+                            // @phan-suppress-next-line PhanTypeNonVarPassByRef assigning to a temp variable pollutes scope
                             \extract($__psysh__->getScopeVariablesDiff(\get_defined_vars()));
                         }
 

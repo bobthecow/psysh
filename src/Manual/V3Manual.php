@@ -45,20 +45,24 @@ class V3Manual implements ManualInterface
             // Suppress output from invalid/corrupted manual files
             \ob_start();
             try {
+                /** @var mixed $data */
                 $data = require $filePath;
             } finally {
                 \ob_end_clean();
             }
+            // @phan-suppress-next-line PhanPossiblyUndeclaredVariable $data is always set above
             self::$cache[$filePath] = $data;
         }
 
         // Validate that the file returned an object with the expected interface
+        // @phan-suppress-next-line PhanPossiblyUndeclaredVariable $data is always set above
         if (!\is_object($data)) {
             throw new InvalidManualException(\sprintf('Manual file "%s" must return an object, got %s', $filePath, \gettype($data)), $filePath);
         }
 
         $requiredMethods = ['get', 'getMeta'];
         foreach ($requiredMethods as $method) {
+            // @phan-suppress-next-line PhanPossiblyUndeclaredVariable $data is always set above
             if (!\method_exists($data, $method)) {
                 throw new InvalidManualException(\sprintf('Manual data object must have a %s() method', $method), $filePath);
             }
