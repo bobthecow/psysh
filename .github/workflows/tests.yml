@@ -22,6 +22,7 @@ jobs:
     with:
       deps: lowest
       exclude_group: php-parser-v4-fail
+      php_version: '7.4'
 
   build:
     name: Test Phar build

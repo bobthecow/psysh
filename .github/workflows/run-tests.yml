@@ -15,11 +15,16 @@ on:
         type: string
         required: false
         default: ''
+      php_version:
+        type: string
+        required: false
+        default: ''
 
 jobs:
   test:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
+    if: inputs.php_version == '' || inputs.php_version == matrix.php
     strategy:
       fail-fast: false
       matrix:
