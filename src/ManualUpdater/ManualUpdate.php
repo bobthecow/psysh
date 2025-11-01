@@ -74,7 +74,7 @@ class ManualUpdate
                     $currentLang = $currentMeta['lang'] ?? null;
                 }
             } catch (InvalidManualException $e) {
-                $removedInvalidSqlite = \str_ends_with($e->getManualFile(), '.sqlite');
+                $removedInvalidSqlite = \substr($e->getManualFile(), -7) === '.sqlite';
                 self::handleInvalidManual($e, $input, $output);
             }
         }
@@ -318,13 +318,13 @@ class ManualUpdate
         }
 
         try {
-            if (\str_ends_with($path, '.php')) {
+            if (\substr($path, -4) === '.php') {
                 $manual = new \Psy\Manual\V3Manual($path);
 
                 return $manual->getMeta();
             }
 
-            if (\str_ends_with($path, '.sqlite')) {
+            if (\substr($path, -7) === '.sqlite') {
                 $pdo = new \PDO('sqlite:'.$path);
                 $manual = new \Psy\Manual\V2Manual($pdo);
 

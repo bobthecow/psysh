@@ -358,7 +358,7 @@ class ConfigPaths
         $relativeTo = $relativeTo ?: \getcwd();
         if ($relativeTo !== false) {
             $relativeTo = \rtrim(\strtr($relativeTo, '\\', '/'), '/').'/';
-            if (\str_starts_with($path, $relativeTo)) {
+            if (\strpos($path, $relativeTo) === 0) {
                 return './'.\substr($path, \strlen($relativeTo));
             }
         }
@@ -367,7 +367,7 @@ class ConfigPaths
         $homeDir = $homeDir ?: (new self())->homeDir();
         if ($homeDir && $homeDir !== '/') {
             $homeDir = \rtrim(\strtr($homeDir, '\\', '/'), '/').'/';
-            if (\str_starts_with($path, $homeDir)) {
+            if (\strpos($path, $homeDir) === 0) {
                 return '~/'.\substr($path, \strlen($homeDir));
             }
         }

@@ -1810,7 +1810,7 @@ class Configuration
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
-            if ($dbFile !== null && \is_file($dbFile) && \str_ends_with($dbFile, '.sqlite')) {
+            if ($dbFile !== null && \is_file($dbFile) && \substr($dbFile, -7) === '.sqlite') {
                 try {
                     $this->manualDb = new \PDO('sqlite:'.$dbFile);
 
@@ -1937,9 +1937,9 @@ class Configuration
     private function loadManualFromFile(string $file)
     {
         // Detect format by extension
-        if (\str_ends_with($file, '.php')) {
+        if (\substr($file, -4) === '.php') {
             return new V3Manual($file);
-        } elseif (\str_ends_with($file, '.sqlite')) {
+        } elseif (\substr($file, -7) === '.sqlite') {
             // Legacy v2 format
             if ($db = $this->getManualDb()) {
                 return new V2Manual($db);
@@ -2219,7 +2219,7 @@ class Configuration
 
         // Determine format from current manual file extension, default to v3
         $format = 'php';
-        if ($manualFile && \str_ends_with($manualFile, '.sqlite')) {
+        if ($manualFile && \substr($manualFile, -7) === '.sqlite') {
             $format = 'sqlite';
         }
 
