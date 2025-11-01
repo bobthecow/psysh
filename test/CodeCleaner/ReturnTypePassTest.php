@@ -28,6 +28,7 @@ class ReturnTypePassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider happyPaths
+     *
      * @group php-parser-v4-fail
      */
     public function testHappyPath($code)

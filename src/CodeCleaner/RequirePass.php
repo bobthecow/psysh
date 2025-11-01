@@ -16,6 +16,7 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Include_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
+use PhpParser\Node\Scalar\LNumber;
 use Psy\Exception\ErrorException;
 use Psy\Exception\FatalErrorException;
 
@@ -51,7 +52,7 @@ class RequirePass extends CodeCleanerPass
         // PHP-Parser 4.x uses LNumber, 5.x has LNumber as an alias to Int_
         // Just use LNumber for compatibility with both versions
         // @todo Switch to Int_ once we drop support for PHP-Parser 4.x
-        $arg = new \PhpParser\Node\Scalar\LNumber($origNode->getStartLine());
+        $arg = new LNumber($origNode->getStartLine());
 
         $node->expr = new StaticCall(
             new FullyQualifiedName(self::class),

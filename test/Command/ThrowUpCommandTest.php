@@ -22,6 +22,7 @@ class ThrowUpCommandTest extends \Psy\Test\TestCase
 {
     /**
      * @dataProvider executeThis
+     *
      * @group php-parser-v4-fail
      */
     public function testExecute($args, $hasCode, $expect, $addSilent = true)

@@ -30,6 +30,7 @@ class IssetPassTest extends CodeCleanerTestCase
 
     /**
      * @dataProvider invalidStatements
+     *
      * @group php-parser-v4-fail
      */
     public function testProcessStatementFails($code)
