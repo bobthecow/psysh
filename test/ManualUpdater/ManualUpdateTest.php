@@ -31,10 +31,13 @@ class ManualUpdateTest extends \Psy\Test\TestCase
             ->willReturn(true);
 
         $installer = $this->createMock(Installer::class);
+        $installer->expects($this->once())
+            ->method('isDataDirWritable')
+            ->willReturn(true);
         $installer->expects($this->never())
             ->method('install');
 
-        $manualUpdate = new ManualUpdate($checker, $installer);
+        $manualUpdate = new ManualUpdate(['checker' => $checker, 'installer' => $installer]);
         $input = new ArrayInput([]);
         $output = new BufferedOutput();
 
@@ -47,16 +50,13 @@ class ManualUpdateTest extends \Psy\Test\TestCase
     public function testFailureWhenDataDirectoryNotWritable()
     {
         $checker = $this->createMock(Checker::class);
-        $checker->expects($this->once())
-            ->method('isLatest')
-            ->willReturn(false);
 
         $installer = $this->createMock(Installer::class);
         $installer->expects($this->once())
             ->method('isDataDirWritable')
             ->willReturn(false);
 
-        $manualUpdate = new ManualUpdate($checker, $installer);
+        $manualUpdate = new ManualUpdate(['checker' => $checker, 'installer' => $installer]);
         $input = new ArrayInput([]);
         $output = new BufferedOutput();
 
@@ -102,7 +102,7 @@ class ManualUpdateTest extends \Psy\Test\TestCase
         $downloader->expects($this->once())
             ->method('cleanup');
 
-        $manualUpdate = new ManualUpdate($checker, $installer);
+        $manualUpdate = new ManualUpdate(['checker' => $checker, 'installer' => $installer]);
         $manualUpdate->setDownloader($downloader);
 
         $input = new ArrayInput([]);
@@ -142,7 +142,7 @@ class ManualUpdateTest extends \Psy\Test\TestCase
         $downloader->expects($this->once())
             ->method('cleanup');
 
-        $manualUpdate = new ManualUpdate($checker, $installer);
+        $manualUpdate = new ManualUpdate(['checker' => $checker, 'installer' => $installer]);
         $manualUpdate->setDownloader($downloader);
 
         $input = new ArrayInput([]);
@@ -185,7 +185,7 @@ class ManualUpdateTest extends \Psy\Test\TestCase
         $downloader->expects($this->once())
             ->method('cleanup');
 
-        $manualUpdate = new ManualUpdate($checker, $installer);
+        $manualUpdate = new ManualUpdate(['checker' => $checker, 'installer' => $installer]);
         $manualUpdate->setDownloader($downloader);
 
         $input = new ArrayInput([]);
@@ -203,7 +203,7 @@ class ManualUpdateTest extends \Psy\Test\TestCase
         $installer = $this->createMock(Installer::class);
         $downloader = $this->createMock(Downloader::class);
 
-        $manualUpdate = new ManualUpdate($checker, $installer);
+        $manualUpdate = new ManualUpdate(['checker' => $checker, 'installer' => $installer]);
         $manualUpdate->setDownloader($downloader);
 
         // If this doesn't throw an exception, the setter worked
