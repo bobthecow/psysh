@@ -65,8 +65,9 @@ jobs:
         continue-on-error: true
 
       - name: Upload coverage
-        if: matrix.php == '8.4'
+        if: matrix.php == '8.4' && inputs.deps != 'dev'
         uses: codecov/codecov-action@v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+          files: ./coverage.xml

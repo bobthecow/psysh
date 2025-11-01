@@ -1,7 +1,3 @@
-codecov:
-    notify:
-        after_n_builds: 7
-
 coverage:
     range: "60..100"
     status:

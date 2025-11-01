@@ -8,6 +8,7 @@ jobs:
   stable:
     name: Test @stable deps
     uses: ./.github/workflows/run-tests.yml
+    secrets: inherit
 
   dev:
     name: Test @dev deps
