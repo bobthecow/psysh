@@ -105,7 +105,7 @@ class ManualUpdate
             $meta = self::getManualMeta($path);
 
             $updates[] = [
-                'checker' => new GitHubChecker($checkerLang, $format, $meta['version'] ?? null, $meta['lang'] ?? null),
+                'checker'   => new GitHubChecker($checkerLang, $format, $meta['version'] ?? null, $meta['lang'] ?? null),
                 'installer' => new Installer($dataDir, $format),
             ];
         }
