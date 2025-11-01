@@ -699,6 +699,7 @@ class ShellTest extends TestCase
 
     /**
      * @group isolation-fail
+     * @group php-parser-v4-fail
      */
     public function testLaxTypesExecute()
     {

@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/run-tests.yml
     with:
       deps: lowest
-      continue_on_error: true
+      exclude_group: php-parser-v4-fail
 
   build:
     name: Test Phar build

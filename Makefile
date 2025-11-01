@@ -10,6 +10,10 @@ ifneq ($(CI),)
 	PHPUNIT_OPTS = --verbose --coverage-clover=coverage.xml
 endif
 
+ifdef EXCLUDE_GROUP
+	PHPUNIT_OPTS += --exclude-group $(EXCLUDE_GROUP)
+endif
+
 
 # Commands
 

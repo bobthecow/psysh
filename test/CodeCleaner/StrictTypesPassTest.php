@@ -26,6 +26,9 @@ class StrictTypesPassTest extends CodeCleanerTestCase
         $this->setPass(new StrictTypesPass());
     }
 
+    /**
+     * @group php-parser-v4-fail
+     */
     public function testProcess()
     {
         $this->assertProcessesAs('declare(strict_types=1)', 'declare (strict_types=1);');

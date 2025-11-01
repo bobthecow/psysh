@@ -11,6 +11,10 @@ on:
         type: boolean
         required: false
         default: false
+      exclude_group:
+        type: string
+        required: false
+        default: ''
 
 jobs:
   test:
@@ -67,6 +71,8 @@ jobs:
       - name: Run tests
         if: inputs.continue_on_error == false
         run: make test
+        env:
+          EXCLUDE_GROUP: ${{ inputs.exclude_group }}
 
       - name: Run tests (but don't complain)
         if: inputs.continue_on_error == true

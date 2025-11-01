@@ -28,6 +28,9 @@ class LinkFormatterTest extends \Psy\Test\TestCase
         $this->assertSame('<info>array_map</info>', $result);
     }
 
+    /**
+     * @group php-parser-v4-fail
+     */
     public function testStyleWithHrefEscapesText()
     {
         $result = LinkFormatter::styleWithHref('info', '<test>', null);
