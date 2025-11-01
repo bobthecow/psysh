@@ -97,7 +97,7 @@ HELP
         }
 
         // Implicit --all if the original docblock has an {@inheritdoc} tag.
-        if ($input->getOption('all') || \stripos($doc, self::INHERIT_DOC_TAG) !== false) {
+        if ($input->getOption('all') || ($doc && \stripos($doc, self::INHERIT_DOC_TAG) !== false)) {
             $parent = $reflector;
             foreach ($this->getParentReflectors($reflector) as $parent) {
                 $output->writeln('');

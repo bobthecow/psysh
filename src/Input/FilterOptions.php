@@ -87,7 +87,11 @@ class FilterOptions
      */
     public function match(string $string, ?array &$matches = null): bool
     {
-        return $this->filter === false || (\preg_match($this->pattern, $string, $matches) xor $this->invert);
+        if ($this->filter === false || $this->pattern === null) {
+            return true;
+        }
+
+        return \preg_match($this->pattern, $string, $matches) xor $this->invert;
     }
 
     /**

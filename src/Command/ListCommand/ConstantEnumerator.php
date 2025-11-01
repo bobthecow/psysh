@@ -132,8 +132,9 @@ class ConstantEnumerator extends Enumerator
 
         if ($category === 'internal') {
             unset($consts['user']);
+            $values = \array_values($consts);
 
-            return \array_merge(...\array_values($consts));
+            return $values ? \array_merge(...$values) : [];
         }
 
         foreach ($consts as $key => $value) {
