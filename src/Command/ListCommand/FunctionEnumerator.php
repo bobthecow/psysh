@@ -81,8 +81,8 @@ class FunctionEnumerator extends Enumerator
     /**
      * Prepare formatted function array.
      *
-     * @param array  $functions
-     * @param string $prefix
+     * @param array       $functions
+     * @param string|null $prefix
      *
      * @return array
      */

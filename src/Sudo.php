@@ -54,7 +54,7 @@ class Sudo
      *
      * @param object $object
      * @param string $method  method name
-     * @param mixed  $args...
+     * @param mixed  ...$args
      *
      * @return mixed
      */
@@ -115,7 +115,7 @@ class Sudo
      *
      * @param string|object $class   class name or instance
      * @param string        $method  method name
-     * @param mixed         $args...
+     * @param mixed         ...$args
      *
      * @return mixed
      */
@@ -162,7 +162,7 @@ class Sudo
      * Construct an instance of a class, bypassing private constructors.
      *
      * @param string $class   class name
-     * @param mixed  $args...
+     * @param mixed  ...$args
      */
     public static function newInstance(string $class, ...$args)
     {

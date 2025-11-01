@@ -82,8 +82,8 @@ class FilterOptions
     /**
      * Check whether a string matches the current filter options.
      *
-     * @param string $string
-     * @param array  $matches
+     * @param string     $string
+     * @param array|null $matches
      */
     public function match(string $string, ?array &$matches = null): bool
     {

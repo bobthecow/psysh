@@ -118,7 +118,7 @@ class ConstantEnumerator extends Enumerator
      * Optionally restrict constants to a given category, e.g. "date". If the
      * category is "internal", include all non-user-defined constants.
      *
-     * @param string $category
+     * @param string|null $category
      *
      * @return array
      */

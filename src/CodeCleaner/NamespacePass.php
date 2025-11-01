@@ -30,9 +30,7 @@ use Psy\CodeCleaner;
 class NamespacePass extends NamespaceAwarePass
 {
     /**
-     * @deprecated use cleaner instance from NamespaceAwarePass
-     *
-     * @param ?CodeCleaner $cleaner
+     * @param ?CodeCleaner $cleaner deprecated parameter, use setCleaner() instead
      *
      * @phpstan-ignore-next-line method.unused
      */

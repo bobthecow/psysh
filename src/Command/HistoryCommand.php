@@ -189,7 +189,7 @@ HELP
     /**
      * Retrieve a slice of the readline history by range.
      *
-     * @param string $show Range specification (e.g., "5..10")
+     * @param string|null $show Range specification (e.g., "5..10")
      *
      * @return array A slice of history
      */

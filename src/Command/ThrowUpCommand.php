@@ -95,7 +95,7 @@ HELP
      *
      * @throws \InvalidArgumentException if there is no exception to throw
      *
-     * @param string $code
+     * @param string|null $code
      *
      * @return Arg[]
      */

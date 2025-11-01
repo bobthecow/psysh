@@ -22,10 +22,10 @@ class TraceFormatter
     /**
      * Format the trace of the given exception.
      *
-     * @param \Throwable    $throwable  The error or exception with a backtrace
-     * @param FilterOptions $filter     (default: null)
-     * @param int           $count      (default: PHP_INT_MAX)
-     * @param bool          $includePsy (default: true)
+     * @param \Throwable         $throwable  The error or exception with a backtrace
+     * @param FilterOptions|null $filter     (default: null)
+     * @param int|null           $count      (default: PHP_INT_MAX)
+     * @param bool               $includePsy (default: true)
      *
      * @return string[] Formatted stacktrace lines
      */

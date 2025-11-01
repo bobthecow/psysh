@@ -28,8 +28,8 @@ class ConfigPaths
      *
      * @see self::overrideDirs
      *
-     * @param string[]     $overrides Directory overrides
-     * @param EnvInterface $env
+     * @param string[]          $overrides Directory overrides
+     * @param EnvInterface|null $env
      */
     public function __construct(array $overrides = [], ?EnvInterface $env = null)
     {
