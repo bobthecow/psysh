@@ -40,6 +40,3 @@ jobs:
         run: make test
         env:
           EXCLUDE_GROUP: php-parser-v4-fail
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v5.5.1
