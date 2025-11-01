@@ -11,20 +11,11 @@ on:
         type: boolean
         required: false
         default: false
-      exclude_group:
-        type: string
-        required: false
-        default: ''
-      php_version:
-        type: string
-        required: false
-        default: ''
 
 jobs:
   test:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
-    if: inputs.php_version == '' || inputs.php_version == matrix.php
     strategy:
       fail-fast: false
       matrix:
@@ -51,20 +42,11 @@ jobs:
           composer config prefer-stable false
 
       - name: Install dependencies
-        if: inputs.deps != 'lowest'
         uses: nick-fields/retry@v3.0.2
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --no-interaction --no-progress
-
-      - name: Install dependencies (--prefer-lowest)
-        if: inputs.deps == 'lowest'
-        uses: nick-fields/retry@v3.0.2
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
 
       - name: Install PHPUnit
         uses: nick-fields/retry@v3.0.2
@@ -76,8 +58,6 @@ jobs:
       - name: Run tests
         if: inputs.continue_on_error == false
         run: make test
-        env:
-          EXCLUDE_GROUP: ${{ inputs.exclude_group }}
 
       - name: Run tests (but don't complain)
         if: inputs.continue_on_error == true

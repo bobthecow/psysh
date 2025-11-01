@@ -18,11 +18,7 @@ jobs:
 
   lowest:
     name: Test --prefer-lowest deps
-    uses: ./.github/workflows/run-tests.yml
-    with:
-      deps: lowest
-      exclude_group: php-parser-v4-fail
-      php_version: '7.4'
+    uses: ./.github/workflows/run-tests-lowest.yml
 
   build:
     name: Test Phar build
