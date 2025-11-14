@@ -1284,8 +1284,9 @@ class Shell extends Application
         } else {
             $prompt = $this->config->theme()->returnValue();
             $indent = \str_repeat(' ', \strlen($prompt));
-            // Use concise output for actions, full output for inspection
-            $formatted = $this->presentValue($ret, $this->codeLooksLikeAction);
+            // Use concise output for actions if the config option is enabled
+            $useConcise = $this->config->useConciseReturnValue() && $this->codeLooksLikeAction;
+            $formatted = $this->presentValue($ret, $useConcise);
             $formattedRetValue = \sprintf('<whisper>%s</whisper>', $prompt);
 
             $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);

@@ -41,19 +41,19 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Configuration
 {
-    const COLOR_MODE_AUTO = 'auto';
-    const COLOR_MODE_FORCED = 'forced';
-    const COLOR_MODE_DISABLED = 'disabled';
+    public const COLOR_MODE_AUTO = 'auto';
+    public const COLOR_MODE_FORCED = 'forced';
+    public const COLOR_MODE_DISABLED = 'disabled';
 
-    const INTERACTIVE_MODE_AUTO = 'auto';
-    const INTERACTIVE_MODE_FORCED = 'forced';
-    const INTERACTIVE_MODE_DISABLED = 'disabled';
+    public const INTERACTIVE_MODE_AUTO = 'auto';
+    public const INTERACTIVE_MODE_FORCED = 'forced';
+    public const INTERACTIVE_MODE_DISABLED = 'disabled';
 
-    const VERBOSITY_QUIET = 'quiet';
-    const VERBOSITY_NORMAL = 'normal';
-    const VERBOSITY_VERBOSE = 'verbose';
-    const VERBOSITY_VERY_VERBOSE = 'very_verbose';
-    const VERBOSITY_DEBUG = 'debug';
+    public const VERBOSITY_QUIET = 'quiet';
+    public const VERBOSITY_NORMAL = 'normal';
+    public const VERBOSITY_VERBOSE = 'verbose';
+    public const VERBOSITY_VERY_VERBOSE = 'very_verbose';
+    public const VERBOSITY_DEBUG = 'debug';
 
     private const AVAILABLE_OPTIONS = [
         'codeCleaner',
@@ -82,6 +82,7 @@ class Configuration
         'updateCheck',
         'updateManualCheck',
         'useBracketedPaste',
+        'useConciseReturnValue',
         'usePcntl',
         'useReadline',
         'useTabCompletion',
@@ -132,6 +133,7 @@ class Configuration
     private string $verbosity = self::VERBOSITY_NORMAL;
     private bool $yolo = false;
     private ?Theme $theme = null;
+    private ?bool $useConciseReturnValue = true;
 
     // services
     private ?Readline\Readline $readline = null;
@@ -2541,5 +2543,32 @@ class Configuration
         $mode = $stat['mode'] & 0170000;
 
         return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000;
+    }
+
+    /**
+     * Enable or disable concise return values for actions.
+     *
+     * When enabled (default), PsySH will show abbreviated output for commands
+     * that appear to be "actions" (assignments, method calls that modify state)
+     * and more detailed output for "inspections" (variable reads, getters, etc.).
+     *
+     * When disabled, all return values are shown with full detail regardless
+     * of the command type.
+     *
+     * @param bool $useConciseReturnValue
+     */
+    public function setUseConciseReturnValue(bool $useConciseReturnValue): void
+    {
+        $this->useConciseReturnValue = (bool) $useConciseReturnValue;
+    }
+
+    /**
+     * Check whether to use concise return values for actions.
+     *
+     * @return bool True if concise return values should be used (default: true)
+     */
+    public function useConciseReturnValue(): bool
+    {
+        return $this->useConciseReturnValue ?? true;
     }
 }

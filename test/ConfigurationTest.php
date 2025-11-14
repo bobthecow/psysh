@@ -752,4 +752,41 @@ class ConfigurationTest extends TestCase
         ]);
         $config->getAutoloadWarmers();
     }
+
+    public function testUseConciseReturnValueDefault()
+    {
+        $config = $this->getConfig();
+
+        // Default should be true (enabled)
+        $this->assertTrue($config->useConciseReturnValue());
+    }
+
+    public function testUseConciseReturnValueEnabled()
+    {
+        $config = $this->getConfig();
+        $config->setUseConciseReturnValue(true);
+
+        $this->assertTrue($config->useConciseReturnValue());
+    }
+
+    public function testUseConciseReturnValueDisabled()
+    {
+        $config = $this->getConfig();
+        $config->setUseConciseReturnValue(false);
+
+        $this->assertFalse($config->useConciseReturnValue());
+    }
+
+    public function testUseConciseReturnValueViaLoadConfig()
+    {
+        $config = $this->getConfig();
+
+        // Test enabling via loadConfig
+        $config->loadConfig(['useConciseReturnValue' => true]);
+        $this->assertTrue($config->useConciseReturnValue());
+
+        // Test disabling via loadConfig
+        $config->loadConfig(['useConciseReturnValue' => false]);
+        $this->assertFalse($config->useConciseReturnValue());
+    }
 }
