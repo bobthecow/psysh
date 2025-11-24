@@ -35,7 +35,9 @@ class GitHubCheckerTest extends \Psy\Test\TestCase
         // Use reflection to set the latestVersion directly
         $reflection = new \ReflectionClass($checker);
         $property = $reflection->getProperty('latestVersion');
-        $property->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($checker, '3.0.0');
 
         $this->assertTrue($checker->isLatest());
@@ -49,7 +51,9 @@ class GitHubCheckerTest extends \Psy\Test\TestCase
         // Use reflection to set the latestVersion directly
         $reflection = new \ReflectionClass($checker);
         $property = $reflection->getProperty('latestVersion');
-        $property->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($checker, '3.0.0');
 
         $this->assertFalse($checker->isLatest());
@@ -77,7 +81,9 @@ class GitHubCheckerTest extends \Psy\Test\TestCase
         // Set the latest version using reflection
         $reflection = new \ReflectionClass($checker);
         $property = $reflection->getProperty('latestVersion');
-        $property->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($checker, $latestVersion);
 
         $this->assertEquals($expected, $checker->isLatest());
@@ -105,7 +111,9 @@ class GitHubCheckerTest extends \Psy\Test\TestCase
         // Set the latest version using reflection
         $reflection = new \ReflectionClass($checker);
         $property = $reflection->getProperty('latestVersion');
-        $property->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($checker, $latestVersion);
 
         $this->assertEquals($expected, $checker->isLatest());
