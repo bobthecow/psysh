@@ -34,7 +34,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-          coverage: ${{ matrix.php == '8.4' && 'pcov' || 'none' }}
+          coverage: ${{ matrix.php == '8.5' && 'pcov' || 'none' }}
 
       - name: Set up problem matchers
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
@@ -69,7 +69,7 @@ jobs:
         continue-on-error: true
 
       - name: Verify coverage token
-        if: matrix.php == '8.4' && inputs.deps != 'dev' && inputs.upload_coverage
+        if: matrix.php == '8.5' && inputs.deps != 'dev' && inputs.upload_coverage
         run: |
           if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
             echo "❌ CODECOV_TOKEN secret is required but not available"
@@ -77,7 +77,7 @@ jobs:
           fi
 
       - name: Upload coverage
-        if: matrix.php == '8.4' && inputs.deps != 'dev' && inputs.upload_coverage
+        if: matrix.php == '8.5' && inputs.deps != 'dev' && inputs.upload_coverage
         uses: codecov/codecov-action@v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
