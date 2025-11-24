@@ -11,13 +11,18 @@
 
 namespace Psy\Command;
 
+use Psy\Configuration;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\ManualFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
+use Psy\ManualUpdater\ManualUpdate;
 use Psy\Output\ShellOutput;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,6 +34,18 @@ class DocCommand extends ReflectingCommand
 {
     const INHERIT_DOC_TAG = '{@inheritdoc}';
 
+    private ?Configuration $config = null;
+
+    /**
+     * Set the configuration instance.
+     *
+     * @param \Psy\Configuration $config
+     */
+    public function setConfiguration(Configuration $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -39,7 +56,8 @@ class DocCommand extends ReflectingCommand
             ->setAliases(['rtfm', 'man'])
             ->setDefinition([
                 new InputOption('all', 'a', InputOption::VALUE_NONE, 'Show documentation for superclasses as well as the current class.'),
-                new CodeArgument('target', CodeArgument::REQUIRED, 'Function, class, instance, constant, method or property to document.'),
+                new InputOption('update-manual', null, InputOption::VALUE_OPTIONAL, 'Download and install the latest PHP manual (optional language code)', false),
+                new CodeArgument('target', CodeArgument::OPTIONAL, 'Function, class, instance, constant, method or property to document.'),
             ])
             ->setDescription('Read the documentation for an object, class, constant, method or property.')
             ->setHelp(
@@ -54,6 +72,8 @@ e.g.
 <return>>>> doc Psy\Shell::debug</return>
 <return>>>> \$s = new Psy\Shell</return>
 <return>>>> doc \$s->run</return>
+<return>>>> doc --update-manual</return>
+<return>>>> doc --update-manual=fr</return>
 HELP
             );
     }
@@ -65,7 +85,15 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if ($input->getOption('update-manual') !== false) {
+            return $this->handleUpdateManual($input, $output);
+        }
+
         $value = $input->getArgument('target');
+        if (!$value) {
+            throw new RuntimeException('Not enough arguments (missing: "target").');
+        }
+
         if (ReflectionLanguageConstruct::isLanguageConstruct($value)) {
             $reflector = new ReflectionLanguageConstruct($value);
             $doc = $this->getManualDocById($value);
@@ -126,6 +154,51 @@ HELP
         $this->setCommandScopeVariables($reflector);
 
         return 0;
+    }
+
+    /**
+     * Handle the manual update operation.
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int 0 if everything went fine, or an exit code
+     */
+    private function handleUpdateManual(InputInterface $input, OutputInterface $output): int
+    {
+        if (!$this->config) {
+            $output->writeln('<error>Configuration not available for manual updates.</error>');
+
+            return 1;
+        }
+
+        // Create a synthetic input with the update-manual option
+        $definition = new InputDefinition([
+            new InputOption('update-manual', null, InputOption::VALUE_OPTIONAL, '', false),
+        ]);
+
+        // Get the language value: if true (no value), use null to preserve current language
+        $lang = $input->getOption('update-manual');
+        $updateValue = ($lang === true) ? null : $lang;
+
+        $updateInput = new ArrayInput(['--update-manual' => $updateValue], $definition);
+        $updateInput->setInteractive($input->isInteractive());
+
+        try {
+            $manualUpdate = ManualUpdate::fromConfig($this->config, $updateInput, $output);
+            $result = $manualUpdate->run($updateInput, $output);
+
+            if ($result === 0) {
+                $output->writeln('');
+                $output->writeln('Restart PsySH to use the updated manual.');
+            }
+
+            return $result;
+        } catch (\RuntimeException $e) {
+            $output->writeln(\sprintf('<error>%s</error>', $e->getMessage()));
+
+            return 1;
+        }
     }
 
     private function getManualDoc($reflector)

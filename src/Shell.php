@@ -257,11 +257,14 @@ class Shell extends Application
         $hist = new Command\HistoryCommand();
         $hist->setReadline($this->readline);
 
+        $doc = new Command\DocCommand();
+        $doc->setConfiguration($this->config);
+
         return [
             new Command\HelpCommand(),
             new Command\ListCommand(),
             new Command\DumpCommand(),
-            new Command\DocCommand(),
+            $doc,
             new Command\ShowCommand(),
             new Command\WtfCommand(),
             new Command\WhereamiCommand(),
@@ -1810,7 +1813,7 @@ class Shell extends Application
         try {
             $checker = $this->config->getManualChecker();
             if ($checker && !$checker->isLatest()) {
-                $this->output->writeln(\sprintf('<whisper>New PHP manual is available (latest: %s). Update with `--update-manual`</whisper>', $checker->getLatest()));
+                $this->output->writeln(\sprintf('<whisper>New PHP manual is available (latest: %s). Update with `doc --update-manual`</whisper>', $checker->getLatest()));
             }
         } catch (\Exception $e) {
             // Silently ignore manual update check failures
