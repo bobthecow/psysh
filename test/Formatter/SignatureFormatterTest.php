@@ -96,7 +96,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
             ],
         ];
 
-        if (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+        if (\PHP_VERSION_ID >= 80000) {
             $values[] = [new \ReflectionFunction('implode'), 'function implode(array|string $separator, array $array = null): string'];
             $values[] = [new \ReflectionFunction('array_chunk'), 'function array_chunk(array $array, int $length, bool $preserve_keys = false): array'];
         } else {

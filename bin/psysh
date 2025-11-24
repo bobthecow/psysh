@@ -111,9 +111,9 @@ if (!class_exists('Psy\Shell')) {
 //
 // Keep this PHP 5.3 and 5.4 code around for a while in case someone is using a
 // globally installed psysh as a bin launcher for older local versions.
-if (version_compare(PHP_VERSION, '5.3.6', '<')) {
+if (PHP_VERSION_ID < 50306) {
     $trace = debug_backtrace();
-} elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
+} elseif (PHP_VERSION_ID < 50400) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 } else {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);

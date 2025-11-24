@@ -135,7 +135,7 @@ class IssetPassTest extends CodeCleanerTestCase
 
     public function validPHP8Statements()
     {
-        if (\version_compare(\PHP_VERSION, '8.0', '<')) {
+        if (\PHP_VERSION_ID < 80000) {
             $this->markTestSkipped();
         }
 

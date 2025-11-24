@@ -33,7 +33,7 @@ if (!\function_exists('Psy\\sh')) {
      */
     function sh(): string
     {
-        if (\version_compare(\PHP_VERSION, '8.0', '<')) {
+        if (\PHP_VERSION_ID < 80000) {
             return '\extract(\Psy\debug(\get_defined_vars(), isset($this) ? $this : @\get_called_class()));';
         }
 

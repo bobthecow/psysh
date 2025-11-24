@@ -79,7 +79,7 @@ class ErrorExceptionTest extends \Psy\Test\TestCase
      */
     public function testThrowExceptionAsErrorHandler($level, $type)
     {
-        if (\version_compare(\PHP_VERSION, '8.4', '>=') && $level === \E_USER_ERROR) {
+        if (\PHP_VERSION_ID >= 80400 && $level === \E_USER_ERROR) {
             $this->markTestSkipped('Passing E_USER_ERROR to trigger_error() is deprecated since 8.4');
         }
 

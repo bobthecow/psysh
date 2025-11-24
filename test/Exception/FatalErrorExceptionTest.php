@@ -52,7 +52,7 @@ class FatalErrorExceptionTest extends \Psy\Test\TestCase
         // the line where the exception was first constructed. In older PHP versions, it'll be 0.
         $this->assertNotEquals(-1, $e->getLine());
 
-        if (\version_compare(\PHP_VERSION, '8.0', '<')) {
+        if (\PHP_VERSION_ID < 80000) {
             $this->assertSame(0, $e->getLine());
         }
     }

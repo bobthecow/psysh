@@ -45,7 +45,7 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             ['array_shift([])'],
         ];
 
-        if (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+        if (\PHP_VERSION_ID >= 80000) {
             $values[] = ['preg_match(\'/\d+/\', \'123456\', matches: [])'];
         }
 
@@ -73,11 +73,11 @@ class PassableByReferencePassTest extends CodeCleanerTestCase
             ['end(...[$a])'],
         ];
 
-        if (\version_compare(\PHP_VERSION, '8.0', '>=')) {
+        if (\PHP_VERSION_ID >= 80000) {
             $values[] = ['preg_match(\'/\d+/\', \'123456\', offset: 2)'];
         }
 
-        if (\version_compare(\PHP_VERSION, '8.1', '>=')) {
+        if (\PHP_VERSION_ID >= 80100) {
             $values[] = ['intval(...)'];
         }
 
