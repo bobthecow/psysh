@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Command;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Psy\CodeCleaner;
 use Psy\Command\DocCommand;
 use Psy\Configuration;
@@ -18,27 +19,14 @@ use Psy\Context;
 use Psy\Shell;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
- * A BufferedOutput that supports the paging methods used by ShellOutput.
+ * @group isolation-fail
  */
-class DocCommandPageableOutput extends BufferedOutput
-{
-    public function startPaging()
-    {
-        // no-op for testing
-    }
-
-    public function stopPaging()
-    {
-        // no-op for testing
-    }
-}
-
 class DocCommandTest extends \Psy\Test\TestCase
 {
     private DocCommand $command;
+    /** @var Shell&MockObject */
     private Shell $shell;
     private Context $context;
     private CodeCleaner $cleaner;
@@ -68,7 +56,7 @@ class DocCommandTest extends \Psy\Test\TestCase
         $input = new ArrayInput($args);
         $input->bind($this->command->getDefinition());
 
-        $output = new DocCommandPageableOutput();
+        $output = new TestOutput();
 
         $this->command->run($input, $output);
 

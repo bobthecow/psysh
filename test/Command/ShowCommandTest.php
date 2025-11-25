@@ -11,36 +11,21 @@
 
 namespace Psy\Test\Command;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Psy\CodeCleaner;
 use Psy\Command\ShowCommand;
 use Psy\Context;
 use Psy\Exception\RuntimeException;
 use Psy\Shell;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
- * A BufferedOutput that supports the page() method used by ShellOutput.
+ * @group isolation-fail
  */
-class PageableOutput extends BufferedOutput
-{
-    public function page($messages, int $type = 0)
-    {
-        if (\is_string($messages)) {
-            $messages = (array) $messages;
-        }
-
-        if (\is_callable($messages)) {
-            $messages($this);
-        } else {
-            $this->write($messages, true, $type);
-        }
-    }
-}
-
 class ShowCommandTest extends \Psy\Test\TestCase
 {
     private ShowCommand $command;
+    /** @var Shell&MockObject */
     private Shell $shell;
     private Context $context;
     private CodeCleaner $cleaner;
@@ -69,7 +54,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $input = new ArrayInput($args);
         $input->bind($this->command->getDefinition());
 
-        $output = new PageableOutput();
+        $output = new TestOutput();
 
         $this->command->run($input, $output);
 
@@ -152,6 +137,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
     public function testShowExceptionContextWithIndex()
     {
         // Create an exception with a trace
+        $exception = new \Exception('Test from helper');
         try {
             $this->helperThatThrows();
         } catch (\Exception $e) {
@@ -191,6 +177,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
     public function testShowExceptionContextIncrementsOnRepeat()
     {
+        $exception = new \Exception('Exception');
         try {
             $this->helperThatThrows();
         } catch (\Exception $e) {
