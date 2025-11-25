@@ -68,14 +68,6 @@ jobs:
         run: make test
         continue-on-error: true
 
-      - name: Verify coverage token
-        if: matrix.php == '8.5' && inputs.deps != 'dev' && inputs.upload_coverage
-        run: |
-          if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
-            echo "❌ CODECOV_TOKEN secret is required but not available"
-            exit 1
-          fi
-
       - name: Upload coverage
         if: matrix.php == '8.5' && inputs.deps != 'dev' && inputs.upload_coverage
         uses: codecov/codecov-action@v5.5.1
