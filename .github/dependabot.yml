@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: daily
     versioning-strategy: widen
+  - package-ecosystem: composer
+    directory: /build
+    schedule:
+      interval: weekly
   - package-ecosystem: "github-actions"
     directory: /
     schedule:

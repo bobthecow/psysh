@@ -75,13 +75,3 @@ jobs:
           asset_path: ./dist/psysh-${{ needs.draft_release.outputs.tag_name }}.tar.gz
           asset_name: psysh-${{ needs.draft_release.outputs.tag_name }}.tar.gz
           asset_content_type: application/gzip
-
-      - name: Upload composer lock file
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_path: ./build/psysh/composer.lock
-          asset_name: composer-${{ needs.draft_release.outputs.tag_name }}.lock
-          asset_content_type: application/gzip

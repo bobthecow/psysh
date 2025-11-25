@@ -1,7 +1,8 @@
 __pycache__
 *.pyc
 /.phpunit.result.cache
-/build/
+/build/psysh/
+/build/stub
 /composer.lock
 /dist/
 /phpstan.neon
