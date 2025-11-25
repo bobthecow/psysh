@@ -1,3 +1,6 @@
+ignore:
+    - "src/Readline/Hoa/**/*"
+
 coverage:
     range: "60..100"
     status:
