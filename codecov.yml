@@ -1,5 +1,5 @@
 ignore:
-    - "src/Readline/Hoa/**/*"
+    - src/Readline/Hoa
 
 coverage:
     range: "60..100"
