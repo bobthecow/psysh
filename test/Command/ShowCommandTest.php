@@ -17,7 +17,6 @@ use Psy\Command\ShowCommand;
 use Psy\Context;
 use Psy\Exception\RuntimeException;
 use Psy\Shell;
-use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @group isolation-fail
@@ -49,18 +48,6 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->command->setCodeCleaner($this->cleaner);
     }
 
-    private function executeCommand(array $args = []): string
-    {
-        $input = new ArrayInput($args);
-        $input->bind($this->command->getDefinition());
-
-        $output = new TestOutput();
-
-        $this->command->run($input, $output);
-
-        return $output->fetch();
-    }
-
     public function testConfigure()
     {
         $this->assertEquals('show', $this->command->getName());
@@ -70,7 +57,10 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
     public function testShowClass()
     {
-        $output = $this->executeCommand(['target' => 'Psy\\Shell']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Shell']);
+
+        $output = $tester->getDisplay();
 
         // Output contains styled code - look for the class definition
         $this->assertStringContainsString('Shell', $output);
@@ -79,7 +69,10 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
     public function testShowMethod()
     {
-        $output = $this->executeCommand(['target' => 'Psy\\Context::get']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context::get']);
+
+        $output = $tester->getDisplay();
 
         $this->assertStringContainsString('function', $output);
         $this->assertStringContainsString('get', $output);
@@ -91,14 +84,18 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Source code unavailable');
 
-        $this->executeCommand(['target' => 'array_map']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'array_map']);
     }
 
     public function testShowUserDefinedFunction()
     {
-        // Use a user-defined function from the codebase
-        $output = $this->executeCommand(['target' => 'Psy\\info']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\info']);
 
+        $output = $tester->getDisplay();
+
+        // Use a user-defined function from the codebase
         $this->assertStringContainsString('function', $output);
     }
 
@@ -107,7 +104,8 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Not enough arguments');
 
-        $this->executeCommand([]);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute([]);
     }
 
     public function testShowThrowsWhenBothTargetAndEx()
@@ -117,7 +115,8 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Too many arguments');
 
-        $this->executeCommand(['target' => 'DateTime', '--ex' => '1']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'DateTime', '--ex' => '1']);
     }
 
     public function testShowExceptionContext()
@@ -128,7 +127,10 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->shell->method('formatException')
             ->willReturn('<error>Test exception</error>');
 
-        $output = $this->executeCommand(['--ex' => null]);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['--ex' => null]);
+
+        $output = $tester->getDisplay();
 
         $this->assertStringContainsString('Test exception', $output);
         $this->assertStringContainsString('level 1', $output);
@@ -149,7 +151,10 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->shell->method('formatException')
             ->willReturn('<error>Test from helper</error>');
 
-        $output = $this->executeCommand(['--ex' => '2']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['--ex' => '2']);
+
+        $output = $tester->getDisplay();
 
         $this->assertStringContainsString('Test from helper', $output);
         $this->assertStringContainsString('level 2', $output);
@@ -168,11 +173,12 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->shell->method('formatException')
             ->willReturn('<error>Simple exception</error>');
 
+        $tester = new PsyCommandTester($this->command);
         // Ask for a trace index higher than exists
-        $output = $this->executeCommand(['--ex' => '999']);
+        $tester->execute(['--ex' => '999']);
 
         // Should wrap around to level 1
-        $this->assertStringContainsString('level 1', $output);
+        $this->assertStringContainsString('level 1', $tester->getDisplay());
     }
 
     public function testShowExceptionContextIncrementsOnRepeat()
@@ -189,13 +195,15 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->shell->method('formatException')
             ->willReturn('<error>Exception</error>');
 
+        $tester = new PsyCommandTester($this->command);
+
         // First call - level 1
-        $output1 = $this->executeCommand(['--ex' => null]);
-        $this->assertStringContainsString('level 1', $output1);
+        $tester->execute(['--ex' => null]);
+        $this->assertStringContainsString('level 1', $tester->getDisplay());
 
         // Second call - level 2 (same command instance tracks state)
-        $output2 = $this->executeCommand(['--ex' => null]);
-        $this->assertStringContainsString('level 2', $output2);
+        $tester->execute(['--ex' => null]);
+        $this->assertStringContainsString('level 2', $tester->getDisplay());
     }
 
     public function testShowExceptionContextResetsOnNewException()
@@ -206,21 +214,24 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->shell->method('formatException')
             ->willReturn('<error>Exception</error>');
 
+        $tester = new PsyCommandTester($this->command);
+
         // First exception
-        $output1 = $this->executeCommand(['--ex' => null]);
-        $this->assertStringContainsString('level 1', $output1);
+        $tester->execute(['--ex' => null]);
+        $this->assertStringContainsString('level 1', $tester->getDisplay());
 
         // New exception should reset
         $exception2 = new \Exception('Second exception');
         $this->context->setLastException($exception2);
 
-        $output2 = $this->executeCommand(['--ex' => null]);
-        $this->assertStringContainsString('level 1', $output2);
+        $tester->execute(['--ex' => null]);
+        $this->assertStringContainsString('level 1', $tester->getDisplay());
     }
 
     public function testSetsCommandScopeVariablesForClass()
     {
-        $this->executeCommand(['target' => 'Psy\\Shell']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Shell']);
 
         $vars = $this->context->getCommandScopeVariables();
         $this->assertEquals('Psy\\Shell', $vars['__class']);
@@ -231,7 +242,8 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
     public function testSetsCommandScopeVariablesForMethod()
     {
-        $this->executeCommand(['target' => 'Psy\\Context::get']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context::get']);
 
         $vars = $this->context->getCommandScopeVariables();
         $this->assertEquals('Psy\\Context::get', $vars['__method']);
@@ -247,7 +259,8 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->shell->method('formatException')
             ->willReturn('<error>Test</error>');
 
-        $this->executeCommand(['--ex' => null]);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['--ex' => null]);
 
         $vars = $this->context->getCommandScopeVariables();
         // Should have file info from the exception location
@@ -262,7 +275,8 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Source code unavailable');
 
-        $this->executeCommand(['target' => 'PHP_VERSION']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'PHP_VERSION']);
     }
 
     public function testShowClassConstantThrows()
@@ -271,7 +285,8 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Source code unavailable');
 
-        $this->executeCommand(['target' => 'DateTime::ATOM']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'DateTime::ATOM']);
     }
 
     public function testShowPropertyThrows()
@@ -280,6 +295,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Source code unavailable');
 
-        $this->executeCommand(['target' => 'Psy\\Context::$scopeVariables']);
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context::$scopeVariables']);
     }
 }

@@ -18,7 +18,7 @@ use Psy\Configuration;
 use Psy\Context;
 use Psy\Shell;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @group isolation-fail
@@ -51,18 +51,6 @@ class DocCommandTest extends \Psy\Test\TestCase
         $this->command->setCodeCleaner($this->cleaner);
     }
 
-    private function executeCommand(array $args = []): string
-    {
-        $input = new ArrayInput($args);
-        $input->bind($this->command->getDefinition());
-
-        $output = new TestOutput();
-
-        $this->command->run($input, $output);
-
-        return $output->fetch();
-    }
-
     public function testConfigure()
     {
         $this->assertEquals('doc', $this->command->getName());
@@ -74,7 +62,10 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testDocClass()
     {
-        $output = $this->executeCommand(['target' => 'Psy\\Context']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context']);
+
+        $output = $tester->getDisplay();
 
         // Should contain the class signature
         $this->assertStringContainsString('Context', $output);
@@ -87,7 +78,10 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testDocMethod()
     {
-        $output = $this->executeCommand(['target' => 'Psy\\Context::get']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context::get']);
+
+        $output = $tester->getDisplay();
 
         // Should contain both the declaring class and method signature
         $this->assertStringContainsString('Context', $output);
@@ -101,7 +95,10 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testDocFunction()
     {
-        $output = $this->executeCommand(['target' => 'array_map']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'array_map']);
+
+        $output = $tester->getDisplay();
 
         $this->assertStringContainsString('array_map', $output);
         $this->assertStringContainsString('PHP manual not found', $output);
@@ -109,21 +106,30 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testDocConstant()
     {
-        $output = $this->executeCommand(['target' => 'PHP_VERSION']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'PHP_VERSION']);
+
+        $output = $tester->getDisplay();
 
         $this->assertStringContainsString('PHP_VERSION', $output);
     }
 
     public function testDocClassConstant()
     {
-        $output = $this->executeCommand(['target' => 'DateTime::ATOM']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'DateTime::ATOM']);
+
+        $output = $tester->getDisplay();
 
         $this->assertStringContainsString('ATOM', $output);
     }
 
     public function testDocProperty()
     {
-        $output = $this->executeCommand(['target' => 'Psy\\Context::$scopeVariables']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context::$scopeVariables']);
+
+        $output = $tester->getDisplay();
 
         // Should contain both the declaring class and property
         $this->assertStringContainsString('Context', $output);
@@ -135,12 +141,14 @@ class DocCommandTest extends \Psy\Test\TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Not enough arguments');
 
-        $this->executeCommand([]);
+        $tester = new CommandTester($this->command);
+        $tester->execute([]);
     }
 
     public function testSetsCommandScopeVariablesForClass()
     {
-        $this->executeCommand(['target' => 'Psy\\Shell']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Shell']);
 
         $vars = $this->context->getCommandScopeVariables();
         $this->assertEquals('Psy\\Shell', $vars['__class']);
@@ -149,7 +157,8 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testSetsCommandScopeVariablesForMethod()
     {
-        $this->executeCommand(['target' => 'Psy\\Context::get']);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context::get']);
 
         $vars = $this->context->getCommandScopeVariables();
         $this->assertEquals('Psy\\Context::get', $vars['__method']);
@@ -158,12 +167,16 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testDocWithAllFlagShowsParentDocs()
     {
-        $outputWithoutAll = $this->executeCommand(['target' => 'Psy\\Exception\\RuntimeException']);
+        $tester = new CommandTester($this->command);
+
+        $tester->execute(['target' => 'Psy\\Exception\\RuntimeException']);
+        $outputWithoutAll = $tester->getDisplay();
         $this->assertStringContainsString('RuntimeException for Psy', $outputWithoutAll);
         $this->assertStringNotContainsString('---', $outputWithoutAll);
 
         // With --all, should also include parent class docs
-        $outputWithAll = $this->executeCommand(['target' => 'Psy\\Exception\\RuntimeException', '--all' => true]);
+        $tester->execute(['target' => 'Psy\\Exception\\RuntimeException', '--all' => true]);
+        $outputWithAll = $tester->getDisplay();
         $this->assertStringContainsString('RuntimeException for Psy', $outputWithAll);
         $this->assertStringContainsString('interface', $outputWithAll);
         $this->assertStringContainsString('Psy\\Exception\\Exception', $outputWithAll);
@@ -175,8 +188,10 @@ class DocCommandTest extends \Psy\Test\TestCase
 
     public function testUpdateManualWithoutConfiguration()
     {
-        $output = $this->executeCommand(['--update-manual' => null]);
-        $this->assertStringContainsString('Configuration not available', $output);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['--update-manual' => null]);
+
+        $this->assertStringContainsString('Configuration not available', $tester->getDisplay());
     }
 
     public function testUpdateManualWithConfiguration()
@@ -190,12 +205,11 @@ class DocCommandTest extends \Psy\Test\TestCase
 
         $this->command->setConfiguration($config);
 
-        // This will attempt to run the manual update, which will fail
-        // in test environment, but we're testing that it gets there
-        $output = $this->executeCommand(['--update-manual' => null]);
+        $tester = new CommandTester($this->command);
+        $tester->execute(['--update-manual' => null]);
 
         // Should either succeed or fail with a reasonable error
         // (not the "Configuration not available" error)
-        $this->assertStringNotContainsString('Configuration not available', $output);
+        $this->assertStringNotContainsString('Configuration not available', $tester->getDisplay());
     }
 }
