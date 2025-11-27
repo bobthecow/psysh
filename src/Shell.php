@@ -29,7 +29,6 @@ use Psy\Readline\Readline;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\TabCompletion\Matcher\CommandsMatcher;
-use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -68,7 +67,6 @@ class Shell extends Application
     private $code = null;
     private array $codeBuffer = [];
     private bool $codeBufferOpen = false;
-    private bool $codeLooksLikeAction = false;
     private array $codeStack;
     private string $stdoutBuffer;
     private Context $context;
@@ -922,8 +920,6 @@ class Shell extends Application
      */
     public function addCode(string $code, bool $silent = false)
     {
-        $this->codeLooksLikeAction = false;
-
         try {
             // Code lines ending in \ keep the buffer open
             if (\substr(\rtrim($code), -1) === '\\') {
@@ -937,7 +933,6 @@ class Shell extends Application
             $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
 
             if (!$silent && $this->code !== false) {
-                $this->codeLooksLikeAction = $this->cleaner->codeLooksLikeAction($this->codeBuffer);
                 $this->writeCleanerMessages();
             }
         } catch (\Throwable $e) {
@@ -1287,8 +1282,7 @@ class Shell extends Application
         } else {
             $prompt = $this->config->theme()->returnValue();
             $indent = \str_repeat(' ', \strlen($prompt));
-            // Use concise output for actions, full output for inspection
-            $formatted = $this->presentValue($ret, $this->codeLooksLikeAction);
+            $formatted = $this->presentValue($ret);
             $formattedRetValue = \sprintf('<whisper>%s</whisper>', $prompt);
 
             $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
@@ -1586,13 +1580,12 @@ class Shell extends Application
      * @see Presenter::present
      *
      * @param mixed $val
-     * @param bool  $concise Present as a reference rather than a full value
      *
      * @return string Formatted value
      */
-    protected function presentValue($val, $concise = false): string
+    protected function presentValue($val): string
     {
-        return $this->config->getPresenter()->present($val, $concise ? 0 : 5, $concise ? 0 : Presenter::VERBOSE);
+        return $this->config->getPresenter()->present($val);
     }
 
     /**

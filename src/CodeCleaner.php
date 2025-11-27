@@ -12,21 +12,11 @@
 namespace Psy;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignOp;
-use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\Return_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
@@ -466,141 +456,6 @@ class CodeCleaner
     public function getMessages(): array
     {
         return $this->messages;
-    }
-
-    /**
-     * Determine whether code looks like an "action" vs "inspection".
-     *
-     * Actions (assignments, setters, etc.) should use concise output.
-     * Inspections (variable reads, getters, etc.) should use full output.
-     *
-     * @param array $codeBuffer Array of code lines
-     *
-     * @return bool True if code looks like an action (use concise output)
-     */
-    public function codeLooksLikeAction(array $codeBuffer): bool
-    {
-        if (empty($codeBuffer)) {
-            return false;
-        }
-
-        try {
-            $stmts = $this->parser->parse('<?php '.\implode(\PHP_EOL, $codeBuffer).';');
-
-            if (empty($stmts)) {
-                return false;
-            }
-
-            $expr = \end($stmts);
-
-            // Unwrap namespace if present
-            if ($expr instanceof Namespace_) {
-                if (empty($expr->stmts)) {
-                    return false;
-                }
-                $expr = \end($expr->stmts);
-            }
-
-            // Unwrap Expression and Return_ nodes to get to the actual expression
-            if ($expr instanceof Expression || $expr instanceof Return_) {
-                $expr = $expr->expr;
-            }
-
-            if ($expr === null) {
-                return false;
-            }
-
-            // Assignment operations are actions
-            if ($expr instanceof Assign || $expr instanceof AssignOp || $expr instanceof AssignRef) {
-                return true;
-            }
-
-            // Simple variable reads or property fetches are inspections
-            if ($expr instanceof Variable ||
-                $expr instanceof PropertyFetch ||
-                $expr instanceof StaticPropertyFetch) {
-                return false;
-            }
-
-            // Check for method calls that look like actions
-            if ($this->isActionMethodCall($expr)) {
-                return true;
-            }
-        } catch (\Throwable $e) {
-            // Fall back to default behavior if parsing fails
-        }
-
-        // Default: if we can't tell, it's not an action
-        return false;
-    }
-
-    /**
-     * Determine if a method call appears to be an action vs inspection.
-     */
-    private function isActionMethodCall(Expr $expr): bool
-    {
-        if (!$expr instanceof MethodCall && !$expr instanceof StaticCall) {
-            return false;
-        }
-
-        $methodName = $expr->name;
-        if ($methodName instanceof Node\Identifier) {
-            $methodName = $methodName->toString();
-        }
-
-        if (!\is_string($methodName)) {
-            return false;
-        }
-
-        // Common inspection method prefixes
-        $inspectionPrefixes = [
-            'get', 'find', 'fetch', 'load', 'read', 'retrieve',
-            'is', 'has', 'can', 'should', 'count', 'exists',
-            'to', 'as', // converters like toArray, asString
-        ];
-
-        foreach ($inspectionPrefixes as $prefix) {
-            if ($this->hasMethodPrefix($methodName, $prefix)) {
-                return false;
-            }
-        }
-
-        // If it doesn't match an inspection pattern, assume it's an action
-        return true;
-    }
-
-    /**
-     * Check if a method name has a given prefix in camelCase or snake_case.
-     *
-     * @param string $methodName Original method name
-     * @param string $prefix     Lowercase prefix to check
-     */
-    private function hasMethodPrefix(string $methodName, string $prefix): bool
-    {
-        if (\stripos($methodName, $prefix) !== 0) {
-            return false;
-        }
-
-        $prefixLen = \strlen($prefix);
-
-        // Exact match (e.g., "get", "is")
-        if (\strlen($methodName) === $prefixLen) {
-            return true;
-        }
-
-        $nextChar = $methodName[$prefixLen];
-
-        // snake_case: prefix followed by underscore (e.g., "get_name", "is_valid")
-        if ($nextChar === '_') {
-            return true;
-        }
-
-        // camelCase: prefix followed by uppercase (e.g., "getName", "isValid")
-        if (\ctype_upper($nextChar)) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
