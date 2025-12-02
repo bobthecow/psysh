@@ -39,7 +39,7 @@ class EditCommand extends Command implements ContextAware
         $this->runtimeDir = $runtimeDir;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('edit')

@@ -46,7 +46,7 @@ class ThrowUpCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('throw-up')

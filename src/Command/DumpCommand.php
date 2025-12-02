@@ -42,7 +42,7 @@ class DumpCommand extends ReflectingCommand implements PresenterAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('dump')

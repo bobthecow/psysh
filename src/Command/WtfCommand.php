@@ -40,7 +40,7 @@ class WtfCommand extends TraceCommand implements ContextAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         list($grep, $insensitive, $invert) = FilterOptions::getOptions();
 

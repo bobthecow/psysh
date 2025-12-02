@@ -53,7 +53,7 @@ class HistoryCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         list($grep, $insensitive, $invert) = FilterOptions::getOptions();
 

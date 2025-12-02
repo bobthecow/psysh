@@ -49,7 +49,7 @@ class DocCommand extends ReflectingCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('doc')

@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class TestableReflectingCommand extends ReflectingCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('test-reflect')

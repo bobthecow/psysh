@@ -80,7 +80,7 @@ class ParseCommand extends Command implements ContextAware, PresenterAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('parse')
