@@ -3,6 +3,7 @@ __pycache__
 /.phpunit.result.cache
 /build/psysh/
 /build/stub
+/build/vendor/
 /composer.lock
 /dist/
 /phpstan.neon

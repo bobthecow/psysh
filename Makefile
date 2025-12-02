@@ -100,8 +100,15 @@ vendor/bin/phan: vendor/autoload.php
 build/stub: bin/build-stub bin/psysh LICENSE
 	bin/build-stub
 
-build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES) build/composer.json build/composer.lock
+build/composer.lock: build/composer.json
+ifneq ($(CI),)
 	composer validate --check-lock --no-interaction --working-dir build
+else
+	composer update --working-dir build $(COMPOSER_UPDATE_OPTS)
+endif
+	touch $@
+
+build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES) build/composer.lock
 	rm -rf $@ || true
 	mkdir $@
 	cp -R $(PSYSH_SRC) $@/
