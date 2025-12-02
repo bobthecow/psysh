@@ -222,7 +222,7 @@ class Shell extends Application
     {
         // For Symfony Console < 7.4, use parent::add()
         if (\method_exists(Application::class, 'addCommand')) {
-            /** @phpstan-ignore staticMethod.notFound (Symfony Console 7.4+) */
+            /** @phan-suppress-next-line PhanUndeclaredStaticMethod (Symfony Console 7.4+) */
             $ret = parent::addCommand($command);
         } else {
             $ret = parent::add($command);
