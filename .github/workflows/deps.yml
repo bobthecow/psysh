@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v6.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.36.0
