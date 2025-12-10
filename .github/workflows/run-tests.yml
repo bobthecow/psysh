@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload coverage
         if: matrix.php == '8.5' && inputs.deps != 'dev' && inputs.upload_coverage
-        uses: codecov/codecov-action@v5.5.1
+        uses: codecov/codecov-action@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
