@@ -177,12 +177,14 @@ class ProcessForker extends AbstractListener
 
                 if ($n === false) {
                     $err = \error_get_last();
-                    if (!isset($err['message']) || \stripos($err['message'], 'interrupted system call') === false) {
-                        $msg = $err['message'] ?
-                            \sprintf('Error waiting for execution loop: %s', $err['message']) :
-                            'Error waiting for execution loop';
-                        throw new \RuntimeException($msg);
+                    $errMessage = \is_array($err) ? ($err['message'] ?? null) : null;
+
+                    // If there's no error message, or it's an interrupted system call, just retry
+                    if ($errMessage === null || \stripos($errMessage, 'interrupted system call') !== false) {
+                        continue;
                     }
+
+                    throw new \RuntimeException(\sprintf('Error waiting for execution loop: %s', $errMessage));
                 }
             } while ($n < 1);
 
