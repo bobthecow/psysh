@@ -30,9 +30,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  * functions to override methods, functions, and constants.
  *
  * Reload flow:
- * 1. On each input, check included files for timestamp changes
- * 2. Parse modified files and reload safe elements (methods, unconditional functions)
- * 3. Skip unsafe elements (conditional functions/constants) with a warning
+ *   1. On each input, check included files for timestamp changes
+ *   2. Parse modified files and reload safe elements (methods, unconditional functions)
+ *   3. Skip unsafe elements (conditional functions/constants) and track in skippedFiles
+ *   4. When `yolo` command enables force-reload, re-process skipped files with
+ *      safety checks bypassed
  *
  * Known limitations:
  *  - Cannot add/remove class properties
@@ -50,9 +52,20 @@ class UopzReloader extends AbstractListener implements OutputAware
     private Parser $parser;
     private PrettyPrinter\Standard $printer;
     private ?OutputInterface $output = null;
+    private ?Shell $shell = null;
 
     /** @var array<string, int> File path => last processed timestamp */
     private array $timestamps = [];
+
+    /**
+     * File paths with skipped elements, awaiting force-reload via yolo.
+     *
+     * @var array<string, int> File path => last processed timestamp
+     */
+    private array $skippedFiles = [];
+
+    /** @var bool Whether to bypass safety warnings (set by yolo command) */
+    private bool $forceReload = false;
 
     /**
      * Only enabled if uopz extension is installed with required functions.
@@ -87,11 +100,48 @@ class UopzReloader extends AbstractListener implements OutputAware
     }
 
     /**
+     * Enable or disable force-reload mode.
+     *
+     * When enabled, safety checks are bypassed and any pending skipped files
+     * are immediately re-processed.
+     */
+    public function setForceReload(bool $force)
+    {
+        $this->forceReload = $force;
+
+        // Re-process any skipped files now that force-reload is enabled
+        if ($force && !empty($this->skippedFiles) && $this->shell !== null) {
+            $this->reloadSkippedFiles();
+        }
+    }
+
+    /**
+     * Re-process files that were previously skipped.
+     */
+    private function reloadSkippedFiles(): void
+    {
+        $files = $this->skippedFiles;
+        $this->skippedFiles = [];
+
+        if (\count($files) === 1) {
+            $this->writeInfo(\sprintf('YOLO: Force-reloading %s', ConfigPaths::prettyPath(\array_key_first($files))));
+        } else {
+            $this->writeInfo(\sprintf('YOLO: Force-reloading %d files', \count($files)));
+        }
+
+        foreach ($files as $file => $timestamp) {
+            $this->reloadFile($file);
+            $this->timestamps[$file] = $timestamp;
+        }
+    }
+
+    /**
      * Reload code on input.
      */
     public function onInput(Shell $shell, string $input)
     {
-        $this->reload($shell);
+        $this->shell = $shell;
+        $this->reload();
 
         return null;
     }
@@ -134,29 +184,45 @@ class UopzReloader extends AbstractListener implements OutputAware
         }
 
         // Notify user about reload attempts
-        if (\count($modified) === 1) {
-            $this->writeInfo(\sprintf('Reloading %s', ConfigPaths::prettyPath(\array_key_first($modified))));
+        if ($this->forceReload) {
+            if (\count($modified) === 1) {
+                $this->writeInfo(\sprintf('YOLO: Force-reloading %s', ConfigPaths::prettyPath(\array_key_first($modified))));
+            } else {
+                $this->writeInfo(\sprintf('YOLO: Force-reloading %d files', \count($modified)));
+            }
         } else {
-            $this->writeInfo(\sprintf('Reloading %d files', \count($modified)));
+            if (\count($modified) === 1) {
+                $this->writeInfo(\sprintf('Reloading %s', ConfigPaths::prettyPath(\array_key_first($modified))));
+            } else {
+                $this->writeInfo(\sprintf('Reloading %d files', \count($modified)));
+            }
         }
 
         foreach ($modified as $file => $timestamp) {
-            $this->reloadFile($shell, $file);
+            $hadSkips = $this->reloadFile($file);
             $this->timestamps[$file] = $timestamp;
+            if ($hadSkips) {
+                // Track for later force-reload via yolo
+                $this->skippedFiles[$file] = $timestamp;
+            } else {
+                unset($this->skippedFiles[$file]);
+            }
         }
     }
 
     /**
      * Reload a single file by parsing it and applying uopz overrides.
+     *
+     * @return bool True if any elements were skipped (need yolo to force)
      */
-    private function reloadFile(Shell $shell, string $file): void
+    private function reloadFile(string $file): bool
     {
         try {
             $code = \file_get_contents($file);
             $ast = $this->parser->parse($code);
 
             $traverser = new NodeTraverser();
-            $reloader = new UopzReloaderVisitor($this->printer, $shell);
+            $reloader = new UopzReloaderVisitor($this->printer, $this->forceReload);
             $traverser->addVisitor($reloader);
             $traverser->traverse($ast);
 
@@ -166,8 +232,12 @@ class UopzReloader extends AbstractListener implements OutputAware
                     $this->writeWarning($warning);
                 }
             }
+
+            return $reloader->hasSkips();
         } catch (\Throwable $e) {
-            $this->writeError($shell, \sprintf('Failed to reload %s: %s', ConfigPaths::prettyPath($file), $e->getMessage()));
+            $this->writeError(\sprintf('Failed to reload %s: %s', ConfigPaths::prettyPath($file), $e->getMessage()));
+
+            return false;
         }
     }
 

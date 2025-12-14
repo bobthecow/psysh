@@ -279,7 +279,7 @@ class Shell extends Application
         $doc = new Command\DocCommand();
         $doc->setConfiguration($this->config);
 
-        return [
+        $commands = [
             new Command\HelpCommand(),
             new Command\ListCommand(),
             new Command\DumpCommand(),
@@ -298,6 +298,15 @@ class Shell extends Application
             $hist,
             new Command\ExitCommand(),
         ];
+
+        // Only add yolo command if UopzReloader is supported
+        if (UopzReloader::isSupported()) {
+            $yolo = new Command\YoloCommand();
+            $yolo->setReadline($this->readline);
+            $commands[] = $yolo;
+        }
+
+        return $commands;
     }
 
     /**
@@ -358,6 +367,20 @@ class Shell extends Application
         }
 
         return $listeners;
+    }
+
+    /**
+     * Enable or disable force-reload mode for code reloaders.
+     *
+     * Used by the `yolo` command to bypass safety warnings when reloading code.
+     */
+    public function setForceReload(bool $force): void
+    {
+        foreach ($this->loopListeners as $listener) {
+            if (\method_exists($listener, 'setForceReload')) {
+                $listener->setForceReload($force);
+            }
+        }
     }
 
     /**

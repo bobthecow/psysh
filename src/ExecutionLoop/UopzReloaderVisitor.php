@@ -27,14 +27,20 @@ use ReflectionClass;
  * - Class and global constants (via uopz_redefine)
  *
  * Safety checks:
- * - Conditional code (functions/constants inside if blocks) is skipped with a warning
+ * - Conditional code (functions/constants inside if blocks) is skipped by default
  *   because reloading may not match runtime conditions
  * - Static variables in functions/methods trigger a warning (state will reset)
  * - Structural changes (new properties, inheritance) cannot be applied
+ *
+ * When force-reload is enabled (via `yolo` command), safety checks are bypassed
+ * and the code is reloaded anyway.
  */
 class UopzReloaderVisitor extends NodeVisitorAbstract
 {
     private PrettyPrinter\Standard $printer;
+
+    /** @var bool Whether to bypass safety warnings */
+    private bool $forceReload;
 
     private string $namespace = '';
     private ?string $currentClass = null;
@@ -43,13 +49,19 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
     /** @var string[] Warning messages generated during traversal */
     private array $warnings = [];
 
+    /** @var bool Whether any elements were skipped (not force-reloaded) */
+    private bool $hasSkips = false;
+
     /** @var int Nesting depth inside conditional/control structures */
     private int $conditionalDepth = 0;
 
-    public function __construct(PrettyPrinter\Standard $printer, Shell $shell)
+    /**
+     * @param bool $forceReload Whether to bypass safety warnings
+     */
+    public function __construct(PrettyPrinter\Standard $printer, bool $forceReload = false)
     {
         $this->printer = $printer;
-        $this->shell = $shell;
+        $this->forceReload = $forceReload;
     }
 
     /**
@@ -68,6 +80,14 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
     public function getWarnings(): array
     {
         return $this->warnings;
+    }
+
+    /**
+     * Check if any elements were skipped during reloading.
+     */
+    public function hasSkips(): bool
+    {
+        return $this->hasSkips;
     }
 
     /**
@@ -113,14 +133,22 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
             $this->reloadMethod($this->currentClass, $node);
         }
 
-        // Reload functions (skip if inside conditional)
+        // Reload functions (skip if inside conditional, unless force mode)
         if ($node instanceof Stmt\Function_) {
             // Track that we're entering a function
             $this->currentFunction = $node->name->toString();
 
             if ($this->conditionalDepth > 0 && $this->currentClass === null) {
                 $funcName = $node->name->toString();
-                $this->addWarning(\sprintf('Skipped conditional: if (...) { function %s() ... }', $funcName));
+                $snippet = \sprintf('if (...) { function %s() ... }', $funcName);
+
+                if ($this->forceReload) {
+                    $this->addWarning(\sprintf('YOLO: Force-reloaded %s', $snippet));
+                    $this->reloadFunction($node);
+                } else {
+                    $this->addWarning(\sprintf('Skipped conditional: %s (use `yolo` to force)', $snippet));
+                    $this->hasSkips = true;
+                }
             } else {
                 $this->reloadFunction($node);
             }
@@ -135,7 +163,15 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
             if ($this->conditionalDepth > 0 && $this->currentClass === null) {
                 $constNode = $node->consts[0] ?? null;
                 $constName = $constNode ? $constNode->name->toString() : 'CONST';
-                $this->addWarning(\sprintf('Skipped conditional: if (...) { const %s = ...; }', $constName));
+                $snippet = \sprintf('if (...) { const %s = ...; }', $constName);
+
+                if ($this->forceReload) {
+                    $this->addWarning(\sprintf('YOLO: Force-reloaded %s', $snippet));
+                    $this->reloadGlobalConstants($node);
+                } else {
+                    $this->addWarning(\sprintf('Skipped conditional: %s (use `yolo` to force)', $snippet));
+                    $this->hasSkips = true;
+                }
             } else {
                 $this->reloadGlobalConstants($node);
             }
