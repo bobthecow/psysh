@@ -21,7 +21,9 @@ class TestOutput extends BufferedOutput
     public function page($messages, int $type = 0)
     {
         if (\is_string($messages)) {
-            $messages = (array) $messages;
+            // Split on newlines to avoid O(n^2) performance in Symfony's OutputFormatter
+            // when processing large strings with many style tags.
+            $messages = \explode("\n", $messages);
         }
 
         if (\is_callable($messages)) {
