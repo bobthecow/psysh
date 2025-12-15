@@ -49,7 +49,7 @@ jobs:
         run: make build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: binaries
           path: build/*/psysh
