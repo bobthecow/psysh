@@ -696,7 +696,9 @@ class Shell extends Application
             if ($listener instanceof OutputAware) {
                 $listener->setOutput($this->output);
             }
+        }
 
+        foreach ($this->loopListeners as $listener) {
             $listener->beforeRun($this);
         }
     }

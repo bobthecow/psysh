@@ -221,6 +221,10 @@ class UopzReloader extends AbstractListener implements OutputAware
             $code = \file_get_contents($file);
             $ast = $this->parser->parse($code);
 
+            if ($ast === null) {
+                return false;
+            }
+
             $traverser = new NodeTraverser();
             $reloader = new UopzReloaderVisitor($this->printer, $this->forceReload);
             $traverser->addVisitor($reloader);

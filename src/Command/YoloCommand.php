@@ -83,7 +83,7 @@ HELP
         try {
             $shell->addCode($code);
 
-            return self::SUCCESS;
+            return 0;
         } finally {
             $shell->setForceReload(false);
         }

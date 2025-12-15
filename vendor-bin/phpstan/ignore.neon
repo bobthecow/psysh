@@ -12,6 +12,25 @@ parameters:
     - message: "#^Unary operation .* on mixed results in an error\\.$#"
       paths:
         - ../../src/ExecutionLoop/RunkitReloader.php
+    # Uopz extension is optional, so we shouldn't warn about its functions
+    - message: "#^Function uopz_[a-zA-Z0-9_]+ not found\\.$#"
+      paths:
+        - ../../src/ExecutionLoop/UopzReloader.php
+        - ../../src/ExecutionLoop/UopzReloaderVisitor.php
+      reportUnmatched: false
+    # UopzReloader tests use dynamically created classes/functions via require
+    - message: "#unknown class (Uopz|\\\\Uopz)#i"
+      paths:
+        - ../../test/ExecutionLoop/UopzReloaderTest.php
+    - message: "#class (Uopz|\\\\Uopz)[a-zA-Z\\\\]* not found#i"
+      paths:
+        - ../../test/ExecutionLoop/UopzReloaderTest.php
+    - message: "#^Function (uopz|Uopz|\\\\uopz|\\\\Uopz|UopzTestNs\\\\)[a-zA-Z_\\\\]* not found\\.$#"
+      paths:
+        - ../../test/ExecutionLoop/UopzReloaderTest.php
+    - message: "#Constant (Uopz|\\\\Uopz)[a-zA-Z_\\\\:]* not found#i"
+      paths:
+        - ../../test/ExecutionLoop/UopzReloaderTest.php
     # PHP8 classes are used only after explicit check for runtime version, so let's ignore it
     - message: "#^Class (UnitEnum|ReflectionUnionType)+ not found\\.$#"
       paths:

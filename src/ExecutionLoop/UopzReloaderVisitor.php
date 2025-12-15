@@ -496,7 +496,10 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
 
         // Echo/print statements
         if ($node instanceof Stmt\Echo_) {
-            $snippet = 'echo '.$this->printer->prettyPrintExpr($node->exprs[0] ?? null);
+            $firstExpr = $node->exprs[0] ?? null;
+            $snippet = $firstExpr !== null
+                ? 'echo '.$this->printer->prettyPrintExpr($firstExpr)
+                : 'echo ...';
             if (\strlen($snippet) > 50) {
                 $snippet = \substr($snippet, 0, 47).'...';
             }
@@ -507,11 +510,12 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
 
         // Global variable declarations
         if ($node instanceof Stmt\Global_) {
-            /** @var Expr\Variable[] $vars */
-            $vars = $node->vars;
-            $varNames = \array_map(function ($var) {
-                return '$'.$var->name;
-            }, $vars);
+            $varNames = [];
+            foreach ($node->vars as $var) {
+                if ($var instanceof Expr\Variable) {
+                    $varNames[] = '$'.$var->name;
+                }
+            }
             $snippet = 'global '.\implode(', ', $varNames);
             $this->addWarning(\sprintf('Not re-run: %s', $snippet));
 
@@ -520,9 +524,10 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
 
         // Static variable declarations (inside functions are OK, but top-level would be unusual)
         if ($node instanceof Stmt\Static_) {
-            $varNames = \array_map(function ($var) {
-                return '$'.$var->var->name;
-            }, $node->vars);
+            $varNames = [];
+            foreach ($node->vars as $var) {
+                $varNames[] = '$'.$var->var->name;
+            }
             $snippet = 'static '.\implode(', ', $varNames);
             $this->addWarning(\sprintf('Not re-run: %s', $snippet));
 

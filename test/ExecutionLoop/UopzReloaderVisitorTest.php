@@ -17,6 +17,9 @@ use Psy\ExecutionLoop\UopzReloaderVisitor;
 use Psy\ParserFactory;
 use Psy\Test\TestCase;
 
+/**
+ * @group isolation-fail
+ */
 class UopzReloaderVisitorTest extends TestCase
 {
     private $parser;
