@@ -238,12 +238,29 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
     {
         $functionName = $this->getFullyQualifiedName($function->name->toString());
 
-        // Check for static variables in function body
+        // New function; just define it via eval
+        if (!\function_exists($functionName)) {
+            try {
+                $code = '';
+                if ($this->namespace !== '') {
+                    $code .= 'namespace '.$this->namespace.'; ';
+                }
+                $code .= $this->printer->prettyPrint([$function]);
+                eval($code);
+            } catch (\Throwable $e) {
+                $this->addWarning(\sprintf('Failed to add %s(): %s', $functionName, $e->getMessage()));
+            }
+
+            return;
+        }
+
+        // Existing function; check for static variables (state will reset on reload)
         if ($this->hasStaticVariables($function->stmts)) {
             $snippet = \sprintf('%s() { static $var = ...; }', $functionName);
             $this->addWarning(\sprintf('Static vars will reset: %s', $snippet));
         }
 
+        // Use uopz to override existing function
         $closure = $this->createClosure($function->params, $function->stmts, $function->returnType);
         if ($closure !== null) {
             try {

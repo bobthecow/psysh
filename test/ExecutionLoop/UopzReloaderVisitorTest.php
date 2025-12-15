@@ -81,6 +81,11 @@ if (defined("FOO")) {
 
     public function testWarnsOnStaticVariables()
     {
+        // Define the function first so the visitor sees it as existing
+        if (!\function_exists('funcWithStatic')) {
+            eval('function funcWithStatic() { return 0; }');
+        }
+
         $code = '<?php
 function funcWithStatic() {
     static $counter = 0;

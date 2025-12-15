@@ -257,6 +257,37 @@ function uopzTestFunction() {
         $this->assertEquals('reloaded', \uopzTestFunction());
     }
 
+    public function testAddNewFunction()
+    {
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_newfunc_test_');
+        $this->tempFiles[] = $testFile;
+
+        // Start with a file that has no function
+        \file_put_contents($testFile, '<?php
+// placeholder
+');
+
+        require $testFile;
+
+        $this->assertFalse(\function_exists('uopzNewFunction'));
+
+        $reloader = new UopzReloader();
+        $shell = $this->getShell();
+        $reloader->onInput($shell, 'test');
+
+        // Add a new function
+        $this->writeFileForReload($testFile, '<?php
+function uopzNewFunction() {
+    return "i am new";
+}
+');
+
+        $reloader->onInput($shell, 'test');
+
+        $this->assertTrue(\function_exists('uopzNewFunction'));
+        $this->assertEquals('i am new', \uopzNewFunction());
+    }
+
     public function testSkipsInvalidModifiedFiles()
     {
         \file_put_contents($this->testFile, '<?php
