@@ -415,6 +415,11 @@ if (!\function_exists('Psy\\bin')) {
     function bin(): \Closure
     {
         return function () {
+            // Ensure exit() works when uopz extension is loaded with uopz.exit=0
+            if (\function_exists('uopz_allow_exit')) {
+                \uopz_allow_exit(true);
+            }
+
             if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {
                 if (\defined('HHVM_VERSION_ID')) {
                     \fwrite(\STDERR, 'PsySH v0.11 and higher does not support HHVM. Install an older version, or set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
