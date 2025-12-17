@@ -30,6 +30,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
     /** @var resource */
     private $stream;
     private string $cmd;
+    private bool $closedEarly = false;
 
     /**
      * Constructor.
@@ -53,14 +54,21 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      */
     public function doWrite($message, $newline): void
     {
+        // If the pager was closed early (user quit), don't reopen it.
+        if ($this->closedEarly) {
+            return;
+        }
+
         $pipe = $this->getPipe();
         if (false === @\fwrite($pipe, $message.($newline ? \PHP_EOL : ''))) {
             // @codeCoverageIgnoreStart
             // When the message is sufficiently long, writing to the pipe fails
             // if the pager process is closed before the entire message is read.
             //
-            // This is a normal condition, so we just close the pipe and return.
+            // This is a normal condition, so we close the pipe and ignore any
+            // further writes until the next paging session.
             $this->close();
+            $this->closedEarly = true;
 
             return;
             // @codeCoverageIgnoreEnd
@@ -87,6 +95,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
 
         $this->pipe = null;
         $this->proc = null;
+        $this->closedEarly = false;
     }
 
     /**
