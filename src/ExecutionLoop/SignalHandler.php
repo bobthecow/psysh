@@ -23,6 +23,7 @@ class SignalHandler extends AbstractListener
     private bool $sigintHandlerInstalled = false;
     private bool $restoreStty = false;
     private bool $wasInterrupted = false;
+    private ?string $originalStty = null;
 
     public const PCNTL_FUNCTIONS = [
         'pcntl_signal',
@@ -40,6 +41,16 @@ class SignalHandler extends AbstractListener
     {
         return DependencyChecker::functionsAvailable(self::PCNTL_FUNCTIONS)
             && DependencyChecker::functionsAvailable(self::POSIX_FUNCTIONS);
+    }
+
+    /**
+     * Save original stty state before the REPL starts.
+     */
+    public function beforeRun(Shell $shell)
+    {
+        if (@\posix_isatty(\STDIN)) {
+            $this->originalStty = @\shell_exec('stty -g 2>/dev/null');
+        }
     }
 
     /**
@@ -100,6 +111,16 @@ class SignalHandler extends AbstractListener
                 @\stream_set_blocking(\STDIN, true);
             }
             $this->wasInterrupted = false;
+        }
+    }
+
+    /**
+     * Restore original terminal state when the REPL exits.
+     */
+    public function afterRun(Shell $shell, int $exitCode = 0)
+    {
+        if ($this->originalStty !== null) {
+            @\shell_exec('stty '.\escapeshellarg(\trim($this->originalStty)).' 2>/dev/null');
         }
     }
 }
