@@ -14,6 +14,8 @@ namespace Psy\Formatter;
 use Psy\Manual\ManualInterface;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Psy\Reflection\ReflectionMagicMethod;
+use Psy\Reflection\ReflectionMagicProperty;
 use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
@@ -81,8 +83,14 @@ class SignatureFormatter implements ReflectorFormatter
             case $reflector instanceof \ReflectionClassConstant:
                 return self::formatClassConstant($reflector);
 
+            case $reflector instanceof ReflectionMagicMethod:
+                return self::formatMagicMethod($reflector);
+
             case $reflector instanceof \ReflectionMethod:
                 return self::formatMethod($reflector);
+
+            case $reflector instanceof ReflectionMagicProperty:
+                return self::formatMagicProperty($reflector);
 
             case $reflector instanceof \ReflectionProperty:
                 return self::formatProperty($reflector);
@@ -293,6 +301,68 @@ class SignatureFormatter implements ReflectorFormatter
             self::formatModifiers($reflector),
             self::formatFunction($reflector)
         );
+    }
+
+    /**
+     * Format a magic method signature.
+     *
+     * @param ReflectionMagicMethod $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatMagicMethod(ReflectionMagicMethod $reflector): string
+    {
+        $parts = [];
+
+        $parts[] = self::formatModifiers($reflector);
+        $parts[] = '<keyword>function</keyword>';
+
+        $ref = $reflector->returnsReference() ? '&' : '';
+
+        $signature = \sprintf(
+            '%s<function>%s</function>(%s)',
+            $ref,
+            $reflector->getName(),
+            OutputFormatter::escape($reflector->getParameterString())
+        );
+
+        $returnType = $reflector->getDocblockReturnType();
+        if ($returnType !== null) {
+            $signature .= \sprintf(': <keyword>%s</keyword>', OutputFormatter::escape($returnType));
+        }
+
+        $parts[] = $signature;
+
+        return \implode(' ', \array_filter($parts));
+    }
+
+    /**
+     * Format a magic property signature.
+     *
+     * @param ReflectionMagicProperty $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatMagicProperty(ReflectionMagicProperty $reflector): string
+    {
+        $parts = [];
+
+        $parts[] = self::formatModifiers($reflector);
+
+        $type = $reflector->getDocblockType();
+        if ($type !== null) {
+            $parts[] = \sprintf('<keyword>%s</keyword>', OutputFormatter::escape($type));
+        }
+
+        $parts[] = \sprintf('<strong>$%s</strong>', $reflector->getName());
+
+        if ($reflector->isReadOnly()) {
+            $parts[] = '<aside>(read-only)</aside>';
+        } elseif ($reflector->isWriteOnly()) {
+            $parts[] = '<aside>(write-only)</aside>';
+        }
+
+        return \implode(' ', \array_filter($parts));
     }
 
     /**

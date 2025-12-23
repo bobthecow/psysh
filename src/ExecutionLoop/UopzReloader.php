@@ -20,6 +20,7 @@ use Psy\OutputAware;
 use Psy\ParserFactory;
 use Psy\Shell;
 use Psy\Util\DependencyChecker;
+use Psy\Util\Docblock;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -182,6 +183,9 @@ class UopzReloader extends AbstractListener implements OutputAware
         if (\count($modified) === 0) {
             return;
         }
+
+        // Clear magic method/property cache since docblocks may have changed
+        Docblock::clearMagicCache();
 
         // Notify user about reload attempts
         if ($this->forceReload) {

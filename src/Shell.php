@@ -372,6 +372,8 @@ class Shell extends Application
             new Matcher\ClassAttributesMatcher(),
             new Matcher\ObjectMethodsMatcher(),
             new Matcher\ObjectAttributesMatcher(),
+            new Matcher\MagicMethodsMatcher(),
+            new Matcher\MagicPropertiesMatcher(),
             new Matcher\ClassMethodDefaultParametersMatcher(),
             new Matcher\ObjectMethodDefaultParametersMatcher(),
             new Matcher\FunctionDefaultParametersMatcher(),
