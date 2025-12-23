@@ -19,6 +19,7 @@ disabled:
 finder:
   exclude:
     - "src/Readline/Hoa"
+    - "test/Util/Fixtures"
   name:
     - "*.php"
     - "build-manual"

@@ -30,6 +30,7 @@ abstract class Enumerator
     const IS_CONSTANT = 'const';
     const IS_CLASS = 'class';
     const IS_FUNCTION = 'function';
+    const IS_VIRTUAL = 'virtual';
 
     private FilterOptions $filter;
     private Presenter $presenter;
