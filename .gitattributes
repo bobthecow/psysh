@@ -15,5 +15,4 @@
 /phpunit.xml.dist export-ignore
 /scoper.inc.php export-ignore
 /test export-ignore
-/test-logger-demo.php export-ignore
 /vendor-bin export-ignore
