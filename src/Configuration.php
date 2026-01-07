@@ -1284,7 +1284,8 @@ class Configuration
      * Get an OutputPager instance or a command for an external Proc pager.
      *
      * If no Pager has been explicitly provided, and Pcntl is available, this
-     * will default to `cli.pager` ini value, falling back to `which less`.
+     * will check the `PAGER` env var, then `cli.pager` ini value, falling
+     * back to `which less`.
      *
      * @return string|OutputPager|false
      */
@@ -1295,8 +1296,11 @@ class Configuration
                 return false;
             }
 
-            if ($pager = \ini_get('cli.pager')) {
-                // use the default pager
+            if ($pager = \getenv('PAGER')) {
+                // PAGER env var (standard Unix convention)
+                $this->pager = $pager;
+            } elseif ($pager = \ini_get('cli.pager')) {
+                // cli.pager ini setting
                 $this->pager = $pager;
             } elseif ($less = $this->configPaths->which('less')) {
                 // check for the presence of less...
