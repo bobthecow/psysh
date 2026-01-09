@@ -1296,31 +1296,50 @@ class Configuration
                 return false;
             }
 
+            $command = null;
             if ($pager = \getenv('PAGER')) {
                 // PAGER env var (standard Unix convention)
-                $this->pager = $pager;
-            } elseif ($pager = \ini_get('cli.pager')) {
-                // cli.pager ini setting
-                $this->pager = $pager;
-            } elseif ($less = $this->configPaths->which('less')) {
-                // check for the presence of less...
-
-                // n.b. The busybox less implementation is a bit broken, so
-                // let's not use it by default.
-                //
-                // See https://github.com/bobthecow/psysh/issues/778
-                if (@\is_link($less)) {
-                    $link = @\readlink($less);
-                    if ($link !== false && \strpos($link, 'busybox') !== false) {
-                        return false;
-                    }
+                [$bin] = \explode(' ', $pager);
+                $path = \is_file($bin) ? $bin : $this->configPaths->which($bin);
+                if ($path) {
+                    $command = $this->composePagerCommandLine($pager, $path);
                 }
 
-                $this->pager = $less.' -R -F -X';
+            } elseif ($pager = \ini_get('cli.pager')) {
+                // cli.pager is intended for php -a, so keep the value as-is.
+                $command = $pager;
+            } elseif ($less = $this->configPaths->which('less')) {
+                $command = $this->composePagerCommandLine('less', $less);
+            }
+
+            if ($command !== null) {
+                $this->pager = $command;
             }
         }
 
         return $this->pager;
+    }
+
+    private function composePagerCommandLine(string $command, string $path): ?string
+    {
+        if (\substr_compare($path, 'less', -\strlen('less')) !== 0) {
+            return $command;
+        }
+
+        // check for the presence of less...
+
+        // n.b. The busybox less implementation is a bit broken, so
+        // let's not use it by default.
+        //
+        // See https://github.com/bobthecow/psysh/issues/778
+        if (@\is_link($path)) {
+            $link = @\readlink($path);
+            if ($link !== false && \strpos($link, 'busybox') !== false) {
+                return null;
+            }
+        }
+
+        return $command . ' -R -F -X';
     }
 
     /**
