@@ -1297,19 +1297,18 @@ class Configuration
             }
 
             $command = null;
-            if ($pager = \getenv('PAGER')) {
+            if ($less = $this->configPaths->which('less')) {
+                $command = $this->composePagerCommandLine('less', $less);
+            } elseif ($pager = \ini_get('cli.pager')) {
+                // cli.pager is intended for php -a, so keep the value as-is.
+                $command = $pager;
+            } elseif ($pager = \getenv('PAGER')) {
                 // PAGER env var (standard Unix convention)
                 [$bin] = \explode(' ', $pager);
                 $path = \is_file($bin) ? $bin : $this->configPaths->which($bin);
                 if ($path) {
                     $command = $this->composePagerCommandLine($pager, $path);
                 }
-
-            } elseif ($pager = \ini_get('cli.pager')) {
-                // cli.pager is intended for php -a, so keep the value as-is.
-                $command = $pager;
-            } elseif ($less = $this->configPaths->which('less')) {
-                $command = $this->composePagerCommandLine('less', $less);
             }
 
             if ($command !== null) {
