@@ -22,7 +22,7 @@ abstract class ClipboardMethod extends Output
         parent::__construct($verbosity, $decorated, $formatter);
     }
 
-    public function copy(string $text): bool
+    public function copy(string $text, OutputInterface $output): bool
     {
         $this->write($text, false, OutputInterface::OUTPUT_PLAIN);
 

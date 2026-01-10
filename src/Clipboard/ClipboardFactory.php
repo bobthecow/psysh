@@ -34,7 +34,7 @@ final class ClipboardFactory
         if ($isSsh) {
             return $this->allowOsc52
                 ? new Osc52ClipboardMethod()
-                : new NullClipboardMethod();
+                : new NullClipboardMethod(true);
         }
 
         if (\function_exists('shell_exec') && \function_exists('proc_open')) {
@@ -49,7 +49,7 @@ final class ClipboardFactory
             return new Osc52ClipboardMethod();
         }
 
-        return new NullClipboardMethod();
+        return new NullClipboardMethod(false);
     }
 
     /**
