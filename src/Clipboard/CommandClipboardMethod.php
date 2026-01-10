@@ -11,33 +11,28 @@
 
 namespace Psy\Clipboard;
 
-final class CommandClipboardMethod extends ClipboardMethod
+use Symfony\Component\Console\Output\OutputInterface;
+
+final class CommandClipboardMethod implements ClipboardMethod
 {
     private string $command;
 
-    public function __construct(string $command, ?int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = false, ?\Symfony\Component\Console\Formatter\OutputFormatterInterface $formatter = null)
+    public function __construct(string $command)
     {
-        parent::__construct($verbosity, $decorated, $formatter);
         $this->command = $command;
     }
 
-    protected function doWrite(string $message, bool $newline): void
+    public function copy(string $text, OutputInterface $output): bool
     {
-        if (!\function_exists('proc_open')) {
-            throw new \RuntimeException('proc_open is not available.');
-        }
-
         $process = \proc_open($this->command, [0 => ['pipe', 'r']], $pipes);
         if ($process === false) {
             throw new \RuntimeException('Unable to start clipboard command.');
         }
 
-        if ($newline) {
-            $message .= "\n";
-        }
-
-        \fwrite($pipes[0], $message);
+        \fwrite($pipes[0], $text);
         \fclose($pipes[0]);
         \proc_close($process);
+
+        return true;
     }
 }
