@@ -11,21 +11,9 @@
 
 namespace Psy\Clipboard;
 
-use Symfony\Component\Console\Formatter\OutputFormatterInterface;
-use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class ClipboardMethod extends Output
+interface ClipboardMethod
 {
-    public function __construct(?int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = false, ?OutputFormatterInterface $formatter = null)
-    {
-        parent::__construct($verbosity, $decorated, $formatter);
-    }
-
-    public function copy(string $text, OutputInterface $output): bool
-    {
-        $this->write($text, false, OutputInterface::OUTPUT_PLAIN);
-
-        return true;
-    }
+    public function copy(string $text, OutputInterface $output): bool;
 }

@@ -13,24 +13,22 @@ namespace Psy\Clipboard;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class NullClipboardMethod extends ClipboardMethod
+final class NullClipboardMethod implements ClipboardMethod
 {
+    private static bool $warned = false;
     private bool $isSsh;
-
-    private bool $warned = false;
 
     public function __construct(bool $isSsh)
     {
-        parent::__construct();
-
         $this->isSsh = $isSsh;
     }
 
     public function copy(string $text, OutputInterface $output): bool
     {
-        if ($this->warned) {
+        if (self::$warned) {
             return false;
         }
+        self::$warned = true;
 
         $output->writeln('<info>💡 Productivity Tip: Remote Clipboard Support</info>');
         $output->writeln('You can enable seamless clipboard copying by setting <comment>useOsc52Clipboard: true</comment> in your config.');
@@ -47,10 +45,5 @@ final class NullClipboardMethod extends ClipboardMethod
         $output->writeln('');
 
         return false;
-    }
-
-    protected function doWrite(string $message, bool $newline): void
-    {
-        // noop
     }
 }

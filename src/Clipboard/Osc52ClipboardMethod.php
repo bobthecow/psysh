@@ -11,20 +11,13 @@
 
 namespace Psy\Clipboard;
 
-final class Osc52ClipboardMethod extends ClipboardMethod
+use Symfony\Component\Console\Output\OutputInterface;
+
+final class Osc52ClipboardMethod implements ClipboardMethod
 {
-    public function __construct(?int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = false, ?\Symfony\Component\Console\Formatter\OutputFormatterInterface $formatter = null)
+    public function copy(string $text, OutputInterface $output): bool
     {
-        parent::__construct($verbosity, $decorated, $formatter);
-    }
-
-    protected function doWrite(string $message, bool $newline): void
-    {
-        if ($newline) {
-            $message .= "\n";
-        }
-
-        $base64 = \base64_encode($message);
+        $base64 = \base64_encode($text);
         $osc52 = "\x1b]52;c;{$base64}\x07";
 
         if (\getenv('TMUX')) {
@@ -32,5 +25,7 @@ final class Osc52ClipboardMethod extends ClipboardMethod
         }
 
         \fwrite(\STDOUT, $osc52);
+
+        return true;
     }
 }
