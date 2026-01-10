@@ -87,8 +87,10 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
 
         $allowOsc52 = $this->config ? $this->config->useOsc52Clipboard() : false;
         $method = (new ClipboardFactory($allowOsc52))->create();
-        if (!$method->copy($presented)) {
+        if (!$method->copy($presented, $output)) {
             $output->writeln('<error>Unable to copy value to clipboard.</error>');
+
+            return 1;
         }
 
         $output->writeln('<info>Copied to clipboard.</info>');
