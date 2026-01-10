@@ -83,7 +83,8 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
     {
         $expression = $input->getArgument('expression');
         $value = $expression === null ? $this->context->get('_') : $this->resolveCode($expression);
-        $presented = $this->presenter->present($value);
+        // TODO: Build the dump string without ANSI control chars instead of stripping them.
+        $presented = $this->stripAnsi($this->presenter->present($value));
 
         $allowOsc52 = $this->config ? $this->config->useOsc52Clipboard() : false;
         $method = (new ClipboardFactory($allowOsc52))->create();
@@ -98,4 +99,11 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
         return 0;
     }
 
+    private function stripAnsi(string $value): string
+    {
+        $value = \preg_replace("/\x1b\\][^\x07]*(\x07|\x1b\\\\)/", '', $value);
+        $value = \preg_replace("/\x1b\\[[0-9;?]*[A-Za-z]/", '', $value);
+
+        return $value ?? '';
+    }
 }
