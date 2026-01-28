@@ -14,6 +14,7 @@
 // We'll wrap this whole mess in a Closure so it doesn't leak any globals.
 call_user_func(function () {
     $cwd = null;
+    $cwdFromArg = false;
 
     // Find the cwd arg (if present)
     $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
@@ -24,21 +25,52 @@ call_user_func(function () {
                 exit(1);
             }
             $cwd = $argv[$i + 1];
-            break;
+            $cwdFromArg = true;
+            continue;
         }
 
         if (preg_match('/^--cwd=/', $arg)) {
             $cwd = substr($arg, 6);
-            break;
+            $cwdFromArg = true;
+            continue;
         }
     }
 
-    // Or fall back to the actual cwd
-    if (!isset($cwd)) {
+    if ($cwdFromArg) {
+        if (!@chdir($cwd)) {
+            fwrite(STDERR, 'Invalid --cwd directory: ' . $cwd . PHP_EOL);
+            exit(1);
+        }
+    }
+
+    // Fall back to the actual cwd, or normalize the path after chdir
+    if (!isset($cwd) || $cwdFromArg) {
         $cwd = getcwd();
     }
 
     $cwd = str_replace('\\', '/', $cwd);
+
+    if ($cwdFromArg) {
+        $filtered = array();
+        $skipNext = false;
+        foreach ($argv as $arg) {
+            if ($skipNext) {
+                $skipNext = false;
+                continue;
+            }
+            if ($arg === '--cwd') {
+                $skipNext = true;
+                continue;
+            }
+            if (preg_match('/^--cwd=/', $arg)) {
+                continue;
+            }
+            $filtered[] = $arg;
+        }
+        $_SERVER['argv'] = $filtered;
+        $_SERVER['argc'] = count($filtered);
+        $argv = $filtered;
+    }
 
     $chunks = explode('/', $cwd);
     while (!empty($chunks)) {

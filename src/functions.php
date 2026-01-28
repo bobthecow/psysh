@@ -465,6 +465,22 @@ if (!\function_exists('Psy\\bin')) {
                 $usageException = $e;
             }
 
+            if ($usageException === null) {
+                $cwd = null;
+                if ($input->hasOption('cwd')) {
+                    $cwd = $input->getOption('cwd');
+                }
+                if ($cwd === null || $cwd === '') {
+                    $cwd = $input->getParameterOption('--cwd', null, true);
+                }
+                if ($cwd !== null && $cwd !== '') {
+                    if (!@\chdir($cwd)) {
+                        \fwrite(\STDERR, 'Invalid --cwd directory: '.$cwd.\PHP_EOL);
+                        exit(1);
+                    }
+                }
+            }
+
             try {
                 $config = Configuration::fromInput($input);
             } catch (\InvalidArgumentException $e) {
