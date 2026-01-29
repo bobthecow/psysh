@@ -13,13 +13,14 @@ namespace Psy\Command;
 
 use Psy\Input\CodeArgument;
 use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Execute code while bypassing reloader safety checks.
  */
-class YoloCommand extends Command
+class YoloCommand extends Command implements ReadlineAware
 {
     private Readline $readline;
 

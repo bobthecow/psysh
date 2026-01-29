@@ -15,6 +15,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Input\CodeArgument;
 use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Psy\Sudo\SudoVisitor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Evaluate PHP code, bypassing visibility restrictions.
  */
-class SudoCommand extends Command
+class SudoCommand extends Command implements ReadlineAware
 {
     private Readline $readline;
     private CodeArgumentParser $parser;

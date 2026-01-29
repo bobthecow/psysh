@@ -19,8 +19,6 @@ interface PresenterAware
 {
     /**
      * Set a reference to the Presenter.
-     *
-     * @param Presenter $presenter
      */
     public function setPresenter(Presenter $presenter);
 }
