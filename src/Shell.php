@@ -158,18 +158,39 @@ class Shell extends Application
      * Boot the shell, initializing the CodeCleaner and Readline.
      *
      * This is called lazily when commands or methods require these dependencies.
+     * If input/output are provided, they'll be used for trust prompts. Otherwise,
+     * falls back to config defaults.
      */
-    public function boot(): void
+    public function boot(?InputInterface $input = null, ?OutputInterface $output = null): void
     {
         if ($this->booted) {
             return;
         }
+
+        $this->loadLocalConfig($input, $output);
 
         $this->cleaner = $this->config->getCodeCleaner();
         $this->readline = $this->config->getReadline();
         $this->booted = true;
 
         $this->refreshCommandDependencies();
+    }
+
+    /**
+     * Load local config with trust prompt if needed.
+     */
+    private function loadLocalConfig(?InputInterface $input, ?OutputInterface $output): void
+    {
+        if ($output === null) {
+            $output = $this->config->getOutput();
+        }
+
+        if ($input === null) {
+            $input = new ArrayInput([]);
+            $input->setInteractive($this->config->getInputInteractive());
+        }
+
+        $this->config->loadLocalConfigWithPrompt($input, $output);
     }
 
     /**
@@ -510,7 +531,7 @@ class Shell extends Application
     public function doRun(InputInterface $input, OutputInterface $output): int
     {
         $this->setOutput($output);
-        $this->boot();
+        $this->boot($input, $output);
         $this->resetCodeBuffer();
         $this->warmAutoloader();
 

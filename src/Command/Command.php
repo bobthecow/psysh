@@ -68,7 +68,7 @@ abstract class Command extends BaseCommand
             $this instanceof PresenterAware ||
             $this instanceof ReadlineAware
         ) {
-            $this->getShell()->boot();
+            $this->getShell()->boot($input, $output);
         }
 
         return parent::run($input, $output);

@@ -15,6 +15,8 @@
 call_user_func(function () {
     $cwd = null;
     $cwdFromArg = false;
+    $forceTrust = false;
+    $forceUntrust = false;
 
     // Find the cwd arg (if present)
     $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
@@ -33,6 +35,14 @@ call_user_func(function () {
             $cwd = substr($arg, 6);
             $cwdFromArg = true;
             continue;
+        }
+
+        if ($arg === '--trust-project') {
+            $forceTrust = true;
+            $forceUntrust = false;
+        } elseif ($arg === '--no-trust-project') {
+            $forceUntrust = true;
+            $forceTrust = false;
         }
     }
 
@@ -72,6 +82,131 @@ call_user_func(function () {
         $argv = $filtered;
     }
 
+    if (isset($_SERVER['PSYSH_TRUST_PROJECT']) && $_SERVER['PSYSH_TRUST_PROJECT'] !== '') {
+        $mode = strtolower(trim($_SERVER['PSYSH_TRUST_PROJECT']));
+        if (in_array($mode, array('true', '1'))) {
+            $forceTrust = true;
+            $forceUntrust = false;
+        } elseif (in_array($mode, array('false', '0'))) {
+            $forceUntrust = true;
+            $forceTrust = false;
+        } else {
+            fwrite(STDERR, 'Invalid PSYSH_TRUST_PROJECT value: ' . $_SERVER['PSYSH_TRUST_PROJECT'] . '. Expected: true, 1, false, or 0.' . PHP_EOL);
+            exit(1);
+        }
+    }
+
+    // Pass trust decision via env var and strip CLI flags. This allows a local
+    // psysh version to read the trust state while avoiding errors on older
+    // versions that don't understand --trust-project flags.
+    if ($forceTrust) {
+        $_SERVER['PSYSH_TRUST_PROJECT'] = 'true';
+        $_ENV['PSYSH_TRUST_PROJECT'] = 'true';
+        putenv('PSYSH_TRUST_PROJECT=true');
+    } elseif ($forceUntrust) {
+        $_SERVER['PSYSH_TRUST_PROJECT'] = 'false';
+        $_ENV['PSYSH_TRUST_PROJECT'] = 'false';
+        putenv('PSYSH_TRUST_PROJECT=false');
+    }
+
+    if ($forceTrust || $forceUntrust) {
+        $filtered = array();
+        foreach ($argv as $arg) {
+            if ($arg === '--trust-project' || $arg === '--no-trust-project') {
+                continue;
+            }
+            $filtered[] = $arg;
+        }
+        $_SERVER['argv'] = $filtered;
+        $_SERVER['argc'] = count($filtered);
+        $argv = $filtered;
+    }
+
+    $trustedRoots = array();
+    if (!$forceTrust) {
+        // Find the current config directory (matching ConfigPaths logic)
+        $currentConfigDir = null;
+        $fallbackConfigDir = null;
+
+        // Windows: %APPDATA%/PsySH takes priority
+        if ($currentConfigDir === null && defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            if (isset($_SERVER['APPDATA']) && $_SERVER['APPDATA']) {
+                $dir = str_replace('\\', '/', $_SERVER['APPDATA']).'/PsySH';
+                $fallbackConfigDir = $fallbackConfigDir !== null ? $fallbackConfigDir : $dir;
+                if (@is_dir($dir)) {
+                    $currentConfigDir = $dir;
+                }
+            }
+        }
+
+        // XDG_CONFIG_HOME/psysh
+        if ($currentConfigDir === null && isset($_SERVER['XDG_CONFIG_HOME']) && $_SERVER['XDG_CONFIG_HOME']) {
+            $dir = rtrim(str_replace('\\', '/', $_SERVER['XDG_CONFIG_HOME']), '/').'/psysh';
+            $fallbackConfigDir = $fallbackConfigDir !== null ? $fallbackConfigDir : $dir;
+            if (@is_dir($dir)) {
+                $currentConfigDir = $dir;
+            }
+        }
+
+        // HOME/.config/psysh (default XDG location)
+        if ($currentConfigDir === null && isset($_SERVER['HOME']) && $_SERVER['HOME']) {
+            $home = rtrim(str_replace('\\', '/', $_SERVER['HOME']), '/');
+
+            $dir = $home.'/.config/psysh';
+            $fallbackConfigDir = $fallbackConfigDir !== null ? $fallbackConfigDir : $dir;
+            if (@is_dir($dir)) {
+                $currentConfigDir = $dir;
+            }
+
+            // legacy
+            if ($currentConfigDir === null) {
+                $dir = $home.'/.psysh';
+                if (@is_dir($dir)) {
+                    $currentConfigDir = $dir;
+                }
+            }
+        }
+
+        // Windows: HOMEDRIVE/HOMEPATH fallback
+        if ($currentConfigDir === null && defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            if (isset($_SERVER['HOMEDRIVE']) && isset($_SERVER['HOMEPATH']) && $_SERVER['HOMEDRIVE'] && $_SERVER['HOMEPATH']) {
+                $dir = rtrim(str_replace('\\', '/', $_SERVER['HOMEDRIVE'].'/'.$_SERVER['HOMEPATH']), '/').'/.psysh';
+                if (@is_dir($dir)) {
+                    $currentConfigDir = $dir;
+                }
+            }
+        }
+
+        // Fall back to the first candidate directory if none exist yet
+        if ($currentConfigDir === null) {
+            $currentConfigDir = $fallbackConfigDir;
+        }
+
+        if ($currentConfigDir !== null) {
+            $trustFile = $currentConfigDir.'/trusted_projects.json';
+            if (is_file($trustFile)) {
+                $contents = file_get_contents($trustFile);
+                if ($contents !== false && $contents !== '') {
+                    $data = json_decode($contents, true);
+                    if (is_array($data)) {
+                        foreach ($data as $dir) {
+                            if (!is_string($dir) || $dir === '') {
+                                continue;
+                            }
+
+                            $real = realpath($dir);
+                            if ($real !== false) {
+                                $dir = $real;
+                            }
+
+                            $trustedRoots[] = str_replace('\\', '/', $dir);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     $chunks = explode('/', $cwd);
     while (!empty($chunks)) {
         $path = implode('/', $chunks);
@@ -86,6 +221,17 @@ call_user_func(function () {
                 if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
                     // We're inside the psysh project. Let's use the local Composer autoload.
                     if (is_file($path . '/vendor/autoload.php')) {
+                        $realPath = realpath($path);
+                        $realPath = $realPath ? str_replace('\\', '/', $realPath) : $path;
+
+                        if (!$forceTrust && ($forceUntrust || !in_array($realPath, $trustedRoots, true))) {
+                            fwrite(STDERR, 'Skipping local PsySH at ' . $prettyPath . ' (project is untrusted). Re-run with --trust-project to allow.' . PHP_EOL);
+                            $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
+                            $_ENV['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
+                            putenv('PSYSH_UNTRUSTED_PROJECT='.$realPath);
+                            return;
+                        }
+
                         if (realpath($path) !== realpath(__DIR__ . '/..')) {
                             fwrite(STDERR, 'Using local PsySH version at ' . $prettyPath . PHP_EOL);
                         }
@@ -101,10 +247,22 @@ call_user_func(function () {
         // Or a composer.lock
         if (is_file($path . '/composer.lock')) {
             if ($cfg = json_decode(file_get_contents($path . '/composer.lock'), true)) {
-                foreach (array_merge($cfg['packages'], $cfg['packages-dev']) as $pkg) {
+                $packages = array_merge(isset($cfg['packages']) ? $cfg['packages'] : array(), isset($cfg['packages-dev']) ? $cfg['packages-dev'] : array());
+                foreach ($packages as $pkg) {
                     if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
                         // We're inside a project which requires psysh. We'll use the local Composer autoload.
                         if (is_file($path . '/vendor/autoload.php')) {
+                            $realPath = realpath($path);
+                            $realPath = $realPath ? str_replace('\\', '/', $realPath) : $path;
+
+                            if (!$forceTrust && ($forceUntrust || !in_array($realPath, $trustedRoots, true))) {
+                                fwrite(STDERR, 'Skipping local PsySH at ' . $prettyPath . ' (project is untrusted). Re-run with --trust-project to allow.' . PHP_EOL);
+                                $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
+                                $_ENV['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
+                                putenv('PSYSH_UNTRUSTED_PROJECT='.$realPath);
+                                return;
+                            }
+
                             if (realpath($path . '/vendor') !== realpath(__DIR__ . '/../../..')) {
                                 fwrite(STDERR, 'Using local PsySH version at ' . $prettyPath . PHP_EOL);
                             }

@@ -49,6 +49,10 @@ class Configuration
     const INTERACTIVE_MODE_FORCED = 'forced';
     const INTERACTIVE_MODE_DISABLED = 'disabled';
 
+    const PROJECT_TRUST_PROMPT = 'prompt';
+    const PROJECT_TRUST_ALWAYS = 'always';
+    const PROJECT_TRUST_NEVER = 'never';
+
     const VERBOSITY_QUIET = 'quiet';
     const VERBOSITY_NORMAL = 'normal';
     const VERBOSITY_VERBOSE = 'verbose';
@@ -71,6 +75,7 @@ class Configuration
         'interactiveMode',
         'logging',
         'manualDbFile',
+        'trustProject',
         'pager',
         'prompt',
         'rawOutput',
@@ -123,6 +128,7 @@ class Configuration
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
     private string $interactiveMode = self::INTERACTIVE_MODE_AUTO;
+    private ProjectTrust $projectTrust;
     private ?string $updateCheck = null;
     private ?string $updateManualCheck = null;
     private ?string $startupMessage = null;
@@ -132,6 +138,8 @@ class Configuration
     private string $verbosity = self::VERBOSITY_NORMAL;
     private bool $yolo = false;
     private ?Theme $theme = null;
+    private bool $localConfigLoaded = false;
+    private bool $forceWarmAutoload = false;
 
     // services
     private ?Readline\Readline $readline = null;
@@ -159,6 +167,7 @@ class Configuration
     public function __construct(array $config = [])
     {
         $this->configPaths = new ConfigPaths();
+        $this->projectTrust = new ProjectTrust($this->configPaths);
 
         // explicit configFile option
         if (isset($config['configFile'])) {
@@ -169,6 +178,21 @@ class Configuration
             $this->configFile = $configFile;
         }
 
+        $trustOverride = null;
+        if (isset($config['trustProject'])) {
+            $this->setTrustProject($config['trustProject']);
+            $trustOverride = $this->projectTrust->getMode();
+        } elseif (isset($_SERVER['PSYSH_TRUST_PROJECT']) && $_SERVER['PSYSH_TRUST_PROJECT'] !== '') {
+            $this->projectTrust->setModeFromEnv($_SERVER['PSYSH_TRUST_PROJECT']);
+            $trustOverride = $this->projectTrust->getMode();
+        } elseif (\PHP_SAPI === 'cli-server') {
+            $trust = \getenv('PSYSH_TRUST_PROJECT');
+            if ($trust !== false && $trust !== '') {
+                $this->projectTrust->setModeFromEnv($trust);
+                $trustOverride = $this->projectTrust->getMode();
+            }
+        }
+
         // legacy baseDir option
         if (isset($config['baseDir'])) {
             $msg = "The 'baseDir' configuration option is deprecated; ".
@@ -176,10 +200,20 @@ class Configuration
             throw new DeprecatedException($msg);
         }
 
-        unset($config['configFile'], $config['baseDir']);
+        unset(
+            $config['configFile'],
+            $config['baseDir'],
+            $config['trustProject']
+        );
 
         // go go gadget, config!
         $this->loadConfig($config);
+
+        // Ensure that explicit project trust settings are applied
+        if ($trustOverride !== null && $this->projectTrust->getMode() !== $trustOverride) {
+            $this->projectTrust->setMode($trustOverride);
+        }
+
         $this->init();
     }
 
@@ -201,7 +235,12 @@ class Configuration
      */
     public static function fromInput(InputInterface $input): self
     {
-        $config = new self(['configFile' => self::getConfigFileFromInput($input)]);
+        $configOptions = [
+            'configFile'   => self::getConfigFileFromInput($input),
+            'trustProject' => self::getProjectTrustFromInput($input),
+        ];
+
+        $config = new self($configOptions);
 
         // Handle --color and --no-color (and --ansi and --no-ansi aliases)
         if (self::getOptionFromInput($input, ['color', 'ansi'])) {
@@ -238,6 +277,7 @@ class Configuration
         // Handle --warm-autoload
         if (self::getOptionFromInput($input, ['warm-autoload'])) {
             $config->setWarmAutoload(true);
+            $config->setForceWarmAutoload(true);
         }
 
         // Handle --yolo
@@ -261,6 +301,22 @@ class Configuration
         }
 
         return $input->getParameterOption('--config', null, true) ?: $input->getParameterOption('-c', null, true);
+    }
+
+    /**
+     * Get the desired project trust from the given input.
+     *
+     * @return bool|null project trust, or null if none is specified
+     */
+    private static function getProjectTrustFromInput(InputInterface $input): ?bool
+    {
+        if (self::getOptionFromInput($input, ['no-trust-project'])) {
+            return false;
+        } elseif (self::getOptionFromInput($input, ['trust-project'])) {
+            return true;
+        }
+
+        return null;
     }
 
     /**
@@ -379,6 +435,8 @@ class Configuration
         return [
             new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'Use an alternate PsySH config file location.'),
             new InputOption('cwd', null, InputOption::VALUE_REQUIRED, 'Use an alternate working directory.'),
+            new InputOption('trust-project', null, InputOption::VALUE_NONE, 'Trust the current project for this run.'),
+            new InputOption('no-trust-project', null, InputOption::VALUE_NONE, 'Run in Restricted Mode for this project.'),
 
             new InputOption('color', null, InputOption::VALUE_NONE, 'Force colors in output.'),
             new InputOption('no-color', null, InputOption::VALUE_NONE, 'Disable colors in output.'),
@@ -412,7 +470,8 @@ class Configuration
      * If a config file is available, it will be loaded and merged with the current config.
      *
      * If no custom config file was specified and a local project config file
-     * is available, it will be loaded and merged with the current config.
+     * is available, it may be loaded and merged with the current config
+     * depending on project trust settings.
      */
     public function init()
     {
@@ -424,9 +483,7 @@ class Configuration
             $this->loadConfigFile($configFile);
         }
 
-        if (!$this->configFile && $localConfig = $this->getLocalConfigFile()) {
-            $this->loadConfigFile($localConfig);
-        }
+        $this->loadLocalConfigIfTrusted();
 
         $this->configPaths->overrideDirs([
             'configDir'  => $this->configDir,
@@ -487,6 +544,234 @@ class Configuration
         }
 
         return null;
+    }
+
+    /**
+     * Configure the project trust mode.
+     *
+     * Accepts boolean values or one of: 'prompt', 'always', 'never'.
+     *
+     * @param bool|string|null $mode
+     */
+    public function setTrustProject($mode): void
+    {
+        if ($mode === null) {
+            $this->projectTrust->setMode(self::PROJECT_TRUST_PROMPT);
+
+            return;
+        }
+
+        if (\is_bool($mode)) {
+            $this->projectTrust->setMode($mode ? self::PROJECT_TRUST_ALWAYS : self::PROJECT_TRUST_NEVER);
+
+            return;
+        }
+
+        if (!\is_string($mode)) {
+            throw new \InvalidArgumentException('Invalid trustProject value. Expected: prompt, always, or never');
+        }
+
+        switch (\strtolower(\trim($mode))) {
+            case 'prompt':
+                $this->projectTrust->setMode(self::PROJECT_TRUST_PROMPT);
+                break;
+            case 'always':
+                $this->projectTrust->setMode(self::PROJECT_TRUST_ALWAYS);
+                break;
+            case 'never':
+                $this->projectTrust->setMode(self::PROJECT_TRUST_NEVER);
+                break;
+            default:
+                throw new \InvalidArgumentException('Invalid trustProject value. Expected: prompt, always, or never');
+        }
+    }
+
+    /**
+     * Get the current project trust mode.
+     */
+    public function getProjectTrustMode(): string
+    {
+        return $this->projectTrust->getMode();
+    }
+
+    /**
+     * Force autoload warming for this run, regardless of project trust status.
+     */
+    public function setForceWarmAutoload(bool $force = true): void
+    {
+        $this->forceWarmAutoload = $force;
+    }
+
+    /**
+     * Load local config with an interactive trust prompt when appropriate.
+     *
+     * When stdin is not interactive, loads local config without prompting and
+     * writes a warning to stderr.
+     */
+    public function loadLocalConfigWithPrompt(InputInterface $input, OutputInterface $output): void
+    {
+        if ($this->localConfigLoaded) {
+            return;
+        }
+
+        $localConfigRoot = $this->projectTrust->getLocalConfigRoot();
+        $composerRoot = $this->projectTrust->getProjectRoot();
+
+        // Collect features by root that need trust
+        $featuresByRoot = [];
+
+        // Check for local config (cwd only)
+        if ($localConfigRoot !== null && $this->hasLocalConfig($localConfigRoot)) {
+            $trustStatus = $this->projectTrust->getProjectTrustStatus($localConfigRoot);
+            if ($trustStatus === null) {
+                $featuresByRoot[$localConfigRoot][] = 'Local config (.psysh.php)';
+            }
+        }
+
+        // Check for local PsySH binary (at Composer root, where vendor/bin lives)
+        if ($composerRoot !== null && $this->projectTrust->getLocalPsyshProjectRoot($composerRoot) !== null) {
+            $trustStatus = $this->projectTrust->getProjectTrustStatus($composerRoot);
+            if ($trustStatus === null) {
+                $featuresByRoot[$composerRoot][] = 'local PsySH binary';
+            }
+        }
+
+        // Check for autoload warming (Composer root, may differ from cwd)
+        if ($composerRoot !== null && $this->shouldReportAutoloadWarming($composerRoot)) {
+            $trustStatus = $this->projectTrust->getProjectTrustStatus($composerRoot);
+            if ($trustStatus === null) {
+                $featuresByRoot[$composerRoot][] = 'Project autoload (vendor/autoload.php)';
+            }
+        }
+
+        // If nothing needs trust, we're done
+        if (empty($featuresByRoot)) {
+            // Load local config if it's already trusted
+            if ($localConfigRoot !== null && $this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+                $this->loadLocalConfigIfPresent($localConfigRoot);
+            }
+
+            return;
+        }
+
+        // Handle force untrust
+        if ($this->projectTrust->getForceUntrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_NEVER) {
+            return;
+        }
+
+        // Non-interactive: warn and skip untrusted features (do not auto-trust)
+        if (!$this->getInputInteractive() || !$input->isInteractive()) {
+            $errorOutput = $output;
+            if ($errorOutput instanceof \Symfony\Component\Console\Output\ConsoleOutput) {
+                $errorOutput = $errorOutput->getErrorOutput();
+            }
+
+            foreach ($featuresByRoot as $root => $features) {
+                $prettyDir = ConfigPaths::prettyPath($root);
+                $errorOutput->writeln(
+                    "<comment>Restricted Mode: skipping untrusted project features from {$prettyDir} (non-interactive mode). Use --trust-project to allow.</comment>"
+                );
+            }
+
+            if ($localConfigRoot !== null && $this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+                $this->loadLocalConfigIfPresent($localConfigRoot);
+            }
+
+            return;
+        }
+
+        // Interactive: prompt per-root
+        foreach ($featuresByRoot as $root => $features) {
+            if ($this->projectTrust->promptForTrust($input, $output, $root, $features)) {
+                // Check for local PsySH binary that needs re-run message
+                if ($localPsyshRoot = $this->projectTrust->getLocalPsyshProjectRoot($root)) {
+                    $prettyLocal = ConfigPaths::prettyPath($localPsyshRoot);
+                    $output->writeln('');
+                    $output->writeln("<comment>Local PsySH version detected at {$prettyLocal}.</comment>");
+                    $output->writeln('Re-run PsySH to use the trusted local version, or pass --trust-project to use it immediately.');
+                    $output->writeln('');
+                }
+            }
+        }
+
+        // Load local config if now trusted
+        if ($localConfigRoot !== null && $this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+            $this->loadLocalConfigIfPresent($localConfigRoot);
+        }
+    }
+
+    /**
+     * Check if a local config file exists at the given root.
+     */
+    private function hasLocalConfig(string $root): bool
+    {
+        if (isset($this->configFile)) {
+            return false;
+        }
+
+        return @\is_file($root.'/.psysh.php');
+    }
+
+    private function loadLocalConfigIfTrusted(): void
+    {
+        if ($this->localConfigLoaded || isset($this->configFile)) {
+            return;
+        }
+
+        $localConfigRoot = $this->projectTrust->getLocalConfigRoot();
+        if ($localConfigRoot === null) {
+            return;
+        }
+
+        if ($this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+            $this->loadLocalConfigIfPresent($localConfigRoot);
+        }
+    }
+
+    private function loadLocalConfigIfPresent(string $projectRoot): void
+    {
+        if ($this->localConfigLoaded || isset($this->configFile)) {
+            return;
+        }
+
+        $localConfig = $projectRoot.'/.psysh.php';
+        if (@\is_file($localConfig)) {
+            $this->loadConfigFile($localConfig);
+            $this->localConfigLoaded = true;
+            $this->configPaths->overrideDirs([
+                'configDir'  => $this->configDir,
+                'dataDir'    => $this->dataDir,
+                'runtimeDir' => $this->runtimeDir,
+            ]);
+        }
+    }
+
+    private function shouldReportAutoloadWarming(string $projectRoot): bool
+    {
+        if ($this->forceWarmAutoload) {
+            return false;
+        }
+
+        if (!$this->hasComposerAutoloadWarmerConfigured()) {
+            return false;
+        }
+
+        return $this->projectTrust->hasComposerAutoloadFiles($projectRoot);
+    }
+
+    private function hasComposerAutoloadWarmerConfigured(): bool
+    {
+        if ($this->autoloadWarmers === null) {
+            $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
+        }
+
+        foreach ($this->autoloadWarmers as $warmer) {
+            if ($warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1410,6 +1695,23 @@ class Configuration
     {
         if ($this->autoloadWarmers === null) {
             $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
+        }
+
+        if ($this->forceWarmAutoload || $this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
+            return $this->autoloadWarmers;
+        }
+
+        $projectRoot = $this->projectTrust->getProjectRoot();
+        if ($projectRoot !== null && ($this->projectTrust->getForceUntrust() || !$this->projectTrust->isProjectTrusted($projectRoot))) {
+            $filtered = \array_values(\array_filter($this->autoloadWarmers, function ($warmer) {
+                return !$warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer;
+            }));
+
+            if (\count($filtered) !== \count($this->autoloadWarmers)) {
+                $this->projectTrust->warnUntrustedAutoloadWarming($projectRoot, $this->getOutput());
+            }
+
+            return $filtered;
         }
 
         return $this->autoloadWarmers;

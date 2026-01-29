@@ -677,10 +677,11 @@ class ShellTest extends TestCase
         \unlink($dir);
 
         $defaults = [
-            'configDir'  => $dir,
-            'dataDir'    => $dir,
-            'runtimeDir' => $dir,
-            'colorMode'  => Configuration::COLOR_MODE_FORCED,
+            'configDir'    => $dir,
+            'dataDir'      => $dir,
+            'runtimeDir'   => $dir,
+            'colorMode'    => Configuration::COLOR_MODE_FORCED,
+            'trustProject' => true,
         ];
 
         return new Configuration(\array_merge($defaults, $config));

@@ -533,6 +533,8 @@ $version
 
   <info>-c, --config=FILE</info>       Use an alternate PsySH config file location
       <info>--cwd=PATH</info>          Use an alternate working directory
+      <info>--trust-project</info>     Trust the current project for this run
+      <info>--no-trust-project</info>  Run in Restricted Mode for this project
       <info>--color|--no-color</info>  Force (or disable with --no-color) colors in output
   <info>-i, --interactive</info>       Force PsySH to run in interactive mode
   <info>-n, --no-interactive</info>    Run PsySH without interactive input (requires input from stdin)

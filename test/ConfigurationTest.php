@@ -19,6 +19,7 @@ use Psy\Output\ShellOutput;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -29,6 +30,19 @@ class ConfigurationTest extends TestCase
         return new Configuration([
             'configFile' => $configFile ?: __DIR__.'/fixtures/empty.php',
         ]);
+    }
+
+    /**
+     * Redirect error output to a buffer so warnings don't leak to stderr.
+     *
+     * @return BufferedOutput the buffer, for asserting warning content
+     */
+    private function captureErrorOutput(Configuration $config): BufferedOutput
+    {
+        $buffer = new BufferedOutput();
+        $config->getOutput()->setErrorOutput($buffer);
+
+        return $buffer;
     }
 
     public function testDefaults()
@@ -122,19 +136,75 @@ class ConfigurationTest extends TestCase
         $oldPwd = \getcwd();
         \chdir(\realpath(__DIR__.'/fixtures/project/'));
 
-        $config = new Configuration();
+        $config = new Configuration(['trustProject' => true]);
 
         // When no configuration file is specified local project config is merged
         $this->assertTrue($config->requireSemicolons());
         $this->assertFalse($config->useUnicode());
 
-        $config = new Configuration(['configFile' => __DIR__.'/fixtures/config.php']);
+        $config = new Configuration([
+            'configFile'   => __DIR__.'/fixtures/config.php',
+            'trustProject' => true,
+        ]);
 
         // Defining a configuration file skips loading local project config
         $this->assertFalse($config->requireSemicolons());
         $this->assertTrue($config->useUnicode());
 
         \chdir($oldPwd);
+    }
+
+    public function testLocalConfigSkippedWhenUntrusted()
+    {
+        $oldPwd = \getcwd();
+        $tmpConfigDir = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+
+        try {
+            \chdir(\realpath(__DIR__.'/fixtures/project/'));
+
+            $config = new Configuration([
+                'configDir'    => $tmpConfigDir,
+                'trustProject' => Configuration::PROJECT_TRUST_PROMPT,
+            ]);
+
+            // Untrusted local config should not be loaded by default
+            $this->assertFalse($config->requireSemicolons());
+            $this->assertTrue($config->useUnicode());
+        } finally {
+            \chdir($oldPwd);
+        }
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testNonInteractiveWarningForUntrustedLocalConfig()
+    {
+        $oldPwd = \getcwd();
+        $tmpConfigDir = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+
+        try {
+            \chdir(\realpath(__DIR__.'/fixtures/project/'));
+
+            $config = new Configuration([
+                'configDir'    => $tmpConfigDir,
+                'trustProject' => Configuration::PROJECT_TRUST_PROMPT,
+            ]);
+
+            $config->setInteractiveMode(Configuration::INTERACTIVE_MODE_DISABLED);
+            $errorOutput = $this->captureErrorOutput($config);
+
+            $input = new StringInput('');
+            $input->setInteractive(false);
+
+            $config->loadLocalConfigWithPrompt($input, $config->getOutput());
+
+            $this->assertStringContainsString('Restricted Mode: skipping untrusted project features', $errorOutput->fetch());
+            $this->assertFalse($config->requireSemicolons());
+            $this->assertTrue($config->useUnicode());
+        } finally {
+            \chdir($oldPwd);
+        }
     }
 
     public function testUnknownConfigFileThrowsException()
@@ -661,6 +731,7 @@ class ConfigurationTest extends TestCase
     public function testWarmAutoloadEnabled()
     {
         $config = $this->getConfig();
+        $config->setTrustProject(true);
         $config->setWarmAutoload(true);
 
         $warmers = $config->getAutoloadWarmers();
@@ -680,6 +751,7 @@ class ConfigurationTest extends TestCase
     public function testWarmAutoloadWithComposerConfig()
     {
         $config = $this->getConfig();
+        $config->setTrustProject(true);
         $config->setWarmAutoload([
             'includeVendor'     => true,
             'excludeNamespaces' => ['App\\Legacy\\'],
@@ -707,6 +779,7 @@ class ConfigurationTest extends TestCase
     public function testWarmAutoloadWithCustomWarmersAndComposerConfig()
     {
         $config = $this->getConfig();
+        $config->setTrustProject(true);
         $customWarmer = $this->getMockBuilder('Psy\TabCompletion\AutoloadWarmer\AutoloadWarmerInterface')->getMock();
 
         $config->setWarmAutoload([
@@ -751,5 +824,150 @@ class ConfigurationTest extends TestCase
             'warmers' => [new \stdClass()],
         ]);
         $config->getAutoloadWarmers();
+    }
+
+    // Trust/Restricted Mode Tests
+
+    public function testTrustProjectModeDefaults()
+    {
+        $config = $this->getConfig();
+        $this->assertSame(Configuration::PROJECT_TRUST_PROMPT, $config->getProjectTrustMode());
+    }
+
+    public function testSetTrustProjectWithBooleanTrue()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(true);
+        $this->assertSame(Configuration::PROJECT_TRUST_ALWAYS, $config->getProjectTrustMode());
+    }
+
+    public function testSetTrustProjectWithBooleanFalse()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(false);
+        $this->assertSame(Configuration::PROJECT_TRUST_NEVER, $config->getProjectTrustMode());
+    }
+
+    public function testSetTrustProjectWithNull()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(true);
+        $config->setTrustProject(null);
+        $this->assertSame(Configuration::PROJECT_TRUST_PROMPT, $config->getProjectTrustMode());
+    }
+
+    /**
+     * @dataProvider trustProjectStringProvider
+     */
+    public function testSetTrustProjectWithString($input, $expected)
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject($input);
+        $this->assertSame($expected, $config->getProjectTrustMode());
+    }
+
+    public function trustProjectStringProvider()
+    {
+        return [
+            ['prompt', Configuration::PROJECT_TRUST_PROMPT],
+            ['always', Configuration::PROJECT_TRUST_ALWAYS],
+            ['never', Configuration::PROJECT_TRUST_NEVER],
+            ['PROMPT', Configuration::PROJECT_TRUST_PROMPT],
+            ['ALWAYS', Configuration::PROJECT_TRUST_ALWAYS],
+            ['NEVER', Configuration::PROJECT_TRUST_NEVER],
+            ['  prompt  ', Configuration::PROJECT_TRUST_PROMPT],
+        ];
+    }
+
+    public function testSetTrustProjectInvalid()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid trustProject value');
+
+        $config = $this->getConfig();
+        $config->setTrustProject('invalid');
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputTrustProject()
+    {
+        $input = $this->getBoundStringInput('--trust-project');
+        $config = Configuration::fromInput($input);
+        $config->setWarmAutoload(true);
+
+        // --trust-project allows ComposerAutoloadWarmer for this run
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(1, $warmers, '--trust-project should allow ComposerAutoloadWarmer');
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputNoTrustProject()
+    {
+        $input = $this->getBoundStringInput('--no-trust-project');
+        $config = Configuration::fromInput($input);
+        $config->setWarmAutoload(true);
+        $errorOutput = $this->captureErrorOutput($config);
+
+        // --no-trust-project blocks ComposerAutoloadWarmer for this run
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(0, $warmers, '--no-trust-project should block ComposerAutoloadWarmer');
+        $this->assertStringContainsString('Skipping project autoload', $errorOutput->fetch());
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testAutoloadWarmersFilteredWhenUntrusted()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(false);
+        $config->setWarmAutoload(true);
+        $errorOutput = $this->captureErrorOutput($config);
+
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(0, $warmers, 'ComposerAutoloadWarmer should be filtered when project is untrusted');
+        $this->assertStringContainsString('Skipping project autoload', $errorOutput->fetch());
+    }
+
+    public function testAutoloadWarmersNotFilteredWhenTrusted()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(true);
+        $config->setWarmAutoload(true);
+
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(1, $warmers);
+        $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
+    }
+
+    public function testCustomWarmersNotFilteredWhenUntrusted()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(false);
+        $customWarmer = $this->getMockBuilder('Psy\TabCompletion\AutoloadWarmer\AutoloadWarmerInterface')->getMock();
+
+        $config->setWarmAutoload([
+            'warmers' => [$customWarmer],
+        ]);
+
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(1, $warmers);
+        $this->assertSame($customWarmer, $warmers[0]);
+    }
+
+    public function testForceWarmAutoloadBypassesTrust()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(false);
+        $config->setWarmAutoload(true);
+        $config->setForceWarmAutoload(true);
+
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(1, $warmers);
+        $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
     }
 }
