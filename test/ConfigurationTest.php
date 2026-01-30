@@ -107,13 +107,16 @@ class ConfigurationTest extends TestCase
         $oldPwd = \getcwd();
         \chdir(\realpath(__DIR__.'/fixtures/project/'));
 
-        $config = new Configuration();
+        $config = new Configuration(['trustProject' => true]);
 
         // When no configuration file is specified local project config is merged
         $this->assertTrue($config->requireSemicolons());
         $this->assertFalse($config->useUnicode());
 
-        $config = new Configuration(['configFile' => __DIR__.'/fixtures/config.php']);
+        $config = new Configuration([
+            'configFile'   => __DIR__.'/fixtures/config.php',
+            'trustProject' => true,
+        ]);
 
         // Defining a configuration file skips loading local project config
         $this->assertFalse($config->requireSemicolons());
@@ -606,5 +609,87 @@ class ConfigurationTest extends TestCase
 
         // The CodeCleaner will not be updated after the first time we access it:
         $this->assertTrue($config->getCodeCleaner()->yolo());
+    }
+
+    // Trust/Restricted Mode Tests
+
+    public function testTrustProjectModeDefaults()
+    {
+        $config = $this->getConfig();
+        $this->assertSame(Configuration::PROJECT_TRUST_PROMPT, $config->getProjectTrustMode());
+    }
+
+    public function testSetTrustProjectWithBooleanTrue()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(true);
+        $this->assertSame(Configuration::PROJECT_TRUST_ALWAYS, $config->getProjectTrustMode());
+    }
+
+    public function testSetTrustProjectWithBooleanFalse()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(false);
+        $this->assertSame(Configuration::PROJECT_TRUST_NEVER, $config->getProjectTrustMode());
+    }
+
+    public function testSetTrustProjectWithNull()
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject(true);
+        $config->setTrustProject(null);
+        $this->assertSame(Configuration::PROJECT_TRUST_PROMPT, $config->getProjectTrustMode());
+    }
+
+    /**
+     * @dataProvider trustProjectStringProvider
+     */
+    public function testSetTrustProjectWithString($input, $expected)
+    {
+        $config = $this->getConfig();
+        $config->setTrustProject($input);
+        $this->assertSame($expected, $config->getProjectTrustMode());
+    }
+
+    public function trustProjectStringProvider()
+    {
+        return [
+            ['prompt', Configuration::PROJECT_TRUST_PROMPT],
+            ['always', Configuration::PROJECT_TRUST_ALWAYS],
+            ['never', Configuration::PROJECT_TRUST_NEVER],
+            ['PROMPT', Configuration::PROJECT_TRUST_PROMPT],
+            ['ALWAYS', Configuration::PROJECT_TRUST_ALWAYS],
+            ['NEVER', Configuration::PROJECT_TRUST_NEVER],
+            ['  prompt  ', Configuration::PROJECT_TRUST_PROMPT],
+        ];
+    }
+
+    public function testSetTrustProjectInvalid()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid trustProject value');
+
+        $config = $this->getConfig();
+        $config->setTrustProject('invalid');
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputTrustProject()
+    {
+        $input = $this->getBoundStringInput('--trust-project');
+        $config = Configuration::fromInput($input);
+        $this->assertSame(Configuration::PROJECT_TRUST_ALWAYS, $config->getProjectTrustMode());
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputNoTrustProject()
+    {
+        $input = $this->getBoundStringInput('--no-trust-project');
+        $config = Configuration::fromInput($input);
+        $this->assertSame(Configuration::PROJECT_TRUST_NEVER, $config->getProjectTrustMode());
     }
 }

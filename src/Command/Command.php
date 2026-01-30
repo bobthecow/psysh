@@ -16,6 +16,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -37,6 +38,19 @@ abstract class Command extends BaseCommand
         }
 
         return parent::setApplication($application);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function run(InputInterface $input, OutputInterface $output)
+    {
+        $application = $this->getApplication();
+        if ($application instanceof Shell) {
+            $application->boot($input, $output);
+        }
+
+        return parent::run($input, $output);
     }
 
     /**

@@ -14,6 +14,7 @@ namespace Psy\Command;
 use Psy\Input\FilterOptions;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Shows, searches and replays readline history. Not too shabby.
  */
-class HistoryCommand extends Command
+class HistoryCommand extends Command implements ReadlineAware
 {
     private $filter;
     private $readline;

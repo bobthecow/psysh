@@ -382,7 +382,7 @@ class ShellTest extends TestCase
 
     public function testCodeBufferThrowsParseExceptions()
     {
-        $this->expectException(\Psy\Exception\ParseErrorException::class);
+        $this->expectException(ParseErrorException::class);
 
         $shell = new Shell($this->getConfig());
         $shell->addCode('this is not valid');
@@ -675,10 +675,11 @@ class ShellTest extends TestCase
         \unlink($dir);
 
         $defaults = [
-            'configDir'  => $dir,
-            'dataDir'    => $dir,
-            'runtimeDir' => $dir,
-            'colorMode'  => Configuration::COLOR_MODE_FORCED,
+            'configDir'    => $dir,
+            'dataDir'      => $dir,
+            'runtimeDir'   => $dir,
+            'colorMode'    => Configuration::COLOR_MODE_FORCED,
+            'trustProject' => true,
         ];
 
         return new Configuration(\array_merge($defaults, $config));

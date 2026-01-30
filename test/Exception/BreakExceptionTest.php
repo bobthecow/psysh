@@ -34,7 +34,7 @@ class BreakExceptionTest extends \Psy\Test\TestCase
 
     public function testExitShell()
     {
-        $this->expectException(\Psy\Exception\BreakException::class);
+        $this->expectException(BreakException::class);
         $this->expectExceptionMessage('Goodbye');
 
         BreakException::exitShell();

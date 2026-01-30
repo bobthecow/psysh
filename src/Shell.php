@@ -23,6 +23,7 @@ use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
 use Psy\Output\ShellOutput;
+use Psy\Readline\ReadlineAware;
 use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
@@ -82,6 +83,7 @@ class Shell extends Application
     private $lastExecSuccess = true;
     private $nonInteractive = false;
     private $errorReporting;
+    private $booted = false;
 
     /**
      * Create a new Psy Shell.
@@ -91,10 +93,8 @@ class Shell extends Application
     public function __construct(Configuration $config = null)
     {
         $this->config = $config ?: new Configuration();
-        $this->cleaner = $this->config->getCodeCleaner();
         $this->context = new Context();
         $this->includes = [];
-        $this->readline = $this->config->getReadline();
         $this->inputBuffer = [];
         $this->codeStack = [];
         $this->stdoutBuffer = '';
@@ -106,6 +106,75 @@ class Shell extends Application
 
         // Register the current shell session's config with \Psy\info
         \Psy\info($this->config);
+    }
+
+    /**
+     * Boot the shell, initializing the CodeCleaner and Readline.
+     *
+     * This is called lazily when commands or methods require these dependencies.
+     * If input/output are provided, they'll be used for trust prompts. Otherwise,
+     * falls back to config defaults.
+     */
+    public function boot(InputInterface $input = null, OutputInterface $output = null)
+    {
+        if ($this->booted) {
+            return;
+        }
+
+        $this->loadLocalConfig($input, $output);
+
+        $this->cleaner = $this->config->getCodeCleaner();
+        $this->readline = $this->config->getReadline();
+        $this->booted = true;
+
+        $this->refreshCommandDependencies();
+    }
+
+    /**
+     * Load local config with trust prompt if needed.
+     */
+    private function loadLocalConfig(InputInterface $input = null, OutputInterface $output = null)
+    {
+        if ($output === null) {
+            $output = $this->config->getOutput();
+        }
+
+        if ($input === null) {
+            $input = new ArrayInput([]);
+            $input->setInteractive($this->config->getInputInteractive());
+        }
+
+        $this->config->loadLocalConfigWithPrompt($input, $output);
+    }
+
+    /**
+     * Refresh dependencies on all registered commands.
+     */
+    private function refreshCommandDependencies()
+    {
+        foreach ($this->all() as $command) {
+            $this->configureCommand($command);
+        }
+    }
+
+    /**
+     * Configure a command with context and dependencies.
+     */
+    private function configureCommand(BaseCommand $command)
+    {
+        if ($command instanceof ContextAware) {
+            $command->setContext($this->context);
+        }
+
+        if ($this->booted) {
+            if ($command instanceof PresenterAware) {
+                $command->setPresenter($this->config->getPresenter());
+            }
+
+            if ($command instanceof ReadlineAware && $this->readline !== null) {
+                $command->setReadline($this->readline);
+            }
+        }
     }
 
     /**
@@ -166,13 +235,7 @@ class Shell extends Application
     public function add(BaseCommand $command): BaseCommand
     {
         if ($ret = parent::add($command)) {
-            if ($ret instanceof ContextAware) {
-                $ret->setContext($this->context);
-            }
-
-            if ($ret instanceof PresenterAware) {
-                $ret->setPresenter($this->config->getPresenter());
-            }
+            $this->configureCommand($ret);
 
             if (isset($this->commandsMatcher)) {
                 $this->commandsMatcher->setCommands($this->all());
@@ -203,10 +266,7 @@ class Shell extends Application
     protected function getDefaultCommands(): array
     {
         $sudo = new Command\SudoCommand();
-        $sudo->setReadline($this->readline);
-
         $hist = new Command\HistoryCommand();
-        $hist->setReadline($this->readline);
 
         return [
             new Command\HelpCommand(),
@@ -360,6 +420,7 @@ class Shell extends Application
     public function doRun(InputInterface $input, OutputInterface $output): int
     {
         $this->setOutput($output);
+        $this->boot($input, $output);
         $this->resetCodeBuffer();
 
         if ($input->isInteractive()) {
@@ -501,6 +562,8 @@ class Shell extends Application
      */
     public function getInput(bool $interactive = true)
     {
+        $this->boot();
+
         $this->codeBufferOpen = false;
 
         do {
@@ -848,6 +911,8 @@ class Shell extends Application
      */
     public function addCode(string $code, bool $silent = false)
     {
+        $this->boot();
+
         try {
             // Code lines ending in \ keep the buffer open
             if (\substr(\rtrim($code), -1) === '\\') {
@@ -1054,6 +1119,8 @@ class Shell extends Application
      */
     public function getNamespace()
     {
+        $this->boot();
+
         if ($namespace = $this->cleaner->getNamespace()) {
             return \implode('\\', $namespace);
         }
@@ -1352,6 +1419,8 @@ class Shell extends Application
      */
     public function execute(string $code, bool $throwExceptions = false)
     {
+        $this->boot();
+
         $this->setCode($code, true);
         $closure = new ExecutionClosure($this);
 

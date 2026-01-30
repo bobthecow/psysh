@@ -36,6 +36,7 @@ class ClassNamesMatcher extends AbstractMatcher
                 // get the number of namespace separators
                 $nsPos = \substr_count($class, '\\');
                 $pieces = \explode('\\', $className);
+
                 // $methods = Mirror::get($class);
                 return \implode('\\', \array_slice($pieces, $nsPos, \count($pieces)));
             },

@@ -234,6 +234,69 @@ class ConfigPaths
     }
 
     /**
+     * Get the local config root directory (cwd only, no ancestor walking).
+     *
+     * Used for local `.psysh.php` config file detection. Returns the current
+     * working directory, or null if getcwd() fails.
+     */
+    public function localConfigRoot()
+    {
+        $cwd = \getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        return \strtr($cwd, '\\', '/');
+    }
+
+    /**
+     * Find a project root for trust decisions.
+     *
+     * Walks up ancestors to find the nearest composer.json or composer.lock.
+     * If none found, falls back to the nearest .psysh.php, then to the current
+     * working directory.
+     *
+     * Used for trust decisions on Composer autoload and project-level features.
+     */
+    public function projectRoot($cwd = null)
+    {
+        $cwd = $cwd ?? \getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        $dir = \strtr($cwd, '\\', '/');
+        $root = null;
+        $localConfigRoot = null;
+
+        $current = $dir;
+        $parent = \dirname($current);
+
+        while ($current !== $parent) {
+            if ($root === null && (@\is_file($current.'/composer.json') || @\is_file($current.'/composer.lock'))) {
+                $root = $current;
+            }
+
+            if ($localConfigRoot === null && @\is_file($current.'/.psysh.php')) {
+                $localConfigRoot = $current;
+            }
+
+            $current = $parent;
+            $parent = \dirname($current);
+        }
+
+        if ($root !== null) {
+            return $root;
+        }
+
+        if ($localConfigRoot !== null) {
+            return $localConfigRoot;
+        }
+
+        return $dir;
+    }
+
+    /**
      * Find real data files in config directories.
      *
      * @param string[] $names Config file names
@@ -371,6 +434,44 @@ class ConfigPaths
         }
 
         return $files;
+    }
+
+    /**
+     * Make a path prettier by replacing cwd with . or home directory with ~.
+     *
+     * @param string|mixed $path       Path to prettify
+     * @param string|null  $relativeTo Directory to make path relative to (defaults to cwd)
+     * @param string|null  $homeDir    Home directory to replace with ~ (defaults to actual home)
+     *
+     * @return string|mixed Pretty path, or original value if not a string
+     */
+    public static function prettyPath($path, $relativeTo = null, $homeDir = null)
+    {
+        if (!\is_string($path)) {
+            return $path;
+        }
+
+        $path = \strtr($path, '\\', '/');
+
+        // Try replacing relativeTo directory first (more specific)
+        $relativeTo = $relativeTo ?: \getcwd();
+        if ($relativeTo !== false) {
+            $relativeTo = \rtrim(\strtr($relativeTo, '\\', '/'), '/').'/';
+            if (\strpos($path, $relativeTo) === 0) {
+                return './'.\substr($path, \strlen($relativeTo));
+            }
+        }
+
+        // Fall back to replacing home directory
+        $homeDir = $homeDir ?: (new self())->homeDir();
+        if ($homeDir && $homeDir !== '/') {
+            $homeDir = \rtrim(\strtr($homeDir, '\\', '/'), '/').'/';
+            if (\strpos($path, $homeDir) === 0) {
+                return '~/'.\substr($path, \strlen($homeDir));
+            }
+        }
+
+        return $path;
     }
 
     /**
