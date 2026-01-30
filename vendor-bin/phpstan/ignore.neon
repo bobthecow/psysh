@@ -38,7 +38,7 @@ parameters:
     # PHP8.0 introduced second argument for
     - "#^Class IteratorIterator constructor invoked with 2 parameters, 1 required\\.$#"
     # Backwards-compatiblity with PHP-Parser 4.x
-    - "#^Access to undefined constant PhpParser\\\\ParserFactory::PREFER_PHP7\\.$#"
+    - "#^Access to undefined constant PhpParser\\\\ParserFactory::ONLY_PHP7\\.$#"
     # Symfony Console method compatibility - wide version support (3.4 - 7.x)
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setVerticalBorderChar\\(\\)\\.$#"
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setHorizontalBorderChar\\(\\)\\.$#"
