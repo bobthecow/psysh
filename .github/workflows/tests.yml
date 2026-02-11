@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/run-tests-lowest.yml
 
   downstream:
-    name: Downstream
+    name: Test downstream projects
     uses: ./.github/workflows/run-downstream.yml
     with:
       continue_on_error: true
