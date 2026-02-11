@@ -43,7 +43,6 @@ parameters:
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setVerticalBorderChar\\(\\)\\.$#"
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setHorizontalBorderChar\\(\\)\\.$#"
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\TableStyle::setCrossingChar\\(\\)\\.$#"
-    - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Output\\\\OutputInterface::page\\(\\)\\.$#"
     - "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Command\\\\Command::asText\\(\\)\\.$#"
     - "#^Call to an undefined static method Symfony\\\\Component\\\\Console\\\\Application::addCommand\\(\\)\\.$#"
     # PHP-Parser method compatibility: wide version support (4.x - 5.x)

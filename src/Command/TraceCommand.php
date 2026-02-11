@@ -13,7 +13,7 @@ namespace Psy\Command;
 
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\FilterOptions;
-use Psy\Output\ShellOutput;
+use Psy\Output\ShellOutputAdapter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -75,7 +75,7 @@ HELP
     {
         $this->filter->bind($input);
         $trace = $this->getBacktrace(new \Exception(), $input->getOption('num'), $input->getOption('include-psy'));
-        $output->page($trace, ShellOutput::NUMBER_LINES);
+        $this->shellOutput($output)->page($trace, ShellOutputAdapter::NUMBER_LINES);
 
         return 0;
     }

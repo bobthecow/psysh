@@ -14,7 +14,7 @@ namespace Psy\Command;
 use Psy\Context;
 use Psy\ContextAware;
 use Psy\Input\FilterOptions;
-use Psy\Output\ShellOutput;
+use Psy\Output\ShellOutputAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -82,6 +82,7 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->filter->bind($input);
+        $shellOutput = $this->shellOutput($output);
 
         $incredulity = \implode('', $input->getArgument('incredulity'));
         if (\strlen(\preg_replace('/[\\?!]/', '', $incredulity))) {
@@ -91,9 +92,7 @@ HELP
         $exception = $this->context->getLastException();
         $count = $input->getOption('all') ? \PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
-        if ($output instanceof ShellOutput) {
-            $output->startPaging();
-        }
+        $shellOutput->startPaging();
 
         do {
             $traceCount = \count($exception->getTrace());
@@ -108,7 +107,7 @@ HELP
 
             $output->writeln($this->getShell()->formatException($exception));
             $output->writeln('--');
-            $output->write($trace, true, ShellOutput::NUMBER_LINES);
+            $shellOutput->write($trace, true, ShellOutputAdapter::NUMBER_LINES);
             $output->writeln('');
 
             if ($moreLines > 0) {
@@ -120,9 +119,7 @@ HELP
             }
         } while ($exception = $exception->getPrevious());
 
-        if ($output instanceof ShellOutput) {
-            $output->stopPaging();
-        }
+        $shellOutput->stopPaging();
 
         return 0;
     }

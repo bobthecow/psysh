@@ -38,4 +38,16 @@ class HelpCommandTest extends \Psy\Test\TestCase
         $this->assertStringContainsString('End the current session and return to caller.', $tester->getDisplay());
         $this->assertStringContainsString('Aliases: quit, q', $tester->getDisplay());
     }
+
+    public function testExecuteCommandHelpWithCommandTester()
+    {
+        $shell = new Shell();
+        $command = new HelpCommand();
+        $command->setApplication($shell);
+        $tester = new CommandTester($command);
+        $tester->execute(['command_name' => 'help']);
+
+        $this->assertStringContainsString('Usage:', $tester->getDisplay());
+        $this->assertStringContainsString('help [<command_name>]', $tester->getDisplay());
+    }
 }

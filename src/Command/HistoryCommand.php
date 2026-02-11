@@ -13,7 +13,7 @@ namespace Psy\Command;
 
 use Psy\ConfigPaths;
 use Psy\Input\FilterOptions;
-use Psy\Output\ShellOutput;
+use Psy\Output\ShellOutputAdapter;
 use Psy\Readline\Readline;
 use Psy\Readline\ReadlineAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -152,12 +152,12 @@ HELP
             $this->clearHistory();
             $output->writeln('<info>History cleared.</info>');
         } else {
-            $type = $input->getOption('no-numbers') ? 0 : ShellOutput::NUMBER_LINES;
+            $type = $input->getOption('no-numbers') ? 0 : ShellOutputAdapter::NUMBER_LINES;
             if (!$highlighted) {
                 $type = $type | OutputInterface::OUTPUT_RAW;
             }
 
-            $output->page($highlighted ?: $history, $type);
+            $this->shellOutput($output)->page($highlighted ?: $history, $type);
         }
 
         return 0;
