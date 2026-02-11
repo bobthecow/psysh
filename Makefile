@@ -97,8 +97,8 @@ vendor/bin/phan: vendor/autoload.php
 
 # Lots of PHARs
 
-build/stub: bin/build-stub bin/psysh LICENSE
-	bin/build-stub
+build/stub: scripts/build-stub bin/psysh LICENSE
+	scripts/build-stub
 
 build/composer.lock: build/composer.json
 ifneq ($(CI),)
@@ -114,7 +114,7 @@ build/psysh: $(PSYSH_SRC) $(PSYSH_SRC_FILES) build/composer.lock
 	cp -R $(PSYSH_SRC) $@/
 	cp build/composer.json build/composer.lock $@/
 	@# Fetch and include latest PHP manual
-	@if bin/fetch-manual; then \
+	@if scripts/fetch-manual; then \
 		echo "Including bundled manual..."; \
 		cp php_manual.php $@/; \
 		rm php_manual.php; \

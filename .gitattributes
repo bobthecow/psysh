@@ -5,8 +5,6 @@
 /.phan export-ignore
 /.styleci.yml export-ignore
 /.travis.yml export-ignore
-/bin/build-stub export-ignore
-/bin/fetch-manual export-ignore
 /box.json.dist export-ignore
 /build export-ignore
 /codecov.yml export-ignore
@@ -14,5 +12,6 @@
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 /scoper.inc.php export-ignore
+/scripts export-ignore
 /test export-ignore
 /vendor-bin export-ignore
