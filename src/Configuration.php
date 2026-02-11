@@ -2836,13 +2836,20 @@ class Configuration
      */
     private static function looksLikeAPipe($stream): bool
     {
-        if (\function_exists('posix_isatty')) {
-            return !\posix_isatty($stream);
+        if (\function_exists('stream_isatty')) {
+            return !@\stream_isatty($stream);
         }
 
-        $stat = \fstat($stream);
+        if (\function_exists('posix_isatty')) {
+            return !@\posix_isatty($stream);
+        }
+
+        $stat = @\fstat($stream);
+        if (!\is_array($stat) || !isset($stat['mode'])) {
+            return true;
+        }
         $mode = $stat['mode'] & 0170000;
 
-        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000;
+        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000 || $mode === 0140000;
     }
 }
