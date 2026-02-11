@@ -5,6 +5,7 @@ VERSION = $(shell git describe --tag --always --dirty=-dev)
 COMPOSER_OPTS = --no-interaction --no-progress --verbose
 COMPOSER_REQUIRE_OPTS = $(COMPOSER_OPTS) --no-update
 COMPOSER_UPDATE_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-authoritative --prefer-dist
+DOWNSTREAM_ALL_PROJECTS = $(shell scripts/test-downstream --list | tr '\n' ' ')
 
 ifneq ($(CI),)
 	PHPUNIT_OPTS = --verbose --coverage-clover=coverage.xml
@@ -17,7 +18,7 @@ endif
 
 # Commands
 
-.PHONY: help build clean dist test test-phar smoketest phpstan
+.PHONY: help build clean dist test test-phar test-downstream test-downstream-all test-downstream-project smoketest phpstan
 .DEFAULT_GOAL := help
 
 help:
@@ -50,6 +51,16 @@ test-phar: build/psysh/psysh
 		COMPOSER_ROOT_VERSION=1.0.0 composer require --no-interaction --no-progress "phpunit/phpunit:^9.6" 2>&1 | grep -v "locking\|Extracting" | head -3 || true && \
 		vendor/bin/phpunit --bootstrap psysh --exclude-group isolation-fail test/
 	@rm -rf $(PHAR_TEST_DIR)
+
+test-downstream: ## Run downstream compatibility tests (tier 1)
+	scripts/test-downstream tier1
+
+test-downstream-all: ## Run downstream compatibility tests (all projects)
+	scripts/test-downstream all
+
+test-downstream-project: ## Run one downstream compatibility test (PROJECT=<id>)
+	@test -n "$(PROJECT)" || (echo "Usage: make test-downstream-project PROJECT=<id>" && echo "Known IDs: $(DOWNSTREAM_ALL_PROJECTS)" && exit 1)
+	scripts/test-downstream $(PROJECT)
 
 smoketest: ## Run smoke tests on existing binaries
 smoketest: build/psysh/psysh

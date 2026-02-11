@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PSYSH_ROOT
+readonly DEFAULT_PROJECTS_TIER1=("laravel-tinker" "laravel-web-tinker")
+readonly DEFAULT_PROJECTS_ALL=("laravel-tinker" "laravel-web-tinker" "drush" "codeception" "magerun2" "cakephp-repl")
+readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
+
+usage() {
+    cat <<'USAGE'
+Usage:
+  scripts/test-downstream <project-id>
+  scripts/test-downstream tier1
+  scripts/test-downstream all
+  scripts/test-downstream --list
+
+Project IDs:
+  laravel-tinker
+  laravel-web-tinker
+  drush
+  codeception
+  magerun2
+  cakephp-repl
+USAGE
+}
+
+list_projects() {
+    printf '%s\n' "${DEFAULT_PROJECTS_ALL[@]}"
+}
+
+retry() {
+    local -r attempts="$1"
+    shift
+
+    local try=1
+    until "$@"; do
+        if [[ "${try}" -ge "${attempts}" ]]; then
+            echo "    FAILED after ${attempts} attempts: $*" >&2
+            return 1
+        fi
+
+        try=$((try + 1))
+        echo "    Retrying (${try}/${attempts}): $*" >&2
+        sleep 2
+    done
+}
+
+resolve_project() {
+    case "$1" in
+        laravel-tinker)
+            repo="laravel/tinker"
+            ref="2.x"
+            test_command="vendor/bin/phpunit"
+            ;;
+        laravel-web-tinker)
+            repo="spatie/laravel-web-tinker"
+            ref="main"
+            test_command="composer test"
+            ;;
+        drush)
+            repo="drush-ops/drush"
+            ref="14.x"
+            test_command="composer unit"
+            ;;
+        codeception)
+            repo="Codeception/Codeception"
+            ref="main"
+            test_command="./codecept run unit"
+            ;;
+        magerun2)
+            repo="netz98/n98-magerun2"
+            ref="develop"
+            test_command="vendor/bin/phpunit"
+            ;;
+        cakephp-repl)
+            repo="cakephp/repl"
+            ref="master"
+            test_command="vendor/bin/phpunit"
+            ;;
+        *)
+            echo "Unknown project ID: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+run_one_project() {
+    local -r project="$1"
+    local repo ref test_command
+
+    resolve_project "${project}"
+
+    local -r psysh_path="${PSYSH_PATH:-${PSYSH_ROOT}}"
+    local -r tmp_dir="$(mktemp -d)"
+    local -r work_dir="${tmp_dir}/${project}"
+    local -r repo_config_json="{\"type\":\"path\",\"url\":\"${psysh_path}\",\"options\":{\"symlink\":true,\"versions\":{\"psy/psysh\":\"${OVERRIDE_VERSION}\"}}}"
+
+    echo
+    echo "==> ${project}"
+    echo "    repo: ${repo} (${ref})"
+    echo "    test: ${test_command}"
+
+    (
+        if [[ "${DOWNSTREAM_KEEP_TMP:-0}" == "1" ]]; then
+            echo "    temp dir preserved: ${tmp_dir}"
+        else
+            # shellcheck disable=SC2064
+            trap "rm -rf '${tmp_dir}'" EXIT
+        fi
+
+        retry 3 git clone --depth 1 --branch "${ref}" "https://github.com/${repo}.git" "${work_dir}"
+        cd "${work_dir}"
+
+        export COMPOSER_CACHE_DIR="${COMPOSER_CACHE_DIR:-${tmp_dir}/composer-cache}"
+        mkdir -p "${COMPOSER_CACHE_DIR}"
+
+        composer config repositories.psysh "${repo_config_json}"
+
+        if [[ -f composer.lock ]]; then
+            retry 3 composer update psy/psysh --with-all-dependencies --no-interaction --no-progress
+        else
+            retry 3 composer update --no-interaction --no-progress
+        fi
+
+        ${test_command}
+    )
+}
+
+main() {
+    local -a projects=()
+
+    if [[ $# -ne 1 ]]; then
+        usage
+        exit 1
+    fi
+
+    case "$1" in
+        --list)
+            list_projects
+            return
+            ;;
+        tier1)
+            projects=("${DEFAULT_PROJECTS_TIER1[@]}")
+            ;;
+        all)
+            projects=("${DEFAULT_PROJECTS_ALL[@]}")
+            ;;
+        -h|--help)
+            usage
+            return
+            ;;
+        *)
+            projects=("$1")
+            ;;
+    esac
+
+    for project in "${projects[@]}"; do
+        run_one_project "${project}"
+    done
+}
+
+main "$@"

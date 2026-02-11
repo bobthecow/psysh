@@ -1,0 +1,55 @@
+name: Run downstream tests
+
+on:
+  workflow_call:
+    inputs:
+      continue_on_error:
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  downstream:
+    name: ${{ matrix.project }} (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ inputs.continue_on_error && matrix.tier != 1 }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: laravel-tinker
+            php: '8.2'
+            tier: 1
+          - project: laravel-web-tinker
+            php: '8.2'
+            tier: 1
+          - project: codeception
+            php: '8.2'
+            tier: 2
+          - project: magerun2
+            php: '8.2'
+            tier: 2
+          - project: drush
+            php: '8.3'
+            tier: 2
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6.0.2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@2.36.0
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+          extensions: curl, dom, json, mbstring, pdo, pdo_sqlite, simplexml, zip
+
+      - name: Make downstream runner executable
+        run: chmod +x scripts/test-downstream
+
+      - name: Run downstream tests
+        run: scripts/test-downstream "${DOWNSTREAM_PROJECT}"
+        timeout-minutes: 15
+        env:
+          DOWNSTREAM_PROJECT: ${{ matrix.project }}

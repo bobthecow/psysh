@@ -20,6 +20,10 @@ jobs:
     name: Test --prefer-lowest deps
     uses: ./.github/workflows/run-tests-lowest.yml
 
+  downstream:
+    name: Downstream
+    uses: ./.github/workflows/run-downstream.yml
+
   build:
     name: Test Phar build
     runs-on: ubuntu-latest
