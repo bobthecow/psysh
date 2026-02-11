@@ -207,6 +207,43 @@ call_user_func(function () {
         }
     }
 
+    // Composer-generated bin proxies expose `_composer_autoload_path`, which points
+    // at the autoloader for the *current* project invoking `vendor/bin/psysh`.
+    // We use this to distinguish "already running via this project's local psysh"
+    // from "global psysh trying to hop into some other project's local psysh".
+    $proxyAutoloadPath = null;
+    if (isset($GLOBALS['_composer_autoload_path'])
+        && is_string($GLOBALS['_composer_autoload_path'])
+        && $GLOBALS['_composer_autoload_path'] !== ''
+    ) {
+        $proxyAutoloadPath = realpath($GLOBALS['_composer_autoload_path']);
+        if ($proxyAutoloadPath === false) {
+            $proxyAutoloadPath = str_replace('\\', '/', $GLOBALS['_composer_autoload_path']);
+        } else {
+            $proxyAutoloadPath = str_replace('\\', '/', $proxyAutoloadPath);
+        }
+    }
+
+    $isCurrentProjectAutoload = function ($projectPath) use ($proxyAutoloadPath) {
+        if ($proxyAutoloadPath === null) {
+            return false;
+        }
+
+        $projectAutoloadPath = realpath($projectPath.'/vendor/autoload.php');
+        if ($projectAutoloadPath === false) {
+            return false;
+        }
+
+        return str_replace('\\', '/', $projectAutoloadPath) === $proxyAutoloadPath;
+    };
+
+    $markUntrustedProject = function ($projectPath, $prettyPath) {
+        fwrite(STDERR, 'Skipping local PsySH at ' . $prettyPath . ' (project is untrusted). Re-run with --trust-project to allow.' . PHP_EOL);
+        $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = $projectPath;
+        $_ENV['PSYSH_UNTRUSTED_PROJECT'] = $projectPath;
+        putenv('PSYSH_UNTRUSTED_PROJECT='.$projectPath);
+    };
+
     $chunks = explode('/', $cwd);
     while (!empty($chunks)) {
         $path = implode('/', $chunks);
@@ -223,16 +260,16 @@ call_user_func(function () {
                     if (is_file($path . '/vendor/autoload.php')) {
                         $realPath = realpath($path);
                         $realPath = $realPath ? str_replace('\\', '/', $realPath) : $path;
+                        $pathReal = realpath($path);
+                        $binReal = realpath(__DIR__ . '/..');
+                        $isCurrentPsysh = ($pathReal !== false && $pathReal === $binReal) || $isCurrentProjectAutoload($path);
 
-                        if (!$forceTrust && ($forceUntrust || !in_array($realPath, $trustedRoots, true))) {
-                            fwrite(STDERR, 'Skipping local PsySH at ' . $prettyPath . ' (project is untrusted). Re-run with --trust-project to allow.' . PHP_EOL);
-                            $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
-                            $_ENV['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
-                            putenv('PSYSH_UNTRUSTED_PROJECT='.$realPath);
+                        if (!$isCurrentPsysh && !$forceTrust && ($forceUntrust || !in_array($realPath, $trustedRoots, true))) {
+                            $markUntrustedProject($realPath, $prettyPath);
                             return;
                         }
 
-                        if (realpath($path) !== realpath(__DIR__ . '/..')) {
+                        if (!$isCurrentPsysh) {
                             fwrite(STDERR, 'Using local PsySH version at ' . $prettyPath . PHP_EOL);
                         }
 
@@ -254,16 +291,16 @@ call_user_func(function () {
                         if (is_file($path . '/vendor/autoload.php')) {
                             $realPath = realpath($path);
                             $realPath = $realPath ? str_replace('\\', '/', $realPath) : $path;
+                            $vendorReal = realpath($path . '/vendor');
+                            $binVendorReal = realpath(__DIR__ . '/../../..');
+                            $isCurrentPsysh = ($vendorReal !== false && $vendorReal === $binVendorReal) || $isCurrentProjectAutoload($path);
 
-                            if (!$forceTrust && ($forceUntrust || !in_array($realPath, $trustedRoots, true))) {
-                                fwrite(STDERR, 'Skipping local PsySH at ' . $prettyPath . ' (project is untrusted). Re-run with --trust-project to allow.' . PHP_EOL);
-                                $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
-                                $_ENV['PSYSH_UNTRUSTED_PROJECT'] = $realPath;
-                                putenv('PSYSH_UNTRUSTED_PROJECT='.$realPath);
+                            if (!$isCurrentPsysh && !$forceTrust && ($forceUntrust || !in_array($realPath, $trustedRoots, true))) {
+                                $markUntrustedProject($realPath, $prettyPath);
                                 return;
                             }
 
-                            if (realpath($path . '/vendor') !== realpath(__DIR__ . '/../../..')) {
+                            if (!$isCurrentPsysh) {
                                 fwrite(STDERR, 'Using local PsySH version at ' . $prettyPath . PHP_EOL);
                             }
 
