@@ -187,7 +187,9 @@ class Shell extends Application
 
         if ($input === null) {
             $input = new ArrayInput([]);
-            $input->setInteractive($this->config->getInputInteractive());
+            // Programmatic callers (e.g. Shell::execute) don't provide a real
+            // interactive input stream, so trust prompts must not block.
+            $input->setInteractive(false);
         }
 
         $this->config->loadLocalConfigWithPrompt($input, $output);

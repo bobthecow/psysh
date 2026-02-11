@@ -233,6 +233,7 @@ class ShellTest extends TestCase
         $shell = new Shell($this->getConfig());
         $output = $this->getOutput();
         $stream = $output->getStream();
+        $line = __LINE__ + 1;
         $e = new ParseErrorException('message', 13);
 
         $shell->setOutput($output);
@@ -249,7 +250,7 @@ class ShellTest extends TestCase
         \rewind($stream);
         $streamContents = \stream_get_contents($stream);
 
-        $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line 236.';
+        $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line '.$line.'.';
         $this->assertSame($expected, \trim($streamContents));
     }
 
@@ -617,6 +618,38 @@ class ShellTest extends TestCase
             ['"{{return value}}"', '{{return value}}'],
             ['1', 1],
         ];
+    }
+
+    public function testShellExecuteUsesNonInteractivePromptContext()
+    {
+        $dir = \tempnam(\sys_get_temp_dir(), 'psysh_shell_test_');
+        \unlink($dir);
+
+        $options = [
+            'configFile'      => __DIR__.'/fixtures/empty.php',
+            'interactiveMode' => Configuration::INTERACTIVE_MODE_FORCED,
+            'trustProject'    => Configuration::PROJECT_TRUST_PROMPT,
+            'colorMode'       => Configuration::COLOR_MODE_FORCED,
+            'configDir'       => $dir,
+            'dataDir'         => $dir,
+            'runtimeDir'      => $dir,
+        ];
+
+        $config = new class($options) extends Configuration {
+            public ?bool $lastPromptInputInteractive = null;
+
+            public function loadLocalConfigWithPrompt($input, $output): void
+            {
+                $this->lastPromptInputInteractive = $input->isInteractive();
+            }
+        };
+
+        $shell = new Shell($config);
+        $shell->setOutput($config->getOutput());
+
+        // execute() returns the eval'd value, not an exit code
+        $this->assertSame(2, $shell->execute('1 + 1'));
+        $this->assertFalse($config->lastPromptInputInteractive);
     }
 
     /**
