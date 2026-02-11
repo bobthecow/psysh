@@ -275,4 +275,79 @@ class ProjectTrustTest extends TestCase
         // The project should now be trusted for this session
         $this->assertTrue($trust->isProjectTrusted('/some/project'));
     }
+
+    public function testShouldPromptForLocalPsyshBinaryDefaultsFalse()
+    {
+        $trust = $this->getProjectTrust();
+
+        $this->withUntrustedProjectEnv(function () use ($trust) {
+            $this->assertFalse($trust->shouldPromptForLocalPsyshBinary());
+        });
+    }
+
+    public function testShouldPromptForLocalPsyshBinaryUsesServerVar()
+    {
+        $trust = $this->getProjectTrust();
+
+        $this->withUntrustedProjectEnv(function () use ($trust) {
+            $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = '/tmp/project';
+            $this->assertTrue($trust->shouldPromptForLocalPsyshBinary());
+        });
+    }
+
+    public function testShouldPromptForLocalPsyshBinaryUsesEnvironmentVar()
+    {
+        $trust = $this->getProjectTrust();
+
+        $this->withUntrustedProjectEnv(function () use ($trust) {
+            \putenv('PSYSH_UNTRUSTED_PROJECT=/tmp/project');
+            $this->assertTrue($trust->shouldPromptForLocalPsyshBinary());
+        });
+    }
+
+    public function testGetLocalPsyshProjectRootFallsBackToEnvironmentVar()
+    {
+        $trust = $this->getProjectTrust();
+
+        $this->withUntrustedProjectEnv(function () use ($trust) {
+            \putenv('PSYSH_UNTRUSTED_PROJECT=/tmp/project');
+            $this->assertSame('/tmp/project', $trust->getLocalPsyshProjectRoot('/non/existent/project'));
+        });
+    }
+
+    private function withUntrustedProjectEnv(callable $callback): void
+    {
+        $hadServer = \array_key_exists('PSYSH_UNTRUSTED_PROJECT', $_SERVER);
+        $serverValue = $hadServer ? $_SERVER['PSYSH_UNTRUSTED_PROJECT'] : null;
+
+        $hadEnv = \array_key_exists('PSYSH_UNTRUSTED_PROJECT', $_ENV);
+        $envValue = $hadEnv ? $_ENV['PSYSH_UNTRUSTED_PROJECT'] : null;
+
+        $processEnv = \getenv('PSYSH_UNTRUSTED_PROJECT');
+
+        unset($_SERVER['PSYSH_UNTRUSTED_PROJECT'], $_ENV['PSYSH_UNTRUSTED_PROJECT']);
+        \putenv('PSYSH_UNTRUSTED_PROJECT');
+
+        try {
+            $callback();
+        } finally {
+            if ($hadServer) {
+                $_SERVER['PSYSH_UNTRUSTED_PROJECT'] = $serverValue;
+            } else {
+                unset($_SERVER['PSYSH_UNTRUSTED_PROJECT']);
+            }
+
+            if ($hadEnv) {
+                $_ENV['PSYSH_UNTRUSTED_PROJECT'] = $envValue;
+            } else {
+                unset($_ENV['PSYSH_UNTRUSTED_PROJECT']);
+            }
+
+            if ($processEnv === false) {
+                \putenv('PSYSH_UNTRUSTED_PROJECT');
+            } else {
+                \putenv('PSYSH_UNTRUSTED_PROJECT='.$processEnv);
+            }
+        }
+    }
 }

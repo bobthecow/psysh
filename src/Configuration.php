@@ -616,6 +616,7 @@ class Configuration
 
         $localConfigRoot = $this->projectTrust->getLocalConfigRoot();
         $composerRoot = $this->projectTrust->getProjectRoot();
+        $checkLocalPsyshBinary = $this->projectTrust->shouldPromptForLocalPsyshBinary();
 
         // Collect features by root that need trust
         $featuresByRoot = [];
@@ -629,7 +630,7 @@ class Configuration
         }
 
         // Check for local PsySH binary (at Composer root, where vendor/bin lives)
-        if ($composerRoot !== null && $this->projectTrust->getLocalPsyshProjectRoot($composerRoot) !== null) {
+        if ($checkLocalPsyshBinary && $composerRoot !== null && $this->projectTrust->getLocalPsyshProjectRoot($composerRoot) !== null) {
             $trustStatus = $this->projectTrust->getProjectTrustStatus($composerRoot);
             if ($trustStatus === null) {
                 $featuresByRoot[$composerRoot][] = 'local PsySH binary';
@@ -684,7 +685,7 @@ class Configuration
         foreach ($featuresByRoot as $root => $features) {
             if ($this->projectTrust->promptForTrust($input, $output, $root, $features)) {
                 // Check for local PsySH binary that needs re-run message
-                if ($localPsyshRoot = $this->projectTrust->getLocalPsyshProjectRoot($root)) {
+                if ($checkLocalPsyshBinary && ($localPsyshRoot = $this->projectTrust->getLocalPsyshProjectRoot($root))) {
                     $prettyLocal = ConfigPaths::prettyPath($localPsyshRoot);
                     $output->writeln('');
                     $output->writeln("<comment>Local PsySH version detected at {$prettyLocal}.</comment>");
@@ -2835,13 +2836,20 @@ class Configuration
      */
     private static function looksLikeAPipe($stream): bool
     {
-        if (\function_exists('posix_isatty')) {
-            return !\posix_isatty($stream);
+        if (\function_exists('stream_isatty')) {
+            return !@\stream_isatty($stream);
         }
 
-        $stat = \fstat($stream);
+        if (\function_exists('posix_isatty')) {
+            return !@\posix_isatty($stream);
+        }
+
+        $stat = @\fstat($stream);
+        if (!\is_array($stat) || !isset($stat['mode'])) {
+            return true;
+        }
         $mode = $stat['mode'] & 0170000;
 
-        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000;
+        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000 || $mode === 0140000;
     }
 }
