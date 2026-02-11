@@ -25,13 +25,10 @@ jobs:
             tier: 1
           - project: codeception
             php: '8.2'
-            tier: 2
           - project: magerun2
             php: '8.2'
-            tier: 2
           - project: drush
             php: '8.3'
-            tier: 2
 
     steps:
       - name: Check out code
