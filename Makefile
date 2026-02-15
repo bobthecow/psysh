@@ -18,12 +18,12 @@ endif
 
 # Commands
 
-.PHONY: help build clean dist test test-phar test-downstream test-downstream-all test-downstream-project smoketest phpstan
+.PHONY: help build clean dist test test-phar test-downstream test-downstream-all test-downstream-project smoketest phpstan phan phan-strict
 .DEFAULT_GOAL := help
 
 help:
 	@echo "\033[33mUsage:\033[0m\n  make TARGET\n\n\033[33mTargets:\033[0m"
-	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-9s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-24s\033[0m %s\n", $$1, $$2}'
 
 build: ## Compile psysh PHAR
 build: build/psysh/psysh
@@ -70,8 +70,12 @@ phpstan: ## Run static analysis
 phpstan: vendor/bin/phpstan vendor/bin/phpunit
 	vendor/bin/phpstan --memory-limit=1G analyse
 
-phan: ## Run phan
+phan: ## Run phan (CI baseline, new issues only)
 phan: vendor/bin/phan
+	vendor/bin/phan --allow-polyfill-parser --load-baseline=.phan/baseline-ci.php
+
+phan-strict: ## Run phan without current issues baseline
+phan-strict: vendor/bin/phan
 	vendor/bin/phan --allow-polyfill-parser
 
 # All the composer stuffs
