@@ -27,9 +27,7 @@ class ConstantsMatcher extends AbstractMatcher
     {
         $const = $this->getInput($tokens);
 
-        return \array_filter(\array_keys(\get_defined_constants()), function ($constant) use ($const) {
-            return AbstractMatcher::startsWith($const, $constant);
-        });
+        return \array_filter(\array_keys(\get_defined_constants()), fn ($constant) => AbstractMatcher::startsWith($const, $constant));
     }
 
     /**

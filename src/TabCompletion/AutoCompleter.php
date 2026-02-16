@@ -65,9 +65,7 @@ class AutoCompleter
         $tokens = \token_get_all('<?php '.$line);
 
         // remove whitespaces
-        $tokens = \array_filter($tokens, function ($token) {
-            return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
-        });
+        $tokens = \array_filter($tokens, fn ($token) => !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE));
         // reset index from 0 to remove missing index number
         $tokens = \array_values($tokens);
 

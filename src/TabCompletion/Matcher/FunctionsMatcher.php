@@ -30,9 +30,7 @@ class FunctionsMatcher extends AbstractMatcher
         $functions = \get_defined_functions();
         $allFunctions = \array_merge($functions['user'], $functions['internal']);
 
-        return \array_filter($allFunctions, function ($function) use ($func) {
-            return AbstractMatcher::startsWith($func, $function);
-        });
+        return \array_filter($allFunctions, fn ($function) => AbstractMatcher::startsWith($func, $function));
     }
 
     /**

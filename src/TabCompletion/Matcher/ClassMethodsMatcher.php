@@ -48,9 +48,7 @@ class ClassMethodsMatcher extends AbstractMatcher
             $methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
         }
 
-        $methods = \array_map(function (\ReflectionMethod $method) {
-            return $method->getName();
-        }, $methods);
+        $methods = \array_map(fn (\ReflectionMethod $method) => $method->getName(), $methods);
 
         return \array_map(
             function ($name) use ($class) {
@@ -59,9 +57,7 @@ class ClassMethodsMatcher extends AbstractMatcher
 
                 return $className.'::'.$name;
             },
-            \array_filter($methods, function ($method) use ($input) {
-                return AbstractMatcher::startsWith($input, $method);
-            })
+            \array_filter($methods, fn ($method) => AbstractMatcher::startsWith($input, $method))
         );
     }
 

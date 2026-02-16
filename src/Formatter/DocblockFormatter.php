@@ -87,13 +87,7 @@ class DocblockFormatter implements ReflectorFormatter
         $template = \implode(' ', $template);
 
         return \implode("\n", \array_map(function ($line) use ($template) {
-            $escaped = \array_map(function ($l) {
-                if ($l === null) {
-                    return '';
-                }
-
-                return OutputFormatter::escape($l);
-            }, $line);
+            $escaped = \array_map(fn ($l) => ($l === null) ? '' : OutputFormatter::escape($l), $line);
 
             return \rtrim(\vsprintf($template, $escaped));
         }, $lines));

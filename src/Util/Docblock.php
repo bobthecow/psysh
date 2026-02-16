@@ -113,9 +113,7 @@ class Docblock
     protected static function prefixLength(array $lines): int
     {
         // find only lines with interesting things
-        $lines = \array_filter($lines, function ($line) {
-            return \substr($line, \strspn($line, "* \t\n\r\0\x0B"));
-        });
+        $lines = \array_filter($lines, fn ($line) => \substr($line, \strspn($line, "* \t\n\r\0\x0B")));
 
         // if we sort the lines, we only have to compare two items
         \sort($lines);
@@ -154,9 +152,7 @@ class Docblock
 
         // Trim asterisks and whitespace from the beginning and whitespace from the end of lines
         $prefixLength = self::prefixLength($comment);
-        $comment = \array_map(function ($line) use ($prefixLength) {
-            return \rtrim(\substr($line, $prefixLength));
-        }, $comment);
+        $comment = \array_map(fn ($line) => \rtrim(\substr($line, $prefixLength)), $comment);
 
         // Group the lines together by @tags
         $blocks = [];

@@ -95,9 +95,7 @@ class ClassEnumerator extends Enumerator
         }
 
         if (!$user && !$internal) {
-            $ret[$key] = \array_filter($classes, function ($class) use ($prefix) {
-                return $prefix === null || \strpos(\strtolower($class), $prefix) === 0;
-            });
+            $ret[$key] = \array_filter($classes, fn ($class) => $prefix === null || \strpos(\strtolower($class), $prefix) === 0);
         }
 
         return $ret;

@@ -185,9 +185,7 @@ HELP
         foreach ($result as $label => $items) {
             // Pre-format each item individually to avoid O(n^2) performance
             // in Symfony's OutputFormatter when processing large strings with many style tags.
-            $names = \array_map(function ($item) use ($formatter) {
-                return $formatter->format($this->formatItemName($item));
-            }, $items);
+            $names = \array_map(fn ($item) => $formatter->format($this->formatItemName($item)), $items);
 
             // Pre-format the label and join with pre-formatted names
             $line = $formatter->format(\sprintf('<strong>%s</strong>: ', $label)).\implode(', ', $names);

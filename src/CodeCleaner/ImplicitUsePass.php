@@ -267,11 +267,11 @@ class ImplicitUsePass extends CodeCleanerPass
     {
         $this->shortNameMap = [];
 
-        $allClasses = \array_merge(
-            \get_declared_classes(),
-            \get_declared_interfaces(),
-            \get_declared_traits()
-        );
+        $allClasses = [
+            ...\get_declared_classes(),
+            ...\get_declared_interfaces(),
+            ...\get_declared_traits(),
+        ];
 
         // First pass: collect all matching classes
         $candidatesByShortName = [];
@@ -342,9 +342,7 @@ class ImplicitUsePass extends CodeCleanerPass
      */
     private function normalizeNamespaces(array $namespaces): array
     {
-        return \array_map(function ($namespace) {
-            return \trim($namespace, '\\').'\\';
-        }, $namespaces);
+        return \array_map(fn ($namespace) => \trim($namespace, '\\').'\\', $namespaces);
     }
 
     /**

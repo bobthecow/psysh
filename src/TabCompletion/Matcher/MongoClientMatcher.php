@@ -43,12 +43,8 @@ class MongoClientMatcher extends AbstractContextAwareMatcher
         $list = $object->listDBs();
 
         return \array_filter(
-            \array_map(function ($info) {
-                return $info['name'];
-            }, $list['databases']),
-            function ($var) use ($input) {
-                return AbstractMatcher::startsWith($input, $var);
-            }
+            \array_map(fn ($info) => $info['name'], $list['databases']),
+            fn ($var) => AbstractMatcher::startsWith($input, $var)
         );
     }
 

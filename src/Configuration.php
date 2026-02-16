@@ -1704,9 +1704,10 @@ class Configuration
 
         $projectRoot = $this->projectTrust->getProjectRoot();
         if ($projectRoot !== null && ($this->projectTrust->getForceUntrust() || !$this->projectTrust->isProjectTrusted($projectRoot))) {
-            $filtered = \array_values(\array_filter($this->autoloadWarmers, function ($warmer) {
-                return !$warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer;
-            }));
+            $filtered = \array_values(\array_filter(
+                $this->autoloadWarmers,
+                fn ($warmer) => !$warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer
+            ));
 
             if (\count($filtered) !== \count($this->autoloadWarmers)) {
                 $this->projectTrust->warnUntrustedAutoloadWarming($projectRoot, $this->getOutput());

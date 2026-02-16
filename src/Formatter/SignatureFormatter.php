@@ -124,9 +124,12 @@ class SignatureFormatter implements ReflectorFormatter
      */
     private static function formatModifiers(\Reflector $reflector): string
     {
-        return \implode(' ', \array_map(function ($modifier) {
-            return \sprintf('<keyword>%s</keyword>', $modifier);
-        }, \Reflection::getModifierNames($reflector->getModifiers())));
+        $modifiers = \array_map(
+            fn ($modifier) => \sprintf('<keyword>%s</keyword>', $modifier),
+            \Reflection::getModifierNames($reflector->getModifiers())
+        );
+
+        return \implode(' ', $modifiers);
     }
 
     /**

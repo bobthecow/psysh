@@ -352,9 +352,7 @@ class ConfigPaths
     private function allDirNames(array $baseDirs): array
     {
         $baseDirs = \array_filter($baseDirs);
-        $dirs = \array_map(function ($dir) {
-            return \strtr($dir, '\\', '/').'/psysh';
-        }, $baseDirs);
+        $dirs = \array_map(fn ($dir) => \strtr($dir, '\\', '/').'/psysh', $baseDirs);
 
         // Add ~/.psysh
         if ($home = $this->getEnv('HOME')) {

@@ -370,9 +370,7 @@ class ComposerAutoloadWarmer implements AutoloadWarmerInterface
      */
     private function normalizeNamespaces(array $namespaces): array
     {
-        return \array_map(function ($namespace) {
-            return \trim($namespace, '\\').'\\';
-        }, $namespaces);
+        return \array_map(fn ($namespace) => \trim($namespace, '\\').'\\', $namespaces);
     }
 
     /**

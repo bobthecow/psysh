@@ -27,9 +27,10 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     {
         $var = \str_replace('$', '', $this->getInput($tokens));
 
-        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($var) {
-            return AbstractMatcher::startsWith($var, $variable);
-        });
+        return \array_filter(
+            \array_keys($this->getVariables()),
+            fn ($variable) => AbstractMatcher::startsWith($var, $variable)
+        );
     }
 
     /**

@@ -282,9 +282,7 @@ class Theme
      */
     private function getStyle(string $name, bool $useGrayFallback): array
     {
-        return \array_map(function ($style) use ($useGrayFallback) {
-            return ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style;
-        }, $this->styles[$name]);
+        return \array_map(fn ($style) => ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
     }
 
     /**

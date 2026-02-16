@@ -56,9 +56,7 @@ class KeywordsMatcher extends AbstractMatcher
     {
         $input = $this->getInput($tokens);
 
-        return \array_filter($this->keywords, function ($keyword) use ($input) {
-            return AbstractMatcher::startsWith($input, $keyword);
-        });
+        return \array_filter($this->keywords, fn ($keyword) => AbstractMatcher::startsWith($input, $keyword));
     }
 
     /**

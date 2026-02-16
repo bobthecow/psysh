@@ -1306,9 +1306,7 @@ class Shell extends Application
      */
     private function addCodeBufferToHistory()
     {
-        $codeBuffer = \array_filter($this->codeBuffer, function ($line) {
-            return !$line instanceof SilentInput;
-        });
+        $codeBuffer = \array_filter($this->codeBuffer, fn ($line) => !$line instanceof SilentInput);
 
         $this->addHistory(\implode("\n", $codeBuffer));
     }
