@@ -87,6 +87,7 @@ class Configuration
         'updateCheck',
         'updateManualCheck',
         'useBracketedPaste',
+        'useOsc52Clipboard',
         'usePcntl',
         'useReadline',
         'useTabCompletion',
@@ -120,6 +121,7 @@ class Configuration
     private bool $strictTypes = false;
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
+    private bool $useOsc52Clipboard = false;
     private array $newMatchers = [];
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
@@ -1201,6 +1203,24 @@ class Configuration
 
         // @todo mebbe turn this on by default some day?
         // return $readlineClass::supportsBracketedPaste() && $this->useBracketedPaste !== false;
+    }
+
+    /**
+     * Enable or disable OSC 52 clipboard support.
+     *
+     * @param bool $useOsc52Clipboard
+     */
+    public function setUseOsc52Clipboard(bool $useOsc52Clipboard)
+    {
+        $this->useOsc52Clipboard = (bool) $useOsc52Clipboard;
+    }
+
+    /**
+     * Check whether to use OSC 52 clipboard support.
+     */
+    public function useOsc52Clipboard(): bool
+    {
+        return $this->useOsc52Clipboard;
     }
 
     /**

@@ -346,10 +346,14 @@ class Shell extends Application
         $doc = new Command\DocCommand();
         $doc->setConfiguration($this->config);
 
+        $copy = new Command\CopyCommand();
+        $copy->setConfiguration($this->config);
+
         $commands = [
             new Command\HelpCommand(),
             new Command\ListCommand(),
             new Command\DumpCommand(),
+            $copy,
             $doc,
             new Command\ShowCommand(),
             new Command\WtfCommand(),
