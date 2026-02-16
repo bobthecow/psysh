@@ -12,6 +12,10 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\MethodEnumerator;
+use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
+use Psy\Test\Fixtures\Command\ListCommand\ClassCharlie;
+use Psy\Test\Fixtures\Command\ListCommand\InterfaceEcho;
+use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 
 /**
  * @group isolation-fail
@@ -37,7 +41,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods');
-        $target = new Fixtures\ClassAlfa();
+        $target = new ClassAlfa();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -57,7 +61,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods --all');
-        $target = new Fixtures\ClassAlfa();
+        $target = new ClassAlfa();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -87,7 +91,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods --all');
-        $target = new Fixtures\ClassCharlie();
+        $target = new ClassCharlie();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -117,7 +121,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods --no-inherit');
-        $target = new Fixtures\ClassCharlie();
+        $target = new ClassCharlie();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -138,7 +142,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceEcho::class), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(InterfaceEcho::class), null);
 
         $this->assertArrayHasKey('Interface Methods', $res);
         $methods = $res['Interface Methods'];
@@ -157,7 +161,7 @@ class MethodEnumeratorTest extends EnumeratorTestCase
         $enumerator = new MethodEnumerator($this->getPresenter());
         $input = $this->getInput('--methods');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), null);
 
         $this->assertArrayHasKey('Trait Methods', $res);
         $methods = $res['Trait Methods'];

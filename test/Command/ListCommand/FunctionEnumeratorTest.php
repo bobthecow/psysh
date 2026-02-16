@@ -14,8 +14,11 @@ namespace Psy\Test\Command\ListCommand;
 use Psy\Command\ListCommand\FunctionEnumerator;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Reflection\ReflectionNamespace;
+use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
+use Psy\Test\Fixtures\Command\ListCommand\InterfaceDelta;
+use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 
-require_once __DIR__.'/Fixtures/functions.php';
+require_once __DIR__.'/../../Fixtures/Command/ListCommand/functions.php';
 
 /**
  * @group isolation-fail
@@ -33,12 +36,12 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new FunctionEnumerator($this->getPresenter());
         $input = $this->getInput('--functions');
-        $target = new Fixtures\ClassAlfa();
+        $target = new ClassAlfa();
 
         $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
-        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateInternalFunctions()
@@ -91,20 +94,20 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new FunctionEnumerator($this->getPresenter());
         $input = $this->getInput('--functions');
-        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand\\Fixtures'));
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Fixtures\\Command\\ListCommand'));
 
         $this->assertArrayHasKey('Functions', $res);
 
         $expected = [
-            'psy\\test\\command\\listcommand\\fixtures\\bar' => [
-                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\bar',
+            'psy\\test\\fixtures\\command\\listcommand\\bar' => [
+                'name'  => 'psy\\test\\fixtures\\command\\listcommand\\bar',
                 'style' => 'function',
-                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\bar</function>()',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Fixtures\\Command\\ListCommand\\bar</function>()',
             ],
-            'psy\\test\\command\\listcommand\\fixtures\\foo' => [
-                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\foo',
+            'psy\\test\\fixtures\\command\\listcommand\\foo' => [
+                'name'  => 'psy\\test\\fixtures\\command\\listcommand\\foo',
                 'style' => 'function',
-                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\foo</function>()',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Fixtures\\Command\\ListCommand\\foo</function>()',
             ],
         ];
 
@@ -115,21 +118,21 @@ class FunctionEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new FunctionEnumerator($this->getPresenter());
         $input = $this->getInput('--functions --user --internal');
-        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Command\\ListCommand\\Fixtures'));
+        $res = $enumerator->enumerate($input, new ReflectionNamespace('Psy\\Test\\Fixtures\\Command\\ListCommand'));
 
         $this->assertArrayHasKey('User Functions', $res);
         $this->assertArrayNotHasKey('Internal Functions', $res);
 
         $expected = [
-            'psy\\test\\command\\listcommand\\fixtures\\bar' => [
-                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\bar',
+            'psy\\test\\fixtures\\command\\listcommand\\bar' => [
+                'name'  => 'psy\\test\\fixtures\\command\\listcommand\\bar',
                 'style' => 'function',
-                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\bar</function>()',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Fixtures\\Command\\ListCommand\\bar</function>()',
             ],
-            'psy\\test\\command\\listcommand\\fixtures\\foo' => [
-                'name'  => 'psy\\test\\command\\listcommand\\fixtures\\foo',
+            'psy\\test\\fixtures\\command\\listcommand\\foo' => [
+                'name'  => 'psy\\test\\fixtures\\command\\listcommand\\foo',
                 'style' => 'function',
-                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Command\\ListCommand\\Fixtures\\foo</function>()',
+                'value' => '<keyword>function</keyword> <function>Psy\\Test\\Fixtures\\Command\\ListCommand\\foo</function>()',
             ],
         ];
 

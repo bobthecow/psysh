@@ -17,7 +17,7 @@ parameters:
     - src/Readline/Hoa/FileLink.php
     - src/Util/Str.php
     # Fake PSR-3 logger implements interface that may not exist when psr/log isn't installed
-    - test/Util/FakePsrLogger.php
+    - test/Fixtures/Util/FakePsrLogger.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
   reportUnmatchedIgnoredErrors: true

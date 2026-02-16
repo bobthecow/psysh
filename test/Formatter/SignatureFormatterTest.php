@@ -14,7 +14,7 @@ namespace Psy\Test\Formatter;
 use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
-use Psy\Test\Formatter\Fixtures\BoringTrait;
+use Psy\Test\Fixtures\Formatter\BoringTrait;
 
 /**
  * @group isolation-fail
@@ -68,7 +68,7 @@ class SignatureFormatterTest extends \Psy\Test\TestCase
             ],
             [
                 new \ReflectionClass(BoringTrait::class),
-                'trait Psy\Test\Formatter\Fixtures\BoringTrait',
+                'trait Psy\Test\Fixtures\Formatter\BoringTrait',
             ],
             [
                 new \ReflectionMethod(BoringTrait::class, 'boringMethod'),

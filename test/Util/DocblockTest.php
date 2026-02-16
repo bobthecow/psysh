@@ -11,9 +11,9 @@
 
 namespace Psy\Test\Util;
 
-use Psy\Test\Util\Fixtures\MagicChild;
-use Psy\Test\Util\Fixtures\MagicClass;
-use Psy\Test\Util\Fixtures\NoMagicClass;
+use Psy\Test\Fixtures\Util\MagicChild;
+use Psy\Test\Fixtures\Util\MagicClass;
+use Psy\Test\Fixtures\Util\NoMagicClass;
 use Psy\Util\Docblock;
 
 class DocblockTest extends \Psy\Test\TestCase

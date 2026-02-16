@@ -17,6 +17,7 @@ use Psy\Command\ShowCommand;
 use Psy\Context;
 use Psy\Exception\RuntimeException;
 use Psy\Shell;
+use Psy\Test\Fixtures\Command\PsyCommandTester;
 
 /**
  * @group isolation-fail

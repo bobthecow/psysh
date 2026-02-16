@@ -12,6 +12,10 @@
 namespace Psy\Test;
 
 use Psy\Sudo;
+use Psy\Test\Fixtures\ClassWithSecretConstructor;
+use Psy\Test\Fixtures\ClassWithSecretiveParent;
+use Psy\Test\Fixtures\ClassWithSecretParentConstructor;
+use Psy\Test\Fixtures\ClassWithSecrets;
 
 class SudoTest extends TestCase
 {

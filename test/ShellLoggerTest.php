@@ -12,7 +12,7 @@
 namespace Psy\Test;
 
 use Psy\ShellLogger;
-use Psy\Test\Util\FakePsrLogger;
+use Psy\Test\Fixtures\Util\FakePsrLogger;
 
 class ShellLoggerTest extends TestCase
 {

@@ -12,6 +12,13 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\ClassConstantEnumerator;
+use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
+use Psy\Test\Fixtures\Command\ListCommand\ClassBravo;
+use Psy\Test\Fixtures\Command\ListCommand\ClassCharlie;
+use Psy\Test\Fixtures\Command\ListCommand\InterfaceDelta;
+use Psy\Test\Fixtures\Command\ListCommand\InterfaceEcho;
+use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
+use Psy\Test\Fixtures\Command\ListCommand\TraitGolf;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
@@ -32,9 +39,9 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
 
     public function enumerateInput()
     {
-        $alfa = new Fixtures\ClassAlfa();
-        $bravo = new Fixtures\ClassBravo();
-        $charlie = new Fixtures\ClassCharlie();
+        $alfa = new ClassAlfa();
+        $bravo = new ClassBravo();
+        $charlie = new ClassCharlie();
 
         return [
             ['--constants', new \ReflectionClass($alfa), null, []],
@@ -85,7 +92,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     ],
                 ],
             ]],
-            ['--constants', new \ReflectionClass(Fixtures\InterfaceDelta::class), null, [
+            ['--constants', new \ReflectionClass(InterfaceDelta::class), null, [
                 'Interface Constants' => [
                     'D' => [
                         'name'  => 'D',
@@ -94,7 +101,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     ],
                 ],
             ]],
-            ['--constants', new \ReflectionClass(Fixtures\InterfaceEcho::class), null, [
+            ['--constants', new \ReflectionClass(InterfaceEcho::class), null, [
                 'Interface Constants' => [
                     'D' => [
                         'name'  => 'D',
@@ -110,8 +117,8 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
             ]],
 
             // Traits don't have constants
-            ['--constants', new \ReflectionClass(Fixtures\TraitFoxtrot::class), null, []],
-            ['--constants', new \ReflectionClass(Fixtures\TraitGolf::class), null, []],
+            ['--constants', new \ReflectionClass(TraitFoxtrot::class), null, []],
+            ['--constants', new \ReflectionClass(TraitGolf::class), null, []],
 
             // If we didn't ask for 'em, don't include 'em
             ['', new \ReflectionClass($bravo), $bravo, []],
@@ -137,7 +144,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                     ],
                 ],
             ]],
-            ['--constants --methods', new \ReflectionClass(Fixtures\InterfaceDelta::class), null, [
+            ['--constants --methods', new \ReflectionClass(InterfaceDelta::class), null, [
                 'Interface Constants' => [
                     'D' => [
                         'name'  => 'D',
@@ -158,7 +165,7 @@ class ClassConstantEnumeratorTest extends EnumeratorTestCase
                 ],
             ]],
 
-            ['--constants --no-inherit', new \ReflectionClass(Fixtures\InterfaceEcho::class), null, [
+            ['--constants --no-inherit', new \ReflectionClass(InterfaceEcho::class), null, [
                 'Interface Constants' => [
                     'E' => [
                         'name'  => 'E',

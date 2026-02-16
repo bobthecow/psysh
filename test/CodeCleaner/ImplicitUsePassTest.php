@@ -26,7 +26,7 @@ class ImplicitUsePassTest extends CodeCleanerTestCase
     public function setUp(): void
     {
         parent::setUp();
-        require_once __DIR__.'/../fixtures/ImplicitUseFixtures.php';
+        require_once __DIR__.'/../Fixtures/ImplicitUseFixtures.php';
     }
 
     /**

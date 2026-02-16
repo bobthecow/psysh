@@ -128,17 +128,17 @@ class AutoCompleterTest extends \Psy\Test\TestCase
                 ['require', 'array_search'],
             ],
             [
-                'Psy\Test\TabCompletion\StaticSample::CO',
+                'Psy\Test\Fixtures\TabCompletion\StaticSample::CO',
                 ['StaticSample::CONSTANT_VALUE'],
                 [],
             ],
             [
-                'Psy\Test\TabCompletion\StaticSample::',
+                'Psy\Test\Fixtures\TabCompletion\StaticSample::',
                 ['StaticSample::$staticVariable'],
                 [],
             ],
             [
-                'Psy\Test\TabCompletion\StaticSample::',
+                'Psy\Test\Fixtures\TabCompletion\StaticSample::',
                 ['StaticSample::staticFunction'],
                 [],
             ],

@@ -12,6 +12,7 @@
 namespace Psy\Test\Command;
 
 use Psy\Shell;
+use Psy\Test\Fixtures\Command\TestableCommand;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;

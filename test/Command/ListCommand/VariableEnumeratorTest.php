@@ -13,6 +13,9 @@ namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Context;
+use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
+use Psy\Test\Fixtures\Command\ListCommand\InterfaceDelta;
+use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
@@ -45,12 +48,12 @@ class VariableEnumeratorTest extends EnumeratorTestCase
 
         $enumerator = new VariableEnumerator($this->getPresenter(), $context);
         $input = $this->getInput('--vars');
-        $target = new Fixtures\ClassAlfa();
+        $target = new ClassAlfa();
 
         $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), null));
         $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass($target), $target));
-        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceDelta::class), $target));
-        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(InterfaceDelta::class), $target));
+        $this->assertSame([], $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), $target));
     }
 
     public function testEnumerateEnumerates()

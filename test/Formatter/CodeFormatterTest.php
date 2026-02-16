@@ -12,7 +12,7 @@
 namespace Psy\Test\Formatter;
 
 use Psy\Formatter\CodeFormatter;
-use Psy\Test\Formatter\Fixtures\SomeClass;
+use Psy\Test\Fixtures\Formatter\SomeClass;
 
 class CodeFormatterTest extends \Psy\Test\TestCase
 {
@@ -144,7 +144,7 @@ EOS;
  * file that was distributed with this source code.
  */
 
-namespace Psy\Test\Formatter\Fixtures;
+namespace Psy\Test\Fixtures\Formatter;
 
 class SomeClass
 {
@@ -177,7 +177,7 @@ EOS;
  9:  * file that was distributed with this source code.
 10:  */
 11:
-12: namespace Psy\Test\Formatter\Fixtures;
+12: namespace Psy\Test\Fixtures\Formatter;
 13:
 14: class SomeClass
 15: {

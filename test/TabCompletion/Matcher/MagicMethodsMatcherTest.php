@@ -13,10 +13,10 @@ namespace Psy\Test\TabCompletion\Matcher;
 
 use Psy\Context;
 use Psy\TabCompletion\Matcher\MagicMethodsMatcher;
+use Psy\Test\Fixtures\Util\MagicChild;
+use Psy\Test\Fixtures\Util\MagicClass;
+use Psy\Test\Fixtures\Util\NoMagicClass;
 use Psy\Test\TestCase;
-use Psy\Test\Util\Fixtures\MagicChild;
-use Psy\Test\Util\Fixtures\MagicClass;
-use Psy\Test\Util\Fixtures\NoMagicClass;
 use Psy\Util\Docblock;
 
 class MagicMethodsMatcherTest extends TestCase

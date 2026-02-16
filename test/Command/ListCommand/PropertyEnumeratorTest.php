@@ -12,6 +12,10 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand\PropertyEnumerator;
+use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
+use Psy\Test\Fixtures\Command\ListCommand\ClassCharlie;
+use Psy\Test\Fixtures\Command\ListCommand\InterfaceEcho;
+use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 
 /**
  * @group isolation-fail
@@ -37,7 +41,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties');
-        $target = new Fixtures\ClassAlfa();
+        $target = new ClassAlfa();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -57,7 +61,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties --all');
-        $target = new Fixtures\ClassAlfa();
+        $target = new ClassAlfa();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -87,7 +91,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties --all');
-        $target = new Fixtures\ClassCharlie();
+        $target = new ClassCharlie();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -117,7 +121,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
     {
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties --no-inherit');
-        $target = new Fixtures\ClassCharlie();
+        $target = new ClassCharlie();
 
         $res = $enumerator->enumerate($input, new \ReflectionClass($target), null);
 
@@ -138,7 +142,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass(Fixtures\InterfaceEcho::class), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(InterfaceEcho::class), null);
         $this->assertSame([], $res);
     }
 
@@ -147,7 +151,7 @@ class PropertyEnumeratorTest extends EnumeratorTestCase
         $enumerator = new PropertyEnumerator($this->getPresenter());
         $input = $this->getInput('--properties');
 
-        $res = $enumerator->enumerate($input, new \ReflectionClass(Fixtures\TraitFoxtrot::class), null);
+        $res = $enumerator->enumerate($input, new \ReflectionClass(TraitFoxtrot::class), null);
 
         $this->assertArrayHasKey('Trait Properties', $res);
         $properties = $res['Trait Properties'];

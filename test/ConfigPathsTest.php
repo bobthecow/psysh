@@ -12,6 +12,7 @@
 namespace Psy\Test;
 
 use Psy\ConfigPaths;
+use Psy\Test\Fixtures\TestableEnv;
 
 class ConfigPathsTest extends TestCase
 {

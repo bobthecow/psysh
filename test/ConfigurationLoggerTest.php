@@ -16,7 +16,7 @@ use Psy\ExecutionLoop\ExecutionLoggingListener;
 use Psy\ExecutionLoop\InputLoggingListener;
 use Psy\Logger\CallbackLogger;
 use Psy\ShellLogger;
-use Psy\Test\Util\FakePsrLogger;
+use Psy\Test\Fixtures\Util\FakePsrLogger;
 
 class ConfigurationLoggerTest extends TestCase
 {

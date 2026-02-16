@@ -20,6 +20,7 @@ use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Shell;
+use Psy\Test\Fixtures\Command\TestableReflectingCommand;
 use Psy\Util\Mirror;
 
 /**

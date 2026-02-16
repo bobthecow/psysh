@@ -56,7 +56,7 @@ class ClassNamesMatcherTest extends TestCase
     public function testIncludesTraitsAndInterfaces()
     {
         // Load a trait fixture
-        require_once __DIR__.'/../../fixtures/TraitFixture.php';
+        require_once __DIR__.'/../../Fixtures/TraitFixture.php';
 
         $matcher = new ClassNamesMatcher();
 
