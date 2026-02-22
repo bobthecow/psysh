@@ -25,6 +25,6 @@ class StrTest extends \Psy\Test\TestCase
 
     public function unvisProvider()
     {
-        return \json_decode(\file_get_contents(__DIR__.'/../fixtures/unvis_fixtures.json'));
+        return \json_decode(\file_get_contents(__DIR__.'/../Fixtures/unvis_fixtures.json'));
     }
 }

@@ -28,7 +28,7 @@ class ConfigurationTest extends TestCase
     private function getConfig($configFile = null)
     {
         return new Configuration([
-            'configFile' => $configFile ?: __DIR__.'/fixtures/empty.php',
+            'configFile' => $configFile ?: __DIR__.'/Fixtures/empty.php',
         ]);
     }
 
@@ -118,7 +118,7 @@ class ConfigurationTest extends TestCase
 
     public function testLoadConfigFile()
     {
-        $config = $this->getConfig(__DIR__.'/fixtures/config.php');
+        $config = $this->getConfig(__DIR__.'/Fixtures/config.php');
 
         $runtimeDir = $this->joinPath(\realpath(\sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
 
@@ -134,7 +134,7 @@ class ConfigurationTest extends TestCase
     public function testLoadLocalConfigFile()
     {
         $oldPwd = \getcwd();
-        \chdir(\realpath(__DIR__.'/fixtures/project/'));
+        \chdir(\realpath(__DIR__.'/Fixtures/project/'));
 
         $config = new Configuration(['trustProject' => true]);
 
@@ -143,7 +143,7 @@ class ConfigurationTest extends TestCase
         $this->assertFalse($config->useUnicode());
 
         $config = new Configuration([
-            'configFile'   => __DIR__.'/fixtures/config.php',
+            'configFile'   => __DIR__.'/Fixtures/config.php',
             'trustProject' => true,
         ]);
 
@@ -160,7 +160,7 @@ class ConfigurationTest extends TestCase
         $tmpConfigDir = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
 
         try {
-            \chdir(\realpath(__DIR__.'/fixtures/project/'));
+            \chdir(\realpath(__DIR__.'/Fixtures/project/'));
 
             $config = new Configuration([
                 'configDir'    => $tmpConfigDir,
@@ -184,7 +184,7 @@ class ConfigurationTest extends TestCase
         $tmpConfigDir = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
 
         try {
-            \chdir(\realpath(__DIR__.'/fixtures/project/'));
+            \chdir(\realpath(__DIR__.'/Fixtures/project/'));
 
             $config = new Configuration([
                 'configDir'    => $tmpConfigDir,
@@ -234,7 +234,7 @@ class ConfigurationTest extends TestCase
     {
         $config = new Configuration([
             'defaultIncludes' => ['/file.php'],
-            'configFile'      => __DIR__.'/fixtures/empty.php',
+            'configFile'      => __DIR__.'/Fixtures/empty.php',
         ]);
 
         $includes = $config->getDefaultIncludes();
@@ -693,7 +693,7 @@ class ConfigurationTest extends TestCase
     private function getUnboundStringInput($string, $configFile = null)
     {
         if ($configFile === null) {
-            $configFile = __DIR__.'/fixtures/empty.php';
+            $configFile = __DIR__.'/Fixtures/empty.php';
         }
 
         return new StringInput($string.' --config '.\escapeshellarg($configFile));

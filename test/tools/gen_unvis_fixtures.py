@@ -10,7 +10,7 @@ from vis import vis, unvis, VIS_WHITE
 
 __dir__ = dirname(abspath(__file__))
 
-OUTPUT_FILE = join(__dir__, '..', 'fixtures', 'unvis_fixtures.json')
+OUTPUT_FILE = join(__dir__, '..', 'Fixtures', 'unvis_fixtures.json')
 
 # Add custom fixtures here
 CUSTOM_FIXTURES = [
@@ -61,7 +61,7 @@ if __name__ == '__main__':
                       default='small')
     argp.add_argument('-o', '--output-file',
                       help="""Write test data to OUTPUT_FILE
-                      (defaults to PSYSH_DIR/test/fixtures)""")
+                      (defaults to PSYSH_DIR/test/Fixtures)""")
     args = argp.parse_args()
 
     cp_range = RANGES['bmp'] if args.all else RANGES[args.range]

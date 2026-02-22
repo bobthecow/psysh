@@ -50,7 +50,7 @@ class HistoryCommandTest extends \Psy\Test\TestCase
         $command = new HistoryCommand();
         $command->setReadline($readline);
         $command->setApplication(new Shell(new Configuration([
-            'configFile'   => __DIR__.'/../fixtures/empty.php',
+            'configFile'   => __DIR__.'/../Fixtures/empty.php',
             'trustProject' => false,
         ])));
 

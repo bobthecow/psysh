@@ -180,7 +180,7 @@ class ShellTest extends TestCase
 
     public function testIncludes()
     {
-        $config = $this->getConfig(['configFile' => __DIR__.'/fixtures/empty.php']);
+        $config = $this->getConfig(['configFile' => __DIR__.'/Fixtures/empty.php']);
 
         $shell = new Shell($config);
         $this->assertEmpty($shell->getIncludes());
@@ -192,7 +192,7 @@ class ShellTest extends TestCase
     {
         $config = $this->getConfig([
             'defaultIncludes' => ['/file.php'],
-            'configFile'      => __DIR__.'/fixtures/empty.php',
+            'configFile'      => __DIR__.'/Fixtures/empty.php',
         ]);
 
         $shell = new Shell($config);
@@ -627,7 +627,7 @@ class ShellTest extends TestCase
         \unlink($dir);
 
         $options = [
-            'configFile'      => __DIR__.'/fixtures/empty.php',
+            'configFile'      => __DIR__.'/Fixtures/empty.php',
             'interactiveMode' => Configuration::INTERACTIVE_MODE_FORCED,
             'trustProject'    => Configuration::PROJECT_TRUST_PROMPT,
             'colorMode'       => Configuration::COLOR_MODE_FORCED,

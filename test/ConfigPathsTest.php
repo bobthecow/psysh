@@ -61,7 +61,7 @@ class ConfigPathsTest extends TestCase
 
     public function envVariablesAndPathOverrides()
     {
-        $base = \realpath(__DIR__.'/fixtures');
+        $base = \realpath(__DIR__.'/Fixtures');
 
         return [
             // Mimic actual config directory structure, with no XDG config set.
@@ -146,7 +146,7 @@ class ConfigPathsTest extends TestCase
 
     public function envVariablesForPathDirs()
     {
-        $base = \realpath(__DIR__.'/fixtures/which');
+        $base = \realpath(__DIR__.'/Fixtures/which');
 
         return [
             [
@@ -168,7 +168,7 @@ class ConfigPathsTest extends TestCase
 
     public function testWhich()
     {
-        $base = \realpath(__DIR__.'/fixtures/which');
+        $base = \realpath(__DIR__.'/Fixtures/which');
 
         $paths = new ConfigPaths([], new TestableEnv([
             'PATH' => "$base/home/username/bin:$base/usr/sbin:$base/usr/bin:$base/sbin:$base/bin",

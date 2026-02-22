@@ -381,7 +381,7 @@ const NS_CONST = 777;
     private function getShell(): Shell
     {
         $config = new \Psy\Configuration([
-            'configFile' => __DIR__.'/../fixtures/empty.php',
+            'configFile' => __DIR__.'/../Fixtures/empty.php',
         ]);
 
         return new Shell($config);

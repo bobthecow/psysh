@@ -24,7 +24,7 @@ class ComposerAutoloadWarmerTest extends TestCase
      */
     private function getFixtureVendorDir(): string
     {
-        return __DIR__.'/../../fixtures/autoload-warmer-vendor';
+        return __DIR__.'/../../Fixtures/autoload-warmer-vendor';
     }
 
     /**
