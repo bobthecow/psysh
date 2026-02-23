@@ -1,0 +1,37 @@
+name: Run tests (32-bit)
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }} (32-bit)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up QEMU for 32-bit emulation
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/386
+
+      - name: Run tests in 32-bit container
+        run: |
+          docker run --rm --platform linux/386 \
+            -v "${{ github.workspace }}:/app" \
+            -w /app \
+            php:${{ matrix.php }}-cli bash -c '
+              set -e
+              php -r "echo \"PHP_INT_SIZE: \" . PHP_INT_SIZE . \"\n\";"
+              apt-get update -qq && apt-get install -yqq unzip libsqlite3-dev make > /dev/null 2>&1
+              curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer > /dev/null 2>&1
+              composer update --no-interaction --no-progress
+              composer bin phpunit update --no-interaction --no-progress
+              make test
+            '

@@ -59,6 +59,10 @@ class InstallerTest extends \Psy\Test\TestCase
 
     public function testIsDataDirWritableReturnsFalseForReadOnlyDirectory()
     {
+        if (\function_exists('posix_getuid') && \posix_getuid() === 0) {
+            $this->markTestSkipped('Cannot test read-only directory permissions as root');
+        }
+
         $readOnlyDir = $this->tempDir.'/readonly';
         \mkdir($readOnlyDir, 0555);
 

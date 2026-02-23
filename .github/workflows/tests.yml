@@ -23,6 +23,10 @@ jobs:
     name: Test --prefer-lowest deps
     uses: ./.github/workflows/run-tests-lowest.yml
 
+  test-32bit:
+    name: Test 32-bit
+    uses: ./.github/workflows/run-tests-32bit.yml
+
   downstream:
     name: Test downstream projects
     uses: ./.github/workflows/run-downstream.yml
