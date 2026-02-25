@@ -72,6 +72,9 @@ class Theme
 
         // Code-specific formatting
         'inline_html' => ['cyan'],
+
+        // Interactive readline
+        'selected' => [null, null, ['reverse']],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];

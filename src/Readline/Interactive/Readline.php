@@ -1,0 +1,622 @@
+<?php
+
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2026 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\Readline\Interactive;
+
+use Psy\Exception\BreakException;
+use Psy\Readline\Interactive\Actions\ExpandHistoryOnTabAction;
+use Psy\Readline\Interactive\Actions\HistoryExpansionAction;
+use Psy\Readline\Interactive\Actions\InsertIndentOnTabAction;
+use Psy\Readline\Interactive\Actions\SelfInsertAction;
+use Psy\Readline\Interactive\Actions\TabAction;
+use Psy\Readline\Interactive\Input\Buffer;
+use Psy\Readline\Interactive\Input\History;
+use Psy\Readline\Interactive\Input\InputQueue;
+use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyBindings;
+use Psy\Readline\Interactive\Renderer\FrameRenderer;
+use Psy\Readline\Interactive\Renderer\OverlayViewport;
+use Psy\Shell;
+
+/**
+ * Interactive readline implementation.
+ *
+ * A pure-PHP readline implementation with better control over cursor
+ * positioning, tab completion display, and terminal interaction.
+ */
+class Readline
+{
+    private Terminal $terminal;
+    private InputQueue $inputQueue;
+    private KeyBindings $bindings;
+    private History $history;
+    private bool $multilineMode = false;
+    private ?Shell $shell = null;
+    private bool $requireSemicolons = false;
+
+    private bool $searchMode = false;
+    private string $searchQuery = '';
+    /** @var string[] */
+    private array $searchMatches = [];
+    private int $currentMatchIndex = -1;
+    private ?string $savedBufferText = null;
+    private int $savedCursorPosition = 0;
+
+    private ?TabAction $tabAction = null;
+    private ?ExpandHistoryOnTabAction $expandHistoryAction = null;
+
+    private bool $smartBrackets = true;
+
+    private OverlayViewport $overlayViewport;
+    private FrameRenderer $frameRenderer;
+
+    /**
+     * Create a new interactive Readline instance.
+     */
+    public function __construct(Terminal $terminal, ?KeyBindings $bindings = null, ?History $history = null)
+    {
+        $this->terminal = $terminal;
+        $this->inputQueue = new InputQueue($this->terminal);
+        $this->history = $history ?? new History();
+
+        $this->bindings = $bindings ?? KeyBindings::createDefault($this->history, $this->smartBrackets);
+
+        $this->overlayViewport = new OverlayViewport($this->terminal);
+        $this->frameRenderer = new FrameRenderer($this->terminal, $this->overlayViewport);
+    }
+
+    /**
+     * Set the single-line prompt string.
+     */
+    public function setPrompt(string $prompt): void
+    {
+        $this->frameRenderer->setSingleLinePrompt($prompt);
+    }
+
+    /**
+     * Set the multi-line continuation prompt.
+     */
+    public function setMultilinePrompt(string $prompt): void
+    {
+        $this->frameRenderer->setMultilinePrompt($prompt);
+    }
+
+    /**
+     * Set the Shell reference.
+     */
+    public function setShell(Shell $shell): void
+    {
+        $this->shell = $shell;
+
+        if ($this->expandHistoryAction !== null) {
+            $this->expandHistoryAction->setHistoryExpansion(new HistoryExpansionAction($this->history, $this->shell));
+        }
+    }
+
+    /**
+     * Set whether to require semicolons on all statements.
+     *
+     * By default, PsySH automatically inserts semicolons. When set to true,
+     * semicolons are strictly required.
+     */
+    public function setRequireSemicolons(bool $require): void
+    {
+        $this->requireSemicolons = $require;
+    }
+
+    /**
+     * Set the CompletionEngine for context-aware tab completion.
+     */
+    public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
+    {
+        if ($this->tabAction === null) {
+            $this->tabAction = new TabAction($completionEngine, $this->smartBrackets);
+            $this->expandHistoryAction = new ExpandHistoryOnTabAction(new HistoryExpansionAction($this->history, $this->shell));
+            $this->bindings->bind(
+                'control:i',
+                new InsertIndentOnTabAction(),
+                $this->expandHistoryAction,
+                $this->tabAction
+            );
+        } else {
+            $this->tabAction->setCompleter($completionEngine);
+        }
+    }
+
+    /**
+     * Check if the current input is a PsySH command.
+     */
+    public function isCommand(string $input): bool
+    {
+        if ($this->shell === null) {
+            return false;
+        }
+
+        if (\preg_match('/([^\s]+?)(?:\s|$)/A', \ltrim($input), $match)) {
+            return $this->shell->has($match[1]);
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if currently in multi-line mode.
+     */
+    public function isMultilineMode(): bool
+    {
+        return $this->multilineMode;
+    }
+
+    /**
+     * Check if input is in an open string or comment.
+     */
+    public function isInOpenStringOrComment(string $input): bool
+    {
+        $tokens = @\token_get_all('<?php '.$input);
+        $last = \array_pop($tokens);
+
+        return $last === '"' || $last === '`' ||
+            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT]));
+    }
+
+    /**
+     * Enter multi-line mode.
+     */
+    public function enterMultilineMode(): void
+    {
+        $this->multilineMode = true;
+        $this->frameRenderer->reset();
+    }
+
+    /**
+     * Exit multi-line mode.
+     */
+    public function exitMultilineMode(): void
+    {
+        $this->multilineMode = false;
+    }
+
+    /**
+     * Cancel multi-line mode without executing.
+     */
+    public function cancelMultilineMode(): void
+    {
+        if (!$this->multilineMode) {
+            return;
+        }
+
+        $this->multilineMode = false;
+        $this->frameRenderer->reset();
+    }
+
+    /**
+     * Reconstruct multi-line mode from a history entry.
+     *
+     * When recalling a multi-line command from history, this method
+     * enters multi-line mode and sets up the buffer properly.
+     */
+    public function reconstructMultiLineFromHistory(string $command): void
+    {
+        if (\strpos($command, "\n") === false) {
+            if ($this->multilineMode) {
+                $this->exitMultilineMode();
+            }
+
+            return;
+        }
+
+        $this->enterMultilineMode();
+    }
+
+    /**
+     * Read a line of input.
+     *
+     * @return string|false The input line, or false on EOF
+     */
+    public function readline()
+    {
+        $this->frameRenderer->reset();
+        $this->multilineMode = false;
+
+        $buffer = new Buffer($this->requireSemicolons);
+        $this->display($buffer);
+
+        try {
+            while (true) {
+                $key = $this->inputQueue->read();
+
+                if ($key->isEof()) {
+                    $this->terminal->write("\n");
+
+                    return false;
+                }
+
+                if ($key->isPaste()) {
+                    $this->handlePastedContent($key->getValue(), $buffer);
+                    $this->display($buffer);
+                    continue;
+                }
+
+                if ($this->searchMode) {
+                    if (!$this->handleSearchModeInput($key, $buffer)) {
+                        $this->display($buffer);
+                    } else {
+                        $this->displaySearchPrompt();
+                    }
+                    continue;
+                }
+
+                $action = $this->bindings->get($key);
+
+                if ($action === null && $key->isChar()) {
+                    $action = new SelfInsertAction($key->getValue());
+                }
+
+                if ($action !== null) {
+                    $continue = $action->execute($buffer, $this->terminal, $this);
+
+                    if ($continue) {
+                        $this->display($buffer);
+                    } else {
+                        $line = $buffer->getText();
+
+                        if (!$this->isCommand($line) || $this->isInOpenStringOrComment($line)) {
+                            $this->exitMultilineMode();
+                        }
+
+                        $this->history->reset();
+
+                        return $line;
+                    }
+                } else {
+                    $this->terminal->bell();
+                }
+            }
+        } catch (BreakException $e) {
+            // Shell.php will write the newline
+            return false;
+        }
+    }
+
+    /**
+     * Handle pasted content (potentially multi-line).
+     */
+    private function handlePastedContent(string $content, Buffer $buffer): void
+    {
+        $content = \strtr(\str_replace("\r\n", "\n", $content), "\r", "\n");
+
+        $buffer->insert($content);
+
+        if (\strpos($content, "\n") !== false && !$this->multilineMode) {
+            $this->enterMultilineMode();
+        }
+    }
+
+    /**
+     * Display the prompt and buffer.
+     */
+    private function display(Buffer $buffer): void
+    {
+        $this->frameRenderer->render($buffer, $this->multilineMode);
+    }
+
+    /**
+     * Set overlay lines to display below the input.
+     *
+     * @param string[] $lines
+     */
+    public function setOverlayLines(array $lines): void
+    {
+        $this->frameRenderer->setOverlayLines($lines);
+    }
+
+    /**
+     * Clear the overlay and re-render.
+     */
+    public function clearOverlay(Buffer $buffer): void
+    {
+        $this->frameRenderer->clearOverlay($buffer, $this->multilineMode);
+    }
+
+    /**
+     * Re-render the current frame (input + overlay).
+     */
+    public function redraw(Buffer $buffer): void
+    {
+        $this->display($buffer);
+    }
+
+    /**
+     * Read the next key event from the queue.
+     */
+    public function readNextKey(): Key
+    {
+        return $this->inputQueue->read();
+    }
+
+    /**
+     * Replay a key event so the main loop can consume it.
+     */
+    public function replayKey(Key $key): void
+    {
+        $this->inputQueue->replay($key);
+    }
+
+    /**
+     * Internal accessor for interactive readline internals and tests.
+     *
+     * @internal
+     */
+    public function getTabAction(): ?TabAction
+    {
+        return $this->tabAction;
+    }
+
+    /**
+     * Get the overlay viewport for space calculations.
+     */
+    public function getOverlayViewport(): OverlayViewport
+    {
+        return $this->overlayViewport;
+    }
+
+    /**
+     * Get the history.
+     */
+    public function getHistory(): History
+    {
+        return $this->history;
+    }
+
+    /**
+     * Check if currently in search mode.
+     */
+    public function isInSearchMode(): bool
+    {
+        return $this->searchMode;
+    }
+
+    /**
+     * Enter search mode.
+     */
+    public function enterSearchMode(): void
+    {
+        $this->searchMode = true;
+        $this->resetSearchState();
+    }
+
+    /**
+     * Exit search mode.
+     */
+    public function exitSearchMode(): void
+    {
+        $this->searchMode = false;
+        $this->resetSearchState();
+        $this->savedBufferText = null;
+        $this->savedCursorPosition = 0;
+    }
+
+    /**
+     * Reset search query and match state.
+     */
+    private function resetSearchState(): void
+    {
+        $this->searchQuery = '';
+        $this->searchMatches = [];
+        $this->currentMatchIndex = -1;
+    }
+
+    /**
+     * Update search query and find matches.
+     */
+    public function updateSearchQuery(string $query): void
+    {
+        $this->searchQuery = $query;
+
+        $this->searchMatches = $this->history->search($query, true);
+        $this->currentMatchIndex = empty($this->searchMatches) ? -1 : 0;
+    }
+
+    /**
+     * Add a character to the search query.
+     */
+    public function addSearchChar(string $char): void
+    {
+        $this->updateSearchQuery($this->searchQuery.$char);
+    }
+
+    /**
+     * Remove last character from search query.
+     */
+    public function removeSearchChar(): void
+    {
+        if ($this->searchQuery !== '') {
+            $this->updateSearchQuery(\substr($this->searchQuery, 0, -1));
+        }
+    }
+
+    /**
+     * Find next match in search results (older entries).
+     */
+    public function findNextSearchMatch(): void
+    {
+        if (empty($this->searchMatches)) {
+            $this->terminal->bell();
+
+            return;
+        }
+
+        $this->currentMatchIndex++;
+        if ($this->currentMatchIndex >= \count($this->searchMatches)) {
+            $this->currentMatchIndex = 0;
+            $this->terminal->bell();
+        }
+    }
+
+    /**
+     * Find previous match in search results (newer entries).
+     */
+    public function findPreviousSearchMatch(): void
+    {
+        if (empty($this->searchMatches)) {
+            $this->terminal->bell();
+
+            return;
+        }
+
+        $this->currentMatchIndex--;
+        if ($this->currentMatchIndex < 0) {
+            $this->currentMatchIndex = \count($this->searchMatches) - 1;
+            $this->terminal->bell();
+        }
+    }
+
+    /**
+     * Get the current search match.
+     *
+     * @return string|null The current match, or null if no match
+     */
+    public function getCurrentSearchMatch(): ?string
+    {
+        if (empty($this->searchMatches) || $this->currentMatchIndex < 0) {
+            return null;
+        }
+
+        return $this->searchMatches[$this->currentMatchIndex] ?? null;
+    }
+
+    /**
+     * Get the search query.
+     */
+    public function getSearchQuery(): string
+    {
+        return $this->searchQuery;
+    }
+
+    /**
+     * Accept current search match and exit search mode.
+     */
+    public function acceptSearchMatch(Buffer $buffer): void
+    {
+        $match = $this->getCurrentSearchMatch();
+        if ($match !== null) {
+            $buffer->clear();
+            $buffer->insert($match);
+
+            if (\strpos($match, "\n") !== false) {
+                $this->reconstructMultiLineFromHistory($match);
+            }
+        }
+
+        $this->exitSearchMode();
+    }
+
+    /**
+     * Cancel search and restore original buffer.
+     */
+    public function cancelSearch(Buffer $buffer): void
+    {
+        if ($this->savedBufferText !== null) {
+            $buffer->clear();
+            $buffer->insert($this->savedBufferText);
+            $buffer->setCursor($this->savedCursorPosition);
+        }
+
+        $this->exitSearchMode();
+    }
+
+    /**
+     * Save current buffer before starting search.
+     */
+    public function saveBufferForSearch(Buffer $buffer): void
+    {
+        $this->savedBufferText = $buffer->getText();
+        $this->savedCursorPosition = $buffer->getCursor();
+    }
+
+    /**
+     * Handle input while in search mode.
+     *
+     * @return bool True if still in search mode, false if exited
+     */
+    private function handleSearchModeInput(Key $key, Buffer $buffer): bool
+    {
+        $value = $key->getValue();
+
+        if ($value === "\x07" || $value === "\x1b") { // Ctrl-G or Escape
+            $this->cancelSearch($buffer);
+
+            return false;
+        } elseif ($value === "\r" || $value === "\n") {
+            $this->acceptSearchMatch($buffer);
+
+            return false;
+        } elseif ($value === "\x12") { // Ctrl-R
+            $this->findNextSearchMatch();
+            $this->applySearchMatch($buffer);
+
+            return true;
+        } elseif ($value === "\x13") { // Ctrl-S
+            $this->findPreviousSearchMatch();
+            $this->applySearchMatch($buffer);
+
+            return true;
+        } elseif ($value === "\x08" || $value === "\x7f") { // Backspace
+            $this->removeSearchChar();
+            $this->applySearchMatch($buffer, true);
+
+            return true;
+        } elseif ($key->isChar() && !$key->isControl()) {
+            $this->addSearchChar($value);
+            $this->applySearchMatch($buffer);
+
+            return true;
+        } else {
+            $this->acceptSearchMatch($buffer);
+            $this->replayKey($key);
+
+            return false;
+        }
+    }
+
+    /**
+     * Apply the current search match to the buffer.
+     */
+    private function applySearchMatch(Buffer $buffer, bool $restoreOnEmpty = false): void
+    {
+        $match = $this->getCurrentSearchMatch();
+        if ($match !== null) {
+            $buffer->clear();
+            $buffer->insert($match);
+        } elseif ($restoreOnEmpty && $this->searchQuery === '' && $this->savedBufferText !== null) {
+            $buffer->clear();
+            $buffer->insert($this->savedBufferText);
+        }
+    }
+
+    /**
+     * Render the reverse-i-search prompt.
+     */
+    private function displaySearchPrompt(): void
+    {
+        $match = $this->getCurrentSearchMatch();
+        $prompt = '(reverse-i-search)`'.$this->searchQuery."': ";
+
+        if ($match !== null) {
+            $firstLine = \strstr($match, "\n", true);
+            $prompt .= $firstLine !== false ? $firstLine.' ...' : $match;
+        } elseif ($this->searchQuery !== '') {
+            $prompt .= '(no matches)';
+        }
+
+        $this->frameRenderer->renderSearchPrompt($prompt);
+    }
+}

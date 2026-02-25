@@ -12,6 +12,10 @@
 namespace Psy;
 
 use Psy\CodeCleaner\NoReturnValue;
+use Psy\Completion\CompletionEngine;
+use Psy\Completion\Source\CommandOptionSource;
+use Psy\Completion\Source\CommandSource;
+use Psy\Completion\Source\MatcherAdapterSource;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception as PsyException;
@@ -26,11 +30,13 @@ use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
 use Psy\Output\ShellOutput;
+use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Readline\Readline;
 use Psy\Readline\ReadlineAware;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\TabCompletion\Matcher\CommandsMatcher;
+use Psy\Util\Tty;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -78,11 +84,16 @@ class Shell extends Application
     private bool $booted = false;
     private bool $autoloadWarmed = false;
     private ?AutoCompleter $autoCompleter = null;
+    private ?CompletionEngine $completionEngine = null;
+    /** @var Completion\Source\SourceInterface[] */
+    private array $pendingCompletionSources = [];
     private array $matchers = [];
-    private ?CommandsMatcher $commandsMatcher = null;
+    /** @var CommandAware[] */
+    private array $commandCompletion = [];
     private bool $lastExecSuccess = true;
     private bool $nonInteractive = false;
     private ?int $errorReporting = null;
+    private bool $interactiveSignalCharsEnabled = false;
 
     /**
      * Create a new Psy Shell.
@@ -170,7 +181,7 @@ class Shell extends Application
         $this->loadLocalConfig($input, $output);
 
         $this->cleaner = $this->config->getCodeCleaner();
-        $this->readline = $this->config->getReadline();
+        $this->readline = $this->configureReadline($this->config->getReadline());
         $this->booted = true;
 
         $this->refreshCommandDependencies();
@@ -193,6 +204,31 @@ class Shell extends Application
         }
 
         $this->config->loadLocalConfigWithPrompt($input, $output);
+    }
+
+    /**
+     * Configure a readline instance before assigning it to the shell.
+     *
+     * This sets up shell awareness, interactive readline dependencies,
+     * output/theme integration, and options.
+     *
+     * @return Readline The configured readline instance
+     */
+    private function configureReadline(Readline $readline): Readline
+    {
+        if ($readline instanceof InteractiveReadlineInterface) {
+            // setOutput boots the interactive readline, so it must come first
+            $readline->setOutput($this->output ?? $this->config->getOutput());
+            $readline->setTheme($this->config->theme());
+            $readline->setRequireSemicolons($this->config->requireSemicolons());
+            $readline->setBracketedPaste($this->config->useBracketedPaste());
+        }
+
+        if ($readline instanceof ShellAware) {
+            $readline->setShell($this);
+        }
+
+        return $readline;
     }
 
     /**
@@ -311,8 +347,9 @@ class Shell extends Application
         if ($ret) {
             $this->configureCommand($ret);
 
-            if (isset($this->commandsMatcher)) {
-                $this->commandsMatcher->setCommands($this->all());
+            $allCommands = $this->all();
+            foreach ($this->commandCompletion as $instance) {
+                $instance->setCommands($allCommands);
             }
         }
 
@@ -380,12 +417,11 @@ class Shell extends Application
      */
     protected function getDefaultMatchers(): array
     {
-        // Store the Commands Matcher for later. If more commands are added,
-        // we'll update the Commands Matcher too.
-        $this->commandsMatcher = new CommandsMatcher($this->all());
+        $commandsMatcher = new CommandsMatcher($this->all());
+        $this->commandCompletion[] = $commandsMatcher;
 
-        return [
-            $this->commandsMatcher,
+        $matchers = [
+            $commandsMatcher,
             new Matcher\KeywordsMatcher(),
             new Matcher\VariablesMatcher(),
             new Matcher\ConstantsMatcher(),
@@ -401,6 +437,8 @@ class Shell extends Application
             new Matcher\ObjectMethodDefaultParametersMatcher(),
             new Matcher\FunctionDefaultParametersMatcher(),
         ];
+
+        return $matchers;
     }
 
     /**
@@ -463,6 +501,10 @@ class Shell extends Application
         if (isset($this->autoCompleter)) {
             $this->addMatchersToAutoCompleter($matchers);
         }
+
+        if (isset($this->completionEngine)) {
+            $this->addLegacyMatchersToCompletionEngine($matchers);
+        }
     }
 
     /**
@@ -475,6 +517,26 @@ class Shell extends Application
         @\trigger_error('`addTabCompletionMatchers` is deprecated; call `addMatchers` instead.', \E_USER_DEPRECATED);
 
         $this->addMatchers($matchers);
+    }
+
+    /**
+     * Add completion sources to the completion engine.
+     *
+     * @internal experimental; API may change before Interactive Readline is stable
+     *
+     * @param Completion\Source\SourceInterface[] $sources
+     */
+    public function addCompletionSources(array $sources)
+    {
+        if (!isset($this->completionEngine)) {
+            $this->pendingCompletionSources = \array_merge($this->pendingCompletionSources, $sources);
+
+            return;
+        }
+
+        foreach ($sources as $source) {
+            $this->completionEngine->addSource($source);
+        }
     }
 
     /**
@@ -557,7 +619,11 @@ class Shell extends Application
      */
     private function doInteractiveRun(): int
     {
-        $this->initializeTabCompletion();
+        if ($this->config->useTabCompletion()) {
+            $this->initializeTabCompletion();
+            $this->initializeCompletionEngine();
+        }
+
         $this->readline->readHistory();
 
         $this->output->writeln($this->getHeader());
@@ -809,6 +875,7 @@ class Shell extends Application
     public function onExecute(string $code): string
     {
         $this->errorReporting = \error_reporting();
+        $this->enableInteractiveSignalCharsIfNeeded();
 
         foreach ($this->loopListeners as $listener) {
             if (($return = $listener->onExecute($this, $code)) !== null) {
@@ -831,6 +898,8 @@ class Shell extends Application
      */
     public function afterLoop()
     {
+        $this->disableInteractiveSignalCharsIfNeeded();
+
         foreach (\array_reverse($this->loopListeners) as $listener) {
             $listener->afterLoop($this);
         }
@@ -843,9 +912,61 @@ class Shell extends Application
      */
     protected function afterRun(int $exitCode = 0)
     {
+        $this->disableInteractiveSignalCharsIfNeeded();
+
         foreach (\array_reverse($this->loopListeners) as $listener) {
             $listener->afterRun($this, $exitCode);
         }
+    }
+
+    /**
+     * Enable terminal signal chars during code execution when no SIGINT listener is active.
+     *
+     * Interactive readline raw mode disables terminal-generated SIGINT by default.
+     * When ProcessForker/SignalHandler are unavailable, we temporarily re-enable
+     * signal chars so Ctrl-C can still interrupt long-running code.
+     */
+    private function enableInteractiveSignalCharsIfNeeded(): void
+    {
+        if (
+            $this->interactiveSignalCharsEnabled
+            || $this->nonInteractive
+            || !($this->readline instanceof InteractiveReadlineInterface)
+            || $this->hasSigintExecutionListener()
+            || !Tty::supportsStty()
+        ) {
+            return;
+        }
+
+        @\shell_exec('stty isig 2>/dev/null');
+        $this->interactiveSignalCharsEnabled = true;
+    }
+
+    /**
+     * Restore prompt-time terminal signal behavior after execution.
+     */
+    private function disableInteractiveSignalCharsIfNeeded(): void
+    {
+        if (!$this->interactiveSignalCharsEnabled) {
+            return;
+        }
+
+        @\shell_exec('stty -isig 2>/dev/null');
+        $this->interactiveSignalCharsEnabled = false;
+    }
+
+    /**
+     * Check whether any loop listener handles SIGINT during execution.
+     */
+    private function hasSigintExecutionListener(): bool
+    {
+        foreach ($this->loopListeners as $listener) {
+            if ($listener instanceof ProcessForker || $listener instanceof SignalHandler) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1795,7 +1916,9 @@ class Shell extends Application
             return $line;
         }
 
-        $bracketedPaste = $interactive && $this->config->useBracketedPaste();
+        // Interactive readline manages bracketed paste internally
+        $usesInteractiveReadline = $this->readline instanceof InteractiveReadlineInterface;
+        $bracketedPaste = $interactive && $this->config->useBracketedPaste() && !$usesInteractiveReadline;
 
         if ($bracketedPaste) {
             \printf("\e[?2004h"); // Enable bracketed paste
@@ -1872,7 +1995,7 @@ class Shell extends Application
      */
     protected function initializeTabCompletion()
     {
-        if (!$this->config->useTabCompletion()) {
+        if (!$this->config->useTabCompletion() || $this->readline instanceof InteractiveReadlineInterface) {
             return;
         }
 
@@ -1883,6 +2006,7 @@ class Shell extends Application
         $this->addMatchersToAutoCompleter($this->getDefaultMatchers());
         $this->addMatchersToAutoCompleter($this->matchers);
 
+        // Standard readline: uses the legacy AutoCompleter
         $this->autoCompleter->activate();
     }
 
@@ -1899,6 +2023,66 @@ class Shell extends Application
             }
             $this->autoCompleter->addMatcher($matcher);
         }
+    }
+
+    /**
+     * Initialize context-aware completion for interactive readline.
+     */
+    private function initializeCompletionEngine(): void
+    {
+        $readline = $this->readline;
+        if (!($readline instanceof InteractiveReadlineInterface)) {
+            return;
+        }
+
+        $completion = new CompletionEngine($this->context, $this->cleaner);
+        $this->completionEngine = $completion;
+
+        $allCommands = $this->all();
+        $commandSource = new CommandSource($allCommands);
+        $commandOptionSource = new CommandOptionSource($allCommands);
+        $this->commandCompletion[] = $commandSource;
+        $this->commandCompletion[] = $commandOptionSource;
+
+        $additionalSources = [
+            $commandSource,
+            $commandOptionSource,
+        ];
+
+        $completion->registerDefaultSources($additionalSources);
+
+        foreach ($this->pendingCompletionSources as $source) {
+            $completion->addSource($source);
+        }
+        $this->pendingCompletionSources = [];
+
+        if (!empty($this->matchers)) {
+            $this->addLegacyMatchersToCompletionEngine($this->matchers);
+        }
+
+        $readline->setCompletionEngine($completion);
+    }
+
+    /**
+     * Add legacy matchers to completion engine via adapter.
+     *
+     * @param array $matchers Legacy matchers to adapt
+     */
+    private function addLegacyMatchersToCompletionEngine(array $matchers): void
+    {
+        if ($this->completionEngine === null) {
+            throw new \LogicException('Completion engine is not set');
+        }
+
+        // Set context on context-aware matchers
+        foreach ($matchers as $matcher) {
+            if ($matcher instanceof ContextAware) {
+                $matcher->setContext($this->context);
+            }
+        }
+
+        // MatcherAdapterSource filters out matchers superseded by new-style sources
+        $this->completionEngine->addSource(new MatcherAdapterSource($matchers));
     }
 
     /**

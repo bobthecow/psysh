@@ -25,7 +25,9 @@ use Psy\Manual\V3Manual;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Output\Theme;
+use Psy\Readline\Interactive\Input\History as InteractiveHistory;
 use Psy\TabCompletion\AutoCompleter;
+use Psy\Util\Tty;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
@@ -67,6 +69,7 @@ class Configuration
         'defaultIncludes',
         'eraseDuplicates',
         'errorLoggingLevel',
+        'useExperimentalReadline',
         'forceArrayIndexes',
         'formatterStyles',
         'historyFile',
@@ -106,6 +109,7 @@ class Configuration
     private $historyFile;
     private int $historySize = 0;
     private ?bool $eraseDuplicates = null;
+    private bool $useExperimentalReadline = false;
     private ?string $manualDbFile = null;
     private bool $hasReadline;
     private ?bool $useReadline = null;
@@ -121,6 +125,7 @@ class Configuration
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
     private array $newMatchers = [];
+    private array $newCompletionSources = [];
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
@@ -283,6 +288,11 @@ class Configuration
         // Handle --yolo
         if (self::getOptionFromInput($input, ['yolo'])) {
             $config->setYolo(true);
+        }
+
+        // Handle --experimental-readline
+        if (self::getOptionFromInput($input, ['experimental-readline'])) {
+            $config->setUseExperimentalReadline(true);
         }
 
         return $config;
@@ -456,6 +466,7 @@ class Configuration
 
             new InputOption('self-update', 'u', InputOption::VALUE_NONE, 'Update to the latest version'),
 
+            new InputOption('experimental-readline', null, InputOption::VALUE_NONE, 'Use experimental interactive readline implementation.'),
             new InputOption('yolo', null, InputOption::VALUE_NONE, 'Run PsySH with minimal input validation. You probably don\'t want this.'),
             new InputOption('warm-autoload', null, InputOption::VALUE_NONE, 'Enable autoload warming for better tab completion.'),
             new InputOption('info', null, InputOption::VALUE_NONE, 'Display PsySH environment and configuration info.'),
@@ -797,7 +808,7 @@ class Configuration
             $this->setUseTabCompletion($options['tabCompletion']);
         }
 
-        foreach (['commands', 'matchers', 'casters'] as $option) {
+        foreach (['commands', 'matchers', 'completionSources', 'casters'] as $option) {
             if (isset($options[$option])) {
                 $method = 'add'.\ucfirst($option);
                 $this->$method($options[$option]);
@@ -972,12 +983,26 @@ class Configuration
     /**
      * Get the readline history file path.
      *
-     * Defaults to `/history` inside the shell's base config dir unless
-     * explicitly overridden.
+     * Defaults to `/psysh_history` (standard readline) or
+     * `/psysh_history.jsonl` (interactive readline) in the shell's config dir
+     * unless explicitly overridden.
      */
     public function getHistoryFile(): ?string
     {
         if (isset($this->historyFile)) {
+            return $this->historyFile;
+        }
+
+        $configDir = $this->configPaths->currentConfigDir();
+        if ($configDir === null) {
+            return null;
+        }
+
+        if ($this->usesInteractiveHistoryFormat()) {
+            $jsonlHistoryFile = $configDir.'/psysh_history.jsonl';
+            $this->bootstrapInteractiveHistoryFile($jsonlHistoryFile);
+            $this->setHistoryFile($jsonlHistoryFile);
+
             return $this->historyFile;
         }
 
@@ -992,16 +1017,49 @@ class Configuration
 
             $this->setHistoryFile($files[0]);
         } else {
-            // fallback: create our own history file
-            $configDir = $this->configPaths->currentConfigDir();
-            if ($configDir === null) {
-                return null;
-            }
-
             $this->setHistoryFile($configDir.'/psysh_history');
         }
 
         return $this->historyFile;
+    }
+
+    /**
+     * Determine whether history should use the interactive JSONL format.
+     */
+    private function usesInteractiveHistoryFormat(): bool
+    {
+        if (isset($this->readline) && $this->readline instanceof Readline\InteractiveReadlineInterface) {
+            return true;
+        }
+
+        return $this->getReadlineClass() === Readline\InteractiveReadline::class;
+    }
+
+    /**
+     * Bootstrap interactive JSONL history from legacy history file if needed.
+     *
+     * This is intentionally one-way: once JSONL exists, legacy and JSONL
+     * history files diverge.
+     */
+    private function bootstrapInteractiveHistoryFile(string $jsonlHistoryFile): void
+    {
+        if (@\is_file($jsonlHistoryFile)) {
+            return;
+        }
+
+        $legacyFiles = $this->configPaths->configFiles(['psysh_history', 'history']);
+        if (empty($legacyFiles)) {
+            return;
+        }
+
+        $legacyHistoryFile = $legacyFiles[0];
+        if (!@\is_readable($legacyHistoryFile)) {
+            return;
+        }
+
+        $history = new InteractiveHistory($this->getHistorySize(), $this->getEraseDuplicates() ?? false);
+        $history->importFromFile($legacyHistoryFile);
+        $history->saveToFile($jsonlHistoryFile);
     }
 
     /**
@@ -1134,6 +1192,7 @@ class Configuration
     {
         if (!isset($this->readline)) {
             $className = $this->getReadlineClass();
+
             $this->readline = new $className(
                 $this->getHistoryFile(),
                 $this->getHistorySize(),
@@ -1151,6 +1210,11 @@ class Configuration
      */
     private function getReadlineClass(): string
     {
+        // Experimental interactive readline (opt-in via config or --experimental-readline)
+        if ($this->useExperimentalReadline() && Readline\InteractiveReadline::isSupported()) {
+            return Readline\InteractiveReadline::class;
+        }
+
         if ($this->useReadline()) {
             if (Readline\GNUReadline::isSupported()) {
                 return Readline\GNUReadline::class;
@@ -1414,6 +1478,22 @@ class Configuration
     }
 
     /**
+     * Enable experimental interactive readline implementation.
+     */
+    public function setUseExperimentalReadline(bool $enabled): void
+    {
+        $this->useExperimentalReadline = $enabled;
+    }
+
+    /**
+     * Check whether to use experimental interactive readline.
+     */
+    public function useExperimentalReadline(): bool
+    {
+        return $this->useExperimentalReadline;
+    }
+
+    /**
      * Enable or disable tab completion.
      *
      * @param bool $useTabCompletion
@@ -1664,6 +1744,33 @@ class Configuration
         if (!empty($this->newMatchers)) {
             $this->shell->addMatchers($this->newMatchers);
             $this->newMatchers = [];
+        }
+    }
+
+    /**
+     * Add completion sources.
+     *
+     * @internal experimental; API may change before Interactive Readline is stable
+     *
+     * @param Completion\Source\SourceInterface[] $sources
+     */
+    public function addCompletionSources(array $sources)
+    {
+        $this->newCompletionSources = \array_merge($this->newCompletionSources, $sources);
+        if (isset($this->shell)) {
+            $this->doAddCompletionSources();
+        }
+    }
+
+    /**
+     * Internal method for adding completion sources. This will set any new
+     * sources once a Shell is available.
+     */
+    private function doAddCompletionSources()
+    {
+        if (!empty($this->newCompletionSources)) {
+            $this->shell->addCompletionSources($this->newCompletionSources);
+            $this->newCompletionSources = [];
         }
     }
 
@@ -2047,6 +2154,7 @@ class Configuration
         $this->shell = $shell;
         $this->doAddCommands();
         $this->doAddMatchers();
+        $this->doAddCompletionSources();
 
         // Configure SignatureFormatter for hyperlinks
         SignatureFormatter::setManual($this->getManual());
@@ -2837,20 +2945,6 @@ class Configuration
      */
     private static function looksLikeAPipe($stream): bool
     {
-        if (\function_exists('stream_isatty')) {
-            return !@\stream_isatty($stream);
-        }
-
-        if (\function_exists('posix_isatty')) {
-            return !@\posix_isatty($stream);
-        }
-
-        $stat = @\fstat($stream);
-        if (!\is_array($stat) || !isset($stat['mode'])) {
-            return true;
-        }
-        $mode = $stat['mode'] & 0170000;
-
-        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000 || $mode === 0140000;
+        return !Tty::isatty($stream);
     }
 }
