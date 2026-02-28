@@ -37,6 +37,7 @@ class History
 
     private int $maxSize;
     private bool $eraseDups;
+    private int $revision = 0;
 
     public function __construct(int $maxSize = 10000, bool $eraseDups = false)
     {
@@ -74,6 +75,8 @@ class History
         if ($this->maxSize > 0 && \count($this->entries) > $this->maxSize) {
             $this->entries = \array_slice($this->entries, -$this->maxSize);
         }
+
+        $this->revision++;
     }
 
     /**
@@ -218,6 +221,16 @@ class History
     }
 
     /**
+     * Get the current history revision.
+     *
+     * Increments on every mutation (add, clear, load, import).
+     */
+    public function getRevision(): int
+    {
+        return $this->revision;
+    }
+
+    /**
      * Clear all history.
      */
     public function clear(): void
@@ -225,6 +238,7 @@ class History
         $this->entries = [];
         $this->position = -1;
         $this->temporaryEntry = null;
+        $this->revision++;
     }
 
     /**
@@ -347,11 +361,19 @@ class History
             return $command;
         }
 
-        $commandLines = \explode("\n", $command);
-        $commandLines = \array_map('trim', $commandLines);
-        $commandLines = \array_filter($commandLines); // Remove empty lines
+        return self::collapseToSingleLine($command);
+    }
 
-        return \implode(' ', $commandLines);
+    /**
+     * Collapse multi-line text to a single line.
+     */
+    public static function collapseToSingleLine(string $text): string
+    {
+        $lines = \explode("\n", $text);
+        $lines = \array_map('trim', $lines);
+        $lines = \array_filter($lines, fn ($line) => $line !== '');
+
+        return \implode(' ', $lines);
     }
 
     /**
@@ -457,5 +479,6 @@ class History
         }
 
         $this->entries = \array_values($entries);
+        $this->revision++;
     }
 }

@@ -24,7 +24,7 @@ class OverlayViewport
     private Terminal $terminal;
 
     /** How many terminal rows the current input (prompt + buffer) occupies. */
-    private int $inputLineCount = 1;
+    private int $inputRowCount = 1;
 
     public function __construct(Terminal $terminal)
     {
@@ -32,13 +32,13 @@ class OverlayViewport
     }
 
     /**
-     * Update how many terminal lines the input currently occupies.
+     * Update how many terminal rows the input currently occupies.
      *
      * Called by FrameRenderer after each render.
      */
-    public function setInputLineCount(int $lines): void
+    public function setInputRowCount(int $rows): void
     {
-        $this->inputLineCount = \max(1, $lines);
+        $this->inputRowCount = \max(1, $rows);
     }
 
     /**
@@ -55,7 +55,7 @@ class OverlayViewport
         $terminalHeight = $this->terminal->getHeight();
 
         // Reserve 1 row for status line / breathing room
-        $available = $terminalHeight - $this->inputLineCount - 1;
+        $available = $terminalHeight - $this->inputRowCount - 1;
 
         if ($compact) {
             $halfTerminal = (int) \floor($terminalHeight / 2);

@@ -114,9 +114,9 @@ class TabAction implements ActionInterface
         $this->expanded = false;
         $this->inInteractiveMode = true;
 
-        $this->updateLayout($terminal);
-
-        $this->updateOverlay($buffer, $terminal, $readline);
+        $readline->enterMenuMode();
+        try {
+            $this->updateOverlay($buffer, $terminal, $readline);
 
             return $this->handleInteractiveSelection($buffer, $terminal, $readline);
         } finally {
@@ -300,8 +300,19 @@ class TabAction implements ActionInterface
      */
     private function updateOverlay(Buffer $buffer, Terminal $terminal, Readline $readline): void
     {
+        // Terminal width may change while the menu is open.
+        $this->updateLayout($terminal);
+
+        $maxRows = $this->getMaxRows($readline);
+        if ($maxRows === null) {
+            $this->scrollOffset = 0;
+        } else {
+            $maxOffset = \max(0, $this->totalRows - $maxRows);
+            $this->scrollOffset = \max(0, \min($this->scrollOffset, $maxOffset));
+        }
+
         $renderer = new CompletionRenderer($terminal);
-        $rendered = $renderer->render($this->filteredMatches, $this->selectedIndex, $this->getMaxRows($readline), $this->scrollOffset, !$this->expanded);
+        $rendered = $renderer->render($this->filteredMatches, $this->selectedIndex, $maxRows, $this->scrollOffset, !$this->expanded);
 
         // Prepend a blank separator line above the menu
         $lines = \explode("\n", "\n".$rendered);

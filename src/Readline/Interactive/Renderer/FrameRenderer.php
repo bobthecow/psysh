@@ -12,38 +12,48 @@
 namespace Psy\Readline\Interactive\Renderer;
 
 use Psy\Readline\Interactive\Input\Buffer;
+use Psy\Readline\Interactive\Layout\DisplayString;
+use Psy\Readline\Interactive\Layout\PromptMap;
+use Psy\Readline\Interactive\Layout\SoftWrapCalculator;
+use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Readline\Interactive\Terminal;
-use Symfony\Component\Console\Helper\Helper;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * Frame-buffered renderer for interactive readline.
  *
- * Builds the entire visible area (input lines + overlay) as an array of
- * strings, then diffs against the previous frame and writes minimal updates.
- * Uses only relative cursor movement (never save/restore cursor) so terminal
- * scrolling can't break cursor positioning.
+ * Builds the visible area (input + overlay) as logical lines and lets the
+ * terminal perform soft wrapping. The renderer tracks wrapped row occupancy
+ * itself so cursor positioning and overlay budgeting remain correct.
  */
 class FrameRenderer
 {
     private Terminal $terminal;
     private OverlayViewport $viewport;
-
-    private string $singleLinePrompt = '> ';
-    private string $multilinePrompt = '. ';
+    private PromptMap $prompts;
 
     /** @var string[] Lines currently displayed on the terminal. */
     private array $previousFrame = [];
 
-    /** Which frame line the terminal cursor is currently on (0-indexed). */
-    private int $cursorFrameLine = 0;
+    /** Which wrapped frame row the terminal cursor is currently on (0-indexed). */
+    private int $cursorFrameRow = 0;
 
     /** @var string[] Overlay lines to display below the input. */
     private array $overlayLines = [];
+
+    private ?int $lastTerminalWidth = null;
+    private ?int $lastTerminalHeight = null;
+    private ?SoftWrapCalculator $softWrapCalculator = null;
+    private ?int $softWrapCachedWidth = null;
+
+    /** @var array<string, int> Cached row counts keyed by line content. */
+    private array $lineRowCache = [];
 
     public function __construct(Terminal $terminal, OverlayViewport $viewport)
     {
         $this->terminal = $terminal;
         $this->viewport = $viewport;
+        $this->prompts = new PromptMap();
     }
 
     /**
@@ -51,7 +61,7 @@ class FrameRenderer
      */
     public function setSingleLinePrompt(string $prompt): void
     {
-        $this->singleLinePrompt = $prompt;
+        $this->prompts->setSingleLinePrompt($prompt);
     }
 
     /**
@@ -59,7 +69,20 @@ class FrameRenderer
      */
     public function setMultilinePrompt(string $prompt): void
     {
-        $this->multilinePrompt = $prompt;
+        $this->prompts->setMultilinePrompt($prompt);
+    }
+
+    /**
+     * Get active prompt display width for the cursor's current line.
+     */
+    public function getPromptWidthForCurrentLine(Buffer $buffer, bool $multilineMode): int
+    {
+        $lineNumber = 0;
+        if ($multilineMode && \strpos($buffer->getText(), "\n") !== false) {
+            $lineNumber = $buffer->getCurrentLineNumber();
+        }
+
+        return $this->prompts->getPromptWidthForLine($lineNumber, $this->terminal->getFormatter());
     }
 
     /**
@@ -78,25 +101,24 @@ class FrameRenderer
     public function clearOverlay(Buffer $buffer, bool $multilineMode): void
     {
         $this->overlayLines = [];
-        $this->render($buffer, $multilineMode);
+        $this->render($buffer, $multilineMode, null);
     }
 
     /**
      * Render the full frame (input + overlay) to the terminal.
      */
-    public function render(Buffer $buffer, bool $multilineMode): void
+    public function render(Buffer $buffer, bool $multilineMode, ?SuggestionResult $suggestion): void
     {
         $isMultiline = $multilineMode && \strpos($buffer->getText(), "\n") !== false;
-        $inputLines = $this->buildInputLines($buffer, $isMultiline);
+        $inputLines = $this->buildInputLines($buffer, $isMultiline, $suggestion);
 
-        $this->viewport->setInputLineCount(\count($inputLines));
+        $this->viewport->setInputRowCount($this->getFrameRowCount($inputLines));
 
         $frame = \array_merge($inputLines, $this->overlayLines);
 
-        $cursorLine = $isMultiline ? $buffer->getCurrentLineNumber() : 0;
-        $cursorColumn = $this->getCursorColumn($buffer, $isMultiline);
+        [$cursorRow, $cursorColumn] = $this->getCursorPosition($buffer, $isMultiline);
 
-        $this->syncFrame($frame, $cursorLine, $cursorColumn);
+        $this->syncFrame($frame, $cursorRow, $cursorColumn);
         $this->terminal->flush();
     }
 
@@ -105,7 +127,13 @@ class FrameRenderer
      */
     public function renderSearchPrompt(string $prompt): void
     {
-        $this->syncFrame([$prompt], 0, Helper::width($prompt) + 1);
+        $this->viewport->setInputRowCount($this->lineRowCount($prompt));
+
+        $absoluteColumn = $this->displayWidth($prompt) + 1;
+        $cursorRow = $this->rowOffsetForColumn($absoluteColumn);
+        $cursorColumn = $this->normalizeColumn($absoluteColumn);
+
+        $this->syncFrame([$prompt], $cursorRow, $cursorColumn);
         $this->terminal->flush();
     }
 
@@ -115,8 +143,11 @@ class FrameRenderer
     public function reset(): void
     {
         $this->previousFrame = [];
-        $this->cursorFrameLine = 0;
+        $this->cursorFrameRow = 0;
         $this->overlayLines = [];
+        $this->lastTerminalWidth = null;
+        $this->lastTerminalHeight = null;
+        $this->lineRowCache = [];
     }
 
     /**
@@ -124,7 +155,7 @@ class FrameRenderer
      *
      * @return string[]
      */
-    private function buildInputLines(Buffer $buffer, bool $isMultiline): array
+    private function buildInputLines(Buffer $buffer, bool $isMultiline, ?SuggestionResult $suggestion): array
     {
         $text = $buffer->getText();
 
@@ -132,108 +163,268 @@ class FrameRenderer
             $lines = \explode("\n", $text);
             $result = [];
             foreach ($lines as $i => $line) {
-                $prompt = ($i === 0) ? $this->singleLinePrompt : $this->multilinePrompt;
-                $result[] = $prompt.$line;
+                $result[] = $this->prompts->getPromptForLine($i).$line;
             }
 
             return $result;
         }
 
-        $line = $this->singleLinePrompt.$text;
+        $line = $this->prompts->getPromptForLine(0).$text;
+
+        // Completion overlays own the viewport; don't mix ghost text with menus.
+        if ($suggestion !== null && empty($this->overlayLines)) {
+            $absoluteCursorColumn = $this->prompts->getPromptWidthForLine(0, $this->terminal->getFormatter())
+                + DisplayString::width(\mb_substr($text, 0, $buffer->getCursor())) + 1;
+            $cursorColumn = $this->normalizeColumn($absoluteCursorColumn);
+            $suggestionText = $suggestion->getText();
+            $maxWidth = $this->getTerminalWidth() - $cursorColumn + 1;
+
+            if ($maxWidth > 0) {
+                $suggestionText = DisplayString::truncate($suggestionText, $maxWidth, true);
+                if ($suggestionText !== '') {
+                    $line .= $this->terminal->format('<whisper>'.$suggestionText.'</whisper>');
+                }
+            }
+        }
 
         return [$line];
     }
 
     /**
-     * Get the terminal column where the cursor should be (1-indexed).
+     * Append single-line suggestion ghost text when there is room.
      */
-    private function getCursorColumn(Buffer $buffer, bool $isMultiline): int
+    private function appendSuggestionGhostText(string $line, Buffer $buffer, string $text, SuggestionResult $suggestion): string
+    {
+        // Completion overlays own the viewport; don't mix ghost text with menus.
+        if (!empty($this->overlayLines)) {
+            return $line;
+        }
+
+        $absoluteCursorColumn = $this->prompts->getPromptWidthForLine(0, $this->terminal->getFormatter())
+            + DisplayString::width(\mb_substr($text, 0, $buffer->getCursor())) + 1;
+        $cursorColumn = $this->getSoftWrapCalculator()->normalizeColumn($absoluteCursorColumn);
+        $maxWidth = $this->getTerminalWidth() - $cursorColumn + 1;
+        if ($maxWidth <= 0) {
+            return $line;
+        }
+
+        $suggestionText = DisplayString::truncate($suggestion->getText(), $maxWidth, true);
+        if ($suggestionText === '') {
+            return $line;
+        }
+
+        return $line.$this->terminal->format('<whisper>'.OutputFormatter::escape($suggestionText).'</whisper>');
+    }
+
+    /**
+     * Get the wrapped frame row and terminal column where the cursor should be.
+     *
+     * @return array{int, int}
+     */
+    private function getCursorPosition(Buffer $buffer, bool $isMultiline): array
     {
         $text = $buffer->getText();
 
         if ($isMultiline) {
             $lines = \explode("\n", $text);
             $lineNum = $buffer->getCurrentLineNumber();
-            $prompt = ($lineNum === 0) ? $this->singleLinePrompt : $this->multilinePrompt;
+            $promptWidth = $this->prompts->getPromptWidthForLine($lineNum, $this->terminal->getFormatter());
 
             $charsBeforeLine = 0;
+            $rowsBeforeLine = 0;
             for ($i = 0; $i < $lineNum; $i++) {
                 $charsBeforeLine += \mb_strlen($lines[$i]) + 1;
+                $rowsBeforeLine += $this->lineRowCount($this->prompts->getPromptForLine($i).($lines[$i] ?? ''));
             }
 
-            $cursorInLine = $buffer->getCursor() - $charsBeforeLine;
-            $textBeforeCursor = \mb_substr($lines[$lineNum], 0, $cursorInLine);
+            $lineText = $lines[$lineNum] ?? '';
+            $cursorInLine = \max(0, \min(\mb_strlen($lineText), $buffer->getCursor() - $charsBeforeLine));
+            $textBeforeCursor = \mb_substr($lineText, 0, $cursorInLine);
 
-            return Helper::width($prompt) + Helper::width($textBeforeCursor) + 1;
+            $absoluteColumn = $promptWidth + DisplayString::width($textBeforeCursor) + 1;
+            $calculator = $this->getSoftWrapCalculator();
+
+            return [
+                $rowsBeforeLine + $this->rowOffsetForColumn($absoluteColumn),
+                $this->normalizeColumn($absoluteColumn),
+            ];
         }
 
         $textBeforeCursor = \mb_substr($text, 0, $buffer->getCursor());
+        $absoluteColumn = $this->prompts->getPromptWidthForLine(0, $this->terminal->getFormatter())
+            + DisplayString::width($textBeforeCursor) + 1;
+        $calculator = $this->getSoftWrapCalculator();
 
-        return Helper::width($this->singleLinePrompt) + Helper::width($textBeforeCursor) + 1;
+        return [
+            $this->rowOffsetForColumn($absoluteColumn),
+            $this->normalizeColumn($absoluteColumn),
+        ];
     }
 
     /**
-     * Sync a new frame to the terminal with minimal writes.
+     * Sync a new frame to the terminal.
      *
      * @param string[] $newFrame
      */
-    private function syncFrame(array $newFrame, int $cursorLine, int $cursorColumn): void
+    private function syncFrame(array $newFrame, int $cursorRow, int $cursorColumn): void
     {
-        // If something wrote to the terminal outside of a frame render,
-        // we can't trust previousFrame — force a full repaint.
-        if ($this->terminal->isDirty()) {
-            $this->previousFrame = [];
-        }
+        $terminalWidth = $this->getTerminalWidth();
+        $terminalHeight = \max(1, $this->terminal->getHeight());
+        $sizeChanged = $this->lastTerminalWidth !== null && (
+            $terminalWidth !== $this->lastTerminalWidth || $terminalHeight !== $this->lastTerminalHeight
+        );
+        $dirty = $this->terminal->isDirty();
 
-        // If the cursor row was moved out-of-band, we don't know where
-        // it is — reset to 0 so the renderer starts fresh.
-        if ($this->terminal->isCursorRowUnknown()) {
-            $this->cursorFrameLine = 0;
+        $oldFrame = ($sizeChanged || $dirty) ? [] : $this->previousFrame;
+        $firstChangedLine = $this->findFirstChangedLine($oldFrame, $newFrame);
+
+        // Wrapped row tracking is invalid after row-affecting out-of-band writes/resizes,
+        // or if we can no longer trust the previous frame contents.
+        if ($sizeChanged || $this->terminal->isCursorRowUnknown()) {
+            $this->cursorFrameRow = 0;
         }
 
         $this->terminal->beginFrameRender();
 
         try {
-            if ($this->cursorFrameLine > 0) {
-                $this->terminal->moveCursorUp($this->cursorFrameLine);
-            }
+            $currentRow = $this->cursorFrameRow;
 
-            $newCount = \count($newFrame);
-            $oldCount = \count($this->previousFrame);
-            $maxLines = \max($newCount, $oldCount);
+            if ($firstChangedLine !== null) {
+                $oldStartRow = $this->getRowOffsetBeforeLine($oldFrame, $firstChangedLine);
+                $newStartRow = $this->getRowOffsetBeforeLine($newFrame, $firstChangedLine);
 
-            for ($i = 0; $i < $maxLines; $i++) {
-                if ($i > 0) {
-                    $this->terminal->write("\n");
-                }
+                $currentRow = $this->moveCursorToRow($currentRow, $oldStartRow);
 
-                if ($i < $newCount) {
-                    $newLine = $newFrame[$i];
-                    $oldLine = $this->previousFrame[$i] ?? null;
+                $this->terminal->write("\r");
+                $this->terminal->clearToEndOfScreen();
 
-                    if ($newLine !== $oldLine) {
-                        $this->terminal->write("\r");
-                        $this->terminal->clearToEndOfLine();
-                        $this->terminal->write($newLine);
+                $suffix = \array_slice($newFrame, $firstChangedLine);
+                foreach ($suffix as $i => $line) {
+                    if ($i > 0) {
+                        $this->terminal->write("\n");
                     }
-                } else {
-                    // Frame shrank — clear leftover lines
-                    $this->terminal->write("\r");
-                    $this->terminal->clearToEndOfLine();
+                    $this->terminal->write($line);
                 }
+
+                $currentRow = empty($suffix)
+                    ? $newStartRow
+                    : $newStartRow + $this->getFrameRowCount($suffix) - 1;
             }
 
-            $currentLine = $maxLines - 1;
-            if ($cursorLine < $currentLine) {
-                $this->terminal->moveCursorUp($currentLine - $cursorLine);
-            }
+            $currentRow = $this->moveCursorToRow($currentRow, $cursorRow);
 
             $this->terminal->moveCursorToColumn($cursorColumn);
 
-            $this->cursorFrameLine = $cursorLine;
             $this->previousFrame = $newFrame;
+            $this->cursorFrameRow = $cursorRow;
+            $this->lastTerminalWidth = $terminalWidth;
+            $this->lastTerminalHeight = $terminalHeight;
         } finally {
             $this->terminal->endFrameRender();
         }
+    }
+
+    /**
+     * Count how many terminal rows a frame occupies after soft wrapping.
+     *
+     * @param string[] $frame
+     */
+    private function getFrameRowCount(array $frame): int
+    {
+        $rows = 0;
+        foreach ($frame as $line) {
+            $rows += $this->lineRowCount($line);
+        }
+
+        return \max(1, $rows);
+    }
+
+    /**
+     * Count wrapped terminal rows for a single logical line.
+     */
+    private function lineRowCount(string $line): int
+    {
+        if (isset($this->lineRowCache[$line])) {
+            return $this->lineRowCache[$line];
+        }
+
+        $width = DisplayString::widthWithoutAnsi($line);
+        $rows = $this->getSoftWrapCalculator()->rowCountForDisplayWidth($width);
+        $this->lineRowCache[$line] = $rows;
+
+        return $rows;
+    }
+
+    private function getTerminalWidth(): int
+    {
+        return \max(1, $this->terminal->getWidth());
+    }
+
+    private function getSoftWrapCalculator(): SoftWrapCalculator
+    {
+        $width = $this->getTerminalWidth();
+        if ($this->softWrapCalculator === null || $this->softWrapCachedWidth !== $width) {
+            $this->softWrapCalculator = new SoftWrapCalculator($width);
+            $this->softWrapCachedWidth = $width;
+            $this->lineRowCache = [];
+        }
+
+        return $this->softWrapCalculator;
+    }
+
+    /**
+     * Find the first logical line that differs between two frames.
+     *
+     * @param string[] $oldFrame
+     * @param string[] $newFrame
+     */
+    private function findFirstChangedLine(array $oldFrame, array $newFrame): ?int
+    {
+        $oldCount = \count($oldFrame);
+        $newCount = \count($newFrame);
+        $sharedCount = \min($oldCount, $newCount);
+
+        for ($i = 0; $i < $sharedCount; $i++) {
+            if ($oldFrame[$i] !== $newFrame[$i]) {
+                return $i;
+            }
+        }
+
+        if ($oldCount !== $newCount) {
+            return $sharedCount;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get total wrapped rows occupied by lines before the given logical line index.
+     *
+     * @param string[] $frame
+     */
+    private function getRowOffsetBeforeLine(array $frame, int $lineIndex): int
+    {
+        $rows = 0;
+        $lineIndex = \max(0, \min($lineIndex, \count($frame)));
+
+        for ($i = 0; $i < $lineIndex; $i++) {
+            $rows += $this->lineRowCount($frame[$i]);
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Move cursor vertically between wrapped frame rows.
+     */
+    private function moveCursorToRow(int $currentRow, int $targetRow): int
+    {
+        if ($targetRow < $currentRow) {
+            $this->terminal->moveCursorUp($currentRow - $targetRow);
+        } elseif ($targetRow > $currentRow) {
+            $this->terminal->moveCursorDown($targetRow - $currentRow);
+        }
+
+        return $targetRow;
     }
 }
