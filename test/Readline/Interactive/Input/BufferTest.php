@@ -1473,6 +1473,51 @@ class BufferTest extends TestCase
         $this->assertFalse($buffer->moveToNextLine());
     }
 
+    public function testMoveToPreviousVisualRowWithinWrappedLine(): void
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'abcdefghijklmno<cursor>');
+
+        $this->assertTrue($buffer->moveToPreviousVisualRow(10, 4));
+        $this->assertBufferState('abcde<cursor>fghijklmno', $buffer);
+    }
+
+    public function testMoveToNextVisualRowWithinWrappedLine(): void
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'abcde<cursor>fghijklmno');
+
+        $this->assertTrue($buffer->moveToNextVisualRow(10, 4));
+        $this->assertBufferState('abcdefghijklmno<cursor>', $buffer);
+    }
+
+    public function testMoveToPreviousVisualRowReturnsFalseOnTopRow(): void
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'abc<cursor>defghijk');
+
+        $this->assertFalse($buffer->moveToPreviousVisualRow(10, 4));
+        $this->assertBufferState('abc<cursor>defghijk', $buffer);
+    }
+
+    public function testMoveToNextVisualRowReturnsFalseOnBottomRow(): void
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'abcdefghijklmno<cursor>');
+
+        $this->assertFalse($buffer->moveToNextVisualRow(10, 4));
+        $this->assertBufferState('abcdefghijklmno<cursor>', $buffer);
+    }
+
+    public function testMoveVisualRowsUsesDisplayWidthForWideCharacters(): void
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'ab中文cd<cursor>');
+
+        $this->assertTrue($buffer->moveToPreviousVisualRow(6, 2));
+        $this->assertBufferState('ab<cursor>中文cd', $buffer);
+    }
+
     public function testDeletePreviousWordRemovesEmptyParens(): void
     {
         $buffer = new Buffer();

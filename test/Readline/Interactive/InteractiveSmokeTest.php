@@ -22,6 +22,7 @@ use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Shell;
 use Psy\Test\TestCase;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class InteractiveSmokeTest extends TestCase
 {
@@ -40,6 +41,7 @@ class InteractiveSmokeTest extends TestCase
         $terminal = $this->createMock(Terminal::class);
         $terminal->method('readKey')->willReturnOnConsecutiveCalls(...$keys);
         $terminal->method('getWidth')->willReturn(80);
+        $terminal->method('getFormatter')->willReturn(new OutputFormatter());
         $terminal->method('format')->willReturnCallback(static function (string $text): string {
             return $text;
         });
@@ -135,6 +137,38 @@ class InteractiveSmokeTest extends TestCase
         $readline = new Readline($terminal);
 
         $this->assertFalse($readline->readline());
+    }
+
+    public function testUpArrowMovesWithinSoftWrappedLineBeforeHistory(): void
+    {
+        $text = \str_repeat('a', 100);
+        $terminal = $this->createTerminalWithKeys([
+            new Key($text, Key::TYPE_PASTE),
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up arrow
+            new Key('X', Key::TYPE_CHAR),
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $readline = new Readline($terminal);
+
+        $expected = \str_repeat('a', 20).'X'.\str_repeat('a', 80);
+        $this->assertSame($expected, $readline->readline());
+    }
+
+    public function testDownArrowMovesWithinSoftWrappedLineBeforeHistory(): void
+    {
+        $text = \str_repeat('a', 100);
+        $terminal = $this->createTerminalWithKeys([
+            new Key($text, Key::TYPE_PASTE),
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up arrow
+            new Key("\033[B", Key::TYPE_ESCAPE), // Down arrow
+            new Key('X', Key::TYPE_CHAR),
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $readline = new Readline($terminal);
+
+        $this->assertSame($text.'X', $readline->readline());
     }
 
     public function testSearchModeReplaysUnhandledKeyToMainLoop(): void

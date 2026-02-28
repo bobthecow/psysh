@@ -29,6 +29,7 @@ class Buffer
     private IndentationPolicy $indentationPolicy;
     private TokenNavigationPolicy $tokenNavigationPolicy;
     private WordNavigationPolicy $wordNavigationPolicy;
+    private VisualNavigationPolicy $visualNavigationPolicy;
 
     private bool $requireSemicolons = false;
     private bool $graphemeCacheInitialized = false;
@@ -48,6 +49,7 @@ class Buffer
         $this->indentationPolicy = new IndentationPolicy();
         $this->tokenNavigationPolicy = new TokenNavigationPolicy();
         $this->wordNavigationPolicy = new WordNavigationPolicy();
+        $this->visualNavigationPolicy = new VisualNavigationPolicy();
     }
 
     /**
@@ -401,6 +403,54 @@ class Buffer
         $prevLineLength = $lastNewline - $prevLineStart;
 
         $this->cursor = $prevLineStart + \min($currentColumn, $prevLineLength);
+
+        return true;
+    }
+
+    /**
+     * Move cursor to the previous soft-wrapped visual row on the current line.
+     *
+     * @param int $terminalWidth Number of terminal columns
+     * @param int $promptWidth   Display width of the active prompt
+     *
+     * @return bool True if moved, false if already on first visual row
+     */
+    public function moveToPreviousVisualRow(int $terminalWidth, int $promptWidth): bool
+    {
+        return $this->moveVisualRows(-1, $terminalWidth, $promptWidth);
+    }
+
+    /**
+     * Move cursor to the next soft-wrapped visual row on the current line.
+     *
+     * @param int $terminalWidth Number of terminal columns
+     * @param int $promptWidth   Display width of the active prompt
+     *
+     * @return bool True if moved, false if already on last visual row
+     */
+    public function moveToNextVisualRow(int $terminalWidth, int $promptWidth): bool
+    {
+        return $this->moveVisualRows(1, $terminalWidth, $promptWidth);
+    }
+
+    /**
+     * Move cursor by soft-wrapped visual rows.
+     */
+    private function moveVisualRows(int $deltaRows, int $terminalWidth, int $promptWidth): bool
+    {
+        $target = $this->visualNavigationPolicy->moveByRows(
+            $this->text,
+            $this->cursor,
+            $deltaRows,
+            $terminalWidth,
+            $promptWidth
+        );
+
+        if ($target === null) {
+            return false;
+        }
+
+        $this->cursor = $target;
 
         return true;
     }

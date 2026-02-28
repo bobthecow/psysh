@@ -19,9 +19,9 @@ use Psy\Readline\Interactive\Terminal;
 /**
  * Navigate to previous history entry (Up arrow).
  *
- * Fish/ZSH-style behavior: in multi-line mode, first moves cursor to previous
- * line within the buffer. Only navigates to previous history entry when
- * already on the first line.
+ * Fish/ZSH-style behavior: first moves within soft-wrapped visual rows, then
+ * in multi-line mode moves to the previous logical line. Only navigates to
+ * previous history entry when already at the top of the buffer.
  */
 class PreviousHistoryAction implements ActionInterface
 {
@@ -37,6 +37,13 @@ class PreviousHistoryAction implements ActionInterface
      */
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
+        if ($buffer->moveToPreviousVisualRow(
+            $terminal->getWidth(),
+            $readline->getPromptWidthForCurrentLine($buffer)
+        )) {
+            return true;
+        }
+
         if ($readline->isMultilineMode() && !$buffer->isOnFirstLine()) {
             $buffer->moveToPreviousLine();
 
