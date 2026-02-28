@@ -24,6 +24,8 @@ use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\KeyBindings;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
+use Psy\Readline\Interactive\Suggestion\SuggestionEngine;
+use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Shell;
 
 /**
@@ -34,6 +36,10 @@ use Psy\Shell;
  */
 class Readline
 {
+    private const MODE_NORMAL = 'normal';
+    private const MODE_SEARCH = 'search';
+    private const MODE_MENU = 'menu';
+
     private Terminal $terminal;
     private InputQueue $inputQueue;
     private KeyBindings $bindings;
@@ -42,7 +48,7 @@ class Readline
     private ?Shell $shell = null;
     private bool $requireSemicolons = false;
 
-    private bool $searchMode = false;
+    private string $mode = self::MODE_NORMAL;
     private string $searchQuery = '';
     /** @var string[] */
     private array $searchMatches = [];
@@ -55,8 +61,10 @@ class Readline
 
     private bool $smartBrackets = true;
 
+    private SuggestionEngine $suggestionEngine;
     private OverlayViewport $overlayViewport;
     private FrameRenderer $frameRenderer;
+    private ?SuggestionResult $currentSuggestion = null;
 
     /**
      * Create a new interactive Readline instance.
@@ -69,6 +77,7 @@ class Readline
 
         $this->bindings = $bindings ?? KeyBindings::createDefault($this->history, $this->smartBrackets);
 
+        $this->suggestionEngine = new SuggestionEngine($this->history);
         $this->overlayViewport = new OverlayViewport($this->terminal);
         $this->frameRenderer = new FrameRenderer($this->terminal, $this->overlayViewport);
     }
@@ -87,6 +96,14 @@ class Readline
     public function setMultilinePrompt(string $prompt): void
     {
         $this->frameRenderer->setMultilinePrompt($prompt);
+    }
+
+    /**
+     * Get active prompt display width for the cursor's current line.
+     */
+    public function getPromptWidthForCurrentLine(Buffer $buffer): int
+    {
+        return $this->frameRenderer->getPromptWidthForCurrentLine($buffer, $this->multilineMode);
     }
 
     /**
@@ -225,6 +242,9 @@ class Readline
     {
         $this->frameRenderer->reset();
         $this->multilineMode = false;
+        $this->mode = self::MODE_NORMAL;
+        $this->resetSearchState();
+        $this->clearSuggestion();
 
         $buffer = new Buffer($this->requireSemicolons);
         $this->display($buffer);
@@ -245,7 +265,7 @@ class Readline
                     continue;
                 }
 
-                if ($this->searchMode) {
+                if ($this->mode === self::MODE_SEARCH) {
                     if (!$this->handleSearchModeInput($key, $buffer)) {
                         $this->display($buffer);
                     } else {
@@ -264,9 +284,11 @@ class Readline
                     $continue = $action->execute($buffer, $this->terminal, $this);
 
                     if ($continue) {
+                        $this->updateSuggestion($buffer);
                         $this->display($buffer);
                     } else {
                         $line = $buffer->getText();
+                        $this->clearSuggestion();
 
                         if (!$this->isCommand($line) || $this->isInOpenStringOrComment($line)) {
                             $this->exitMultilineMode();
@@ -305,17 +327,7 @@ class Readline
      */
     private function display(Buffer $buffer): void
     {
-        $this->frameRenderer->render($buffer, $this->multilineMode);
-    }
-
-    /**
-     * Set overlay lines to display below the input.
-     *
-     * @param string[] $lines
-     */
-    public function setOverlayLines(array $lines): void
-    {
-        $this->frameRenderer->setOverlayLines($lines);
+        $this->frameRenderer->render($buffer, $this->multilineMode, $this->currentSuggestion);
     }
 
     /**
@@ -327,10 +339,13 @@ class Readline
     }
 
     /**
-     * Re-render the current frame (input + overlay).
+     * Render overlay lines and redraw the frame.
+     *
+     * @param string[] $lines
      */
-    public function redraw(Buffer $buffer): void
+    public function renderOverlay(Buffer $buffer, array $lines): void
     {
+        $this->frameRenderer->setOverlayLines($lines);
         $this->display($buffer);
     }
 
@@ -361,11 +376,11 @@ class Readline
     }
 
     /**
-     * Get the overlay viewport for space calculations.
+     * Get available overlay rows for completion/search UI.
      */
-    public function getOverlayViewport(): OverlayViewport
+    public function getOverlayAvailableRows(bool $collapsed): int
     {
-        return $this->overlayViewport;
+        return $this->overlayViewport->getAvailableRows($collapsed);
     }
 
     /**
@@ -377,11 +392,53 @@ class Readline
     }
 
     /**
+     * Get the suggestion engine.
+     */
+    public function getSuggestionEngine(): SuggestionEngine
+    {
+        return $this->suggestionEngine;
+    }
+
+    /**
+     * Get the current suggestion.
+     */
+    public function getCurrentSuggestion(): ?SuggestionResult
+    {
+        return $this->currentSuggestion;
+    }
+
+    /**
+     * Clear the current suggestion.
+     */
+    public function clearSuggestion(): void
+    {
+        $this->currentSuggestion = null;
+        $this->suggestionEngine->clearCache();
+    }
+
+    /**
+     * Update suggestion based on current buffer state.
+     */
+    private function updateSuggestion(Buffer $buffer): void
+    {
+        if ($this->mode !== self::MODE_NORMAL || $this->multilineMode) {
+            $this->clearSuggestion();
+
+            return;
+        }
+
+        $this->currentSuggestion = $this->suggestionEngine->getSuggestion(
+            $buffer->getText(),
+            $buffer->getCursor()
+        );
+    }
+
+    /**
      * Check if currently in search mode.
      */
     public function isInSearchMode(): bool
     {
-        return $this->searchMode;
+        return $this->mode === self::MODE_SEARCH;
     }
 
     /**
@@ -389,7 +446,7 @@ class Readline
      */
     public function enterSearchMode(): void
     {
-        $this->searchMode = true;
+        $this->mode = self::MODE_SEARCH;
         $this->resetSearchState();
     }
 
@@ -398,10 +455,30 @@ class Readline
      */
     public function exitSearchMode(): void
     {
-        $this->searchMode = false;
+        if ($this->mode === self::MODE_SEARCH) {
+            $this->mode = self::MODE_NORMAL;
+        }
         $this->resetSearchState();
         $this->savedBufferText = null;
         $this->savedCursorPosition = 0;
+    }
+
+    /**
+     * Enter completion menu mode.
+     */
+    public function enterMenuMode(): void
+    {
+        $this->mode = self::MODE_MENU;
+    }
+
+    /**
+     * Exit completion menu mode.
+     */
+    public function exitMenuMode(): void
+    {
+        if ($this->mode === self::MODE_MENU) {
+            $this->mode = self::MODE_NORMAL;
+        }
     }
 
     /**

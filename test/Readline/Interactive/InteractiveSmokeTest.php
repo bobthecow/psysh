@@ -157,6 +157,26 @@ class InteractiveSmokeTest extends TestCase
         $this->assertSame("'abcX'", $readline->readline());
     }
 
+    public function testSuggestionDoesNotLeakAcrossReadlineCalls(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            new Key('f', Key::TYPE_CHAR),
+            new Key('o', Key::TYPE_CHAR),
+            new Key('o', Key::TYPE_CHAR),
+            new Key("\n", Key::TYPE_CHAR),
+            new Key("\033[C", Key::TYPE_ESCAPE), // Right arrow
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('foobar');
+
+        $readline = new Readline($terminal, null, $history);
+
+        $this->assertSame('foo', $readline->readline());
+        $this->assertSame('', $readline->readline());
+    }
+
     public function testTabMenuReplaysUnhandledKeyToMainLoop(): void
     {
         $terminal = $this->createTerminalWithKeys([

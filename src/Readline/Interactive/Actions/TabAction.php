@@ -15,6 +15,7 @@ use Psy\Completion\CompletionEngine;
 use Psy\Completion\CompletionRequest;
 use Psy\Completion\FuzzyMatcher;
 use Psy\Readline\Interactive\Helper\CompletionRenderer;
+use Psy\Readline\Interactive\Helper\CurrentWord;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Terminal;
@@ -98,7 +99,7 @@ class TabAction implements ActionInterface
         }
 
         $commonPrefix = $this->getCommonPrefix($matches);
-        $currentWord = $this->getCurrentWord($text, $cursor);
+        $currentWord = CurrentWord::extract($text, $cursor);
 
         if (!empty($commonPrefix) && $commonPrefix !== $currentWord) {
             $this->insertMatch($buffer, $commonPrefix);
@@ -117,7 +118,10 @@ class TabAction implements ActionInterface
 
         $this->updateOverlay($buffer, $terminal, $readline);
 
-        return $this->handleInteractiveSelection($buffer, $terminal, $readline);
+            return $this->handleInteractiveSelection($buffer, $terminal, $readline);
+        } finally {
+            $readline->exitMenuMode();
+        }
     }
 
     /**
@@ -126,28 +130,6 @@ class TabAction implements ActionInterface
     public function getName(): string
     {
         return 'tab-completion';
-    }
-
-    /**
-     * Get the current word being completed.
-     */
-    private function getCurrentWord(string $line, int $position): string
-    {
-        if ($position === 0 || empty($line)) {
-            return '';
-        }
-
-        $start = $position - 1;
-        while ($start >= 0) {
-            $char = \mb_substr($line, $start, 1);
-            if ($char === '' || \ctype_space($char)) {
-                break;
-            }
-            $start--;
-        }
-        $start++;
-
-        return \mb_substr($line, $start, $position - $start);
     }
 
     /**
@@ -279,7 +261,7 @@ class TabAction implements ActionInterface
                 if ($buffer->getCursor() > 0) {
                     $buffer->deleteBackward();
 
-                    $this->filterText = $this->getCurrentWord($buffer->getText(), $buffer->getCursor());
+                    $this->filterText = CurrentWord::extract($buffer->getText(), $buffer->getCursor());
 
                     if ($this->filterText === '') {
                         $this->inInteractiveMode = false;
@@ -299,7 +281,7 @@ class TabAction implements ActionInterface
                     break;
                 }
 
-                $this->filterText = $this->getCurrentWord($buffer->getText(), $buffer->getCursor());
+                $this->filterText = CurrentWord::extract($buffer->getText(), $buffer->getCursor());
                 $this->updateFilter($terminal);
                 $this->updateOverlay($buffer, $terminal, $readline);
             } else {
@@ -327,8 +309,7 @@ class TabAction implements ActionInterface
             \array_pop($lines);
         }
 
-        $readline->setOverlayLines($lines);
-        $readline->redraw($buffer);
+        $readline->renderOverlay($buffer, $lines);
     }
 
     /**
@@ -383,7 +364,7 @@ class TabAction implements ActionInterface
      */
     private function getMaxRows(Readline $readline): ?int
     {
-        $available = $readline->getOverlayViewport()->getAvailableRows(!$this->expanded);
+        $available = $readline->getOverlayAvailableRows(!$this->expanded);
 
         // Account for the blank separator line above the menu
         $menuBudget = \max(1, $available - 1);

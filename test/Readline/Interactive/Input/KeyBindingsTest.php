@@ -13,12 +13,12 @@ namespace Psy\Test\Readline\Interactive\Input;
 
 use Psy\Readline\Interactive\Actions\FallbackAction;
 use Psy\Readline\Interactive\Actions\InsertLineBreakAction;
-use Psy\Readline\Interactive\Actions\MoveRightAction;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\KeyBindings;
 use Psy\Readline\Interactive\Readline;
+use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Test\Readline\Interactive\BufferAssertionTrait;
 use Psy\Test\TestCase;
@@ -67,14 +67,57 @@ class KeyBindingsTest extends TestCase
         );
     }
 
-    public function testRightArrowBindingIsMoveRightAction(): void
+    public function testRightArrowBindingUsesFallbackAction(): void
     {
         $bindings = KeyBindings::createDefault(new History());
 
         $this->assertInstanceOf(
-            MoveRightAction::class,
+            FallbackAction::class,
             $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE))
         );
+    }
+
+    public function testRightArrowAcceptsSuggestionWhenAvailable(): void
+    {
+        $bindings = KeyBindings::createDefault(new History());
+        $action = $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE));
+        $this->assertNotNull($action);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'foo<cursor>');
+
+        $terminal = $this->createMock(Terminal::class);
+        $readline = $this->createMock(Readline::class);
+        $suggestion = new SuggestionResult('Bar', 'history', 'fooBar');
+        $readline->expects($this->once())
+            ->method('clearSuggestion');
+        $readline->expects($this->once())
+            ->method('getCurrentSuggestion')
+            ->willReturn($suggestion);
+
+        $this->assertTrue($action->execute($buffer, $terminal, $readline));
+        $this->assertBufferState('fooBar<cursor>', $buffer);
+    }
+
+    public function testRightArrowFallsBackToMoveRightWhenNoSuggestion(): void
+    {
+        $bindings = KeyBindings::createDefault(new History());
+        $action = $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE));
+        $this->assertNotNull($action);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'f<cursor>oo');
+
+        $terminal = $this->createMock(Terminal::class);
+        $readline = $this->createMock(Readline::class);
+        $readline->expects($this->once())
+            ->method('getCurrentSuggestion')
+            ->willReturn(null);
+        $readline->expects($this->never())
+            ->method('clearSuggestion');
+
+        $this->assertTrue($action->execute($buffer, $terminal, $readline));
+        $this->assertBufferState('fo<cursor>o', $buffer);
     }
 
     public function testEnterActionCanSubmitLine(): void

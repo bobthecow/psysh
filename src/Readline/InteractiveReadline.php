@@ -19,6 +19,7 @@ use Psy\Readline\Interactive\Input\History as InteractiveHistory;
 use Psy\Readline\Interactive\Input\StdinReader;
 use Psy\Readline\Interactive\InteractiveSession;
 use Psy\Readline\Interactive\Readline as InternalReadline;
+use Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Shell;
 use Psy\ShellAware;
@@ -29,8 +30,8 @@ use Symfony\Component\Console\Output\StreamOutput;
 /**
  * Interactive readline implementation.
  *
- * A pure-PHP readline with visual feedback, tab completion, and other
- * interactive features.
+ * A pure-PHP readline with visual feedback, autosuggestions, tab completion,
+ * and other interactive features.
  */
 class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
 {
@@ -269,6 +270,9 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     {
         $this->assertBooted();
         $this->readline->setCompletionEngine($completionEngine);
+
+        $suggestionSource = new ContextAwareSource($completionEngine);
+        $this->readline->getSuggestionEngine()->addSource($suggestionSource);
     }
 
     /**

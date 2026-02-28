@@ -11,6 +11,8 @@
 
 namespace Psy\Readline\Interactive\Input;
 
+use Psy\Readline\Interactive\Actions\AcceptSuggestionAction;
+use Psy\Readline\Interactive\Actions\AcceptSuggestionWordAction;
 use Psy\Readline\Interactive\Actions\ActionInterface;
 use Psy\Readline\Interactive\Actions\ClearBufferAction;
 use Psy\Readline\Interactive\Actions\DedentLeadingIndentationAction;
@@ -114,19 +116,19 @@ class KeyBindings
 
         // Arrow keys
         $bindings->bind('escape:[D', new MoveLeftAction());
-        $bindings->bind('escape:[C', new MoveRightAction());
+        $bindings->bind('escape:[C', new AcceptSuggestionAction(), new MoveRightAction());
         $bindings->bind('escape:[A', new PreviousHistoryAction($history));
         $bindings->bind('escape:[B', new NextHistoryAction($history));
 
         // Emacs cursor movement
         $bindings->bind('control:b', new MoveLeftAction());
-        $bindings->bind('control:f', new MoveRightAction());
+        $bindings->bind('control:f', new AcceptSuggestionAction(), new MoveRightAction());
         $bindings->bind('control:a', new MoveToStartAction());
         $bindings->bind('control:e', new MoveToEndAction());
 
         // Word movement - Alt+Arrow
         $bindings->bind('escape:[1;3D', new MoveWordLeftAction());
-        $bindings->bind('escape:[1;3C', new MoveWordRightAction());
+        $bindings->bind('escape:[1;3C', new AcceptSuggestionWordAction(), new MoveWordRightAction());
 
         // Word movement - Ctrl+Arrow
         $bindings->bind('escape:[1;5D', new MoveWordLeftAction());
@@ -134,7 +136,7 @@ class KeyBindings
 
         // Word movement - Emacs style
         $bindings->bind('escape:b', new MoveWordLeftAction());
-        $bindings->bind('escape:f', new MoveWordRightAction());
+        $bindings->bind('escape:f', new AcceptSuggestionWordAction(), new MoveWordRightAction());
 
         // Home/End keys
         $bindings->bind('escape:[H', new MoveToStartAction());
