@@ -181,6 +181,7 @@ class ThemeTest extends TestCase
         // Styles should still be applied even with gray fallback
         $this->assertTrue($formatter->hasStyle('comment'));
         $this->assertTrue($formatter->hasStyle('code_comment'));
+        $this->assertTrue($formatter->hasStyle('input_frame'));
     }
 
     public function testCustomStyles()

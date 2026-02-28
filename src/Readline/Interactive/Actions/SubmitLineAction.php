@@ -32,7 +32,11 @@ class SubmitLineAction implements ActionInterface
             $readline->exitMultilineMode();
         }
 
-        $terminal->write("\n");
+        // Move from current input line to below any outer frame rows.
+        $lineCount = \substr_count($line, "\n") + 1;
+        $remainingInputLines = $lineCount - $buffer->getCurrentLineNumber();
+        $outerRows = $readline->getInputFrameOuterRowCount();
+        $terminal->write(\str_repeat("\n", $remainingInputLines + $outerRows));
 
         return false;
     }

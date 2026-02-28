@@ -74,7 +74,8 @@ class Theme
         'inline_html' => ['cyan'],
 
         // Interactive readline
-        'selected' => [null, null, ['reverse']],
+        'selected'    => [null, null, ['reverse']],
+        'input_frame' => ['bright-white', 'gray'],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
@@ -285,7 +286,18 @@ class Theme
      */
     private function getStyle(string $name, bool $useGrayFallback): array
     {
-        return \array_map(fn ($style) => ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
+        if (!$useGrayFallback) {
+            return $this->styles[$name];
+        }
+
+        // The default input_frame style uses extended colors (bright-white,
+        // gray) unavailable on older Symfony Console. Drop it rather than
+        // falling back to an unreadable blue background.
+        if ($name === 'input_frame' && $this->styles[$name] === static::DEFAULT_STYLES[$name]) {
+            return [null, null];
+        }
+
+        return \array_map(fn ($style) => ($style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
     }
 
     /**

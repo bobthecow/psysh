@@ -99,6 +99,30 @@ class Readline
     }
 
     /**
+     * Enable compact input frame rendering.
+     */
+    public function setCompactInputFrame(bool $compact): void
+    {
+        $this->frameRenderer->setCompactInputFrame($compact);
+    }
+
+    /**
+     * Check whether compact input frame rendering is enabled.
+     */
+    public function isInputFrameCompact(): bool
+    {
+        return $this->frameRenderer->isCompactInputFrame();
+    }
+
+    /**
+     * Get number of outer rows surrounding input content.
+     */
+    public function getInputFrameOuterRowCount(): int
+    {
+        return $this->frameRenderer->getInputFrameOuterRowCount();
+    }
+
+    /**
      * Get active prompt display width for the cursor's current line.
      */
     public function getPromptWidthForCurrentLine(Buffer $buffer): int
@@ -190,7 +214,6 @@ class Readline
     public function enterMultilineMode(): void
     {
         $this->multilineMode = true;
-        $this->frameRenderer->reset();
     }
 
     /**
@@ -211,7 +234,6 @@ class Readline
         }
 
         $this->multilineMode = false;
-        $this->frameRenderer->reset();
     }
 
     /**

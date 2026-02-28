@@ -28,6 +28,9 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class FrameRenderer
 {
+    private const CLEAR_TO_END_OF_LINE = "\033[K";
+    private const INPUT_FRAME_PADDING_ROWS = 2;
+
     private Terminal $terminal;
     private OverlayViewport $viewport;
     private PromptMap $prompts;
@@ -40,6 +43,8 @@ class FrameRenderer
 
     /** @var string[] Overlay lines to display below the input. */
     private array $overlayLines = [];
+
+    private bool $compactInputFrame = false;
 
     private ?int $lastTerminalWidth = null;
     private ?int $lastTerminalHeight = null;
@@ -70,6 +75,30 @@ class FrameRenderer
     public function setMultilinePrompt(string $prompt): void
     {
         $this->prompts->setMultilinePrompt($prompt);
+    }
+
+    /**
+     * Enable compact input frame rendering (no gutters/background separators).
+     */
+    public function setCompactInputFrame(bool $compact): void
+    {
+        $this->compactInputFrame = $compact;
+    }
+
+    /**
+     * Check whether compact input frame rendering is enabled.
+     */
+    public function isCompactInputFrame(): bool
+    {
+        return $this->compactInputFrame;
+    }
+
+    /**
+     * Get number of outer rows surrounding input content.
+     */
+    public function getInputFrameOuterRowCount(): int
+    {
+        return $this->compactInputFrame ? 0 : self::INPUT_FRAME_PADDING_ROWS;
     }
 
     /**
@@ -129,9 +158,10 @@ class FrameRenderer
     {
         $this->viewport->setInputRowCount($this->lineRowCount($prompt));
 
-        $absoluteColumn = $this->displayWidth($prompt) + 1;
-        $cursorRow = $this->rowOffsetForColumn($absoluteColumn);
-        $cursorColumn = $this->normalizeColumn($absoluteColumn);
+        $calculator = $this->getSoftWrapCalculator();
+        $absoluteColumn = DisplayString::widthWithoutAnsi($prompt) + 1;
+        $cursorRow = $calculator->rowOffsetForAbsoluteColumn($absoluteColumn);
+        $cursorColumn = $calculator->normalizeColumn($absoluteColumn);
 
         $this->syncFrame([$prompt], $cursorRow, $cursorColumn);
         $this->terminal->flush();
@@ -159,35 +189,39 @@ class FrameRenderer
     {
         $text = $buffer->getText();
 
+        $contentLines = [];
         if ($isMultiline) {
             $lines = \explode("\n", $text);
-            $result = [];
             foreach ($lines as $i => $line) {
-                $result[] = $this->prompts->getPromptForLine($i).$line;
+                $contentLines[] = $this->prompts->getPromptForLine($i).$line;
+            }
+        } else {
+            $line = $this->prompts->getPromptForLine(0).$text;
+
+            if ($suggestion !== null) {
+                $line = $this->appendSuggestionGhostText($line, $buffer, $text, $suggestion);
             }
 
-            return $result;
+            $contentLines[] = $line;
         }
 
-        $line = $this->prompts->getPromptForLine(0).$text;
-
-        // Completion overlays own the viewport; don't mix ghost text with menus.
-        if ($suggestion !== null && empty($this->overlayLines)) {
-            $absoluteCursorColumn = $this->prompts->getPromptWidthForLine(0, $this->terminal->getFormatter())
-                + DisplayString::width(\mb_substr($text, 0, $buffer->getCursor())) + 1;
-            $cursorColumn = $this->normalizeColumn($absoluteCursorColumn);
-            $suggestionText = $suggestion->getText();
-            $maxWidth = $this->getTerminalWidth() - $cursorColumn + 1;
-
-            if ($maxWidth > 0) {
-                $suggestionText = DisplayString::truncate($suggestionText, $maxWidth, true);
-                if ($suggestionText !== '') {
-                    $line .= $this->terminal->format('<whisper>'.$suggestionText.'</whisper>');
-                }
-            }
+        if ($this->compactInputFrame) {
+            return $contentLines;
         }
 
-        return [$line];
+        $formatter = $this->terminal->getFormatter();
+        $inputFrameStyle = ($formatter->isDecorated() && $formatter->hasStyle('input_frame'))
+            ? $formatter->getStyle('input_frame')
+            : null;
+
+        $framedLines = [''];
+        foreach (['', ...$contentLines, ''] as $line) {
+            $lineWithClear = $line.self::CLEAR_TO_END_OF_LINE;
+            $framedLines[] = $inputFrameStyle ? $inputFrameStyle->apply($lineWithClear) : $lineWithClear;
+        }
+        $framedLines[] = '';
+
+        return $framedLines;
     }
 
     /**
@@ -245,8 +279,8 @@ class FrameRenderer
             $calculator = $this->getSoftWrapCalculator();
 
             return [
-                $rowsBeforeLine + $this->rowOffsetForColumn($absoluteColumn),
-                $this->normalizeColumn($absoluteColumn),
+                $this->getInputFrameOuterRowCount() + $rowsBeforeLine + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn),
+                $calculator->normalizeColumn($absoluteColumn),
             ];
         }
 
@@ -256,8 +290,8 @@ class FrameRenderer
         $calculator = $this->getSoftWrapCalculator();
 
         return [
-            $this->rowOffsetForColumn($absoluteColumn),
-            $this->normalizeColumn($absoluteColumn),
+            $this->getInputFrameOuterRowCount() + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn),
+            $calculator->normalizeColumn($absoluteColumn),
         ];
     }
 

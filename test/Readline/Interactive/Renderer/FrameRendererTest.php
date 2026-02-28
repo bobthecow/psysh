@@ -19,6 +19,7 @@ use Psy\Readline\Interactive\Terminal;
 use Psy\Test\Readline\Interactive\BufferAssertionTrait;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class FrameRendererTest extends TestCase
 {
@@ -27,6 +28,7 @@ class FrameRendererTest extends TestCase
     private Terminal $terminal;
     private FrameRenderer $renderer;
     private OverlayViewport $viewport;
+    private OutputFormatter $formatter;
 
     /** @var int[] */
     private array $cursorColumns = [];
@@ -74,7 +76,9 @@ class FrameRendererTest extends TestCase
             ->willReturnCallback(function (): void {
                 $this->clearToEndOfScreenCalls++;
             });
-        $this->terminal->method('getFormatter')->willReturn(new OutputFormatter());
+        $this->formatter = new OutputFormatter(false);
+        $this->formatter->setStyle('input_frame', new OutputFormatterStyle(null, 'black'));
+        $this->terminal->method('getFormatter')->willReturn($this->formatter);
         $this->terminal->method('format')->willReturnCallback(static function (string $text): string {
             return $text;
         });
@@ -166,6 +170,87 @@ class FrameRendererTest extends TestCase
         $this->assertSame(10, $lastColumn);
     }
 
+    public function testInputFrameUsesFormatterStyleWhenDecorated()
+    {
+        $this->formatter->setDecorated(true);
+        $this->renderer->setSingleLinePrompt('>>> ');
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'hello<cursor>');
+
+        $this->renderer->render($buffer, false, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(5, $paintedLines);
+
+        $this->assertSame('', $paintedLines[0]);
+        $this->assertMatchesRegularExpression('/^\033\[[0-9;]+m\033\[K\033\[[0-9;]+m$/', $paintedLines[1]);
+        $this->assertMatchesRegularExpression('/^\033\[[0-9;]+m>>> hello\033\[K\033\[[0-9;]+m$/', $paintedLines[2]);
+        $this->assertMatchesRegularExpression('/^\033\[[0-9;]+m\033\[K\033\[[0-9;]+m$/', $paintedLines[3]);
+        $this->assertSame('', $paintedLines[4]);
+    }
+
+    public function testInputFrameOmitsFormatterStyleWhenNotDecorated()
+    {
+        $this->formatter->setDecorated(false);
+        $this->renderer->setSingleLinePrompt('>>> ');
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'hello<cursor>');
+
+        $this->renderer->render($buffer, false, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(5, $paintedLines);
+
+        $this->assertSame('', $paintedLines[0]);
+        $this->assertSame("\033[K", $paintedLines[1]);
+        $this->assertSame(">>> hello\033[K", $paintedLines[2]);
+        $this->assertSame("\033[K", $paintedLines[3]);
+        $this->assertSame('', $paintedLines[4]);
+    }
+
+    public function testViewportAccountsForInputBlockPaddingRows()
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, '<cursor>');
+
+        $this->renderer->render($buffer, false, null);
+
+        // Terminal height 24 - (gutter + top + input + bottom + gutter) 5 - reserve 1 = 18
+        $this->assertSame(18, $this->viewport->getAvailableRows());
+    }
+
+    public function testCompactInputFrameOmitsAllFramingRows()
+    {
+        $this->renderer->setCompactInputFrame(true);
+        $this->renderer->setSingleLinePrompt('>>> ');
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'hello<cursor>');
+
+        $this->renderer->render($buffer, false, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame('>>> hello', $paintedLines[0]);
+    }
+
+    public function testCompactViewportUsesOnlyPromptRows()
+    {
+        $this->renderer->setCompactInputFrame(true);
+        $this->renderer->setSingleLinePrompt('>>> ');
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, \str_repeat('a', 200).'<cursor>');
+
+        $this->renderer->render($buffer, false, null);
+
+        // Prompt (4) + text (200) => 204 columns => 3 wrapped rows.
+        // Available = 24 - 3 (input) - 1 breathing room = 20.
+        $this->assertSame(20, $this->viewport->getAvailableRows(false));
+    }
+
     public function testCursorColumnWrapsAtTerminalWidth()
     {
         $this->renderer->setSingleLinePrompt('>> ');
@@ -189,9 +274,10 @@ class FrameRendererTest extends TestCase
 
         $this->renderer->render($buffer, false, null);
 
-        // Prompt (4) + text (200) => 204 columns => 3 wrapped rows.
-        // Available = 24 - 3 (input) - 1 breathing room = 20.
-        $this->assertSame(20, $this->viewport->getAvailableRows(false));
+        // Input frame has 5 base rows (gutter + dark blank + input + dark blank + gutter).
+        // Prompt (4) + text (200) wraps input content row to 3 rows total.
+        // Total input rows = 2 + 3 + 2 = 7, available = 24 - 7 - 1 = 16.
+        $this->assertSame(16, $this->viewport->getAvailableRows(false));
     }
 
     public function testWrappedInputCountsLiteralFormatterLikeTags()
@@ -203,9 +289,9 @@ class FrameRendererTest extends TestCase
 
         $this->renderer->render($buffer, false, null);
 
-        // Prompt (4) + literal text (84) => 88 columns => 2 wrapped rows.
-        // Available = 24 - 2 (input) - 1 breathing room = 21.
-        $this->assertSame(21, $this->viewport->getAvailableRows(false));
+        // Prompt (4) + literal text (84) => 88 columns => 2 wrapped content rows.
+        // Total input rows = 2 + 2 + 2 = 6, available = 24 - 6 - 1 = 17.
+        $this->assertSame(17, $this->viewport->getAvailableRows(false));
     }
 
     public function testRendererMovesBackByWrappedCursorRowBeforeRepaint()
@@ -220,8 +306,9 @@ class FrameRendererTest extends TestCase
         $this->setBufferState($buffer, 'ok<cursor>');
         $this->renderer->render($buffer, false, null);
 
-        // First render cursor row: floor((4 + 170) / 80) = 2.
-        $this->assertSame([2], $this->cursorUpMoves);
+        // First changed logical line is the framed input line (index 2), so renderer:
+        // 1) moves up to row 2, then 2) moves up again from repaint end row to cursor row.
+        $this->assertSame([2, 2], $this->cursorUpMoves);
     }
 
     public function testSuggestionIsHiddenWhenOverlayIsVisible()
@@ -280,8 +367,8 @@ class FrameRendererTest extends TestCase
         ]);
         $this->renderer->render($buffer, false, null);
 
-        // Changed line index is 2 (input + first overlay unchanged), so seek to row 2.
-        $this->assertSame([2], $this->cursorDownMoves);
+        // Changed line is second overlay row; with framed input, seek is 4 rows down.
+        $this->assertSame([4], $this->cursorDownMoves);
         $this->assertSame(1, $this->clearToEndOfScreenCalls);
     }
 }

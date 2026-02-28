@@ -132,9 +132,10 @@ class KeyBindingsTest extends TestCase
         $terminal = $this->createMock(Terminal::class);
         $terminal->expects($this->once())
             ->method('write')
-            ->with("\n");
+            ->with("\n\n\n");
 
         $readline = $this->createMock(Readline::class);
+        $readline->method('getInputFrameOuterRowCount')->willReturn(2);
         $readline->expects($this->exactly(2))
             ->method('isMultilineMode')
             ->willReturn(false);

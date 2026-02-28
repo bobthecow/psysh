@@ -43,7 +43,7 @@ class DisplayString
             return Helper::width($text);
         }
 
-        /** @phan-suppress-next-line PhanDeprecatedFunction BC fallback for Symfony < 5.3. */
+        /* @phan-suppress-next-line PhanDeprecatedFunction BC fallback for Symfony < 5.3. */
         return Helper::strlen($text);
     }
 

@@ -23,7 +23,9 @@ use Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Shell;
 use Psy\ShellAware;
+use Psy\Util\TerminalColor;
 use Psy\Util\Tty;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -105,6 +107,8 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
         $this->resolveHistoryFiles();
         $this->loadHistory();
         $this->readline = new InternalReadline($this->terminal, null, $this->history);
+
+        $this->applyDynamicInputFrameColor($output);
 
         $this->booted = true;
 
@@ -221,6 +225,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
         $this->assertBooted();
         $this->readline->setPrompt($theme->prompt());
         $this->readline->setMultilinePrompt($theme->bufferPrompt());
+        $this->readline->setCompactInputFrame($theme->compact());
     }
 
     /**
@@ -292,6 +297,33 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
         $this->assertBooted();
 
         return $this->history;
+    }
+
+    /**
+     * Query the terminal's background color and override the input_frame style.
+     *
+     * When detection succeeds, the background is a subtle tint over the
+     * terminal's actual background, which looks better than the static fallback
+     * across both dark and light themes.
+     */
+    private function applyDynamicInputFrameColor(StreamOutput $output): void
+    {
+        $formatter = $output->getFormatter();
+        if (!$formatter->isDecorated()) {
+            return;
+        }
+
+        $bgHex = TerminalColor::computeInputFrameBackground();
+        if ($bgHex === null) {
+            return;
+        }
+
+        // Hex colors require Symfony Console 5.2+; fall back gracefully.
+        try {
+            $formatter->setStyle('input_frame', new OutputFormatterStyle(null, $bgHex));
+        } catch (\InvalidArgumentException $e) {
+            // Keep the existing static style
+        }
     }
 
     /**

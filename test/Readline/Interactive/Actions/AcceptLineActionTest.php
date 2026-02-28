@@ -106,9 +106,10 @@ class AcceptLineActionTest extends TestCase
 
         $this->readline->method('isCommand')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(false);
+        $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
         $this->readline->expects($this->never())->method('enterMultilineMode');
 
-        $this->terminal->expects($this->once())->method('write')->with("\n");
+        $this->terminal->expects($this->once())->method('write')->with("\n\n\n");
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -123,7 +124,46 @@ class AcceptLineActionTest extends TestCase
 
         $this->readline->method('isCommand')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(false);
+        $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
+        $this->terminal->expects($this->once())->method('write')->with("\n\n\n");
+
+        $result = $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertFalse($result);
+    }
+
+    public function testEnterUsesCompactFrameFooterSpacingWhenEnabled(): void
+    {
+        $action = $this->createEnterAction(true);
+
+        $this->setBufferState($this->buffer, 'echo 1<cursor>');
+
+        $this->readline->method('isCommand')->willReturn(false);
+        $this->readline->method('isMultilineMode')->willReturn(false);
+        $this->readline->expects($this->any())->method('getInputFrameOuterRowCount')->willReturn(0);
+        $this->readline->expects($this->never())->method('enterMultilineMode');
         $this->terminal->expects($this->once())->method('write')->with("\n");
+
+        $result = $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertFalse($result);
+    }
+
+    public function testEnterInMultilineMovesBelowLowerSpacingRows(): void
+    {
+        $action = $this->createEnterAction(true);
+
+        $this->setBufferState($this->buffer, '<cursor>echo 1;'."\n".'echo 2;');
+
+        $this->readline->method('isCommand')->willReturn(false);
+        $this->readline->method('isInOpenStringOrComment')->willReturn(false);
+        $this->readline->method('isMultilineMode')->willReturn(true);
+        $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
+        $this->readline->expects($this->once())->method('exitMultilineMode');
+
+        // Two-line input, cursor on first line: remaining lines (2) + lower
+        // dark spacer + lower plain gutter = 4 newlines.
+        $this->terminal->expects($this->once())->method('write')->with("\n\n\n\n");
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
