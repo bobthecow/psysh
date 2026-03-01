@@ -51,6 +51,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 /**
  * The Psy Shell application.
@@ -95,6 +96,7 @@ class Shell extends Application
     private bool $nonInteractive = false;
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
+    private bool $outputWritten = false;
 
     /**
      * Create a new Psy Shell.
@@ -761,6 +763,7 @@ class Shell extends Application
         do {
             // reset output verbosity (in case it was altered by a subcommand)
             $this->output->setVerbosity($this->originalVerbosity);
+            $this->outputWritten = false;
 
             $input = $this->readline();
 
@@ -787,6 +790,7 @@ class Shell extends Application
 
             // handle empty input
             if (\trim($input) === '' && !$this->codeBufferOpen) {
+                $this->notifyOutputWritten();
                 continue;
             }
 
@@ -795,7 +799,12 @@ class Shell extends Application
             // If the input isn't in an open string or comment, check for commands to run.
             if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
                 $this->addHistory($input);
+                $outputPositions = $this->captureOutputStreamPositions();
                 $this->runCommand($input);
+                if (!$this->outputWritten && $this->outputWasWrittenSince($outputPositions)) {
+                    $this->outputWritten = true;
+                }
+                $this->notifyOutputWritten();
 
                 continue;
             }
@@ -847,6 +856,8 @@ class Shell extends Application
      */
     public function beforeLoop()
     {
+        $this->outputWritten = false;
+
         foreach ($this->loopListeners as $listener) {
             $listener->beforeLoop($this);
         }
@@ -904,6 +915,88 @@ class Shell extends Application
         foreach (\array_reverse($this->loopListeners) as $listener) {
             $listener->afterLoop($this);
         }
+
+        $this->notifyOutputWritten();
+    }
+
+    /**
+     * Report to the interactive readline whether visible output was written.
+     */
+    private function notifyOutputWritten(): void
+    {
+        if ($this->readline instanceof InteractiveReadlineInterface) {
+            $this->readline->setOutputWritten($this->outputWritten);
+        }
+    }
+
+    /**
+     * Capture write positions for output streams we can inspect.
+     *
+     * @return array<int, int>|null
+     */
+    private function captureOutputStreamPositions(): ?array
+    {
+        $outputs = [$this->output];
+        if ($this->output instanceof ConsoleOutput) {
+            $outputs[] = $this->output->getErrorOutput();
+        }
+
+        $positions = [];
+
+        foreach ($outputs as $output) {
+            if (!$output instanceof StreamOutput) {
+                continue;
+            }
+
+            $stream = $output->getStream();
+            if (!\is_resource($stream) || \get_resource_type($stream) !== 'stream') {
+                continue;
+            }
+
+            $position = @\ftell($stream);
+            if (!\is_int($position)) {
+                continue;
+            }
+
+            $positions[(int) $stream] = $position;
+        }
+
+        return $positions !== [] ? $positions : null;
+    }
+
+    /**
+     * Determine whether a command wrote output based on stream movement.
+     *
+     * If stream positions are unavailable (for example, on non-seekable TTY
+     * streams), assume output may have been written to avoid false "no output"
+     * frame continuation.
+     *
+     * @param array<int, int>|null $before
+     */
+    private function outputWasWrittenSince(?array $before): bool
+    {
+        if ($before === null) {
+            return true;
+        }
+
+        $after = $this->captureOutputStreamPositions();
+        if ($after === null) {
+            return true;
+        }
+
+        foreach ($before as $streamId => $position) {
+            if (($after[$streamId] ?? $position) > $position) {
+                return true;
+            }
+        }
+
+        foreach ($after as $streamId => $position) {
+            if (!isset($before[$streamId]) && $position > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1476,6 +1569,7 @@ class Shell extends Application
             $this->output->write($out, false, OutputInterface::OUTPUT_RAW);
             $this->outputWantsNewline = (\substr($out, -1) !== "\n");
             $this->stdoutBuffer .= $out;
+            $this->outputWritten = true;
         }
 
         // Output buffering is done!
@@ -1536,6 +1630,8 @@ class Shell extends Application
             $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
 
+        $this->outputWritten = true;
+
         if ($this->output instanceof ShellOutput) {
             $this->output->page($formatted.\PHP_EOL);
         } else {
@@ -1566,6 +1662,7 @@ class Shell extends Application
         if (!$e instanceof BreakException) {
             $this->lastExecSuccess = false;
             $this->context->setLastException($e);
+            $this->outputWritten = true;
         }
 
         $output = $this->output;

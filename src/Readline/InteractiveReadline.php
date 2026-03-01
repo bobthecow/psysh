@@ -283,6 +283,14 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     /**
      * {@inheritdoc}
      */
+    public function setOutputWritten(bool $written): void
+    {
+        $this->readline->setContinueFrame(!$written);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setBracketedPaste(bool $enabled): void
     {
         $this->assertBooted();

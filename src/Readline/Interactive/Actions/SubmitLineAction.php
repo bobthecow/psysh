@@ -26,13 +26,15 @@ class SubmitLineAction implements ActionInterface
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
         $line = $buffer->getText();
-        $isCommand = $readline->isCommand($line) && !$readline->isInOpenStringOrComment($line);
 
         // Move from current input line to below any outer frame rows.
         $lineCount = \substr_count($line, "\n") + 1;
         $remainingInputLines = $lineCount - $buffer->getCurrentLineNumber();
         $outerRows = $readline->getInputFrameOuterRowCount();
-        $terminal->write(\str_repeat("\n", $remainingInputLines + $outerRows));
+        $escapeRows = $remainingInputLines + $outerRows;
+        $terminal->write(\str_repeat("\n", $escapeRows));
+
+        $readline->setLastSubmitEscapeRows($escapeRows);
 
         return false;
     }

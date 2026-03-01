@@ -58,4 +58,12 @@ interface InteractiveReadlineInterface extends Readline
      * Get the history instance.
      */
     public function getHistory(): History;
+
+    /**
+     * Report whether visible output was written since the last input.
+     *
+     * The readline implementation uses this to decide whether to continue
+     * the current input frame or start a fresh one.
+     */
+    public function setOutputWritten(bool $written): void;
 }

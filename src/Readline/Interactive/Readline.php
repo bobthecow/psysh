@@ -61,6 +61,10 @@ class Readline
 
     private bool $smartBrackets = true;
 
+    private bool $continueFrame = false;
+    private int $lastSubmitEscapeRows = 0;
+    private ?string $lastSubmittedText = null;
+
     private SuggestionEngine $suggestionEngine;
     private OverlayViewport $overlayViewport;
     private FrameRenderer $frameRenderer;
@@ -263,11 +267,28 @@ class Readline
      */
     public function readline()
     {
-        $this->frameRenderer->reset();
-        $this->multilineMode = false;
         $this->mode = self::MODE_NORMAL;
         $this->resetSearchState();
         $this->clearSuggestion();
+
+        if ($this->continueFrame && $this->lastSubmittedText !== null) {
+            // Rewind the cursor past the escape newlines written by SubmitLineAction.
+            // Wrap in a frame render so the movement doesn't mark the terminal dirty
+            // (we're restoring the cursor to its known position, not making out-of-band changes).
+            $this->terminal->beginFrameRender();
+            if ($this->lastSubmitEscapeRows > 0) {
+                $this->terminal->moveCursorUp($this->lastSubmitEscapeRows);
+            }
+            $this->terminal->endFrameRender();
+
+            $this->frameRenderer->addHistoryLines($this->lastSubmittedText);
+
+            $this->continueFrame = false;
+        } else {
+            $this->frameRenderer->reset();
+        }
+
+        $this->multilineMode = false;
 
         $buffer = new Buffer($this->requireSemicolons);
         $this->display($buffer);
@@ -321,6 +342,7 @@ class Readline
                         }
 
                         $this->history->reset();
+                        $this->lastSubmittedText = $line;
 
                         return $line;
                     }
@@ -403,6 +425,22 @@ class Readline
     public function getOverlayAvailableRows(bool $collapsed): int
     {
         return $this->overlayViewport->getAvailableRows($collapsed);
+    }
+
+    /**
+     * Set whether the next readline() call should continue the current frame.
+     */
+    public function setContinueFrame(bool $continue): void
+    {
+        $this->continueFrame = $continue;
+    }
+
+    /**
+     * Store the number of newlines written by SubmitLineAction to escape the frame.
+     */
+    public function setLastSubmitEscapeRows(int $rows): void
+    {
+        $this->lastSubmitEscapeRows = $rows;
     }
 
     /**

@@ -44,6 +44,12 @@ class FrameRenderer
     /** @var string[] Overlay lines to display below the input. */
     private array $overlayLines = [];
 
+    /** @var string[] Previously submitted lines rendered above current input within the frame. */
+    private array $historyLines = [];
+
+    /** Cached wrapped row count for history lines, invalidated on change. */
+    private int $historyRowCount = 0;
+
     private bool $compactInputFrame = false;
 
     private ?int $lastTerminalWidth = null;
@@ -115,6 +121,19 @@ class FrameRenderer
     }
 
     /**
+     * Add a previously submitted input to the in-frame history.
+     */
+    public function addHistoryLines(string $text): void
+    {
+        $newLines = $this->formatLinesWithPrompts($text);
+        \array_push($this->historyLines, ...$newLines);
+
+        foreach ($newLines as $line) {
+            $this->historyRowCount += $this->lineRowCount($line);
+        }
+    }
+
+    /**
      * Set overlay lines to display below the input.
      *
      * @param string[] $lines
@@ -175,6 +194,8 @@ class FrameRenderer
         $this->previousFrame = [];
         $this->cursorFrameRow = 0;
         $this->overlayLines = [];
+        $this->historyLines = [];
+        $this->historyRowCount = 0;
         $this->lastTerminalWidth = null;
         $this->lastTerminalHeight = null;
         $this->lineRowCache = [];
@@ -191,10 +212,7 @@ class FrameRenderer
 
         $contentLines = [];
         if ($isMultiline) {
-            $lines = \explode("\n", $text);
-            foreach ($lines as $i => $line) {
-                $contentLines[] = $this->prompts->getPromptForLine($i).$line;
-            }
+            $contentLines = $this->formatLinesWithPrompts($text);
         } else {
             $line = $this->prompts->getPromptForLine(0).$text;
 
@@ -206,7 +224,7 @@ class FrameRenderer
         }
 
         if ($this->compactInputFrame) {
-            return $contentLines;
+            return \array_merge($this->historyLines, $contentLines);
         }
 
         $formatter = $this->terminal->getFormatter();
@@ -215,13 +233,28 @@ class FrameRenderer
             : null;
 
         $framedLines = [''];
-        foreach (['', ...$contentLines, ''] as $line) {
+        foreach (['', ...$this->historyLines, ...$contentLines, ''] as $line) {
             $lineWithClear = $line.self::CLEAR_TO_END_OF_LINE;
             $framedLines[] = $inputFrameStyle ? $inputFrameStyle->apply($lineWithClear) : $lineWithClear;
         }
         $framedLines[] = '';
 
         return $framedLines;
+    }
+
+    /**
+     * Format raw input text into prompt-prefixed lines.
+     *
+     * @return string[]
+     */
+    private function formatLinesWithPrompts(string $text): array
+    {
+        $result = [];
+        foreach (\explode("\n", $text) as $i => $line) {
+            $result[] = $this->prompts->getPromptForLine($i).$line;
+        }
+
+        return $result;
     }
 
     /**
@@ -258,6 +291,7 @@ class FrameRenderer
     private function getCursorPosition(Buffer $buffer, bool $isMultiline): array
     {
         $text = $buffer->getText();
+        $historyRowOffset = $this->historyRowCount;
 
         if ($isMultiline) {
             $lines = \explode("\n", $text);
@@ -279,7 +313,7 @@ class FrameRenderer
             $calculator = $this->getSoftWrapCalculator();
 
             return [
-                $this->getInputFrameOuterRowCount() + $rowsBeforeLine + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn),
+                $this->getInputFrameOuterRowCount() + $historyRowOffset + $rowsBeforeLine + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn),
                 $calculator->normalizeColumn($absoluteColumn),
             ];
         }
@@ -290,7 +324,7 @@ class FrameRenderer
         $calculator = $this->getSoftWrapCalculator();
 
         return [
-            $this->getInputFrameOuterRowCount() + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn),
+            $this->getInputFrameOuterRowCount() + $historyRowOffset + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn),
             $calculator->normalizeColumn($absoluteColumn),
         ];
     }
@@ -394,6 +428,17 @@ class FrameRenderer
         return \max(1, $this->terminal->getWidth());
     }
 
+    /**
+     * Recalculate the cached history row count after line row cache invalidation.
+     */
+    private function recalculateHistoryRowCount(): void
+    {
+        $this->historyRowCount = 0;
+        foreach ($this->historyLines as $line) {
+            $this->historyRowCount += $this->lineRowCount($line);
+        }
+    }
+
     private function getSoftWrapCalculator(): SoftWrapCalculator
     {
         $width = $this->getTerminalWidth();
@@ -401,6 +446,7 @@ class FrameRenderer
             $this->softWrapCalculator = new SoftWrapCalculator($width);
             $this->softWrapCachedWidth = $width;
             $this->lineRowCache = [];
+            $this->recalculateHistoryRowCount();
         }
 
         return $this->softWrapCalculator;

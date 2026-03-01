@@ -136,12 +136,6 @@ class KeyBindingsTest extends TestCase
 
         $readline = $this->createMock(Readline::class);
         $readline->method('getInputFrameOuterRowCount')->willReturn(2);
-        $readline->method('isMultilineMode')
-            ->willReturn(false);
-        $readline->expects($this->once())
-            ->method('isCommand')
-            ->with('echo 1')
-            ->willReturn(false);
 
         $this->assertFalse($action->execute($buffer, $terminal, $readline));
     }
