@@ -52,4 +52,53 @@ class StatementCompletenessPolicyTest extends TestCase
 
         $this->assertTrue($policy->isCompleteStatement('class {'));
     }
+
+    public function testDetectsUnrecoverableExtraClosingParen(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertTrue($policy->hasUnrecoverableSyntaxError('var_dump(1))'));
+    }
+
+    public function testDetectsUnrecoverableMissingClassName(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertTrue($policy->hasUnrecoverableSyntaxError('class {'));
+    }
+
+    public function testNoUnrecoverableErrorForValidCode(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertFalse($policy->hasUnrecoverableSyntaxError('echo "hello"'));
+    }
+
+    public function testNoUnrecoverableErrorForIncompleteCode(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertFalse($policy->hasUnrecoverableSyntaxError('$x = [1, 2'));
+    }
+
+    public function testNoUnrecoverableErrorForEmptyInput(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertFalse($policy->hasUnrecoverableSyntaxError(''));
+    }
+
+    public function testNoUnrecoverableErrorForUnterminatedString(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertFalse($policy->hasUnrecoverableSyntaxError('echo "hello'));
+    }
+
+    public function testNoUnrecoverableErrorForControlStructureWithoutBody(): void
+    {
+        $policy = new StatementCompletenessPolicy(new ParseSnapshotCache(), false);
+
+        $this->assertFalse($policy->hasUnrecoverableSyntaxError('if ($x)'));
+    }
 }

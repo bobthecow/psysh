@@ -751,6 +751,14 @@ class Buffer
     }
 
     /**
+     * Check if the buffer has an unrecoverable syntax error.
+     */
+    public function hasUnrecoverableSyntaxError(): bool
+    {
+        return $this->statementCompletenessPolicy->hasUnrecoverableSyntaxError($this->text);
+    }
+
+    /**
      * Check whether text before the cursor has unclosed brackets.
      */
     public function hasUnclosedBracketsBeforeCursor(): bool

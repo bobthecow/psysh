@@ -15,6 +15,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psy\Readline\Interactive\Actions\FallbackAction;
 use Psy\Readline\Interactive\Actions\InsertLineBreakOnIncompleteStatementAction;
 use Psy\Readline\Interactive\Actions\InsertLineBreakOnUnclosedBracketsAction;
+use Psy\Readline\Interactive\Actions\RejectSyntaxErrorAction;
 use Psy\Readline\Interactive\Actions\SubmitLineAction;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Readline;
@@ -44,6 +45,7 @@ class AcceptLineActionTest extends TestCase
     private function createEnterAction(bool $smartBrackets): FallbackAction
     {
         return new FallbackAction([
+            new RejectSyntaxErrorAction(),
             new InsertLineBreakOnUnclosedBracketsAction($smartBrackets),
             new InsertLineBreakOnIncompleteStatementAction(),
             new SubmitLineAction(),

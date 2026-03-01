@@ -303,6 +303,9 @@ class Readline
                     return false;
                 }
 
+                // Any keystroke clears error mode
+                $this->setInputFrameError(false);
+
                 if ($key->isPaste()) {
                     $this->handlePastedContent($key->getValue(), $buffer);
                     $this->syncMultilineMode($buffer->getText());
@@ -425,6 +428,14 @@ class Readline
     public function getOverlayAvailableRows(bool $collapsed): int
     {
         return $this->overlayViewport->getAvailableRows($collapsed);
+    }
+
+    /**
+     * Set the input frame error state (red-tinted background for syntax errors).
+     */
+    public function setInputFrameError(bool $error): void
+    {
+        $this->frameRenderer->setErrorMode($error);
     }
 
     /**

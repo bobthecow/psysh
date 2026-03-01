@@ -74,6 +74,35 @@ class InteractiveSmokeTest extends TestCase
         $this->assertSame('help', $readline->readline());
     }
 
+    public function testReadlineReturnsKnownCommandWithArgumentsImmediately(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            new Key('h', Key::TYPE_CHAR),
+            new Key('e', Key::TYPE_CHAR),
+            new Key('l', Key::TYPE_CHAR),
+            new Key('p', Key::TYPE_CHAR),
+            new Key(' ', Key::TYPE_CHAR),
+            new Key('l', Key::TYPE_CHAR),
+            new Key('s', Key::TYPE_CHAR),
+            new Key("\n", Key::TYPE_CHAR),
+            new Key('', Key::TYPE_EOF),
+        ]);
+
+        $shell = $this->getMockBuilder(Shell::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['has'])
+            ->getMock();
+        $shell->expects($this->atLeastOnce())
+            ->method('has')
+            ->with('help')
+            ->willReturn(true);
+
+        $readline = new Readline($terminal);
+        $readline->setShell($shell);
+
+        $this->assertSame('help ls', $readline->readline());
+    }
+
     public function testReadlineShiftEnterInsertsLineBreakWithoutExecuting(): void
     {
         $terminal = $this->createTerminalWithKeys([
@@ -126,6 +155,26 @@ class InteractiveSmokeTest extends TestCase
 
         $this->assertSame($snippet, $readline->readline());
         $this->assertFalse($readline->isMultilineMode());
+    }
+
+    public function testReadlineClearsInputFrameErrorOnPaste(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            new Key("echo 'fixed';", Key::TYPE_PASTE),
+            new Key('', Key::TYPE_EOF),
+        ]);
+
+        /** @var Readline&MockObject $readline */
+        $readline = $this->getMockBuilder(Readline::class)
+            ->setConstructorArgs([$terminal])
+            ->onlyMethods(['setInputFrameError'])
+            ->getMock();
+
+        $readline->expects($this->once())
+            ->method('setInputFrameError')
+            ->with(false);
+
+        $this->assertFalse($readline->readline());
     }
 
     public function testReadlineReturnsFalseOnEof(): void

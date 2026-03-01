@@ -39,6 +39,34 @@ class TerminalColor
      */
     public static function computeInputFrameBackground(): ?string
     {
+        return self::blendOverTerminalBackground([255, 255, 255], 0.12, [0, 0, 0], 0.04);
+    }
+
+    /**
+     * Compute a red-tinted input frame background for syntax error feedback.
+     *
+     * Blends a subtle red tint over the terminal background: stronger for
+     * dark themes (~15%), gentler for light themes (~8%).
+     */
+    public static function computeInputFrameErrorBackground(): ?string
+    {
+        return self::blendOverTerminalBackground([200, 60, 60], 0.15, [200, 60, 60], 0.08);
+    }
+
+    /**
+     * Blend an overlay color over the detected terminal background.
+     *
+     * @param int[] $darkOverlay  Overlay [r, g, b] for dark themes
+     * @param float $darkAlpha    Blend alpha for dark themes
+     * @param int[] $lightOverlay Overlay [r, g, b] for light themes
+     * @param float $lightAlpha   Blend alpha for light themes
+     */
+    private static function blendOverTerminalBackground(
+        array $darkOverlay,
+        float $darkAlpha,
+        array $lightOverlay,
+        float $lightAlpha
+    ): ?string {
         $colors = self::queryTerminalColors();
         if ($colors['bg'] === null) {
             DebugLog::log('TerminalColor', 'NO_BG_DETECTED');
@@ -47,20 +75,19 @@ class TerminalColor
         }
 
         $bg = $colors['bg'];
-        $theme = self::isLight($bg) ? 'light' : 'dark';
 
-        if ($theme === 'light') {
-            $blended = self::blend([0, 0, 0], $bg, 0.04);
+        if (self::isLight($bg)) {
+            $blended = self::blend($lightOverlay, $bg, $lightAlpha);
         } else {
-            $blended = self::blend([255, 255, 255], $bg, 0.12);
+            $blended = self::blend($darkOverlay, $bg, $darkAlpha);
         }
 
         $hex = self::toHex($blended);
 
         DebugLog::log('TerminalColor', 'INPUT_FRAME', [
-            'theme'    => $theme,
-            'bg'       => self::toHex($bg),
-            'blended'  => $hex,
+            'theme'   => self::isLight($bg) ? 'light' : 'dark',
+            'bg'      => self::toHex($bg),
+            'blended' => $hex,
         ]);
 
         return $hex;

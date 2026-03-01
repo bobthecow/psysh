@@ -73,6 +73,39 @@ class StatementCompletenessPolicy
         return false;
     }
 
+    /**
+     * Check whether the buffer has a non-EOF parse error that isn't recoverable
+     * by adding more input (e.g. extra closing brackets, invalid syntax).
+     */
+    public function hasUnrecoverableSyntaxError(string $line): bool
+    {
+        if ($line === '') {
+            return false;
+        }
+
+        $snapshot = $this->parseSnapshotCache->getSnapshot($line);
+        $lastError = $snapshot->getLastError();
+
+        if ($lastError === null) {
+            return false;
+        }
+
+        if ($this->isEOFError($lastError)) {
+            return false;
+        }
+
+        if ($this->isUnterminatedComment($lastError) || $this->isUnclosedString($lastError)) {
+            return false;
+        }
+
+        // Control structures without body aren't syntax errors, they're incomplete.
+        if ($this->hasControlStructureWithoutBody($line, $lastError)) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function hasBalancedBrackets(string $line): bool
     {
         $tokens = $this->parseSnapshotCache->getSnapshot($line)->getTokens();

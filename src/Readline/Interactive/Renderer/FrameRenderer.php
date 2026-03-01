@@ -51,6 +51,7 @@ class FrameRenderer
     private int $historyRowCount = 0;
 
     private bool $compactInputFrame = false;
+    private bool $errorMode = false;
 
     private ?int $lastTerminalWidth = null;
     private ?int $lastTerminalHeight = null;
@@ -97,6 +98,14 @@ class FrameRenderer
     public function isCompactInputFrame(): bool
     {
         return $this->compactInputFrame;
+    }
+
+    /**
+     * Set the error mode for the input frame.
+     */
+    public function setErrorMode(bool $error): void
+    {
+        $this->errorMode = $error;
     }
 
     /**
@@ -196,6 +205,7 @@ class FrameRenderer
         $this->overlayLines = [];
         $this->historyLines = [];
         $this->historyRowCount = 0;
+        $this->errorMode = false;
         $this->lastTerminalWidth = null;
         $this->lastTerminalHeight = null;
         $this->lineRowCache = [];
@@ -228,8 +238,9 @@ class FrameRenderer
         }
 
         $formatter = $this->terminal->getFormatter();
-        $inputFrameStyle = ($formatter->isDecorated() && $formatter->hasStyle('input_frame'))
-            ? $formatter->getStyle('input_frame')
+        $styleName = $this->errorMode ? 'input_frame_error' : 'input_frame';
+        $inputFrameStyle = ($formatter->isDecorated() && $formatter->hasStyle($styleName))
+            ? $formatter->getStyle($styleName)
             : null;
 
         $framedLines = [''];

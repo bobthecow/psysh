@@ -321,14 +321,23 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
             return;
         }
 
-        $bgHex = TerminalColor::computeInputFrameBackground();
+        $this->setDynamicStyle($formatter, 'input_frame', TerminalColor::computeInputFrameBackground());
+        $this->setDynamicStyle($formatter, 'input_frame_error', TerminalColor::computeInputFrameErrorBackground());
+    }
+
+    /**
+     * Set a dynamic formatter style from a computed hex color.
+     *
+     * Hex colors require Symfony Console 5.2+; falls back gracefully.
+     */
+    private function setDynamicStyle($formatter, string $styleName, ?string $bgHex): void
+    {
         if ($bgHex === null) {
             return;
         }
 
-        // Hex colors require Symfony Console 5.2+; fall back gracefully.
         try {
-            $formatter->setStyle('input_frame', new OutputFormatterStyle(null, $bgHex));
+            $formatter->setStyle($styleName, new OutputFormatterStyle(null, $bgHex));
         } catch (\InvalidArgumentException $e) {
             // Keep the existing static style
         }

@@ -39,6 +39,7 @@ use Psy\Readline\Interactive\Actions\MoveWordLeftAction;
 use Psy\Readline\Interactive\Actions\MoveWordRightAction;
 use Psy\Readline\Interactive\Actions\NextHistoryAction;
 use Psy\Readline\Interactive\Actions\PreviousHistoryAction;
+use Psy\Readline\Interactive\Actions\RejectSyntaxErrorAction;
 use Psy\Readline\Interactive\Actions\ReverseSearchAction;
 use Psy\Readline\Interactive\Actions\SubmitLineAction;
 
@@ -91,6 +92,7 @@ class KeyBindings
 
         // Enter/Return
         $acceptLine = new FallbackAction([
+            new RejectSyntaxErrorAction(),
             new InsertLineBreakOnUnclosedBracketsAction($smartBrackets),
             new InsertLineBreakOnIncompleteStatementAction(),
             new SubmitLineAction(),

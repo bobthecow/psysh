@@ -74,8 +74,9 @@ class Theme
         'inline_html' => ['cyan'],
 
         // Interactive readline
-        'selected'    => [null, null, ['reverse']],
-        'input_frame' => ['bright-white', 'gray'],
+        'selected'          => [null, null, ['reverse']],
+        'input_frame'       => ['bright-white', 'gray'],
+        'input_frame_error' => ['bright-white', 'red'],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
@@ -290,10 +291,10 @@ class Theme
             return $this->styles[$name];
         }
 
-        // The default input_frame style uses extended colors (bright-white,
-        // gray) unavailable on older Symfony Console. Drop it rather than
-        // falling back to an unreadable blue background.
-        if ($name === 'input_frame' && $this->styles[$name] === static::DEFAULT_STYLES[$name]) {
+        // The default input_frame styles use extended colors (bright-white,
+        // gray) unavailable on older Symfony Console. Drop them rather than
+        // falling back to unreadable backgrounds.
+        if (($name === 'input_frame' || $name === 'input_frame_error') && $this->styles[$name] === static::DEFAULT_STYLES[$name]) {
             return [null, null];
         }
 
