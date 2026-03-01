@@ -187,6 +187,11 @@ class Shell extends Application
         $this->readline = $this->configureReadline($this->config->getReadline());
         $this->booted = true;
 
+        // BufferCommand only makes sense for legacy readlines
+        if (!$this->readline instanceof InteractiveReadlineInterface) {
+            $this->add(new Command\BufferCommand());
+        }
+
         $this->refreshCommandDependencies();
     }
 
@@ -397,7 +402,6 @@ class Shell extends Application
             new Command\ThrowUpCommand(),
             new Command\TimeitCommand(),
             new Command\TraceCommand(),
-            new Command\BufferCommand(),
             new Command\ClearCommand(),
             new Command\EditCommand($this->config->getRuntimeDir(false)),
             // new Command\PsyVersionCommand(),
@@ -405,6 +409,8 @@ class Shell extends Application
             $hist,
             new Command\ExitCommand(),
         ];
+
+        // BufferCommand is conditionally added in boot() for legacy readlines
 
         // Only add yolo command if UopzReloader is supported
         if (UopzReloader::isSupported()) {
