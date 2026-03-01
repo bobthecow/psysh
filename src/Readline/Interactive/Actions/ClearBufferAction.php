@@ -41,7 +41,6 @@ class ClearBufferAction implements ActionInterface
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
         if ($readline->isMultilineMode()) {
-            $readline->cancelMultilineMode();
             $buffer->clear();
 
             return true;

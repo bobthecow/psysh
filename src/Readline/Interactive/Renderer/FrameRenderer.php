@@ -104,10 +104,10 @@ class FrameRenderer
     /**
      * Get active prompt display width for the cursor's current line.
      */
-    public function getPromptWidthForCurrentLine(Buffer $buffer, bool $multilineMode): int
+    public function getPromptWidthForCurrentLine(Buffer $buffer): int
     {
         $lineNumber = 0;
-        if ($multilineMode && \strpos($buffer->getText(), "\n") !== false) {
+        if (\strpos($buffer->getText(), "\n") !== false) {
             $lineNumber = $buffer->getCurrentLineNumber();
         }
 
@@ -127,18 +127,18 @@ class FrameRenderer
     /**
      * Clear the overlay and re-render.
      */
-    public function clearOverlay(Buffer $buffer, bool $multilineMode): void
+    public function clearOverlay(Buffer $buffer): void
     {
         $this->overlayLines = [];
-        $this->render($buffer, $multilineMode, null);
+        $this->render($buffer, null);
     }
 
     /**
      * Render the full frame (input + overlay) to the terminal.
      */
-    public function render(Buffer $buffer, bool $multilineMode, ?SuggestionResult $suggestion): void
+    public function render(Buffer $buffer, ?SuggestionResult $suggestion): void
     {
-        $isMultiline = $multilineMode && \strpos($buffer->getText(), "\n") !== false;
+        $isMultiline = \strpos($buffer->getText(), "\n") !== false;
         $inputLines = $this->buildInputLines($buffer, $isMultiline, $suggestion);
 
         $this->viewport->setInputRowCount($this->getFrameRowCount($inputLines));

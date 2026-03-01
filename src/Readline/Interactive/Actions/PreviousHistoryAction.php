@@ -65,7 +65,6 @@ class PreviousHistoryAction implements ActionInterface
         }
 
         $buffer->setText($entry);
-        $readline->reconstructMultiLineFromHistory($entry);
 
         return true;
     }

@@ -102,7 +102,7 @@ class FrameRendererTest extends TestCase
         // "中文" = 2 code points, but 4 display columns
         $this->setBufferState($buffer, '中文<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt ">>> " = 4 display columns
         // "中文" = 4 display columns
@@ -122,7 +122,7 @@ class FrameRendererTest extends TestCase
         // "ab中" = 3 code points, but 4 display columns (a=1, b=1, 中=2)
         $this->setBufferState($buffer, 'ab中<cursor>cd');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt = 4, text before cursor "ab中" = 4 display columns
         // Cursor column = 4 + 4 + 1 = 9
@@ -143,7 +143,7 @@ class FrameRendererTest extends TestCase
         // Line 1: "  中文"  (2 spaces + 2 wide chars = 6 display columns)
         $this->setBufferState($buffer, "if (true) {\n  中文<cursor>");
 
-        $this->renderer->render($buffer, true, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt "... " = 4 display columns
         // "  中文" = 2 + 4 = 6 display columns
@@ -162,7 +162,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt = 4, "hello" = 5
         // Cursor column = 4 + 5 + 1 = 10
@@ -178,7 +178,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
         $this->assertCount(5, $paintedLines);
@@ -198,7 +198,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
         $this->assertCount(5, $paintedLines);
@@ -215,7 +215,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, '<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Terminal height 24 - (gutter + top + input + bottom + gutter) 5 - reserve 1 = 18
         $this->assertSame(18, $this->viewport->getAvailableRows());
@@ -229,7 +229,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
         $this->assertCount(1, $paintedLines);
@@ -244,7 +244,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 200).'<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt (4) + text (200) => 204 columns => 3 wrapped rows.
         // Available = 24 - 3 (input) - 1 breathing room = 20.
@@ -258,7 +258,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 77).'<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt (3) + text (77) => absolute column 81, wrapped to col 1.
         $lastColumn = \end($this->cursorColumns);
@@ -272,7 +272,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 200).'<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Input frame has 5 base rows (gutter + dark blank + input + dark blank + gutter).
         // Prompt (4) + text (200) wraps input content row to 3 rows total.
@@ -287,7 +287,7 @@ class FrameRendererTest extends TestCase
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('<info>x</info>', 6).'<cursor>');
 
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Prompt (4) + literal text (84) => 88 columns => 2 wrapped content rows.
         // Total input rows = 2 + 2 + 2 = 6, available = 24 - 6 - 1 = 17.
@@ -300,11 +300,11 @@ class FrameRendererTest extends TestCase
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 170).'<cursor>');
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $this->cursorUpMoves = [];
         $this->setBufferState($buffer, 'ok<cursor>');
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // First changed logical line is the framed input line (index 2), so renderer:
         // 1) moves up to row 2, then 2) moves up again from repaint end row to cursor row.
@@ -320,7 +320,7 @@ class FrameRendererTest extends TestCase
         $this->setBufferState($buffer, 'pri<cursor>');
         $suggestion = SuggestionResult::forAppend('nt("hello")', SuggestionResult::SOURCE_HISTORY, 3);
 
-        $this->renderer->render($buffer, false, $suggestion);
+        $this->renderer->render($buffer, $suggestion);
 
         $this->assertStringNotContainsString('nt("hello")', \implode('', $this->writes));
     }
@@ -331,13 +331,13 @@ class FrameRendererTest extends TestCase
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'abcdef<cursor>');
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $this->clearToEndOfScreenCalls = 0;
         $this->writes = [];
 
         $this->setBufferState($buffer, 'ab<cursor>cdef');
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $this->assertSame(0, $this->clearToEndOfScreenCalls);
         $this->assertSame([], $this->writes);
@@ -354,7 +354,7 @@ class FrameRendererTest extends TestCase
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'x<cursor>');
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         $this->cursorDownMoves = [];
         $this->cursorUpMoves = [];
@@ -365,7 +365,7 @@ class FrameRendererTest extends TestCase
             '   TWO',
             '   three',
         ]);
-        $this->renderer->render($buffer, false, null);
+        $this->renderer->render($buffer, null);
 
         // Changed line is second overlay row; with framed input, seek is 4 rows down.
         $this->assertSame([4], $this->cursorDownMoves);

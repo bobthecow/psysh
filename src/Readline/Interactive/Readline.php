@@ -127,7 +127,7 @@ class Readline
      */
     public function getPromptWidthForCurrentLine(Buffer $buffer): int
     {
-        return $this->frameRenderer->getPromptWidthForCurrentLine($buffer, $this->multilineMode);
+        return $this->frameRenderer->getPromptWidthForCurrentLine($buffer);
     }
 
     /**
@@ -237,22 +237,23 @@ class Readline
     }
 
     /**
-     * Reconstruct multi-line mode from a history entry.
-     *
-     * When recalling a multi-line command from history, this method
-     * enters multi-line mode and sets up the buffer properly.
+     * Sync multiline mode with buffer content and invalidate the frame on transition.
      */
-    public function reconstructMultiLineFromHistory(string $command): void
+    private function syncMultilineMode(string $text): void
     {
-        if (\strpos($command, "\n") === false) {
-            if ($this->multilineMode) {
-                $this->exitMultilineMode();
-            }
+        $isMultiline = \strpos($text, "\n") !== false;
 
+        if ($this->multilineMode === $isMultiline) {
             return;
         }
 
-        $this->enterMultilineMode();
+        if ($isMultiline) {
+            $this->enterMultilineMode();
+        } else {
+            $this->exitMultilineMode();
+        }
+
+        $this->terminal->invalidateFrame();
     }
 
     /**
@@ -283,12 +284,14 @@ class Readline
 
                 if ($key->isPaste()) {
                     $this->handlePastedContent($key->getValue(), $buffer);
+                    $this->syncMultilineMode($buffer->getText());
                     $this->display($buffer);
                     continue;
                 }
 
                 if ($this->mode === self::MODE_SEARCH) {
                     if (!$this->handleSearchModeInput($key, $buffer)) {
+                        $this->syncMultilineMode($buffer->getText());
                         $this->display($buffer);
                     } else {
                         $this->displaySearchPrompt();
@@ -306,6 +309,7 @@ class Readline
                     $continue = $action->execute($buffer, $this->terminal, $this);
 
                     if ($continue) {
+                        $this->syncMultilineMode($buffer->getText());
                         $this->updateSuggestion($buffer);
                         $this->display($buffer);
                     } else {
@@ -338,10 +342,6 @@ class Readline
         $content = \strtr(\str_replace("\r\n", "\n", $content), "\r", "\n");
 
         $buffer->insert($content);
-
-        if (\strpos($content, "\n") !== false && !$this->multilineMode) {
-            $this->enterMultilineMode();
-        }
     }
 
     /**
@@ -349,7 +349,7 @@ class Readline
      */
     private function display(Buffer $buffer): void
     {
-        $this->frameRenderer->render($buffer, $this->multilineMode, $this->currentSuggestion);
+        $this->frameRenderer->render($buffer, $this->currentSuggestion);
     }
 
     /**
@@ -357,7 +357,7 @@ class Readline
      */
     public function clearOverlay(Buffer $buffer): void
     {
-        $this->frameRenderer->clearOverlay($buffer, $this->multilineMode);
+        $this->frameRenderer->clearOverlay($buffer);
     }
 
     /**
@@ -609,10 +609,6 @@ class Readline
         if ($match !== null) {
             $buffer->clear();
             $buffer->insert($match);
-
-            if (\strpos($match, "\n") !== false) {
-                $this->reconstructMultiLineFromHistory($match);
-            }
         }
 
         $this->exitSearchMode();

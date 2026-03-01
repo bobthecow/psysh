@@ -60,7 +60,6 @@ class NextHistoryAction implements ActionInterface
 
         if ($entry !== null) {
             $buffer->setText($entry);
-            $readline->reconstructMultiLineFromHistory($entry);
         } else {
             $terminal->bell();
         }

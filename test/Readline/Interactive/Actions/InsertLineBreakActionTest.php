@@ -38,33 +38,21 @@ class InsertLineBreakActionTest extends TestCase
         $this->readline = $this->createMock(Readline::class);
     }
 
-    public function testInsertLineBreakEntersMultilineAndAppliesIndentation(): void
+    public function testInsertLineBreakAppliesIndentation(): void
     {
         $action = new InsertLineBreakAction();
 
         $this->setBufferState($this->buffer, 'foo(<cursor>)');
 
-        $this->readline->expects($this->once())
-            ->method('isMultilineMode')
-            ->willReturn(false);
-        $this->readline->expects($this->once())
-            ->method('enterMultilineMode');
-
         $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
         $this->assertBufferState("foo(\n    <cursor>)", $this->buffer);
     }
 
-    public function testInsertLineBreakDoesNotReenterMultilineMode(): void
+    public function testInsertLineBreakInMultilineBuffer(): void
     {
         $action = new InsertLineBreakAction();
 
         $this->setBufferState($this->buffer, "echo 'x'<cursor>");
-
-        $this->readline->expects($this->once())
-            ->method('isMultilineMode')
-            ->willReturn(true);
-        $this->readline->expects($this->never())
-            ->method('enterMultilineMode');
 
         $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
         $this->assertBufferState("echo 'x'\n<cursor>", $this->buffer);

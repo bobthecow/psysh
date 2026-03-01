@@ -26,10 +26,6 @@ class InsertLineBreakAction implements ActionInterface
      */
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
-        if (!$readline->isMultilineMode()) {
-            $readline->enterMultilineMode();
-        }
-
         $indent = $buffer->calculateIndentBeforeCursor();
 
         $buffer->insert("\n");

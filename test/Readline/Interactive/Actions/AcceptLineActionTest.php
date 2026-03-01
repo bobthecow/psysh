@@ -56,11 +56,8 @@ class AcceptLineActionTest extends TestCase
 
         $this->setBufferState($this->buffer, 'foo(<cursor>)');
 
-        $this->readline->expects($this->once())
-            ->method('isMultilineMode')
+        $this->readline->method('isMultilineMode')
             ->willReturn(false);
-        $this->readline->expects($this->once())
-            ->method('enterMultilineMode');
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -75,7 +72,6 @@ class AcceptLineActionTest extends TestCase
         $this->setBufferState($this->buffer, 'array[<cursor>]');
 
         $this->readline->method('isMultilineMode')->willReturn(false);
-        $this->readline->expects($this->once())->method('enterMultilineMode');
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -90,7 +86,6 @@ class AcceptLineActionTest extends TestCase
         $this->setBufferState($this->buffer, 'function() {<cursor>}');
 
         $this->readline->method('isMultilineMode')->willReturn(false);
-        $this->readline->expects($this->once())->method('enterMultilineMode');
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -107,8 +102,6 @@ class AcceptLineActionTest extends TestCase
         $this->readline->method('isCommand')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(false);
         $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
-        $this->readline->expects($this->never())->method('enterMultilineMode');
-
         $this->terminal->expects($this->once())->method('write')->with("\n\n\n");
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
@@ -141,7 +134,6 @@ class AcceptLineActionTest extends TestCase
         $this->readline->method('isCommand')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(false);
         $this->readline->expects($this->any())->method('getInputFrameOuterRowCount')->willReturn(0);
-        $this->readline->expects($this->never())->method('enterMultilineMode');
         $this->terminal->expects($this->once())->method('write')->with("\n");
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
@@ -159,8 +151,6 @@ class AcceptLineActionTest extends TestCase
         $this->readline->method('isInOpenStringOrComment')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(true);
         $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
-        $this->readline->expects($this->once())->method('exitMultilineMode');
-
         // Two-line input, cursor on first line: remaining lines (2) + lower
         // dark spacer + lower plain gutter = 4 newlines.
         $this->terminal->expects($this->once())->method('write')->with("\n\n\n\n");
@@ -177,8 +167,6 @@ class AcceptLineActionTest extends TestCase
         $this->setBufferState($this->buffer, 'function test() {<cursor>}');
 
         $this->readline->method('isMultilineMode')->willReturn(true);
-        $this->readline->expects($this->never())->method('enterMultilineMode');
-
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
         $this->assertTrue($result);

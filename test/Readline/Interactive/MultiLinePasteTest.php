@@ -51,7 +51,6 @@ class MultiLinePasteTest extends TestCase
         $this->handlePastedContent("function test() {\n    echo 'line1';\n    echo 'line2';\n}", $buffer);
 
         $this->assertSame("function test() {\n    echo 'line1';\n    echo 'line2';\n}", $buffer->getText());
-        $this->assertTrue($this->readline->isMultilineMode());
     }
 
     public function testPasteWithWindowsLineEndings()

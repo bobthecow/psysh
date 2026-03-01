@@ -135,12 +135,6 @@ class ClearBufferActionTest extends TestCase
         $readline = $this->createMock(Readline::class);
         $readline->method('isMultilineMode')->willReturn($isMultiline);
 
-        if ($expectCancel) {
-            $readline->expects($this->once())->method('cancelMultilineMode');
-        } else {
-            $readline->expects($this->never())->method('cancelMultilineMode');
-        }
-
         return $readline;
     }
 }

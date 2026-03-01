@@ -88,7 +88,7 @@ class KeyBindingsTest extends TestCase
 
         $terminal = $this->createMock(Terminal::class);
         $readline = $this->createMock(Readline::class);
-        $suggestion = new SuggestionResult('Bar', 'history', 'fooBar');
+        $suggestion = SuggestionResult::forAppend('Bar', SuggestionResult::SOURCE_HISTORY, 3);
         $readline->expects($this->once())
             ->method('clearSuggestion');
         $readline->expects($this->once())
@@ -136,8 +136,7 @@ class KeyBindingsTest extends TestCase
 
         $readline = $this->createMock(Readline::class);
         $readline->method('getInputFrameOuterRowCount')->willReturn(2);
-        $readline->expects($this->exactly(2))
-            ->method('isMultilineMode')
+        $readline->method('isMultilineMode')
             ->willReturn(false);
         $readline->expects($this->once())
             ->method('isCommand')

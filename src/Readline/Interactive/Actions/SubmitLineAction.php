@@ -28,10 +28,6 @@ class SubmitLineAction implements ActionInterface
         $line = $buffer->getText();
         $isCommand = $readline->isCommand($line) && !$readline->isInOpenStringOrComment($line);
 
-        if ($readline->isMultilineMode() && $buffer->isCompleteStatement() && !$isCommand) {
-            $readline->exitMultilineMode();
-        }
-
         // Move from current input line to below any outer frame rows.
         $lineCount = \substr_count($line, "\n") + 1;
         $remainingInputLines = $lineCount - $buffer->getCurrentLineNumber();
