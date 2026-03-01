@@ -15,6 +15,7 @@ use Psy\Readline\Interactive\Actions\AcceptSuggestionAction;
 use Psy\Readline\Interactive\Actions\AcceptSuggestionWordAction;
 use Psy\Readline\Interactive\Actions\ActionInterface;
 use Psy\Readline\Interactive\Actions\ClearBufferAction;
+use Psy\Readline\Interactive\Actions\ClearScreenAction;
 use Psy\Readline\Interactive\Actions\DedentLeadingIndentationAction;
 use Psy\Readline\Interactive\Actions\DeleteBackwardCharAction;
 use Psy\Readline\Interactive\Actions\DeleteBracketPairAction;
@@ -155,6 +156,9 @@ class KeyBindings
 
         // History search
         $bindings->bind('control:r', new ReverseSearchAction($history));
+
+        // Clear screen
+        $bindings->bind('control:l', new ClearScreenAction());
 
         // Smart bracket pairing
         if ($smartBrackets) {

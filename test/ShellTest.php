@@ -515,6 +515,9 @@ class ShellTest extends TestCase
         $this->assertSame($expected, \trim($streamContents));
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testGetInputMarksOutputWrittenForCommandOutput()
     {
         $readline = $this->getInteractiveReadline(['cmd', false]);
@@ -542,6 +545,9 @@ class ShellTest extends TestCase
         $this->assertSame([true], $readline->outputWrittenCalls);
     }
 
+    /**
+     * @group isolation-fail
+     */
     public function testGetInputLeavesOutputWrittenFalseWhenCommandDoesNotWriteOutput()
     {
         $readline = $this->getInteractiveReadline(['cmd', false]);
