@@ -57,8 +57,8 @@ class SuggestionFilterTest extends TestCase
 
     public function testScoreHistoryHigherThanCompletion()
     {
-        $histSuggestion = new SuggestionResult('me = "Alice"', 'history', '$name = "Alice"');
-        $compSuggestion = new SuggestionResult('me = "Alice"', 'completion', '$name = "Alice"');
+        $histSuggestion = SuggestionResult::forAppend('me = "Alice"', 'history', 3);
+        $compSuggestion = SuggestionResult::forAppend('me = "Alice"', 'completion', 3);
 
         $histScore = $this->filter->score('$na', $histSuggestion);
         $compScore = $this->filter->score('$na', $compSuggestion);
@@ -68,12 +68,8 @@ class SuggestionFilterTest extends TestCase
 
     public function testScoreShorterSuggestionHigher()
     {
-        $shortSuggestion = new SuggestionResult('ap', 'history', 'array_map');
-        $longSuggestion = new SuggestionResult(
-            ' very long suggestion that goes on and on and on',
-            'history',
-            'array_map very long suggestion that goes on and on and on'
-        );
+        $shortSuggestion = SuggestionResult::forAppend('ap', 'history', 7);
+        $longSuggestion = SuggestionResult::forAppend(' very long suggestion that goes on and on and on', 'history', 7);
 
         $shortScore = $this->filter->score('array_m', $shortSuggestion);
         $longScore = $this->filter->score('array_m', $longSuggestion);
@@ -83,8 +79,8 @@ class SuggestionFilterTest extends TestCase
 
     public function testScorePrefixMatchHigher()
     {
-        $prefixMatch = new SuggestionResult('me = "Alice"', 'history', '$name = "Alice"');
-        $noMatch = new SuggestionResult('array_pop', 'history', 'array_pop');
+        $prefixMatch = SuggestionResult::forAppend('me = "Alice"', 'history', 3);
+        $noMatch = new SuggestionResult('array_pop', 'history', 'array_pop', 0, 3);
 
         $prefixScore = $this->filter->score('$na', $prefixMatch);
         $noMatchScore = $this->filter->score('$na', $noMatch);
@@ -94,8 +90,8 @@ class SuggestionFilterTest extends TestCase
 
     public function testScoreSingleLineHigher()
     {
-        $singleLine = new SuggestionResult('me = "Alice"', 'history', '$name = "Alice"');
-        $multiLine = new SuggestionResult("me = \"Alice\"\necho \$name", 'history', "\$name = \"Alice\"\necho \$name");
+        $singleLine = SuggestionResult::forAppend('me = "Alice"', 'history', 3);
+        $multiLine = SuggestionResult::forAppend("me = \"Alice\"\necho \$name", 'history', 3);
 
         $singleScore = $this->filter->score('$na', $singleLine);
         $multiScore = $this->filter->score('$na', $multiLine);
@@ -106,7 +102,7 @@ class SuggestionFilterTest extends TestCase
     public function testScoreRangeBounded()
     {
         // Score should always be between 0 and 100
-        $suggestion = new SuggestionResult('test', 'history', 'test');
+        $suggestion = SuggestionResult::forAppend('test', 'history', 0);
 
         $score = $this->filter->score('', $suggestion);
 

@@ -318,7 +318,7 @@ class FrameRendererTest extends TestCase
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'pri<cursor>');
-        $suggestion = new SuggestionResult('nt("hello")', 'history', 'print("hello")');
+        $suggestion = SuggestionResult::forAppend('nt("hello")', SuggestionResult::SOURCE_HISTORY, 3);
 
         $this->renderer->render($buffer, false, $suggestion);
 

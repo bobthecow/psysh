@@ -86,7 +86,7 @@ class SuggestionEngine
             $cursorPosition === $this->lastCursorPosition &&
             $historyRevision === $this->lastHistoryRevision &&
             $this->lastSuggestion !== null) {
-            DebugLog::log('Suggestion', 'CACHE_HIT', ['text' => $this->lastSuggestion->getText(), 'source' => $this->lastSuggestion->getSource()]);
+            DebugLog::log('Suggestion', 'CACHE_HIT', ['text' => $this->lastSuggestion->getDisplayText(), 'source' => $this->lastSuggestion->getSource()]);
 
             return $this->lastSuggestion;
         }
@@ -94,9 +94,9 @@ class SuggestionEngine
         $candidates = [];
         foreach ($this->sources as $source) {
             $suggestion = $source->getSuggestion($buffer, $cursorPosition);
-            if ($suggestion !== null && $this->filter->isValid($buffer, $suggestion->getText())) {
+            if ($suggestion !== null && $this->filter->isValid($buffer, $suggestion->getDisplayText())) {
                 $candidates[] = $suggestion;
-                DebugLog::log('Suggestion', 'CANDIDATE', ['source' => $suggestion->getSource(), 'text' => $suggestion->getText()]);
+                DebugLog::log('Suggestion', 'CANDIDATE', ['source' => $suggestion->getSource(), 'text' => $suggestion->getDisplayText()]);
             }
         }
 
@@ -105,7 +105,7 @@ class SuggestionEngine
             $this->ensureFrecencyIndex();
             DebugLog::log('SuggestionEngine', 'SCORING', ['candidates' => \count($candidates)]);
             $best = $this->selectBestCandidate($buffer, $candidates);
-            DebugLog::log('Suggestion', 'SHOW', ['text' => $best->getText(), 'source' => $best->getSource(), 'buffer' => $buffer]);
+            DebugLog::log('Suggestion', 'SHOW', ['text' => $best->getDisplayText(), 'source' => $best->getSource(), 'buffer' => $buffer]);
         } else {
             DebugLog::log('Suggestion', 'NONE', ['buffer' => $buffer]);
         }

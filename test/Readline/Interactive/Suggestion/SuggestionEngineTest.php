@@ -30,9 +30,9 @@ class SuggestionEngineTest extends TestCase
         $result = $engine->getSuggestion('$col', 4);
 
         $this->assertNotNull($result);
-        $this->assertEquals('ors = compact("red", "blue")', $result->getText());
+        $this->assertEquals('ors = compact("red", "blue")', $result->getDisplayText());
         $this->assertEquals('history', $result->getSource());
-        $this->assertEquals('$colors = compact("red", "blue")', $result->getFullText());
+        $this->assertEquals('$colors = compact("red", "blue")', $result->applyToBuffer('$col'));
     }
 
     public function testNoSuggestionWhenCursorNotAtEnd()
@@ -94,10 +94,10 @@ class SuggestionEngineTest extends TestCase
         $engine = new SuggestionEngine($history);
 
         $result1 = $engine->getSuggestion('$name', 5);
-        $this->assertEquals('s = ["Alice"]', $result1->getText());
+        $this->assertEquals('s = ["Alice"]', $result1->getDisplayText());
 
         $result2 = $engine->getSuggestion('$name ', 6);
-        $this->assertEquals('= "Alice"', $result2->getText());
+        $this->assertEquals('= "Alice"', $result2->getDisplayText());
 
         $this->assertNotSame($result1, $result2);
     }

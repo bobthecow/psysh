@@ -188,6 +188,18 @@ class TabActionTest extends TestCase
         $this->assertBufferState("echo 'first line';\n\$multilineVar<cursor>", $this->buffer);
     }
 
+    public function testMultilineCompletionSetsBufferCorrectly(): void
+    {
+        $this->context->setAll([
+            'multilineVar' => 'value',
+        ]);
+
+        $this->setBufferState($this->buffer, "echo 'first line';\n\$multi<cursor>");
+
+        $this->assertTrue($this->action->execute($this->buffer, $this->terminal, $this->readline));
+        $this->assertBufferState("echo 'first line';\n\$multilineVar<cursor>", $this->buffer);
+    }
+
     public function testMultilineObjectAccessCompletionUsesFullBuffer()
     {
         $this->context->setAll([

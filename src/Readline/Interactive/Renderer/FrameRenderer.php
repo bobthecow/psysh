@@ -242,7 +242,7 @@ class FrameRenderer
             return $line;
         }
 
-        $suggestionText = DisplayString::truncate($suggestion->getText(), $maxWidth, true);
+        $suggestionText = DisplayString::truncate($suggestion->getDisplayText(), $maxWidth, true);
         if ($suggestionText === '') {
             return $line;
         }

@@ -120,6 +120,19 @@ class Terminal
     }
 
     /**
+     * Invalidate frame renderer caches before the next render pass.
+     *
+     * Useful when a mode switch should repaint the full input frame.
+     */
+    public function invalidateFrame(bool $cursorRowUnknown = false): void
+    {
+        $this->dirty = true;
+        if ($cursorRowUnknown) {
+            $this->cursorRowUnknown = true;
+        }
+    }
+
+    /**
      * Get the output formatter.
      *
      * Provides access to the formatter for cases where direct formatting control is needed.

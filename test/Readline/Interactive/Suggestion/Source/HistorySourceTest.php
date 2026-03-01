@@ -28,8 +28,8 @@ class HistorySourceTest extends TestCase
         $result = $source->getSuggestion('$name', \mb_strlen('$name'));
 
         $this->assertNotNull($result);
-        $this->assertEquals('s = ["Alice", "Bob"]', $result->getText());
-        $this->assertEquals('$names = ["Alice", "Bob"]', $result->getFullText());
+        $this->assertEquals('s = ["Alice", "Bob"]', $result->getDisplayText());
+        $this->assertEquals('$names = ["Alice", "Bob"]', $result->applyToBuffer('$name'));
         $this->assertEquals('history', $result->getSource());
     }
 
@@ -68,7 +68,7 @@ class HistorySourceTest extends TestCase
         $result = $source->getSuggestion('function', \mb_strlen('function'));
 
         $this->assertNotNull($result);
-        $this->assertStringNotContainsString("\n", $result->getText());
+        $this->assertStringNotContainsString("\n", $result->getDisplayText());
     }
 
     public function testGetPriority()

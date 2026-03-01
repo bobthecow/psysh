@@ -48,13 +48,15 @@ class ContextAwareSource implements SourceInterface
 
         if ($currentWord !== '' && \stripos($completion, $currentWord) === 0) {
             $suffix = \substr($completion, \strlen($currentWord));
-            $fullText = $buffer.$suffix;
         } else {
             $suffix = $completion;
-            $fullText = $buffer.$completion;
         }
 
-        return new SuggestionResult($suffix, SuggestionResult::SOURCE_CONTEXT_AWARE, $fullText);
+        return SuggestionResult::forAppend(
+            $suffix,
+            SuggestionResult::SOURCE_CONTEXT_AWARE,
+            $cursorPosition
+        );
     }
 
     /**

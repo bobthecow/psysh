@@ -181,12 +181,10 @@ class TabAction implements ActionInterface
         $after = \mb_substr($text, $end);
 
         if ($addParens) {
-            $newText = $before.$match.'()'.$after;
-            $buffer->setText($newText);
+            $buffer->setText($before.$match.'()'.$after);
             $buffer->setCursor($start + \mb_strlen($match) + 1); // Inside parens
         } else {
-            $newText = $before.$match.$after;
-            $buffer->setText($newText);
+            $buffer->setText($before.$match.$after);
             $buffer->setCursor($start + \mb_strlen($match));
         }
     }

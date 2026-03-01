@@ -30,7 +30,9 @@ class AcceptSuggestionAction implements ActionInterface
             return false;
         }
 
-        $buffer->insert($suggestion->getText());
+        $text = $suggestion->applyToBuffer($buffer->getText());
+        $buffer->setText($text);
+        $buffer->setCursor($suggestion->getReplaceStart() + \mb_strlen($suggestion->getAcceptText()));
         $readline->clearSuggestion();
 
         return true;

@@ -11,9 +11,9 @@
 
 namespace Psy\Readline\Interactive\Helper;
 
+use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Readline\Interactive\Terminal;
 use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Helper\Helper;
 
 /**
  * Renders tab completion menu in compact columns.
@@ -52,8 +52,8 @@ class CompletionRenderer
             )."\n";
         }
 
-        $items = \array_values($items);
-        $layout = $this->calculateLayout($items);
+        $items = \array_map([$this, 'collapseNewlines'], \array_values($items));
+        $layout = $this->doCalculateLayout($items);
         $totalRows = $layout['rows'];
         $columns = $layout['columns'];
         $columnWidths = $layout['columnWidths'];
@@ -74,15 +74,18 @@ class CompletionRenderer
             for ($col = 0; $col < $columns; $col++) {
                 $index = $row + $col * $totalRows;
                 if ($index < $count) {
-                    $item = \str_pad($items[$index], $columnWidths[$col]);
+                    $colWidth = $columnWidths[$col];
+                    $item = DisplayString::truncate($items[$index], $colWidth, true);
+                    $itemWidth = DisplayString::width($item);
+                    $padding = \max(0, $colWidth - $itemWidth);
 
                     if ($hasSelection && $index === $selectedIndex) {
                         $escaped = OutputFormatter::escape($item);
                         $line .= $this->terminal->format(
-                            '<selected>'.$escaped.'</selected>',
+                            '<selected>'.$escaped.\str_repeat(' ', $padding).'</selected>',
                         );
                     } else {
-                        $line .= $item;
+                        $line .= $item.\str_repeat(' ', $padding);
                     }
 
                     if ($col < $columns - 1) {
@@ -114,7 +117,17 @@ class CompletionRenderer
      */
     public function calculateLayout(array $items): array
     {
-        $widths = \array_map([Helper::class, 'width'], $items);
+        return $this->doCalculateLayout(\array_map([$this, 'collapseNewlines'], $items));
+    }
+
+    /**
+     * @param string[] $items Display-ready (single-line) items
+     *
+     * @return array{rows: int, columns: int, columnWidths: int[]}
+     */
+    private function doCalculateLayout(array $items): array
+    {
+        $widths = \array_map([DisplayString::class, 'width'], $items);
         $count = \count($items);
         $maxWidth = $this->terminal->getWidth();
 
@@ -131,6 +144,12 @@ class CompletionRenderer
                 $columns = $try;
                 $columnWidths = $candidate;
             }
+        }
+
+        // Cap single-column width so wide items don't soft-wrap.
+        // Multi-column layouts are already validated by the loop above.
+        if ($columns === 1) {
+            $columnWidths[0] = \min($columnWidths[0], $maxWidth - 3);
         }
 
         return [
@@ -187,6 +206,14 @@ class CompletionRenderer
         }
 
         return $columnWidths;
+    }
+
+    /**
+     * Replace newlines with spaces for single-line display.
+     */
+    private function collapseNewlines(string $item): string
+    {
+        return \preg_replace('/\s*\R\s*/', ' ', $item);
     }
 
     /**

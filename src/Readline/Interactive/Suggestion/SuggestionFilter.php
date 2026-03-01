@@ -59,12 +59,13 @@ class SuggestionFilter
     public function score(string $buffer, SuggestionResult $suggestion): int
     {
         $score = 50;
+        $appliedText = $suggestion->applyToBuffer($buffer);
 
         if ($this->frecencyIndex !== null) {
-            $score += $this->calculateFrecencyBoost($suggestion);
+            $score += $this->calculateFrecencyBoost($appliedText);
         }
 
-        $length = \mb_strlen($suggestion->getText());
+        $length = \mb_strlen($suggestion->getDisplayText());
         if ($length < 10) {
             $score += 5;
         } elseif ($length > 50) {
@@ -80,11 +81,11 @@ class SuggestionFilter
                 break;
         }
 
-        if ($buffer !== '' && \strpos($suggestion->getFullText(), $buffer) === 0) {
+        if ($buffer !== '' && \strpos($appliedText, $buffer) === 0) {
             $score += 10;
         }
 
-        if (\strpos($suggestion->getText(), "\n") === false) {
+        if (\strpos($suggestion->getDisplayText(), "\n") === false) {
             $score += 5;
         }
 
@@ -94,7 +95,7 @@ class SuggestionFilter
             DebugLog::log('SuggestionFilter', 'SCORE', [
                 'score'  => $finalScore,
                 'source' => $suggestion->getSource(),
-                'text'   => $suggestion->getFullText(),
+                'text'   => $appliedText,
             ]);
         }
 
@@ -106,11 +107,13 @@ class SuggestionFilter
      *
      * Extracts important words and sums their frecency scores.
      *
+     * @param string $text full text produced by applying the suggestion
+     *
      * @return float Boost from 0-30
      */
-    private function calculateFrecencyBoost(SuggestionResult $suggestion): float
+    private function calculateFrecencyBoost(string $text): float
     {
-        $words = WordExtractor::extractNormalizedIdentifiers($suggestion->getFullText());
+        $words = WordExtractor::extractNormalizedIdentifiers($text);
 
         if (empty($words)) {
             return 0.0;

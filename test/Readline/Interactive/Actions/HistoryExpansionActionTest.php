@@ -29,6 +29,7 @@ class HistoryExpansionActionTest extends TestCase
     private Buffer $buffer;
     /** @var Terminal&MockObject */
     private Terminal $terminal;
+    /** @var Readline&MockObject */
     private Readline $readline;
 
     protected function setUp(): void
@@ -49,6 +50,18 @@ class HistoryExpansionActionTest extends TestCase
         $this->action->execute($this->buffer, $this->terminal, $this->readline);
 
         $this->assertBufferState('echo "hello world"<cursor>', $this->buffer);
+    }
+
+    public function testMultilineExpansionSetsBufferCorrectly()
+    {
+        $multiline = "function test() {\n    return true;\n}";
+        $this->history->add($multiline);
+
+        $this->setBufferState($this->buffer, '!!<cursor>');
+
+        $this->action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertBufferState("function test() {\n    return true;\n}<cursor>", $this->buffer);
     }
 
     public function testExclamationDollarExpandsToLastArgument()

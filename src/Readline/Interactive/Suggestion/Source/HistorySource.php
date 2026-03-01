@@ -41,16 +41,18 @@ class HistorySource implements SourceInterface
             $line = $entry['command'];
 
             if (\strpos($line, $buffer) === 0 && $line !== $buffer) {
-                $suggestion = \substr($line, \strlen($buffer));
-
+                $acceptText = \substr($line, \strlen($buffer));
+                $displayText = $acceptText;
                 if ($entry['lines'] > 1) {
-                    $suggestion = History::collapseToSingleLine($suggestion);
-                    $fullText = $buffer.$suggestion;
-                } else {
-                    $fullText = $line;
+                    $displayText = History::collapseToSingleLine($acceptText);
                 }
 
-                return new SuggestionResult($suggestion, SuggestionResult::SOURCE_HISTORY, $fullText);
+                return SuggestionResult::forAppend(
+                    $displayText,
+                    SuggestionResult::SOURCE_HISTORY,
+                    $cursorPosition,
+                    $acceptText
+                );
             }
         }
 

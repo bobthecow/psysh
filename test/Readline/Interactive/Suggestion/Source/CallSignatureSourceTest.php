@@ -29,7 +29,7 @@ class CallSignatureSourceTest extends TestCase
         $result = $this->source->getSuggestion('array_merge(', \mb_strlen('array_merge('));
 
         $this->assertNotNull($result);
-        $this->assertStringContainsString('$', $result->getText());
+        $this->assertStringContainsString('$', $result->getDisplayText());
         $this->assertEquals('call-signature', $result->getSource());
     }
 
@@ -39,8 +39,8 @@ class CallSignatureSourceTest extends TestCase
 
         $this->assertNotNull($result);
         // array_map($callback, $array, ...$arrays)
-        $this->assertStringContainsString('callback', $result->getText());
-        $this->assertStringContainsString('array', $result->getText());
+        $this->assertStringContainsString('callback', $result->getDisplayText());
+        $this->assertStringContainsString('array', $result->getDisplayText());
     }
 
     public function testStrReplaceSignature()
@@ -49,9 +49,9 @@ class CallSignatureSourceTest extends TestCase
 
         $this->assertNotNull($result);
         // str_replace($search, $replace, $subject, &$count = null)
-        $this->assertStringContainsString('search', $result->getText());
-        $this->assertStringContainsString('replace', $result->getText());
-        $this->assertStringContainsString('subject', $result->getText());
+        $this->assertStringContainsString('search', $result->getDisplayText());
+        $this->assertStringContainsString('replace', $result->getDisplayText());
+        $this->assertStringContainsString('subject', $result->getDisplayText());
     }
 
     public function testNoSuggestionWhenNotInEmptyParens()
@@ -94,7 +94,7 @@ class CallSignatureSourceTest extends TestCase
         $result = $this->source->getSuggestion('array_merge( ', \mb_strlen('array_merge( '));
 
         $this->assertNotNull($result);
-        $this->assertStringContainsString('$', $result->getText());
+        $this->assertStringContainsString('$', $result->getDisplayText());
     }
 
     public function testGetPriority()
@@ -112,15 +112,15 @@ class CallSignatureSourceTest extends TestCase
 
         if (\version_compare(\PHP_VERSION, '8.0', '<')) {
             // PHP 7.4: substr($str, $start, $length = null)
-            $this->assertStringContainsString('str', $result->getText());
-            $this->assertStringContainsString('start', $result->getText());
+            $this->assertStringContainsString('str', $result->getDisplayText());
+            $this->assertStringContainsString('start', $result->getDisplayText());
         } else {
             // PHP 8.0+: substr($string, $offset, $length = null)
-            $this->assertStringContainsString('string', $result->getText());
-            $this->assertStringContainsString('offset', $result->getText());
+            $this->assertStringContainsString('string', $result->getDisplayText());
+            $this->assertStringContainsString('offset', $result->getDisplayText());
         }
 
-        $this->assertStringContainsString('=', $result->getText());
+        $this->assertStringContainsString('=', $result->getDisplayText());
     }
 
     public function testHandlesVariadicParameters()
@@ -129,8 +129,8 @@ class CallSignatureSourceTest extends TestCase
         $result = $this->source->getSuggestion('printf(', \mb_strlen('printf('));
 
         $this->assertNotNull($result);
-        $this->assertStringContainsString('format', $result->getText());
-        $this->assertStringContainsString('...', $result->getText());
+        $this->assertStringContainsString('format', $result->getDisplayText());
+        $this->assertStringContainsString('...', $result->getDisplayText());
     }
 
     public function testEmptySignatureForNoParameters()
@@ -141,7 +141,7 @@ class CallSignatureSourceTest extends TestCase
 
         // time() has no parameters
         if ($result !== null) {
-            $this->assertEquals('', $result->getText());
+            $this->assertEquals('', $result->getDisplayText());
         } else {
             // Or it might return null, which is also fine
             $this->assertNull($result);

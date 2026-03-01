@@ -31,9 +31,17 @@ class AcceptSuggestionWordAction implements ActionInterface
             return false;
         }
 
-        $text = $suggestion->getText();
+        // Word-accept currently supports append-only suggestions.
+        if (!$suggestion->isAppendOnly($buffer->getCursor())) {
+            return false;
+        }
+
+        $text = $suggestion->getAcceptText();
         $wordEnd = (new WordNavigationPolicy())->findNextWord($text, 0);
         $firstWord = \mb_substr($text, 0, $wordEnd);
+        if ($firstWord === '') {
+            return false;
+        }
 
         $buffer->insert($firstWord);
         $readline->clearSuggestion();

@@ -45,7 +45,12 @@ class CallSignatureSource implements SourceInterface
             return null;
         }
 
-        return new SuggestionResult($signature, SuggestionResult::SOURCE_CALL_SIGNATURE, $functionName.'('.$signature.')');
+        return SuggestionResult::forAppend(
+            $signature,
+            SuggestionResult::SOURCE_CALL_SIGNATURE,
+            $cursorPosition,
+            $signature.')'
+        );
     }
 
     /**
