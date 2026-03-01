@@ -15,6 +15,7 @@ use Psy\CodeCleaner\NoReturnValue;
 use Psy\Completion\CompletionEngine;
 use Psy\Completion\Source\CommandOptionSource;
 use Psy\Completion\Source\CommandSource;
+use Psy\Completion\Source\HistorySource;
 use Psy\Completion\Source\MatcherAdapterSource;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
@@ -2044,12 +2045,11 @@ class Shell extends Application
         $this->commandCompletion[] = $commandSource;
         $this->commandCompletion[] = $commandOptionSource;
 
-        $additionalSources = [
+        $completion->registerDefaultSources([
             $commandSource,
             $commandOptionSource,
-        ];
-
-        $completion->registerDefaultSources($additionalSources);
+            new HistorySource($readline->getHistory()),
+        ]);
 
         foreach ($this->pendingCompletionSources as $source) {
             $completion->addSource($source);
