@@ -318,7 +318,7 @@ class ShellTest extends TestCase
                 $this->completionEngine = $completionEngine;
             }
 
-            public function setOutput(OutputInterface $output): void
+            public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
             {
             }
 
@@ -449,7 +449,7 @@ class ShellTest extends TestCase
             {
             }
 
-            public function setOutput(OutputInterface $output): void
+            public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
             {
                 $this->output = $output;
             }
@@ -1088,7 +1088,7 @@ class ShellTest extends TestCase
             {
             }
 
-            public function setOutput(OutputInterface $output): void
+            public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
             {
             }
 

@@ -143,7 +143,7 @@ class StdinReader
     /**
      * Read an escape sequence from the input stream.
      */
-    private function readEscapeSequence(string $prefix): Key
+    protected function readEscapeSequence(string $prefix): Key
     {
         \stream_set_blocking($this->stream, false);
 
@@ -178,7 +178,7 @@ class StdinReader
     /**
      * Check if an escape sequence is complete.
      */
-    private function isCompleteEscapeSequence(string $sequence): bool
+    protected function isCompleteEscapeSequence(string $sequence): bool
     {
         // Esc+Enter remaps (common in terminal keybind customization).
         if ($sequence === "\033\r" || $sequence === "\033\n") {
@@ -224,7 +224,7 @@ class StdinReader
      * Called after detecting \033[200~ sequence.
      * Reads until \033[201~ is encountered.
      */
-    private function readBracketedPaste(): Key
+    protected function readBracketedPaste(): Key
     {
         $content = '';
         $escapeBuffer = '';

@@ -14,6 +14,7 @@ namespace Psy\Readline;
 use Psy\Completion\CompletionEngine;
 use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\History;
+use Psy\Readline\Interactive\Terminal;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -52,7 +53,7 @@ interface InteractiveReadlineInterface extends Readline
     /**
      * Set the output stream.
      */
-    public function setOutput(OutputInterface $output): void;
+    public function setOutput(OutputInterface $output, ?Terminal $terminal = null): void;
 
     /**
      * Get the history instance.

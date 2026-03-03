@@ -15,6 +15,7 @@ use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\StdinReader;
 use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Terminal as SymfonyTerminal;
 
@@ -106,9 +107,7 @@ class Terminal
             $this->noteOutOfBandWrite($movesRow);
         }
 
-        $stream = $this->output->getStream();
-        \fwrite($stream, $text);
-        \fflush($stream);
+        $this->output->write($text, false, OutputInterface::OUTPUT_RAW);
     }
 
     /**

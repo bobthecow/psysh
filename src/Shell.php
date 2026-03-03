@@ -571,6 +571,7 @@ class Shell extends Application
     {
         // We'll just ignore the input passed in, and set up our own!
         $input = new ArrayInput([]);
+        $input->setInteractive($this->config->getInputInteractive());
 
         if ($output === null) {
             $output = $this->config->getOutput();
@@ -608,7 +609,7 @@ class Shell extends Application
         $this->resetCodeBuffer();
         $this->warmAutoloader();
 
-        if ($input->isInteractive()) {
+        if ($this->config->getInputInteractive()) {
             // @todo should it be possible to have raw output in an interactive run?
             return $this->doInteractiveRun();
         } else {

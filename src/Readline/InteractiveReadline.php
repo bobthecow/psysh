@@ -93,7 +93,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     /**
      * {@inheritdoc}
      */
-    public function setOutput(OutputInterface $output): void
+    public function setOutput(OutputInterface $output, ?Terminal $terminal = null): void
     {
         if (!($output instanceof StreamOutput)) {
             throw new \InvalidArgumentException('InteractiveReadline requires a StreamOutput instance.');
@@ -101,7 +101,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
 
         DebugLog::enable($output->getVerbosity());
 
-        $this->terminal = new Terminal(new StdinReader(\STDIN), $output);
+        $this->terminal = $terminal ?? new Terminal(new StdinReader(\STDIN), $output);
         $this->session = new InteractiveSession($this->terminal);
         $this->history = new InteractiveHistory($this->historySize, $this->eraseDups);
         $this->resolveHistoryFiles();
