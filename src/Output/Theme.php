@@ -36,7 +36,7 @@ class Theme
 
     // Custom themes fall back to DEFAULT_STYLES for any undefined style.
     const DEFAULT_STYLES = [
-        'info'    => ['white', 'blue', ['bold']],
+        'info'    => ['green', null, ['bold']],
         'warning' => ['black', 'yellow'],
         'error'   => ['white', 'red', ['bold']],
         'whisper' => ['gray'],

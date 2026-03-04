@@ -1723,7 +1723,7 @@ class Shell extends Application
         $indent = $this->config->theme()->compact() ? '' : '  ';
 
         if ($e instanceof BreakException) {
-            return \sprintf('%s<info> INFO </info> %s.', $indent, \rtrim($e->getRawMessage(), '.'));
+            return \sprintf('%s<fg=black;bg=cyan> INFO </> %s.', $indent, \rtrim($e->getRawMessage(), '.'));
         } elseif ($e instanceof InterruptException) {
             return \sprintf('%s<warning> INTERRUPT </warning> %s.', $indent, $e->getRawMessage());
         } elseif ($e instanceof PsyException) {
