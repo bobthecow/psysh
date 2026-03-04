@@ -182,7 +182,9 @@ class TabAction implements ActionInterface
 
         if ($addParens) {
             $buffer->setText($before.$match.'()'.$after);
-            $buffer->setCursor($start + \mb_strlen($match) + 1); // Inside parens
+            // Place cursor after parens for zero-arg functions, inside for others
+            $offset = $this->functionHasParameters($match) ? 1 : 2;
+            $buffer->setCursor($start + \mb_strlen($match) + $offset);
         } else {
             $buffer->setText($before.$match.$after);
             $buffer->setCursor($start + \mb_strlen($match));
@@ -203,6 +205,19 @@ class TabAction implements ActionInterface
         }
 
         return \function_exists($match);
+    }
+
+    /**
+     * Check whether a function accepts any parameters (required or optional).
+     */
+    private function functionHasParameters(string $name): bool
+    {
+        try {
+            return (new \ReflectionFunction($name))->getNumberOfParameters() > 0;
+        } catch (\ReflectionException $e) {
+            // If we can't reflect it, assume it has parameters
+            return true;
+        }
     }
 
     /**

@@ -232,6 +232,51 @@ class TabActionTest extends TestCase
         $this->assertBufferState('$testVariable<cursor>', $this->buffer);
     }
 
+    public function testSmartBracketsFunctionWithParams()
+    {
+        $completer = $this->createMock(CompletionEngine::class);
+        $completer->method('getCompletions')->willReturn(['array_merge']);
+
+        $action = new TabAction($completer, true);
+        $action->setInteractiveSelectionEnabled(false);
+        $this->setBufferState($this->buffer, 'array_merg<cursor>');
+
+        $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        // Cursor inside parens for functions that accept parameters
+        $this->assertBufferState('array_merge(<cursor>)', $this->buffer);
+    }
+
+    public function testSmartBracketsFunctionWithNoParams()
+    {
+        $completer = $this->createMock(CompletionEngine::class);
+        $completer->method('getCompletions')->willReturn(['getcwd']);
+
+        $action = new TabAction($completer, true);
+        $action->setInteractiveSelectionEnabled(false);
+        $this->setBufferState($this->buffer, 'getc<cursor>');
+
+        $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        // Cursor after parens for zero-arg functions
+        $this->assertBufferState('getcwd()<cursor>', $this->buffer);
+    }
+
+    public function testSmartBracketsFunctionWithOnlyOptionalParams()
+    {
+        $completer = $this->createMock(CompletionEngine::class);
+        $completer->method('getCompletions')->willReturn(['error_reporting']);
+
+        $action = new TabAction($completer, true);
+        $action->setInteractiveSelectionEnabled(false);
+        $this->setBufferState($this->buffer, 'error_repo<cursor>');
+
+        $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        // Cursor inside parens even for only-optional-params functions
+        $this->assertBufferState('error_reporting(<cursor>)', $this->buffer);
+    }
+
     public function testResetCompletionOnContextChange()
     {
         $this->context->setAll([
