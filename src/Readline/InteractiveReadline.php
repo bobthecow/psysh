@@ -291,6 +291,15 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     /**
      * {@inheritdoc}
      */
+    public function setUseSuggestions(bool $enabled): void
+    {
+        $this->assertBooted();
+        $this->readline->setUseSuggestions($enabled);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setBracketedPaste(bool $enabled): void
     {
         $this->assertBooted();

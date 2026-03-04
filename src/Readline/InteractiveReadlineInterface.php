@@ -46,6 +46,11 @@ interface InteractiveReadlineInterface extends Readline
     public function setBracketedPaste(bool $enabled): void;
 
     /**
+     * Enable or disable inline suggestions.
+     */
+    public function setUseSuggestions(bool $enabled): void;
+
+    /**
      * Set the CompletionEngine for context-aware tab completion and autosuggestions.
      */
     public function setCompletionEngine(CompletionEngine $completionEngine): void;

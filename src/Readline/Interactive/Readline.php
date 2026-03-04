@@ -65,6 +65,7 @@ class Readline
     private int $lastSubmitEscapeRows = 0;
     private ?string $lastSubmittedText = null;
 
+    private bool $useSuggestions = false;
     private SuggestionEngine $suggestionEngine;
     private OverlayViewport $overlayViewport;
     private FrameRenderer $frameRenderer;
@@ -463,6 +464,14 @@ class Readline
     }
 
     /**
+     * Enable or disable inline suggestions.
+     */
+    public function setUseSuggestions(bool $enabled): void
+    {
+        $this->useSuggestions = $enabled;
+    }
+
+    /**
      * Get the suggestion engine.
      */
     public function getSuggestionEngine(): SuggestionEngine
@@ -492,6 +501,10 @@ class Readline
      */
     private function updateSuggestion(Buffer $buffer): void
     {
+        if (!$this->useSuggestions) {
+            return;
+        }
+
         if ($this->mode !== self::MODE_NORMAL || $this->multilineMode) {
             $this->clearSuggestion();
 

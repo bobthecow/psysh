@@ -70,6 +70,7 @@ class Configuration
         'eraseDuplicates',
         'errorLoggingLevel',
         'useExperimentalReadline',
+        'useSuggestions',
         'forceArrayIndexes',
         'formatterStyles',
         'historyFile',
@@ -110,6 +111,7 @@ class Configuration
     private int $historySize = 0;
     private ?bool $eraseDuplicates = null;
     private bool $useExperimentalReadline = false;
+    private bool $useSuggestions = false;
     private ?string $manualDbFile = null;
     private bool $hasReadline;
     private ?bool $useReadline = null;
@@ -1491,6 +1493,22 @@ class Configuration
     public function useExperimentalReadline(): bool
     {
         return $this->useExperimentalReadline;
+    }
+
+    /**
+     * Enable inline suggestions in interactive readline.
+     */
+    public function setUseSuggestions(bool $enabled): void
+    {
+        $this->useSuggestions = $enabled;
+    }
+
+    /**
+     * Check whether inline suggestions are enabled.
+     */
+    public function useSuggestions(): bool
+    {
+        return $this->useSuggestions;
     }
 
     /**

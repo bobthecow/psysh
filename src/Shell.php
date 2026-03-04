@@ -230,6 +230,7 @@ class Shell extends Application
             $readline->setTheme($this->config->theme());
             $readline->setRequireSemicolons($this->config->requireSemicolons());
             $readline->setBracketedPaste($this->config->useBracketedPaste());
+            $readline->setUseSuggestions($this->config->useSuggestions());
         }
 
         if ($readline instanceof ShellAware) {

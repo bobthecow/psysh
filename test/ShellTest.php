@@ -313,6 +313,10 @@ class ShellTest extends TestCase
             {
             }
 
+            public function setUseSuggestions(bool $enabled): void
+            {
+            }
+
             public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
             {
                 $this->completionEngine = $completionEngine;
@@ -443,6 +447,10 @@ class ShellTest extends TestCase
             public function setBracketedPaste(bool $enabled): void
             {
                 $this->bracketedPaste = $enabled;
+            }
+
+            public function setUseSuggestions(bool $enabled): void
+            {
             }
 
             public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
@@ -1081,6 +1089,10 @@ class ShellTest extends TestCase
             }
 
             public function setBracketedPaste(bool $enabled): void
+            {
+            }
+
+            public function setUseSuggestions(bool $enabled): void
             {
             }
 
