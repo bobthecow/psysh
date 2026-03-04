@@ -1076,4 +1076,25 @@ class ConfigurationTest extends TestCase
         $this->assertCount(1, $warmers);
         $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
     }
+
+    public function testUseTabCompletionWithInteractiveReadline()
+    {
+        $config = $this->getConfig();
+        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+
+        // Defaults to true with InteractiveReadlineInterface
+        $this->assertTrue($config->useTabCompletion());
+    }
+
+    public function testUseTabCompletionDisabledWithInteractiveReadline()
+    {
+        $config = new Configuration([
+            'configFile'       => __DIR__.'/Fixtures/empty.php',
+            'useTabCompletion' => false,
+        ]);
+        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+
+        // Respects explicit false even with InteractiveReadlineInterface
+        $this->assertFalse($config->useTabCompletion());
+    }
 }

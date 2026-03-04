@@ -1543,6 +1543,10 @@ class Configuration
      */
     public function useTabCompletion(): bool
     {
+        if (isset($this->readline) && $this->readline instanceof Readline\InteractiveReadlineInterface) {
+            return $this->useTabCompletion ?? true;
+        }
+
         return isset($this->useTabCompletion) ? ($this->hasReadline && $this->useTabCompletion) : $this->hasReadline;
     }
 
