@@ -14,11 +14,17 @@ namespace Psy\Test;
 use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ParseErrorException;
+use Psy\Readline\Interactive\Input\History;
+use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Shell;
+use Psy\ShellAware;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
 use Psy\Test\Fixtures\FakeShell;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellTest extends TestCase
@@ -229,6 +235,268 @@ class ShellTest extends TestCase
     /**
      * @group isolation-fail
      */
+    public function testCompletionSourcesViaConfigQueueUntilCompletionEngineInitialization()
+    {
+        $source = new class() implements \Psy\Completion\Source\SourceInterface {
+            public function appliesToKind(int $kinds): bool
+            {
+                return true;
+            }
+
+            public function getCompletions(\Psy\Completion\AnalysisResult $analysis): array
+            {
+                return ['custom'];
+            }
+        };
+
+        $readline = new class() implements InteractiveReadlineInterface, ShellAware {
+            public ?\Psy\Completion\CompletionEngine $completionEngine = null;
+
+            /** @phpstan-ignore-next-line (interface-required constructor params are unused in stub) */
+            public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
+            {
+            }
+
+            public static function isSupported(): bool
+            {
+                return true;
+            }
+
+            public static function supportsBracketedPaste(): bool
+            {
+                return true;
+            }
+
+            public function addHistory(string $line): bool
+            {
+                return true;
+            }
+
+            public function clearHistory(): bool
+            {
+                return true;
+            }
+
+            public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function readHistory(): bool
+            {
+                return true;
+            }
+
+            public function readline(?string $prompt = null)
+            {
+                return false;
+            }
+
+            public function redisplay()
+            {
+            }
+
+            public function writeHistory(): bool
+            {
+                return true;
+            }
+
+            public function setRequireSemicolons(bool $require): void
+            {
+            }
+
+            public function setTheme(\Psy\Output\Theme $theme): void
+            {
+            }
+
+            public function setBracketedPaste(bool $enabled): void
+            {
+            }
+
+            public function setUseSuggestions(bool $enabled): void
+            {
+            }
+
+            public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
+            {
+                $this->completionEngine = $completionEngine;
+            }
+
+            public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
+            {
+            }
+
+            public function getHistory(): History
+            {
+                return new History();
+            }
+
+            public function setShell(Shell $shell): void
+            {
+            }
+
+            public function setOutputWritten(bool $written): void
+            {
+            }
+        };
+
+        $config = $this->getConfig([
+            'completionSources' => [$source],
+            'useTabCompletion'  => true,
+        ]);
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+
+        $pendingProperty = new \ReflectionProperty(Shell::class, 'pendingCompletionSources');
+        if (\PHP_VERSION_ID < 80100) {
+            $pendingProperty->setAccessible(true);
+        }
+        $this->assertSame([$source], $pendingProperty->getValue($shell));
+
+        $shell->boot();
+
+        $method = new \ReflectionMethod(Shell::class, 'initializeCompletionEngine');
+        if (\PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
+        $method->invoke($shell);
+
+        $this->assertNotNull($readline->completionEngine);
+        $this->assertSame([], $pendingProperty->getValue($shell));
+
+        $sourcesProperty = new \ReflectionProperty(\Psy\Completion\CompletionEngine::class, 'sources');
+        if (\PHP_VERSION_ID < 80100) {
+            $sourcesProperty->setAccessible(true);
+        }
+        $sources = $sourcesProperty->getValue($readline->completionEngine);
+        $this->assertTrue(\in_array($source, $sources, true));
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testBootConfiguresInteractiveReadline()
+    {
+        $readline = new class() implements InteractiveReadlineInterface, ShellAware {
+            public bool $shellWasSet = false;
+            public ?bool $requireSemicolons = null;
+            public ?bool $bracketedPaste = null;
+            public ?\Psy\Output\Theme $theme = null;
+            public ?OutputInterface $output = null;
+
+            /** @phpstan-ignore-next-line (interface-required constructor params are unused in stub) */
+            public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
+            {
+            }
+
+            public static function isSupported(): bool
+            {
+                return true;
+            }
+
+            public static function supportsBracketedPaste(): bool
+            {
+                return true;
+            }
+
+            public function addHistory(string $line): bool
+            {
+                return true;
+            }
+
+            public function clearHistory(): bool
+            {
+                return true;
+            }
+
+            public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function readHistory(): bool
+            {
+                return true;
+            }
+
+            public function readline(?string $prompt = null)
+            {
+                return false;
+            }
+
+            public function redisplay()
+            {
+            }
+
+            public function writeHistory(): bool
+            {
+                return true;
+            }
+
+            public function setRequireSemicolons(bool $require): void
+            {
+                $this->requireSemicolons = $require;
+            }
+
+            public function setTheme(\Psy\Output\Theme $theme): void
+            {
+                $this->theme = $theme;
+            }
+
+            public function setBracketedPaste(bool $enabled): void
+            {
+                $this->bracketedPaste = $enabled;
+            }
+
+            public function setUseSuggestions(bool $enabled): void
+            {
+            }
+
+            public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
+            {
+            }
+
+            public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
+            {
+                $this->output = $output;
+            }
+
+            public function getHistory(): History
+            {
+                return new History();
+            }
+
+            public function setShell(Shell $shell): void
+            {
+                $this->shellWasSet = true;
+            }
+
+            public function setOutputWritten(bool $written): void
+            {
+            }
+        };
+
+        $config = $this->getConfig([
+            'useBracketedPaste' => true,
+            'requireSemicolons' => true,
+        ]);
+        $config->setReadline($readline);
+
+        $runOutput = $this->getOutput();
+        $shell = new Shell($config);
+        $shell->setOutput($runOutput);
+        $shell->boot();
+
+        $this->assertTrue($readline->shellWasSet);
+        $this->assertSame($config->requireSemicolons(), $readline->requireSemicolons);
+        $this->assertSame($config->useBracketedPaste(), $readline->bracketedPaste);
+        $this->assertSame($config->theme(), $readline->theme);
+    }
+
+    /**
+     * @group isolation-fail
+     */
     public function testRenderingExceptions()
     {
         $shell = new Shell($this->getConfig());
@@ -253,6 +521,64 @@ class ShellTest extends TestCase
 
         $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line '.$line.'.';
         $this->assertSame($expected, \trim($streamContents));
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testGetInputMarksOutputWrittenForCommandOutput()
+    {
+        $readline = $this->getInteractiveReadline(['cmd', false]);
+        $config = $this->getConfig();
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->add(new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $output->writeln('visible command output');
+
+                return 0;
+            }
+        });
+
+        $shell->setOutput($this->getOutput());
+        $shell->getInput();
+
+        $this->assertSame([true], $readline->outputWrittenCalls);
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testGetInputLeavesOutputWrittenFalseWhenCommandDoesNotWriteOutput()
+    {
+        $readline = $this->getInteractiveReadline(['cmd', false]);
+        $config = $this->getConfig();
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->add(new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        });
+
+        $shell->setOutput($this->getOutput());
+        $shell->getInput();
+
+        $this->assertSame([false], $readline->outputWrittenCalls);
     }
 
     /**
@@ -692,6 +1018,106 @@ class ShellTest extends TestCase
         $input = new StringInput($input);
 
         return $input;
+    }
+
+    private function getInteractiveReadline(array $inputs)
+    {
+        return new class($inputs) implements InteractiveReadlineInterface, ShellAware {
+            private array $inputs;
+            public array $outputWrittenCalls = [];
+
+            /** @phpstan-ignore-next-line (interface-required constructor params are repurposed in stub) */
+            public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
+            {
+                $this->inputs = \is_array($historyFile) ? $historyFile : [];
+            }
+
+            public static function isSupported(): bool
+            {
+                return true;
+            }
+
+            public static function supportsBracketedPaste(): bool
+            {
+                return true;
+            }
+
+            public function addHistory(string $line): bool
+            {
+                return true;
+            }
+
+            public function clearHistory(): bool
+            {
+                return true;
+            }
+
+            public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function readHistory(): bool
+            {
+                return true;
+            }
+
+            public function readline(?string $prompt = null)
+            {
+                if ($this->inputs === []) {
+                    return false;
+                }
+
+                return \array_shift($this->inputs);
+            }
+
+            public function redisplay()
+            {
+            }
+
+            public function writeHistory(): bool
+            {
+                return true;
+            }
+
+            public function setRequireSemicolons(bool $require): void
+            {
+            }
+
+            public function setTheme(\Psy\Output\Theme $theme): void
+            {
+            }
+
+            public function setBracketedPaste(bool $enabled): void
+            {
+            }
+
+            public function setUseSuggestions(bool $enabled): void
+            {
+            }
+
+            public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
+            {
+            }
+
+            public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
+            {
+            }
+
+            public function getHistory(): History
+            {
+                return new History();
+            }
+
+            public function setShell(Shell $shell): void
+            {
+            }
+
+            public function setOutputWritten(bool $written): void
+            {
+                $this->outputWrittenCalls[] = $written;
+            }
+        };
     }
 
     private function getOutput()

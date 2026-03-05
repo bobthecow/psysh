@@ -34,6 +34,30 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     }
 
     /**
+     * Get current readline input word (variable name).
+     *
+     * Overrides parent to handle T_VARIABLE tokens.
+     *
+     * @param array $tokens Tokenized readline input (see token_get_all)
+     */
+    protected function getInput(array $tokens): string
+    {
+        $var = '';
+        $firstToken = \array_pop($tokens);
+
+        // Handle T_VARIABLE tokens (e.g., $varName)
+        if (\is_array($firstToken) && self::tokenIs($firstToken, self::T_VARIABLE)) {
+            // Token value includes the $, so strip it
+            $var = \ltrim((string) $firstToken[1], '$');
+        } elseif (\is_array($firstToken) && self::tokenIs($firstToken, self::T_STRING)) {
+            // Fallback to parent behavior for T_STRING tokens
+            $var = (string) $firstToken[1];
+        }
+
+        return $var;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasMatched(array $tokens): bool

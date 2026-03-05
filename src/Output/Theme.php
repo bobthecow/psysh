@@ -36,7 +36,7 @@ class Theme
 
     // Custom themes fall back to DEFAULT_STYLES for any undefined style.
     const DEFAULT_STYLES = [
-        'info'    => ['white', 'blue', ['bold']],
+        'info'    => ['green', null, ['bold']],
         'warning' => ['black', 'yellow'],
         'error'   => ['white', 'red', ['bold']],
         'whisper' => ['gray'],
@@ -72,6 +72,11 @@ class Theme
 
         // Code-specific formatting
         'inline_html' => ['cyan'],
+
+        // Interactive readline
+        'selected'          => [null, null, ['reverse']],
+        'input_frame'       => ['bright-white', 'gray'],
+        'input_frame_error' => ['bright-white', 'red'],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
@@ -282,7 +287,18 @@ class Theme
      */
     private function getStyle(string $name, bool $useGrayFallback): array
     {
-        return \array_map(fn ($style) => ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
+        if (!$useGrayFallback) {
+            return $this->styles[$name];
+        }
+
+        // The default input_frame styles use extended colors (bright-white,
+        // gray) unavailable on older Symfony Console. Drop them rather than
+        // falling back to unreadable backgrounds.
+        if (($name === 'input_frame' || $name === 'input_frame_error') && $this->styles[$name] === static::DEFAULT_STYLES[$name]) {
+            return [null, null];
+        }
+
+        return \array_map(fn ($style) => ($style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
     }
 
     /**

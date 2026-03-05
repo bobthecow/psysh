@@ -520,28 +520,29 @@ $version
   $name [options] [--] [<files>...]
 
 <comment>Arguments:</>
-  <info>files</info>                   PHP file(s) to load before starting the shell
+  <info>files</info>                        PHP file(s) to load before starting the shell
 
 <comment>Options:</>
-  <info>-h, --help</info>              Display this help message
-      <info>--info</info>              Display PsySH environment and configuration info
-  <info>-V, --version</info>           Display the PsySH version{$selfUpdateOption}
-      <info>--update-manual[=LANG]</info> Download and install the latest PHP manual (optional language code)
+  <info>-h, --help</info>                   Display this help message
+      <info>--info</info>                   Display PsySH environment and configuration info
+  <info>-V, --version</info>                Display the PsySH version{$selfUpdateOption}
+      <info>--update-manual[=LANG]</info>   Download and install the latest PHP manual (optional language code)
 
-      <info>--warm-autoload</info>     Enable autoload warming for better tab completion
-      <info>--yolo</info>              Run PsySH without input validation (you don't want this)
+      <info>--experimental-readline</info>  Use experimental interactive readline implementation
+      <info>--warm-autoload</info>          Enable autoload warming for better tab completion
+      <info>--yolo</info>                   Run PsySH without input validation (you don't want this)
 
-  <info>-c, --config=FILE</info>       Use an alternate PsySH config file location
-      <info>--cwd=PATH</info>          Use an alternate working directory
-      <info>--trust-project</info>     Trust the current project for this run
-      <info>--no-trust-project</info>  Run in Restricted Mode for this project
-      <info>--color|--no-color</info>  Force (or disable with --no-color) colors in output
-  <info>-i, --interactive</info>       Force PsySH to run in interactive mode
-  <info>-n, --no-interactive</info>    Run PsySH without interactive input (requires input from stdin)
-  <info>-r, --raw-output</info>        Print var_export-style return values (for non-interactive input)
-      <info>--compact</info>           Run PsySH with compact output
-  <info>-q, --quiet</info>             Shhhhhh
-  <info>-v|vv|vvv, --verbose</info>    Increase the verbosity of messages
+  <info>-c, --config=FILE</info>            Use an alternate PsySH config file location
+      <info>--cwd=PATH</info>               Use an alternate working directory
+      <info>--trust-project</info>          Trust the current project for this run
+      <info>--no-trust-project</info>       Run in Restricted Mode for this project
+      <info>--color|--no-color</info>       Force (or disable with --no-color) colors in output
+  <info>-i, --interactive</info>            Force PsySH to run in interactive mode
+  <info>-n, --no-interactive</info>         Run PsySH without interactive input (requires input from stdin)
+  <info>-r, --raw-output</info>             Print var_export-style return values (for non-interactive input)
+      <info>--compact</info>                Run PsySH with compact output
+  <info>-q, --quiet</info>                  Shhhhhh
+  <info>-v|vv|vvv, --verbose</info>         Increase the verbosity of messages
 
 <comment>Help:</>
   PsySH is an interactive runtime developer console for PHP. Use it as a REPL
