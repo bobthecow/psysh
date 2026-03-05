@@ -799,6 +799,30 @@ class Buffer
     }
 
     /**
+     * Remove one level of indentation from an indent string.
+     */
+    public function dedent(string $indent): string
+    {
+        return $this->indentationPolicy->dedent($indent);
+    }
+
+    /**
+     * Get the number of spaces needed to reach the next tab stop.
+     */
+    public function spacesToNextTabStop(int $column): int
+    {
+        return $this->indentationPolicy->spacesToNextTabStop($column);
+    }
+
+    /**
+     * Get the number of spaces to remove to reach the previous tab stop.
+     */
+    public function spacesToPreviousTabStop(int $spaces): int
+    {
+        return $this->indentationPolicy->spacesToPreviousTabStop($spaces);
+    }
+
+    /**
      * Find the start position of the previous token.
      *
      * Navigates to the start of the token before the cursor position.

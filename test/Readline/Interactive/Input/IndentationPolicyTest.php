@@ -60,6 +60,20 @@ class IndentationPolicyTest extends TestCase
         $this->assertSame('    ', $policy->calculateNextLineIndent($line, $tokens));
     }
 
+    public function testDedentWithMixedTabAndSpaces(): void
+    {
+        $policy = new IndentationPolicy();
+
+        $this->assertSame("\t", $policy->dedent("\t    "));
+    }
+
+    public function testDedentWithTabOnlyIndentation(): void
+    {
+        $policy = new IndentationPolicy();
+
+        $this->assertSame("\t", $policy->dedent("\t\t"));
+    }
+
     // calculateClosingBracketDedent tests
 
     public function testDedentClosingBrace(): void

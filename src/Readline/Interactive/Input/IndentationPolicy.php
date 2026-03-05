@@ -18,6 +18,8 @@ use Psy\Readline\Interactive\Helper\BracketPair;
  */
 class IndentationPolicy
 {
+    private const INDENT_WIDTH = 4;
+
     /**
      * @param array $tokens Snapshot tokens for the current full buffer
      */
@@ -38,15 +40,54 @@ class IndentationPolicy
         $currentIndent = $this->getLineIndentation($lastLine);
         $lastChar = \substr(\rtrim($trimmedLastLine), -1);
 
-        if ($lastChar === '{' || $lastChar === '[' || $lastChar === '(') {
-            return $currentIndent.'    ';
+        if (\in_array($lastChar, BracketPair::OPENING_BRACKETS)) {
+            return $this->indent($currentIndent);
         }
 
         if ($this->endsWithControlStructure($trimmedLastLine)) {
-            return $currentIndent.'    ';
+            return $this->indent($currentIndent);
         }
 
         return $currentIndent;
+    }
+
+    /**
+     * Add one level of indentation.
+     */
+    public function indent(string $currentIndent): string
+    {
+        return $currentIndent.\str_repeat(' ', self::INDENT_WIDTH);
+    }
+
+    /**
+     * Remove one level of indentation.
+     */
+    public function dedent(string $indent): string
+    {
+        if ($indent === '') {
+            return '';
+        }
+
+        // Calculate the visual column width, accounting for tabs.
+        $column = 0;
+        $length = \strlen($indent);
+
+        for ($i = 0; $i < $length; $i++) {
+            $column += $indent[$i] === "\t" ? $this->spacesToNextTabStop($column) : 1;
+        }
+
+        $target = $column - $this->spacesToPreviousTabStop($column);
+
+        // Find the byte position where truncating leaves us at the target column.
+        $column = 0;
+        for ($i = 0; $i < $length; $i++) {
+            $column += $indent[$i] === "\t" ? $this->spacesToNextTabStop($column) : 1;
+            if ($column > $target) {
+                return \substr($indent, 0, $i);
+            }
+        }
+
+        return $indent;
     }
 
     /**
@@ -93,7 +134,7 @@ class IndentationPolicy
             return 0;
         }
 
-        return \min(4, $leadingSpaces);
+        return $this->spacesToPreviousTabStop($leadingSpaces);
     }
 
     /**
@@ -164,6 +205,24 @@ class IndentationPolicy
         }
 
         return false;
+    }
+
+    /**
+     * Get the number of spaces needed to reach the next tab stop.
+     */
+    public function spacesToNextTabStop(int $column): int
+    {
+        return self::INDENT_WIDTH - ($column % self::INDENT_WIDTH);
+    }
+
+    /**
+     * Get the number of spaces to remove to reach the previous tab stop.
+     */
+    public function spacesToPreviousTabStop(int $spaces): int
+    {
+        $remainder = $spaces % self::INDENT_WIDTH;
+
+        return $remainder === 0 ? self::INDENT_WIDTH : $remainder;
     }
 
     /**

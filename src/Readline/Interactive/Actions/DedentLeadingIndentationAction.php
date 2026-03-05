@@ -22,8 +22,6 @@ use Psy\Readline\Interactive\Terminal;
  */
 class DedentLeadingIndentationAction implements ActionInterface
 {
-    private const INDENT_WIDTH = 4;
-
     /**
      * {@inheritdoc}
      */
@@ -52,7 +50,7 @@ class DedentLeadingIndentationAction implements ActionInterface
 
             $leadingSpaces = \strspn($line, ' ');
 
-            return $buffer->deleteForward($this->spacesToPreviousTabStop($leadingSpaces));
+            return $buffer->deleteForward($buffer->spacesToPreviousTabStop($leadingSpaces));
         }
 
         // Cursor is within leading whitespace: backward-delete to previous tab stop.
@@ -63,7 +61,7 @@ class DedentLeadingIndentationAction implements ActionInterface
         $beforeCursor = \substr($line, 0, $cursorInLine);
         $trailingSpaces = \strlen($beforeCursor) - \strlen(\rtrim($beforeCursor, ' '));
 
-        return $buffer->deleteBackward($this->spacesToPreviousTabStop($trailingSpaces));
+        return $buffer->deleteBackward($buffer->spacesToPreviousTabStop($trailingSpaces));
     }
 
     /**
@@ -72,15 +70,5 @@ class DedentLeadingIndentationAction implements ActionInterface
     public function getName(): string
     {
         return 'dedent-leading-indentation';
-    }
-
-    /**
-     * Get the number of spaces to remove to reach the previous tab stop.
-     */
-    private function spacesToPreviousTabStop(int $spaces): int
-    {
-        $remainder = $spaces % self::INDENT_WIDTH;
-
-        return $remainder === 0 ? self::INDENT_WIDTH : $remainder;
     }
 }

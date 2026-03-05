@@ -27,13 +27,28 @@ class InsertLineBreakAction implements ActionInterface
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
         $indent = $buffer->calculateIndentBeforeCursor();
+        $expandBracket = $this->isCursorBeforeClosingBracket($buffer);
 
-        $buffer->insert("\n");
-        if ($indent !== '') {
-            $buffer->insert($indent);
+        $buffer->insert("\n".$indent);
+
+        // Push the closing bracket to its own line, dedented one level.
+        if ($expandBracket) {
+            $cursorPos = $buffer->getCursor();
+            $buffer->insert("\n".$buffer->dedent($indent));
+            $buffer->setCursor($cursorPos);
         }
 
         return true;
+    }
+
+    /**
+     * Check whether the cursor is immediately before a closing bracket.
+     */
+    private function isCursorBeforeClosingBracket(Buffer $buffer): bool
+    {
+        $afterCursor = $buffer->getAfterCursor();
+
+        return $afterCursor !== '' && \in_array($afterCursor[0], BracketPair::CLOSING_BRACKETS);
     }
 
     /**

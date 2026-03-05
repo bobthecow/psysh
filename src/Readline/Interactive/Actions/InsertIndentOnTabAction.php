@@ -20,8 +20,6 @@ use Psy\Readline\Interactive\Terminal;
  */
 class InsertIndentOnTabAction implements ActionInterface
 {
-    private const INDENT_WIDTH = 4;
-
     /**
      * {@inheritdoc}
      */
@@ -39,7 +37,7 @@ class InsertIndentOnTabAction implements ActionInterface
             return false;
         }
 
-        $spaces = self::INDENT_WIDTH - ($cursorInLine % self::INDENT_WIDTH);
+        $spaces = $buffer->spacesToNextTabStop($cursorInLine);
         $buffer->insert(\str_repeat(' ', $spaces));
 
         return true;

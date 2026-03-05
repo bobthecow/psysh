@@ -38,6 +38,12 @@ class InsertLineBreakOnUnclosedBracketsAction implements ActionInterface
             return false;
         }
 
+        // If the full buffer is semantically complete, let it submit
+        // even if the cursor is between brackets.
+        if ($buffer->isCompleteStatement()) {
+            return false;
+        }
+
         return $this->lineBreakAction->execute($buffer, $terminal, $readline);
     }
 

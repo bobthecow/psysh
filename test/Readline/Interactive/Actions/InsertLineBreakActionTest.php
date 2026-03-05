@@ -42,19 +42,59 @@ class InsertLineBreakActionTest extends TestCase
     {
         $action = new InsertLineBreakAction();
 
-        $this->setBufferState($this->buffer, 'foo(<cursor>)');
-
-        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
-        $this->assertBufferState("foo(\n    <cursor>)", $this->buffer);
-    }
-
-    public function testInsertLineBreakInMultilineBuffer(): void
-    {
-        $action = new InsertLineBreakAction();
-
         $this->setBufferState($this->buffer, "echo 'x'<cursor>");
 
         $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
         $this->assertBufferState("echo 'x'\n<cursor>", $this->buffer);
+    }
+
+    public function testInsertLineBreakExpandsBrackets(): void
+    {
+        $action = new InsertLineBreakAction();
+
+        $this->setBufferState($this->buffer, 'foo(<cursor>)');
+
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+        $this->assertBufferState("foo(\n    <cursor>\n)", $this->buffer);
+    }
+
+    public function testInsertLineBreakExpandsBraces(): void
+    {
+        $action = new InsertLineBreakAction();
+
+        $this->setBufferState($this->buffer, 'function() {<cursor>}');
+
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+        $this->assertBufferState("function() {\n    <cursor>\n}", $this->buffer);
+    }
+
+    public function testInsertLineBreakExpandsNestedBrackets(): void
+    {
+        $action = new InsertLineBreakAction();
+
+        $this->setBufferState($this->buffer, '    foo(<cursor>)');
+
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+        $this->assertBufferState("    foo(\n        <cursor>\n    )", $this->buffer);
+    }
+
+    public function testInsertLineBreakExpandsBracketWithTabIndentation(): void
+    {
+        $action = new InsertLineBreakAction();
+
+        $this->setBufferState($this->buffer, "\tfoo(<cursor>)");
+
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+        $this->assertBufferState("\tfoo(\n\t    <cursor>\n\t)", $this->buffer);
+    }
+
+    public function testInsertLineBreakDoesNotExpandWithoutClosingBracket(): void
+    {
+        $action = new InsertLineBreakAction();
+
+        $this->setBufferState($this->buffer, 'foo(<cursor>');
+
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+        $this->assertBufferState("foo(\n    <cursor>", $this->buffer);
     }
 }

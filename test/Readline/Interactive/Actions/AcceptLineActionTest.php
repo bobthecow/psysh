@@ -52,47 +52,55 @@ class AcceptLineActionTest extends TestCase
         ], false);
     }
 
-    public function testEnterBetweenParensInsertsNewline()
+    public function testEnterBetweenParensSubmitsWhenComplete()
     {
         $action = $this->createEnterAction(true);
 
+        // foo() is a complete statement, so Enter submits even with
+        // cursor between the parens.
         $this->setBufferState($this->buffer, 'foo(<cursor>)');
 
-        $this->readline->method('isMultilineMode')
-            ->willReturn(false);
-
-        $result = $action->execute($this->buffer, $this->terminal, $this->readline);
-
-        $this->assertTrue($result);
-        $this->assertBufferState("foo(\n    <cursor>)", $this->buffer);
-    }
-
-    public function testEnterBetweenBracketsInsertsNewline()
-    {
-        $action = $this->createEnterAction(true);
-
-        $this->setBufferState($this->buffer, 'array[<cursor>]');
-
+        $this->readline->method('isCommand')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(false);
+        $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
+        $this->terminal->expects($this->once())->method('write')->with("\n\n\n");
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
-        $this->assertTrue($result);
-        $this->assertBufferState("array[\n    <cursor>]", $this->buffer);
+        $this->assertFalse($result);
     }
 
-    public function testEnterBetweenBracesInsertsNewline()
+    public function testEnterBetweenBracesSubmitsWhenComplete()
     {
         $action = $this->createEnterAction(true);
 
+        // function() {} is a complete expression, so Enter submits.
         $this->setBufferState($this->buffer, 'function() {<cursor>}');
 
+        $this->readline->method('isCommand')->willReturn(false);
+        $this->readline->method('isMultilineMode')->willReturn(false);
+        $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
+        $this->terminal->expects($this->once())->method('write')->with("\n\n\n");
+
+        $result = $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertFalse($result);
+    }
+
+    public function testEnterBetweenParensInsertsNewlineWhenIncomplete()
+    {
+        $action = $this->createEnterAction(true);
+
+        // $fn = function(<cursor>) is incomplete (no body yet), so Enter
+        // inserts a newline inside the parens.
+        $this->setBufferState($this->buffer, '$fn = function(<cursor>)');
+
         $this->readline->method('isMultilineMode')->willReturn(false);
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
         $this->assertTrue($result);
-        $this->assertBufferState("function() {\n    <cursor>}", $this->buffer);
+        $this->assertBufferState("\$fn = function(\n    <cursor>\n)", $this->buffer);
     }
 
     public function testEnterAfterBracketsExecutes()
@@ -162,16 +170,38 @@ class AcceptLineActionTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testEnterBetweenBracketsInMultilineMode()
+    public function testEnterBetweenBracketsInMultilineModeSubmitsWhenComplete()
     {
         $action = $this->createEnterAction(true);
 
+        // function test() {} is a complete declaration, so Enter submits
+        // even in multiline mode.
         $this->setBufferState($this->buffer, 'function test() {<cursor>}');
 
+        $this->readline->method('isCommand')->willReturn(false);
+        $this->readline->method('isInOpenStringOrComment')->willReturn(false);
         $this->readline->method('isMultilineMode')->willReturn(true);
+        $this->readline->method('getInputFrameOuterRowCount')->willReturn(2);
+        $this->terminal->expects($this->once())->method('write')->with("\n\n\n");
+
+        $result = $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertFalse($result);
+    }
+
+    public function testEnterBetweenBracketsInMultilineModeInsertsNewlineWhenIncomplete()
+    {
+        $action = $this->createEnterAction(true);
+
+        // $fn = function(<cursor>) is incomplete (no body), so Enter
+        // still inserts a newline even in multiline mode.
+        $this->setBufferState($this->buffer, '$fn = function(<cursor>)');
+
+        $this->readline->method('isMultilineMode')->willReturn(true);
+
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
         $this->assertTrue($result);
-        $this->assertBufferState("function test() {\n    <cursor>}", $this->buffer);
+        $this->assertBufferState("\$fn = function(\n    <cursor>\n)", $this->buffer);
     }
 }
