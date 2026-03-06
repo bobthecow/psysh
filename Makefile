@@ -49,7 +49,7 @@ test-phar: build/psysh/psysh
 	@cd $(PHAR_TEST_DIR) && \
 		COMPOSER_ROOT_VERSION=1.0.0 composer init --no-interaction --name=psy/test --autoload=test/ 2>&1 | grep -v "PSR-4" || true && \
 		COMPOSER_ROOT_VERSION=1.0.0 composer require --no-interaction --no-progress "phpunit/phpunit:^9.6" 2>&1 | grep -v "locking\|Extracting" | head -3 || true && \
-		vendor/bin/phpunit --bootstrap psysh --exclude-group isolation-fail test/
+		php -d memory_limit=1G vendor/bin/phpunit --bootstrap psysh --exclude-group isolation-fail test/
 	@rm -rf $(PHAR_TEST_DIR)
 
 test-downstream: ## Run downstream compatibility tests (tier 1)
