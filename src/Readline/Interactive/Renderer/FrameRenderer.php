@@ -204,12 +204,17 @@ class FrameRenderer
      */
     public function renderSearchFrame(string $previewText, string $searchPrompt): void
     {
-        $isMultiline = \strpos($previewText, "\n") !== false;
-        $contentLines = $isMultiline
-            ? $this->formatLinesWithPrompts($previewText)
-            : [$this->getPromptForLine(0).$previewText];
+        // Show a concise, truncated preview on the prompt line.
+        $promptLine = $this->getPromptForLine(0);
+        if ($previewText !== '') {
+            $collapsed = History::collapseToSingleLine($previewText);
+            $promptWidth = $this->getPromptWidthForLine(0, $this->terminal->getFormatter());
+            $maxWidth = $this->getTerminalWidth() - $promptWidth;
+            $truncated = DisplayString::truncate($collapsed, $maxWidth, true);
+            $promptLine .= OutputFormatter::escape($truncated);
+        }
 
-        $inputLines = $this->wrapInInputFrame($contentLines);
+        $inputLines = $this->wrapInInputFrame([$promptLine]);
 
         $inputRowCount = $this->getFrameRowCount($inputLines);
         $searchPromptRows = $this->lineRowCount($searchPrompt);
