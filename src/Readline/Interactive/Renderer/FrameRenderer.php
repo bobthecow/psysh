@@ -11,14 +11,15 @@
 
 namespace Psy\Readline\Interactive\Renderer;
 
+use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Layout\DisplayString;
-use Psy\Readline\Interactive\Layout\PromptMap;
 use Psy\Readline\Interactive\Layout\SoftWrapCalculator;
 use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Readline\Interactive\Terminal;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 
 /**
  * Frame-buffered renderer for interactive readline.
@@ -34,7 +35,7 @@ class FrameRenderer
 
     private Terminal $terminal;
     private OverlayViewport $viewport;
-    private PromptMap $prompts;
+    private Theme $theme;
 
     /** @var string[] Lines currently displayed on the terminal. */
     private array $previousFrame = [];
@@ -51,7 +52,6 @@ class FrameRenderer
     /** Cached wrapped row count for history lines, invalidated on change. */
     private int $historyRowCount = 0;
 
-    private bool $compactInputFrame = false;
     private bool $errorMode = false;
 
     private ?int $lastTerminalWidth = null;
@@ -62,35 +62,23 @@ class FrameRenderer
     /** @var array<string, int> Cached row counts keyed by line content. */
     private array $lineRowCache = [];
 
-    public function __construct(Terminal $terminal, OverlayViewport $viewport)
+    /** @var array<string, int> Cached prompt widths keyed by "line:decorated". */
+    private array $promptWidthCache = [];
+
+    public function __construct(Terminal $terminal, OverlayViewport $viewport, ?Theme $theme = null)
     {
         $this->terminal = $terminal;
         $this->viewport = $viewport;
-        $this->prompts = new PromptMap();
+        $this->theme = $theme ?? new Theme();
     }
 
     /**
-     * Set the single-line prompt string.
+     * Set the theme for prompt strings and compact mode.
      */
-    public function setSingleLinePrompt(string $prompt): void
+    public function setTheme(Theme $theme): void
     {
-        $this->prompts->setSingleLinePrompt($prompt);
-    }
-
-    /**
-     * Set the multi-line continuation prompt.
-     */
-    public function setMultilinePrompt(string $prompt): void
-    {
-        $this->prompts->setMultilinePrompt($prompt);
-    }
-
-    /**
-     * Enable compact input frame rendering (no gutters/background separators).
-     */
-    public function setCompactInputFrame(bool $compact): void
-    {
-        $this->compactInputFrame = $compact;
+        $this->theme = $theme;
+        $this->promptWidthCache = [];
     }
 
     /**
@@ -98,7 +86,7 @@ class FrameRenderer
      */
     public function isCompactInputFrame(): bool
     {
-        return $this->compactInputFrame;
+        return $this->theme->compact();
     }
 
     /**
@@ -114,7 +102,7 @@ class FrameRenderer
      */
     public function getInputFrameOuterRowCount(): int
     {
-        return $this->compactInputFrame ? 0 : self::INPUT_FRAME_PADDING_ROWS;
+        return $this->theme->compact() ? 0 : self::INPUT_FRAME_PADDING_ROWS;
     }
 
     /**
@@ -127,7 +115,35 @@ class FrameRenderer
             $lineNumber = $buffer->getCurrentLineNumber();
         }
 
-        return $this->prompts->getPromptWidthForLine($lineNumber, $this->terminal->getFormatter());
+        return $this->getPromptWidthForLine($lineNumber, $this->terminal->getFormatter());
+    }
+
+    /**
+     * Get the prompt string for a given line number.
+     */
+    private function getPromptForLine(int $lineNumber): string
+    {
+        return $lineNumber === 0 ? $this->theme->prompt() : $this->theme->bufferPrompt();
+    }
+
+    /**
+     * Get the display width of the prompt for a given line number.
+     */
+    private function getPromptWidthForLine(int $lineNumber, ?OutputFormatterInterface $formatter = null): int
+    {
+        $key = ($lineNumber === 0 ? '0' : '1').($formatter !== null ? ':f' : ':p');
+        if (isset($this->promptWidthCache[$key])) {
+            return $this->promptWidthCache[$key];
+        }
+
+        $prompt = $this->getPromptForLine($lineNumber);
+        $width = ($formatter === null)
+            ? DisplayString::width($prompt)
+            : DisplayString::widthWithoutFormatting($prompt, $formatter);
+
+        $this->promptWidthCache[$key] = $width;
+
+        return $width;
     }
 
     /**
@@ -181,18 +197,35 @@ class FrameRenderer
     }
 
     /**
-     * Render a search prompt in place of the normal input line.
+     * Render the search UI: preview in the input frame, search field + results below.
+     *
+     * @param string $previewText  Text to show in the input frame as a preview
+     * @param string $searchPrompt The search field line (cursor goes here)
      */
-    public function renderSearchPrompt(string $prompt): void
+    public function renderSearchFrame(string $previewText, string $searchPrompt): void
     {
-        $this->viewport->setInputRowCount($this->lineRowCount($prompt));
+        $isMultiline = \strpos($previewText, "\n") !== false;
+        $contentLines = $isMultiline
+            ? $this->formatLinesWithPrompts($previewText)
+            : [$this->getPromptForLine(0).$previewText];
 
+        $inputLines = $this->wrapInInputFrame($contentLines);
+
+        $inputRowCount = $this->getFrameRowCount($inputLines);
+        $searchPromptRows = $this->lineRowCount($searchPrompt);
+        $this->viewport->setInputRowCount($inputRowCount + $searchPromptRows);
+
+        // Frame = input frame + search field + overlay results
+        $frame = \array_merge($inputLines, [$searchPrompt], $this->overlayLines);
+
+        // Position cursor at end of search prompt, below the input frame
         $calculator = $this->getSoftWrapCalculator();
-        $absoluteColumn = DisplayString::widthWithoutAnsi($prompt) + 1;
-        $cursorRow = $calculator->rowOffsetForAbsoluteColumn($absoluteColumn);
+        $absoluteColumn = DisplayString::widthWithoutAnsi($searchPrompt) + 1;
+        $searchLineRow = $this->getRowOffsetBeforeLine($frame, \count($inputLines));
+        $cursorRow = $searchLineRow + $calculator->rowOffsetForAbsoluteColumn($absoluteColumn);
         $cursorColumn = $calculator->normalizeColumn($absoluteColumn);
 
-        $this->syncFrame([$prompt], $cursorRow, $cursorColumn);
+        $this->syncFrame($frame, $cursorRow, $cursorColumn);
         $this->terminal->flush();
     }
 
@@ -228,7 +261,7 @@ class FrameRenderer
         if ($isMultiline) {
             $contentLines = $this->formatLinesWithPrompts($displayText);
         } else {
-            $line = $this->prompts->getPromptForLine(0).$displayText;
+            $line = $this->getPromptForLine(0).$displayText;
 
             if ($suggestion !== null) {
                 $line = $this->appendSuggestionGhostText($line, $buffer, $text, $suggestion);
@@ -237,7 +270,19 @@ class FrameRenderer
             $contentLines[] = $line;
         }
 
-        if ($this->compactInputFrame) {
+        return $this->wrapInInputFrame($contentLines);
+    }
+
+    /**
+     * Wrap content lines in the input frame (background, padding).
+     *
+     * @param string[] $contentLines
+     *
+     * @return string[]
+     */
+    private function wrapInInputFrame(array $contentLines): array
+    {
+        if ($this->theme->compact()) {
             return \array_merge($this->historyLines, $contentLines);
         }
 
@@ -266,7 +311,7 @@ class FrameRenderer
     {
         $result = [];
         foreach (\explode("\n", $text) as $i => $line) {
-            $result[] = $this->prompts->getPromptForLine($i).$line;
+            $result[] = $this->getPromptForLine($i).$line;
         }
 
         return $result;
@@ -301,7 +346,7 @@ class FrameRenderer
             return $line;
         }
 
-        $absoluteCursorColumn = $this->prompts->getPromptWidthForLine(0, $this->terminal->getFormatter())
+        $absoluteCursorColumn = $this->getPromptWidthForLine(0, $this->terminal->getFormatter())
             + DisplayString::width(\mb_substr($text, 0, $buffer->getCursor())) + 1;
         $cursorColumn = $this->getSoftWrapCalculator()->normalizeColumn($absoluteCursorColumn);
         $maxWidth = $this->getTerminalWidth() - $cursorColumn + 1;
@@ -330,13 +375,13 @@ class FrameRenderer
         if ($isMultiline) {
             $lines = \explode("\n", $text);
             $lineNum = $buffer->getCurrentLineNumber();
-            $promptWidth = $this->prompts->getPromptWidthForLine($lineNum, $this->terminal->getFormatter());
+            $promptWidth = $this->getPromptWidthForLine($lineNum, $this->terminal->getFormatter());
 
             $charsBeforeLine = 0;
             $rowsBeforeLine = 0;
             for ($i = 0; $i < $lineNum; $i++) {
                 $charsBeforeLine += \mb_strlen($lines[$i]) + 1;
-                $rowsBeforeLine += $this->lineRowCount($this->prompts->getPromptForLine($i).($lines[$i] ?? ''));
+                $rowsBeforeLine += $this->lineRowCount($this->getPromptForLine($i).($lines[$i] ?? ''));
             }
 
             $lineText = $lines[$lineNum] ?? '';
@@ -353,7 +398,7 @@ class FrameRenderer
         }
 
         $textBeforeCursor = \mb_substr($text, 0, $buffer->getCursor());
-        $absoluteColumn = $this->prompts->getPromptWidthForLine(0, $this->terminal->getFormatter())
+        $absoluteColumn = $this->getPromptWidthForLine(0, $this->terminal->getFormatter())
             + DisplayString::width($textBeforeCursor) + 1;
         $calculator = $this->getSoftWrapCalculator();
 

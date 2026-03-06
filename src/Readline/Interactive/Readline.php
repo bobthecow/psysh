@@ -11,7 +11,9 @@
 
 namespace Psy\Readline\Interactive;
 
+use Psy\Completion\CompletionEngine;
 use Psy\Exception\BreakException;
+use Psy\Output\Theme;
 use Psy\Readline\Interactive\Actions\ExpandHistoryOnTabAction;
 use Psy\Readline\Interactive\Actions\HistoryExpansionAction;
 use Psy\Readline\Interactive\Actions\InsertIndentOnTabAction;
@@ -39,24 +41,19 @@ use Psy\Shell;
 class Readline
 {
     private const MODE_NORMAL = 'normal';
-    private const MODE_SEARCH = 'search';
     private const MODE_MENU = 'menu';
 
     private Terminal $terminal;
     private InputQueue $inputQueue;
     private KeyBindings $bindings;
     private History $history;
+    private HistorySearch $search;
     private bool $multilineMode = false;
     private ?Shell $shell = null;
     private bool $requireSemicolons = false;
+    private Theme $theme;
 
     private string $mode = self::MODE_NORMAL;
-    private string $searchQuery = '';
-    /** @var string[] */
-    private array $searchMatches = [];
-    private int $currentMatchIndex = -1;
-    private ?string $savedBufferText = null;
-    private int $savedCursorPosition = 0;
 
     private ?TabAction $tabAction = null;
     private ?ExpandHistoryOnTabAction $expandHistoryAction = null;
@@ -81,36 +78,24 @@ class Readline
         $this->terminal = $terminal;
         $this->inputQueue = new InputQueue($this->terminal);
         $this->history = $history ?? new History();
-
-        $this->bindings = $bindings ?? KeyBindings::createDefault($this->history, $this->smartBrackets);
+        $this->theme = new Theme();
 
         $this->suggestionEngine = new SuggestionEngine($this->history);
         $this->overlayViewport = new OverlayViewport($this->terminal);
-        $this->frameRenderer = new FrameRenderer($this->terminal, $this->overlayViewport);
+        $this->frameRenderer = new FrameRenderer($this->terminal, $this->overlayViewport, $this->theme);
+        $this->search = new HistorySearch($this->terminal, $this->history, $this->frameRenderer, $this->overlayViewport, $this->theme);
+
+        $this->bindings = $bindings ?? KeyBindings::createDefault($this->history, $this->search, $this->smartBrackets);
     }
 
     /**
-     * Set the single-line prompt string.
+     * Set the theme for prompt strings and compact mode.
      */
-    public function setPrompt(string $prompt): void
+    public function setTheme(Theme $theme): void
     {
-        $this->frameRenderer->setSingleLinePrompt($prompt);
-    }
-
-    /**
-     * Set the multi-line continuation prompt.
-     */
-    public function setMultilinePrompt(string $prompt): void
-    {
-        $this->frameRenderer->setMultilinePrompt($prompt);
-    }
-
-    /**
-     * Enable compact input frame rendering.
-     */
-    public function setCompactInputFrame(bool $compact): void
-    {
-        $this->frameRenderer->setCompactInputFrame($compact);
+        $this->theme = $theme;
+        $this->frameRenderer->setTheme($theme);
+        $this->search->setTheme($theme);
     }
 
     /**
@@ -163,7 +148,7 @@ class Readline
     /**
      * Set the CompletionEngine for context-aware tab completion.
      */
-    public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
+    public function setCompletionEngine(CompletionEngine $completionEngine): void
     {
         if ($this->tabAction === null) {
             $this->tabAction = new TabAction($completionEngine, $this->smartBrackets);
@@ -271,7 +256,7 @@ class Readline
     public function readline()
     {
         $this->mode = self::MODE_NORMAL;
-        $this->resetSearchState();
+        $this->search->exit();
         $this->clearSuggestion();
 
         if ($this->continueFrame && $this->lastSubmittedText !== null) {
@@ -316,12 +301,16 @@ class Readline
                     continue;
                 }
 
-                if ($this->mode === self::MODE_SEARCH) {
-                    if (!$this->handleSearchModeInput($key, $buffer)) {
+                if ($this->search->isActive()) {
+                    $result = $this->search->handleInput($key, $buffer);
+                    if ($result === true) {
+                        $this->search->display();
+                    } else {
+                        if ($result === null) {
+                            $this->replayKey($key);
+                        }
                         $this->syncMultilineMode($buffer->getText());
                         $this->display($buffer);
-                    } else {
-                        $this->displaySearchPrompt();
                     }
                     continue;
                 }
@@ -346,9 +335,13 @@ class Readline
                             $this->history->reset();
                         }
 
-                        $this->syncMultilineMode($buffer->getText());
-                        $this->updateSuggestion($buffer);
-                        $this->display($buffer);
+                        if ($this->search->isActive()) {
+                            $this->search->display();
+                        } else {
+                            $this->syncMultilineMode($buffer->getText());
+                            $this->updateSuggestion($buffer);
+                            $this->display($buffer);
+                        }
                     } else {
                         $line = $buffer->getText();
                         $this->clearSuggestion();
@@ -518,7 +511,7 @@ class Readline
             return;
         }
 
-        if ($this->mode !== self::MODE_NORMAL || $this->multilineMode) {
+        if ($this->mode !== self::MODE_NORMAL || $this->search->isActive() || $this->multilineMode) {
             $this->clearSuggestion();
 
             return;
@@ -531,33 +524,11 @@ class Readline
     }
 
     /**
-     * Check if currently in search mode.
+     * Get the history search state machine.
      */
-    public function isInSearchMode(): bool
+    public function getSearch(): HistorySearch
     {
-        return $this->mode === self::MODE_SEARCH;
-    }
-
-    /**
-     * Enter search mode.
-     */
-    public function enterSearchMode(): void
-    {
-        $this->mode = self::MODE_SEARCH;
-        $this->resetSearchState();
-    }
-
-    /**
-     * Exit search mode.
-     */
-    public function exitSearchMode(): void
-    {
-        if ($this->mode === self::MODE_SEARCH) {
-            $this->mode = self::MODE_NORMAL;
-        }
-        $this->resetSearchState();
-        $this->savedBufferText = null;
-        $this->savedCursorPosition = 0;
+        return $this->search;
     }
 
     /**
@@ -576,217 +547,5 @@ class Readline
         if ($this->mode === self::MODE_MENU) {
             $this->mode = self::MODE_NORMAL;
         }
-    }
-
-    /**
-     * Reset search query and match state.
-     */
-    private function resetSearchState(): void
-    {
-        $this->searchQuery = '';
-        $this->searchMatches = [];
-        $this->currentMatchIndex = -1;
-    }
-
-    /**
-     * Update search query and find matches.
-     */
-    public function updateSearchQuery(string $query): void
-    {
-        $this->searchQuery = $query;
-
-        $this->searchMatches = $this->history->search($query, true);
-        $this->currentMatchIndex = empty($this->searchMatches) ? -1 : 0;
-    }
-
-    /**
-     * Add a character to the search query.
-     */
-    public function addSearchChar(string $char): void
-    {
-        $this->updateSearchQuery($this->searchQuery.$char);
-    }
-
-    /**
-     * Remove last character from search query.
-     */
-    public function removeSearchChar(): void
-    {
-        if ($this->searchQuery !== '') {
-            $this->updateSearchQuery(\substr($this->searchQuery, 0, -1));
-        }
-    }
-
-    /**
-     * Find next match in search results (older entries).
-     */
-    public function findNextSearchMatch(): void
-    {
-        if (empty($this->searchMatches)) {
-            $this->terminal->bell();
-
-            return;
-        }
-
-        $this->currentMatchIndex++;
-        if ($this->currentMatchIndex >= \count($this->searchMatches)) {
-            $this->currentMatchIndex = 0;
-            $this->terminal->bell();
-        }
-    }
-
-    /**
-     * Find previous match in search results (newer entries).
-     */
-    public function findPreviousSearchMatch(): void
-    {
-        if (empty($this->searchMatches)) {
-            $this->terminal->bell();
-
-            return;
-        }
-
-        $this->currentMatchIndex--;
-        if ($this->currentMatchIndex < 0) {
-            $this->currentMatchIndex = \count($this->searchMatches) - 1;
-            $this->terminal->bell();
-        }
-    }
-
-    /**
-     * Get the current search match.
-     *
-     * @return string|null The current match, or null if no match
-     */
-    public function getCurrentSearchMatch(): ?string
-    {
-        if (empty($this->searchMatches) || $this->currentMatchIndex < 0) {
-            return null;
-        }
-
-        return $this->searchMatches[$this->currentMatchIndex] ?? null;
-    }
-
-    /**
-     * Get the search query.
-     */
-    public function getSearchQuery(): string
-    {
-        return $this->searchQuery;
-    }
-
-    /**
-     * Accept current search match and exit search mode.
-     */
-    public function acceptSearchMatch(Buffer $buffer): void
-    {
-        $match = $this->getCurrentSearchMatch();
-        if ($match !== null) {
-            $buffer->clear();
-            $buffer->insert($match);
-        }
-
-        $this->exitSearchMode();
-    }
-
-    /**
-     * Cancel search and restore original buffer.
-     */
-    public function cancelSearch(Buffer $buffer): void
-    {
-        if ($this->savedBufferText !== null) {
-            $buffer->clear();
-            $buffer->insert($this->savedBufferText);
-            $buffer->setCursor($this->savedCursorPosition);
-        }
-
-        $this->exitSearchMode();
-    }
-
-    /**
-     * Save current buffer before starting search.
-     */
-    public function saveBufferForSearch(Buffer $buffer): void
-    {
-        $this->savedBufferText = $buffer->getText();
-        $this->savedCursorPosition = $buffer->getCursor();
-    }
-
-    /**
-     * Handle input while in search mode.
-     *
-     * @return bool True if still in search mode, false if exited
-     */
-    private function handleSearchModeInput(Key $key, Buffer $buffer): bool
-    {
-        $value = $key->getValue();
-
-        if ($value === "\x07" || $value === "\x1b") { // Ctrl-G or Escape
-            $this->cancelSearch($buffer);
-
-            return false;
-        } elseif ($value === "\r" || $value === "\n") {
-            $this->acceptSearchMatch($buffer);
-
-            return false;
-        } elseif ($value === "\x12") { // Ctrl-R
-            $this->findNextSearchMatch();
-            $this->applySearchMatch($buffer);
-
-            return true;
-        } elseif ($value === "\x13") { // Ctrl-S
-            $this->findPreviousSearchMatch();
-            $this->applySearchMatch($buffer);
-
-            return true;
-        } elseif ($value === "\x08" || $value === "\x7f") { // Backspace
-            $this->removeSearchChar();
-            $this->applySearchMatch($buffer, true);
-
-            return true;
-        } elseif ($key->isChar() && !$key->isControl()) {
-            $this->addSearchChar($value);
-            $this->applySearchMatch($buffer);
-
-            return true;
-        } else {
-            $this->acceptSearchMatch($buffer);
-            $this->replayKey($key);
-
-            return false;
-        }
-    }
-
-    /**
-     * Apply the current search match to the buffer.
-     */
-    private function applySearchMatch(Buffer $buffer, bool $restoreOnEmpty = false): void
-    {
-        $match = $this->getCurrentSearchMatch();
-        if ($match !== null) {
-            $buffer->clear();
-            $buffer->insert($match);
-        } elseif ($restoreOnEmpty && $this->searchQuery === '' && $this->savedBufferText !== null) {
-            $buffer->clear();
-            $buffer->insert($this->savedBufferText);
-        }
-    }
-
-    /**
-     * Render the reverse-i-search prompt.
-     */
-    private function displaySearchPrompt(): void
-    {
-        $match = $this->getCurrentSearchMatch();
-        $prompt = '(reverse-i-search)`'.$this->searchQuery."': ";
-
-        if ($match !== null) {
-            $firstLine = \strstr($match, "\n", true);
-            $prompt .= $firstLine !== false ? $firstLine.' ...' : $match;
-        } elseif ($this->searchQuery !== '') {
-            $prompt .= '(no matches)';
-        }
-
-        $this->frameRenderer->renderSearchPrompt($prompt);
     }
 }

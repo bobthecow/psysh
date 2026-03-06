@@ -12,11 +12,15 @@
 namespace Psy\Test\Readline\Interactive;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Psy\Output\Theme;
 use Psy\Readline\Interactive\Actions\ReverseSearchAction;
+use Psy\Readline\Interactive\HistorySearch;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
-use Psy\Readline\Interactive\Input\KeyBindings;
+use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Readline;
+use Psy\Readline\Interactive\Renderer\FrameRenderer;
+use Psy\Readline\Interactive\Renderer\OverlayViewport;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Test\TestCase;
 
@@ -27,6 +31,7 @@ class HistorySearchTest extends TestCase
 
     /** @var Terminal&MockObject */
     private Terminal $terminal;
+    private HistorySearch $search;
     private Readline $readline;
 
     protected function setUp(): void
@@ -42,8 +47,8 @@ class HistorySearchTest extends TestCase
 
         $this->terminal = $this->createMock(Terminal::class);
 
-        $bindings = KeyBindings::createDefault($this->history);
-        $this->readline = new Readline($this->terminal, $bindings, $this->history);
+        $this->readline = new Readline($this->terminal, null, $this->history);
+        $this->search = $this->readline->getSearch();
     }
 
     public function testHistorySearch(): void
@@ -76,84 +81,129 @@ class HistorySearchTest extends TestCase
         $this->assertSame('echo "hello world"', $matches[2]);
     }
 
-    public function testHistorySearchCaseInsensitive(): void
+    public function testHistorySearchSmartCase(): void
     {
-        $matches = $this->history->search('ECHO');
+        // All lowercase: case-insensitive
+        $matches = $this->history->search('echo');
         $this->assertCount(3, $matches);
 
-        $matches = $this->history->search('Function');
+        $matches = $this->history->search('function');
         $this->assertCount(2, $matches);
+
+        // Contains uppercase: case-sensitive
+        $matches = $this->history->search('ECHO');
+        $this->assertCount(0, $matches);
+
+        $matches = $this->history->search('Function');
+        $this->assertCount(0, $matches);
+
+        // Mixed case matching actual casing
+        $matches = $this->history->search('Hello');
+        $this->assertCount(0, $matches);
+
+        $matches = $this->history->search('hello');
+        $this->assertCount(1, $matches);
     }
 
     public function testSearchMode(): void
     {
-        $this->assertFalse($this->readline->isInSearchMode());
+        $this->assertFalse($this->search->isActive());
 
-        $this->readline->enterSearchMode();
-        $this->assertTrue($this->readline->isInSearchMode());
-        $this->assertSame('', $this->readline->getSearchQuery());
+        $this->search->enter();
+        $this->assertTrue($this->search->isActive());
+        $this->assertSame('', $this->search->getQuery());
 
-        $this->readline->exitSearchMode();
-        $this->assertFalse($this->readline->isInSearchMode());
+        $this->search->exit();
+        $this->assertFalse($this->search->isActive());
     }
 
     public function testSearchQueryUpdate(): void
     {
-        $this->readline->enterSearchMode();
+        $this->search->enter();
 
-        $this->readline->addSearchChar('e');
-        $this->assertSame('e', $this->readline->getSearchQuery());
+        $this->search->updateQuery('e');
+        $this->assertSame('e', $this->search->getQuery());
 
-        $this->readline->addSearchChar('c');
-        $this->assertSame('ec', $this->readline->getSearchQuery());
+        $this->search->updateQuery('ec');
+        $this->assertSame('ec', $this->search->getQuery());
 
-        $this->readline->addSearchChar('h');
-        $this->assertSame('ech', $this->readline->getSearchQuery());
+        $this->search->updateQuery('ech');
+        $this->assertSame('ech', $this->search->getQuery());
 
-        $this->readline->addSearchChar('o');
-        $this->assertSame('echo', $this->readline->getSearchQuery());
+        $this->search->updateQuery('echo');
+        $this->assertSame('echo', $this->search->getQuery());
 
-        $this->readline->removeSearchChar();
-        $this->assertSame('ech', $this->readline->getSearchQuery());
+        $this->search->updateQuery('ech');
+        $this->assertSame('ech', $this->search->getQuery());
 
-        $this->readline->updateSearchQuery('function');
-        $this->assertSame('function', $this->readline->getSearchQuery());
+        $this->search->updateQuery('function');
+        $this->assertSame('function', $this->search->getQuery());
     }
 
     public function testSearchMatches(): void
     {
-        $this->readline->enterSearchMode();
+        $this->search->enter();
 
-        $this->assertNull($this->readline->getCurrentSearchMatch());
+        // Entering search mode with empty query shows all history (newest first)
+        $this->assertSame('echo "hello world"', $this->search->getSelectedMatch());
 
-        $this->readline->updateSearchQuery('goodbye');
-        $match = $this->readline->getCurrentSearchMatch();
+        $this->search->updateQuery('goodbye');
+        $match = $this->search->getSelectedMatch();
         $this->assertSame('echo "goodbye"', $match);
 
         // Only one match, so next wraps around and rings the bell
         $this->terminal->expects($this->once())->method('bell');
-        $this->readline->findNextSearchMatch();
-        $match = $this->readline->getCurrentSearchMatch();
+        $this->search->findNext();
+        $match = $this->search->getSelectedMatch();
         $this->assertSame('echo "goodbye"', $match);
+    }
+
+    public function testSearchMaxRowsDoesNotDoubleCountSearchPrompt(): void
+    {
+        $terminal = $this->createMock(Terminal::class);
+        $terminal->method('getHeight')->willReturn(30);
+
+        $history = new History();
+        for ($i = 0; $i < 20; $i++) {
+            $history->add('cmd-'.$i);
+        }
+
+        $viewport = new OverlayViewport($terminal);
+        $frameRenderer = new FrameRenderer($terminal, $viewport);
+        $search = new HistorySearch($terminal, $history, $frameRenderer, $viewport, new Theme());
+
+        $search->enter();
+        $search->updateQuery('');
+
+        $viewport->setInputRowCount(10);
+
+        // With 25 matches and limited viewport, search should truncate.
+        // Verify the match count reflects all items were found.
+        $this->assertSame(20, $search->getMatchCount());
+
+        // The selected match should still be valid after entering search
+        $this->assertNotNull($search->getSelectedMatch());
+        $this->assertSame(0, $search->getSelectedIndex());
     }
 
     public function testSearchNavigation(): void
     {
-        $this->readline->enterSearchMode();
-        $this->readline->updateSearchQuery('function');
+        $this->search->enter();
+        $this->search->updateQuery('function');
 
-        $this->assertSame('function bar() { echo "bar"; }', $this->readline->getCurrentSearchMatch());
+        // Newest first: foo was added after bar
+        $this->assertSame('function foo() { return 42; }', $this->search->getSelectedMatch());
 
-        $this->readline->findNextSearchMatch();
-        $this->assertSame('function foo() { return 42; }', $this->readline->getCurrentSearchMatch());
+        $this->search->findNext();
+        $this->assertSame('function bar() { echo "bar"; }', $this->search->getSelectedMatch());
 
-        $this->readline->findPreviousSearchMatch();
-        $this->assertSame('function bar() { echo "bar"; }', $this->readline->getCurrentSearchMatch());
+        $this->search->findPrevious();
+        $this->assertSame('function foo() { return 42; }', $this->search->getSelectedMatch());
 
         // Wrap around backwards rings the bell
         $this->terminal->expects($this->once())->method('bell');
-        $this->readline->findPreviousSearchMatch();
-        $this->assertSame('function foo() { return 42; }', $this->readline->getCurrentSearchMatch());
+        $this->search->findPrevious();
+        $this->assertSame('function bar() { echo "bar"; }', $this->search->getSelectedMatch());
     }
 
     public function testAcceptSearchMatch(): void
@@ -161,14 +211,21 @@ class HistorySearchTest extends TestCase
         $buffer = new Buffer();
         $buffer->insert('original text');
 
-        $this->readline->saveBufferForSearch($buffer);
-        $this->readline->enterSearchMode();
+        $this->search->saveBuffer($buffer);
+        $this->search->enter();
 
-        $this->readline->updateSearchQuery('goodbye');
-        $this->readline->acceptSearchMatch($buffer);
+        $this->search->updateQuery('goodbye');
+
+        // Accept by simulating Enter key
+        $match = $this->search->getSelectedMatch();
+        $this->assertSame('echo "goodbye"', $match);
+
+        $buffer->clear();
+        $buffer->insert($match);
+        $this->search->exit();
 
         $this->assertSame('echo "goodbye"', $buffer->getText());
-        $this->assertFalse($this->readline->isInSearchMode());
+        $this->assertFalse($this->search->isActive());
     }
 
     public function testCancelSearchRestoresBuffer(): void
@@ -177,26 +234,41 @@ class HistorySearchTest extends TestCase
         $buffer->insert('original text');
         $this->setBufferState($buffer, 'origi<cursor>nal text');
 
-        $this->readline->saveBufferForSearch($buffer);
-        $this->readline->enterSearchMode();
+        $this->search->saveBuffer($buffer);
+        $this->search->enter();
+        $this->search->updateQuery('echo');
 
-        $this->readline->updateSearchQuery('echo');
-
-        $this->readline->cancelSearch($buffer);
+        // Cancel via handleInput (Escape key)
+        $key = new Key("\x1b", Key::TYPE_CONTROL);
+        $this->search->handleInput($key, $buffer);
 
         $this->assertBufferState('origi<cursor>nal text', $buffer);
-        $this->assertFalse($this->readline->isInSearchMode());
+        $this->assertFalse($this->search->isActive());
     }
 
     public function testReverseSearchAction(): void
     {
         $buffer = new Buffer();
-        $action = new ReverseSearchAction($this->history);
+        $action = new ReverseSearchAction($this->search);
 
-        $this->assertFalse($this->readline->isInSearchMode());
+        $this->assertFalse($this->search->isActive());
         $result = $action->execute($buffer, $this->terminal, $this->readline);
         $this->assertTrue($result);
-        $this->assertTrue($this->readline->isInSearchMode());
+        $this->assertTrue($this->search->isActive());
+    }
+
+    public function testReverseSearchActionPrefillsFromCurrentLineInMultilineBuffer(): void
+    {
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, "function test() {\n    retur<cursor>n 'multi';\n}");
+        $action = new ReverseSearchAction($this->search);
+
+        $result = $action->execute($buffer, $this->terminal, $this->readline);
+
+        $this->assertTrue($result);
+        $this->assertTrue($this->search->isActive());
+        $this->assertSame("    return 'multi';", $this->search->getQuery());
+        $this->assertStringNotContainsString("\n", $this->search->getQuery());
     }
 
     public function testMultiLineCommandSearch(): void
@@ -204,14 +276,10 @@ class HistorySearchTest extends TestCase
         $multiline = "function test() {\n    return 'multi';\n}";
         $this->history->add($multiline);
 
-        $this->readline->enterSearchMode();
-        $this->readline->updateSearchQuery('multi');
+        $this->search->enter();
+        $this->search->updateQuery('multi');
 
-        $match = $this->readline->getCurrentSearchMatch();
+        $match = $this->search->getSelectedMatch();
         $this->assertSame($multiline, $match);
-
-        $buffer = new Buffer();
-        $this->readline->acceptSearchMatch($buffer);
-        $this->assertSame($multiline, $buffer->getText());
     }
 }

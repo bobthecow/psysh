@@ -200,6 +200,8 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
 
     /**
      * {@inheritdoc}
+     *
+     * Note: $prompt is unused here, as multi-line buffer rendering is managed internally
      */
     public function readline(?string $prompt = null)
     {
@@ -208,10 +210,6 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
             $this->session->start();
         } catch (\RuntimeException $e) {
             throw new ThrowUpException($e);
-        }
-
-        if ($prompt !== null) {
-            $this->readline->setPrompt($prompt);
         }
 
         return $this->readline->readline();
@@ -223,9 +221,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     public function setTheme(Theme $theme): void
     {
         $this->assertBooted();
-        $this->readline->setPrompt($theme->prompt());
-        $this->readline->setMultilinePrompt($theme->bufferPrompt());
-        $this->readline->setCompactInputFrame($theme->compact());
+        $this->readline->setTheme($theme);
     }
 
     /**

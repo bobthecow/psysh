@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Readline\Interactive\Renderer;
 
+use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
@@ -87,6 +88,15 @@ class FrameRendererTest extends TestCase
         $this->terminal->method('getHeight')->willReturn(24);
     }
 
+    private function setTheme(string $prompt = '>>> ', string $bufferPrompt = '... ', bool $compact = false): void
+    {
+        $this->renderer->setTheme(new Theme([
+            'prompt'       => $prompt,
+            'bufferPrompt' => $bufferPrompt,
+            'compact'      => $compact,
+        ]));
+    }
+
     /**
      * Regression test: cursor position must use display width, not code points.
      *
@@ -96,7 +106,7 @@ class FrameRendererTest extends TestCase
      */
     public function testSingleLineCursorUsesDisplayWidth()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         // "中文" = 2 code points, but 4 display columns
@@ -116,7 +126,7 @@ class FrameRendererTest extends TestCase
      */
     public function testSingleLineCursorWithMixedWidthCharacters()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         // "ab中" = 3 code points, but 4 display columns (a=1, b=1, 中=2)
@@ -135,8 +145,7 @@ class FrameRendererTest extends TestCase
      */
     public function testMultiLineCursorUsesDisplayWidth()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
-        $this->renderer->setMultilinePrompt('... ');
+        $this->setTheme('>>> ', '... ');
 
         $buffer = new Buffer();
         // Line 0: "if (true) {"
@@ -157,7 +166,7 @@ class FrameRendererTest extends TestCase
      */
     public function testSingleLineCursorWithAsciiOnly()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
@@ -173,7 +182,7 @@ class FrameRendererTest extends TestCase
     public function testInputFrameUsesFormatterStyleWhenDecorated()
     {
         $this->formatter->setDecorated(true);
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
@@ -193,7 +202,7 @@ class FrameRendererTest extends TestCase
     public function testInputFrameOmitsFormatterStyleWhenNotDecorated()
     {
         $this->formatter->setDecorated(false);
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
@@ -223,8 +232,7 @@ class FrameRendererTest extends TestCase
 
     public function testCompactInputFrameOmitsAllFramingRows()
     {
-        $this->renderer->setCompactInputFrame(true);
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ', '... ', true);
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'hello<cursor>');
@@ -238,8 +246,7 @@ class FrameRendererTest extends TestCase
 
     public function testCompactViewportUsesOnlyPromptRows()
     {
-        $this->renderer->setCompactInputFrame(true);
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ', '... ', true);
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 200).'<cursor>');
@@ -253,7 +260,7 @@ class FrameRendererTest extends TestCase
 
     public function testCursorColumnWrapsAtTerminalWidth()
     {
-        $this->renderer->setSingleLinePrompt('>> ');
+        $this->setTheme('>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 77).'<cursor>');
@@ -267,7 +274,7 @@ class FrameRendererTest extends TestCase
 
     public function testWrappedInputConsumesOverlayViewportRows()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 200).'<cursor>');
@@ -282,7 +289,7 @@ class FrameRendererTest extends TestCase
 
     public function testWrappedInputCountsLiteralFormatterLikeTags()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('<info>x</info>', 6).'<cursor>');
@@ -298,8 +305,7 @@ class FrameRendererTest extends TestCase
     {
         $this->formatter->setDecorated(true);
         $this->formatter->setStyle('input_highlight', new OutputFormatterStyle('black', 'yellow'));
-        $this->renderer->setCompactInputFrame(true);
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ', '... ', true);
 
         $buffer = new Buffer();
         $buffer->setText("a\xFFb");
@@ -314,7 +320,7 @@ class FrameRendererTest extends TestCase
 
     public function testRendererMovesBackByWrappedCursorRowBeforeRepaint()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, \str_repeat('a', 170).'<cursor>');
@@ -331,7 +337,7 @@ class FrameRendererTest extends TestCase
 
     public function testSuggestionIsHiddenWhenOverlayIsVisible()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
         $this->renderer->setOverlayLines(['   menu item']);
 
         $buffer = new Buffer();
@@ -345,7 +351,7 @@ class FrameRendererTest extends TestCase
 
     public function testCursorOnlyMovementDoesNotRepaintFrame()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'abcdef<cursor>');
@@ -363,7 +369,7 @@ class FrameRendererTest extends TestCase
 
     public function testRepaintStartsAtFirstChangedLogicalLine()
     {
-        $this->renderer->setSingleLinePrompt('>>> ');
+        $this->setTheme('>>> ');
         $this->renderer->setOverlayLines([
             '   one',
             '   two',

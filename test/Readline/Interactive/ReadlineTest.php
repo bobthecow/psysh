@@ -12,6 +12,7 @@
 namespace Psy\Test\Readline\Interactive;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Terminal;
@@ -49,16 +50,12 @@ class ReadlineTest extends TestCase
         $this->assertFalse($this->readline->isMultilineMode());
     }
 
-    public function testSetPrompt(): void
+    public function testSetTheme(): void
     {
-        $this->readline->setPrompt('custom> ');
-
-        $this->addToAssertionCount(1);
-    }
-
-    public function testSetMultilinePrompt(): void
-    {
-        $this->readline->setMultilinePrompt('.... ');
+        $this->readline->setTheme(new Theme([
+            'prompt'       => 'custom> ',
+            'bufferPrompt' => '.... ',
+        ]));
 
         $this->addToAssertionCount(1);
     }

@@ -221,7 +221,7 @@ class History
     /**
      * Search history for entries matching a query.
      *
-     * @param string $query   The search query (case-insensitive substring search)
+     * @param string $query   The search query (smart-case: case-sensitive if query contains uppercase)
      * @param bool   $reverse If true, return oldest matches first; if false, newest first
      *
      * @return string[] Matching command strings
@@ -229,19 +229,46 @@ class History
     public function search(string $query, bool $reverse = false): array
     {
         if ($query === '') {
-            $commands = \array_column($this->entries, 'command');
+            $commands = $this->deduplicateCommands(\array_column($this->entries, 'command'));
 
             return $reverse ? $commands : \array_reverse($commands);
         }
 
+        $caseSensitive = self::isSearchCaseSensitive($query);
         $matches = [];
         foreach ($this->entries as $entry) {
-            if (\stripos($entry['command'], $query) !== false) {
+            $found = $caseSensitive
+                ? \strpos($entry['command'], $query) !== false
+                : \stripos($entry['command'], $query) !== false;
+            if ($found) {
                 $matches[] = $entry['command'];
             }
         }
 
+        $matches = $this->deduplicateCommands($matches);
+
         return $reverse ? $matches : \array_reverse($matches);
+    }
+
+    /**
+     * Deduplicate commands, keeping only the last (most recent) occurrence.
+     *
+     * @param string[] $commands
+     *
+     * @return string[]
+     */
+    private function deduplicateCommands(array $commands): array
+    {
+        $seen = [];
+        $result = [];
+        foreach (\array_reverse($commands) as $command) {
+            if (!isset($seen[$command])) {
+                $seen[$command] = true;
+                $result[] = $command;
+            }
+        }
+
+        return \array_reverse($result);
     }
 
     /**

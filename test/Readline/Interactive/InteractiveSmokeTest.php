@@ -281,24 +281,78 @@ class InteractiveSmokeTest extends TestCase
         $this->assertSame('first', $readline->readline());
     }
 
-    public function testSearchModeReplaysUnhandledKeyToMainLoop(): void
+    public function testSearchModeLeftArrowAcceptsWithCursorAtStart(): void
     {
         $terminal = $this->createTerminalWithKeys([
             new Key("\x12", Key::TYPE_CONTROL), // Ctrl-R
-            new Key('a', Key::TYPE_CHAR),
-            new Key('b', Key::TYPE_CHAR),
-            new Key('c', Key::TYPE_CHAR),
-            new Key("\033[D", Key::TYPE_ESCAPE), // Left arrow (replayed)
-            new Key('X', Key::TYPE_CHAR),
+            new Key('4', Key::TYPE_CHAR),
+            new Key("\033[D", Key::TYPE_ESCAPE), // Left arrow: accept, cursor at start
+            new Key('!', Key::TYPE_CHAR),        // Prepend "!" at cursor 0 -> "!42"
             new Key("\n", Key::TYPE_CHAR),
         ]);
 
         $history = new History();
-        $history->add("'abc'");
+        $history->add('42');
 
         $readline = new Readline($terminal, null, $history);
 
-        $this->assertSame("'abcX'", $readline->readline());
+        $this->assertSame('!42', $readline->readline());
+    }
+
+    public function testSearchModeRightArrowAcceptsWithCursorAtEnd(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            new Key("\x12", Key::TYPE_CONTROL), // Ctrl-R
+            new Key('4', Key::TYPE_CHAR),
+            new Key("\033[C", Key::TYPE_ESCAPE), // Right arrow: accept, cursor at end
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('42');
+
+        $readline = new Readline($terminal, null, $history);
+
+        $this->assertSame('42', $readline->readline());
+    }
+
+    public function testSearchModeReplaysUnhandledKeyToMainLoop(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            new Key("\x12", Key::TYPE_CONTROL), // Ctrl-R
+            new Key('4', Key::TYPE_CHAR),
+            new Key("\x01", Key::TYPE_CONTROL), // Ctrl-A (replayed as move-to-start)
+            new Key('!', Key::TYPE_CHAR),        // Prepend "!" at cursor 0 -> "!42"
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('42');
+
+        $readline = new Readline($terminal, null, $history);
+
+        $this->assertSame('!42', $readline->readline());
+    }
+
+    public function testSearchModeClearsStaleSuggestionOnEnter(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            new Key('f', Key::TYPE_CHAR),
+            new Key('o', Key::TYPE_CHAR),
+            new Key('o', Key::TYPE_CHAR),
+            new Key("\x12", Key::TYPE_CONTROL), // Ctrl-R
+            new Key("\x1b", Key::TYPE_CONTROL), // Escape: cancel search
+            new Key("\033[C", Key::TYPE_ESCAPE), // Right arrow: should not accept stale suggestion
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('foobar');
+
+        $readline = new Readline($terminal, null, $history);
+        $readline->setUseSuggestions(true);
+
+        $this->assertSame('foo', $readline->readline());
     }
 
     public function testSuggestionDoesNotLeakAcrossReadlineCalls(): void

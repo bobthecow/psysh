@@ -11,6 +11,7 @@
 
 namespace Psy\Readline\Interactive\Helper;
 
+use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Readline\Interactive\Terminal;
 
@@ -36,7 +37,7 @@ class CompletionRenderer
      * @param int|null $maxRows       Maximum visible rows (null for unlimited)
      * @param int      $scrollOffset  First visible row index
      *
-     * @return string The rendered output
+     * @return string[] The rendered lines
      */
     public function render(
         array $items,
@@ -44,14 +45,14 @@ class CompletionRenderer
         ?int $maxRows = null,
         int $scrollOffset = 0,
         bool $compact = true
-    ): string {
+    ): array {
         if (empty($items)) {
-            return $this->terminal->format(
+            return [$this->terminal->format(
                 '  <whisper>(no matches)</whisper>',
-            )."\n";
+            )];
         }
 
-        $items = \array_map([$this, 'collapseNewlines'], \array_values($items));
+        $items = \array_map([History::class, 'collapseToSingleLine'], \array_values($items));
         $layout = $this->doCalculateLayout($items);
         $totalRows = $layout['rows'];
         $columns = $layout['columns'];
@@ -65,7 +66,7 @@ class CompletionRenderer
             ? \min($totalRows, $startRow + $maxRows)
             : $totalRows;
 
-        $output = '';
+        $lines = [];
         $hasSelection = $selectedIndex >= 0;
 
         $formatter = $this->terminal->getFormatter();
@@ -93,11 +94,11 @@ class CompletionRenderer
                     }
                 }
             }
-            $output .= $line."\n";
+            $lines[] = $line;
         }
 
         if ($needsTruncation) {
-            $output .= $this->renderStatusLine(
+            $lines[] = $this->renderStatusLine(
                 $startRow,
                 $endRow,
                 $totalRows,
@@ -105,7 +106,7 @@ class CompletionRenderer
             );
         }
 
-        return $output;
+        return $lines;
     }
 
     /**
@@ -117,7 +118,7 @@ class CompletionRenderer
      */
     public function calculateLayout(array $items): array
     {
-        return $this->doCalculateLayout(\array_map([$this, 'collapseNewlines'], $items));
+        return $this->doCalculateLayout(\array_map([History::class, 'collapseToSingleLine'], $items));
     }
 
     /**
@@ -180,8 +181,7 @@ class CompletionRenderer
             );
         }
 
-        return $this->terminal->format('   <whisper>'.$text.'</whisper>').
-            "\n";
+        return $this->terminal->format('   <whisper>'.$text.'</whisper>');
     }
 
     /**
@@ -206,14 +206,6 @@ class CompletionRenderer
         }
 
         return $columnWidths;
-    }
-
-    /**
-     * Replace newlines with spaces for single-line display.
-     */
-    private function collapseNewlines(string $item): string
-    {
-        return \preg_replace('/\s*\R\s*/', ' ', $item);
     }
 
     /**

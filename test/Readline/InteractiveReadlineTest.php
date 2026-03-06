@@ -160,11 +160,8 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
 
         $internalReadline = $this->getMockBuilder(InternalReadline::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['setPrompt', 'readline'])
+            ->onlyMethods(['readline'])
             ->getMock();
-        $internalReadline->expects($this->once())
-            ->method('setPrompt')
-            ->with('>>> ');
         $internalReadline->expects($this->once())
             ->method('readline')
             ->willReturn('echo 42;');
@@ -191,9 +188,8 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
 
         $internalReadline = $this->getMockBuilder(InternalReadline::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['setPrompt', 'readline'])
+            ->onlyMethods(['readline'])
             ->getMock();
-        $internalReadline->expects($this->never())->method('setPrompt');
         $internalReadline->expects($this->never())->method('readline');
 
         $this->setPrivateProperty($interactiveReadline, 'booted', true);

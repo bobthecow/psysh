@@ -66,10 +66,9 @@ class CompletionRendererTest extends TestCase
         $renderer = new CompletionRenderer($terminal);
 
         $wideItem = \str_repeat('x', 80);
-        $output = $renderer->render([$wideItem, 'short']);
+        $lines = $renderer->render([$wideItem, 'short']);
 
         // Each rendered line should fit within terminal width
-        $lines = \explode("\n", \rtrim($output, "\n"));
         foreach ($lines as $line) {
             $this->assertLessThanOrEqual(40, \mb_strlen($line));
         }
@@ -81,7 +80,7 @@ class CompletionRendererTest extends TestCase
         $renderer = new CompletionRenderer($terminal);
 
         $wideItem = \str_repeat('abcdef', 20);
-        $output = $renderer->render([$wideItem]);
+        $output = \implode("\n", $renderer->render([$wideItem]));
 
         $this->assertStringContainsString('...', $output);
     }
@@ -91,7 +90,7 @@ class CompletionRendererTest extends TestCase
         $terminal = $this->getTerminal(80);
         $renderer = new CompletionRenderer($terminal);
 
-        $output = $renderer->render(["foreach (\$x as \$y) {\n    echo \$y;\n}"]);
+        $output = \implode("\n", $renderer->render(["foreach (\$x as \$y) {\n    echo \$y;\n}"]));
 
         $this->assertStringContainsString('foreach ($x as $y) { echo $y; }', $output);
         $this->assertStringNotContainsString("\n    ", $output);
@@ -114,7 +113,7 @@ class CompletionRendererTest extends TestCase
         $terminal = $this->getTerminal(80);
         $renderer = new CompletionRenderer($terminal);
 
-        $output = $renderer->render(['foo', 'bar', 'baz']);
+        $output = \implode("\n", $renderer->render(['foo', 'bar', 'baz']));
 
         $this->assertStringContainsString('foo', $output);
         $this->assertStringContainsString('bar', $output);

@@ -325,15 +325,10 @@ class TabAction implements ActionInterface
         }
 
         $renderer = new CompletionRenderer($terminal);
-        $rendered = $renderer->render($this->filteredMatches, $this->selectedIndex, $maxRows, $this->scrollOffset, !$this->expanded);
+        $lines = $renderer->render($this->filteredMatches, $this->selectedIndex, $maxRows, $this->scrollOffset, !$this->expanded);
 
         // Prepend a blank separator line above the menu
-        $lines = \explode("\n", "\n".$rendered);
-        if (\end($lines) === '') {
-            \array_pop($lines);
-        }
-
-        $readline->renderOverlay($buffer, $lines);
+        $readline->renderOverlay($buffer, \array_merge([''], $lines));
     }
 
     /**

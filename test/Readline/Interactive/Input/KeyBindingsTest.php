@@ -11,13 +11,17 @@
 
 namespace Psy\Test\Readline\Interactive\Input;
 
+use Psy\Output\Theme;
 use Psy\Readline\Interactive\Actions\FallbackAction;
 use Psy\Readline\Interactive\Actions\InsertLineBreakAction;
+use Psy\Readline\Interactive\HistorySearch;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\KeyBindings;
 use Psy\Readline\Interactive\Readline;
+use Psy\Readline\Interactive\Renderer\FrameRenderer;
+use Psy\Readline\Interactive\Renderer\OverlayViewport;
 use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Test\Readline\Interactive\BufferAssertionTrait;
@@ -27,9 +31,20 @@ class KeyBindingsTest extends TestCase
 {
     use BufferAssertionTrait;
 
+    private function createDefaultBindings(?History $history = null): KeyBindings
+    {
+        $history = $history ?? new History();
+        $terminal = $this->createMock(Terminal::class);
+        $viewport = new OverlayViewport($terminal);
+        $frameRenderer = new FrameRenderer($terminal, $viewport);
+        $search = new HistorySearch($terminal, $history, $frameRenderer, $viewport, new Theme());
+
+        return KeyBindings::createDefault($history, $search);
+    }
+
     public function testEnterAndReturnUseFallbackAction(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
 
         $this->assertInstanceOf(
             FallbackAction::class,
@@ -43,7 +58,7 @@ class KeyBindingsTest extends TestCase
 
     public function testShiftEnterVariantsAreBoundToInsertLineBreak(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
 
         $this->assertInstanceOf(
             InsertLineBreakAction::class,
@@ -69,7 +84,7 @@ class KeyBindingsTest extends TestCase
 
     public function testRightArrowBindingUsesFallbackAction(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
 
         $this->assertInstanceOf(
             FallbackAction::class,
@@ -79,7 +94,7 @@ class KeyBindingsTest extends TestCase
 
     public function testRightArrowAcceptsSuggestionWhenAvailable(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
         $action = $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE));
         $this->assertNotNull($action);
 
@@ -101,7 +116,7 @@ class KeyBindingsTest extends TestCase
 
     public function testRightArrowFallsBackToMoveRightWhenNoSuggestion(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
         $action = $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE));
         $this->assertNotNull($action);
 
@@ -122,7 +137,7 @@ class KeyBindingsTest extends TestCase
 
     public function testEnterActionCanSubmitLine(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
         $action = $bindings->get(new Key("\n", Key::TYPE_CHAR));
         $this->assertNotNull($action);
 
@@ -142,7 +157,7 @@ class KeyBindingsTest extends TestCase
 
     public function testControlDBindingUsesFallbackAction(): void
     {
-        $bindings = KeyBindings::createDefault(new History());
+        $bindings = $this->createDefaultBindings();
 
         $this->assertInstanceOf(
             FallbackAction::class,

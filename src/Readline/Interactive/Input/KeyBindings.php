@@ -42,6 +42,7 @@ use Psy\Readline\Interactive\Actions\PreviousHistoryAction;
 use Psy\Readline\Interactive\Actions\RejectSyntaxErrorAction;
 use Psy\Readline\Interactive\Actions\ReverseSearchAction;
 use Psy\Readline\Interactive\Actions\SubmitLineAction;
+use Psy\Readline\Interactive\HistorySearch;
 
 /**
  * Keybindings registry, maps terminal key sequences to actions.
@@ -86,7 +87,7 @@ class KeyBindings
      *
      * @param bool $smartBrackets Enable smart bracket pairing
      */
-    public static function createDefault(History $history, bool $smartBrackets = false): self
+    public static function createDefault(History $history, HistorySearch $search, bool $smartBrackets = false): self
     {
         $bindings = new self();
 
@@ -157,7 +158,7 @@ class KeyBindings
         $bindings->bind('control:d', new ExitIfEmptyAction(), new DeleteForwardAction());
 
         // History search
-        $bindings->bind('control:r', new ReverseSearchAction($history));
+        $bindings->bind('control:r', new ReverseSearchAction($search));
 
         // Clear screen
         $bindings->bind('control:l', new ClearScreenAction());

@@ -11,8 +11,8 @@
 
 namespace Psy\Readline\Interactive\Actions;
 
+use Psy\Readline\Interactive\HistorySearch;
 use Psy\Readline\Interactive\Input\Buffer;
-use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Terminal;
 
@@ -21,11 +21,11 @@ use Psy\Readline\Interactive\Terminal;
  */
 class ReverseSearchAction implements ActionInterface
 {
-    private History $history;
+    private HistorySearch $search;
 
-    public function __construct(History $history)
+    public function __construct(HistorySearch $search)
     {
-        $this->history = $history;
+        $this->search = $search;
     }
 
     /**
@@ -33,17 +33,12 @@ class ReverseSearchAction implements ActionInterface
      */
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
-        if ($readline->isInSearchMode()) {
-            $readline->findNextSearchMatch();
-
-            $match = $readline->getCurrentSearchMatch();
-            if ($match !== null) {
-                $buffer->clear();
-                $buffer->insert($match);
-            }
+        if ($this->search->isActive()) {
+            $this->search->findNext();
         } else {
-            $readline->saveBufferForSearch($buffer);
-            $readline->enterSearchMode();
+            $readline->clearSuggestion();
+            $this->search->saveBuffer($buffer);
+            $this->search->enter($buffer->getCurrentLineText());
         }
 
         return true;
