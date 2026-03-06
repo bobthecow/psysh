@@ -220,6 +220,67 @@ class InteractiveSmokeTest extends TestCase
         $this->assertSame($text.'X', $readline->readline());
     }
 
+    public function testUpArrowFiltersHistoryByCurrentInput(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            // Type "echo" then press up twice, then enter
+            new Key('e', Key::TYPE_CHAR),
+            new Key('c', Key::TYPE_CHAR),
+            new Key('h', Key::TYPE_CHAR),
+            new Key('o', Key::TYPE_CHAR),
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up arrow, should get 'echo "world"'
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up arrow, should skip '$foo' and get 'echo "hello"'
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+        $history->add('echo "world"');
+
+        $readline = new Readline($terminal, null, $history);
+
+        $this->assertSame('echo "hello"', $readline->readline());
+    }
+
+    public function testUpDownArrowFilteredNavigationRestoresInput(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            // Type "42", press up to match, then down restores input, then submit
+            new Key('4', Key::TYPE_CHAR),
+            new Key('2', Key::TYPE_CHAR),
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up, '$foo = 42'
+            new Key("\033[B", Key::TYPE_ESCAPE), // Down, restores "42"
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+
+        $readline = new Readline($terminal, null, $history);
+
+        $this->assertSame('42', $readline->readline());
+    }
+
+    public function testUpArrowWithEmptyInputBrowsesAllHistory(): void
+    {
+        $terminal = $this->createTerminalWithKeys([
+            // Empty input, press up twice, then enter
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up, 'second'
+            new Key("\033[A", Key::TYPE_ESCAPE), // Up, 'first'
+            new Key("\n", Key::TYPE_CHAR),
+        ]);
+
+        $history = new History();
+        $history->add('first');
+        $history->add('second');
+
+        $readline = new Readline($terminal, null, $history);
+
+        $this->assertSame('first', $readline->readline());
+    }
+
     public function testSearchModeReplaysUnhandledKeyToMainLoop(): void
     {
         $terminal = $this->createTerminalWithKeys([

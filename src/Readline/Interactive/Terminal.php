@@ -144,7 +144,7 @@ class Terminal
     /**
      * Format text using the output formatter.
      *
-     * Applies theme styles like <whisper>, <selected>, etc.
+     * Applies theme styles like <whisper>, <input_highlight>, etc.
      *
      * @return string Formatted text with ANSI codes
      */
@@ -157,7 +157,7 @@ class Terminal
      * Write formatted text to the terminal.
      *
      * Text is processed through the output formatter, applying theme styles
-     * like <whisper>, <selected>, etc.
+     * like <whisper>, <input_highlight>, etc.
      */
     public function writeFormatted(string $text): void
     {

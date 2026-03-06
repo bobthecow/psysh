@@ -74,9 +74,9 @@ class Theme
         'inline_html' => ['cyan'],
 
         // Interactive readline
-        'selected'          => [null, null, ['reverse']],
         'input_frame'       => ['bright-white', 'gray'],
         'input_frame_error' => ['bright-white', 'red'],
+        'input_highlight'   => [null, null, ['reverse']],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];

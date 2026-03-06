@@ -294,6 +294,24 @@ class FrameRendererTest extends TestCase
         $this->assertSame(17, $this->viewport->getAvailableRows(false));
     }
 
+    public function testHistorySearchHighlightFallsBackOnInvalidUtf8Input()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('input_highlight', new OutputFormatterStyle('black', 'yellow'));
+        $this->renderer->setCompactInputFrame(true);
+        $this->renderer->setSingleLinePrompt('>>> ');
+
+        $buffer = new Buffer();
+        $buffer->setText("a\xFFb");
+        $buffer->setCursor(3);
+
+        $this->renderer->render($buffer, null, 'a');
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(">>> a\xFFb", $paintedLines[0]);
+    }
+
     public function testRendererMovesBackByWrappedCursorRowBeforeRepaint()
     {
         $this->renderer->setSingleLinePrompt('>>> ');

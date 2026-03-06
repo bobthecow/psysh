@@ -15,6 +15,8 @@ use Psy\Exception\BreakException;
 use Psy\Readline\Interactive\Actions\ExpandHistoryOnTabAction;
 use Psy\Readline\Interactive\Actions\HistoryExpansionAction;
 use Psy\Readline\Interactive\Actions\InsertIndentOnTabAction;
+use Psy\Readline\Interactive\Actions\NextHistoryAction;
+use Psy\Readline\Interactive\Actions\PreviousHistoryAction;
 use Psy\Readline\Interactive\Actions\SelfInsertAction;
 use Psy\Readline\Interactive\Actions\TabAction;
 use Psy\Readline\Interactive\Input\Buffer;
@@ -331,9 +333,19 @@ class Readline
                 }
 
                 if ($action !== null) {
+                    $textBefore = $buffer->getText();
                     $continue = $action->execute($buffer, $this->terminal, $this);
 
                     if ($continue) {
+                        // Any buffer mutation outside of history navigation exits history mode.
+                        if ($this->history->isInHistory()
+                            && $buffer->getText() !== $textBefore
+                            && !$action instanceof PreviousHistoryAction
+                            && !$action instanceof NextHistoryAction
+                        ) {
+                            $this->history->reset();
+                        }
+
                         $this->syncMultilineMode($buffer->getText());
                         $this->updateSuggestion($buffer);
                         $this->display($buffer);
@@ -375,7 +387,8 @@ class Readline
      */
     private function display(Buffer $buffer): void
     {
-        $this->frameRenderer->render($buffer, $this->currentSuggestion);
+        $searchTerm = $this->history->isInHistory() ? $this->history->getSearchTerm() : null;
+        $this->frameRenderer->render($buffer, $this->currentSuggestion, $searchTerm);
     }
 
     /**

@@ -12,6 +12,7 @@
 namespace Psy\Readline\Interactive\Renderer;
 
 use Psy\Readline\Interactive\Input\Buffer;
+use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Readline\Interactive\Layout\PromptMap;
 use Psy\Readline\Interactive\Layout\SoftWrapCalculator;
@@ -164,10 +165,10 @@ class FrameRenderer
     /**
      * Render the full frame (input + overlay) to the terminal.
      */
-    public function render(Buffer $buffer, ?SuggestionResult $suggestion): void
+    public function render(Buffer $buffer, ?SuggestionResult $suggestion, ?string $historySearchTerm = null): void
     {
         $isMultiline = \strpos($buffer->getText(), "\n") !== false;
-        $inputLines = $this->buildInputLines($buffer, $isMultiline, $suggestion);
+        $inputLines = $this->buildInputLines($buffer, $isMultiline, $suggestion, $historySearchTerm);
 
         $this->viewport->setInputRowCount($this->getFrameRowCount($inputLines));
 
@@ -216,15 +217,18 @@ class FrameRenderer
      *
      * @return string[]
      */
-    private function buildInputLines(Buffer $buffer, bool $isMultiline, ?SuggestionResult $suggestion): array
+    private function buildInputLines(Buffer $buffer, bool $isMultiline, ?SuggestionResult $suggestion, ?string $historySearchTerm = null): array
     {
         $text = $buffer->getText();
+        $displayText = ($historySearchTerm !== null)
+            ? $this->highlightSearchTerm($text, $historySearchTerm)
+            : $text;
 
         $contentLines = [];
         if ($isMultiline) {
-            $contentLines = $this->formatLinesWithPrompts($text);
+            $contentLines = $this->formatLinesWithPrompts($displayText);
         } else {
-            $line = $this->prompts->getPromptForLine(0).$text;
+            $line = $this->prompts->getPromptForLine(0).$displayText;
 
             if ($suggestion !== null) {
                 $line = $this->appendSuggestionGhostText($line, $buffer, $text, $suggestion);
@@ -266,6 +270,25 @@ class FrameRenderer
         }
 
         return $result;
+    }
+
+    /**
+     * Highlight all occurrences of a search term in text.
+     *
+     * Uses smart case (case-insensitive unless the term contains uppercase).
+     */
+    private function highlightSearchTerm(string $text, string $term): string
+    {
+        $formatter = $this->terminal->getFormatter();
+        if (!$formatter->isDecorated() || !$formatter->hasStyle('input_highlight')) {
+            return $text;
+        }
+
+        $style = $formatter->getStyle('input_highlight');
+        $pattern = '/'.\preg_quote($term, '/').'/u'.(History::isSearchCaseSensitive($term) ? '' : 'i');
+        $highlighted = \preg_replace_callback($pattern, fn (array $match) => $style->apply($match[0]), $text);
+
+        return $highlighted ?? $text;
     }
 
     /**

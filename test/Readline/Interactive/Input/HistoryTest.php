@@ -170,7 +170,7 @@ class HistoryTest extends TestCase
         $this->assertSame(2, $history->getPosition());
     }
 
-    public function testGetNextToCurrentInput()
+    public function testGetNextExitsHistory()
     {
         $history = new History();
         $history->add('command');
@@ -178,7 +178,7 @@ class HistoryTest extends TestCase
         // Navigate backward
         $history->getPrevious();
 
-        // Navigate forward to current input
+        // Forward past most recent, exits history
         $this->assertSame('', $history->getNext());
         $this->assertSame(-1, $history->getPosition());
         $this->assertFalse($history->isInHistory());
@@ -197,7 +197,6 @@ class HistoryTest extends TestCase
     {
         $history = new History();
         $history->add('command');
-        $history->saveTemporaryEntry('temp');
 
         // Navigate into history
         $history->getPrevious();
@@ -221,6 +220,36 @@ class HistoryTest extends TestCase
         $this->assertSame(0, $history->getCount());
         $this->assertSame([], $history->getAll());
         $this->assertSame(-1, $history->getPosition());
+    }
+
+    public function testClearResetsLastNavigatedCommand()
+    {
+        $history = new History();
+        $history->add('repeat');
+
+        $this->assertSame('repeat', $history->getPrevious());
+
+        $history->clear();
+        $history->add('repeat');
+
+        $this->assertSame('repeat', $history->getPrevious());
+    }
+
+    public function testLoadFromFileResetsNavigationState()
+    {
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        \file_put_contents($tempFile, \json_encode(['command' => 'repeat', 'timestamp' => 1000, 'lines' => 1])."\n");
+
+        $history = new History();
+        $history->add('repeat');
+        $this->assertSame('repeat', $history->getPrevious());
+
+        $history->loadFromFile($tempFile);
+
+        $this->assertSame(-1, $history->getPosition());
+        $this->assertSame('repeat', $history->getPrevious());
+
+        @\unlink($tempFile);
     }
 
     public function testMaxSize()
@@ -654,25 +683,24 @@ class HistoryTest extends TestCase
         @\unlink($tempFile);
     }
 
-    public function testNavigationWithTemporaryEntry()
+    public function testNavigationBouncesBackwardExitsForward()
     {
         $history = new History();
         $history->add('command1');
         $history->add('command2');
 
-        // User types something
         $history->saveTemporaryEntry('partial');
 
-        // Navigate backward (saves temporary entry)
+        // Navigate backward, bounces at oldest
         $this->assertSame('command2', $history->getPrevious());
         $this->assertSame('command1', $history->getPrevious());
+        $this->assertNull($history->getPrevious());
+        $this->assertTrue($history->isInHistory());
 
-        // Navigate all the way forward
+        // Navigate forward, exits and restores input
         $this->assertSame('command2', $history->getNext());
         $this->assertSame('partial', $history->getNext());
-
-        // Temporary entry is cleared after retrieval
-        $this->assertSame(-1, $history->getPosition());
+        $this->assertFalse($history->isInHistory());
     }
 
     public function testGetDisplayCommand()
@@ -723,6 +751,203 @@ class HistoryTest extends TestCase
         // getPrevious should return original format (not collapsed)
         $this->assertSame("[\n    1,\n    2\n]", $history->getPrevious());
         $this->assertSame("function foo() {\n    return 42;\n}", $history->getPrevious());
+    }
+
+    public function testFilteredNavigationSubstringMatch()
+    {
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+        $history->add('echo "goodbye"');
+        $history->add('$bar = 99');
+        $history->add('echo "world"');
+
+        $history->setSearchTerm('echo');
+
+        // Should skip non-matching entries
+        $this->assertSame('echo "world"', $history->getPrevious());
+        $this->assertSame('echo "goodbye"', $history->getPrevious());
+        $this->assertSame('echo "hello"', $history->getPrevious());
+        $this->assertNull($history->getPrevious()); // No more matches
+    }
+
+    public function testFilteredNavigationForward()
+    {
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+        $history->add('echo "goodbye"');
+        $history->add('$bar = 99');
+        $history->add('echo "world"');
+
+        $history->setSearchTerm('echo');
+        $history->saveTemporaryEntry('echo');
+
+        // Navigate backward through matches
+        $history->getPrevious(); // echo "world"
+        $history->getPrevious(); // echo "goodbye"
+        $history->getPrevious(); // echo "hello"
+
+        // Navigate forward through matches, then exit
+        $this->assertSame('echo "goodbye"', $history->getNext());
+        $this->assertSame('echo "world"', $history->getNext());
+        $this->assertSame('echo', $history->getNext()); // Restores input
+        $this->assertFalse($history->isInHistory());
+    }
+
+    public function testFilteredNavigationNoMatches()
+    {
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+
+        $history->setSearchTerm('nonexistent');
+
+        $this->assertNull($history->getPrevious());
+        $this->assertFalse($history->isInHistory());
+    }
+
+    public function testFilteredNavigationSmartCaseLowercase()
+    {
+        $history = new History();
+        $history->add('echo Hello');
+        $history->add('ECHO WORLD');
+        $history->add('Echo Goodbye');
+
+        // Lowercase search term = case-insensitive
+        $history->setSearchTerm('echo');
+
+        $this->assertSame('Echo Goodbye', $history->getPrevious());
+        $this->assertSame('ECHO WORLD', $history->getPrevious());
+        $this->assertSame('echo Hello', $history->getPrevious());
+    }
+
+    public function testFilteredNavigationSmartCaseUppercase()
+    {
+        $history = new History();
+        $history->add('echo hello');
+        $history->add('ECHO WORLD');
+        $history->add('Echo Goodbye');
+
+        // Uppercase in search term = case-sensitive
+        $history->setSearchTerm('ECHO');
+
+        $this->assertSame('ECHO WORLD', $history->getPrevious());
+        $this->assertNull($history->getPrevious());
+    }
+
+    public function testFilteredNavigationSmartCaseMixedCase()
+    {
+        $history = new History();
+        $history->add('echo hello');
+        $history->add('Echo Goodbye');
+        $history->add('ECHO WORLD');
+
+        // Mixed case search = case-sensitive
+        $history->setSearchTerm('Echo');
+
+        $this->assertSame('Echo Goodbye', $history->getPrevious());
+        $this->assertNull($history->getPrevious());
+    }
+
+    public function testFilteredNavigationMatchesAnywhere()
+    {
+        $history = new History();
+        $history->add('function bar() { echo "bar"; }');
+        $history->add('$x = "test"');
+        $history->add('echo "hello"');
+
+        // Substring match, not prefix
+        $history->setSearchTerm('bar');
+
+        $this->assertSame('function bar() { echo "bar"; }', $history->getPrevious());
+        $this->assertNull($history->getPrevious());
+    }
+
+    public function testNullSearchTermDisablesFiltering()
+    {
+        $history = new History();
+        $history->add('first');
+        $history->add('second');
+        $history->add('third');
+
+        $history->setSearchTerm(null);
+
+        // Should behave like unfiltered navigation
+        $this->assertSame('third', $history->getPrevious());
+        $this->assertSame('second', $history->getPrevious());
+        $this->assertSame('first', $history->getPrevious());
+    }
+
+    public function testEmptySearchTermDisablesFiltering()
+    {
+        $history = new History();
+        $history->add('first');
+        $history->add('second');
+
+        $history->setSearchTerm('');
+
+        $this->assertSame('second', $history->getPrevious());
+        $this->assertSame('first', $history->getPrevious());
+    }
+
+    public function testResetClearsSearchTerm()
+    {
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+
+        $history->setSearchTerm('echo');
+        $this->assertSame('echo', $history->getSearchTerm());
+
+        $history->reset();
+        $this->assertNull($history->getSearchTerm());
+    }
+
+    public function testNavigationSkipsConsecutiveDuplicates()
+    {
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+        $history->add('$foo = 42');
+        $history->add('$foo = 42');
+        $history->add('echo "world"');
+
+        // Going back: should skip the repeated '$foo = 42' entries
+        $this->assertSame('echo "world"', $history->getPrevious());
+        $this->assertSame('$foo = 42', $history->getPrevious());
+        $this->assertSame('echo "hello"', $history->getPrevious());
+        $this->assertNull($history->getPrevious());
+    }
+
+    public function testNavigationShowsDuplicateAfterDifferentEntry()
+    {
+        $history = new History();
+        $history->add('$foo = 42');
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+
+        // Should see $foo, then echo, then $foo again (not consecutive)
+        $this->assertSame('$foo = 42', $history->getPrevious());
+        $this->assertSame('echo "hello"', $history->getPrevious());
+        $this->assertSame('$foo = 42', $history->getPrevious());
+    }
+
+    public function testFilteredNavigationRestoresTemporaryEntry()
+    {
+        $history = new History();
+        $history->add('echo "hello"');
+        $history->add('$foo = 42');
+        $history->add('echo "world"');
+
+        $history->setSearchTerm('echo');
+        $history->saveTemporaryEntry('ech');
+
+        $history->getPrevious(); // echo "world"
+
+        // Forward past last match, restores input
+        $this->assertSame('ech', $history->getNext());
+        $this->assertFalse($history->isInHistory());
     }
 
     private function fixturePath(string $path): string

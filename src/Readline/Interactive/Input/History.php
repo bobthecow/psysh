@@ -32,8 +32,14 @@ class History
     /** @var int Current position in history (-1 = not in history, index entries in when navigating) */
     private int $position = -1;
 
-    /** @var string|null Temporary entry saved when entering history */
+    /** Temporary entry saved when entering history, restored on forward exit */
     private ?string $temporaryEntry = null;
+
+    /** Search term for filtered history navigation (null = no filtering) */
+    private ?string $searchTerm = null;
+
+    /** Last command returned during navigation, for skipping consecutive dupes */
+    private ?string $lastNavigatedCommand = null;
 
     private int $maxSize;
     private bool $eraseDups;
@@ -83,6 +89,7 @@ class History
      * Get the previous history entry.
      *
      * Moves backward in history (toward older entries).
+     * When a search term is set, skips entries that don't match.
      *
      * @return string|null The previous entry, or null if at the beginning
      */
@@ -92,18 +99,16 @@ class History
             return null;
         }
 
-        $entryCount = \count($this->entries);
+        $start = $this->position === -1 ? \count($this->entries) - 1 : $this->position - 1;
 
-        if ($this->position === -1) {
-            $this->position = $entryCount - 1;
+        for ($i = $start; $i >= 0; $i--) {
+            $command = $this->entries[$i]['command'];
+            if ($this->matchesSearchTerm($command) && $command !== $this->lastNavigatedCommand) {
+                $this->position = $i;
+                $this->lastNavigatedCommand = $command;
 
-            return $this->entries[$this->position]['command'];
-        }
-
-        if ($this->position > 0) {
-            $this->position--;
-
-            return $this->entries[$this->position]['command'];
+                return $command;
+            }
         }
 
         return null;
@@ -113,8 +118,10 @@ class History
      * Get the next history entry.
      *
      * Moves forward in history (toward newer entries).
+     * When a search term is set, skips entries that don't match.
+     * Restores the temporary entry when moving past the most recent match.
      *
-     * @return string|null The next entry, null if at the end, or empty string if returning to current input
+     * @return string|null The next entry, or the saved input when exiting history
      */
     public function getNext(): ?string
     {
@@ -124,21 +131,23 @@ class History
 
         $lastIndex = \count($this->entries) - 1;
 
-        if ($this->position < $lastIndex) {
-            $this->position++;
+        for ($i = $this->position + 1; $i <= $lastIndex; $i++) {
+            $command = $this->entries[$i]['command'];
+            if ($this->matchesSearchTerm($command) && $command !== $this->lastNavigatedCommand) {
+                $this->position = $i;
+                $this->lastNavigatedCommand = $command;
 
-            return $this->entries[$this->position]['command'];
+                return $command;
+            }
         }
 
-        if ($this->position === $lastIndex) {
-            $this->position = -1;
-            $temp = $this->temporaryEntry;
-            $this->temporaryEntry = null;
+        // No more matches forward — exit history, restore original input
+        $this->position = -1;
+        $this->lastNavigatedCommand = null;
+        $temp = $this->temporaryEntry;
+        $this->temporaryEntry = null;
 
-            return $temp ?? '';
-        }
-
-        return null;
+        return $temp ?? '';
     }
 
     /**
@@ -150,14 +159,37 @@ class History
     {
         $this->position = -1;
         $this->temporaryEntry = null;
+        $this->searchTerm = null;
+        $this->lastNavigatedCommand = null;
     }
 
     /**
-     * Save the current input as temporary entry for restoring later.
+     * Save the current input as temporary entry for restoring when exiting history forward.
      */
     public function saveTemporaryEntry(string $entry): void
     {
         $this->temporaryEntry = $entry;
+    }
+
+    /**
+     * Set the search term for filtered history navigation.
+     *
+     * When set, getPrevious() and getNext() will only return entries
+     * containing the search term as a substring.
+     *
+     * Uses smart case: case-insensitive unless the term contains uppercase.
+     */
+    public function setSearchTerm(?string $term): void
+    {
+        $this->searchTerm = ($term !== null && $term !== '') ? $term : null;
+    }
+
+    /**
+     * Get the current search term for filtered navigation.
+     */
+    public function getSearchTerm(): ?string
+    {
+        return $this->searchTerm;
     }
 
     /**
@@ -238,6 +270,8 @@ class History
         $this->entries = [];
         $this->position = -1;
         $this->temporaryEntry = null;
+        $this->searchTerm = null;
+        $this->lastNavigatedCommand = null;
         $this->revision++;
     }
 
@@ -468,6 +502,32 @@ class History
     }
 
     /**
+     * Check whether a search term is case-sensitive (contains uppercase).
+     */
+    public static function isSearchCaseSensitive(string $term): bool
+    {
+        return $term !== \mb_strtolower($term);
+    }
+
+    /**
+     * Check whether a command matches the current search term.
+     *
+     * Smart case: case-insensitive unless the search term contains uppercase.
+     */
+    private function matchesSearchTerm(string $command): bool
+    {
+        if ($this->searchTerm === null) {
+            return true;
+        }
+
+        if (self::isSearchCaseSensitive($this->searchTerm)) {
+            return \strpos($command, $this->searchTerm) !== false;
+        }
+
+        return \stripos($command, $this->searchTerm) !== false;
+    }
+
+    /**
      * Replace history entries, enforcing the configured max size.
      *
      * @param array $entries
@@ -479,6 +539,10 @@ class History
         }
 
         $this->entries = \array_values($entries);
+        $this->position = -1;
+        $this->temporaryEntry = null;
+        $this->searchTerm = null;
+        $this->lastNavigatedCommand = null;
         $this->revision++;
     }
 }

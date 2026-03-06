@@ -50,7 +50,14 @@ class PreviousHistoryAction implements ActionInterface
             return true;
         }
 
-        $saveTempEntry = !$this->history->isInHistory() && !$buffer->isEmpty();
+        $enteringHistory = !$this->history->isInHistory();
+        $text = $buffer->getText();
+
+        // Set the search term when first entering history navigation
+        if ($enteringHistory) {
+            $this->history->setSearchTerm($text !== '' ? $text : null);
+        }
+
         $entry = $this->history->getPrevious();
 
         if ($entry === null) {
@@ -60,8 +67,8 @@ class PreviousHistoryAction implements ActionInterface
         }
 
         // Save current input before navigating away so we can restore it
-        if ($saveTempEntry) {
-            $this->history->saveTemporaryEntry($buffer->getText());
+        if ($enteringHistory && $text !== '') {
+            $this->history->saveTemporaryEntry($text);
         }
 
         $buffer->setText($entry);

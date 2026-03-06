@@ -13,7 +13,6 @@ namespace Psy\Readline\Interactive\Helper;
 
 use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Readline\Interactive\Terminal;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
  * Renders tab completion menu in compact columns.
@@ -69,6 +68,9 @@ class CompletionRenderer
         $output = '';
         $hasSelection = $selectedIndex >= 0;
 
+        $formatter = $this->terminal->getFormatter();
+        $highlightStyle = $formatter->isDecorated() && $formatter->hasStyle('input_highlight') ? $formatter->getStyle('input_highlight') : null;
+
         for ($row = $startRow; $row < $endRow; $row++) {
             $line = '   ';
             for ($col = 0; $col < $columns; $col++) {
@@ -80,10 +82,8 @@ class CompletionRenderer
                     $padding = \max(0, $colWidth - $itemWidth);
 
                     if ($hasSelection && $index === $selectedIndex) {
-                        $escaped = OutputFormatter::escape($item);
-                        $line .= $this->terminal->format(
-                            '<selected>'.$escaped.\str_repeat(' ', $padding).'</selected>',
-                        );
+                        $highlighted = $item.\str_repeat(' ', $padding);
+                        $line .= $highlightStyle ? $highlightStyle->apply($highlighted) : $highlighted;
                     } else {
                         $line .= $item.\str_repeat(' ', $padding);
                     }
