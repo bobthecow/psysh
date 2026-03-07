@@ -273,6 +273,18 @@ class Configuration
             $config->setTheme('compact');
         }
 
+        // Handle --pager and --no-pager
+        if (self::hasPagerOption($input)) {
+            $pager = self::getPagerFromInput($input);
+            if ($pager === null) {
+                $config->setDefaultPager();
+            } else {
+                $config->setPager($pager);
+            }
+        } elseif (self::getOptionFromInput($input, ['no-pager'])) {
+            $config->setPager(false);
+        }
+
         // Handle --raw-output
         // @todo support raw output with interactive input?
         if (!$config->getInputInteractive()) {
@@ -329,6 +341,54 @@ class Configuration
         }
 
         return null;
+    }
+
+    /**
+     * Get the desired pager from the given input.
+     *
+     * @return string|null pager command, or null to use default pager resolution
+     */
+    private static function getPagerFromInput(InputInterface $input): ?string
+    {
+        // Best case, input is properly bound and validated.
+        if ($input->hasOption('pager')) {
+            $pager = $input->getOption('pager');
+            if (\is_string($pager)) {
+                return $pager === '' ? null : $pager;
+            }
+
+            if ($pager === true) {
+                return null;
+            }
+        }
+
+        if ($input->hasParameterOption('--pager', true)) {
+            $pager = $input->getParameterOption('--pager', null, true);
+
+            if (\is_string($pager) && isset($pager[0]) && $pager[0] === '-') {
+                return null;
+            }
+
+            return ($pager === null || $pager === '') ? null : $pager;
+        }
+
+        return null;
+    }
+
+    private static function hasPagerOption(InputInterface $input): bool
+    {
+        if ($input->hasOption('pager')) {
+            $pager = $input->getOption('pager');
+            if (\is_string($pager) || $pager === true) {
+                return true;
+            }
+        }
+
+        if ($input->hasParameterOption('--pager', true)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -464,6 +524,8 @@ class Configuration
             // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
             new InputOption('interaction', null, InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interaction', null, InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
+            new InputOption('pager', null, InputOption::VALUE_OPTIONAL, 'Use an alternate output pager command. Without a value, use the default pager selection.', false),
+            new InputOption('no-pager', null, InputOption::VALUE_NONE, 'Disable paging output for this run.'),
             new InputOption('raw-output', 'r', InputOption::VALUE_NONE, 'Print var_export-style return values (for non-interactive input)'),
 
             new InputOption('self-update', 'u', InputOption::VALUE_NONE, 'Update to the latest version'),
@@ -1666,6 +1728,14 @@ class Configuration
         }
 
         $this->pager = $pager;
+    }
+
+    /**
+     * Use the default pager resolution for this configuration.
+     */
+    public function setDefaultPager(): void
+    {
+        $this->pager = null;
     }
 
     /**

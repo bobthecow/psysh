@@ -18,6 +18,7 @@ use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -665,6 +666,197 @@ class ConfigurationTest extends TestCase
     }
 
     /**
+     * @dataProvider pagerInputStrings
+     *
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputPager($inputString, $expectedPager)
+    {
+        $input = $this->getBoundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertSame($expectedPager, $config->getPager());
+
+        $input = $this->getUnboundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertSame($expectedPager, $config->getPager());
+    }
+
+    public function pagerInputStrings()
+    {
+        return [
+            ['--pager=less', 'less'],
+            ['--pager=more', 'more'],
+            ['--no-pager', false],
+        ];
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputPagerSpecificity()
+    {
+        $input = $this->getBoundStringInput('--pager=more --no-pager');
+        $config = Configuration::fromInput($input);
+        $this->assertSame('more', $config->getPager(), '--pager trumps --no-pager');
+
+        $input = $this->getUnboundStringInput('--pager=more --no-pager');
+        $config = Configuration::fromInput($input);
+        $this->assertSame('more', $config->getPager(), '--pager trumps --no-pager (unbound)');
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputPagerOverridesConfig()
+    {
+        $configFile = __DIR__.'/Fixtures/config-with-pager.php';
+
+        $input = $this->getBoundStringInput('--pager=less', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertSame('less', $config->getPager());
+
+        $input = $this->getBoundStringInput('--pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+
+        $input = $this->getBoundStringInput('--no-pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertFalse($config->getPager());
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputBarePagerUsesDefaultResolution()
+    {
+        $configFile = __DIR__.'/Fixtures/config-with-pager.php';
+
+        $input = $this->getBoundStringInput('--pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+
+        $input = $this->getUnboundStringInput('--pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputBarePagerOverridesHomeAndLocalConfig()
+    {
+        $oldPwd = \getcwd();
+        $oldHome = $_SERVER['HOME'] ?? null;
+        $oldXdgConfigHome = $_SERVER['XDG_CONFIG_HOME'] ?? null;
+        $oldXdgConfigDirs = $_SERVER['XDG_CONFIG_DIRS'] ?? null;
+
+        $root = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+        $projectDir = $root.'/project';
+        $xdgConfigHome = $root.'/xdg-config';
+        $xdgConfigDirs = $root.'/xdg-config-dirs';
+        $homeConfigFile = $xdgConfigHome.'/psysh/config.php';
+        $localConfigFile = $projectDir.'/.psysh.php';
+
+        @\mkdir($projectDir, 0700, true);
+        @\mkdir($xdgConfigHome.'/psysh', 0700, true);
+        @\mkdir($xdgConfigDirs, 0700, true);
+
+        \file_put_contents($homeConfigFile, <<<'PHP'
+<?php
+
+return [
+    'pager' => 'more',
+];
+PHP
+        );
+
+        \file_put_contents($localConfigFile, <<<'PHP'
+<?php
+
+return [
+    'pager' => 'most',
+    'usePcntl' => false,
+];
+PHP
+        );
+
+        try {
+            $_SERVER['HOME'] = $root.'/home';
+            $_SERVER['XDG_CONFIG_HOME'] = $xdgConfigHome;
+            $_SERVER['XDG_CONFIG_DIRS'] = $xdgConfigDirs;
+            \chdir($projectDir);
+
+            $input = $this->getStringInput('--trust-project');
+            $config = Configuration::fromInput($input);
+            $this->assertSame('most', $config->getPager());
+
+            $input = $this->getStringInput('--pager --trust-project');
+            $config = Configuration::fromInput($input);
+            $this->assertNull($config->getPager());
+        } finally {
+            \chdir($oldPwd);
+
+            if ($oldHome !== null) {
+                $_SERVER['HOME'] = $oldHome;
+            } else {
+                unset($_SERVER['HOME']);
+            }
+
+            if ($oldXdgConfigHome !== null) {
+                $_SERVER['XDG_CONFIG_HOME'] = $oldXdgConfigHome;
+            } else {
+                unset($_SERVER['XDG_CONFIG_HOME']);
+            }
+
+            if ($oldXdgConfigDirs !== null) {
+                $_SERVER['XDG_CONFIG_DIRS'] = $oldXdgConfigDirs;
+            } else {
+                unset($_SERVER['XDG_CONFIG_DIRS']);
+            }
+
+            @\unlink($localConfigFile);
+            @\unlink($homeConfigFile);
+            @\rmdir($projectDir);
+            @\rmdir($xdgConfigHome.'/psysh');
+            @\rmdir($xdgConfigHome);
+            @\rmdir($xdgConfigDirs);
+            @\rmdir($root.'/home');
+            @\rmdir($root);
+        }
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputWithWrapperPagerOptionDefaultingToNull()
+    {
+        $configFile = __DIR__.'/Fixtures/config-with-pager.php';
+        $input = new StringInput('--config '.\escapeshellarg($configFile));
+        $input->bind(new InputDefinition([
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED),
+            new InputOption('pager', null, InputOption::VALUE_OPTIONAL),
+        ]));
+
+        $config = Configuration::fromInput($input);
+        $this->assertSame('more', $config->getPager());
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testConfigurationFromInputWithWrapperPagerFlagUsesDefaultResolution()
+    {
+        $input = new StringInput('--pager --config '.\escapeshellarg(__DIR__.'/Fixtures/config-with-pager.php'));
+        $input->bind(new InputDefinition([
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED),
+            new InputOption('pager', null, InputOption::VALUE_NONE),
+        ]));
+
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+    }
+
+    /**
      * @group isolation-fail
      */
     public function testConfigurationFromInputWarmAutoload()
@@ -803,6 +995,17 @@ class ConfigurationTest extends TestCase
         }
 
         return new StringInput($string.' --config '.\escapeshellarg($configFile));
+    }
+
+    private function getStringInput(string $string, bool $bind = true): StringInput
+    {
+        $input = new StringInput($string);
+
+        if ($bind) {
+            $input->bind(new InputDefinition(Configuration::getInputOptions()));
+        }
+
+        return $input;
     }
 
     public function testYoloMode()

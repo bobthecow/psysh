@@ -539,6 +539,8 @@ $version
       <info>--color|--no-color</info>       Force (or disable with --no-color) colors in output
   <info>-i, --interactive</info>            Force PsySH to run in interactive mode
   <info>-n, --no-interactive</info>         Run PsySH without interactive input (requires input from stdin)
+      <info>--pager[=PAGER]</info>          Use an alternate output pager command (without a value, use the default pager)
+      <info>--no-pager</info>               Disable paging output for this run
   <info>-r, --raw-output</info>             Print var_export-style return values (for non-interactive input)
       <info>--compact</info>                Run PsySH with compact output
   <info>-q, --quiet</info>                  Shhhhhh
