@@ -11,6 +11,10 @@
 
 namespace Psy;
 
+use Psy\Clipboard\ClipboardMethod;
+use Psy\Clipboard\CommandClipboardMethod;
+use Psy\Clipboard\NullClipboardMethod;
+use Psy\Clipboard\Osc52ClipboardMethod;
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\InvalidManualException;
 use Psy\Exception\RuntimeException;
@@ -61,6 +65,14 @@ class Configuration
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
     const VERBOSITY_DEBUG = 'debug';
 
+    private const KNOWN_CLIPBOARD_COMMANDS = [
+        'wl-copy',
+        'xsel --clipboard --input',
+        'xclip -selection clipboard',
+        'pbcopy',
+        'clip.exe',
+    ];
+
     private const AVAILABLE_OPTIONS = [
         'codeCleaner',
         'colorMode',
@@ -90,6 +102,7 @@ class Configuration
         'theme',
         'updateCheck',
         'updateManualCheck',
+        'clipboardCommand',
         'useBracketedPaste',
         'useOsc52Clipboard',
         'usePcntl',
@@ -125,6 +138,7 @@ class Configuration
     private bool $rawOutput = false;
     private bool $requireSemicolons = false;
     private bool $strictTypes = false;
+    private ?string $clipboardCommand = null;
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
     private bool $useOsc52Clipboard = false;
@@ -162,6 +176,7 @@ class Configuration
     private ?Presenter $presenter = null;
     private ?AutoCompleter $autoCompleter = null;
     private ?Checker $checker = null;
+    private ?ClipboardMethod $clipboard = null;
     /** @deprecated */
     private ?string $prompt = null;
     private ConfigPaths $configPaths;
@@ -1334,6 +1349,70 @@ class Configuration
     }
 
     /**
+     * Set a custom clipboard command.
+     *
+     * @param string|null $clipboardCommand
+     */
+    public function setClipboardCommand(?string $clipboardCommand)
+    {
+        $this->clipboardCommand = $clipboardCommand !== null && \trim($clipboardCommand) !== ''
+            ? $clipboardCommand
+            : null;
+        $this->clipboard = null;
+    }
+
+    /**
+     * Get the configured clipboard command, if any.
+     */
+    public function clipboardCommand(): ?string
+    {
+        return $this->clipboardCommand;
+    }
+
+    /**
+     * Set the ClipboardMethod service.
+     */
+    public function setClipboard(ClipboardMethod $clipboard)
+    {
+        $this->clipboard = $clipboard;
+    }
+
+    /**
+     * Get the ClipboardMethod service.
+     */
+    public function getClipboard(): ClipboardMethod
+    {
+        if (isset($this->clipboard)) {
+            return $this->clipboard;
+        }
+
+        if ($this->clipboardCommand !== null && \function_exists('proc_open')) {
+            return $this->clipboard = new CommandClipboardMethod($this->clipboardCommand);
+        }
+
+        $isSsh = $this->isSshSession();
+        if ($isSsh) {
+            return $this->clipboard = $this->useOsc52Clipboard()
+                ? new Osc52ClipboardMethod()
+                : new NullClipboardMethod(true);
+        }
+
+        if (\function_exists('proc_open')) {
+            foreach (self::KNOWN_CLIPBOARD_COMMANDS as $command) {
+                if ($this->clipboardCommandExists($command)) {
+                    return $this->clipboard = new CommandClipboardMethod($command);
+                }
+            }
+        }
+
+        if ($this->useOsc52Clipboard()) {
+            return $this->clipboard = new Osc52ClipboardMethod();
+        }
+
+        return $this->clipboard = new NullClipboardMethod(false);
+    }
+
+    /**
      * Enable or disable OSC 52 clipboard support.
      *
      * @param bool $useOsc52Clipboard
@@ -1341,6 +1420,7 @@ class Configuration
     public function setUseOsc52Clipboard(bool $useOsc52Clipboard)
     {
         $this->useOsc52Clipboard = (bool) $useOsc52Clipboard;
+        $this->clipboard = null;
     }
 
     /**
@@ -1349,6 +1429,23 @@ class Configuration
     public function useOsc52Clipboard(): bool
     {
         return $this->useOsc52Clipboard;
+    }
+
+    private function isSshSession(): bool
+    {
+        return \getenv('SSH_TTY') !== false
+            || \getenv('SSH_CLIENT') !== false
+            || \getenv('SSH_CONNECTION') !== false;
+    }
+
+    /**
+     * @phpstan-param non-empty-string $command
+     */
+    private function clipboardCommandExists(string $command): bool
+    {
+        $bin = \explode(' ', $command, 2)[0];
+
+        return $this->configPaths->which($bin) !== null;
     }
 
     /**

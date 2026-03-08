@@ -11,7 +11,8 @@
 
 namespace Psy\Command;
 
-use Psy\Clipboard\ClipboardFactory;
+use Psy\Clipboard\ClipboardMethod;
+use Psy\Clipboard\NullClipboardMethod;
 use Psy\Configuration;
 use Psy\Input\CodeArgument;
 use Psy\VarDumper\Presenter;
@@ -24,18 +25,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CopyCommand extends ReflectingCommand implements PresenterAware
 {
-    private Presenter $presenter;
     private ?Configuration $config = null;
-
-    /**
-     * PresenterAware interface.
-     *
-     * @param Presenter $presenter
-     */
-    public function setPresenter(Presenter $presenter)
-    {
-        $this->presenter = $presenter;
-    }
+    private Presenter $presenter;
 
     /**
      * Set the configuration instance.
@@ -45,6 +36,16 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
     public function setConfiguration(Configuration $config)
     {
         $this->config = $config;
+    }
+
+    /**
+     * PresenterAware interface.
+     *
+     * @param Presenter $presenter
+     */
+    public function setPresenter(Presenter $presenter)
+    {
+        $this->presenter = $presenter;
     }
 
     /**
@@ -83,12 +84,8 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
     {
         $expression = $input->getArgument('expression');
         $value = $expression === null ? $this->context->get('_') : $this->resolveCode($expression);
-        // TODO: Build the dump string without ANSI control chars instead of stripping them.
         $presented = $this->stripAnsi($this->presenter->present($value));
-
-        $allowOsc52 = $this->config ? $this->config->useOsc52Clipboard() : false;
-        $method = (new ClipboardFactory($allowOsc52))->create();
-        if (!$method->copy($presented, $output)) {
+        if (!$this->getClipboardMethod()->copy($presented, $output)) {
             $output->writeln('<error>Unable to copy value to clipboard.</error>');
 
             return 1;
@@ -97,6 +94,11 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
         $output->writeln('<info>Copied to clipboard.</info>');
 
         return 0;
+    }
+
+    private function getClipboardMethod(): ClipboardMethod
+    {
+        return $this->config ? $this->config->getClipboard() : new NullClipboardMethod(false);
     }
 
     private function stripAnsi(string $value): string
