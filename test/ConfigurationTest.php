@@ -55,6 +55,7 @@ class ConfigurationTest extends TestCase
         $this->assertSame(ProcessForker::isSupported(), $config->hasPcntl());
         $this->assertSame($config->hasPcntl(), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
+        $this->assertNull($config->clipboardCommand());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());
     }
@@ -70,6 +71,10 @@ class ConfigurationTest extends TestCase
         $this->assertNull($config->getConfigDir());
         $config->setConfigDir('wheee');
         $this->assertSame('wheee', $config->getConfigDir());
+
+        $this->assertNull($config->clipboardCommand());
+        $config->setClipboardCommand('pbcopy');
+        $this->assertSame('pbcopy', $config->clipboardCommand());
     }
 
     public function testGetRuntimeDir()
@@ -101,6 +106,7 @@ class ConfigurationTest extends TestCase
             'usePcntl'          => false,
             'codeCleaner'       => $cleaner,
             'pager'             => $pager,
+            'clipboardCommand'  => 'pbcopy',
             'requireSemicolons' => true,
             'errorLoggingLevel' => \E_ERROR | \E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
@@ -111,6 +117,7 @@ class ConfigurationTest extends TestCase
         $this->assertFalse($config->usePcntl());
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
+        $this->assertSame('pbcopy', $config->clipboardCommand());
         $this->assertTrue($config->requireSemicolons());
         $this->assertSame(\E_ERROR | \E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
