@@ -15,18 +15,15 @@ use Psy\Clipboard\ClipboardMethod;
 use Psy\Clipboard\NullClipboardMethod;
 use Psy\Configuration;
 use Psy\Input\CodeArgument;
-use Psy\VarDumper\Presenter;
-use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Copy an inspected value to the clipboard.
+ * Copy a value to the clipboard.
  */
-class CopyCommand extends ReflectingCommand implements PresenterAware
+class CopyCommand extends ReflectingCommand
 {
     private ?Configuration $config = null;
-    private Presenter $presenter;
 
     /**
      * Set the configuration instance.
@@ -39,16 +36,6 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
     }
 
     /**
-     * PresenterAware interface.
-     *
-     * @param Presenter $presenter
-     */
-    public function setPresenter(Presenter $presenter)
-    {
-        $this->presenter = $presenter;
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function configure(): void
@@ -56,15 +43,15 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
         $this
             ->setName('copy')
             ->setDefinition([
-                new CodeArgument('expression', CodeArgument::OPTIONAL, 'Expression to inspect and copy.'),
+                new CodeArgument('expression', CodeArgument::OPTIONAL, 'Expression to copy.'),
             ])
-            ->setDescription('Copy the inspected value to the clipboard.')
+            ->setDescription('Copy a value to the clipboard.')
             ->setHelp(
                 <<<'HELP'
-                Copy the inspected value to the clipboard.
+                Copy a value to the clipboard.
 
                 When given:
-                - an expression, copy the inspect result of the expression to the clipboard.
+                - an expression, copy the exported value of the expression to the clipboard.
                 - no arguments, copy the last evaluated result (<info>$_</info>) to the clipboard.
 
                 e.g.
@@ -84,8 +71,12 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
     {
         $expression = $input->getArgument('expression');
         $value = $expression === null ? $this->context->get('_') : $this->resolveCode($expression);
-        $presented = $this->stripAnsi($this->presenter->present($value));
-        if (!$this->getClipboardMethod()->copy($presented, $output)) {
+
+        if (\is_object($value)) {
+            $this->setCommandScopeVariables(new \ReflectionObject($value));
+        }
+
+        if (!$this->getClipboardMethod()->copy($this->exportValue($value, $output), $output)) {
             $output->writeln('<error>Unable to copy value to clipboard.</error>');
 
             return 1;
@@ -101,11 +92,34 @@ class CopyCommand extends ReflectingCommand implements PresenterAware
         return $this->config ? $this->config->getClipboard() : new NullClipboardMethod(false);
     }
 
-    private function stripAnsi(string $value): string
+    private function exportValue($value, OutputInterface $output): string
     {
-        $value = \preg_replace("/\x1b\\][^\x07]*(\x07|\x1b\\\\)/", '', $value);
-        $value = \preg_replace("/\x1b\\[[0-9;?]*[A-Za-z]/", '', $value);
+        $export = '';
+        $warnings = [];
+        \set_error_handler(static function (int $errno, string $errstr) use (&$warnings): bool {
+            $warnings[$errstr] = true;
 
-        return $value ?? '';
+            return true;
+        });
+
+        try {
+            $export = (string) \var_export($value, true);
+        } finally {
+            \restore_error_handler();
+        }
+
+        foreach (\array_keys($warnings) as $warning) {
+            if ($warning === 'var_export does not handle circular references') {
+                $output->writeln('<warning>Value contains circular references; copied export may be incomplete.</warning>');
+
+                break;
+            }
+
+            $output->writeln(\sprintf('<warning>%s</warning>', $warning));
+
+            break;
+        }
+
+        return $export;
     }
 }
