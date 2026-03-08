@@ -42,15 +42,7 @@ class ShellOutput extends ConsoleOutput
         $this->theme = $theme ?? new Theme('modern');
         $this->initFormatters();
 
-        if ($pager === null) {
-            $this->pager = new PassthruPager($this);
-        } elseif (\is_string($pager)) {
-            $this->pager = new ProcOutputPager($this, $pager);
-        } elseif ($pager instanceof OutputPager) {
-            $this->pager = $pager;
-        } else {
-            throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
-        }
+        $this->pager = $this->createPager($pager);
     }
 
     /**
@@ -190,6 +182,18 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
+     * Replace the output pager used for future paging operations.
+     *
+     * @param string|OutputPager|null $pager
+     */
+    public function setPager($pager): void
+    {
+        $this->closePager();
+        $this->paging = 0;
+        $this->pager = $this->createPager($pager);
+    }
+
+    /**
      * Flush and close the output pager.
      */
     private function closePager()
@@ -197,6 +201,26 @@ class ShellOutput extends ConsoleOutput
         if ($this->paging <= 0) {
             $this->pager->close();
         }
+    }
+
+    /**
+     * @param string|OutputPager|null $pager
+     */
+    private function createPager($pager): OutputPager
+    {
+        if ($pager === null) {
+            return new PassthruPager($this);
+        }
+
+        if (\is_string($pager)) {
+            return new ProcOutputPager($this, $pager);
+        }
+
+        if ($pager instanceof OutputPager) {
+            return $pager;
+        }
+
+        throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
     }
 
     /**

@@ -395,10 +395,14 @@ class Shell extends Application
         $copy = new Command\CopyCommand();
         $copy->setConfiguration($this->config);
 
+        $config = new Command\ConfigCommand();
+        $config->setConfiguration($this->config);
+
         $commands = [
             new Command\HelpCommand(),
             new Command\ListCommand(),
             new Command\DumpCommand(),
+            $config,
             $copy,
             $doc,
             new Command\ShowCommand(),
@@ -499,6 +503,59 @@ class Shell extends Application
         foreach ($this->loopListeners as $listener) {
             if (\method_exists($listener, 'setForceReload')) {
                 $listener->setForceReload($force);
+            }
+        }
+    }
+
+    /**
+     * Apply live service updates after a runtime configuration change.
+     */
+    public function applyRuntimeConfigChange(string $key): void
+    {
+        if (isset($this->output)) {
+            switch ($key) {
+                case 'colorMode':
+                    $decorated = $this->config->getOutputDecorated();
+                    $this->output->setDecorated($decorated !== null ? $decorated : !$this->config->outputIsPiped());
+                    break;
+
+                case 'verbosity':
+                    $this->originalVerbosity = $this->config->getOutputVerbosity();
+                    $this->output->setVerbosity($this->originalVerbosity);
+                    break;
+
+                case 'theme':
+                    if ($this->output instanceof ShellOutput) {
+                        $this->output->setTheme($this->config->theme());
+                    }
+                    break;
+
+                case 'pager':
+                    if ($this->output instanceof ShellOutput) {
+                        $pager = $this->config->getPager();
+                        $this->output->setPager($pager === false ? null : $pager);
+                    }
+                    break;
+            }
+        }
+
+        if (isset($this->readline) && $this->readline instanceof InteractiveReadlineInterface) {
+            switch ($key) {
+                case 'theme':
+                    $this->readline->setTheme($this->config->theme());
+                    break;
+
+                case 'requireSemicolons':
+                    $this->readline->setRequireSemicolons($this->config->requireSemicolons());
+                    break;
+
+                case 'useBracketedPaste':
+                    $this->readline->setBracketedPaste($this->config->useBracketedPaste());
+                    break;
+
+                case 'useSuggestions':
+                    $this->readline->setUseSuggestions($this->config->useSuggestions());
+                    break;
             }
         }
     }
@@ -1388,6 +1445,7 @@ class Shell extends Application
             throw new RuntimeException('Invalid help command instance');
         }
         $helpCommand->setCommand($command);
+        $helpCommand->setCommandInput($input);
 
         return $helpCommand->run(new StringInput(''), $this->output);
     }

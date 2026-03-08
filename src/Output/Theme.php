@@ -82,6 +82,7 @@ class Theme
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
 
     private bool $compact = false;
+    private ?string $name = null;
 
     private string $prompt = '> ';
     private string $bufferPrompt = '. ';
@@ -97,7 +98,10 @@ class Theme
      */
     public function __construct($config = 'modern')
     {
+        $themeName = null;
         if (\is_string($config)) {
+            $themeName = $config;
+
             switch ($config) {
                 case 'modern':
                     $config = static::MODERN_THEME;
@@ -112,6 +116,7 @@ class Theme
                     break;
 
                 default:
+                    $themeName = null;
                     \trigger_error(\sprintf('Unknown theme: %s', $config), \E_USER_NOTICE);
                     $config = static::MODERN_THEME;
                     break;
@@ -151,6 +156,7 @@ class Theme
         }
 
         $this->setStyles($config['styles'] ?? []);
+        $this->name = $themeName;
     }
 
     /**
@@ -158,6 +164,7 @@ class Theme
      */
     public function setCompact(bool $compact)
     {
+        $this->name = null;
         $this->compact = $compact;
     }
 
@@ -174,6 +181,12 @@ class Theme
      */
     public function setPrompt(string $prompt)
     {
+        // Called on every input; skip clearing name when unchanged.
+        if ($this->prompt === $prompt) {
+            return;
+        }
+
+        $this->name = null;
         $this->prompt = $prompt;
     }
 
@@ -190,6 +203,7 @@ class Theme
      */
     public function setBufferPrompt(string $bufferPrompt)
     {
+        $this->name = null;
         $this->bufferPrompt = $bufferPrompt;
     }
 
@@ -206,6 +220,7 @@ class Theme
      */
     public function setReplayPrompt(string $replayPrompt)
     {
+        $this->name = null;
         $this->replayPrompt = $replayPrompt;
     }
 
@@ -222,6 +237,7 @@ class Theme
      */
     public function setReturnValue(string $returnValue)
     {
+        $this->name = null;
         $this->returnValue = $returnValue;
     }
 
@@ -238,6 +254,7 @@ class Theme
      */
     public function setGrayFallback(string $grayFallback)
     {
+        $this->name = null;
         $this->grayFallback = $grayFallback;
     }
 
@@ -255,9 +272,18 @@ class Theme
      */
     public function setStyles(array $styles)
     {
+        $this->name = null;
         foreach (\array_keys(static::DEFAULT_STYLES) as $name) {
             $this->styles[$name] = $styles[$name] ?? static::DEFAULT_STYLES[$name];
         }
+    }
+
+    /**
+     * Get the built-in theme name, or null for custom themes.
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
     }
 
     /**
