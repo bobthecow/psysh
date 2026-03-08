@@ -13,7 +13,6 @@ namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name; // @phan-suppress-current-line PhanUnreferencedUseNormal - used for type checks
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\UseItem;
@@ -70,9 +69,9 @@ class UseStatementPass extends NamespaceAwarePass
                 // Only re-inject use statements if this is a wrapper created by NamespacePass.
                 // This matches PHP behavior: explicit namespace declaration clears use statements.
                 if ($node->getAttribute('psyshReinjected')) {
-                    $aliases = $this->cleaner->getAliasesForNamespace($node->name);
-                    if (!empty($aliases)) {
-                        $useStatements = $this->createUseStatements($aliases);
+                    $aliasesByType = $this->cleaner->getAliasesByTypeForNamespace($node->name);
+                    if (!empty($aliasesByType)) {
+                        $useStatements = $this->createUseStatements($aliasesByType);
                         $node->stmts = \array_merge($useStatements, $node->stmts ?? []);
                     }
                 }
@@ -84,9 +83,9 @@ class UseStatementPass extends NamespaceAwarePass
 
         // No namespace declaration in input, or re-applied by NamespacePass; re-inject use
         // statements for the empty namespace.
-        $aliases = $this->cleaner->getAliasesForNamespace(null);
-        if (!empty($aliases)) {
-            $useStatements = $this->createUseStatements($aliases);
+        $aliasesByType = $this->cleaner->getAliasesByTypeForNamespace(null);
+        if (!empty($aliasesByType)) {
+            $useStatements = $this->createUseStatements($aliasesByType);
             $nodes = \array_merge($useStatements, $nodes);
         }
 
@@ -106,8 +105,8 @@ class UseStatementPass extends NamespaceAwarePass
         }
 
         // Persist aliases if they're at the global level (not inside any namespace)
-        if (!empty($this->aliases)) {
-            $this->cleaner->setAliasesForNamespace(null, $this->aliases);
+        if (!empty($this->aliasesByType)) {
+            $this->cleaner->setAliasesByTypeForNamespace(null, $this->aliasesByType);
         }
 
         return null;
@@ -122,32 +121,40 @@ class UseStatementPass extends NamespaceAwarePass
      */
     private function validateUseStatement(Use_ $stmt): void
     {
+        $seenAliases = [];
+
         foreach ($stmt->uses as $useItem) {
             $alias = \strtolower($useItem->getAlias());
+            $type = $this->getUseImportType($stmt, $useItem);
 
-            if (isset($this->aliases[$alias])) {
+            if (isset($seenAliases[$type][$alias]) || isset($this->getAliasesForType($type)[$alias])) {
                 throw new FatalErrorException(\sprintf('Cannot use %s as %s because the name is already in use', $useItem->name->toString(), $useItem->getAlias()), 0, \E_ERROR, null, $stmt->getStartLine());
             }
+
+            $seenAliases[$type][$alias] = true;
         }
     }
 
     /**
      * Create use statement nodes from stored aliases.
      *
-     * @param array $aliases Map of lowercase alias names to Name nodes
+     * @param array $aliasesByType Map of Use_::TYPE_* constants to alias maps
      *
      * @return Use_[] Array of use statement nodes
      */
-    private function createUseStatements(array $aliases): array
+    private function createUseStatements(array $aliasesByType): array
     {
         $useStatements = [];
-        foreach ($aliases as $alias => $name) {
-            // Create UseItem (PHP-Parser 5.x) or UseUse (PHP-Parser 4.x)
-            $useItem = \class_exists(UseItem::class)
-                ? new UseItem($name, new Identifier($alias))
-                : new UseUse($name, $alias);
-            // Mark as re-injected so we don't validate it
-            $useStatements[] = new Use_([$useItem], Use_::TYPE_NORMAL, ['psyshReinjected' => true]);
+
+        foreach ([Use_::TYPE_NORMAL, Use_::TYPE_FUNCTION, Use_::TYPE_CONSTANT] as $type) {
+            foreach ($aliasesByType[$type] ?? [] as $alias => $name) {
+                // Create UseItem (PHP-Parser 5.x) or UseUse (PHP-Parser 4.x)
+                $useItem = \class_exists(UseItem::class)
+                    ? new UseItem($name, new Identifier($alias))
+                    : new UseUse($name, $alias);
+                // Mark as re-injected so we don't validate it
+                $useStatements[] = new Use_([$useItem], $type, ['psyshReinjected' => true]);
+            }
         }
 
         return $useStatements;

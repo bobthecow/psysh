@@ -83,4 +83,12 @@ class CodeCleanerResolveClassNameTest extends TestCase
         $result = $this->cleaner->resolveClassName('Command\\ShowCommand');
         $this->assertSame('\\Psy\\Command\\ShowCommand', $result);
     }
+
+    public function testResolveClassNameWhenFunctionImportUsesSameAlias()
+    {
+        $this->cleaner->clean(['use ArrayObject as Foo;']);
+        $this->cleaner->clean(['use function strlen as Foo;']);
+
+        $this->assertSame('\\ArrayObject', $this->cleaner->resolveClassName('Foo'));
+    }
 }

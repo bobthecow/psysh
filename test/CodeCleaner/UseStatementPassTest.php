@@ -77,6 +77,10 @@ class UseStatementPassTest extends CodeCleanerTestCase
                 "use Foo\\Bar;\nuse Bar\\Baz;\n\$baz = new Baz();",
                 "use Foo\\Bar;\nuse Bar\\Baz;\n\$baz = new Baz();",
             ],
+            [
+                "use ArrayObject as Foo;\nuse function strlen as Foo;\n\$len = Foo('x');\n\$obj = new Foo();",
+                "use ArrayObject as Foo;\nuse function strlen as Foo;\n\$len = Foo('x');\n\$obj = new Foo();",
+            ],
         ];
     }
 
