@@ -812,6 +812,7 @@ class Shell extends Application
             if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
                 $this->addHistory($input);
                 $outputPositions = $this->captureOutputStreamPositions();
+                $this->writePhpCommandCollisionHint($input);
                 $this->runCommand($input);
                 if (!$this->outputWritten && $this->outputWasWrittenSince($outputPositions)) {
                     $this->outputWritten = true;
@@ -1973,11 +1974,51 @@ class Shell extends Application
      */
     protected function hasCommand(string $input): bool
     {
+        $name = $this->extractCommandName($input);
+
+        return $name !== null && $this->has($name);
+    }
+
+    /**
+     * Extract the command name (first word) from input.
+     */
+    private function extractCommandName(string $input): ?string
+    {
         if (\preg_match('/([^\s]+?)(?:\s|$)/A', \ltrim($input), $match)) {
-            return $this->has($match[1]);
+            return $match[1];
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Write a hint if the input collides with a callable PHP function.
+     */
+    private function writePhpCommandCollisionHint(string $input): void
+    {
+        $function = $this->getPhpCommandCollisionFunction($input);
+        if ($function === null) {
+            return;
+        }
+
+        $label = OutputFormatter::escape($function.'()');
+        $this->output->writeln(\sprintf(
+            '<whisper>Input also matches PHP function %s; prefix with ";" to execute PHP instead.</whisper>',
+            $label
+        ));
+    }
+
+    /**
+     * Return the callable PHP function name when a command input also resolves as a direct PHP call.
+     */
+    private function getPhpCommandCollisionFunction(string $input): ?string
+    {
+        $commandName = $this->extractCommandName($input);
+        if ($commandName === null || $this->cleaner === null) {
+            return null;
+        }
+
+        return $this->cleaner->getCallableFunctionForInput($input, $commandName);
     }
 
     /**

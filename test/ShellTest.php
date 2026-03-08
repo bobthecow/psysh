@@ -996,13 +996,33 @@ class ShellTest extends TestCase
         $this->assertSame($method->invokeArgs($shell, [$command]), $has);
     }
 
+    public function testPhpCommandCollisionFunctionIgnoresShellOnlySyntax()
+    {
+        $shell = new Shell($this->getConfig());
+
+        $refl = new \ReflectionClass(Shell::class);
+        $boot = $refl->getMethod('boot');
+        $method = $refl->getMethod('getPhpCommandCollisionFunction');
+        if (\PHP_VERSION_ID < 80100) {
+            $boot->setAccessible(true);
+            $method->setAccessible(true);
+        }
+
+        $boot->invoke($shell);
+
+        $this->assertNull($method->invokeArgs($shell, ['help --help']));
+    }
+
     public function commandsToHas()
     {
         return [
             ['help', true],
             ['help help', true],
+            ['help ("help")', true],
             ['"help"', false],
             ['"help help"', false],
+            ['copy', true],
+            ['copy ($from, $to)', true],
             ['ls -al ', true],
             ['ls "-al" ', true],
             ['ls"-al"', false],
