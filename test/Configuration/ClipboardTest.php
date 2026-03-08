@@ -38,7 +38,7 @@ class ClipboardTest extends TestCase
     private function getConfig(): Configuration
     {
         return new Configuration([
-            'configFile' => \dirname(__DIR__).'/fixtures/empty.php',
+            'configFile' => \dirname(__DIR__).'/Fixtures/empty.php',
         ]);
     }
 

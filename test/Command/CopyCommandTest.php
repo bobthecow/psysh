@@ -41,7 +41,7 @@ class CopyCommandTest extends \Psy\Test\TestCase
         $this->tempDir = \sys_get_temp_dir().'/psysh-copy-command-test-'.\bin2hex(\random_bytes(8));
         \mkdir($this->tempDir, 0777, true);
         $this->config = new Configuration([
-            'configFile' => \dirname(__DIR__).'/fixtures/empty.php',
+            'configFile' => \dirname(__DIR__).'/Fixtures/empty.php',
         ]);
         $this->config->setConfigDir($this->tempDir);
         $this->config->setDataDir($this->tempDir);
