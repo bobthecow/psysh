@@ -17,6 +17,8 @@ use Psy\Exception\BreakException;
 use Psy\Exception\ParseErrorException;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\InteractiveReadlineInterface;
+use Psy\Readline\LegacyReadline;
+use Psy\Readline\Readline;
 use Psy\Shell;
 use Psy\ShellAware;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
@@ -370,6 +372,7 @@ class ShellTest extends TestCase
             public ?bool $bracketedPaste = null;
             public ?\Psy\Output\Theme $theme = null;
             public ?OutputInterface $output = null;
+            public array $calls = [];
 
             /** @phpstan-ignore-next-line (interface-required constructor params are unused in stub) */
             public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
@@ -422,21 +425,25 @@ class ShellTest extends TestCase
 
             public function setRequireSemicolons(bool $require): void
             {
+                $this->calls[] = 'setRequireSemicolons';
                 $this->requireSemicolons = $require;
             }
 
             public function setTheme(\Psy\Output\Theme $theme): void
             {
+                $this->calls[] = 'setTheme';
                 $this->theme = $theme;
             }
 
             public function setBracketedPaste(bool $enabled): void
             {
+                $this->calls[] = 'setBracketedPaste';
                 $this->bracketedPaste = $enabled;
             }
 
             public function setUseSuggestions(bool $enabled): void
             {
+                $this->calls[] = 'setUseSuggestions';
             }
 
             public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
@@ -445,6 +452,7 @@ class ShellTest extends TestCase
 
             public function setOutput(OutputInterface $output, ?\Psy\Readline\Interactive\Terminal $terminal = null): void
             {
+                $this->calls[] = 'setOutput';
                 $this->output = $output;
             }
 
@@ -455,6 +463,7 @@ class ShellTest extends TestCase
 
             public function setShell(Shell $shell): void
             {
+                $this->calls[] = 'setShell';
                 $this->shellWasSet = true;
             }
 
@@ -478,6 +487,97 @@ class ShellTest extends TestCase
         $this->assertSame($config->requireSemicolons(), $readline->requireSemicolons);
         $this->assertSame($config->useBracketedPaste(), $readline->bracketedPaste);
         $this->assertSame($config->theme(), $readline->theme);
+        $this->assertLessThan(
+            \array_search('setTheme', $readline->calls, true),
+            \array_search('setOutput', $readline->calls, true)
+        );
+        $this->assertLessThan(
+            \array_search('setRequireSemicolons', $readline->calls, true),
+            \array_search('setOutput', $readline->calls, true)
+        );
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testBootWrapsLegacyReadlineInLegacyShim()
+    {
+        $readline = new class() implements Readline {
+            /** @var string|false|null */
+            public $line = 'echo 42';
+
+            /** @phpstan-ignore-next-line (interface-required constructor params are unused in stub) */
+            public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
+            {
+            }
+
+            public static function isSupported(): bool
+            {
+                return true;
+            }
+
+            public static function supportsBracketedPaste(): bool
+            {
+                return false;
+            }
+
+            public function addHistory(string $line): bool
+            {
+                return true;
+            }
+
+            public function clearHistory(): bool
+            {
+                return true;
+            }
+
+            public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function readHistory(): bool
+            {
+                return true;
+            }
+
+            public function readline(?string $prompt = null)
+            {
+                $line = $this->line;
+                $this->line = false;
+
+                return $line;
+            }
+
+            public function redisplay()
+            {
+            }
+
+            public function writeHistory(): bool
+            {
+                return true;
+            }
+        };
+
+        $config = $this->getConfig();
+        $config->setInteractiveMode(Configuration::INTERACTIVE_MODE_FORCED);
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->setOutput($this->getOutput());
+        $shell->boot();
+
+        $property = new \ReflectionProperty(Shell::class, 'readline');
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+        $configuredReadline = $property->getValue($shell);
+
+        $this->assertInstanceOf(LegacyReadline::class, $configuredReadline);
+        $this->assertTrue($shell->has('buffer'));
+
+        $shell->getInput();
+        $this->assertNotNull($shell->flushCode());
     }
 
     public function testRenderingExceptions()
@@ -508,7 +608,7 @@ class ShellTest extends TestCase
 
     public function testGetInputMarksOutputWrittenForCommandOutput()
     {
-        $readline = $this->getInteractiveReadline(['cmd', false]);
+        $readline = $this->getInteractiveReadline(['cmd', '42']);
         $config = $this->getConfig();
         $config->setReadline($readline);
 
@@ -535,7 +635,7 @@ class ShellTest extends TestCase
 
     public function testGetInputLeavesOutputWrittenFalseWhenCommandDoesNotWriteOutput()
     {
-        $readline = $this->getInteractiveReadline(['cmd', false]);
+        $readline = $this->getInteractiveReadline(['cmd', '42']);
         $config = $this->getConfig();
         $config->setReadline($readline);
 
@@ -556,6 +656,77 @@ class ShellTest extends TestCase
         $shell->getInput();
 
         $this->assertSame([false], $readline->outputWrittenCalls);
+    }
+
+    /**
+     * @group isolation-fail
+     */
+    public function testGetInputContinuesReadingAfterInteractiveCommand()
+    {
+        $readline = $this->getInteractiveReadline(['cmd', '42']);
+        $config = $this->getConfig();
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->add(new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        });
+
+        $shell->setOutput($this->getOutput());
+        $shell->getInput();
+
+        $this->assertTrue($shell->hasCode());
+        $this->assertNotNull($shell->flushCode());
+    }
+
+    public function testGetInputReturnsAfterInteractiveCommandQueuesCode()
+    {
+        $readline = $this->getInteractiveReadline(['sudo 1', '2']);
+        $config = $this->getConfig();
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->setOutput($this->getOutput());
+
+        $shell->getInput();
+        $firstCode = $shell->flushCode();
+
+        $this->assertNotNull($firstCode);
+        $this->assertStringContainsString('1', $firstCode);
+
+        $shell->getInput();
+        $secondCode = $shell->flushCode();
+
+        $this->assertNotNull($secondCode);
+        $this->assertStringContainsString('2', $secondCode);
+    }
+
+    public function testGetInputKeepsThrowUpInsideLegacyContinuationBuffer()
+    {
+        $config = $this->getConfig();
+        $config->setReadline($this->getLegacyPhysicalReadline([
+            'if (true) {',
+            'throw-up "bye"',
+            '}',
+        ]));
+
+        $shell = new Shell($config);
+        $shell->setOutput($this->getOutput());
+        $shell->getInput();
+
+        $code = $shell->flushCode();
+
+        $this->assertNotNull($code);
+        $this->assertStringContainsString('if (true)', $code);
+        $this->assertStringContainsString('ThrowUpException', $code);
     }
 
     /**
@@ -1263,6 +1434,67 @@ class ShellTest extends TestCase
         $input = new StringInput($input);
 
         return $input;
+    }
+
+    private function getLegacyPhysicalReadline(array $inputs): Readline
+    {
+        return new class($inputs) implements Readline {
+            private array $inputs;
+
+            /** @phpstan-ignore-next-line (interface-required constructor params are repurposed in stub) */
+            public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
+            {
+                $this->inputs = \is_array($historyFile) ? $historyFile : [];
+            }
+
+            public static function isSupported(): bool
+            {
+                return true;
+            }
+
+            public static function supportsBracketedPaste(): bool
+            {
+                return false;
+            }
+
+            public function addHistory(string $line): bool
+            {
+                return true;
+            }
+
+            public function clearHistory(): bool
+            {
+                return true;
+            }
+
+            public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function readHistory(): bool
+            {
+                return true;
+            }
+
+            public function readline(?string $prompt = null)
+            {
+                if ($this->inputs === []) {
+                    return false;
+                }
+
+                return \array_shift($this->inputs);
+            }
+
+            public function redisplay()
+            {
+            }
+
+            public function writeHistory(): bool
+            {
+                return true;
+            }
+        };
     }
 
     private function getInteractiveReadline(array $inputs)

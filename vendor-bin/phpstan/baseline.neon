@@ -14,6 +14,9 @@ parameters:
     - message: "#^Constructor of class Psy\\\\Readline\\\\Transient has an unused parameter \\$historyFile\\.$#"
       count: 1
       path: ../../src/Readline/Transient.php
+    - message: "#^Constructor of class Psy\\\\Readline\\\\LegacyReadline has an unused parameter \\$(eraseDups|historySize)\\.$#"
+      count: 2
+      path: ../../src/Readline/LegacyReadline.php
     - message: "#^Constructor of class Psy\\\\Readline\\\\Userland has an unused parameter \\$eraseDups\\.$#"
       count: 1
       path: ../../src/Readline/Userland.php

@@ -32,8 +32,10 @@ use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
 use Psy\Output\ShellOutput;
 use Psy\Readline\InteractiveReadlineInterface;
+use Psy\Readline\LegacyReadline;
 use Psy\Readline\Readline;
 use Psy\Readline\ReadlineAware;
+use Psy\Readline\ShellReadlineInterface;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\TabCompletion\Matcher\CommandsMatcher;
@@ -72,13 +74,13 @@ class Shell extends Application
     private ?CodeCleaner $cleaner = null;
     private OutputInterface $output;
     private ?int $originalVerbosity = null;
-    private ?Readline $readline = null;
+    private ?ShellReadlineInterface $readline = null;
     private array $inputBuffer;
-    /** @var string|false|null */
-    private $code = null;
-    private array $codeBuffer = [];
-    private bool $codeBufferOpen = false;
-    private array $codeStack;
+    /** @var string|false */
+    private $pendingCode = false;
+    private array $pendingCodeBuffer = [];
+    private bool $pendingCodeBufferOpen = false;
+    private array $pendingCodeStack;
     private string $stdoutBuffer;
     private Context $context;
     private array $includes;
@@ -111,7 +113,7 @@ class Shell extends Application
         $this->context = new Context();
         $this->includes = [];
         $this->inputBuffer = [];
-        $this->codeStack = [];
+        $this->pendingCodeStack = [];
         $this->stdoutBuffer = '';
         $this->loopListeners = $this->getDefaultLoopListeners();
 
@@ -189,8 +191,7 @@ class Shell extends Application
         $this->readline = $this->configureReadline($this->config->getReadline());
         $this->booted = true;
 
-        // BufferCommand only makes sense for legacy readlines
-        if (!$this->readline instanceof InteractiveReadlineInterface) {
+        if ($this->readline instanceof LegacyReadline) {
             $this->add(new Command\BufferCommand());
         }
 
@@ -222,10 +223,14 @@ class Shell extends Application
      * This sets up shell awareness, interactive readline dependencies,
      * output/theme integration, and options.
      *
-     * @return Readline The configured readline instance
+     * @return ShellReadlineInterface The configured readline instance
      */
-    private function configureReadline(Readline $readline): Readline
+    private function configureReadline(Readline $readline): ShellReadlineInterface
     {
+        if (!($readline instanceof ShellReadlineInterface)) {
+            $readline = new LegacyReadline($readline);
+        }
+
         if ($readline instanceof InteractiveReadlineInterface) {
             // setOutput boots the interactive readline, so it must come first
             $readline->setOutput($this->output ?? $this->config->getOutput());
@@ -233,11 +238,16 @@ class Shell extends Application
             $readline->setRequireSemicolons($this->config->requireSemicolons());
             $readline->setBracketedPaste($this->config->useBracketedPaste());
             $readline->setUseSuggestions($this->config->useSuggestions());
+        } else {
+            $readline->setRequireSemicolons($this->config->requireSemicolons());
         }
 
-        if ($readline instanceof ShellAware) {
-            $readline->setShell($this);
+        if ($readline instanceof LegacyReadline) {
+            $readline->setBufferPrompt($this->config->theme()->bufferPrompt());
+            $readline->setOutput($this->output ?? $this->config->getOutput());
         }
+
+        $readline->setShell($this);
 
         return $readline;
     }
@@ -420,8 +430,6 @@ class Shell extends Application
             $hist,
             new Command\ExitCommand(),
         ];
-
-        // BufferCommand is conditionally added in boot() for legacy readlines
 
         // Only add yolo command if UopzReloader is supported
         if (UopzReloader::isSupported()) {
@@ -670,7 +678,7 @@ class Shell extends Application
     {
         $this->setOutput($output);
         $this->boot($input, $output);
-        $this->resetCodeBuffer();
+        $this->clearPendingCode();
         $this->warmAutoloader();
 
         if ($this->config->getInputInteractive()) {
@@ -829,9 +837,7 @@ class Shell extends Application
     {
         $this->boot();
 
-        $this->codeBufferOpen = false;
-
-        do {
+        while (true) {
             // reset output verbosity (in case it was altered by a subcommand)
             $this->output->setVerbosity($this->originalVerbosity);
             $this->outputWritten = false;
@@ -852,23 +858,18 @@ class Shell extends Application
 
                 $this->output->writeln('');
 
-                if ($this->hasCode()) {
-                    $this->resetCodeBuffer();
-                } else {
-                    throw new BreakException('Ctrl+D');
-                }
+                throw new BreakException('Ctrl+D');
             }
 
             // handle empty input
-            if (\trim($input) === '' && !$this->codeBufferOpen) {
+            if (\trim($input) === '') {
                 $this->notifyOutputWritten();
                 continue;
             }
 
             $input = $this->onInput($input);
 
-            // If the input isn't in an open string or comment, check for commands to run.
-            if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
+            if ($this->hasCommand($input)) {
                 $this->addHistory($input);
                 $outputPositions = $this->captureOutputStreamPositions();
                 $this->writePhpCommandCollisionHint($input);
@@ -878,33 +879,18 @@ class Shell extends Application
                 }
                 $this->notifyOutputWritten();
 
+                if ($interactive && $this->hasValidCode()) {
+                    return;
+                }
+
                 continue;
             }
 
             $this->addCode($input);
-        } while (!$interactive || !$this->hasValidCode());
-    }
-
-    /**
-     * Check whether the code buffer (plus current input) is in an open string or comment.
-     *
-     * @param string $input current line of input
-     *
-     * @return bool true if the input is in an open string or comment
-     */
-    private function inputInOpenStringOrComment(string $input): bool
-    {
-        if (!$this->hasCode()) {
-            return false;
+            if ($interactive) {
+                return;
+            }
         }
-
-        $code = $this->codeBuffer;
-        $code[] = $input;
-        $tokens = @\token_get_all('<?php '.\implode("\n", $code));
-        $last = \array_pop($tokens);
-
-        return $last === '"' || $last === '`' ||
-            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT]));
     }
 
     /**
@@ -1308,7 +1294,7 @@ class Shell extends Application
      */
     public function hasCode(): bool
     {
-        return !empty($this->codeBuffer);
+        return !empty($this->pendingCodeBuffer);
     }
 
     /**
@@ -1320,7 +1306,7 @@ class Shell extends Application
      */
     protected function hasValidCode(): bool
     {
-        return !$this->codeBufferOpen && $this->code !== false;
+        return $this->hasCode() && !$this->pendingCodeBufferOpen && $this->pendingCode !== false;
     }
 
     /**
@@ -1333,25 +1319,23 @@ class Shell extends Application
     {
         $this->boot();
 
+        if ($this->readline instanceof LegacyReadline && $this->readline->hasBuffer()) {
+            $this->readline->append($code);
+
+            return;
+        }
+
         try {
-            // Code lines ending in \ keep the buffer open
-            if (\substr(\rtrim($code), -1) === '\\') {
-                $this->codeBufferOpen = true;
-                $code = \substr(\rtrim($code), 0, -1);
-            } else {
-                $this->codeBufferOpen = false;
-            }
+            $code = $this->appendPendingCodeLine($code, $silent);
+            $this->pendingCode = $this->cleaner->clean($this->pendingCodeBuffer, $this->config->requireSemicolons());
 
-            $this->codeBuffer[] = $silent ? new SilentInput($code) : $code;
-            $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
-
-            if (!$silent && $this->code !== false) {
+            if (!$silent && $this->pendingCode !== false) {
                 $this->suppressReturnValue = $this->shouldSuppressReturnValue();
                 $this->writeCleanerMessages();
             }
         } catch (\Throwable $e) {
-            // Add failed code blocks to the readline history.
-            $this->addCodeBufferToHistory();
+            // Add failed pending code blocks to the readline history.
+            $this->addPendingCodeBufferToHistory();
 
             throw $e;
         }
@@ -1368,7 +1352,7 @@ class Shell extends Application
             return false;
         }
 
-        $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $this->codeBuffer));
+        $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $this->pendingCodeBuffer));
         [$lastToken, $index] = $this->lastNonCommentToken($tokens);
 
         if ($lastToken !== ';') {
@@ -1412,7 +1396,7 @@ class Shell extends Application
     }
 
     /**
-     * Set the code buffer.
+     * Set the pending code buffer.
      *
      * This is mostly used by `Shell::execute`. Any existing code in the input
      * buffer is pushed onto a stack and will come back after this new code is
@@ -1426,10 +1410,10 @@ class Shell extends Application
     private function setCode(string $code, bool $silent = false)
     {
         if ($this->hasCode()) {
-            $this->codeStack[] = [$this->codeBuffer, $this->codeBufferOpen, $this->code];
+            $this->pendingCodeStack[] = [$this->pendingCodeBuffer, $this->pendingCodeBufferOpen, $this->pendingCode];
         }
 
-        $this->resetCodeBuffer();
+        $this->clearPendingCode();
         try {
             $this->addCode($code, $silent);
         } catch (\Throwable $e) {
@@ -1448,13 +1432,25 @@ class Shell extends Application
     /**
      * Get the current code buffer.
      *
-     * This is useful for commands which manipulate the buffer.
+     * This is useful for callers which still inspect the shell's pending code.
      *
      * @return string[]
+     *
+     * @deprecated pending input inspection is being removed from Shell internals
      */
     public function getCodeBuffer(): array
     {
-        return $this->codeBuffer;
+        return $this->pendingCodeBuffer;
+    }
+
+    /**
+     * Get the current executable pending code buffer.
+     *
+     * @return string[]
+     */
+    public function getPendingCodeBuffer(): array
+    {
+        return $this->pendingCodeBuffer;
     }
 
     /**
@@ -1555,15 +1551,24 @@ class Shell extends Application
     }
 
     /**
-     * Reset the current code buffer.
+     * Reset the current pending code buffer.
      *
      * This should be run after evaluating user input, catching exceptions, or
      * on demand by commands such as BufferCommand.
+     *
+     * @deprecated pending input reset is being removed from Shell internals
      */
     public function resetCodeBuffer()
     {
-        $this->codeBuffer = [];
-        $this->code = false;
+        $this->clearPendingCode();
+    }
+
+    /**
+     * Clear the current executable pending code buffer.
+     */
+    public function clearPendingCodeBuffer(): void
+    {
+        $this->clearPendingCode();
     }
 
     /**
@@ -1582,7 +1587,7 @@ class Shell extends Application
     }
 
     /**
-     * Flush the current (valid) code buffer.
+     * Flush the current executable pending code buffer.
      *
      * If the code buffer is valid, resets the code buffer and returns the
      * current code.
@@ -1592,8 +1597,8 @@ class Shell extends Application
     public function flushCode()
     {
         if ($this->hasValidCode()) {
-            $this->addCodeBufferToHistory();
-            $code = $this->code;
+            $this->addPendingCodeBufferToHistory();
+            $code = $this->pendingCode;
             $this->popCodeStack();
 
             return $code;
@@ -1603,21 +1608,21 @@ class Shell extends Application
     }
 
     /**
-     * Reset the code buffer and restore any code pushed during `execute` calls.
+     * Reset pending code and restore any code pushed during `execute` calls.
      */
     private function popCodeStack()
     {
-        $this->resetCodeBuffer();
+        $this->clearPendingCode();
 
-        if (empty($this->codeStack)) {
+        if (empty($this->pendingCodeStack)) {
             return;
         }
 
-        list($codeBuffer, $codeBufferOpen, $code) = \array_pop($this->codeStack);
+        list($codeBuffer, $codeBufferOpen, $code) = \array_pop($this->pendingCodeStack);
 
-        $this->codeBuffer = $codeBuffer;
-        $this->codeBufferOpen = $codeBufferOpen;
-        $this->code = $code;
+        $this->pendingCodeBuffer = $codeBuffer;
+        $this->pendingCodeBufferOpen = $codeBufferOpen;
+        $this->pendingCode = $code;
     }
 
     /**
@@ -1647,11 +1652,45 @@ class Shell extends Application
     /**
      * Filter silent input from code buffer, write the rest to readline history.
      */
-    private function addCodeBufferToHistory()
+    private function addPendingCodeBufferToHistory()
     {
-        $codeBuffer = \array_filter($this->codeBuffer, fn ($line) => !$line instanceof SilentInput);
+        $codeBuffer = \array_filter($this->pendingCodeBuffer, fn ($line) => !$line instanceof SilentInput);
 
         $this->addHistory(\implode("\n", $codeBuffer));
+    }
+
+    /**
+     * Clear the shell's pending execution state.
+     */
+    private function clearPendingCode(): void
+    {
+        $this->pendingCodeBuffer = [];
+        $this->pendingCodeBufferOpen = false;
+        $this->pendingCode = false;
+    }
+
+    /**
+     * Append a line to the pending execution buffer.
+     *
+     * Returns the normalized line after handling legacy trailing backslash
+     * continuation used by programmatic callers of addCode().
+     *
+     * @param string $code
+     * @param bool   $silent
+     */
+    private function appendPendingCodeLine(string $code, bool $silent): string
+    {
+        // Programmatic callers can still force pending input continuation via trailing backslash.
+        if (\substr(\rtrim($code), -1) === '\\') {
+            $this->pendingCodeBufferOpen = true;
+            $code = \substr(\rtrim($code), 0, -1);
+        } else {
+            $this->pendingCodeBufferOpen = false;
+        }
+
+        $this->pendingCodeBuffer[] = $silent ? new SilentInput($code) : $code;
+
+        return $code;
     }
 
     /**
@@ -1793,7 +1832,7 @@ class Shell extends Application
     {
         // No need to write the break exception during a non-interactive run.
         if ($e instanceof BreakException && $this->nonInteractive) {
-            $this->resetCodeBuffer();
+            $this->clearPendingCode();
 
             return;
         }
@@ -1822,7 +1861,7 @@ class Shell extends Application
             }
         }
 
-        $this->resetCodeBuffer();
+        $this->clearPendingCode();
     }
 
     /**
@@ -2151,7 +2190,7 @@ class Shell extends Application
      *
      * @return bool True if the shell has a command for the given input
      */
-    protected function hasCommand(string $input): bool
+    public function hasCommand(string $input): bool
     {
         $name = $this->extractCommandName($input);
 
@@ -2211,13 +2250,7 @@ class Shell extends Application
             return null;
         }
 
-        $theme = $this->config->theme();
-
-        if ($this->hasCode()) {
-            return $theme->bufferPrompt();
-        }
-
-        return $theme->prompt();
+        return $this->config->theme()->prompt();
     }
 
     /**

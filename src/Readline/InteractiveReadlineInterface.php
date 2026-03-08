@@ -20,21 +20,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Interface for interactive readline implementations with additional features.
  *
- * This interface extends the base Readline interface to provide automatic
- * semicolon handling, custom prompts for multiline input, and more advanced
- * interaction.
+ * This interface extends the shell readline interface with rich terminal
+ * behavior such as themed prompts, output-aware redisplay, advanced
+ * completion, and interactive history integration.
  */
-interface InteractiveReadlineInterface extends Readline
+interface InteractiveReadlineInterface extends ShellReadlineInterface
 {
-    /**
-     * Set whether to require semicolons on all statements.
-     *
-     * When set to false (default), the readline implementation may
-     * automatically insert semicolons where appropriate. When set to true,
-     * semicolons are strictly required.
-     */
-    public function setRequireSemicolons(bool $require): void;
-
     /**
      * Set the theme (currently used for prompt configuration).
      */

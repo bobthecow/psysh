@@ -13,11 +13,9 @@ namespace Psy\Command;
 
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Expression;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Exception\ThrowUpException;
 use Psy\Input\CodeArgument;
@@ -79,8 +77,8 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $args = $this->prepareArgs($input->getArgument('exception'));
-        $throwStmt = new Expression(new Throw_(new New_(new FullyQualifiedName(ThrowUpException::class), $args)));
-        $throwCode = $this->printer->prettyPrint([$throwStmt]);
+        $exception = new New_(new FullyQualifiedName(ThrowUpException::class), $args);
+        $throwCode = 'throw '.$this->printer->prettyPrintExpr($exception).';';
 
         $shell = $this->getShell();
         $shell->addCode($throwCode, !$shell->hasCode());

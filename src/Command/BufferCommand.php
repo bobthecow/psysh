@@ -12,6 +12,9 @@
 namespace Psy\Command;
 
 use Psy\Output\ShellOutputAdapter;
+use Psy\Readline\LegacyReadline;
+use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,8 +24,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Shows and clears the buffer for the current multi-line expression.
  */
-class BufferCommand extends Command
+class BufferCommand extends Command implements ReadlineAware
 {
+    private ?Readline $readline = null;
+
     /**
      * {@inheritdoc}
      */
@@ -53,16 +58,29 @@ HELP
     {
         $shell = $this->getShell();
         $shellOutput = $this->shellOutput($output);
-
-        $buf = $shell->getCodeBuffer();
+        $readline = $this->getLegacyReadline();
+        $legacyBuffer = $readline->getBuffer();
+        $shellBuffer = $shell->getPendingCodeBuffer();
+        $buf = $legacyBuffer !== [] ? $legacyBuffer : $shellBuffer;
         if ($input->getOption('clear')) {
-            $shell->resetCodeBuffer();
+            $readline->clearBuffer();
+            if ($shellBuffer !== []) {
+                $shell->clearPendingCodeBuffer();
+            }
             $shellOutput->writeln($this->formatLines($buf, 'urgent'), ShellOutputAdapter::NUMBER_LINES);
         } else {
             $shellOutput->writeln($this->formatLines($buf), ShellOutputAdapter::NUMBER_LINES);
         }
 
         return 0;
+    }
+
+    /**
+     * Set the shell's readline implementation.
+     */
+    public function setReadline(Readline $readline)
+    {
+        $this->readline = $readline;
     }
 
     /**
@@ -78,5 +96,17 @@ HELP
         $template = \sprintf('<%s>%%s</%s>', $type, $type);
 
         return \array_map(fn ($line) => \sprintf($template, $line), $lines);
+    }
+
+    /**
+     * Get the active multiline buffer from the legacy shim.
+     */
+    private function getLegacyReadline(): LegacyReadline
+    {
+        if ($this->readline instanceof LegacyReadline) {
+            return $this->readline;
+        }
+
+        throw new \LogicException('BufferCommand requires LegacyReadline.');
     }
 }
