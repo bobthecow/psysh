@@ -1409,7 +1409,12 @@ class Configuration
             return $this->clipboard = new Osc52ClipboardMethod();
         }
 
-        return $this->clipboard = new NullClipboardMethod(false);
+        return $this->clipboard = new NullClipboardMethod(
+            false,
+            $this->clipboardCommand !== null
+                ? NullClipboardMethod::REASON_NO_COMMAND_SUPPORT
+                : NullClipboardMethod::REASON_NO_COMMAND
+        );
     }
 
     /**

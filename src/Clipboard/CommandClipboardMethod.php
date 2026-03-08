@@ -13,7 +13,7 @@ namespace Psy\Clipboard;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class CommandClipboardMethod implements ClipboardMethod
+class CommandClipboardMethod implements ClipboardMethod
 {
     private string $command;
 
@@ -24,14 +24,44 @@ final class CommandClipboardMethod implements ClipboardMethod
 
     public function copy(string $text, OutputInterface $output): bool
     {
-        $process = \proc_open($this->command, [0 => ['pipe', 'r']], $pipes);
+        $process = \proc_open($this->command, [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ], $pipes);
         if ($process === false) {
-            throw new \RuntimeException('Unable to start clipboard command.');
+            return false;
         }
 
-        \fwrite($pipes[0], $text);
+        $success = $this->writeAll($pipes[0], $text);
         \fclose($pipes[0]);
-        \proc_close($process);
+
+        // Drain stdout and stderr to prevent the child process from blocking.
+        \stream_get_contents($pipes[1]);
+        \fclose($pipes[1]);
+        \stream_get_contents($pipes[2]);
+        \fclose($pipes[2]);
+
+        return $success && \proc_close($process) === 0;
+    }
+
+    /**
+     * Write the full string to the pipe, returning false on failure.
+     *
+     * @param resource $pipe
+     */
+    private function writeAll($pipe, string $text): bool
+    {
+        $remaining = $text;
+
+        while ($remaining !== '') {
+            $written = \fwrite($pipe, $remaining);
+            if ($written === false || $written === 0) {
+                return false;
+            }
+
+            $remaining = (string) \substr($remaining, $written);
+        }
 
         return true;
     }

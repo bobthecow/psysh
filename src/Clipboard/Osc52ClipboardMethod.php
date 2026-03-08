@@ -13,7 +13,7 @@ namespace Psy\Clipboard;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class Osc52ClipboardMethod implements ClipboardMethod
+class Osc52ClipboardMethod implements ClipboardMethod
 {
     public function copy(string $text, OutputInterface $output): bool
     {
@@ -24,7 +24,7 @@ final class Osc52ClipboardMethod implements ClipboardMethod
             $osc52 = "\x1bPtmux;\x1b" . \str_replace("\x1b", "\x1b\x1b", $osc52) . "\x1b\\";
         }
 
-        \fwrite(\STDOUT, $osc52);
+        $output->write($osc52, false, OutputInterface::OUTPUT_RAW);
 
         return true;
     }

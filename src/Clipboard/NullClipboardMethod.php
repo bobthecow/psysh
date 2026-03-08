@@ -13,36 +13,44 @@ namespace Psy\Clipboard;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class NullClipboardMethod implements ClipboardMethod
+class NullClipboardMethod implements ClipboardMethod
 {
-    private static bool $warned = false;
-    private bool $isSsh;
+    public const REASON_NONE = 'none';
+    public const REASON_NO_COMMAND = 'no_command';
+    public const REASON_NO_COMMAND_SUPPORT = 'no_command_support';
 
-    public function __construct(bool $isSsh)
+    private bool $warned = false;
+    private bool $isSsh;
+    private string $reason;
+
+    public function __construct(bool $isSsh, string $reason = self::REASON_NONE)
     {
         $this->isSsh = $isSsh;
+        $this->reason = $reason;
     }
 
     public function copy(string $text, OutputInterface $output): bool
     {
-        if (self::$warned) {
+        if ($this->warned) {
             return false;
         }
-        self::$warned = true;
-
-        $output->writeln('<info>💡 Productivity Tip: Remote Clipboard Support</info>');
-        $output->writeln('You can enable seamless clipboard copying by setting <comment>useOsc52Clipboard: true</comment> in your config.');
+        $this->warned = true;
 
         if ($this->isSsh) {
-            $output->writeln('<info>SSH detected:</info> OSC 52 is the only way to copy text from this remote server directly to your local machine.');
+            $output->writeln('<error>Clipboard copy is unavailable over SSH.</error>');
+            $output->writeln('Set <comment>useOsc52Clipboard: true</comment> to enable OSC 52.');
+            $output->writeln('Only enable this on trusted systems.');
+
+            return false;
         }
 
-        $output->writeln("\n<error>⚠️  Security Warning:</error>");
-        $output->writeln('OSC 52 allows the terminal to <options=bold>write</> to your local clipboard.');
-        $output->writeln('A malicious script or compromised server could "hijack" your clipboard by');
-        $output->writeln('injecting dangerous commands (e.g., <comment>sudo rm -rf /</comment>) without your consent.');
-        $output->writeln('<options=bold>Only enable this if you trust this server and the scripts you run on it.</>');
-        $output->writeln('');
+        if ($this->reason === self::REASON_NO_COMMAND_SUPPORT) {
+            $output->writeln('<error>Clipboard commands are unavailable in this PHP environment.</error>');
+            $output->writeln('Configured <comment>clipboardCommand</comment> requires <comment>proc_open</comment>.');
+        } elseif ($this->reason === self::REASON_NO_COMMAND) {
+            $output->writeln('<error>No clipboard command was found.</error>');
+            $output->writeln('Set <comment>clipboardCommand</comment> to configure one.');
+        }
 
         return false;
     }
