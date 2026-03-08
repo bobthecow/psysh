@@ -10,6 +10,6 @@
  */
 
 return [
-    'pager' => 'more',
+    'pager'    => 'more',
     'usePcntl' => false,
 ];

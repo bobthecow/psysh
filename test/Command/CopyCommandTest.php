@@ -92,7 +92,7 @@ class CopyCommandTest extends \Psy\Test\TestCase
     public function testCopySetsCommandScopeVariablesForObjects()
     {
         $clipboard = new RecordingClipboardMethod();
-        $value = new \Psy\Context();
+        $value = new Context();
 
         $this->shell->method('execute')->willReturn($value);
         $this->config->setClipboard($clipboard);

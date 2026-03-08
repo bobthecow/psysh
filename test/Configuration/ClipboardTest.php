@@ -16,8 +16,8 @@ use Psy\Clipboard\NullClipboardMethod;
 use Psy\Clipboard\Osc52ClipboardMethod;
 use Psy\ConfigPaths;
 use Psy\Configuration;
-use Psy\Test\TestCase;
 use Psy\Test\Fixtures\TestableEnv;
+use Psy\Test\TestCase;
 
 class ClipboardTest extends TestCase
 {

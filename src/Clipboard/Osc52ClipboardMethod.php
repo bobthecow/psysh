@@ -21,7 +21,7 @@ class Osc52ClipboardMethod implements ClipboardMethod
         $osc52 = "\x1b]52;c;{$base64}\x07";
 
         if (\getenv('TMUX')) {
-            $osc52 = "\x1bPtmux;\x1b" . \str_replace("\x1b", "\x1b\x1b", $osc52) . "\x1b\\";
+            $osc52 = "\x1bPtmux;\x1b".\str_replace("\x1b", "\x1b\x1b", $osc52)."\x1b\\";
         }
 
         $output->write($osc52, false, OutputInterface::OUTPUT_RAW);
