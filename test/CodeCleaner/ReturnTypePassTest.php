@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ReturnTypePass;
 
-/**
- * @group isolation-fail
- */
 class ReturnTypePassTest extends CodeCleanerTestCase
 {
     /**

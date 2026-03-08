@@ -15,6 +15,7 @@ use Psy\Formatter\SignatureFormatter;
 use Psy\Input\FilterOptions;
 use Psy\Util\Mirror;
 use Psy\VarDumper\Presenter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -92,6 +93,12 @@ abstract class Enumerator
 
     protected function presentRef($value)
     {
+        // Symfony VarDumper 5.4 trips over NAN/INF on PHP 8.5 in PHAR builds,
+        // so format non-finite floats directly instead of cloning them.
+        if (\is_float($value) && !\is_finite($value)) {
+            return OutputFormatter::escape(\sprintf('<float>%s</float>', \var_export($value, true)));
+        }
+
         return $this->presenter->presentRef($value);
     }
 

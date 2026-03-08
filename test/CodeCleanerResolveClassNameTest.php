@@ -13,9 +13,6 @@ namespace Psy\Test;
 
 use Psy\CodeCleaner;
 
-/**
- * @group isolation-fail
- */
 class CodeCleanerResolveClassNameTest extends TestCase
 {
     private $cleaner;

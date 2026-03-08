@@ -20,6 +20,8 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             .github
+            build/composer.json
+            composer.json
             test
 
       - name: Install PHP
@@ -45,14 +47,27 @@ jobs:
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Composer init
-        run: composer init --no-interaction --name=psy/test --autoload=test/
+        run: |
+          mkdir -p .phpunit
+          composer --working-dir .phpunit init --no-interaction --name=psy/test
 
       - name: Install PHPUnit
         uses: nick-fields/retry@v3.0.2
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer require --no-interaction --no-progress "phpunit/phpunit:^9.6"
+          command: composer --working-dir .phpunit require --no-interaction --no-progress "phpunit/phpunit:^9.6"
 
       - name: Run test suite
-        run: vendor/bin/phpunit --bootstrap build/psysh/psysh --exclude-group isolation-fail test/
+        run: |
+          tmp_dir="$(mktemp -d)"
+          cp -r test "${tmp_dir}/"
+          cp build/*/psysh "${tmp_dir}/psysh"
+          cp composer.json "${tmp_dir}/"
+          mkdir -p "${tmp_dir}/build"
+          cp build/composer.json "${tmp_dir}/build/"
+          ln -sfn "${GITHUB_WORKSPACE}/.phpunit/vendor" "${tmp_dir}/vendor"
+          (
+            cd "${tmp_dir}" && \
+            php -d memory_limit=1G vendor/bin/phpunit --bootstrap test/bootstrap-phar.php --exclude-group isolation-fail test/
+          )

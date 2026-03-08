@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\FunctionContextPass;
 
-/**
- * @group isolation-fail
- */
 class FunctionContextPassTest extends CodeCleanerTestCase
 {
     /**

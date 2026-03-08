@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\FinalClassPass;
 
-/**
- * @group isolation-fail
- */
 class FinalClassPassTest extends CodeCleanerTestCase
 {
     /**

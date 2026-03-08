@@ -13,9 +13,6 @@ namespace Psy\Test;
 
 use Psy\ParserFactory;
 
-/**
- * @group isolation-fail
- */
 class ParserFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testCreateParser()

@@ -92,9 +92,6 @@ class ConfigurationTest extends TestCase
         $this->assertDirectoryExists($dirName);
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testLoadConfig()
     {
         $config = $this->getConfig();
@@ -183,9 +180,6 @@ class ConfigurationTest extends TestCase
         }
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testNonInteractiveWarningForUntrustedLocalConfig()
     {
         $oldPwd = \getcwd();
@@ -331,8 +325,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider getOutputVerbosityProvider
-     *
-     * @group isolation-fail
      */
     public function testGetOutputVerbosity($expectation, $verbosity)
     {
@@ -532,8 +524,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider inputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInput($inputString, $verbosity, $colorMode, $interactiveMode, $rawOutput, $yolo)
     {
@@ -565,9 +555,6 @@ class ConfigurationTest extends TestCase
         ];
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputSpecificity()
     {
         $input = $this->getBoundStringInput('--raw-output --color --interactive --verbose');
@@ -586,8 +573,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider verbosityInputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInputVerbosityLevels($inputString, $verbosity)
     {
@@ -622,8 +607,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider shortInputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInputShortOptions($inputString, $verbosity, $interactiveMode, $rawOutput, $skipUnbound = false)
     {
@@ -656,9 +639,6 @@ class ConfigurationTest extends TestCase
         ];
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputAliases()
     {
         $input = $this->getBoundStringInput('--ansi --interaction');
@@ -674,8 +654,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider pagerInputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInputPager($inputString, $expectedPager)
     {
@@ -697,9 +675,6 @@ class ConfigurationTest extends TestCase
         ];
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputPagerSpecificity()
     {
         $input = $this->getBoundStringInput('--pager=more --no-pager');
@@ -711,9 +686,6 @@ class ConfigurationTest extends TestCase
         $this->assertSame('more', $config->getPager(), '--pager trumps --no-pager (unbound)');
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputPagerOverridesConfig()
     {
         $configFile = __DIR__.'/Fixtures/config-with-pager.php';
@@ -731,9 +703,6 @@ class ConfigurationTest extends TestCase
         $this->assertFalse($config->getPager());
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputBarePagerUsesDefaultResolution()
     {
         $configFile = __DIR__.'/Fixtures/config-with-pager.php';
@@ -747,9 +716,6 @@ class ConfigurationTest extends TestCase
         $this->assertNull($config->getPager());
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputBarePagerOverridesHomeAndLocalConfig()
     {
         $oldPwd = \getcwd();
@@ -832,9 +798,6 @@ PHP
         }
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputWithWrapperPagerOptionDefaultingToNull()
     {
         $configFile = __DIR__.'/Fixtures/config-with-pager.php';
@@ -848,9 +811,6 @@ PHP
         $this->assertSame('more', $config->getPager());
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputWithWrapperPagerFlagUsesDefaultResolution()
     {
         $input = new StringInput('--pager --config '.\escapeshellarg(__DIR__.'/Fixtures/config-with-pager.php'));
@@ -863,9 +823,6 @@ PHP
         $this->assertNull($config->getPager());
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputWarmAutoload()
     {
         // Test without --warm-autoload flag (default is no warmers)
@@ -881,9 +838,6 @@ PHP
         $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputExperimentalReadline()
     {
         // Test without --experimental-readline flag (default is false)
@@ -1204,9 +1158,6 @@ PHP
         $config->setTrustProject('invalid');
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputTrustProject()
     {
         $input = $this->getBoundStringInput('--trust-project');
@@ -1218,9 +1169,6 @@ PHP
         $this->assertCount(1, $warmers, '--trust-project should allow ComposerAutoloadWarmer');
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputNoTrustProject()
     {
         $input = $this->getBoundStringInput('--no-trust-project');
@@ -1234,9 +1182,6 @@ PHP
         $this->assertStringContainsString('Skipping project autoload', $errorOutput->fetch());
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testAutoloadWarmersFilteredWhenUntrusted()
     {
         $config = $this->getConfig();

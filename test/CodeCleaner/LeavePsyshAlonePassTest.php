@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\LeavePsyshAlonePass;
 
-/**
- * @group isolation-fail
- */
 class LeavePsyshAlonePassTest extends CodeCleanerTestCase
 {
     /**

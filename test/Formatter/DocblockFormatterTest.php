@@ -14,9 +14,6 @@ namespace Psy\Test\Formatter;
 use Psy\Formatter\DocblockFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * @group isolation-fail
- */
 class DocblockFormatterTest extends \Psy\Test\TestCase
 {
     /**

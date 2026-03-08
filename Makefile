@@ -46,10 +46,15 @@ test-phar: build/psysh/psysh
 	@echo "Setting up isolated test environment in $(PHAR_TEST_DIR)..."
 	@cp -r test $(PHAR_TEST_DIR)/
 	@cp $< $(PHAR_TEST_DIR)/
+	@cp composer.json $(PHAR_TEST_DIR)/
+	@mkdir -p $(PHAR_TEST_DIR)/build
+	@cp build/composer.json $(PHAR_TEST_DIR)/build/
+	@mkdir -p $(PHAR_TEST_DIR)/.phpunit
 	@cd $(PHAR_TEST_DIR) && \
-		COMPOSER_ROOT_VERSION=1.0.0 composer init --no-interaction --name=psy/test --autoload=test/ 2>&1 | grep -v "PSR-4" || true && \
-		COMPOSER_ROOT_VERSION=1.0.0 composer require --no-interaction --no-progress "phpunit/phpunit:^9.6" 2>&1 | grep -v "locking\|Extracting" | head -3 || true && \
-		php -d memory_limit=1G vendor/bin/phpunit --bootstrap psysh --exclude-group isolation-fail test/
+		COMPOSER_ROOT_VERSION=1.0.0 composer --working-dir .phpunit init --no-interaction --name=psy/test 2>&1 || true && \
+		COMPOSER_ROOT_VERSION=1.0.0 composer --working-dir .phpunit require --no-interaction --no-progress "phpunit/phpunit:^9.6" 2>&1 | grep -v "locking\|Extracting" | head -3 || true && \
+		ln -sfn .phpunit/vendor vendor && \
+		php -d memory_limit=1G .phpunit/vendor/bin/phpunit --bootstrap test/bootstrap-phar.php --exclude-group isolation-fail test/
 	@rm -rf $(PHAR_TEST_DIR)
 
 test-downstream: ## Run downstream compatibility tests (tier 1)

@@ -215,9 +215,6 @@ class ProjectTrustTest extends TestCase
         $this->assertFalse($trust->hasComposerAutoloadFiles('/non/existent/path'));
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testGetLocalPsyshProjectRoot()
     {
         $trust = $this->getProjectTrust();

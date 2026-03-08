@@ -14,9 +14,6 @@ namespace Psy\Test\Command;
 use Psy\Command\TraceCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class TraceCommandTest extends \Psy\Test\TestCase
 {
     public function testExecuteWithCommandTester()

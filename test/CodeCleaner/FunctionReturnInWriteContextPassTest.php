@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\FunctionReturnInWriteContextPass;
 
-/**
- * @group isolation-fail
- */
 class FunctionReturnInWriteContextPassTest extends CodeCleanerTestCase
 {
     /**

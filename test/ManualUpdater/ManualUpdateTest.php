@@ -18,9 +18,6 @@ use Psy\VersionUpdater\Downloader;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-/**
- * @group isolation-fail
- */
 class ManualUpdateTest extends \Psy\Test\TestCase
 {
     public function testSuccessWhenManualIsAlreadyLatest()

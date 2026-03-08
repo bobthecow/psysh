@@ -15,9 +15,6 @@ use Psy\Output\Theme;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * @group isolation-fail
- */
 class ThemeTest extends TestCase
 {
     public function testKnownThemes()

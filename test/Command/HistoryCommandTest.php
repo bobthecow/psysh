@@ -20,9 +20,6 @@ use Psy\Shell;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-/**
- * @group isolation-fail
- */
 class HistoryCommandTest extends \Psy\Test\TestCase
 {
     private function getHistory(): array

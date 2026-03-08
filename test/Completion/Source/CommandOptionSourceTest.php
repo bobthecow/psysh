@@ -20,9 +20,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @group isolation-fail
- */
 class CommandOptionSourceTest extends TestCase
 {
     private function createMockCommand(string $name, array $options = [], array $aliases = []): Command

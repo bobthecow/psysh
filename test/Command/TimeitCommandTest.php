@@ -16,9 +16,6 @@ use Psy\Exception\InterruptException;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class TimeitCommandTest extends \Psy\Test\TestCase
 {
     public function testInterruptStopsMultipleExecutions()

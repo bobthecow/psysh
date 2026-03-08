@@ -19,9 +19,6 @@ use Psy\Test\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @group isolation-fail
- */
 class CommandSourceTest extends TestCase
 {
     private function createMockCommand(string $name, array $aliases = []): Command

@@ -28,9 +28,6 @@ if (!\function_exists(__NAMESPACE__.'\\parse')) {
     }
 }
 
-/**
- * @group isolation-fail
- */
 class CodeCleanerResolveFunctionNameTest extends TestCase
 {
     private CodeCleaner $cleaner;

@@ -17,9 +17,6 @@ use Psy\Test\Fixtures\Command\ListCommand\ClassCharlie;
 use Psy\Test\Fixtures\Command\ListCommand\InterfaceEcho;
 use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 
-/**
- * @group isolation-fail
- */
 class PropertyEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

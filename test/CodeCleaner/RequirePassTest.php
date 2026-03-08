@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\RequirePass;
 
-/**
- * @group isolation-fail
- */
 class RequirePassTest extends CodeCleanerTestCase
 {
     /**

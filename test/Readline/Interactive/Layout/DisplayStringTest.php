@@ -15,9 +15,6 @@ use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * @group isolation-fail
- */
 class DisplayStringTest extends TestCase
 {
     public function testWidthCountsFormatterLikeTagsAsLiteralText()

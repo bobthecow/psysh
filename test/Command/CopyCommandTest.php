@@ -21,9 +21,6 @@ use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @group isolation-fail
- */
 class CopyCommandTest extends \Psy\Test\TestCase
 {
     private CopyCommand $command;
