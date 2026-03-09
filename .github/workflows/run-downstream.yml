@@ -43,10 +43,15 @@ jobs:
           extensions: curl, dom, json, mbstring, pdo, pdo_sqlite, simplexml, zip
 
       - name: Make downstream runner executable
-        run: chmod +x scripts/test-downstream
+        run: chmod +x scripts/test-downstream scripts/test-downstream-laravel-tinker-smoke
 
       - name: Run downstream tests
         run: scripts/test-downstream "${DOWNSTREAM_PROJECT}"
         timeout-minutes: 15
         env:
           DOWNSTREAM_PROJECT: ${{ matrix.project }}
+
+      - name: Run laravel/tinker PTY smoke
+        if: matrix.project == 'laravel-tinker'
+        run: scripts/test-downstream-laravel-tinker-smoke
+        timeout-minutes: 10

@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+# This file is part of Psy Shell.
+#
+# (c) 2012-2026 Justin Hileman
+#
+# For the full copyright and license information, please view the LICENSE
+# file that was distributed with this source code.
+
+set -euo pipefail
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "Skipping laravel/tinker PTY smoke: Linux util-linux 'script' is required."
+    exit 0
+fi
+
+if ! command -v script >/dev/null 2>&1; then
+    echo "The 'script' command is required for laravel/tinker PTY smoke."
+    exit 1
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PSYSH_ROOT
+readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
+readonly LARAVEL_VERSION="${DOWNSTREAM_LARAVEL_VERSION:-^11.0}"
+readonly REPO_CONFIG_JSON="{\"type\":\"path\",\"url\":\"${PSYSH_ROOT}\",\"options\":{\"symlink\":true,\"versions\":{\"psy/psysh\":\"${OVERRIDE_VERSION}\"}}}"
+
+LAST_OUTPUT=''
+LAST_STATUS=0
+
+retry() {
+    local -r attempts="$1"
+    shift
+
+    local try=1
+    until "$@"; do
+        if [[ "${try}" -ge "${attempts}" ]]; then
+            echo "FAILED after ${attempts} attempts: $*" >&2
+            return 1
+        fi
+
+        try=$((try + 1))
+        echo "Retrying (${try}/${attempts}): $*" >&2
+        sleep 2
+    done
+}
+
+normalize_output() {
+    perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g; s/\r//g; s/.\x08//g;'
+}
+
+run_pty() {
+    local input="$1"
+    shift
+
+    local command
+    printf -v command '%q ' "$@"
+    command="${command% }"
+
+    set +e
+    LAST_OUTPUT="$(printf '%b' "${input}" | script -qefc "${command}" /dev/null 2>&1 | normalize_output)"
+    LAST_STATUS=$?
+    set -e
+}
+
+assert_status() {
+    local expected="$1"
+    if [[ "${LAST_STATUS}" -ne "${expected}" ]]; then
+        echo "Expected exit status ${expected}, got ${LAST_STATUS}."
+        echo
+        echo "${LAST_OUTPUT}"
+        return 1
+    fi
+}
+
+assert_contains() {
+    local needle="$1"
+    if [[ "${LAST_OUTPUT}" != *"${needle}"* ]]; then
+        echo "Missing expected output: ${needle}"
+        echo
+        echo "${LAST_OUTPUT}"
+        return 1
+    fi
+}
+
+TMP_DIR="$(mktemp -d)"
+readonly TMP_DIR
+readonly WORK_DIR="${TMP_DIR}/laravel-app"
+readonly HOME_DIR="${TMP_DIR}/home"
+readonly CONFIG_DIR="${HOME_DIR}/.config"
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+mkdir -p "${CONFIG_DIR}/psysh"
+export COMPOSER_CACHE_DIR="${COMPOSER_CACHE_DIR:-${TMP_DIR}/composer-cache}"
+mkdir -p "${COMPOSER_CACHE_DIR}"
+
+echo "==> laravel/tinker PTY smoke"
+echo "    laravel/laravel: ${LARAVEL_VERSION}"
+
+retry 3 composer create-project --no-interaction --no-progress "laravel/laravel:${LARAVEL_VERSION}" "${WORK_DIR}"
+cd "${WORK_DIR}"
+
+composer config repositories.psysh "${REPO_CONFIG_JSON}"
+if ! composer show laravel/tinker >/dev/null 2>&1; then
+    retry 3 composer require laravel/tinker --no-interaction --no-progress
+fi
+retry 3 composer update psy/psysh --with-all-dependencies --no-interaction --no-progress
+
+run_pty $'help\necho 21 * 2;\nexit\n' \
+    env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=dumb PSYSH_TRUST_PROJECT=false \
+    php artisan tinker
+
+echo -n "  Tinker PTY startup:  "
+assert_status 0 &&
+    assert_contains 'Show a list of commands' &&
+    assert_contains '42' &&
+    assert_contains 'exit' &&
+    echo "PASSED"
