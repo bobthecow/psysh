@@ -184,7 +184,7 @@ class EditCommand extends Command implements ContextAware
 
             if ($originalStty === null) {
                 // nothing to restore
-            } else if ($originalStty === '') {
+            } elseif ($originalStty === '') {
                 @\shell_exec('stty -isig 2>/dev/null');
             } else {
                 @\shell_exec('stty '.\escapeshellarg($originalStty).' 2>/dev/null');

@@ -59,6 +59,29 @@ abstract class AbstractConfigCommand extends Command
                 }
             };
         };
+        $semicolonsSuppressReturnParser = function (string $name, string $acceptedValues): callable {
+            return function (string $value) use ($name, $acceptedValues) {
+                switch (\strtolower($value)) {
+                    case '1':
+                    case 'true':
+                    case 'yes':
+                    case 'on':
+                        return true;
+
+                    case '0':
+                    case 'false':
+                    case 'no':
+                    case 'off':
+                        return false;
+
+                    case Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE:
+                        return Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE;
+
+                    default:
+                        throw new \InvalidArgumentException(\sprintf('Invalid %s value: %s. Accepted values: %s', $name, $value, $acceptedValues));
+                }
+            };
+        };
         $enumParser = function (string $name, array $values, string $acceptedValues): callable {
             return function (string $value) use ($name, $values, $acceptedValues): string {
                 if (!\in_array($value, $values, true)) {
@@ -273,12 +296,12 @@ abstract class AbstractConfigCommand extends Command
             ],
             'semicolonssuppressreturn' => [
                 'name'           => 'semicolonsSuppressReturn',
-                'acceptedValues' => ['on', 'off'],
-                'parser'         => $booleanParser('semicolonsSuppressReturn', 'on|off'),
-                'getter'         => function () use ($config): bool {
+                'acceptedValues' => ['on', 'off', Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE],
+                'parser'         => $semicolonsSuppressReturnParser('semicolonsSuppressReturn', 'on|off|double'),
+                'getter'         => function () use ($config) {
                     return $config->semicolonsSuppressReturn();
                 },
-                'setter' => function (bool $value) use ($config): void {
+                'setter' => function ($value) use ($config): void {
                     $config->setSemicolonsSuppressReturn($value);
                 },
                 'refresh' => false,

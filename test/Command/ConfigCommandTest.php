@@ -104,11 +104,12 @@ class ConfigCommandTest extends \Psy\Test\TestCase
     public function getProvider(): array
     {
         return [
-            'verbosity' => ['verbosity', Configuration::VERBOSITY_NORMAL],
-            'boolean'   => ['useUnicode', 'true'],
-            'int'       => ['errorLoggingLevel', 'E_ALL'],
-            'enum'      => ['colorMode', Configuration::COLOR_MODE_FORCED],
-            'theme'     => ['theme', 'modern'],
+            'verbosity'                => ['verbosity', Configuration::VERBOSITY_NORMAL],
+            'boolean'                  => ['useUnicode', 'true'],
+            'int'                      => ['errorLoggingLevel', 'E_ALL'],
+            'enum'                     => ['colorMode', Configuration::COLOR_MODE_FORCED],
+            'theme'                    => ['theme', 'modern'],
+            'semicolonsSuppressReturn' => ['semicolonsSuppressReturn', 'false'],
         ];
     }
 
@@ -169,6 +170,14 @@ class ConfigCommandTest extends \Psy\Test\TestCase
                 'off',
                 function (Configuration $config): void {
                     $this->assertFalse($config->getPager());
+                },
+            ],
+            'semicolonsSuppressReturn double' => [
+                'semicolonsSuppressReturn',
+                Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
+                Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
+                function (Configuration $config): void {
+                    $this->assertSame(Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE, $config->semicolonsSuppressReturn());
                 },
             ],
         ];

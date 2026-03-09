@@ -879,6 +879,45 @@ class ShellTest extends TestCase
         $this->assertNotEmpty(\stream_get_contents($stream));
     }
 
+    public function testSemicolonsSuppressReturnDoubleModeRequiresDoubleSemicolon()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode('$foo = 123;');
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertNotEmpty(\stream_get_contents($stream));
+    }
+
+    /**
+     * @dataProvider getDoubleSemicolonInputs
+     */
+    public function testSemicolonsSuppressReturnDoubleModeSuppressesDisplay(string $input)
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode($input);
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+    }
+
     public function testSemicolonsSuppressReturnWithRequireSemicolons()
     {
         $output = $this->getOutput();

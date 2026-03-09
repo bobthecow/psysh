@@ -1359,13 +1359,11 @@ class Shell extends Application
     /**
      * Check whether the current code buffer ends with an unnecessary semicolon.
      *
-     * When `semicolonsSuppressReturn` is enabled, an unnecessary trailing
-     * semicolon signals that the return value should not be displayed. If
-     * `requireSemicolons` is also enabled, a double semicolon is required.
+     * @see Configuration::semicolonsSuppressReturn()
      */
     private function shouldSuppressReturnValue(): bool
     {
-        if (!$this->config->semicolonsSuppressReturn()) {
+        if ($this->config->semicolonsSuppressReturn() === false) {
             return false;
         }
 
@@ -1376,12 +1374,15 @@ class Shell extends Application
             return false;
         }
 
-        if (!$this->config->requireSemicolons()) {
+        $requireDouble = $this->config->semicolonsSuppressReturn() === Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE
+            || $this->config->requireSemicolons();
+
+        if (!$requireDouble) {
             // When semicolons are optional, a single ; is unnecessary
             return true;
         }
 
-        // When semicolons are required, require a double semicolon (`;;`) to suppress
+        // Require a double semicolon (`;;`) to suppress
         return $index !== null && $this->lastNonCommentToken($tokens, $index - 1)[0] === ';';
     }
 

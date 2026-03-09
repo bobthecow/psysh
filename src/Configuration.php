@@ -65,6 +65,8 @@ class Configuration
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
     const VERBOSITY_DEBUG = 'debug';
 
+    const SEMICOLONS_SUPPRESS_RETURN_DOUBLE = 'double';
+
     private const KNOWN_CLIPBOARD_COMMANDS = [
         'wl-copy',
         'xsel --clipboard --input',
@@ -138,7 +140,8 @@ class Configuration
     private ?bool $pipedOutput = null;
     private bool $rawOutput = false;
     private bool $requireSemicolons = false;
-    private bool $semicolonsSuppressReturn = false;
+    /** @var bool|string */
+    private $semicolonsSuppressReturn = false;
     private bool $strictTypes = false;
     private ?string $clipboardCommand = null;
     private ?bool $useUnicode = null;
@@ -1550,9 +1553,25 @@ class Configuration
      *
      * @see self::semicolonsSuppressReturn()
      */
-    public function setSemicolonsSuppressReturn(bool $semicolonsSuppressReturn)
+    public function setSemicolonsSuppressReturn($semicolonsSuppressReturn)
     {
-        $this->semicolonsSuppressReturn = $semicolonsSuppressReturn;
+        if (\is_bool($semicolonsSuppressReturn)) {
+            $this->semicolonsSuppressReturn = $semicolonsSuppressReturn;
+
+            return;
+        }
+
+        if ($semicolonsSuppressReturn === self::SEMICOLONS_SUPPRESS_RETURN_DOUBLE) {
+            $this->semicolonsSuppressReturn = self::SEMICOLONS_SUPPRESS_RETURN_DOUBLE;
+
+            return;
+        }
+
+        $given = \is_scalar($semicolonsSuppressReturn)
+            ? (string) $semicolonsSuppressReturn
+            : \gettype($semicolonsSuppressReturn);
+
+        throw new \InvalidArgumentException(\sprintf('Invalid semicolonsSuppressReturn value: %s. Accepted values: true, false, \'%s\'', $given, self::SEMICOLONS_SUPPRESS_RETURN_DOUBLE));
     }
 
     /**
@@ -1560,12 +1579,12 @@ class Configuration
      *
      * When enabled, an unnecessary trailing semicolon suppresses the return
      * value display (like Pry and MATLAB). The return value is still captured
-     * in $_.
+     * in $_. In `double` mode, a double semicolon (`;;`) is always required
+     * to suppress, regardless of the `requireSemicolons` setting.
      *
-     * If `requireSemicolons` is also enabled, a double semicolon (`;;`) is
-     * required to suppress.
+     * @return bool|string
      */
-    public function semicolonsSuppressReturn(): bool
+    public function semicolonsSuppressReturn()
     {
         return $this->semicolonsSuppressReturn;
     }
