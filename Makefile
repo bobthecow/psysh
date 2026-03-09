@@ -18,7 +18,7 @@ endif
 
 # Commands
 
-.PHONY: help build clean dist test test-phar test-downstream test-downstream-all test-downstream-project smoketest phpstan phan phan-strict
+.PHONY: help build clean dist test test-phar test-downstream test-downstream-all test-downstream-project smoketest smoketest-pty phpstan phan phan-strict
 .DEFAULT_GOAL := help
 
 help:
@@ -70,6 +70,9 @@ test-downstream-project: ## Run one downstream compatibility test (PROJECT=<id>)
 smoketest: ## Run smoke tests on existing binaries
 smoketest: build/psysh/psysh
 	test/smoketest.sh
+
+smoketest-pty: ## Run PTY-backed shell smoke tests
+	test/smoketest-pty.sh
 
 phpstan: ## Run static analysis
 phpstan: vendor/bin/phpstan vendor/bin/phpunit

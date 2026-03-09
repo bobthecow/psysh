@@ -57,3 +57,6 @@ jobs:
 
       - name: Smoke test
         run: make smoketest
+
+      - name: PTY smoke test
+        run: test/smoketest-pty.sh build/psysh/psysh

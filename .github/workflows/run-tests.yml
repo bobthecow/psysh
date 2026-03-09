@@ -68,6 +68,12 @@ jobs:
         run: make test
         continue-on-error: true
 
+      - name: Smoke test
+        run: test/smoketest.sh
+
+      - name: PTY smoke test
+        run: test/smoketest-pty.sh
+
       - name: Upload coverage
         if: matrix.php == '8.5' && inputs.deps != 'dev' && inputs.upload_coverage
         uses: codecov/codecov-action@v5.5.2
