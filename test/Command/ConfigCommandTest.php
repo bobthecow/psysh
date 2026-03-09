@@ -15,7 +15,6 @@ use Psy\Command\ConfigCommand;
 use Psy\Configuration;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
-use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
 class ConfigCommandTest extends \Psy\Test\TestCase
