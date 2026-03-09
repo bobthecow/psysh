@@ -14,6 +14,7 @@ namespace Psy\Command;
 use Psy\ConfigPaths;
 use Psy\Context;
 use Psy\ContextAware;
+use Psy\Util\Tty;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -154,9 +155,41 @@ class EditCommand extends Command implements ContextAware
         $escapedFilePath = \escapeshellarg($filePath);
         $editor = (isset($_SERVER['EDITOR']) && $_SERVER['EDITOR']) ? $_SERVER['EDITOR'] : 'nano';
 
+        // Enable signal characters so Ctrl-C can interrupt the editor.
+        // PsySH's interactive readline disables isig at the prompt, but
+        // the editor needs it to handle signals properly.
+        $originalStty = null;
+        if (Tty::supportsStty()) {
+            $originalStty = \trim((string) @\shell_exec('stty -g 2>/dev/null'));
+            @\shell_exec('stty isig 2>/dev/null');
+        }
+
         $pipes = [];
         $proc = \proc_open("{$editor} {$escapedFilePath}", [\STDIN, \STDOUT, \STDERR], $pipes);
-        \proc_close($proc);
+
+        // Ignore SIGINT in PsySH while the editor is running. The editor
+        // handles ctrl-c itself; we just need to not die when the signal
+        // is delivered to our process group. Set this after proc_open so
+        // the editor inherits default signal handling.
+        if (\function_exists('pcntl_signal')) {
+            \pcntl_signal(\SIGINT, \SIG_IGN);
+        }
+
+        try {
+            \proc_close($proc);
+        } finally {
+            if (\function_exists('pcntl_signal')) {
+                \pcntl_signal(\SIGINT, \SIG_DFL);
+            }
+
+            if ($originalStty === null) {
+                // nothing to restore
+            } else if ($originalStty === '') {
+                @\shell_exec('stty -isig 2>/dev/null');
+            } else {
+                @\shell_exec('stty '.\escapeshellarg($originalStty).' 2>/dev/null');
+            }
+        }
 
         $editedContent = @\file_get_contents($filePath);
 
