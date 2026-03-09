@@ -16,9 +16,6 @@ use Psy\Readline\Readline;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class YoloCommandTest extends \Psy\Test\TestCase
 {
     public function testConfigure()

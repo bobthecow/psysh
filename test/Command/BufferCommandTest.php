@@ -17,9 +17,6 @@ use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class BufferCommandTest extends \Psy\Test\TestCase
 {
     public function testExecuteWithCommandTester()

@@ -19,9 +19,6 @@ use Psy\Exception\RuntimeException;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
 
-/**
- * @group isolation-fail
- */
 class ShowCommandTest extends \Psy\Test\TestCase
 {
     private ShowCommand $command;

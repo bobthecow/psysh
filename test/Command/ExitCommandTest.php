@@ -14,9 +14,6 @@ namespace Psy\Test\Command;
 use Psy\Command\ExitCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class ExitCommandTest extends \Psy\Test\TestCase
 {
     public function testExecute()

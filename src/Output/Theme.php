@@ -36,7 +36,7 @@ class Theme
 
     // Custom themes fall back to DEFAULT_STYLES for any undefined style.
     const DEFAULT_STYLES = [
-        'info'    => ['white', 'blue', ['bold']],
+        'info'    => ['green', null, ['bold']],
         'warning' => ['black', 'yellow'],
         'error'   => ['white', 'red', ['bold']],
         'whisper' => ['gray'],
@@ -72,11 +72,17 @@ class Theme
 
         // Code-specific formatting
         'inline_html' => ['cyan'],
+
+        // Interactive readline
+        'input_frame'       => ['bright-white', 'gray'],
+        'input_frame_error' => ['bright-white', 'red'],
+        'input_highlight'   => [null, null, ['reverse']],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
 
     private bool $compact = false;
+    private ?string $name = null;
 
     private string $prompt = '> ';
     private string $bufferPrompt = '. ';
@@ -92,7 +98,10 @@ class Theme
      */
     public function __construct($config = 'modern')
     {
+        $themeName = null;
         if (\is_string($config)) {
+            $themeName = $config;
+
             switch ($config) {
                 case 'modern':
                     $config = static::MODERN_THEME;
@@ -107,6 +116,7 @@ class Theme
                     break;
 
                 default:
+                    $themeName = null;
                     \trigger_error(\sprintf('Unknown theme: %s', $config), \E_USER_NOTICE);
                     $config = static::MODERN_THEME;
                     break;
@@ -146,6 +156,7 @@ class Theme
         }
 
         $this->setStyles($config['styles'] ?? []);
+        $this->name = $themeName;
     }
 
     /**
@@ -153,6 +164,7 @@ class Theme
      */
     public function setCompact(bool $compact)
     {
+        $this->name = null;
         $this->compact = $compact;
     }
 
@@ -169,6 +181,12 @@ class Theme
      */
     public function setPrompt(string $prompt)
     {
+        // Called on every input; skip clearing name when unchanged.
+        if ($this->prompt === $prompt) {
+            return;
+        }
+
+        $this->name = null;
         $this->prompt = $prompt;
     }
 
@@ -185,6 +203,7 @@ class Theme
      */
     public function setBufferPrompt(string $bufferPrompt)
     {
+        $this->name = null;
         $this->bufferPrompt = $bufferPrompt;
     }
 
@@ -201,6 +220,7 @@ class Theme
      */
     public function setReplayPrompt(string $replayPrompt)
     {
+        $this->name = null;
         $this->replayPrompt = $replayPrompt;
     }
 
@@ -217,6 +237,7 @@ class Theme
      */
     public function setReturnValue(string $returnValue)
     {
+        $this->name = null;
         $this->returnValue = $returnValue;
     }
 
@@ -233,6 +254,7 @@ class Theme
      */
     public function setGrayFallback(string $grayFallback)
     {
+        $this->name = null;
         $this->grayFallback = $grayFallback;
     }
 
@@ -250,9 +272,18 @@ class Theme
      */
     public function setStyles(array $styles)
     {
+        $this->name = null;
         foreach (\array_keys(static::DEFAULT_STYLES) as $name) {
             $this->styles[$name] = $styles[$name] ?? static::DEFAULT_STYLES[$name];
         }
+    }
+
+    /**
+     * Get the built-in theme name, or null for custom themes.
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
     }
 
     /**
@@ -282,7 +313,18 @@ class Theme
      */
     private function getStyle(string $name, bool $useGrayFallback): array
     {
-        return \array_map(fn ($style) => ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
+        if (!$useGrayFallback) {
+            return $this->styles[$name];
+        }
+
+        // The default input_frame styles use extended colors (bright-white,
+        // gray) unavailable on older Symfony Console. Drop them rather than
+        // falling back to unreadable backgrounds.
+        if (($name === 'input_frame' || $name === 'input_frame_error') && $this->styles[$name] === static::DEFAULT_STYLES[$name]) {
+            return [null, null];
+        }
+
+        return \array_map(fn ($style) => ($style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
     }
 
     /**

@@ -112,7 +112,7 @@ class SignatureFormatter implements ReflectorFormatter
      */
     public static function formatName(\Reflector $reflector): string
     {
-        return $reflector->getName();
+        return self::normalizeName($reflector->getName());
     }
 
     /**
@@ -158,7 +158,7 @@ class SignatureFormatter implements ReflectorFormatter
         if ($parent = $reflector->getParentClass()) {
             $chunks[] = 'extends';
             $parentHref = self::getManualHref($parent);
-            $chunks[] = LinkFormatter::styleWithHref('class', $parent->getName(), $parentHref);
+            $chunks[] = LinkFormatter::styleWithHref('class', self::normalizeName($parent->getName()), $parentHref);
         }
 
         $interfaces = $reflector->getInterfaceNames();
@@ -173,7 +173,7 @@ class SignatureFormatter implements ReflectorFormatter
                     $interfaceHref = null;
                 }
 
-                return LinkFormatter::styleWithHref('class', $name, $interfaceHref);
+                return LinkFormatter::styleWithHref('class', self::normalizeName($name), $interfaceHref);
             }, $interfaces));
         }
 
@@ -389,7 +389,7 @@ class SignatureFormatter implements ReflectorFormatter
                     if ($param->isArray()) {
                         $hint = '<keyword>array</keyword>';
                     } elseif ($class = $param->getClass()) {
-                        $hint = LinkFormatter::styleWithHref('class', $class->getName(), self::getManualHref($class));
+                        $hint = LinkFormatter::styleWithHref('class', self::normalizeName($class->getName()), self::getManualHref($class));
                     }
                 }
             } catch (\Throwable $e) {
@@ -468,7 +468,7 @@ class SignatureFormatter implements ReflectorFormatter
     private static function formatReflectionNamedType(\ReflectionNamedType $type, bool $indicateNullable): string
     {
         $nullable = $indicateNullable && $type->allowsNull() ? '?' : '';
-        $typeName = $type->getName();
+        $typeName = self::normalizeName($type->getName());
 
         if ($type->isBuiltin()) {
             return \sprintf('<keyword>%s%s</keyword>', $nullable, OutputFormatter::escape($typeName));
@@ -520,17 +520,17 @@ class SignatureFormatter implements ReflectorFormatter
             case \ReflectionClass::class:
             case \ReflectionObject::class:
             case \ReflectionFunction::class:
-                $query = $reflector->name;
+                $query = self::normalizeName($reflector->name);
                 break;
 
             case \ReflectionMethod::class:
-                $query = $reflector->class.'.'.$reflector->name;
+                $query = self::normalizeName($reflector->class).'.'.self::normalizeName($reflector->name);
                 break;
 
             case \ReflectionProperty::class:
             case \ReflectionClassConstant::class:
                 // No simple redirect URLs for properties/constants, link to class instead
-                $query = $reflector->class;
+                $query = self::normalizeName($reflector->class);
                 break;
 
             default:
@@ -557,23 +557,20 @@ class SignatureFormatter implements ReflectorFormatter
             case \ReflectionClass::class:
             case \ReflectionObject::class:
             case \ReflectionFunction::class:
-                $id = $reflector->name;
+                $id = self::normalizeName($reflector->name);
                 break;
 
             case \ReflectionMethod::class:
-                $id = $reflector->class.'::'.$reflector->name;
+            case \ReflectionClassConstant::class:
+                $id = self::normalizeName($reflector->class).'::'.self::normalizeName($reflector->name);
                 break;
 
             case \ReflectionProperty::class:
-                $id = $reflector->class.'::$'.$reflector->name;
-                break;
-
-            case \ReflectionClassConstant::class:
-                $id = $reflector->class.'::'.$reflector->name;
+                $id = self::normalizeName($reflector->class).'::$'.self::normalizeName($reflector->name);
                 break;
 
             case ReflectionConstant::class:
-                $id = $reflector->name;
+                $id = self::normalizeName($reflector->name);
                 break;
 
             default:
@@ -581,5 +578,13 @@ class SignatureFormatter implements ReflectorFormatter
         }
 
         return self::$manual->get($id) ?? false;
+    }
+
+    /**
+     * Strip scoped PHAR namespace prefixes from a name.
+     */
+    private static function normalizeName(string $name): string
+    {
+        return (string) \preg_replace('/^_Psy[a-f0-9]+\\\\/i', '', $name);
     }
 }

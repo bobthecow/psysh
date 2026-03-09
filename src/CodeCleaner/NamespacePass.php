@@ -106,7 +106,7 @@ class NamespacePass extends NamespaceAwarePass
         $this->cleaner->setNamespace($namespace);
 
         // Always clear aliases when changing namespace
-        $this->cleaner->setAliasesForNamespace($namespace, []);
+        $this->cleaner->setAliasesByTypeForNamespace($namespace, []);
     }
 
     /**

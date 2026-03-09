@@ -21,9 +21,6 @@ use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 use Psy\Test\Fixtures\Command\ListCommand\TraitGolf;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * @group isolation-fail
- */
 class ClassConstantEnumeratorTest extends EnumeratorTestCase
 {
     /**

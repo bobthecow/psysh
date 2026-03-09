@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\AbstractClassPass;
 
-/**
- * @group isolation-fail
- */
 class AbstractClassPassTest extends CodeCleanerTestCase
 {
     /**

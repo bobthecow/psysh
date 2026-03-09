@@ -15,9 +15,6 @@ use Psy\Command\ThrowUpCommand;
 use Psy\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class ThrowUpCommandTest extends \Psy\Test\TestCase
 {
     /**

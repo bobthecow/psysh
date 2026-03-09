@@ -12,6 +12,7 @@
 namespace Psy\TabCompletion\Matcher;
 
 use Psy\Command\Command;
+use Psy\CommandAware;
 
 /**
  * A Psy Command tab completion Matcher.
@@ -21,7 +22,7 @@ use Psy\Command\Command;
  *
  * @author Marc Garcia <markcial@gmail.com>
  */
-class CommandsMatcher extends AbstractMatcher
+class CommandsMatcher extends AbstractMatcher implements CommandAware
 {
     /** @var string[] */
     protected $commands = [];
@@ -37,7 +38,7 @@ class CommandsMatcher extends AbstractMatcher
     }
 
     /**
-     * Set Commands for completion.
+     * Set commands for completion.
      *
      * @param Command[] $commands
      */
@@ -45,8 +46,10 @@ class CommandsMatcher extends AbstractMatcher
     {
         $names = [];
         foreach ($commands as $command) {
-            $names = \array_merge([$command->getName()], $names);
-            $names = \array_merge($command->getAliases(), $names);
+            $names[] = $command->getName();
+            foreach ($command->getAliases() as $alias) {
+                $names[] = $alias;
+            }
         }
         $this->commands = $names;
     }

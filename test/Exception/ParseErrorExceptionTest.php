@@ -14,9 +14,6 @@ namespace Psy\Test\Exception;
 use Psy\Exception\Exception;
 use Psy\Exception\ParseErrorException;
 
-/**
- * @group isolation-fail
- */
 class ParseErrorExceptionTest extends \Psy\Test\TestCase
 {
     public function testInstance()

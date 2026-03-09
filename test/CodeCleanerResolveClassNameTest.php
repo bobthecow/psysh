@@ -13,9 +13,6 @@ namespace Psy\Test;
 
 use Psy\CodeCleaner;
 
-/**
- * @group isolation-fail
- */
 class CodeCleanerResolveClassNameTest extends TestCase
 {
     private $cleaner;
@@ -82,5 +79,13 @@ class CodeCleanerResolveClassNameTest extends TestCase
         $this->cleaner->clean(['use Psy\\Command;']);
         $result = $this->cleaner->resolveClassName('Command\\ShowCommand');
         $this->assertSame('\\Psy\\Command\\ShowCommand', $result);
+    }
+
+    public function testResolveClassNameWhenFunctionImportUsesSameAlias()
+    {
+        $this->cleaner->clean(['use ArrayObject as Foo;']);
+        $this->cleaner->clean(['use function strlen as Foo;']);
+
+        $this->assertSame('\\ArrayObject', $this->cleaner->resolveClassName('Foo'));
     }
 }
