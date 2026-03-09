@@ -18,6 +18,7 @@ use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -54,6 +55,7 @@ class ConfigurationTest extends TestCase
         $this->assertSame(ProcessForker::isSupported(), $config->hasPcntl());
         $this->assertSame($config->hasPcntl(), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
+        $this->assertNull($config->clipboardCommand());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());
     }
@@ -69,6 +71,10 @@ class ConfigurationTest extends TestCase
         $this->assertNull($config->getConfigDir());
         $config->setConfigDir('wheee');
         $this->assertSame('wheee', $config->getConfigDir());
+
+        $this->assertNull($config->clipboardCommand());
+        $config->setClipboardCommand('pbcopy');
+        $this->assertSame('pbcopy', $config->clipboardCommand());
     }
 
     public function testGetRuntimeDir()
@@ -86,9 +92,6 @@ class ConfigurationTest extends TestCase
         $this->assertDirectoryExists($dirName);
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testLoadConfig()
     {
         $config = $this->getConfig();
@@ -100,6 +103,7 @@ class ConfigurationTest extends TestCase
             'usePcntl'          => false,
             'codeCleaner'       => $cleaner,
             'pager'             => $pager,
+            'clipboardCommand'  => 'pbcopy',
             'requireSemicolons' => true,
             'errorLoggingLevel' => \E_ERROR | \E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
@@ -110,6 +114,7 @@ class ConfigurationTest extends TestCase
         $this->assertFalse($config->usePcntl());
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
+        $this->assertSame('pbcopy', $config->clipboardCommand());
         $this->assertTrue($config->requireSemicolons());
         $this->assertSame(\E_ERROR | \E_WARNING, $config->errorLoggingLevel());
         $this->assertSame(Configuration::COLOR_MODE_FORCED, $config->colorMode());
@@ -175,9 +180,6 @@ class ConfigurationTest extends TestCase
         }
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testNonInteractiveWarningForUntrustedLocalConfig()
     {
         $oldPwd = \getcwd();
@@ -323,8 +325,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider getOutputVerbosityProvider
-     *
-     * @group isolation-fail
      */
     public function testGetOutputVerbosity($expectation, $verbosity)
     {
@@ -524,8 +524,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider inputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInput($inputString, $verbosity, $colorMode, $interactiveMode, $rawOutput, $yolo)
     {
@@ -557,9 +555,6 @@ class ConfigurationTest extends TestCase
         ];
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputSpecificity()
     {
         $input = $this->getBoundStringInput('--raw-output --color --interactive --verbose');
@@ -578,8 +573,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider verbosityInputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInputVerbosityLevels($inputString, $verbosity)
     {
@@ -614,8 +607,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * @dataProvider shortInputStrings
-     *
-     * @group isolation-fail
      */
     public function testConfigurationFromInputShortOptions($inputString, $verbosity, $interactiveMode, $rawOutput, $skipUnbound = false)
     {
@@ -648,9 +639,6 @@ class ConfigurationTest extends TestCase
         ];
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputAliases()
     {
         $input = $this->getBoundStringInput('--ansi --interaction');
@@ -665,8 +653,176 @@ class ConfigurationTest extends TestCase
     }
 
     /**
-     * @group isolation-fail
+     * @dataProvider pagerInputStrings
      */
+    public function testConfigurationFromInputPager($inputString, $expectedPager)
+    {
+        $input = $this->getBoundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertSame($expectedPager, $config->getPager());
+
+        $input = $this->getUnboundStringInput($inputString);
+        $config = Configuration::fromInput($input);
+        $this->assertSame($expectedPager, $config->getPager());
+    }
+
+    public function pagerInputStrings()
+    {
+        return [
+            ['--pager=less', 'less'],
+            ['--pager=more', 'more'],
+            ['--no-pager', false],
+        ];
+    }
+
+    public function testConfigurationFromInputPagerSpecificity()
+    {
+        $input = $this->getBoundStringInput('--pager=more --no-pager');
+        $config = Configuration::fromInput($input);
+        $this->assertSame('more', $config->getPager(), '--pager trumps --no-pager');
+
+        $input = $this->getUnboundStringInput('--pager=more --no-pager');
+        $config = Configuration::fromInput($input);
+        $this->assertSame('more', $config->getPager(), '--pager trumps --no-pager (unbound)');
+    }
+
+    public function testConfigurationFromInputPagerOverridesConfig()
+    {
+        $configFile = __DIR__.'/Fixtures/config-with-pager.php';
+
+        $input = $this->getBoundStringInput('--pager=less', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertSame('less', $config->getPager());
+
+        $input = $this->getBoundStringInput('--pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+
+        $input = $this->getBoundStringInput('--no-pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertFalse($config->getPager());
+    }
+
+    public function testConfigurationFromInputBarePagerUsesDefaultResolution()
+    {
+        $configFile = __DIR__.'/Fixtures/config-with-pager.php';
+
+        $input = $this->getBoundStringInput('--pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+
+        $input = $this->getUnboundStringInput('--pager', $configFile);
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+    }
+
+    public function testConfigurationFromInputBarePagerOverridesHomeAndLocalConfig()
+    {
+        $oldPwd = \getcwd();
+        $oldHome = $_SERVER['HOME'] ?? null;
+        $oldXdgConfigHome = $_SERVER['XDG_CONFIG_HOME'] ?? null;
+        $oldXdgConfigDirs = $_SERVER['XDG_CONFIG_DIRS'] ?? null;
+
+        $root = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+        $projectDir = $root.'/project';
+        $xdgConfigHome = $root.'/xdg-config';
+        $xdgConfigDirs = $root.'/xdg-config-dirs';
+        $homeConfigFile = $xdgConfigHome.'/psysh/config.php';
+        $localConfigFile = $projectDir.'/.psysh.php';
+
+        @\mkdir($projectDir, 0700, true);
+        @\mkdir($xdgConfigHome.'/psysh', 0700, true);
+        @\mkdir($xdgConfigDirs, 0700, true);
+
+        \file_put_contents($homeConfigFile, <<<'PHP'
+<?php
+
+return [
+    'pager' => 'more',
+];
+PHP
+        );
+
+        \file_put_contents($localConfigFile, <<<'PHP'
+<?php
+
+return [
+    'pager' => 'most',
+    'usePcntl' => false,
+];
+PHP
+        );
+
+        try {
+            $_SERVER['HOME'] = $root.'/home';
+            $_SERVER['XDG_CONFIG_HOME'] = $xdgConfigHome;
+            $_SERVER['XDG_CONFIG_DIRS'] = $xdgConfigDirs;
+            \chdir($projectDir);
+
+            $input = $this->getStringInput('--trust-project');
+            $config = Configuration::fromInput($input);
+            $this->assertSame('most', $config->getPager());
+
+            $input = $this->getStringInput('--pager --trust-project');
+            $config = Configuration::fromInput($input);
+            $this->assertNull($config->getPager());
+        } finally {
+            \chdir($oldPwd);
+
+            if ($oldHome !== null) {
+                $_SERVER['HOME'] = $oldHome;
+            } else {
+                unset($_SERVER['HOME']);
+            }
+
+            if ($oldXdgConfigHome !== null) {
+                $_SERVER['XDG_CONFIG_HOME'] = $oldXdgConfigHome;
+            } else {
+                unset($_SERVER['XDG_CONFIG_HOME']);
+            }
+
+            if ($oldXdgConfigDirs !== null) {
+                $_SERVER['XDG_CONFIG_DIRS'] = $oldXdgConfigDirs;
+            } else {
+                unset($_SERVER['XDG_CONFIG_DIRS']);
+            }
+
+            @\unlink($localConfigFile);
+            @\unlink($homeConfigFile);
+            @\rmdir($projectDir);
+            @\rmdir($xdgConfigHome.'/psysh');
+            @\rmdir($xdgConfigHome);
+            @\rmdir($xdgConfigDirs);
+            @\rmdir($root.'/home');
+            @\rmdir($root);
+        }
+    }
+
+    public function testConfigurationFromInputWithWrapperPagerOptionDefaultingToNull()
+    {
+        $configFile = __DIR__.'/Fixtures/config-with-pager.php';
+        $input = new StringInput('--config '.\escapeshellarg($configFile));
+        $input->bind(new InputDefinition([
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED),
+            new InputOption('pager', null, InputOption::VALUE_OPTIONAL),
+        ]));
+
+        $config = Configuration::fromInput($input);
+        $this->assertSame('more', $config->getPager());
+    }
+
+    public function testConfigurationFromInputWithWrapperPagerFlagUsesDefaultResolution()
+    {
+        $input = new StringInput('--pager --config '.\escapeshellarg(__DIR__.'/Fixtures/config-with-pager.php'));
+        $input->bind(new InputDefinition([
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED),
+            new InputOption('pager', null, InputOption::VALUE_NONE),
+        ]));
+
+        $config = Configuration::fromInput($input);
+        $this->assertNull($config->getPager());
+    }
+
     public function testConfigurationFromInputWarmAutoload()
     {
         // Test without --warm-autoload flag (default is no warmers)
@@ -680,6 +836,109 @@ class ConfigurationTest extends TestCase
         $warmers = $config->getAutoloadWarmers();
         $this->assertCount(1, $warmers);
         $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
+    }
+
+    public function testConfigurationFromInputExperimentalReadline()
+    {
+        // Test without --experimental-readline flag (default is false)
+        $input = $this->getBoundStringInput('');
+        $config = Configuration::fromInput($input);
+        $this->assertFalse($config->useExperimentalReadline());
+
+        // Test with --experimental-readline flag
+        $input = $this->getBoundStringInput('--experimental-readline');
+        $config = Configuration::fromInput($input);
+        $this->assertTrue($config->useExperimentalReadline());
+    }
+
+    public function testExperimentalReadlineOption()
+    {
+        // Test default value
+        $config = $this->getConfig();
+        $this->assertFalse($config->useExperimentalReadline());
+
+        // Test setter
+        $config->setUseExperimentalReadline(true);
+        $this->assertTrue($config->useExperimentalReadline());
+
+        // Test via config array
+        $config = new Configuration([
+            'configFile'              => __DIR__.'/Fixtures/empty.php',
+            'useExperimentalReadline' => true,
+        ]);
+        $this->assertTrue($config->useExperimentalReadline());
+
+        $config = new Configuration([
+            'configFile'              => __DIR__.'/Fixtures/empty.php',
+            'useExperimentalReadline' => false,
+        ]);
+        $this->assertFalse($config->useExperimentalReadline());
+    }
+
+    public function testHistoryFileUsesLegacyPathForStandardReadline()
+    {
+        $dir = \sys_get_temp_dir().'/psysh-config-history-'.\uniqid('', true);
+        \mkdir($dir, 0700, true);
+
+        $legacyHistoryFile = $dir.'/history';
+        \file_put_contents($legacyHistoryFile, "echo 1\n");
+
+        try {
+            $config = new Configuration([
+                'configFile' => __DIR__.'/Fixtures/empty.php',
+                'configDir'  => $dir,
+            ]);
+
+            $this->assertSame($legacyHistoryFile, $config->getHistoryFile());
+        } finally {
+            @\unlink($legacyHistoryFile);
+            @\rmdir($dir);
+        }
+    }
+
+    public function testInteractiveHistoryBootstrapsFromLegacyThenDiverges()
+    {
+        $dir = \sys_get_temp_dir().'/psysh-config-history-'.\uniqid('', true);
+        \mkdir($dir, 0700, true);
+
+        $legacyHistoryFile = $dir.'/history';
+        \file_put_contents($legacyHistoryFile, "legacy one\nlegacy two\n");
+
+        try {
+            $config = new Configuration([
+                'configFile' => __DIR__.'/Fixtures/empty.php',
+                'configDir'  => $dir,
+            ]);
+            $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+
+            $jsonlHistoryFile = $config->getHistoryFile();
+            $this->assertSame($dir.'/psysh_history.jsonl', $jsonlHistoryFile);
+            $this->assertFileExists($jsonlHistoryFile);
+
+            $history = new \Psy\Readline\Interactive\Input\History();
+            $history->loadFromFile($jsonlHistoryFile);
+            $commands = \array_map(fn ($entry) => $entry['command'], $history->getAll());
+            $this->assertSame(['legacy one', 'legacy two'], $commands);
+
+            // Once JSONL exists, it should no longer track legacy history updates.
+            \file_put_contents($legacyHistoryFile, "legacy one\nlegacy two\nlegacy three\n");
+
+            $config2 = new Configuration([
+                'configFile' => __DIR__.'/Fixtures/empty.php',
+                'configDir'  => $dir,
+            ]);
+            $config2->setReadline(new \Psy\Readline\InteractiveReadline(false));
+            $this->assertSame($jsonlHistoryFile, $config2->getHistoryFile());
+
+            $history2 = new \Psy\Readline\Interactive\Input\History();
+            $history2->loadFromFile($jsonlHistoryFile);
+            $commands2 = \array_map(fn ($entry) => $entry['command'], $history2->getAll());
+            $this->assertSame(['legacy one', 'legacy two'], $commands2);
+        } finally {
+            @\unlink($dir.'/psysh_history.jsonl');
+            @\unlink($legacyHistoryFile);
+            @\rmdir($dir);
+        }
     }
 
     private function getBoundStringInput($string, $configFile = null)
@@ -697,6 +956,17 @@ class ConfigurationTest extends TestCase
         }
 
         return new StringInput($string.' --config '.\escapeshellarg($configFile));
+    }
+
+    private function getStringInput(string $string, bool $bind = true): StringInput
+    {
+        $input = new StringInput($string);
+
+        if ($bind) {
+            $input->bind(new InputDefinition(Configuration::getInputOptions()));
+        }
+
+        return $input;
     }
 
     public function testYoloMode()
@@ -888,9 +1158,6 @@ class ConfigurationTest extends TestCase
         $config->setTrustProject('invalid');
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputTrustProject()
     {
         $input = $this->getBoundStringInput('--trust-project');
@@ -902,9 +1169,6 @@ class ConfigurationTest extends TestCase
         $this->assertCount(1, $warmers, '--trust-project should allow ComposerAutoloadWarmer');
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testConfigurationFromInputNoTrustProject()
     {
         $input = $this->getBoundStringInput('--no-trust-project');
@@ -918,9 +1182,6 @@ class ConfigurationTest extends TestCase
         $this->assertStringContainsString('Skipping project autoload', $errorOutput->fetch());
     }
 
-    /**
-     * @group isolation-fail
-     */
     public function testAutoloadWarmersFilteredWhenUntrusted()
     {
         $config = $this->getConfig();
@@ -969,5 +1230,26 @@ class ConfigurationTest extends TestCase
         $warmers = $config->getAutoloadWarmers();
         $this->assertCount(1, $warmers);
         $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
+    }
+
+    public function testUseTabCompletionWithInteractiveReadline()
+    {
+        $config = $this->getConfig();
+        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+
+        // Defaults to true with InteractiveReadlineInterface
+        $this->assertTrue($config->useTabCompletion());
+    }
+
+    public function testUseTabCompletionDisabledWithInteractiveReadline()
+    {
+        $config = new Configuration([
+            'configFile'       => __DIR__.'/Fixtures/empty.php',
+            'useTabCompletion' => false,
+        ]);
+        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+
+        // Respects explicit false even with InteractiveReadlineInterface
+        $this->assertFalse($config->useTabCompletion());
     }
 }

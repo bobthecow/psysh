@@ -15,9 +15,6 @@ use Psy\Output\ShellOutputAdapter;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @group isolation-fail
- */
 class ShellOutputAdapterTest extends \Psy\Test\TestCase
 {
     public function testOutputInterfaceMethodsUseUntypedParametersForSymfony34Compatibility()

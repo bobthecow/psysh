@@ -22,9 +22,6 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @group isolation-fail
- */
 class SelfUpdateTest extends \Psy\Test\TestCase
 {
     private function getSelfUpdater(Checker $checker, Installer $installer): SelfUpdate

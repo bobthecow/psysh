@@ -24,6 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class HelpCommand extends Command
 {
     private ?Command $command = null;
+    private ?InputInterface $commandInput = null;
 
     /**
      * {@inheritdoc}
@@ -51,6 +52,14 @@ class HelpCommand extends Command
     }
 
     /**
+     * Helper for preserving the original input when rendering contextual help.
+     */
+    public function setCommandInput(InputInterface $input): void
+    {
+        $this->commandInput = $input;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @return int 0 if everything went fine, or an exit code
@@ -61,8 +70,9 @@ class HelpCommand extends Command
 
         if ($this->command !== null) {
             // help for an individual command
-            $shellOutput->page($this->command->asText());
+            $shellOutput->page($this->command->asTextForInput($this->commandInput ?? $input));
             $this->command = null;
+            $this->commandInput = null;
         } elseif ($name = $input->getArgument('command_name')) {
             // help for an individual command
             try {
@@ -79,8 +89,13 @@ class HelpCommand extends Command
                 return 1;
             }
 
-            $shellOutput->page($cmd->asText());
+            if (!$cmd instanceof Command) {
+                throw new \RuntimeException(\sprintf('Expected Psy\Command\Command instance, got %s', \get_class($cmd)));
+            }
+
+            $shellOutput->page($cmd->asTextForInput($input));
         } else {
+            $this->commandInput = null;
             // list available commands
             $commands = $this->getApplication()->all();
 

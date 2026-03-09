@@ -21,9 +21,6 @@ use Psy\Test\Fixtures\Command\ListCommand\InterfaceEcho;
 use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 use Psy\Test\Fixtures\Command\ListCommand\TraitGolf;
 
-/**
- * @group isolation-fail
- */
 class ClassEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingForTarget()

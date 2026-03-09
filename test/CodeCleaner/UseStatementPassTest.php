@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\UseStatementPass;
 
-/**
- * @group isolation-fail
- */
 class UseStatementPassTest extends CodeCleanerTestCase
 {
     /**
@@ -76,6 +73,10 @@ class UseStatementPassTest extends CodeCleanerTestCase
             [
                 "use Foo\\Bar;\nuse Bar\\Baz;\n\$baz = new Baz();",
                 "use Foo\\Bar;\nuse Bar\\Baz;\n\$baz = new Baz();",
+            ],
+            [
+                "use ArrayObject as Foo;\nuse function strlen as Foo;\n\$len = Foo('x');\n\$obj = new Foo();",
+                "use ArrayObject as Foo;\nuse function strlen as Foo;\n\$len = Foo('x');\n\$obj = new Foo();",
             ],
         ];
     }

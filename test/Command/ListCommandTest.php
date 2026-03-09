@@ -21,9 +21,6 @@ use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @group isolation-fail
- */
 class ListCommandTest extends TestCase
 {
     private ListCommand $command;

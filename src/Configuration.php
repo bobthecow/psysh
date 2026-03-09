@@ -11,6 +11,10 @@
 
 namespace Psy;
 
+use Psy\Clipboard\ClipboardMethod;
+use Psy\Clipboard\CommandClipboardMethod;
+use Psy\Clipboard\NullClipboardMethod;
+use Psy\Clipboard\Osc52ClipboardMethod;
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\InvalidManualException;
 use Psy\Exception\RuntimeException;
@@ -25,7 +29,9 @@ use Psy\Manual\V3Manual;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Output\Theme;
+use Psy\Readline\Interactive\Input\History as InteractiveHistory;
 use Psy\TabCompletion\AutoCompleter;
+use Psy\Util\Tty;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
@@ -59,6 +65,14 @@ class Configuration
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
     const VERBOSITY_DEBUG = 'debug';
 
+    private const KNOWN_CLIPBOARD_COMMANDS = [
+        'wl-copy',
+        'xsel --clipboard --input',
+        'xclip -selection clipboard',
+        'pbcopy',
+        'clip.exe',
+    ];
+
     private const AVAILABLE_OPTIONS = [
         'codeCleaner',
         'colorMode',
@@ -67,6 +81,8 @@ class Configuration
         'defaultIncludes',
         'eraseDuplicates',
         'errorLoggingLevel',
+        'useExperimentalReadline',
+        'useSuggestions',
         'forceArrayIndexes',
         'formatterStyles',
         'historyFile',
@@ -86,7 +102,9 @@ class Configuration
         'theme',
         'updateCheck',
         'updateManualCheck',
+        'clipboardCommand',
         'useBracketedPaste',
+        'useOsc52Clipboard',
         'usePcntl',
         'useReadline',
         'useTabCompletion',
@@ -106,6 +124,8 @@ class Configuration
     private $historyFile;
     private int $historySize = 0;
     private ?bool $eraseDuplicates = null;
+    private bool $useExperimentalReadline = false;
+    private bool $useSuggestions = false;
     private ?string $manualDbFile = null;
     private bool $hasReadline;
     private ?bool $useReadline = null;
@@ -118,9 +138,12 @@ class Configuration
     private bool $rawOutput = false;
     private bool $requireSemicolons = false;
     private bool $strictTypes = false;
+    private ?string $clipboardCommand = null;
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
+    private bool $useOsc52Clipboard = false;
     private array $newMatchers = [];
+    private array $newCompletionSources = [];
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
@@ -153,6 +176,7 @@ class Configuration
     private ?Presenter $presenter = null;
     private ?AutoCompleter $autoCompleter = null;
     private ?Checker $checker = null;
+    private ?ClipboardMethod $clipboard = null;
     /** @deprecated */
     private ?string $prompt = null;
     private ConfigPaths $configPaths;
@@ -266,6 +290,18 @@ class Configuration
             $config->setTheme('compact');
         }
 
+        // Handle --pager and --no-pager
+        if (self::hasPagerOption($input)) {
+            $pager = self::getPagerFromInput($input);
+            if ($pager === null) {
+                $config->setDefaultPager();
+            } else {
+                $config->setPager($pager);
+            }
+        } elseif (self::getOptionFromInput($input, ['no-pager'])) {
+            $config->setPager(false);
+        }
+
         // Handle --raw-output
         // @todo support raw output with interactive input?
         if (!$config->getInputInteractive()) {
@@ -283,6 +319,11 @@ class Configuration
         // Handle --yolo
         if (self::getOptionFromInput($input, ['yolo'])) {
             $config->setYolo(true);
+        }
+
+        // Handle --experimental-readline
+        if (self::getOptionFromInput($input, ['experimental-readline'])) {
+            $config->setUseExperimentalReadline(true);
         }
 
         return $config;
@@ -317,6 +358,54 @@ class Configuration
         }
 
         return null;
+    }
+
+    /**
+     * Get the desired pager from the given input.
+     *
+     * @return string|null pager command, or null to use default pager resolution
+     */
+    private static function getPagerFromInput(InputInterface $input): ?string
+    {
+        // Best case, input is properly bound and validated.
+        if ($input->hasOption('pager')) {
+            $pager = $input->getOption('pager');
+            if (\is_string($pager)) {
+                return $pager === '' ? null : $pager;
+            }
+
+            if ($pager === true) {
+                return null;
+            }
+        }
+
+        if ($input->hasParameterOption('--pager', true)) {
+            $pager = $input->getParameterOption('--pager', null, true);
+
+            if (\is_string($pager) && isset($pager[0]) && $pager[0] === '-') {
+                return null;
+            }
+
+            return ($pager === null || $pager === '') ? null : $pager;
+        }
+
+        return null;
+    }
+
+    private static function hasPagerOption(InputInterface $input): bool
+    {
+        if ($input->hasOption('pager')) {
+            $pager = $input->getOption('pager');
+            if (\is_string($pager) || $pager === true) {
+                return true;
+            }
+        }
+
+        if ($input->hasParameterOption('--pager', true)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -452,10 +541,13 @@ class Configuration
             // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
             new InputOption('interaction', null, InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interaction', null, InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
+            new InputOption('pager', null, InputOption::VALUE_OPTIONAL, 'Use an alternate output pager command. Without a value, use the default pager selection.', false),
+            new InputOption('no-pager', null, InputOption::VALUE_NONE, 'Disable paging output for this run.'),
             new InputOption('raw-output', 'r', InputOption::VALUE_NONE, 'Print var_export-style return values (for non-interactive input)'),
 
             new InputOption('self-update', 'u', InputOption::VALUE_NONE, 'Update to the latest version'),
 
+            new InputOption('experimental-readline', null, InputOption::VALUE_NONE, 'Use experimental interactive readline implementation.'),
             new InputOption('yolo', null, InputOption::VALUE_NONE, 'Run PsySH with minimal input validation. You probably don\'t want this.'),
             new InputOption('warm-autoload', null, InputOption::VALUE_NONE, 'Enable autoload warming for better tab completion.'),
             new InputOption('info', null, InputOption::VALUE_NONE, 'Display PsySH environment and configuration info.'),
@@ -797,7 +889,7 @@ class Configuration
             $this->setUseTabCompletion($options['tabCompletion']);
         }
 
-        foreach (['commands', 'matchers', 'casters'] as $option) {
+        foreach (['commands', 'matchers', 'completionSources', 'casters'] as $option) {
             if (isset($options[$option])) {
                 $method = 'add'.\ucfirst($option);
                 $this->$method($options[$option]);
@@ -972,12 +1064,26 @@ class Configuration
     /**
      * Get the readline history file path.
      *
-     * Defaults to `/history` inside the shell's base config dir unless
-     * explicitly overridden.
+     * Defaults to `/psysh_history` (standard readline) or
+     * `/psysh_history.jsonl` (interactive readline) in the shell's config dir
+     * unless explicitly overridden.
      */
     public function getHistoryFile(): ?string
     {
         if (isset($this->historyFile)) {
+            return $this->historyFile;
+        }
+
+        $configDir = $this->configPaths->currentConfigDir();
+        if ($configDir === null) {
+            return null;
+        }
+
+        if ($this->usesInteractiveHistoryFormat()) {
+            $jsonlHistoryFile = $configDir.'/psysh_history.jsonl';
+            $this->bootstrapInteractiveHistoryFile($jsonlHistoryFile);
+            $this->setHistoryFile($jsonlHistoryFile);
+
             return $this->historyFile;
         }
 
@@ -992,16 +1098,49 @@ class Configuration
 
             $this->setHistoryFile($files[0]);
         } else {
-            // fallback: create our own history file
-            $configDir = $this->configPaths->currentConfigDir();
-            if ($configDir === null) {
-                return null;
-            }
-
             $this->setHistoryFile($configDir.'/psysh_history');
         }
 
         return $this->historyFile;
+    }
+
+    /**
+     * Determine whether history should use the interactive JSONL format.
+     */
+    private function usesInteractiveHistoryFormat(): bool
+    {
+        if (isset($this->readline) && $this->readline instanceof Readline\InteractiveReadlineInterface) {
+            return true;
+        }
+
+        return $this->getReadlineClass() === Readline\InteractiveReadline::class;
+    }
+
+    /**
+     * Bootstrap interactive JSONL history from legacy history file if needed.
+     *
+     * This is intentionally one-way: once JSONL exists, legacy and JSONL
+     * history files diverge.
+     */
+    private function bootstrapInteractiveHistoryFile(string $jsonlHistoryFile): void
+    {
+        if (@\is_file($jsonlHistoryFile)) {
+            return;
+        }
+
+        $legacyFiles = $this->configPaths->configFiles(['psysh_history', 'history']);
+        if (empty($legacyFiles)) {
+            return;
+        }
+
+        $legacyHistoryFile = $legacyFiles[0];
+        if (!@\is_readable($legacyHistoryFile)) {
+            return;
+        }
+
+        $history = new InteractiveHistory($this->getHistorySize(), $this->getEraseDuplicates() ?? false);
+        $history->importFromFile($legacyHistoryFile);
+        $history->saveToFile($jsonlHistoryFile);
     }
 
     /**
@@ -1134,6 +1273,7 @@ class Configuration
     {
         if (!isset($this->readline)) {
             $className = $this->getReadlineClass();
+
             $this->readline = new $className(
                 $this->getHistoryFile(),
                 $this->getHistorySize(),
@@ -1151,6 +1291,11 @@ class Configuration
      */
     private function getReadlineClass(): string
     {
+        // Experimental interactive readline (opt-in via config or --experimental-readline)
+        if ($this->useExperimentalReadline() && Readline\InteractiveReadline::isSupported()) {
+            return Readline\InteractiveReadline::class;
+        }
+
         if ($this->useReadline()) {
             if (Readline\GNUReadline::isSupported()) {
                 return Readline\GNUReadline::class;
@@ -1201,6 +1346,111 @@ class Configuration
 
         // @todo mebbe turn this on by default some day?
         // return $readlineClass::supportsBracketedPaste() && $this->useBracketedPaste !== false;
+    }
+
+    /**
+     * Set a custom clipboard command.
+     *
+     * @param string|null $clipboardCommand
+     */
+    public function setClipboardCommand(?string $clipboardCommand)
+    {
+        $this->clipboardCommand = $clipboardCommand !== null && \trim($clipboardCommand) !== ''
+            ? $clipboardCommand
+            : null;
+        $this->clipboard = null;
+    }
+
+    /**
+     * Get the configured clipboard command, if any.
+     */
+    public function clipboardCommand(): ?string
+    {
+        return $this->clipboardCommand;
+    }
+
+    /**
+     * Set the ClipboardMethod service.
+     */
+    public function setClipboard(ClipboardMethod $clipboard)
+    {
+        $this->clipboard = $clipboard;
+    }
+
+    /**
+     * Get the ClipboardMethod service.
+     */
+    public function getClipboard(): ClipboardMethod
+    {
+        if (isset($this->clipboard)) {
+            return $this->clipboard;
+        }
+
+        if ($this->clipboardCommand !== null && \function_exists('proc_open')) {
+            return $this->clipboard = new CommandClipboardMethod($this->clipboardCommand);
+        }
+
+        $isSsh = $this->isSshSession();
+        if ($isSsh) {
+            return $this->clipboard = $this->useOsc52Clipboard()
+                ? new Osc52ClipboardMethod()
+                : new NullClipboardMethod(true);
+        }
+
+        if (\function_exists('proc_open')) {
+            foreach (self::KNOWN_CLIPBOARD_COMMANDS as $command) {
+                if ($this->clipboardCommandExists($command)) {
+                    return $this->clipboard = new CommandClipboardMethod($command);
+                }
+            }
+        }
+
+        if ($this->useOsc52Clipboard()) {
+            return $this->clipboard = new Osc52ClipboardMethod();
+        }
+
+        return $this->clipboard = new NullClipboardMethod(
+            false,
+            $this->clipboardCommand !== null
+                ? NullClipboardMethod::REASON_NO_COMMAND_SUPPORT
+                : NullClipboardMethod::REASON_NO_COMMAND
+        );
+    }
+
+    /**
+     * Enable or disable OSC 52 clipboard support.
+     *
+     * @param bool $useOsc52Clipboard
+     */
+    public function setUseOsc52Clipboard(bool $useOsc52Clipboard)
+    {
+        $this->useOsc52Clipboard = (bool) $useOsc52Clipboard;
+        $this->clipboard = null;
+    }
+
+    /**
+     * Check whether to use OSC 52 clipboard support.
+     */
+    public function useOsc52Clipboard(): bool
+    {
+        return $this->useOsc52Clipboard;
+    }
+
+    private function isSshSession(): bool
+    {
+        return \getenv('SSH_TTY') !== false
+            || \getenv('SSH_CLIENT') !== false
+            || \getenv('SSH_CONNECTION') !== false;
+    }
+
+    /**
+     * @phpstan-param non-empty-string $command
+     */
+    private function clipboardCommandExists(string $command): bool
+    {
+        $bin = \explode(' ', $command, 2)[0];
+
+        return $this->configPaths->which($bin) !== null;
     }
 
     /**
@@ -1414,6 +1664,38 @@ class Configuration
     }
 
     /**
+     * Enable experimental interactive readline implementation.
+     */
+    public function setUseExperimentalReadline(bool $enabled): void
+    {
+        $this->useExperimentalReadline = $enabled;
+    }
+
+    /**
+     * Check whether to use experimental interactive readline.
+     */
+    public function useExperimentalReadline(): bool
+    {
+        return $this->useExperimentalReadline;
+    }
+
+    /**
+     * Enable inline suggestions in interactive readline.
+     */
+    public function setUseSuggestions(bool $enabled): void
+    {
+        $this->useSuggestions = $enabled;
+    }
+
+    /**
+     * Check whether inline suggestions are enabled.
+     */
+    public function useSuggestions(): bool
+    {
+        return $this->useSuggestions;
+    }
+
+    /**
      * Enable or disable tab completion.
      *
      * @param bool $useTabCompletion
@@ -1445,6 +1727,10 @@ class Configuration
      */
     public function useTabCompletion(): bool
     {
+        if (isset($this->readline) && $this->readline instanceof Readline\InteractiveReadlineInterface) {
+            return $this->useTabCompletion ?? true;
+        }
+
         return isset($this->useTabCompletion) ? ($this->hasReadline && $this->useTabCompletion) : $this->hasReadline;
     }
 
@@ -1567,6 +1853,14 @@ class Configuration
     }
 
     /**
+     * Use the default pager resolution for this configuration.
+     */
+    public function setDefaultPager(): void
+    {
+        $this->pager = null;
+    }
+
+    /**
      * Get an OutputPager instance or a command for an external Proc pager.
      *
      * If no Pager has been explicitly provided, and Pcntl is available, this
@@ -1664,6 +1958,33 @@ class Configuration
         if (!empty($this->newMatchers)) {
             $this->shell->addMatchers($this->newMatchers);
             $this->newMatchers = [];
+        }
+    }
+
+    /**
+     * Add completion sources.
+     *
+     * @internal experimental; API may change before Interactive Readline is stable
+     *
+     * @param Completion\Source\SourceInterface[] $sources
+     */
+    public function addCompletionSources(array $sources)
+    {
+        $this->newCompletionSources = \array_merge($this->newCompletionSources, $sources);
+        if (isset($this->shell)) {
+            $this->doAddCompletionSources();
+        }
+    }
+
+    /**
+     * Internal method for adding completion sources. This will set any new
+     * sources once a Shell is available.
+     */
+    private function doAddCompletionSources()
+    {
+        if (!empty($this->newCompletionSources)) {
+            $this->shell->addCompletionSources($this->newCompletionSources);
+            $this->newCompletionSources = [];
         }
     }
 
@@ -2047,6 +2368,7 @@ class Configuration
         $this->shell = $shell;
         $this->doAddCommands();
         $this->doAddMatchers();
+        $this->doAddCompletionSources();
 
         // Configure SignatureFormatter for hyperlinks
         SignatureFormatter::setManual($this->getManual());
@@ -2837,20 +3159,6 @@ class Configuration
      */
     private static function looksLikeAPipe($stream): bool
     {
-        if (\function_exists('stream_isatty')) {
-            return !@\stream_isatty($stream);
-        }
-
-        if (\function_exists('posix_isatty')) {
-            return !@\posix_isatty($stream);
-        }
-
-        $stat = @\fstat($stream);
-        if (!\is_array($stat) || !isset($stat['mode'])) {
-            return true;
-        }
-        $mode = $stat['mode'] & 0170000;
-
-        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000 || $mode === 0140000;
+        return !Tty::isatty($stream);
     }
 }

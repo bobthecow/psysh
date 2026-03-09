@@ -18,9 +18,6 @@ use Psy\Test\Fixtures\Command\ListCommand\InterfaceDelta;
 use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * @group isolation-fail
- */
 class VariableEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

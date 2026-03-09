@@ -20,9 +20,6 @@ use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 
 require_once __DIR__.'/../../Fixtures/Command/ListCommand/functions.php';
 
-/**
- * @group isolation-fail
- */
 class FunctionEnumeratorTest extends EnumeratorTestCase
 {
     public function testEnumerateReturnsNothingWithoutFlag()

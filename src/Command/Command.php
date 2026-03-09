@@ -107,6 +107,14 @@ abstract class Command extends BaseCommand
     }
 
     /**
+     * Render help text for the current input context.
+     */
+    public function asTextForInput(InputInterface $input): string
+    {
+        return $this->asText();
+    }
+
+    /**
      * {@inheritdoc}
      */
     private function getArguments(): array

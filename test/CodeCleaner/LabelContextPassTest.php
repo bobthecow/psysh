@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\LabelContextPass;
 
-/**
- * @group isolation-fail
- */
 class LabelContextPassTest extends CodeCleanerTestCase
 {
     /**

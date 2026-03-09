@@ -138,6 +138,8 @@ test_help() {
 
   [[ "$output" =~ "Usage:" ]] || { fail "Missing 'Usage:' in help output"; return; }
   [[ "$output" =~ "--warm-autoload" ]] || { fail "Missing '--warm-autoload' option in help"; return; }
+  [[ "$output" == *"--pager[=PAGER]"* ]] || { fail "Missing '--pager' option in help"; return; }
+  [[ "$output" =~ "--no-pager" ]] || { fail "Missing '--no-pager' option in help"; return; }
 
   pass
 }

@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\CallTimePassByReferencePass;
 
-/**
- * @group isolation-fail
- */
 class CallTimePassByReferencePassTest extends CodeCleanerTestCase
 {
     /**

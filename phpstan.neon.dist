@@ -18,6 +18,9 @@ parameters:
     - src/Util/Str.php
     # Fake PSR-3 logger implements interface that may not exist when psr/log isn't installed
     - test/Fixtures/Util/FakePsrLogger.php
+    # TypeResolver tests with PHP 8.0+ fixtures (conditionally loaded)
+    - test/Completion/TypeResolverTest.php
+    - test/Fixtures/Completion/TypeResolverPhp82Fixtures.php
   bootstrapFiles:
     - vendor-bin/phpstan/bootstrap.php
   reportUnmatchedIgnoredErrors: true

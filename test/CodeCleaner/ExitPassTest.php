@@ -13,9 +13,6 @@ namespace Psy\Test\CodeCleaner;
 
 use Psy\CodeCleaner\ExitPass;
 
-/**
- * @group isolation-fail
- */
 class ExitPassTest extends CodeCleanerTestCase
 {
     /**

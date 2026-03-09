@@ -23,9 +23,6 @@ use Psy\Shell;
 use Psy\Test\Fixtures\Command\TestableReflectingCommand;
 use Psy\Util\Mirror;
 
-/**
- * @group isolation-fail
- */
 class ReflectingCommandTest extends \Psy\Test\TestCase
 {
     private TestableReflectingCommand $command;

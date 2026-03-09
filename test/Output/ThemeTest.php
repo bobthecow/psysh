@@ -15,9 +15,6 @@ use Psy\Output\Theme;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-/**
- * @group isolation-fail
- */
 class ThemeTest extends TestCase
 {
     public function testKnownThemes()
@@ -181,6 +178,7 @@ class ThemeTest extends TestCase
         // Styles should still be applied even with gray fallback
         $this->assertTrue($formatter->hasStyle('comment'));
         $this->assertTrue($formatter->hasStyle('code_comment'));
+        $this->assertTrue($formatter->hasStyle('input_frame'));
     }
 
     public function testCustomStyles()

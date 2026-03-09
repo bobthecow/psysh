@@ -11,9 +11,6 @@
 
 namespace Psy\Test;
 
-/**
- * @group isolation-fail
- */
 class BuildComposerTest extends TestCase
 {
     private static $mainComposer;

@@ -19,10 +19,8 @@ use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 const SOME_CONSTANT = 42;
+const NAN_CONSTANT = \NAN;
 
-/**
- * @group isolation-fail
- */
 class ConstantEnumeratorTest extends EnumeratorTestCase
 {
     const TEST_CONST = 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT';
@@ -87,6 +85,24 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
         $this->assertSame(['name' => self::TEST_CONST, 'style' => 'const', 'value' => $this->presentNumber(42)], $constants[self::TEST_CONST]);
     }
 
+    public function testEnumerateUserNanConstant()
+    {
+        $enumerator = new ConstantEnumerator($this->getPresenter());
+        $input = $this->getInput('--constants --user');
+        $res = $enumerator->enumerate($input);
+
+        $this->assertArrayHasKey('User Constants', $res);
+        $constants = $res['User Constants'];
+        $name = __NAMESPACE__.'\\NAN_CONSTANT';
+
+        $this->assertArrayHasKey($name, $constants);
+        $this->assertSame([
+            'name'  => $name,
+            'style' => 'const',
+            'value' => OutputFormatter::escape('<float>NAN</float>'),
+        ], $constants[$name]);
+    }
+
     /**
      * @dataProvider categoryConstants
      */
@@ -126,6 +142,11 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayHasKey('Constants', $res);
 
         $expected = [
+            'Psy\\Test\\Command\\ListCommand\\NAN_CONSTANT' => [
+                'name'  => 'Psy\\Test\\Command\\ListCommand\\NAN_CONSTANT',
+                'style' => 'const',
+                'value' => OutputFormatter::escape('<float>NAN</float>'),
+            ],
             'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT' => [
                 'name'  => 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT',
                 'style' => 'const',
@@ -145,6 +166,11 @@ class ConstantEnumeratorTest extends EnumeratorTestCase
         $this->assertArrayNotHasKey('Internal Constants', $res);
 
         $expected = [
+            'Psy\\Test\\Command\\ListCommand\\NAN_CONSTANT' => [
+                'name'  => 'Psy\\Test\\Command\\ListCommand\\NAN_CONSTANT',
+                'style' => 'const',
+                'value' => OutputFormatter::escape('<float>NAN</float>'),
+            ],
             'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT' => [
                 'name'  => 'Psy\\Test\\Command\\ListCommand\\SOME_CONSTANT',
                 'style' => 'const',
