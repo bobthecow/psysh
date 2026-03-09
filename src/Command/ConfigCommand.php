@@ -41,9 +41,20 @@ class ConfigCommand extends InternalConfigCommand
             '<return>>>> config set pager off</return>',
             '<return>>>> config set clipboardCommand auto</return>',
             '',
-            'Runtime-configurable keys include '.$this->formatOptionName('verbosity').', '.$this->formatOptionName('useUnicode').', '.$this->formatOptionName('errorLoggingLevel').',',
-            $this->formatOptionName('clipboardCommand').', '.$this->formatOptionName('useOsc52Clipboard').', '.$this->formatOptionName('colorMode').', '.$this->formatOptionName('theme').', '.$this->formatOptionName('pager').',',
-            $this->formatOptionName('requireSemicolons').', '.$this->formatOptionName('useBracketedPaste').' and '.$this->formatOptionName('useSuggestions').'.',
+            'Runtime-configurable keys include '.$this->formatOptionNames([
+                'verbosity',
+                'useUnicode',
+                'errorLoggingLevel',
+                'clipboardCommand',
+                'useOsc52Clipboard',
+                'colorMode',
+                'theme',
+                'pager',
+                'requireSemicolons',
+                'semicolonsSuppressReturn',
+                'useBracketedPaste',
+                'useSuggestions',
+            ]).'.',
         ]);
 
         $this

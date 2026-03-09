@@ -97,6 +97,7 @@ class Configuration
         'rawOutput',
         'requireSemicolons',
         'runtimeDir',
+        'semicolonsSuppressReturn',
         'startupMessage',
         'strictTypes',
         'theme',
@@ -137,6 +138,7 @@ class Configuration
     private ?bool $pipedOutput = null;
     private bool $rawOutput = false;
     private bool $requireSemicolons = false;
+    private bool $semicolonsSuppressReturn = false;
     private bool $strictTypes = false;
     private ?string $clipboardCommand = null;
     private ?bool $useUnicode = null;
@@ -1541,6 +1543,31 @@ class Configuration
     public function requireSemicolons(): bool
     {
         return $this->requireSemicolons;
+    }
+
+    /**
+     * Enable or disable semicolons suppressing return value display.
+     *
+     * @see self::semicolonsSuppressReturn()
+     */
+    public function setSemicolonsSuppressReturn(bool $semicolonsSuppressReturn)
+    {
+        $this->semicolonsSuppressReturn = $semicolonsSuppressReturn;
+    }
+
+    /**
+     * Check whether semicolons suppress return value display.
+     *
+     * When enabled, an unnecessary trailing semicolon suppresses the return
+     * value display (like Pry and MATLAB). The return value is still captured
+     * in $_.
+     *
+     * If `requireSemicolons` is also enabled, a double semicolon (`;;`) is
+     * required to suppress.
+     */
+    public function semicolonsSuppressReturn(): bool
+    {
+        return $this->semicolonsSuppressReturn;
     }
 
     /**

@@ -76,6 +76,7 @@ class ConfigCommandTest extends \Psy\Test\TestCase
             'theme',
             'pager',
             'requireSemicolons',
+            'semicolonsSuppressReturn',
             'useBracketedPaste',
             'useSuggestions',
         ] as $key) {

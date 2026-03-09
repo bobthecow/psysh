@@ -11,6 +11,7 @@
 
 namespace Psy\Test;
 
+use Psy\CodeCleaner\NoReturnValue;
 use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ParseErrorException;
@@ -785,6 +786,215 @@ class ShellTest extends TestCase
             ['{{return value}}', "<whisper>= </whisper>\"\033[32m{{return value}}\033[39m\"".\PHP_EOL],
             [1, "<whisper>= </whisper>\033[35m1\033[39m".\PHP_EOL],
         ];
+    }
+
+    public function testSemicolonsSuppressReturnSuppressesDisplay()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode('$foo = 123;');
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+    }
+
+    public function testSemicolonsSuppressReturnCapturesDollarUnderscore()
+    {
+        $output = $this->getOutput();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode('$foo = 123;');
+
+        // writeReturnValue still sets $_ even when suppressed
+        $shell->writeReturnValue(123);
+        $this->assertSame(123, $shell->getScopeVariable('_'));
+    }
+
+    public function testSemicolonsSuppressReturnWithoutSemicolon()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        // No trailing semicolon — should still display
+        $shell->addCode('$foo = 123');
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertNotEmpty(\stream_get_contents($stream));
+    }
+
+    public function testSemicolonsSuppressReturnWithTrailingComment()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode('$foo = 123; // hush');
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+    }
+
+    public function testSemicolonsSuppressReturnDisabledByDefault()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => false,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        // With the feature disabled, semicolons don't suppress
+        $shell->addCode('$foo = 123;');
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertNotEmpty(\stream_get_contents($stream));
+    }
+
+    public function testSemicolonsSuppressReturnWithRequireSemicolons()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'requireSemicolons'        => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        // Single semicolon is required, should still display
+        $shell->addCode('$foo = 123;');
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertNotEmpty(\stream_get_contents($stream));
+    }
+
+    /**
+     * @dataProvider getDoubleSemicolonInputs
+     */
+    public function testSemicolonsSuppressReturnWithDoubleSemicolon(string $input)
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'requireSemicolons'        => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode($input);
+
+        $shell->writeReturnValue(123);
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+    }
+
+    public function getDoubleSemicolonInputs()
+    {
+        return [
+            'adjacent'        => ['$foo = 123;;'],
+            'space separated' => ['$foo = 123; ;'],
+            'extra spaces'    => ['$foo = 123;   ;'],
+            'tab separated'   => ["\$foo = 123;\t;"],
+            'line comment'    => ['$foo = 123;; // hush'],
+            'hash comment'    => ['$foo = 123;; # hush'],
+        ];
+    }
+
+    public function testSemicolonsSuppressReturnWithControlStructure()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        // Trailing semicolon after a block — should suppress
+        $shell->addCode('if (true) { 1; };');
+
+        $shell->writeReturnValue(1);
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+    }
+
+    public function testSemicolonsSuppressReturnResetsAfterUse()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        // First: suppressed
+        $shell->addCode('$foo = 1;');
+        $shell->writeReturnValue(1);
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+
+        // Second: not suppressed (no trailing semicolon)
+        \ftruncate($stream, 0);
+        \rewind($stream);
+        $shell->addCode('$bar = 2');
+        $shell->writeReturnValue(2);
+        \rewind($stream);
+        $this->assertNotEmpty(\stream_get_contents($stream));
+    }
+
+    public function testSemicolonsSuppressReturnResetsAfterNoReturnValue()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig([
+            'semicolonsSuppressReturn' => true,
+            'theme'                    => 'modern',
+        ]);
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->addCode('class A {};');
+        $shell->writeReturnValue(new NoReturnValue());
+        $shell->writeReturnValue(123);
+
+        \rewind($stream);
+        $this->assertNotEmpty(\stream_get_contents($stream));
     }
 
     /**

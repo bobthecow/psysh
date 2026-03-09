@@ -55,6 +55,7 @@ class ConfigurationTest extends TestCase
         $this->assertSame(ProcessForker::isSupported(), $config->hasPcntl());
         $this->assertSame($config->hasPcntl(), $config->usePcntl());
         $this->assertFalse($config->requireSemicolons());
+        $this->assertFalse($config->semicolonsSuppressReturn());
         $this->assertNull($config->clipboardCommand());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());

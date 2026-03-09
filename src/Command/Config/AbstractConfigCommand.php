@@ -271,6 +271,18 @@ abstract class AbstractConfigCommand extends Command
                 },
                 'refresh' => true,
             ],
+            'semicolonssuppressreturn' => [
+                'name'           => 'semicolonsSuppressReturn',
+                'acceptedValues' => ['on', 'off'],
+                'parser'         => $booleanParser('semicolonsSuppressReturn', 'on|off'),
+                'getter'         => function () use ($config): bool {
+                    return $config->semicolonsSuppressReturn();
+                },
+                'setter' => function (bool $value) use ($config): void {
+                    $config->setSemicolonsSuppressReturn($value);
+                },
+                'refresh' => false,
+            ],
             'usebracketedpaste' => [
                 'name'           => 'useBracketedPaste',
                 'acceptedValues' => ['on', 'off'],

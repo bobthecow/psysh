@@ -93,6 +93,7 @@ class Shell extends Application
     /** @var CommandAware[] */
     private array $commandCompletion = [];
     private bool $lastExecSuccess = true;
+    private bool $suppressReturnValue = false;
     private bool $nonInteractive = false;
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
@@ -1344,6 +1345,7 @@ class Shell extends Application
             $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
 
             if (!$silent && $this->code !== false) {
+                $this->suppressReturnValue = $this->shouldSuppressReturnValue();
                 $this->writeCleanerMessages();
             }
         } catch (\Throwable $e) {
@@ -1352,6 +1354,59 @@ class Shell extends Application
 
             throw $e;
         }
+    }
+
+    /**
+     * Check whether the current code buffer ends with an unnecessary semicolon.
+     *
+     * When `semicolonsSuppressReturn` is enabled, an unnecessary trailing
+     * semicolon signals that the return value should not be displayed. If
+     * `requireSemicolons` is also enabled, a double semicolon is required.
+     */
+    private function shouldSuppressReturnValue(): bool
+    {
+        if (!$this->config->semicolonsSuppressReturn()) {
+            return false;
+        }
+
+        $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $this->codeBuffer));
+        [$lastToken, $index] = $this->lastNonCommentToken($tokens);
+
+        if ($lastToken !== ';') {
+            return false;
+        }
+
+        if (!$this->config->requireSemicolons()) {
+            // When semicolons are optional, a single ; is unnecessary
+            return true;
+        }
+
+        // When semicolons are required, require a double semicolon (`;;`) to suppress
+        return $index !== null && $this->lastNonCommentToken($tokens, $index - 1)[0] === ';';
+    }
+
+    /**
+     * Get the last non-comment token from a tokenized PHP snippet.
+     *
+     * @param array $tokens Token array from token_get_all()
+     *
+     * @return array Token and index pair: [token, index] or [null, null]
+     */
+    private function lastNonCommentToken(array $tokens, ?int $offset = null): array
+    {
+        $offset ??= \count($tokens) - 1;
+
+        for ($i = $offset; $i >= 0; $i--) {
+            $token = $tokens[$i];
+
+            if (\is_array($token) && \in_array($token[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT, \T_OPEN_TAG], true)) {
+                continue;
+            }
+
+            return [$token, $i];
+        }
+
+        return [null, null];
     }
 
     /**
@@ -1685,10 +1740,19 @@ class Shell extends Application
         $this->lastExecSuccess = true;
 
         if ($ret instanceof NoReturnValue) {
+            $this->suppressReturnValue = false;
+
             return;
         }
 
         $this->context->setReturnValue($ret);
+
+        // Don't display the return value, but $_ is still captured above.
+        if ($this->suppressReturnValue) {
+            $this->suppressReturnValue = false;
+
+            return;
+        }
 
         if ($rawOutput) {
             $formatted = \var_export($ret, true);
