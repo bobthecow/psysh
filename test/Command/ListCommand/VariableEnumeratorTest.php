@@ -16,7 +16,6 @@ use Psy\Context;
 use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
 use Psy\Test\Fixtures\Command\ListCommand\InterfaceDelta;
 use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class VariableEnumeratorTest extends EnumeratorTestCase
 {
@@ -78,7 +77,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
             '$two' => [
                 'name'  => '$two',
                 'style' => 'public',
-                'value' => OutputFormatter::escape('"<string>two</string>"'),
+                'value' => '"two"',
             ],
             '$three' => [
                 'name'  => '$three',
@@ -118,7 +117,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
             '$two' => [
                 'name'  => '$two',
                 'style' => 'public',
-                'value' => OutputFormatter::escape('"<string>two</string>"'),
+                'value' => '"two"',
             ],
             '$three' => [
                 'name'  => '$three',
@@ -128,7 +127,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
             '$_' => [
                 'name'  => '$_',
                 'style' => 'private',
-                'value' => OutputFormatter::escape('<const>null</const>'),
+                'value' => 'null',
             ],
             '$_e' => [
                 'name'  => '$_e',
@@ -138,7 +137,7 @@ class VariableEnumeratorTest extends EnumeratorTestCase
             '$__out' => [
                 'name'  => '$__out',
                 'style' => 'private',
-                'value' => OutputFormatter::escape('"<string>last stdout</string>"'),
+                'value' => '"last stdout"',
             ],
         ], $vars);
     }

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @phan-file-suppress PhanRedefineClass
+ * @phan-file-suppress PhanRedefinedUsedTrait
+ * @phan-file-suppress PhanUndeclaredMethod
+ */
+
 /*
  * This file is part of Psy Shell.
  *
@@ -11,98 +17,211 @@
 
 namespace Psy\VarDumper;
 
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\VarDumper\Cloner\Cursor;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 
-/**
- * A PsySH-specialized CliDumper.
- */
-class Dumper extends CliDumper
-{
-    private OutputFormatter $formatter;
-    private bool $forceArrayIndexes;
+require_once __DIR__.'/DumperBase.php';
 
-    private const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
-    private const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';
-    private const CONTROL_CHARS_MAP = [
-        "\0"   => '\0',
-        "\t"   => '\t',
-        "\n"   => '\n',
-        "\v"   => '\v',
-        "\f"   => '\f',
-        "\r"   => '\r',
-        "\033" => '\e',
-    ];
-
-    public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
-    {
-        $this->formatter = $formatter;
-        $this->forceArrayIndexes = $forceArrayIndexes;
-        parent::__construct();
-        $this->setColors(false);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function enterHash(Cursor $cursor, $type, $class, $hasChild): void
-    {
-        if (Cursor::HASH_INDEXED === $type || Cursor::HASH_ASSOC === $type) {
-            $class = 0;
-        }
-        parent::enterHash($cursor, $type, $class, $hasChild);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function dumpKey(Cursor $cursor): void
-    {
-        if ($this->forceArrayIndexes || Cursor::HASH_INDEXED !== $cursor->hashType) {
-            parent::dumpKey($cursor);
-        }
-    }
-
-    protected function style($style, $value, $attr = []): string
-    {
-        if ('ref' === $style) {
-            $value = \strtr($value, '@', '#');
-        }
-
-        $styled = '';
-        $cchr = $this->styles['cchr'] ?? '';
-
-        $chunks = \preg_split(self::CONTROL_CHARS, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
-        foreach ($chunks as $chunk) {
-            if (\preg_match(self::ONLY_CONTROL_CHARS, $chunk)) {
-                $chars = '';
-                $i = 0;
-                do {
-                    $chars .= isset(self::CONTROL_CHARS_MAP[$chunk[$i]]) ? self::CONTROL_CHARS_MAP[$chunk[$i]] : \sprintf('\x%02X', \ord($chunk[$i]));
-                } while (isset($chunk[++$i]));
-
-                $chars = $this->formatter->escape($chars);
-                $styled .= "<{$cchr}>{$chars}</{$cchr}>";
-            } else {
-                $styled .= $this->formatter->escape($chunk);
+$method = new \ReflectionMethod(CliDumper::class, 'enterHash');
+$typed = $method->getParameters()[1]->hasType();
+$returnTyped = $method->hasReturnType();
+if ($typed) {
+    if ($returnTyped) {
+        trait DumperEnterHashShim
+        {
+            public function enterHash(Cursor $cursor, int $type, $class, bool $hasChild): void
+            {
+                $this->doEnterHash($cursor, $type, $class, $hasChild);
             }
         }
-
-        $style = $this->styles[$style];
-
-        return "<{$style}>{$styled}</{$style}>";
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function dumpLine($depth, $endOfValue = false): void
-    {
-        if ($endOfValue && 0 < $depth) {
-            $this->line .= ',';
+    } else {
+        trait DumperEnterHashShim
+        {
+            public function enterHash(Cursor $cursor, int $type, $class, bool $hasChild)
+            {
+                $this->doEnterHash($cursor, $type, $class, $hasChild);
+            }
         }
-        $this->line = $this->formatter->format($this->line);
-        parent::dumpLine($depth, $endOfValue);
     }
+} elseif ($returnTyped) {
+    trait DumperEnterHashShim
+    {
+        public function enterHash(Cursor $cursor, $type, $class, $hasChild): void
+        {
+            $this->doEnterHash($cursor, $type, $class, $hasChild);
+        }
+    }
+} else {
+    trait DumperEnterHashShim
+    {
+        public function enterHash(Cursor $cursor, $type, $class, $hasChild)
+        {
+            $this->doEnterHash($cursor, $type, $class, $hasChild);
+        }
+    }
+}
+
+$method = new \ReflectionMethod(CliDumper::class, 'dumpString');
+$typed = $method->getParameters()[1]->hasType();
+$returnTyped = $method->hasReturnType();
+if ($typed) {
+    if ($returnTyped) {
+        trait DumperDumpStringShim
+        {
+            public function dumpString(Cursor $cursor, string $str, bool $bin, int $cut): void
+            {
+                $this->doDumpString($cursor, $str, $bin, $cut);
+            }
+        }
+    } else {
+        trait DumperDumpStringShim
+        {
+            public function dumpString(Cursor $cursor, string $str, bool $bin, int $cut)
+            {
+                $this->doDumpString($cursor, $str, $bin, $cut);
+            }
+        }
+    }
+} elseif ($returnTyped) {
+    trait DumperDumpStringShim
+    {
+        public function dumpString(Cursor $cursor, $str, $bin, $cut): void
+        {
+            $this->doDumpString($cursor, $str, $bin, $cut);
+        }
+    }
+} else {
+    trait DumperDumpStringShim
+    {
+        public function dumpString(Cursor $cursor, $str, $bin, $cut)
+        {
+            $this->doDumpString($cursor, $str, $bin, $cut);
+        }
+    }
+}
+
+$method = new \ReflectionMethod(CliDumper::class, 'style');
+$typed = $method->getParameters()[0]->hasType();
+$returnTyped = $method->hasReturnType();
+if ($typed) {
+    if ($returnTyped) {
+        trait DumperStyleShim
+        {
+            protected function style(string $style, string $value, array $attr = []): string
+            {
+                return $this->doStyle($style, $value, $attr);
+            }
+        }
+    } else {
+        trait DumperStyleShim
+        {
+            protected function style(string $style, string $value, array $attr = [])
+            {
+                return $this->doStyle($style, $value, $attr);
+            }
+        }
+    }
+} elseif ($returnTyped) {
+    trait DumperStyleShim
+    {
+        protected function style($style, $value, $attr = []): string
+        {
+            return $this->doStyle($style, $value, $attr);
+        }
+    }
+} else {
+    trait DumperStyleShim
+    {
+        protected function style($style, $value, $attr = [])
+        {
+            return $this->doStyle($style, $value, $attr);
+        }
+    }
+}
+
+$method = new \ReflectionMethod(CliDumper::class, 'dumpLine');
+$typed = $method->getParameters()[0]->hasType();
+$returnTyped = $method->hasReturnType();
+if ($typed) {
+    if ($returnTyped) {
+        trait DumperDumpLineShim
+        {
+            protected function dumpLine(int $depth, bool $endOfValue = false): void
+            {
+                $this->doDumpLine($depth, $endOfValue);
+            }
+        }
+    } else {
+        trait DumperDumpLineShim
+        {
+            protected function dumpLine(int $depth, bool $endOfValue = false)
+            {
+                $this->doDumpLine($depth, $endOfValue);
+            }
+        }
+    }
+} elseif ($returnTyped) {
+    trait DumperDumpLineShim
+    {
+        protected function dumpLine($depth, $endOfValue = false): void
+        {
+            $this->doDumpLine($depth, $endOfValue);
+        }
+    }
+} else {
+    trait DumperDumpLineShim
+    {
+        protected function dumpLine($depth, $endOfValue = false)
+        {
+            $this->doDumpLine($depth, $endOfValue);
+        }
+    }
+}
+
+$method = new \ReflectionMethod(CliDumper::class, 'dumpKey');
+$typed = $method->getParameters()[0]->hasType();
+$returnTyped = $method->hasReturnType();
+if ($typed) {
+    if ($returnTyped) {
+        trait DumperDumpKeyShim
+        {
+            protected function dumpKey(Cursor $cursor): void
+            {
+                $this->doDumpKey($cursor);
+            }
+        }
+    } else {
+        trait DumperDumpKeyShim
+        {
+            protected function dumpKey(Cursor $cursor)
+            {
+                $this->doDumpKey($cursor);
+            }
+        }
+    }
+} elseif ($returnTyped) {
+    trait DumperDumpKeyShim
+    {
+        protected function dumpKey($cursor): void
+        {
+            $this->doDumpKey($cursor);
+        }
+    }
+} else {
+    trait DumperDumpKeyShim
+    {
+        protected function dumpKey($cursor)
+        {
+            $this->doDumpKey($cursor);
+        }
+    }
+}
+
+class Dumper extends DumperBase
+{
+    use DumperEnterHashShim;
+    use DumperDumpStringShim;
+    use DumperStyleShim;
+    use DumperDumpLineShim;
+    use DumperDumpKeyShim;
 }

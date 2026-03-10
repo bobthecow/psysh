@@ -73,7 +73,7 @@ HELP
     {
         $depth = $input->getOption('depth');
         $target = $this->resolveCode($input->getArgument('target'));
-        $this->shellOutput($output)->page($this->presenter->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
+        $this->shellOutput($output)->page($this->presenter->present($target, $depth, ($input->getOption('all') ? Presenter::VERBOSE : 0) | Presenter::RAW), OutputInterface::OUTPUT_RAW);
 
         if (\is_object($target)) {
             $this->setCommandScopeVariables(new \ReflectionObject($target));

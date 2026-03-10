@@ -15,7 +15,6 @@ use Psy\Command\ListCommand\GlobalVariableEnumerator;
 use Psy\Test\Fixtures\Command\ListCommand\ClassAlfa;
 use Psy\Test\Fixtures\Command\ListCommand\InterfaceDelta;
 use Psy\Test\Fixtures\Command\ListCommand\TraitFoxtrot;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 {
@@ -70,7 +69,7 @@ class GlobalVariableEnumeratorTest extends EnumeratorTestCase
 
         $name = '$'.$two;
         $style = 'global';
-        $value = OutputFormatter::escape('"<string>string</string>"');
+        $value = '"string"';
         $this->assertArrayHasKey('$'.$two, $globals);
         $this->assertSame(\compact('name', 'style', 'value'), $globals[$name]);
 

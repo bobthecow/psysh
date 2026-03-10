@@ -1761,17 +1761,20 @@ class Shell extends Application
             $prompt = $this->config->theme()->returnValue();
             $indent = \str_repeat(' ', \strlen($prompt));
             $formatted = $this->presentValue($ret);
-            $formattedRetValue = \sprintf('<whisper>%s</whisper>', $prompt);
+            $formatter = $this->output->getFormatter();
+            $formattedPrompt = ($formatter->hasStyle('whisper') && $formatter->isDecorated())
+                ? $formatter->getStyle('whisper')->apply($prompt)
+                : $prompt;
 
-            $formatted = $formattedRetValue.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
+            $formatted = $formattedPrompt.\str_replace(\PHP_EOL, \PHP_EOL.$indent, $formatted);
         }
 
         $this->outputWritten = true;
 
         if ($this->output instanceof ShellOutput) {
-            $this->output->page($formatted.\PHP_EOL);
+            $this->output->page($formatted.\PHP_EOL, OutputInterface::OUTPUT_RAW);
         } else {
-            $this->output->writeln($formatted);
+            $this->output->writeln($formatted, OutputInterface::OUTPUT_RAW);
         }
     }
 
@@ -2068,7 +2071,7 @@ class Shell extends Application
      */
     protected function presentValue($val): string
     {
-        return $this->config->getPresenter()->present($val);
+        return $this->config->getPresenter()->present($val, null, VarDumper\Presenter::RAW);
     }
 
     /**

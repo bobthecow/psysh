@@ -125,7 +125,7 @@ HELP
             }
         }
 
-        $this->shellOutput($output)->page($this->presenter->present($nodes, $depth));
+        $this->shellOutput($output)->page($this->presenter->present($nodes, $depth, Presenter::RAW), OutputInterface::OUTPUT_RAW);
 
         $this->context->setReturnValue($nodes);
 

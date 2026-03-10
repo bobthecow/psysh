@@ -24,6 +24,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 if (!\function_exists('Psy\\sh')) {
     /**
@@ -585,7 +586,7 @@ EOL;
                     $output->writeln(\var_export($infoData, true));
                 } else {
                     $presenter = $config->getPresenter();
-                    $output->writeln($presenter->present($infoData));
+                    $output->writeln($presenter->present($infoData, null, VarDumper\Presenter::RAW), OutputInterface::OUTPUT_RAW);
                 }
                 exit(0);
             }
