@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2026 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 /**
  * @phan-file-suppress PhanRedefineClass
  * @phan-file-suppress PhanRedefinedUsedTrait
@@ -219,9 +228,9 @@ if ($typed) {
 
 class Dumper extends DumperBase
 {
-    use DumperEnterHashShim;
-    use DumperDumpStringShim;
-    use DumperStyleShim;
-    use DumperDumpLineShim;
     use DumperDumpKeyShim;
+    use DumperDumpLineShim;
+    use DumperDumpStringShim;
+    use DumperEnterHashShim;
+    use DumperStyleShim;
 }
