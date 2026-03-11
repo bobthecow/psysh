@@ -93,6 +93,7 @@ HELP
         $count = $input->getOption('all') ? \PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
         $shellOutput->startPaging();
+        $compact = $this->getShell()->isCompactTheme();
 
         do {
             $traceCount = \count($exception->getTrace());
@@ -105,10 +106,15 @@ HELP
             $trace = $this->getBacktrace($exception, $showLines);
             $moreLines = $traceCount - \count($trace);
 
-            $output->writeln($this->getShell()->formatException($exception));
+            $this->getShell()->writeExceptionHeader($output, $exception);
             $output->writeln('--');
+            if (!$compact) {
+                $output->writeln('');
+            }
             $shellOutput->write($trace, true, ShellOutputAdapter::NUMBER_LINES);
-            $output->writeln('');
+            if (!$compact) {
+                $output->writeln('');
+            }
 
             if ($moreLines > 0) {
                 $output->writeln(\sprintf(

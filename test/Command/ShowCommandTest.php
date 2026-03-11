@@ -33,12 +33,14 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $this->cleaner = new CodeCleaner();
 
         $this->shell = $this->getMockBuilder(Shell::class)
-            ->setMethods(['execute', 'getNamespace', 'getBoundClass', 'getBoundObject', 'formatException'])
+            ->disableOriginalConstructor()
+            ->setMethods(['boot', 'execute', 'getNamespace', 'getBoundClass', 'getBoundObject', 'formatException', 'formatExceptionDetails', 'isCompactTheme'])
             ->getMock();
 
         $this->shell->method('getNamespace')->willReturn(null);
         $this->shell->method('getBoundClass')->willReturn(null);
         $this->shell->method('getBoundObject')->willReturn(null);
+        $this->shell->method('isCompactTheme')->willReturn(false);
 
         $this->command = new ShowCommand();
         $this->command->setApplication($this->shell);
@@ -124,6 +126,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
         $this->shell->method('formatException')
             ->willReturn('<error>Test exception</error>');
+        $this->shell->method('formatExceptionDetails')->willReturn(null);
 
         $tester = new PsyCommandTester($this->command);
         $tester->execute(['--ex' => null]);
@@ -132,6 +135,29 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
         $this->assertStringContainsString('Test exception', $output);
         $this->assertStringContainsString('level 1', $output);
+    }
+
+    public function testShowExceptionContextIncludesDetails()
+    {
+        $exception = new \Exception('Test exception');
+        $this->context->setLastException($exception);
+
+        $this->shell->method('formatException')
+            ->willReturn('<error>Test exception</error>');
+        $this->shell->method('formatExceptionDetails')
+            ->willReturn("  [\n    \"line\" => 44,\n  ]");
+
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['--ex' => null]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertStringContainsString('"line" => 44', $output);
+        $this->assertStringStartsWith("\nTest exception\n", $output);
+        $this->assertStringContainsString("\n\n--\n\n", $output);
+        $this->assertStringContainsString('level 1</strong> of backtrace', $output);
+        $this->assertStringContainsString("):\n\n", $output);
+        $this->assertStringEndsWith("\n\n", $output);
     }
 
     public function testShowExceptionContextWithIndex()
@@ -148,6 +174,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
         $this->shell->method('formatException')
             ->willReturn('<error>Test from helper</error>');
+        $this->shell->method('formatExceptionDetails')->willReturn(null);
 
         $tester = new PsyCommandTester($this->command);
         $tester->execute(['--ex' => '2']);
@@ -170,6 +197,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
         $this->shell->method('formatException')
             ->willReturn('<error>Simple exception</error>');
+        $this->shell->method('formatExceptionDetails')->willReturn(null);
 
         $tester = new PsyCommandTester($this->command);
         // Ask for a trace index higher than exists
@@ -192,6 +220,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
         $this->shell->method('formatException')
             ->willReturn('<error>Exception</error>');
+        $this->shell->method('formatExceptionDetails')->willReturn(null);
 
         $tester = new PsyCommandTester($this->command);
 
@@ -211,6 +240,7 @@ class ShowCommandTest extends \Psy\Test\TestCase
 
         $this->shell->method('formatException')
             ->willReturn('<error>Exception</error>');
+        $this->shell->method('formatExceptionDetails')->willReturn(null);
 
         $tester = new PsyCommandTester($this->command);
 

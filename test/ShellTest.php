@@ -1080,6 +1080,35 @@ class ShellTest extends TestCase
         ]];
     }
 
+    public function testWriteExceptionIncludesConfiguredExceptionDetails()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig(['theme' => 'compact']);
+        $config->setExceptionDetails(static function (\Throwable $e): ?array {
+            if (!$e instanceof ParseErrorException) {
+                return null;
+            }
+
+            return [
+                'line'  => $e->getStartLine(),
+                'token' => 'T_COALESCE',
+            ];
+        });
+
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+        $shell->writeException(new ParseErrorException('invalid', 7));
+        \rewind($stream);
+        $stdout = \preg_replace('/\e\\[[\d;]*m/', '', \stream_get_contents($stream));
+
+        $this->assertStringStartsWith(' PARSE ERROR  PHP Parse error: invalid in test/ShellTest.php on line ', $stdout);
+        $this->assertStringContainsString("  [\n", $stdout);
+        $this->assertStringContainsString("    \"line\" => 7,\n", $stdout);
+        $this->assertStringContainsString("    \"token\" => \"T_COALESCE\",\n", $stdout);
+        $this->assertStringEndsWith("  ]\n", $stdout);
+    }
+
     public function testWriteExceptionVerboseButNotReallyBecauseItIsABreakException()
     {
         $output = $this->getOutput();
@@ -1357,7 +1386,7 @@ class ShellTest extends TestCase
             'dataDir'      => $dir,
             'runtimeDir'   => $dir,
             'colorMode'    => Configuration::COLOR_MODE_FORCED,
-            'trustProject' => true,
+            'trustProject' => false,
         ];
 
         return new Configuration(\array_merge($defaults, $config));

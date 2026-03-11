@@ -38,6 +38,7 @@ use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\TabCompletion\Matcher\CommandsMatcher;
 use Psy\Util\Tty;
+use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -1809,15 +1810,7 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
 
-        if (!$this->config->theme()->compact()) {
-            $output->writeln('');
-        }
-
-        $output->writeln($this->formatException($e));
-
-        if (!$this->config->theme()->compact()) {
-            $output->writeln('');
-        }
+        $this->writeExceptionHeader($output, $e);
 
         // Include an exception trace (as long as this isn't a BreakException).
         if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
@@ -1840,6 +1833,36 @@ class Shell extends Application
     public function getLastExecSuccess(): bool
     {
         return $this->lastExecSuccess;
+    }
+
+    /**
+     * Check whether the shell is using a compact theme.
+     */
+    public function isCompactTheme(): bool
+    {
+        return $this->config->theme()->compact();
+    }
+
+    /**
+     * Write a formatted exception header with optional details and compact-aware spacing.
+     */
+    public function writeExceptionHeader(OutputInterface $output, \Throwable $e): void
+    {
+        $compact = $this->isCompactTheme();
+
+        if (!$compact) {
+            $output->writeln('');
+        }
+
+        $output->writeln($this->formatException($e));
+
+        if ($details = $this->formatExceptionDetails($e)) {
+            $output->writeln($details, OutputInterface::OUTPUT_RAW);
+        }
+
+        if (!$compact) {
+            $output->writeln('');
+        }
     }
 
     /**
@@ -1888,6 +1911,36 @@ class Shell extends Application
         $severity = ($e instanceof \ErrorException) ? $this->getSeverity($e) : 'error';
 
         return \sprintf('%s<%s> %s </%s> %s', $indent, $severity, $messageLabel, $severity, OutputFormatter::escape($message));
+    }
+
+    /**
+     * Format exception details (if provided) for display.
+     */
+    protected function formatExceptionDetails(\Throwable $e): ?string
+    {
+        $formatter = $this->config->getExceptionDetails();
+        if ($formatter === null) {
+            return null;
+        }
+
+        try {
+            $details = $formatter($e);
+        } catch (\Throwable $_e) {
+            return null;
+        }
+
+        if ($details === null) {
+            return null;
+        }
+
+        $rendered = $this->presentValue($details);
+        $compact = $this->config->theme()->compact();
+        $indent = $compact ? '  ' : '    ';
+        $prefix = $compact ? '' : \PHP_EOL;
+
+        return $prefix.\implode(\PHP_EOL, \array_map(static function ($line) use ($indent) {
+            return $indent.$line;
+        }, \explode(\PHP_EOL, $rendered)));
     }
 
     /**
@@ -2071,7 +2124,7 @@ class Shell extends Application
      */
     protected function presentValue($val): string
     {
-        return $this->config->getPresenter()->present($val, null, VarDumper\Presenter::RAW);
+        return $this->config->getPresenter()->present($val, null, Presenter::RAW);
     }
 
     /**

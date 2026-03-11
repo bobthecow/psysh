@@ -82,6 +82,7 @@ class Configuration
         'dataDir',
         'defaultIncludes',
         'eraseDuplicates',
+        'exceptionDetails',
         'errorLoggingLevel',
         'useExperimentalReadline',
         'useSuggestions',
@@ -152,6 +153,8 @@ class Configuration
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
+    /** @var callable|null */
+    private $exceptionDetails = null;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
@@ -2253,6 +2256,33 @@ class Configuration
     public function getLogger(): ?ShellLogger
     {
         return $this->logger;
+    }
+
+    /**
+     * Configure a callback that returns additional structured exception details.
+     *
+     * The callback receives the thrown exception and may return any dumpable
+     * value; returning null suppresses additional output.
+     *
+     * @param callable $exceptionDetails
+     */
+    public function setExceptionDetails($exceptionDetails): void
+    {
+        if (!\is_callable($exceptionDetails)) {
+            throw new \InvalidArgumentException('Exception details callback must be callable');
+        }
+
+        $this->exceptionDetails = $exceptionDetails;
+    }
+
+    /**
+     * Get the configured exception details callback, if any.
+     *
+     * @return callable|null
+     */
+    public function getExceptionDetails()
+    {
+        return $this->exceptionDetails;
     }
 
     /**

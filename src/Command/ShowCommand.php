@@ -169,10 +169,21 @@ HELP
         $this->lastException = $exception;
         $this->lastExceptionIndex = $index;
 
-        $output->writeln($this->getShell()->formatException($exception));
+        $compact = $this->getShell()->isCompactTheme();
+
+        $this->getShell()->writeExceptionHeader($output, $exception);
         $output->writeln('--');
+        if (!$compact) {
+            $output->writeln('');
+        }
         $this->writeTraceLine($output, $trace, $index);
+        if (!$compact) {
+            $output->writeln('');
+        }
         $this->writeTraceCodeSnippet($output, $trace, $index);
+        if (!$compact) {
+            $output->writeln('');
+        }
 
         $this->setCommandScopeVariablesFromContext($trace[$index]);
     }
