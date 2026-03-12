@@ -171,6 +171,14 @@ class BufferAnalysis
         return false;
     }
 
+    /**
+     * Check whether the last parse error is an unexpected-EOF error.
+     */
+    public function hasEOFError(): bool
+    {
+        return $this->lastError !== null && $this->isEOFError($this->lastError);
+    }
+
     private function isEOFError(Error $error): bool
     {
         $msg = $error->getRawMessage();

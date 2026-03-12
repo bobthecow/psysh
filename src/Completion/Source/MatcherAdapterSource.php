@@ -154,6 +154,10 @@ class MatcherAdapterSource implements SourceInterface
      */
     private function buildReadlineInfo(AnalysisResult $analysis): array
     {
+        if ($analysis->readlineInfo !== []) {
+            return $analysis->readlineInfo;
+        }
+
         $lineBuffer = '';
         if ($analysis->leftSide !== null) {
             $lineBuffer .= $analysis->leftSide;
@@ -168,6 +172,7 @@ class MatcherAdapterSource implements SourceInterface
 
         return [
             'line_buffer' => $lineBuffer,
+            'point'       => \strlen($lineBuffer),
             'end'         => \strlen($lineBuffer),
         ];
     }

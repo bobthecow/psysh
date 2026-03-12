@@ -53,7 +53,7 @@ class ContextAnalyzer
     /**
      * Analyze input and return completion context.
      */
-    public function analyze(string $input, int $cursor): AnalysisResult
+    public function analyze(string $input, int $cursor, array $readlineInfo = []): AnalysisResult
     {
         // Cursor is in code-point units, so use mb_substr
         $inputToCursor = \mb_substr($input, 0, $cursor);
@@ -72,6 +72,8 @@ class ContextAnalyzer
         }
 
         $analysis->input = $inputToCursor;
+        $analysis->tokens = @\token_get_all('<?php '.$inputToCursor);
+        $analysis->readlineInfo = $readlineInfo;
 
         return $analysis;
     }

@@ -364,6 +364,96 @@ class ShellTest extends TestCase
         $this->assertTrue(\in_array($source, $sources, true));
     }
 
+    public function testLegacyReadlineUsesCompletionEngineThroughAutoCompleter()
+    {
+        $readline = new class() implements Readline, ShellAware {
+            /** @phpstan-ignore-next-line (interface-required constructor params are unused in stub) */
+            public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
+            {
+            }
+
+            public static function isSupported(): bool
+            {
+                return true;
+            }
+
+            public static function supportsBracketedPaste(): bool
+            {
+                return false;
+            }
+
+            public function addHistory(string $line): bool
+            {
+                return true;
+            }
+
+            public function clearHistory(): bool
+            {
+                return true;
+            }
+
+            public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function readHistory(): bool
+            {
+                return true;
+            }
+
+            public function readline(?string $prompt = null)
+            {
+                return false;
+            }
+
+            public function redisplay()
+            {
+            }
+
+            public function writeHistory(): bool
+            {
+                return true;
+            }
+
+            public function setShell(Shell $shell): void
+            {
+            }
+        };
+
+        $config = $this->getConfig([
+            'useTabCompletion' => true,
+        ]);
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->boot();
+
+        $initializeCompletion = new \ReflectionMethod(Shell::class, 'initializeCompletionEngine');
+        $initializeTabCompletion = new \ReflectionMethod(Shell::class, 'initializeTabCompletion');
+        if (\PHP_VERSION_ID < 80100) {
+            $initializeCompletion->setAccessible(true);
+            $initializeTabCompletion->setAccessible(true);
+        }
+
+        $initializeCompletion->invoke($shell);
+        $initializeTabCompletion->invoke($shell);
+
+        $autoCompleterProperty = new \ReflectionProperty(Shell::class, 'autoCompleter');
+        if (\PHP_VERSION_ID < 80100) {
+            $autoCompleterProperty->setAccessible(true);
+        }
+
+        $completionEngineProperty = new \ReflectionProperty(\Psy\TabCompletion\AutoCompleter::class, 'completionEngine');
+        if (\PHP_VERSION_ID < 80100) {
+            $completionEngineProperty->setAccessible(true);
+        }
+
+        $autoCompleter = $autoCompleterProperty->getValue($shell);
+        $this->assertNotNull($autoCompleter);
+        $this->assertNotNull($completionEngineProperty->getValue($autoCompleter));
+    }
+
     public function testBootConfiguresInteractiveReadline()
     {
         $readline = new class() implements InteractiveReadlineInterface, ShellAware {

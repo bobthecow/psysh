@@ -54,7 +54,7 @@ class StatementCompletenessPolicy
             return true;
         }
 
-        if (!$this->requireSemicolons && $this->isEOFError($lastError)) {
+        if (!$this->requireSemicolons && $analysis->hasEOFError()) {
             if ($this->bufferAnalyzer->canBeFixedWithSemicolon($line)) {
                 return true;
             }
@@ -64,7 +64,7 @@ class StatementCompletenessPolicy
             return false;
         }
 
-        if (!$this->isEOFError($lastError)) {
+        if (!$analysis->hasEOFError()) {
             // Real syntax errors should execute immediately so the user sees them.
             return true;
         }
@@ -89,7 +89,7 @@ class StatementCompletenessPolicy
             return false;
         }
 
-        if ($this->isEOFError($lastError)) {
+        if ($analysis->hasEOFError()) {
             return false;
         }
 
@@ -108,13 +108,6 @@ class StatementCompletenessPolicy
     public function hasBalancedBrackets(string $line): bool
     {
         return $this->bufferAnalyzer->analyze($line)->hasBalancedBrackets();
-    }
-
-    private function isEOFError(Error $error): bool
-    {
-        $msg = $error->getRawMessage();
-
-        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 
     private function isUnterminatedComment(Error $error): bool

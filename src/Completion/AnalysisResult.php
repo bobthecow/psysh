@@ -31,6 +31,8 @@ class AnalysisResult
     public string $input;
     /** @var array Tokenized input */
     public array $tokens;
+    /** @var array Raw readline callback metadata, if available */
+    public array $readlineInfo;
 
     /**
      * @param string|string[]|null $leftSideTypes
@@ -43,7 +45,8 @@ class AnalysisResult
         $leftSideValue = null,
         array $tokens = [],
         string $input = '',
-        ?Node $leftSideNode = null
+        ?Node $leftSideNode = null,
+        array $readlineInfo = []
     ) {
         $this->kinds = $kinds;
         $this->prefix = $prefix;
@@ -53,5 +56,6 @@ class AnalysisResult
         $this->leftSideValue = $leftSideValue;
         $this->tokens = $tokens;
         $this->input = $input;
+        $this->readlineInfo = $readlineInfo;
     }
 }

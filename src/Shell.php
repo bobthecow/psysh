@@ -38,7 +38,6 @@ use Psy\Readline\ReadlineAware;
 use Psy\Readline\ShellReadlineInterface;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
-use Psy\TabCompletion\Matcher\CommandsMatcher;
 use Psy\Util\Tty;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
@@ -441,32 +440,13 @@ class Shell extends Application
     }
 
     /**
+     * @deprecated No longer used internally; matchers are registered via the completion engine
+     *
      * @return Matcher\AbstractMatcher[]
      */
     protected function getDefaultMatchers(): array
     {
-        $commandsMatcher = new CommandsMatcher($this->all());
-        $this->commandCompletion[] = $commandsMatcher;
-
-        $matchers = [
-            $commandsMatcher,
-            new Matcher\KeywordsMatcher(),
-            new Matcher\VariablesMatcher(),
-            new Matcher\ConstantsMatcher(),
-            new Matcher\FunctionsMatcher(),
-            new Matcher\ClassNamesMatcher(),
-            new Matcher\ClassMethodsMatcher(),
-            new Matcher\ClassAttributesMatcher(),
-            new Matcher\ObjectMethodsMatcher(),
-            new Matcher\ObjectAttributesMatcher(),
-            new Matcher\MagicMethodsMatcher(),
-            new Matcher\MagicPropertiesMatcher(),
-            new Matcher\ClassMethodDefaultParametersMatcher(),
-            new Matcher\ObjectMethodDefaultParametersMatcher(),
-            new Matcher\FunctionDefaultParametersMatcher(),
-        ];
-
-        return $matchers;
+        return [];
     }
 
     /**
@@ -578,10 +558,6 @@ class Shell extends Application
     public function addMatchers(array $matchers)
     {
         $this->matchers = \array_merge($this->matchers, $matchers);
-
-        if (isset($this->autoCompleter)) {
-            $this->addMatchersToAutoCompleter($matchers);
-        }
 
         if (isset($this->completionEngine)) {
             $this->addLegacyMatchersToCompletionEngine($matchers);
@@ -702,8 +678,8 @@ class Shell extends Application
     private function doInteractiveRun(): int
     {
         if ($this->config->useTabCompletion()) {
-            $this->initializeTabCompletion();
             $this->initializeCompletionEngine();
+            $this->initializeTabCompletion();
         }
 
         $this->readline->readHistory();
@@ -2364,41 +2340,19 @@ class Shell extends Application
         }
 
         $this->autoCompleter = $this->config->getAutoCompleter();
+        if ($this->completionEngine === null) {
+            throw new \LogicException('Completion engine must be initialized before tab completion.');
+        }
 
-        // auto completer needs shell to be linked to configuration because of
-        // the context aware matchers
-        $this->addMatchersToAutoCompleter($this->getDefaultMatchers());
-        $this->addMatchersToAutoCompleter($this->matchers);
-
-        // Standard readline: uses the legacy AutoCompleter
+        $this->autoCompleter->setCompletionEngine($this->completionEngine);
         $this->autoCompleter->activate();
     }
 
     /**
-     * Add matchers to the auto completer, setting context if needed.
-     *
-     * @param array $matchers
-     */
-    private function addMatchersToAutoCompleter(array $matchers)
-    {
-        foreach ($matchers as $matcher) {
-            if ($matcher instanceof ContextAware) {
-                $matcher->setContext($this->context);
-            }
-            $this->autoCompleter->addMatcher($matcher);
-        }
-    }
-
-    /**
-     * Initialize context-aware completion for interactive readline.
+     * Initialize context-aware completion for the active readline frontend.
      */
     private function initializeCompletionEngine(): void
     {
-        $readline = $this->readline;
-        if (!($readline instanceof InteractiveReadlineInterface)) {
-            return;
-        }
-
         $completion = new CompletionEngine($this->context, $this->cleaner);
         $this->completionEngine = $completion;
 
@@ -2408,22 +2362,31 @@ class Shell extends Application
         $this->commandCompletion[] = $commandSource;
         $this->commandCompletion[] = $commandOptionSource;
 
-        $completion->registerDefaultSources([
+        $sources = [
             $commandSource,
             $commandOptionSource,
-            new HistorySource($readline->getHistory()),
-        ]);
+        ];
+
+        if ($this->readline instanceof InteractiveReadlineInterface) {
+            $sources[] = new HistorySource($this->readline->getHistory());
+        }
+
+        $completion->registerDefaultSources($sources);
 
         foreach ($this->pendingCompletionSources as $source) {
             $completion->addSource($source);
         }
         $this->pendingCompletionSources = [];
 
+        $this->addLegacyMatchersToCompletionEngine($this->getDefaultCompletionCompatibilityMatchers());
+
         if (!empty($this->matchers)) {
             $this->addLegacyMatchersToCompletionEngine($this->matchers);
         }
 
-        $readline->setCompletionEngine($completion);
+        if ($this->readline instanceof InteractiveReadlineInterface) {
+            $this->readline->setCompletionEngine($completion);
+        }
     }
 
     /**
@@ -2446,6 +2409,20 @@ class Shell extends Application
 
         // MatcherAdapterSource filters out matchers superseded by new-style sources
         $this->completionEngine->addSource(new MatcherAdapterSource($matchers));
+    }
+
+    /**
+     * Matcher-only built-ins that do not yet have source-based equivalents.
+     *
+     * @return Matcher\AbstractMatcher[]
+     */
+    protected function getDefaultCompletionCompatibilityMatchers(): array
+    {
+        return [
+            new Matcher\ClassMethodDefaultParametersMatcher(),
+            new Matcher\ObjectMethodDefaultParametersMatcher(),
+            new Matcher\FunctionDefaultParametersMatcher(),
+        ];
     }
 
     /**

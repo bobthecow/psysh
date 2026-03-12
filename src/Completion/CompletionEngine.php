@@ -116,7 +116,11 @@ class CompletionEngine
             'cursor' => $request->getCursor(),
         ]);
 
-        $analysis = $this->analyzer->analyze($request->getBuffer(), $request->getCursor());
+        $analysis = $this->analyzer->analyze(
+            $request->getBuffer(),
+            $request->getCursor(),
+            $request->getReadlineInfo()
+        );
         DebugLog::log('Completion', 'ANALYZED', [
             'kinds'    => $analysis->kinds,
             'prefix'   => $analysis->prefix,

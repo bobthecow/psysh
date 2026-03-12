@@ -221,11 +221,45 @@ class MatcherAdapterSourceTest extends TestCase
         $info = $matcher->getLastInfo();
         $this->assertNotEmpty($info);
         $this->assertArrayHasKey('line_buffer', $info);
+        $this->assertArrayHasKey('point', $info);
         $this->assertArrayHasKey('end', $info);
 
         // Should reconstruct the input
         $this->assertSame('$date->format', $info['line_buffer']);
+        $this->assertSame(\strlen('$date->format'), $info['point']);
         $this->assertSame(\strlen('$date->format'), $info['end']);
+    }
+
+    public function testUsesOriginalReadlineInfoWhenAvailable()
+    {
+        $matcher = new InfoCapturingMatcher();
+        $source = new MatcherAdapterSource([$matcher]);
+
+        $analysis = new AnalysisResult(
+            CompletionKind::OBJECT_MEMBER,
+            'format',
+            '$date',
+            [],
+            null,
+            [],
+            '',
+            null,
+            [
+                'line_buffer' => '$date->format trailing text',
+                'point'       => 3,
+                'end'         => 13,
+                'mark'        => 2,
+            ]
+        );
+
+        $source->getCompletions($analysis);
+
+        $this->assertSame([
+            'line_buffer' => '$date->format trailing text',
+            'point'       => 3,
+            'end'         => 13,
+            'mark'        => 2,
+        ], $matcher->getLastInfo());
     }
 
     public function testFiltersWhitespaceTokens()
