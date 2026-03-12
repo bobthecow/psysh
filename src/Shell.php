@@ -36,6 +36,7 @@ use Psy\Readline\LegacyReadline;
 use Psy\Readline\Readline;
 use Psy\Readline\ReadlineAware;
 use Psy\Readline\ShellReadlineInterface;
+use Psy\Shell\PendingInputState;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\Util\Tty;
@@ -75,11 +76,7 @@ class Shell extends Application
     private ?int $originalVerbosity = null;
     private ?ShellReadlineInterface $readline = null;
     private array $inputBuffer;
-    /** @var string|false */
-    private $pendingCode = false;
-    private array $pendingCodeBuffer = [];
-    private bool $pendingCodeBufferOpen = false;
-    private array $pendingCodeStack;
+    private PendingInputState $pendingInput;
     private string $stdoutBuffer;
     private Context $context;
     private array $includes;
@@ -112,7 +109,7 @@ class Shell extends Application
         $this->context = new Context();
         $this->includes = [];
         $this->inputBuffer = [];
-        $this->pendingCodeStack = [];
+        $this->pendingInput = new PendingInputState();
         $this->stdoutBuffer = '';
         $this->loopListeners = $this->getDefaultLoopListeners();
 
@@ -1281,7 +1278,7 @@ class Shell extends Application
      */
     public function hasCode(): bool
     {
-        return !empty($this->pendingCodeBuffer);
+        return $this->pendingInput->hasCode();
     }
 
     /**
@@ -1293,7 +1290,7 @@ class Shell extends Application
      */
     protected function hasValidCode(): bool
     {
-        return $this->hasCode() && !$this->pendingCodeBufferOpen && $this->pendingCode !== false;
+        return $this->pendingInput->hasValidCode();
     }
 
     /**
@@ -1313,10 +1310,11 @@ class Shell extends Application
         }
 
         try {
-            $code = $this->appendPendingCodeLine($code, $silent);
-            $this->pendingCode = $this->cleaner->clean($this->pendingCodeBuffer, $this->config->requireSemicolons());
+            $this->pendingInput->appendLine($code, $silent);
+            $cleanedCode = $this->cleaner->clean($this->pendingInput->getPendingCodeBuffer(), $this->config->requireSemicolons());
+            $this->pendingInput->setPendingCode($cleanedCode);
 
-            if (!$silent && $this->pendingCode !== false) {
+            if (!$silent && $cleanedCode !== false) {
                 $this->suppressReturnValue = $this->shouldSuppressReturnValue();
                 $this->writeCleanerMessages();
             }
@@ -1339,7 +1337,7 @@ class Shell extends Application
             return false;
         }
 
-        $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $this->pendingCodeBuffer));
+        $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $this->pendingInput->getPendingCodeBuffer()));
         [$lastToken, $index] = $this->lastNonCommentToken($tokens);
 
         if ($lastToken !== ';') {
@@ -1397,7 +1395,7 @@ class Shell extends Application
     private function setCode(string $code, bool $silent = false)
     {
         if ($this->hasCode()) {
-            $this->pendingCodeStack[] = [$this->pendingCodeBuffer, $this->pendingCodeBufferOpen, $this->pendingCode];
+            $this->pendingInput->pushCurrentCode();
         }
 
         $this->clearPendingCode();
@@ -1427,7 +1425,7 @@ class Shell extends Application
      */
     public function getCodeBuffer(): array
     {
-        return $this->pendingCodeBuffer;
+        return $this->getPendingCodeBuffer();
     }
 
     /**
@@ -1437,7 +1435,7 @@ class Shell extends Application
      */
     public function getPendingCodeBuffer(): array
     {
-        return $this->pendingCodeBuffer;
+        return $this->pendingInput->getPendingCodeBuffer();
     }
 
     /**
@@ -1585,7 +1583,7 @@ class Shell extends Application
     {
         if ($this->hasValidCode()) {
             $this->addPendingCodeBufferToHistory();
-            $code = $this->pendingCode;
+            $code = $this->pendingInput->getPendingCode();
             $this->popCodeStack();
 
             return $code;
@@ -1599,17 +1597,7 @@ class Shell extends Application
      */
     private function popCodeStack()
     {
-        $this->clearPendingCode();
-
-        if (empty($this->pendingCodeStack)) {
-            return;
-        }
-
-        list($codeBuffer, $codeBufferOpen, $code) = \array_pop($this->pendingCodeStack);
-
-        $this->pendingCodeBuffer = $codeBuffer;
-        $this->pendingCodeBufferOpen = $codeBufferOpen;
-        $this->pendingCode = $code;
+        $this->pendingInput->restorePreviousCode();
     }
 
     /**
@@ -1641,7 +1629,7 @@ class Shell extends Application
      */
     private function addPendingCodeBufferToHistory()
     {
-        $codeBuffer = \array_filter($this->pendingCodeBuffer, fn ($line) => !$line instanceof SilentInput);
+        $codeBuffer = \array_filter($this->pendingInput->getPendingCodeBuffer(), fn ($line) => !$line instanceof SilentInput);
 
         $this->addHistory(\implode("\n", $codeBuffer));
     }
@@ -1651,34 +1639,7 @@ class Shell extends Application
      */
     private function clearPendingCode(): void
     {
-        $this->pendingCodeBuffer = [];
-        $this->pendingCodeBufferOpen = false;
-        $this->pendingCode = false;
-    }
-
-    /**
-     * Append a line to the pending execution buffer.
-     *
-     * Returns the normalized line after handling legacy trailing backslash
-     * continuation used by programmatic callers of addCode().
-     *
-     * @param string $code
-     * @param bool   $silent
-     */
-    private function appendPendingCodeLine(string $code, bool $silent): string
-    {
-        // Programmatic callers can still force pending input continuation via trailing backslash.
-        $trimmed = \rtrim($code);
-        if (\substr($trimmed, -1) === '\\') {
-            $this->pendingCodeBufferOpen = true;
-            $code = \substr($trimmed, 0, -1);
-        } else {
-            $this->pendingCodeBufferOpen = false;
-        }
-
-        $this->pendingCodeBuffer[] = $silent ? new SilentInput($code) : $code;
-
-        return $code;
+        $this->pendingInput->clear();
     }
 
     /**
