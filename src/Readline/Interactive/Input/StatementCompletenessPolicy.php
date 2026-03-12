@@ -12,19 +12,19 @@
 namespace Psy\Readline\Interactive\Input;
 
 use PhpParser\Error;
-use Psy\Readline\Interactive\Helper\TokenHelper;
+use Psy\CodeAnalysis\BufferAnalyzer;
 
 /**
  * Determines whether a buffer is ready to execute as a statement.
  */
 class StatementCompletenessPolicy
 {
-    private ParseSnapshotCache $parseSnapshotCache;
+    private BufferAnalyzer $bufferAnalyzer;
     private bool $requireSemicolons;
 
-    public function __construct(ParseSnapshotCache $parseSnapshotCache, bool $requireSemicolons = false)
+    public function __construct(BufferAnalyzer $bufferAnalyzer, bool $requireSemicolons = false)
     {
-        $this->parseSnapshotCache = $parseSnapshotCache;
+        $this->bufferAnalyzer = $bufferAnalyzer;
         $this->requireSemicolons = $requireSemicolons;
     }
 
@@ -34,21 +34,20 @@ class StatementCompletenessPolicy
             return true;
         }
 
-        $snapshot = $this->parseSnapshotCache->getSnapshot($line);
-        $tokens = $snapshot->getTokens();
-        $lastError = $snapshot->getLastError();
+        $analysis = $this->bufferAnalyzer->analyze($line);
+        $lastError = $analysis->getLastError();
 
         // Control structures like `if (...)` are incomplete in REPL context.
-        if ($this->hasControlStructureWithoutBody($line, $lastError)) {
+        if ($analysis->hasControlStructureWithoutBody()) {
             return false;
         }
 
         if ($lastError === null) {
-            if (!$this->hasBalancedBracketsFromTokens($tokens)) {
+            if (!$analysis->hasBalancedBrackets()) {
                 return false;
             }
 
-            if (TokenHelper::hasTrailingOperator($tokens)) {
+            if ($analysis->hasTrailingOperator()) {
                 return false;
             }
 
@@ -56,7 +55,7 @@ class StatementCompletenessPolicy
         }
 
         if (!$this->requireSemicolons && $this->isEOFError($lastError)) {
-            if ($this->parseSnapshotCache->canBeFixedWithSemicolon($line)) {
+            if ($this->bufferAnalyzer->canBeFixedWithSemicolon($line)) {
                 return true;
             }
         }
@@ -83,8 +82,8 @@ class StatementCompletenessPolicy
             return false;
         }
 
-        $snapshot = $this->parseSnapshotCache->getSnapshot($line);
-        $lastError = $snapshot->getLastError();
+        $analysis = $this->bufferAnalyzer->analyze($line);
+        $lastError = $analysis->getLastError();
 
         if ($lastError === null) {
             return false;
@@ -99,7 +98,7 @@ class StatementCompletenessPolicy
         }
 
         // Control structures without body aren't syntax errors, they're incomplete.
-        if ($this->hasControlStructureWithoutBody($line, $lastError)) {
+        if ($analysis->hasControlStructureWithoutBody()) {
             return false;
         }
 
@@ -108,9 +107,7 @@ class StatementCompletenessPolicy
 
     public function hasBalancedBrackets(string $line): bool
     {
-        $tokens = $this->parseSnapshotCache->getSnapshot($line)->getTokens();
-
-        return $this->hasBalancedBracketsFromTokens($tokens);
+        return $this->bufferAnalyzer->analyze($line)->hasBalancedBrackets();
     }
 
     private function isEOFError(Error $error): bool
@@ -131,64 +128,5 @@ class StatementCompletenessPolicy
 
         return $msg === 'Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE' ||
                \strpos($msg, 'Unterminated string') !== false;
-    }
-
-    private function hasBalancedBracketsFromTokens(array $tokens): bool
-    {
-        $stack = [];
-        $pairs = ['(' => ')', '[' => ']', '{' => '}'];
-
-        foreach ($tokens as $token) {
-            if (\is_array($token)) {
-                continue;
-            }
-
-            if (isset($pairs[$token])) {
-                $stack[] = $token;
-            } elseif (\in_array($token, $pairs, true)) {
-                if (empty($stack)) {
-                    return false;
-                }
-
-                $last = \array_pop($stack);
-                if ($pairs[$last] !== $token) {
-                    return false;
-                }
-            }
-        }
-
-        return empty($stack);
-    }
-
-    private function hasControlStructureWithoutBody(string $line, ?Error $lastError): bool
-    {
-        $trimmed = \rtrim($line);
-
-        if (\preg_match('/\b(if|while|for|foreach|elseif)\s*\(.*\)\s*$/', $trimmed)) {
-            $lastParen = \strrpos($trimmed, ')');
-            if ($lastParen !== false) {
-                $afterParen = \trim(\substr($trimmed, $lastParen + 1));
-                if ($afterParen === '') {
-                    if ($lastError !== null && !$this->isEOFError($lastError)) {
-                        return false;
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-        $isElseAfterBrace = \preg_match('/\}\s*else\s*$/', $trimmed);
-        $isBareElse = \preg_match('/^\s*else\s*$/', $trimmed);
-
-        if ($isElseAfterBrace || $isBareElse) {
-            if ($isBareElse && $lastError !== null && !$this->isEOFError($lastError)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 }

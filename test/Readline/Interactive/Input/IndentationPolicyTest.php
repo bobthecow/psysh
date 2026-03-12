@@ -11,8 +11,8 @@
 
 namespace Psy\Test\Readline\Interactive\Input;
 
+use Psy\CodeAnalysis\BufferAnalyzer;
 use Psy\Readline\Interactive\Input\IndentationPolicy;
-use Psy\Readline\Interactive\Input\ParseSnapshotCache;
 use Psy\Test\TestCase;
 
 class IndentationPolicyTest extends TestCase
@@ -20,7 +20,7 @@ class IndentationPolicyTest extends TestCase
     public function testAddsIndentAfterOpeningBrace(): void
     {
         $policy = new IndentationPolicy();
-        $tokens = (new ParseSnapshotCache())->getSnapshot('if ($x) {')->getTokens();
+        $tokens = (new BufferAnalyzer())->analyze('if ($x) {')->getTokens();
 
         $this->assertSame('    ', $policy->calculateNextLineIndent('if ($x) {', $tokens));
     }
@@ -28,7 +28,7 @@ class IndentationPolicyTest extends TestCase
     public function testAddsIndentAfterControlStructure(): void
     {
         $policy = new IndentationPolicy();
-        $tokens = (new ParseSnapshotCache())->getSnapshot('foreach ($items as $item)')->getTokens();
+        $tokens = (new BufferAnalyzer())->analyze('foreach ($items as $item)')->getTokens();
 
         $this->assertSame('    ', $policy->calculateNextLineIndent('foreach ($items as $item)', $tokens));
     }
@@ -37,7 +37,7 @@ class IndentationPolicyTest extends TestCase
     {
         $policy = new IndentationPolicy();
         $line = '    $result = $a +';
-        $tokens = (new ParseSnapshotCache())->getSnapshot($line)->getTokens();
+        $tokens = (new BufferAnalyzer())->analyze($line)->getTokens();
 
         $this->assertSame('    ', $policy->calculateNextLineIndent($line, $tokens));
     }
@@ -46,7 +46,7 @@ class IndentationPolicyTest extends TestCase
     {
         $policy = new IndentationPolicy();
         $line = 'echo "hello';
-        $tokens = (new ParseSnapshotCache())->getSnapshot($line)->getTokens();
+        $tokens = (new BufferAnalyzer())->analyze($line)->getTokens();
 
         $this->assertSame('', $policy->calculateNextLineIndent($line, $tokens));
     }
@@ -55,7 +55,7 @@ class IndentationPolicyTest extends TestCase
     {
         $policy = new IndentationPolicy();
         $line = '    $x = 1; // set x';
-        $tokens = (new ParseSnapshotCache())->getSnapshot($line)->getTokens();
+        $tokens = (new BufferAnalyzer())->analyze($line)->getTokens();
 
         $this->assertSame('    ', $policy->calculateNextLineIndent($line, $tokens));
     }

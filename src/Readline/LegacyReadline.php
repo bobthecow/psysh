@@ -11,7 +11,8 @@
 
 namespace Psy\Readline;
 
-use Psy\Readline\Interactive\Input\Buffer;
+use Psy\CodeAnalysis\BufferAnalyzer;
+use Psy\Readline\Interactive\Input\StatementCompletenessPolicy;
 use Psy\Shell;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -25,6 +26,8 @@ class LegacyReadline implements ShellReadlineInterface
     private ?OutputInterface $output = null;
     private bool $requireSemicolons = false;
     private ?string $bufferPrompt = null;
+    private BufferAnalyzer $bufferAnalyzer;
+    private StatementCompletenessPolicy $statementCompletenessPolicy;
     private array $buffer = [];
 
     /**
@@ -37,6 +40,8 @@ class LegacyReadline implements ShellReadlineInterface
         }
 
         $this->readline = $readline;
+        $this->bufferAnalyzer = new BufferAnalyzer();
+        $this->statementCompletenessPolicy = new StatementCompletenessPolicy($this->bufferAnalyzer);
     }
 
     public static function isSupported(): bool
@@ -71,12 +76,10 @@ class LegacyReadline implements ShellReadlineInterface
 
     public function readline(?string $prompt = null)
     {
-        $buffer = new Buffer($this->requireSemicolons);
         $lines = $this->buffer;
         if ($lines !== []) {
-            $buffer->setText(\implode("\n", $lines));
-            if ($buffer->isCompleteStatement()) {
-                $text = $buffer->getText();
+            $text = \implode("\n", $lines);
+            if ($this->statementCompletenessPolicy->isCompleteStatement($text)) {
                 $this->clearBuffer();
 
                 return $text;
@@ -108,10 +111,9 @@ class LegacyReadline implements ShellReadlineInterface
             [$line, $keepBufferOpen] = $this->normalizeLine($line);
             $lines[] = $line;
             $this->buffer = $lines;
-            $buffer->setText(\implode("\n", $lines));
+            $text = \implode("\n", $lines);
 
-            if (!$keepBufferOpen && $buffer->isCompleteStatement()) {
-                $text = $buffer->getText();
+            if (!$keepBufferOpen && $this->statementCompletenessPolicy->isCompleteStatement($text)) {
                 $this->clearBuffer();
 
                 return $text;
@@ -132,6 +134,10 @@ class LegacyReadline implements ShellReadlineInterface
     public function setRequireSemicolons(bool $require): void
     {
         $this->requireSemicolons = $require;
+        $this->statementCompletenessPolicy = new StatementCompletenessPolicy(
+            $this->bufferAnalyzer,
+            $this->requireSemicolons
+        );
     }
 
     public function setBufferPrompt(?string $prompt): void
@@ -228,10 +234,7 @@ class LegacyReadline implements ShellReadlineInterface
 
         $code = $this->buffer;
         $code[] = $input;
-        $tokens = @\token_get_all('<?php '.\implode("\n", $code));
-        $last = \array_pop($tokens);
 
-        return $last === '"' || $last === '`' ||
-            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT], true));
+        return $this->bufferAnalyzer->analyze(\implode("\n", $code))->endsInOpenStringOrComment();
     }
 }

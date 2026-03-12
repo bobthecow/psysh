@@ -1681,9 +1681,10 @@ class Shell extends Application
     private function appendPendingCodeLine(string $code, bool $silent): string
     {
         // Programmatic callers can still force pending input continuation via trailing backslash.
-        if (\substr(\rtrim($code), -1) === '\\') {
+        $trimmed = \rtrim($code);
+        if (\substr($trimmed, -1) === '\\') {
             $this->pendingCodeBufferOpen = true;
-            $code = \substr(\rtrim($code), 0, -1);
+            $code = \substr($trimmed, 0, -1);
         } else {
             $this->pendingCodeBufferOpen = false;
         }

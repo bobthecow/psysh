@@ -11,28 +11,28 @@
 
 namespace Psy\Test\Readline\Interactive\Input;
 
-use Psy\Readline\Interactive\Input\ParseSnapshotCache;
+use Psy\CodeAnalysis\BufferAnalyzer;
 use Psy\Readline\Interactive\Input\TokenNavigationPolicy;
 use Psy\Test\TestCase;
 
 class TokenNavigationPolicyTest extends TestCase
 {
     private TokenNavigationPolicy $policy;
-    private ParseSnapshotCache $parseSnapshotCache;
+    private BufferAnalyzer $bufferAnalyzer;
 
     protected function setUp(): void
     {
         $this->policy = new TokenNavigationPolicy();
-        $this->parseSnapshotCache = new ParseSnapshotCache();
+        $this->bufferAnalyzer = new BufferAnalyzer();
     }
 
     public function testFindPreviousTokenSkipsWhitespace(): void
     {
-        $snapshot = $this->parseSnapshotCache->getSnapshot('$foo   ->   bar');
+        $analysis = $this->bufferAnalyzer->analyze('$foo   ->   bar');
 
         $position = $this->policy->findPreviousToken(
-            $snapshot->getTokens(),
-            $snapshot->getTokenPositions(),
+            $analysis->getTokens(),
+            $analysis->getTokenPositions(),
             12
         );
 
@@ -41,11 +41,11 @@ class TokenNavigationPolicyTest extends TestCase
 
     public function testFindNextTokenSkipsWhitespaceAndMovesForward(): void
     {
-        $snapshot = $this->parseSnapshotCache->getSnapshot('$foo   ->   bar');
+        $analysis = $this->bufferAnalyzer->analyze('$foo   ->   bar');
 
         $position = $this->policy->findNextToken(
-            $snapshot->getTokens(),
-            $snapshot->getTokenPositions(),
+            $analysis->getTokens(),
+            $analysis->getTokenPositions(),
             4,
             14
         );
@@ -55,11 +55,11 @@ class TokenNavigationPolicyTest extends TestCase
 
     public function testFindNextTokenFallsBackToLineLength(): void
     {
-        $snapshot = $this->parseSnapshotCache->getSnapshot('$foo');
+        $analysis = $this->bufferAnalyzer->analyze('$foo');
 
         $position = $this->policy->findNextToken(
-            $snapshot->getTokens(),
-            $snapshot->getTokenPositions(),
+            $analysis->getTokens(),
+            $analysis->getTokenPositions(),
             4,
             4
         );
@@ -69,12 +69,12 @@ class TokenNavigationPolicyTest extends TestCase
 
     public function testFindPreviousTokenWithMultibyte(): void
     {
-        $snapshot = $this->parseSnapshotCache->getSnapshot('é; $foo');
+        $analysis = $this->bufferAnalyzer->analyze('é; $foo');
 
         // Cursor at end (7 code points: é, ;, space, $, f, o, o)
         $position = $this->policy->findPreviousToken(
-            $snapshot->getTokens(),
-            $snapshot->getTokenPositions(),
+            $analysis->getTokens(),
+            $analysis->getTokenPositions(),
             7
         );
 
@@ -84,12 +84,12 @@ class TokenNavigationPolicyTest extends TestCase
 
     public function testFindNextTokenWithMultibyte(): void
     {
-        $snapshot = $this->parseSnapshotCache->getSnapshot('é; $foo');
+        $analysis = $this->bufferAnalyzer->analyze('é; $foo');
 
         // Cursor at semicolon (position 1), find next non-whitespace token
         $position = $this->policy->findNextToken(
-            $snapshot->getTokens(),
-            $snapshot->getTokenPositions(),
+            $analysis->getTokens(),
+            $analysis->getTokenPositions(),
             2,
             7
         );
