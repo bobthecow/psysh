@@ -282,6 +282,18 @@ class ConfigCommandTest extends \Psy\Test\TestCase
         $this->assertStringContainsString('Invalid useUnicode value: maybe. Accepted values: on|off', $tester->getDisplay());
     }
 
+    public function testMissingValueIncludesAcceptedValues(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Please specify a value for `semicolonsSuppressReturn`. Accepted values: on|off|double');
+
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute([
+            'action' => 'set',
+            'key'    => 'semicolonsSuppressReturn',
+        ]);
+    }
+
     public function testUnsupportedKeyFailsClearly()
     {
         $tester = new PsyCommandTester($this->command);

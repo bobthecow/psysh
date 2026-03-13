@@ -96,7 +96,7 @@ class ConfigSetCommand extends AbstractConfigCommand
 
         $rawValue = $input->getArgument('value');
         if ($rawValue === null) {
-            throw new \InvalidArgumentException(\sprintf('Please specify a value for `%s`.', $option['name']));
+            throw new \InvalidArgumentException(\sprintf('Please specify a value for `%s`. Accepted values: %s', $option['name'], $this->formatAcceptedValues($option)));
         }
 
         try {
