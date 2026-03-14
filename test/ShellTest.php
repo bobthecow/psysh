@@ -834,6 +834,24 @@ class ShellTest extends TestCase
         $this->assertStringContainsString('ThrowUpException', $code);
     }
 
+    public function testGetInputDoesNotDispatchQueuedCommandsInsideOpenStrings()
+    {
+        $shell = new Shell($this->getConfig());
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $shell->setOutput($output);
+
+        $shell->addCode('echo "');
+        $shell->addInput('help', true);
+        $shell->getInput();
+
+        $this->assertSame(['echo "', 'help'], $shell->getPendingCodeBuffer());
+        $this->assertNull($shell->flushCode());
+
+        \rewind($stream);
+        $this->assertSame('', \stream_get_contents($stream));
+    }
+
     /**
      * @dataProvider notSoBadErrors
      */
@@ -1478,6 +1496,29 @@ class ShellTest extends TestCase
         // execute() returns the eval'd value, not an exit code
         $this->assertSame(2, $shell->execute('1 + 1'));
         $this->assertFalse($config->lastPromptInputInteractive);
+    }
+
+    public function testShellExecuteDoesNotAppendToLegacyContinuationBuffer()
+    {
+        $config = $this->getConfig(['interactiveMode' => Configuration::INTERACTIVE_MODE_FORCED]);
+        $config->setReadline($this->getLegacyPhysicalReadline([]));
+
+        $shell = new Shell($config);
+        $shell->setOutput($this->getOutput());
+        $shell->boot();
+
+        $property = new \ReflectionProperty(Shell::class, 'readline');
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        $readline = $property->getValue($shell);
+        $this->assertInstanceOf(LegacyReadline::class, $readline);
+        $readline->append('if (true) {');
+
+        $this->assertSame(2, $shell->execute('1 + 1', true));
+        $this->assertSame(['if (true) {'], $readline->getBuffer());
+        $this->assertFalse($shell->hasCode());
     }
 
     /**

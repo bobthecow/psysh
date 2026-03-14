@@ -853,7 +853,7 @@ class Shell extends Application
 
             $input = $this->onInput($input);
 
-            if ($this->hasCommand($input)) {
+            if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
                 $this->addHistory($input);
                 $outputPositions = $this->captureOutputStreamPositions();
                 $this->writePhpCommandCollisionHint($input);
@@ -1301,9 +1301,21 @@ class Shell extends Application
      */
     public function addCode(string $code, bool $silent = false)
     {
+        $this->appendCode($code, $silent);
+    }
+
+    /**
+     * Add code to the pending buffer or active legacy continuation buffer.
+     *
+     * @param string $code
+     * @param bool   $silent
+     * @param bool   $allowLegacyBufferAppend
+     */
+    private function appendCode(string $code, bool $silent = false, bool $allowLegacyBufferAppend = true): void
+    {
         $this->boot();
 
-        if ($this->readline instanceof LegacyReadline && $this->readline->hasBuffer()) {
+        if ($allowLegacyBufferAppend && $this->readline instanceof LegacyReadline && $this->readline->hasBuffer()) {
             $this->readline->append($code);
 
             return;
@@ -1381,6 +1393,24 @@ class Shell extends Application
     }
 
     /**
+     * Check whether the pending code buffer plus current input is in an open string or comment.
+     */
+    private function inputInOpenStringOrComment(string $input): bool
+    {
+        if (!$this->hasCode()) {
+            return false;
+        }
+
+        $code = $this->pendingInput->getPendingCodeBuffer();
+        $code[] = $input;
+        $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $code));
+        $last = \array_pop($tokens);
+
+        return $last === '"' || $last === '`' ||
+            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT], true));
+    }
+
+    /**
      * Set the pending code buffer.
      *
      * This is mostly used by `Shell::execute`. Any existing code in the input
@@ -1400,7 +1430,7 @@ class Shell extends Application
 
         $this->clearPendingCode();
         try {
-            $this->addCode($code, $silent);
+            $this->appendCode($code, $silent, false);
         } catch (\Throwable $e) {
             $this->popCodeStack();
 
