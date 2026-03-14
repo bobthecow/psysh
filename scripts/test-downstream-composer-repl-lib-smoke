@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+
+# This file is part of Psy Shell.
+#
+# (c) 2012-2026 Justin Hileman
+#
+# For the full copyright and license information, please view the LICENSE
+# file that was distributed with this source code.
+
+set -euo pipefail
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "Skipping ramsey/composer-repl-lib PTY smoke: Linux util-linux 'script' is required."
+    exit 0
+fi
+
+if ! command -v script >/dev/null 2>&1; then
+    echo "The 'script' command is required for ramsey/composer-repl-lib PTY smoke test."
+    exit 1
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PSYSH_ROOT
+readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
+readonly COMPOSER_REPL_LIB_VERSION="${DOWNSTREAM_COMPOSER_REPL_LIB_VERSION:-dev-main}"
+readonly REPO_CONFIG_JSON="{\"type\":\"path\",\"url\":\"${PSYSH_ROOT}\",\"options\":{\"symlink\":true,\"versions\":{\"psy/psysh\":\"${OVERRIDE_VERSION}\"}}}"
+
+LAST_OUTPUT=''
+LAST_STATUS=0
+
+retry() {
+    local -r attempts="$1"
+    shift
+
+    local try=1
+    until "$@"; do
+        if [[ "${try}" -ge "${attempts}" ]]; then
+            echo "FAILED after ${attempts} attempts: $*" >&2
+            return 1
+        fi
+
+        try=$((try + 1))
+        echo "Retrying (${try}/${attempts}): $*" >&2
+        sleep 2
+    done
+}
+
+normalize_output() {
+    perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g; s/\r//g; s/.\x08//g;'
+}
+
+run_pty() {
+    local input="$1"
+    shift
+
+    local command
+    printf -v command '%q ' "$@"
+    command="${command% }"
+
+    set +e
+    LAST_OUTPUT="$(printf '%b' "${input}" | script -qefc "${command}" /dev/null 2>&1 | normalize_output)"
+    LAST_STATUS=$?
+    set -e
+}
+
+assert_status() {
+    local expected="$1"
+    if [[ "${LAST_STATUS}" -ne "${expected}" ]]; then
+        echo "Expected exit status ${expected}, got ${LAST_STATUS}."
+        echo
+        echo "${LAST_OUTPUT}"
+        return 1
+    fi
+}
+
+assert_contains() {
+    local needle="$1"
+    if [[ "${LAST_OUTPUT}" != *"${needle}"* ]]; then
+        echo "Missing expected output: ${needle}"
+        echo
+        echo "${LAST_OUTPUT}"
+        return 1
+    fi
+}
+
+TMP_DIR="$(mktemp -d)"
+readonly TMP_DIR
+readonly WORK_DIR="${TMP_DIR}/composer-repl-app"
+readonly HOME_DIR="${TMP_DIR}/home"
+readonly CONFIG_DIR="${HOME_DIR}/.config"
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+mkdir -p "${WORK_DIR}" "${CONFIG_DIR}/psysh"
+export COMPOSER_CACHE_DIR="${COMPOSER_CACHE_DIR:-${TMP_DIR}/composer-cache}"
+mkdir -p "${COMPOSER_CACHE_DIR}"
+
+cat > "${WORK_DIR}/composer.json" <<JSON
+{
+    "name": "downstream/smoke-app",
+    "type": "project",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "ramsey/composer-repl-lib": "${COMPOSER_REPL_LIB_VERSION}"
+    },
+    "repositories": [
+        ${REPO_CONFIG_JSON}
+    ],
+    "extra": {
+        "ramsey/composer-repl": {
+            "includes": [
+                "repl.php"
+            ]
+        }
+    }
+}
+JSON
+
+cat > "${WORK_DIR}/repl.php" <<'PHP'
+<?php
+
+$foo = 'bar';
+PHP
+
+echo "==> ramsey/composer-repl-lib PTY smoke"
+echo "    ramsey/composer-repl-lib: ${COMPOSER_REPL_LIB_VERSION}"
+
+cd "${WORK_DIR}"
+retry 3 composer update --no-interaction --no-progress
+
+run_pty $'ls\n$foo\nt assertSame("bar", $foo);\nhelp phpunit\nexit\n' \
+    env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=dumb PSYSH_TRUST_PROJECT=false \
+    vendor/bin/repl
+
+echo -n "  REPL PTY startup:      "
+assert_status 0 &&
+    assert_contains 'Welcome to the development console (REPL) for downstream/smoke-app.' &&
+    assert_contains 'Variables: $env, $foo, $phpunit' &&
+    assert_contains '= "bar"' &&
+    assert_contains 'Test passed!' &&
+    assert_contains 'Use PHPUnit tests from the development console.' &&
+    echo "PASSED"

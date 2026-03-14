@@ -47,7 +47,7 @@ jobs:
           extensions: curl, dom, json, mbstring, pdo, pdo_sqlite, simplexml, zip
 
       - name: Make downstream runner executable
-        run: chmod +x scripts/test-downstream scripts/test-downstream-laravel-tinker-smoke
+        run: chmod +x scripts/test-downstream scripts/test-downstream-laravel-tinker-smoke scripts/test-downstream-composer-repl-lib-smoke
 
       - name: Run downstream tests
         run: scripts/test-downstream "${DOWNSTREAM_PROJECT}"
@@ -58,4 +58,9 @@ jobs:
       - name: Run laravel/tinker PTY smoke
         if: matrix.project == 'laravel-tinker'
         run: scripts/test-downstream-laravel-tinker-smoke
+        timeout-minutes: 10
+
+      - name: Run ramsey/composer-repl-lib PTY smoke
+        if: matrix.project == 'composer-repl-lib'
+        run: scripts/test-downstream-composer-repl-lib-smoke
         timeout-minutes: 10
