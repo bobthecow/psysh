@@ -11,21 +11,27 @@
 
 namespace Psy\Test\Fixtures;
 
-use Psy\Configuration;
 use Psy\Shell;
 
 class FakeShell extends Shell
 {
     public $matchers;
 
-    public function __construct(?Configuration $config = null)
+    public function __construct()
     {
-        // Do something (silly) with $config for phpstan's sake.
-        $config = null;
     }
 
     public function addMatchers(array $matchers)
     {
-        $this->matchers = $matchers;
+        $matchers = $this->deduplicateObjects($matchers, $this->matchers ?? []);
+        $this->matchers = \array_merge($this->matchers ?? [], $matchers);
+    }
+
+    public function addCommands(array $commands): void
+    {
+    }
+
+    public function addCompletionSources(array $sources)
+    {
     }
 }

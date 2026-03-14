@@ -226,6 +226,21 @@ class ShellTest extends TestCase
         $this->assertSame([$matcher], $shell->matchers);
     }
 
+    public function testReattachingConfigDoesNotReregisterMatchers()
+    {
+        $shell = new FakeShell();
+        $matcher = new ClassMethodsMatcher();
+
+        $config = $this->getConfig([
+            'matchers' => [$matcher],
+        ]);
+
+        $config->setShell($shell);
+        $config->setShell($shell);
+
+        $this->assertSame([$matcher], $shell->matchers);
+    }
+
     public function testCompletionSourcesViaConfigQueueUntilCompletionEngineInitialization()
     {
         $source = new class() implements \Psy\Completion\Source\SourceInterface {

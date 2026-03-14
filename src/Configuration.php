@@ -136,7 +136,10 @@ class Configuration
     private bool $useBracketedPaste = false;
     private bool $hasPcntl;
     private ?bool $usePcntl = null;
-    private array $newCommands = [];
+    private array $commands = [];
+    private array $matchers = [];
+    /** @var Completion\Source\SourceInterface[] */
+    private array $completionSources = [];
     private ?bool $pipedInput = null;
     private ?bool $pipedOutput = null;
     private bool $rawOutput = false;
@@ -148,8 +151,6 @@ class Configuration
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
     private bool $useOsc52Clipboard = false;
-    private array $newMatchers = [];
-    private array $newCompletionSources = [];
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
@@ -1992,21 +1993,9 @@ class Configuration
      */
     public function addMatchers(array $matchers)
     {
-        $this->newMatchers = \array_merge($this->newMatchers, $matchers);
+        $this->matchers = \array_merge($this->matchers, $matchers);
         if (isset($this->shell)) {
-            $this->doAddMatchers();
-        }
-    }
-
-    /**
-     * Internal method for adding tab completion matchers. This will set any new
-     * matchers once a Shell is available.
-     */
-    private function doAddMatchers()
-    {
-        if (!empty($this->newMatchers)) {
-            $this->shell->addMatchers($this->newMatchers);
-            $this->newMatchers = [];
+            $this->syncShellExtensions();
         }
     }
 
@@ -2019,21 +2008,9 @@ class Configuration
      */
     public function addCompletionSources(array $sources)
     {
-        $this->newCompletionSources = \array_merge($this->newCompletionSources, $sources);
+        $this->completionSources = \array_merge($this->completionSources, $sources);
         if (isset($this->shell)) {
-            $this->doAddCompletionSources();
-        }
-    }
-
-    /**
-     * Internal method for adding completion sources. This will set any new
-     * sources once a Shell is available.
-     */
-    private function doAddCompletionSources()
-    {
-        if (!empty($this->newCompletionSources)) {
-            $this->shell->addCompletionSources($this->newCompletionSources);
-            $this->newCompletionSources = [];
+            $this->syncShellExtensions();
         }
     }
 
@@ -2416,22 +2393,22 @@ class Configuration
      */
     public function addCommands(array $commands)
     {
-        $this->newCommands = \array_merge($this->newCommands, $commands);
+        $this->commands = \array_merge($this->commands, $commands);
         if (isset($this->shell)) {
-            $this->doAddCommands();
+            $this->syncShellExtensions();
         }
     }
 
     /**
-     * Internal method for adding commands. This will set any new commands once
-     * a Shell is available.
+     * Sync configuration-driven extensions into the active shell.
+     *
+     * The shell handles deduplication, so we can safely forward everything.
      */
-    private function doAddCommands()
+    private function syncShellExtensions(): void
     {
-        if (!empty($this->newCommands)) {
-            $this->shell->addCommands($this->newCommands);
-            $this->newCommands = [];
-        }
+        $this->shell->addCommands($this->commands);
+        $this->shell->addMatchers($this->matchers);
+        $this->shell->addCompletionSources($this->completionSources);
     }
 
     /**
@@ -2442,9 +2419,7 @@ class Configuration
     public function setShell(Shell $shell)
     {
         $this->shell = $shell;
-        $this->doAddCommands();
-        $this->doAddMatchers();
-        $this->doAddCompletionSources();
+        $this->syncShellExtensions();
 
         // Configure SignatureFormatter for hyperlinks
         SignatureFormatter::setManual($this->getManual());

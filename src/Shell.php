@@ -557,6 +557,11 @@ class Shell extends Application
      */
     public function addMatchers(array $matchers)
     {
+        $matchers = $this->deduplicateObjects($matchers, $this->matchers);
+        if ($matchers === []) {
+            return;
+        }
+
         $this->matchers = \array_merge($this->matchers, $matchers);
 
         if (isset($this->completionEngine)) {
@@ -585,6 +590,12 @@ class Shell extends Application
      */
     public function addCompletionSources(array $sources)
     {
+        $existing = isset($this->completionEngine) ? [] : $this->pendingCompletionSources;
+        $sources = $this->deduplicateObjects($sources, $existing);
+        if ($sources === []) {
+            return;
+        }
+
         if (!isset($this->completionEngine)) {
             $this->pendingCompletionSources = \array_merge($this->pendingCompletionSources, $sources);
 
@@ -2387,6 +2398,24 @@ class Shell extends Application
         if ($this->readline instanceof InteractiveReadlineInterface) {
             $this->readline->setCompletionEngine($completion);
         }
+    }
+
+    /**
+     * Filter out objects already present in an existing array.
+     */
+    protected function deduplicateObjects(array $new, array $existing): array
+    {
+        $seen = [];
+        foreach ($existing as $item) {
+            if (\is_object($item)) {
+                $seen[\spl_object_id($item)] = true;
+            }
+        }
+
+        return \array_values(\array_filter(
+            $new,
+            fn ($item) => !\is_object($item) || !isset($seen[\spl_object_id($item)])
+        ));
     }
 
     /**
