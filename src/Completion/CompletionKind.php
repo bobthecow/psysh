@@ -67,5 +67,5 @@ class CompletionKind
     public const TYPE_NAME = self::CLASS_NAME | self::INTERFACE_NAME;                                  // Type hints, return types
     public const CLASS_LIKE = self::CLASS_NAME | self::INTERFACE_NAME | self::TRAIT_NAME;              // Any class-like structure
     public const CALLABLE = self::FUNCTION_NAME | self::CLASS_NAME;
-    public const SYMBOL = self::FUNCTION_NAME | self::CLASS_NAME | self::CONSTANT;
+    public const SYMBOL = self::FUNCTION_NAME | self::CLASS_LIKE | self::CONSTANT;
 }

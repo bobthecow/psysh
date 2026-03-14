@@ -15,6 +15,7 @@ use Psy\Completion\AnalysisResult;
 use Psy\Completion\CompletionKind;
 use Psy\Completion\Source\CatalogSource;
 use Psy\Completion\SymbolCatalog;
+use Psy\Context;
 use Psy\Test\TestCase;
 
 class CatalogSourceTest extends TestCase
@@ -247,5 +248,17 @@ class CatalogSourceTest extends TestCase
         $analysis = new AnalysisResult(CompletionKind::ATTRIBUTE_NAME, 'TestCatalog');
 
         $this->assertContains('TestCatalogCustomAttribute', $source->getCompletions($analysis));
+    }
+
+    public function testClassSourceReturnsFullyQualifiedNamesForNamespacedPrefix()
+    {
+        \class_exists(Context::class);
+
+        $source = $this->makeSource(CompletionKind::CLASS_NAME, 'getClasses');
+        $analysis = new AnalysisResult(CompletionKind::CLASS_NAME, 'Psy\\C');
+
+        $completions = $source->getCompletions($analysis);
+
+        $this->assertContains('Psy\\Context', $completions);
     }
 }

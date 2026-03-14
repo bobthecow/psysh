@@ -59,14 +59,18 @@ class ContextAnalyzer
         $inputToCursor = \mb_substr($input, 0, $cursor);
         $cursorAtEnd = ($cursor >= \mb_strlen($input));
         $commandAnalysis = $this->analyzeCommandInput($inputToCursor, $cursorAtEnd);
+        $parsedAnalysis = $this->tryParse($inputToCursor, $cursorAtEnd);
+        $partialAnalysis = $this->analyzePartialInput($inputToCursor, $cursorAtEnd);
 
-        $analysis = $this->tryParse($inputToCursor, $cursorAtEnd)
-            ?? $this->analyzePartialInput($inputToCursor, $cursorAtEnd);
+        $analysis = $parsedAnalysis ?? $partialAnalysis;
+        if ($this->shouldPreferPartialAnalysis($parsedAnalysis, $partialAnalysis)) {
+            $analysis = $partialAnalysis;
+        }
 
         if ($commandAnalysis !== null) {
             if ($commandAnalysis->kinds === CompletionKind::COMMAND_OPTION) {
                 $analysis = $commandAnalysis;
-            } elseif (($analysis->kinds & CompletionKind::SYMBOL) !== 0 || $analysis->kinds === CompletionKind::UNKNOWN) {
+            } elseif ($analysis->kinds === CompletionKind::UNKNOWN || ($commandAnalysis->kinds & CompletionKind::COMMAND) !== 0) {
                 $analysis = $commandAnalysis;
             }
         }
@@ -196,6 +200,11 @@ class ContextAnalyzer
         $trimmed = \rtrim($input);
         $hasTrailingSpace = $cursorAtEnd && $input !== $trimmed;
 
+        // new or new <partial>, including bare "new " before any class name.
+        if (\preg_match('/\bnew\s+([\w\\\\]*)$/i', $input, $matches)) {
+            return new AnalysisResult(CompletionKind::CLASS_NAME, $matches[1]);
+        }
+
         // Statement start after semicolon/brace: keywords but NOT commands
         if (\preg_match('/^.*[;\{\}]\s*(\w+)$/', $trimmed, $matches)) {
             if (!\preg_match('/(?:->|\?->)\w*$/', $trimmed) && !\preg_match('/::\w*$/', $trimmed)) {
@@ -203,16 +212,18 @@ class ContextAnalyzer
                     return new AnalysisResult(CompletionKind::UNKNOWN, '');
                 }
 
-                return new AnalysisResult(
-                    CompletionKind::KEYWORD | CompletionKind::SYMBOL,
-                    $matches[1]
-                );
+                return new AnalysisResult(CompletionKind::KEYWORD | CompletionKind::SYMBOL, $matches[1]);
             }
         }
 
         // $foo-> or $foo->bar or $foo?->bar
         if (\preg_match('/(\$\w+)(?:->|\?->)([\w]*)$/', $trimmed, $matches)) {
             return new AnalysisResult(CompletionKind::OBJECT_MEMBER, $matches[2], $matches[1]);
+        }
+
+        // Bare namespaced prefixes like "Psy\" should offer namespace and symbol members.
+        if (\preg_match('/([\w\\\\]*\\\\)$/', $trimmed, $matches)) {
+            return new AnalysisResult(CompletionKind::SYMBOL | CompletionKind::NAMESPACE, $matches[1]);
         }
 
         // Foo::$bar or Foo::$b
@@ -228,11 +239,6 @@ class ContextAnalyzer
         // $ or $f
         if (\preg_match('/\$(\w*)$/', $trimmed, $matches)) {
             return new AnalysisResult(CompletionKind::VARIABLE, $matches[1]);
-        }
-
-        // new or new F
-        if (\preg_match('/\bnew\s+([\w\\\\]*)$/i', $trimmed, $matches)) {
-            return new AnalysisResult(CompletionKind::CLASS_NAME, $matches[1]);
         }
 
         // Partial identifier at end
@@ -275,6 +281,24 @@ class ContextAnalyzer
         }
 
         return null;
+    }
+
+    /**
+     * Prefer partial analysis only for known incomplete-expression contexts.
+     */
+    private function shouldPreferPartialAnalysis(?AnalysisResult $parsedAnalysis, AnalysisResult $partialAnalysis): bool
+    {
+        if ($parsedAnalysis === null || $parsedAnalysis->kinds !== CompletionKind::UNKNOWN) {
+            return false;
+        }
+
+        return \in_array($partialAnalysis->kinds, [
+            CompletionKind::VARIABLE,
+            CompletionKind::OBJECT_MEMBER,
+            CompletionKind::STATIC_MEMBER,
+            CompletionKind::CLASS_NAME,
+            CompletionKind::SYMBOL | CompletionKind::NAMESPACE,
+        ], true);
     }
 
     /**

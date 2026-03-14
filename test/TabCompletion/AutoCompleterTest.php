@@ -140,31 +140,6 @@ class AutoCompleterTest extends \Psy\Test\TestCase
     }
 
     /**
-     * Tracks known CompletionEngine gaps against the legacy matcher path for
-     * standard readline. Remove the skip once the refactor reaches parity.
-     *
-     * @param string $line
-     * @param array  $mustContain
-     * @param array  $mustNotContain
-     *
-     * @dataProvider legacyParityInput
-     */
-    public function testKnownLegacyParityGaps($line, $mustContain, $mustNotContain)
-    {
-        $this->markTestSkipped('CompletionEngine parity gaps are tracked here while refactor is in progress.');
-
-        $code = $this->completeWithEngine($line);
-
-        foreach ($mustContain as $mc) {
-            $this->assertContains($mc, $code);
-        }
-
-        foreach ($mustNotContain as $mnc) {
-            $this->assertNotContains($mnc, $code);
-        }
-    }
-
-    /**
      * @param string $line
      * @param array  $mustContain
      * @param array  $mustNotContain
@@ -184,38 +159,19 @@ class AutoCompleterTest extends \Psy\Test\TestCase
         }
     }
 
-    /**
-     * @return array
-     */
-    public function legacyParityInput()
+    public function testNumericLiteralDoesNotProduceSymbolCompletions()
     {
-        return [
-            'interface symbol completion' => [
-                'DateT',
-                ['DateTimeInterface'],
-                [],
-            ],
-            'unqualified constructor target' => [
-                'new ',
-                ['stdClass', Context::class, Configuration::class],
-                ['require', 'array_search', 'T_OPEN_TAG', '$foo'],
-            ],
-            'qualified constructor target' => [
-                'new Psy\\C',
-                ['Context'],
-                ['CASE_LOWER'],
-            ],
-            'variable after infix expression' => [
-                '6 + $b',
-                ['bar'],
-                [],
-            ],
-            'namespace member suggestions' => [
-                'Psy\\',
-                ['Context', 'TabCompletion\\Matcher\\AbstractMatcher'],
-                ['require', 'array_search'],
-            ],
-        ];
+        $this->assertSame([''], $this->completeWithEngine('1'));
+        $this->assertSame([''], $this->completeWithEngine('6 + 1'));
+        $this->assertSame([''], $this->completeWithEngine('echo 1'));
+    }
+
+    public function testBareNamespacedPrefixIncludesNamespacedFunctions()
+    {
+        $code = $this->completeWithEngine('psy\\');
+
+        $this->assertContains('psy\\sh', $code);
+        $this->assertContains('psy\\debug', $code);
     }
 
     /**
@@ -227,16 +183,20 @@ class AutoCompleterTest extends \Psy\Test\TestCase
             // input, must contain, must not contain
             ['T_OPE', ['T_OPEN_TAG'], []],
             ['stdCla', ['stdClass'], []],
-            ['DateT', ['DateTime', 'DateTimeImmutable', 'DateTimeZone'], []],
+            ['DateT', ['DateTime', 'DateTimeImmutable', 'DateTimeInterface', 'DateTimeZone'], []],
             ['new s', ['stdClass'], []],
+            ['new ', ['stdClass', Context::class, Configuration::class], ['require', 'array_search', 'T_OPEN_TAG', '$foo']],
+            ['new Psy\\C', ['Psy\\Context'], ['CASE_LOWER']],
             ['array_', ['array_search', 'array_map', 'array_merge'], []],
             ['$bar->', ['load'], []],
             ['$b', ['bar'], []],
+            ['6 + $b', ['bar'], []],
             ['$f', ['foo'], []],
             ['ls ', [], ['ls']],
             ['sho', ['show'], []],
             ['12 + clone $', ['foo'], []],
             ['$', ['foo', 'bar'], ['require', 'array_search', 'T_OPEN_TAG']],
+            ['Psy\\', ['Psy\\Context', 'Psy\\TabCompletion\\Matcher\\AbstractMatcher'], ['require', 'array_search']],
             [
                 'Psy\Test\Fixtures\TabCompletion\StaticSample::CO',
                 ['CONSTANT_VALUE'],
@@ -257,6 +217,9 @@ class AutoCompleterTest extends \Psy\Test\TestCase
 
     private function completeWithEngine(string $line): array
     {
+        \class_exists(Configuration::class);
+        \function_exists('psy\\sh');
+
         $context = new Context();
 
         $commands = [

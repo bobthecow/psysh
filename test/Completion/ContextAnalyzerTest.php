@@ -258,6 +258,12 @@ class ContextAnalyzerTest extends TestCase
             ['$', 1, CompletionKind::VARIABLE],
             ['$foo->', 6, CompletionKind::OBJECT_MEMBER],
             ['Foo::', 5, CompletionKind::STATIC_MEMBER],
+            ['new ', 4, CompletionKind::CLASS_NAME],
+            ['6 + $b', 6, CompletionKind::VARIABLE, 'b'],
+            ['Psy\\', 4, CompletionKind::SYMBOL | CompletionKind::NAMESPACE, 'Psy\\'],
+            ['1', 1, CompletionKind::UNKNOWN],
+            ['6 + 1', 5, CompletionKind::UNKNOWN],
+            ['echo 1', 6, CompletionKind::UNKNOWN],
 
             // With whitespace
             ['$foo -> bar', 12, CompletionKind::OBJECT_MEMBER, 'bar'],
