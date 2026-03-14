@@ -7,7 +7,7 @@ readonly SCRIPT_DIR
 PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 readonly PSYSH_ROOT
 readonly DEFAULT_PROJECTS_TIER1=("laravel-tinker" "laravel-web-tinker")
-readonly DEFAULT_PROJECTS_ALL=("laravel-tinker" "laravel-web-tinker" "drush" "codeception" "magerun2" "cakephp-repl")
+readonly DEFAULT_PROJECTS_ALL=("laravel-tinker" "laravel-web-tinker" "drush" "codeception" "magerun2" "cakephp-repl" "composer-repl-lib" "bdf-prime-shell")
 readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
 
 usage() {
@@ -25,6 +25,8 @@ Project IDs:
   codeception
   magerun2
   cakephp-repl
+  composer-repl-lib
+  bdf-prime-shell
 USAGE
 }
 
@@ -49,37 +51,59 @@ retry() {
     done
 }
 
+version_lt() {
+    [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -n 1)" != "$2" ]]
+}
+
 resolve_project() {
     case "$1" in
         laravel-tinker)
             repo="laravel/tinker"
             ref="2.x"
             test_command="vendor/bin/phpunit"
+            min_php="7.2"
             ;;
         laravel-web-tinker)
             repo="spatie/laravel-web-tinker"
             ref="main"
             test_command="composer test"
+            min_php="8.2"
             ;;
         drush)
             repo="drush-ops/drush"
             ref="14.x"
             test_command="composer unit"
+            min_php="8.3"
             ;;
         codeception)
             repo="Codeception/Codeception"
             ref="main"
             test_command="./codecept run unit"
+            min_php="8.2"
             ;;
         magerun2)
             repo="netz98/n98-magerun2"
             ref="develop"
             test_command="vendor/bin/phpunit"
+            min_php="8.0"
             ;;
         cakephp-repl)
             repo="cakephp/repl"
             ref="master"
             test_command="vendor/bin/phpunit"
+            min_php="7.2"
+            ;;
+        composer-repl-lib)
+            repo="ramsey/composer-repl-lib"
+            ref="main"
+            test_command="vendor/bin/phpunit"
+            min_php="8.1"
+            ;;
+        bdf-prime-shell)
+            repo="b2pweb/bdf-prime-shell"
+            ref="master"
+            test_command="vendor/bin/phpunit"
+            min_php="7.1"
             ;;
         *)
             echo "Unknown project ID: $1" >&2
@@ -90,9 +114,20 @@ resolve_project() {
 
 run_one_project() {
     local -r project="$1"
-    local repo ref test_command
+    local repo ref test_command min_php
 
     resolve_project "${project}"
+
+    local -r current_php="$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')"
+    if version_lt "${current_php}" "${min_php}"; then
+        echo
+        echo "==> ${project}"
+        echo "    repo: ${repo} (${ref})"
+        echo "    test: ${test_command}"
+        echo "    skipped: requires PHP >= ${min_php}, current PHP is ${current_php}"
+
+        return 0
+    fi
 
     local -r psysh_path="${PSYSH_PATH:-${PSYSH_ROOT}}"
     local -r tmp_dir="$(mktemp -d)"

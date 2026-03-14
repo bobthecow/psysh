@@ -29,6 +29,10 @@ jobs:
             php: '8.2'
           - project: drush
             php: '8.3'
+          - project: composer-repl-lib
+            php: '8.1'
+          - project: bdf-prime-shell
+            php: '8.2'
 
     steps:
       - name: Check out code
