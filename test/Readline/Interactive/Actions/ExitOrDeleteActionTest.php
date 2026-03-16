@@ -37,7 +37,13 @@ class ExitOrDeleteActionTest extends TestCase
     {
         $buffer = new Buffer();
         $terminal = $this->createMock(Terminal::class);
-        $readline = $this->createMock(Readline::class);
+        $readline = $this->getMockBuilder(Readline::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['escapeCurrentFrameForAbort'])
+            ->getMock();
+        $readline->expects($this->once())
+            ->method('escapeCurrentFrameForAbort')
+            ->with($buffer);
 
         $action = $this->createCtrlDAction();
 

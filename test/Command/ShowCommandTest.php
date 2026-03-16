@@ -153,11 +153,12 @@ class ShowCommandTest extends \Psy\Test\TestCase
         $output = $tester->getDisplay();
 
         $this->assertStringContainsString('"line" => 44', $output);
-        $this->assertStringStartsWith("\nTest exception\n", $output);
+        $this->assertStringStartsWith("Test exception\n", $output);
         $this->assertStringContainsString("\n\n--\n\n", $output);
         $this->assertStringContainsString('level 1</strong> of backtrace', $output);
         $this->assertStringContainsString("):\n\n", $output);
-        $this->assertStringEndsWith("\n\n", $output);
+        $this->assertStringEndsWith("\n", $output);
+        $this->assertNotSame("\n\n", \substr($output, -2));
     }
 
     public function testShowExceptionContextWithIndex()

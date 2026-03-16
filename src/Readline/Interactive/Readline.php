@@ -286,7 +286,7 @@ class Readline
                 $key = $this->inputQueue->read();
 
                 if ($key->isEof()) {
-                    $this->terminal->write("\n");
+                    $this->escapeCurrentFrameForAbort($buffer);
 
                     return false;
                 }
@@ -459,6 +459,23 @@ class Readline
     public function setLastSubmitEscapeRows(int $rows): void
     {
         $this->lastSubmitEscapeRows = $rows;
+    }
+
+    /**
+     * Escape below the current frame before aborting back to Shell.php.
+     *
+     * Shell.php writes the final newline after readline returns false or a
+     * BreakException bubbles up, so only escape the remaining frame rows here.
+     */
+    public function escapeCurrentFrameForAbort(Buffer $buffer): void
+    {
+        $lineCount = \substr_count($buffer->getText(), "\n") + 1;
+        $remainingInputLines = $lineCount - $buffer->getCurrentLineNumber();
+        $escapeRows = \max(0, $remainingInputLines + $this->getInputFrameOuterRowCount() - 1);
+
+        if ($escapeRows > 0) {
+            $this->terminal->write(\str_repeat("\n", $escapeRows));
+        }
     }
 
     /**

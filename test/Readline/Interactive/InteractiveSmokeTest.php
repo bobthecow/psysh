@@ -179,13 +179,22 @@ class InteractiveSmokeTest extends TestCase
 
     public function testReadlineReturnsFalseOnEof(): void
     {
-        $terminal = $this->createTerminalWithKeys([
-            new Key('', Key::TYPE_EOF),
-        ]);
+        $writes = [];
+        $terminal = $this->createMock(Terminal::class);
+        $terminal->method('readKey')->willReturn(new Key('', Key::TYPE_EOF));
+        $terminal->method('getWidth')->willReturn(80);
+        $terminal->method('getFormatter')->willReturn(new OutputFormatter());
+        $terminal->method('format')->willReturnCallback(static function (string $text): string {
+            return $text;
+        });
+        $terminal->method('write')->willReturnCallback(function (string $text) use (&$writes): void {
+            $writes[] = $text;
+        });
 
         $readline = new Readline($terminal);
 
         $this->assertFalse($readline->readline());
+        $this->assertContains("\n\n", $writes);
     }
 
     public function testUpArrowMovesWithinSoftWrappedLineBeforeHistory(): void

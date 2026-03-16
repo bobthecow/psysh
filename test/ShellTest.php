@@ -15,6 +15,7 @@ use Psy\CodeCleaner\NoReturnValue;
 use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ParseErrorException;
+use Psy\Output\ShellOutput;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Readline\LegacyReadline;
@@ -33,6 +34,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 class ShellTest extends TestCase
 {
     private $streams = [];
+    private static ?\ReflectionProperty $streamOutputStreamProperty = null;
 
     /**
      * @after
@@ -123,6 +125,63 @@ class ShellTest extends TestCase
         \sort($actual);
 
         $this->assertSame($expected, $actual, $message);
+    }
+
+    /**
+     * Rebind a StreamOutput instance to a test stream.
+     *
+     * @param resource $stream
+     */
+    private function setStreamOutputStream(StreamOutput $output, $stream): void
+    {
+        if (self::$streamOutputStreamProperty === null) {
+            $property = new \ReflectionProperty(StreamOutput::class, 'stream');
+            if (\PHP_VERSION_ID < 80100) {
+                $property->setAccessible(true);
+            }
+            self::$streamOutputStreamProperty = $property;
+        }
+
+        self::$streamOutputStreamProperty->setValue($output, $stream);
+    }
+
+    /**
+     * Create a ShellOutput backed by seekable memory streams.
+     *
+     * @return array{ShellOutput, resource, resource}
+     */
+    private function createTestShellOutput(): array
+    {
+        $stream = \fopen('php://memory', 'w+');
+        $errorStream = \fopen('php://memory', 'w+');
+        $this->streams[] = $stream;
+        $this->streams[] = $errorStream;
+
+        $output = new class($stream, $errorStream) extends ShellOutput {
+            private $mainStream;
+            private StreamOutput $errorOutput;
+
+            public function __construct($mainStream, $errorStream)
+            {
+                $this->mainStream = $mainStream;
+                $this->errorOutput = new StreamOutput($errorStream, StreamOutput::VERBOSITY_NORMAL, false);
+                parent::__construct(StreamOutput::VERBOSITY_NORMAL, false);
+            }
+
+            public function getStream()
+            {
+                return $this->mainStream;
+            }
+
+            public function getErrorOutput(): OutputInterface
+            {
+                return $this->errorOutput;
+            }
+        };
+        $this->setStreamOutputStream($output, $stream);
+        $output->setErrorOutput(new StreamOutput($errorStream, StreamOutput::VERBOSITY_NORMAL, false));
+
+        return [$output, $stream, $errorStream];
     }
 
     public function testNonInteractiveDoesNotUpdateContext()
@@ -763,6 +822,98 @@ class ShellTest extends TestCase
         $this->assertSame([false], $readline->outputWrittenCalls);
     }
 
+    public function testGetInputMarksOutputWrittenForShellOutputEvenWhenStreamPositionDoesNotAdvance()
+    {
+        $command = new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $output->writeln('visible command output');
+
+                return 0;
+            }
+        };
+
+        $readline = $this->runShellOutputWriteTest($command);
+
+        $this->assertSame([true], $readline->outputWrittenCalls);
+    }
+
+    public function testGetInputMarksOutputWrittenForShellOutputErrorStreamWrites()
+    {
+        $command = new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                if (!$output instanceof \Symfony\Component\Console\Output\ConsoleOutputInterface) {
+                    throw new \RuntimeException('Expected console output');
+                }
+
+                $output->getErrorOutput()->writeln('visible error output');
+
+                return 0;
+            }
+        };
+
+        $readline = $this->runShellOutputWriteTest($command);
+
+        $this->assertSame([true], $readline->outputWrittenCalls);
+    }
+
+    public function testGetInputIgnoresSuppressedShellOutputWrites()
+    {
+        $command = new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $output->writeln('hidden command output', OutputInterface::VERBOSITY_VERBOSE);
+
+                return 0;
+            }
+        };
+
+        $readline = $this->runShellOutputWriteTest($command);
+
+        $this->assertSame([false], $readline->outputWrittenCalls);
+    }
+
+    public function testGetInputMarksOutputWrittenForDirectShellOutputStreamWrites()
+    {
+        $command = new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                if (!$output instanceof StreamOutput) {
+                    throw new \RuntimeException('Expected stream output');
+                }
+
+                \fwrite($output->getStream(), 'visible direct stream output');
+
+                return 0;
+            }
+        };
+
+        $readline = $this->runShellOutputWriteTest($command);
+
+        $this->assertSame([true], $readline->outputWrittenCalls);
+    }
+
     /**
      * @group isolation-fail
      */
@@ -1074,6 +1225,19 @@ class ShellTest extends TestCase
         $this->assertSame('', \stream_get_contents($stream));
     }
 
+    public function testWriteReturnValueWithShellOutputDoesNotAddExtraBlankLine()
+    {
+        [$output, $stream] = $this->createTestShellOutput();
+
+        $shell = new Shell($this->getConfig(['theme' => 'modern']));
+        $shell->setOutput($output);
+
+        $shell->writeReturnValue(2);
+        \rewind($stream);
+        $stdout = \preg_replace('/\e\\[[\d;]*m/', '', \stream_get_contents($stream));
+        $this->assertSame("= 2\n", $stdout);
+    }
+
     public function getReturnValues()
     {
         return [
@@ -1366,6 +1530,21 @@ class ShellTest extends TestCase
         $this->assertGreaterThan(4, $lineCount); // /shrug
     }
 
+    public function testCompactVerboseExceptionDoesNotAddTrailingSpacer()
+    {
+        $output = $this->getOutput();
+        $output->setVerbosity(StreamOutput::VERBOSITY_VERBOSE);
+        $stream = $output->getStream();
+        $shell = new Shell($this->getConfig(['theme' => 'compact']));
+        $shell->setOutput($output);
+
+        $shell->writeException(new \Exception('compact trace'));
+        \rewind($stream);
+        $stdout = \stream_get_contents($stream);
+
+        $this->assertNotSame("\n\n", \substr($stdout, -2));
+    }
+
     public function getRenderedExceptions()
     {
         return [[
@@ -1437,9 +1616,9 @@ class ShellTest extends TestCase
     {
         return [
             ['compact', new BreakException('break'), " INFO  break.\n"],
-            ['modern', new BreakException('break'), "\n   INFO  break.\n\n"],
+            ['modern', new BreakException('break'), "   INFO  break.\n\n"],
             ['compact', new \Exception('foo'), " Exception  foo.\n"],
-            ['modern', new \Exception('bar'), "\n   Exception  bar.\n\n"],
+            ['modern', new \Exception('bar'), "   Exception  bar.\n"],
         ];
     }
 
@@ -1751,6 +1930,27 @@ class ShellTest extends TestCase
         $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
 
         return $output;
+    }
+
+    /**
+     * Set up a Shell with a ShellOutput backed by seekable streams, run a
+     * command, and return the readline instance for assertion.
+     */
+    private function runShellOutputWriteTest(Command $command)
+    {
+        $readline = $this->getInteractiveReadline(['cmd', '42']);
+        $config = $this->getConfig();
+        $config->setReadline($readline);
+
+        $shell = new Shell($config);
+        $shell->add($command);
+
+        [$output] = $this->createTestShellOutput();
+
+        $shell->setOutput($output);
+        $shell->getInput();
+
+        return $readline;
     }
 
     private function getConfig(array $config = [])

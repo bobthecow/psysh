@@ -210,9 +210,12 @@ HELP
         }
 
         $table = $this->getTable($output);
+        $first = true;
 
         foreach ($result as $label => $items) {
-            $output->writeln('');
+            if (!$first) {
+                $output->writeln('');
+            }
             $output->writeln(\sprintf('<strong>%s:</strong>', $label));
 
             $table->setRows([]);
@@ -221,6 +224,7 @@ HELP
             }
 
             $table->render();
+            $first = false;
         }
     }
 

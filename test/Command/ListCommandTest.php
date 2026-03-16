@@ -211,6 +211,16 @@ class ListCommandTest extends TestCase
         $this->assertStringContainsString('stdClass', $tester->getDisplay());
     }
 
+    public function testListLongFormatDoesNotStartWithBlankLine()
+    {
+        $tester = new CommandTester($this->command);
+        $tester->execute(['--long' => true]);
+
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString("<strong>Variables:</strong>\n", $output);
+        $this->assertStringNotContainsString("\n\n<strong>Variables:</strong>\n", $output);
+    }
+
     public function testListInterfaces()
     {
         $tester = new CommandTester($this->command);

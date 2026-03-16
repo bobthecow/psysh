@@ -57,7 +57,37 @@ class WtfCommandTest extends \Psy\Test\TestCase
 
         $this->assertStringContainsString('Test exception', $output);
         $this->assertStringContainsString('"line" => 44', $output);
-        $this->assertStringStartsWith("\nTest exception\n", $output);
+        $this->assertStringStartsWith("Test exception\n", $output);
         $this->assertStringContainsString("\n\n--\n\n", $output);
+    }
+
+    public function testWtfSeparatesChainedExceptions(): void
+    {
+        try {
+            throw new \Exception('Inner exception');
+        } catch (\Exception $inner) {
+            try {
+                throw new \Exception('Outer exception', 0, $inner);
+            } catch (\Exception $outer) {
+                $exception = $outer;
+            }
+        }
+
+        $this->context->setLastException($exception);
+
+        $this->shell->method('formatException')
+            ->willReturnCallback(static fn (\Throwable $e): string => \sprintf('<error>%s</error>', $e->getMessage()));
+        $this->shell->method('formatExceptionDetails')
+            ->willReturn(null);
+
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute(['--all' => true]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertStringContainsString('Outer exception', $output);
+        $this->assertStringContainsString('Inner exception', $output);
+        $this->assertStringContainsString("Outer exception\n\n--\n\n", $output);
+        $this->assertStringContainsString("\n\nInner exception\n\n--\n\n", $output);
     }
 }

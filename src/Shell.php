@@ -613,6 +613,12 @@ class Shell extends Application
     {
         $this->output = $output;
         $this->originalVerbosity = $output->getVerbosity();
+
+        if ($output instanceof ShellOutput) {
+            $output->setWriteListener(function (): void {
+                $this->outputWritten = true;
+            });
+        }
     }
 
     /**
@@ -972,13 +978,14 @@ class Shell extends Application
     }
 
     /**
-     * Capture write positions for output streams we can inspect.
+     * Capture write positions for output streams not covered by explicit write listeners.
      *
      * @return array<int, int>|null
      */
     private function captureOutputStreamPositions(): ?array
     {
         $outputs = [$this->output];
+
         if ($this->output instanceof ConsoleOutput) {
             $outputs[] = $this->output->getErrorOutput();
         }
@@ -1007,11 +1014,12 @@ class Shell extends Application
     }
 
     /**
-     * Determine whether a command wrote output based on stream movement.
+     * Determine whether a command wrote output based on fallback stream movement.
      *
-     * If stream positions are unavailable (for example, on non-seekable TTY
-     * streams), assume output may have been written to avoid false "no output"
-     * frame continuation.
+     * This covers outputs that don't report writes explicitly, such as plain
+     * StreamOutput instances and stderr writes routed around ShellOutput.
+     * If stream positions are unavailable, assume output may have been written
+     * to avoid false "no output" frame continuation.
      *
      * @param array<int, int>|null $before
      */
@@ -1501,10 +1509,7 @@ class Shell extends Application
 
                 $this->writeException($e);
 
-                $this->output->writeln('--');
-                if (!$this->config->theme()->compact()) {
-                    $this->output->writeln('');
-                }
+                $this->writeSeparator($this->output);
             }
         }
 
@@ -1791,7 +1796,7 @@ class Shell extends Application
         $this->outputWritten = true;
 
         if ($this->output instanceof ShellOutput) {
-            $this->output->page($formatted.\PHP_EOL, OutputInterface::OUTPUT_RAW);
+            $this->output->page($formatted, OutputInterface::OUTPUT_RAW);
         } else {
             $this->output->writeln($formatted, OutputInterface::OUTPUT_RAW);
         }
@@ -1829,14 +1834,16 @@ class Shell extends Application
         }
 
         $this->writeExceptionHeader($output, $e);
+        if ($e instanceof BreakException) {
+            $this->writeSpacer($output);
+        }
 
         // Include an exception trace (as long as this isn't a BreakException).
         if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
             $trace = TraceFormatter::formatTrace($e);
             if (\count($trace) !== 0) {
-                $output->writeln('--');
+                $this->writeSeparator($output);
                 $output->write($trace, true);
-                $output->writeln('');
             }
         }
 
@@ -1866,20 +1873,10 @@ class Shell extends Application
      */
     public function writeExceptionHeader(OutputInterface $output, \Throwable $e): void
     {
-        $compact = $this->isCompactTheme();
-
-        if (!$compact) {
-            $output->writeln('');
-        }
-
         $output->writeln($this->formatException($e));
 
         if ($details = $this->formatExceptionDetails($e)) {
             $output->writeln($details, OutputInterface::OUTPUT_RAW);
-        }
-
-        if (!$compact) {
-            $output->writeln('');
         }
     }
 
@@ -1959,6 +1956,26 @@ class Shell extends Application
         return $prefix.\implode(\PHP_EOL, \array_map(static function ($line) use ($indent) {
             return $indent.$line;
         }, \explode(\PHP_EOL, $rendered)));
+    }
+
+    /**
+     * Write a single blank spacer line in non-compact mode.
+     */
+    public function writeSpacer(OutputInterface $output): void
+    {
+        if (!$this->isCompactTheme()) {
+            $output->writeln('');
+        }
+    }
+
+    /**
+     * Write a separator line with compact-aware spacing.
+     */
+    public function writeSeparator(OutputInterface $output): void
+    {
+        $this->writeSpacer($output);
+        $output->writeln('--');
+        $this->writeSpacer($output);
     }
 
     /**
