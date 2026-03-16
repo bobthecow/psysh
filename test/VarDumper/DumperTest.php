@@ -63,14 +63,15 @@ TEXT;
 
     public function testStringDumpBreaksLinesAfterNewlineEscapes(): void
     {
-        $expected = <<<'TEXT'
-"""
-foo\n
-bar
-"""
-TEXT;
+        $dump = $this->dump("foo\nbar");
 
-        $this->assertSame($expected, $this->dump("foo\nbar"));
+        $this->assertSame(<<<'TEXT'
+<<<EOS
+foo
+bar
+EOS
+TEXT, $dump);
+        $this->assertSame("foo\nbar", $this->evaluateDump($dump));
     }
 
     public function testPresenterOutputSurvivesFinalFormattingPass(): void
@@ -101,14 +102,55 @@ TEXT;
 
     public function testMultilineStringDumpTruncatesEachLineLikeSymfony(): void
     {
-        $expected = <<<'TEXT'
-"""
+        $dump = $this->dump('abcd'."\n".'efgh', 3);
+
+        $this->assertSame(<<<'TEXT'
+<<<EOS
 abc…2
 efg
-"""…1
-TEXT;
+EOS…1
+TEXT, $dump);
+    }
 
-        $this->assertSame($expected, $this->dump('abcd'."\n".'efgh', 3));
+    public function testNestedMultilineStringsUseIndentedHeredoc(): void
+    {
+        $dump = $this->dump(["foo\nbar"]);
+
+        $this->assertSame(<<<'TEXT'
+[
+  <<<EOS
+    foo
+    bar
+    EOS,
+]
+TEXT, $dump);
+        $this->assertSame(["foo\nbar"], $this->evaluateDump($dump));
+    }
+
+    public function testMultilineStringsDoNotEscapeQuotesInsideHeredoc(): void
+    {
+        $dump = $this->dump("\"quoted\"\nbar");
+
+        $this->assertSame(<<<'TEXT'
+<<<EOS
+"quoted"
+bar
+EOS
+TEXT, $dump);
+        $this->assertSame("\"quoted\"\nbar", $this->evaluateDump($dump));
+    }
+
+    public function testMultilineStringsAvoidEosWhenContentWouldCloseTheHeredoc(): void
+    {
+        $dump = $this->dump("  EOS\nbar");
+
+        $this->assertSame(<<<'TEXT'
+<<<EOS_2
+  EOS
+bar
+EOS_2
+TEXT, $dump);
+        $this->assertSame("  EOS\nbar", $this->evaluateDump($dump));
     }
 
     private function dump($value, int $maxStringWidth = 0): string
@@ -164,5 +206,13 @@ TEXT;
         });
 
         return $output;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function evaluateDump(string $dump)
+    {
+        return eval('return '.$dump.';');
     }
 }

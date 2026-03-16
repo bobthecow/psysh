@@ -17,6 +17,7 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 abstract class DumperBase extends CliDumper
 {
+    private const HEREDOC_LABEL = 'EOS';
     private OutputFormatter $formatter;
     private bool $forceArrayIndexes;
 
@@ -37,6 +38,11 @@ abstract class DumperBase extends CliDumper
         '$'    => '\\$',
     ];
     private const STRING_ESCAPE_CHARS = '/([\x00-\x1F\x7F\\\\"$])/';
+    private const HEREDOC_DELIMITERS = [
+        '\\' => '\\\\',
+        '$'  => '\\$',
+    ];
+    private const HEREDOC_ESCAPE_CHARS = '/([\x00-\x1F\x7F\\\\$])/';
 
     public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
     {
@@ -139,35 +145,43 @@ abstract class DumperBase extends CliDumper
         }
 
         if ($last) {
-            $this->line .= '"""';
+            $heredocLabel = $this->getHeredocLabel($parts);
+            $this->line .= '<<<'.$heredocLabel;
             $this->dumpLine($cursor->depth);
         } else {
             $this->line .= '"';
         }
 
         foreach ($parts as $part) {
-            if ($index < $last) {
-                $part .= "\n";
+            $endsWithNewline = $index < $last;
+            $displayPart = $part;
+            $measurePart = $displayPart;
+            if ($last && $endsWithNewline) {
+                $measurePart .= "\n";
             }
-            if (0 < $this->maxStringWidth && $this->maxStringWidth < $len = \mb_strlen($part, 'UTF-8')) {
-                $part = (string) \mb_substr($part, 0, $this->maxStringWidth, 'UTF-8');
+            if (0 < $this->maxStringWidth && $this->maxStringWidth < $len = \mb_strlen($measurePart, 'UTF-8')) {
+                $displayPart = (string) \mb_substr($displayPart, 0, $this->maxStringWidth, 'UTF-8');
                 $lineCut = $len - $this->maxStringWidth;
             }
             if ($last && $cursor->depth > 0) {
                 $this->line .= $this->indentPad;
             }
-            if ($part !== '') {
-                $this->appendEscapedString($part, 'str', $attr);
+            if ($displayPart !== '') {
+                if ($last) {
+                    $this->appendEscaped($displayPart, 'str', self::HEREDOC_ESCAPE_CHARS, self::HEREDOC_DELIMITERS);
+                } else {
+                    $this->appendEscapedString($displayPart, 'str', $attr);
+                }
             }
             if ($index++ === $last) {
                 if ($last) {
-                    if ($part !== '') {
+                    if ($displayPart !== '') {
                         $this->dumpLine($cursor->depth);
                         if ($cursor->depth > 0) {
                             $this->line .= $this->indentPad;
                         }
                     }
-                    $this->line .= '"""';
+                    $this->line .= $heredocLabel;
                 } else {
                     $this->line .= '"';
                 }
@@ -242,12 +256,17 @@ abstract class DumperBase extends CliDumper
 
     private function appendEscapedString(string $value, string $style, array $attr = []): void
     {
+        $this->appendEscaped($value, $style, self::STRING_ESCAPE_CHARS, self::STRING_DELIMITERS);
+    }
+
+    private function appendEscaped(string $value, string $style, string $escapePattern, array $delimiters): void
+    {
         $baseStyle = $this->styles[$style] ?? null;
         $controlStyle = $this->styles['cchr'] ?? null;
 
-        $chunks = \preg_split(self::STRING_ESCAPE_CHARS, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+        $chunks = \preg_split($escapePattern, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
         foreach ($chunks as $chunk) {
-            $escaped = $this->escapeStringChar($chunk);
+            $escaped = $this->escapeChar($chunk, $delimiters);
             if ($escaped !== null) {
                 $this->line .= $this->applyStyle($controlStyle, $escaped);
             } else {
@@ -256,10 +275,10 @@ abstract class DumperBase extends CliDumper
         }
     }
 
-    private function escapeStringChar(string $char): ?string
+    private function escapeChar(string $char, array $delimiters): ?string
     {
-        if (isset(self::STRING_DELIMITERS[$char])) {
-            return self::STRING_DELIMITERS[$char];
+        if (isset($delimiters[$char])) {
+            return $delimiters[$char];
         }
 
         if (isset(self::CONTROL_CHARS_MAP[$char])) {
@@ -271,5 +290,49 @@ abstract class DumperBase extends CliDumper
         }
 
         return null;
+    }
+
+    /**
+     * Pick a heredoc label that won't be mistaken for a closing marker.
+     *
+     * @param string[] $parts
+     */
+    private function getHeredocLabel(array $parts): string
+    {
+        $label = self::HEREDOC_LABEL;
+        $suffix = 1;
+
+        while ($this->partsContainHeredocLabel($parts, $label)) {
+            ++$suffix;
+            $label = self::HEREDOC_LABEL.'_'.$suffix;
+        }
+
+        return $label;
+    }
+
+    /**
+     * @param string[] $parts
+     */
+    private function partsContainHeredocLabel(array $parts, string $label): bool
+    {
+        foreach ($parts as $part) {
+            if (\preg_match('/^\s*'.\preg_quote($label, '/').'(?:$|[;,])/', $this->escapeHeredocString($part))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function escapeHeredocString(string $value): string
+    {
+        $escaped = '';
+        $chunks = \preg_split(self::HEREDOC_ESCAPE_CHARS, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+
+        foreach ($chunks as $chunk) {
+            $escaped .= $this->escapeChar($chunk, self::HEREDOC_DELIMITERS) ?? $chunk;
+        }
+
+        return $escaped;
     }
 }
