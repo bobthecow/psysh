@@ -153,7 +153,17 @@ TEXT, $dump);
         $this->assertSame("  EOS\nbar", $this->evaluateDump($dump));
     }
 
-    private function dump($value, int $maxStringWidth = 0): string
+    public function testMultilineStringsCanUseTripleQuoteStyle(): void
+    {
+        $this->assertSame(<<<'TEXT'
+"""
+foo\n
+bar
+"""
+TEXT, $this->dump("foo\nbar", 0, true));
+    }
+
+    private function dump($value, int $maxStringWidth = 0, bool $useDeprecatedMultilineStrings = false): string
     {
         $formatter = new OutputFormatter(false);
 
@@ -173,7 +183,7 @@ TEXT, $dump);
             $formatter->setStyle($style, new OutputFormatterStyle());
         }
 
-        $dumper = new Dumper($formatter);
+        $dumper = new Dumper($formatter, false, $useDeprecatedMultilineStrings);
         $dumper->setStyles([
             'num'       => 'number',
             'integer'   => 'integer',

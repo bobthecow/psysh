@@ -58,6 +58,7 @@ class ConfigurationTest extends TestCase
         $this->assertFalse($config->semicolonsSuppressReturn());
         $this->assertNull($config->clipboardCommand());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
+        $this->assertFalse($config->useDeprecatedMultilineStrings());
         $this->assertNull($config->getStartupMessage());
     }
 
@@ -79,6 +80,9 @@ class ConfigurationTest extends TestCase
 
         $config->setSemicolonsSuppressReturn(Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE);
         $this->assertSame(Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE, $config->semicolonsSuppressReturn());
+
+        $config->setUseDeprecatedMultilineStrings(true);
+        $this->assertTrue($config->useDeprecatedMultilineStrings());
     }
 
     public function testSemicolonsSuppressReturnSetterRejectsStringBooleanAliases()
@@ -113,16 +117,17 @@ class ConfigurationTest extends TestCase
         $pager = new PassthruPager(new ConsoleOutput());
 
         $config->loadConfig([
-            'useReadline'              => false,
-            'usePcntl'                 => false,
-            'codeCleaner'              => $cleaner,
-            'pager'                    => $pager,
-            'clipboardCommand'         => 'pbcopy',
-            'requireSemicolons'        => true,
-            'semicolonsSuppressReturn' => Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
-            'errorLoggingLevel'        => \E_ERROR | \E_WARNING,
-            'colorMode'                => Configuration::COLOR_MODE_FORCED,
-            'startupMessage'           => 'Psysh is awesome!',
+            'useReadline'                   => false,
+            'usePcntl'                      => false,
+            'codeCleaner'                   => $cleaner,
+            'pager'                         => $pager,
+            'clipboardCommand'              => 'pbcopy',
+            'useDeprecatedMultilineStrings' => true,
+            'requireSemicolons'             => true,
+            'semicolonsSuppressReturn'      => Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
+            'errorLoggingLevel'             => \E_ERROR | \E_WARNING,
+            'colorMode'                     => Configuration::COLOR_MODE_FORCED,
+            'startupMessage'                => 'Psysh is awesome!',
         ]);
 
         $this->assertFalse($config->useReadline());
@@ -130,6 +135,7 @@ class ConfigurationTest extends TestCase
         $this->assertSame($cleaner, $config->getCodeCleaner());
         $this->assertSame($pager, $config->getPager());
         $this->assertSame('pbcopy', $config->clipboardCommand());
+        $this->assertTrue($config->useDeprecatedMultilineStrings());
         $this->assertTrue($config->requireSemicolons());
         $this->assertSame(Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE, $config->semicolonsSuppressReturn());
         $this->assertSame(\E_ERROR | \E_WARNING, $config->errorLoggingLevel());

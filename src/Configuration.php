@@ -94,6 +94,7 @@ class Configuration
         'interactiveMode',
         'logging',
         'manualDbFile',
+        'useDeprecatedMultilineStrings',
         'trustProject',
         'pager',
         'prompt',
@@ -165,6 +166,7 @@ class Configuration
     private ?string $updateManualCheck = null;
     private ?string $startupMessage = null;
     private bool $forceArrayIndexes = false;
+    private bool $useDeprecatedMultilineStrings = false;
     /** @deprecated */
     private array $formatterStyles = [];
     private string $verbosity = self::VERBOSITY_NORMAL;
@@ -183,6 +185,7 @@ class Configuration
     private ?\PDO $manualDb = null;
     private ?ManualInterface $manual = null;
     private ?Presenter $presenter = null;
+    private array $casters = [];
     private ?AutoCompleter $autoCompleter = null;
     private ?Checker $checker = null;
     private ?ClipboardMethod $clipboard = null;
@@ -1809,6 +1812,7 @@ class Configuration
         }
 
         $this->applyFormatterStyles();
+        $this->invalidatePresenter();
     }
 
     /**
@@ -2633,7 +2637,11 @@ class Configuration
      */
     public function addCasters(array $casters)
     {
-        $this->getPresenter()->addCasters($casters);
+        $this->casters = \array_merge($this->casters, $casters);
+
+        if (isset($this->presenter)) {
+            $this->presenter->addCasters($casters);
+        }
     }
 
     /**
@@ -2642,7 +2650,10 @@ class Configuration
     public function getPresenter(): Presenter
     {
         if (!isset($this->presenter)) {
-            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
+            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes(), $this->useDeprecatedMultilineStrings());
+            if ($this->casters !== []) {
+                $this->presenter->addCasters($this->casters);
+            }
         }
 
         return $this->presenter;
@@ -3021,6 +3032,28 @@ class Configuration
     public function setForceArrayIndexes(bool $forceArrayIndexes)
     {
         $this->forceArrayIndexes = $forceArrayIndexes;
+        $this->invalidatePresenter();
+    }
+
+    /**
+     * @deprecated temporary compatibility flag for triple-quoted multiline strings.
+     *
+     * This will be removed in the next stable release.
+     */
+    public function useDeprecatedMultilineStrings(): bool
+    {
+        return $this->useDeprecatedMultilineStrings;
+    }
+
+    /**
+     * @deprecated temporary compatibility flag for triple-quoted multiline strings
+     *
+     * This will be removed in the next stable release
+     */
+    public function setUseDeprecatedMultilineStrings(bool $useDeprecatedMultilineStrings): void
+    {
+        $this->useDeprecatedMultilineStrings = $useDeprecatedMultilineStrings;
+        $this->invalidatePresenter();
     }
 
     /**
@@ -3061,6 +3094,11 @@ class Configuration
         }
 
         return $this->theme;
+    }
+
+    private function invalidatePresenter(): void
+    {
+        $this->presenter = null;
     }
 
     /**

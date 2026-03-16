@@ -20,6 +20,7 @@ abstract class DumperBase extends CliDumper
     private const HEREDOC_LABEL = 'EOS';
     private OutputFormatter $formatter;
     private bool $forceArrayIndexes;
+    private bool $useDeprecatedMultilineStrings;
 
     private const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
     private const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';
@@ -44,10 +45,11 @@ abstract class DumperBase extends CliDumper
     ];
     private const HEREDOC_ESCAPE_CHARS = '/([\x00-\x1F\x7F\\\\$])/';
 
-    public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
+    public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false, bool $useDeprecatedMultilineStrings = false)
     {
         $this->formatter = $formatter;
         $this->forceArrayIndexes = $forceArrayIndexes;
+        $this->useDeprecatedMultilineStrings = $useDeprecatedMultilineStrings;
         parent::__construct();
         $this->setColors(false);
     }
@@ -136,6 +138,8 @@ abstract class DumperBase extends CliDumper
         }
         $last = \count($parts) - 1;
         $index = $lineCut = 0;
+        $useHeredocMultilineStrings = $last && $this->useHeredocMultilineStrings();
+        $heredocLabel = $useHeredocMultilineStrings ? $this->getHeredocLabel($parts) : null;
 
         if (self::DUMP_STRING_LENGTH & $this->flags) {
             $this->line .= '('.$attr['length'].') ';
@@ -145,8 +149,7 @@ abstract class DumperBase extends CliDumper
         }
 
         if ($last) {
-            $heredocLabel = $this->getHeredocLabel($parts);
-            $this->line .= '<<<'.$heredocLabel;
+            $this->line .= $useHeredocMultilineStrings ? '<<<'.$heredocLabel : '"""';
             $this->dumpLine($cursor->depth);
         } else {
             $this->line .= '"';
@@ -156,8 +159,11 @@ abstract class DumperBase extends CliDumper
             $endsWithNewline = $index < $last;
             $displayPart = $part;
             $measurePart = $displayPart;
-            if ($last && $endsWithNewline) {
+            if ($useHeredocMultilineStrings && $endsWithNewline) {
                 $measurePart .= "\n";
+            } elseif ($last && $endsWithNewline) {
+                $displayPart .= "\n";
+                $measurePart = $displayPart;
             }
             if (0 < $this->maxStringWidth && $this->maxStringWidth < $len = \mb_strlen($measurePart, 'UTF-8')) {
                 $displayPart = (string) \mb_substr($displayPart, 0, $this->maxStringWidth, 'UTF-8');
@@ -167,7 +173,7 @@ abstract class DumperBase extends CliDumper
                 $this->line .= $this->indentPad;
             }
             if ($displayPart !== '') {
-                if ($last) {
+                if ($useHeredocMultilineStrings) {
                     $this->appendEscaped($displayPart, 'str', self::HEREDOC_ESCAPE_CHARS, self::HEREDOC_DELIMITERS);
                 } else {
                     $this->appendEscapedString($displayPart, 'str', $attr);
@@ -181,7 +187,7 @@ abstract class DumperBase extends CliDumper
                             $this->line .= $this->indentPad;
                         }
                     }
-                    $this->line .= $heredocLabel;
+                    $this->line .= $useHeredocMultilineStrings ? $heredocLabel : '"""';
                 } else {
                     $this->line .= '"';
                 }
@@ -334,5 +340,10 @@ abstract class DumperBase extends CliDumper
         }
 
         return $escaped;
+    }
+
+    private function useHeredocMultilineStrings(): bool
+    {
+        return !$this->useDeprecatedMultilineStrings;
     }
 }

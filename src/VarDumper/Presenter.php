@@ -51,13 +51,13 @@ class Presenter
         'index'     => 'number',
     ];
 
-    public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
+    public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false, bool $useDeprecatedMultilineStrings = false)
     {
         // Work around https://github.com/symfony/symfony/issues/23572
         $oldLocale = \setlocale(\LC_NUMERIC, 0);
         \setlocale(\LC_NUMERIC, 'C');
 
-        $this->dumper = new Dumper($formatter, $forceArrayIndexes);
+        $this->dumper = new Dumper($formatter, $forceArrayIndexes, $useDeprecatedMultilineStrings);
         $this->dumper->setStyles(self::STYLES);
 
         // Now put the locale back
