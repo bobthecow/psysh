@@ -60,6 +60,7 @@ class CompletionKind
     // Advanced (future)
     public const NAMED_PARAMETER = 1 << 17;  // foo(name: |) (PHP 8+)
     public const ARRAY_KEY = 1 << 18;        // $array['key'|]
+    public const COMMAND_ARGUMENT = 1 << 19; // config set verbosity|
 
     // Common combinations for ambiguous contexts
     public const OBJECT_MEMBER = self::OBJECT_METHOD | self::OBJECT_PROPERTY;                          // $foo->|
@@ -68,4 +69,7 @@ class CompletionKind
     public const CLASS_LIKE = self::CLASS_NAME | self::INTERFACE_NAME | self::TRAIT_NAME;              // Any class-like structure
     public const CALLABLE = self::FUNCTION_NAME | self::CLASS_NAME;
     public const SYMBOL = self::FUNCTION_NAME | self::CLASS_LIKE | self::CONSTANT;
+
+    // Contexts where the input might be a shell command rather than PHP code
+    public const COMMAND_ELIGIBLE = self::UNKNOWN | self::SYMBOL | self::KEYWORD;
 }

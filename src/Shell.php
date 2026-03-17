@@ -13,6 +13,8 @@ namespace Psy;
 
 use Psy\CodeCleaner\NoReturnValue;
 use Psy\Completion\CompletionEngine;
+use Psy\Completion\Refiner\CommandContextRefiner;
+use Psy\Completion\Source\CommandArgumentSource;
 use Psy\Completion\Source\CommandOptionSource;
 use Psy\Completion\Source\CommandSource;
 use Psy\Completion\Source\HistorySource;
@@ -2376,14 +2378,20 @@ class Shell extends Application
         $this->completionEngine = $completion;
 
         $allCommands = $this->all();
+        $commandContextRefiner = new CommandContextRefiner($allCommands);
         $commandSource = new CommandSource($allCommands);
         $commandOptionSource = new CommandOptionSource($allCommands);
+        $commandArgumentSource = new CommandArgumentSource($allCommands);
+        $completion->addRefiner($commandContextRefiner);
+        $this->commandCompletion[] = $commandContextRefiner;
         $this->commandCompletion[] = $commandSource;
         $this->commandCompletion[] = $commandOptionSource;
+        $this->commandCompletion[] = $commandArgumentSource;
 
         $sources = [
             $commandSource,
             $commandOptionSource,
+            $commandArgumentSource,
         ];
 
         if ($this->readline instanceof InteractiveReadlineInterface) {

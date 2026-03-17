@@ -21,16 +21,17 @@ use Psy\Test\TestCase;
 
 class MatcherAdapterSourceTest extends TestCase
 {
-    public function testAppliesToAllKinds()
+    public function testAppliesToCommandArgumentContext()
     {
         $source = new MatcherAdapterSource([]);
 
-        // Legacy matchers could match anything, so adapter applies to all contexts
         $this->assertTrue($source->appliesToKind(CompletionKind::VARIABLE));
         $this->assertTrue($source->appliesToKind(CompletionKind::OBJECT_METHOD));
         $this->assertTrue($source->appliesToKind(CompletionKind::CLASS_NAME));
         $this->assertTrue($source->appliesToKind(CompletionKind::UNKNOWN));
         $this->assertTrue($source->appliesToKind(CompletionKind::COMMAND));
+        $this->assertFalse($source->appliesToKind(CompletionKind::COMMAND_ARGUMENT));
+        $this->assertTrue($source->appliesToKind(CompletionKind::COMMAND_ARGUMENT | CompletionKind::UNKNOWN));
     }
 
     public function testGetCompletionsWithNoMatchers()
@@ -315,5 +316,23 @@ class MatcherAdapterSourceTest extends TestCase
         $completions = $source->getCompletions($analysis);
 
         $this->assertCount(2, $completions);
+    }
+
+    public function testGetCompletionsInCommandArgumentContext()
+    {
+        $matcher = new MockMatcher(['custom-command-tail']);
+        $source = new MatcherAdapterSource([$matcher]);
+
+        $analysis = new AnalysisResult(
+            CompletionKind::COMMAND_ARGUMENT,
+            's',
+            'config',
+            [],
+            null,
+            [],
+            'config s'
+        );
+
+        $this->assertSame(['custom-command-tail'], $source->getCompletions($analysis));
     }
 }

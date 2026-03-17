@@ -11,10 +11,13 @@
 
 namespace Psy\Command;
 
-use Psy\Command\Config\AbstractConfigCommand as InternalConfigCommand;
+use Psy\Command\Config\AbstractConfigCommand;
 use Psy\Command\Config\ConfigGetCommand;
 use Psy\Command\Config\ConfigListCommand;
 use Psy\Command\Config\ConfigSetCommand;
+use Psy\CommandArgumentCompletionAware;
+use Psy\Completion\AnalysisResult;
+use Psy\Completion\FuzzyMatcher;
 use Psy\Input\CodeArgument;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,8 +28,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Inspect and update runtime-configurable settings for the current shell session.
  */
-class ConfigCommand extends InternalConfigCommand
+class ConfigCommand extends AbstractConfigCommand implements CommandArgumentCompletionAware
 {
+    private const ACTIONS = ['list', 'get', 'set'];
+
+    /** @var array{supported: bool, completions: string[]}|null */
+    private ?array $lastCompletionResult = null;
+    private string $lastCompletionInput = '';
+
     private string $defaultHelp = '';
 
     protected function configure(): void
@@ -94,6 +103,16 @@ class ConfigCommand extends InternalConfigCommand
         }
 
         return $command->asTextForInput($this->createChildInput($command, $action, $this->rawArguments($input)));
+    }
+
+    public function getArgumentCompletions(AnalysisResult $analysis): array
+    {
+        return $this->resolveArgumentCompletion($analysis)['completions'];
+    }
+
+    public function supportsArgumentCompletion(AnalysisResult $analysis): bool
+    {
+        return $this->resolveArgumentCompletion($analysis)['supported'];
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -189,7 +208,31 @@ class ConfigCommand extends InternalConfigCommand
             return [];
         }
 
-        \preg_match_all('/"[^"]*"|\'[^\']*\'|\S+/', $input->__toString(), $matches);
+        return $this->tokenizeArguments($input->__toString());
+    }
+
+    /**
+     * @return array{0: string[], 1: bool}
+     */
+    private function parseCompletionInput(string $input): array
+    {
+        $trimmed = \rtrim($input);
+
+        return [$this->tokenizeArguments($trimmed), $trimmed !== $input];
+    }
+
+    /**
+     * Tokenize an input string into positional arguments, skipping options.
+     *
+     * @return string[]
+     */
+    private function tokenizeArguments(string $input): array
+    {
+        if ($input === '') {
+            return [];
+        }
+
+        \preg_match_all('/"[^"]*"|\'[^\']*\'|\S+/', $input, $matches);
 
         $arguments = [];
 
@@ -205,11 +248,119 @@ class ConfigCommand extends InternalConfigCommand
             $arguments[] = $this->trimQuotes($token);
         }
 
-        if (($arguments[0] ?? null) === $this->getName()) {
+        $first = $arguments[0] ?? null;
+        if ($first === $this->getName() || \in_array($first, $this->getAliases(), true)) {
             \array_shift($arguments);
         }
 
         return $arguments;
+    }
+
+    /**
+     * @param string[] $arguments
+     */
+    private function isCompletingSetValue(array $arguments, bool $hasTrailingSpace): bool
+    {
+        $count = \count($arguments);
+
+        if ($count < 2 || $count > 3) {
+            return false;
+        }
+
+        return ($count === 2 && $hasTrailingSpace) || ($count === 3 && !$hasTrailingSpace);
+    }
+
+    /**
+     * @return array{supported: bool, completions: string[]}
+     */
+    private function resolveArgumentCompletion(AnalysisResult $analysis): array
+    {
+        if ($this->lastCompletionResult !== null && $this->lastCompletionInput === $analysis->input) {
+            return $this->lastCompletionResult;
+        }
+
+        $this->lastCompletionInput = $analysis->input;
+
+        return $this->lastCompletionResult = $this->doResolveArgumentCompletion($analysis->input);
+    }
+
+    /**
+     * @return array{supported: bool, completions: string[]}
+     */
+    private function doResolveArgumentCompletion(string $input): array
+    {
+        [$arguments, $hasTrailingSpace] = $this->parseCompletionInput($input);
+        $count = \count($arguments);
+        $action = \strtolower($arguments[0] ?? '');
+
+        if ($count === 0 || ($count === 1 && !$hasTrailingSpace)) {
+            return ['supported' => true, 'completions' => self::ACTIONS];
+        }
+
+        switch ($action) {
+            case 'list':
+                return ['supported' => true, 'completions' => []];
+
+            case 'get':
+            case 'set':
+                // Completing the key name (cursor on or just after argument position 2)
+                if ($count <= 2 && ($count === 1 || !$hasTrailingSpace)) {
+                    return ['supported' => true, 'completions' => $this->getOptionNames()];
+                }
+
+                if ($action !== 'set') {
+                    return ['supported' => true, 'completions' => []];
+                }
+
+                if (!$this->isCompletingSetValue($arguments, $hasTrailingSpace)) {
+                    return ['supported' => true, 'completions' => []];
+                }
+
+                return $this->resolveSetValueCompletion($arguments, $hasTrailingSpace);
+
+            default:
+                return ['supported' => true, 'completions' => self::ACTIONS];
+        }
+    }
+
+    /**
+     * @param string[] $arguments
+     *
+     * @return array{supported: bool, completions: string[]}
+     */
+    private function resolveSetValueCompletion(array $arguments, bool $hasTrailingSpace): array
+    {
+        $key = $arguments[1];
+        $option = $this->getOption($key);
+        if ($option === null) {
+            return ['supported' => false, 'completions' => []];
+        }
+
+        $acceptsFreeForm = false;
+        $completions = [];
+        foreach ($option['acceptedValues'] as $value) {
+            if ($value !== '' && $value[0] === '<') {
+                $acceptsFreeForm = true;
+            } else {
+                $completions[] = $value;
+            }
+        }
+
+        if (!$acceptsFreeForm) {
+            return ['supported' => $completions !== [], 'completions' => $completions];
+        }
+
+        $valuePrefix = $hasTrailingSpace ? '' : ($arguments[2] ?? '');
+
+        if ($valuePrefix === '') {
+            return ['supported' => $completions !== [], 'completions' => $completions];
+        }
+
+        if (FuzzyMatcher::filter($valuePrefix, $completions) !== []) {
+            return ['supported' => true, 'completions' => $completions];
+        }
+
+        return ['supported' => false, 'completions' => []];
     }
 
     private function trimQuotes(string $token): string

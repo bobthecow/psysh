@@ -13,15 +13,24 @@ namespace Psy\Test\Completion;
 
 use Psy\Completion\CompletionKind;
 use Psy\Completion\ContextAnalyzer;
+use Psy\Completion\Refiner\AnalysisRefinerInterface;
+use Psy\Completion\Refiner\CommandSyntaxRefiner;
+use Psy\Completion\Refiner\PartialInputRefiner;
 use Psy\Test\TestCase;
 
 class ContextAnalyzerTest extends TestCase
 {
     private ContextAnalyzer $analyzer;
+    /** @var AnalysisRefinerInterface[] */
+    private array $refiners;
 
     public function setUp(): void
     {
         $this->analyzer = new ContextAnalyzer();
+        $this->refiners = [
+            new PartialInputRefiner(),
+            new CommandSyntaxRefiner(),
+        ];
     }
 
     /**
@@ -29,7 +38,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testVariableContext(string $input, int $cursor, string $expectedPrefix)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals(CompletionKind::VARIABLE, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -71,7 +80,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testObjectMemberContext(string $input, int $cursor, string $expectedPrefix, string $expectedLeftSide)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals(CompletionKind::OBJECT_MEMBER, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -112,7 +121,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testStaticMemberContext(string $input, int $cursor, string $expectedPrefix, string $expectedLeftSide)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals(CompletionKind::STATIC_MEMBER, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -150,7 +159,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testClassNameContext(string $input, int $cursor, string $expectedPrefix)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals(CompletionKind::CLASS_NAME, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -177,7 +186,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testFunctionNameContext(string $input, int $cursor, string $expectedPrefix)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         // Bare identifiers can be symbols, and may also include command context.
         $this->assertTrue(($result->kinds & CompletionKind::SYMBOL) !== 0, 'Expected SYMBOL kind to be set');
@@ -208,7 +217,7 @@ class ContextAnalyzerTest extends TestCase
         string $expectedPrefix = '',
         ?string $expectedLeftSide = null
     ) {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals($expectedKinds, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -237,7 +246,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testEdgeCases(string $input, int $cursor, int $expectedContext, string $expectedPrefix = '')
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals($expectedContext, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -285,7 +294,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testCursorPosition(string $input, int $cursor, int $expectedContext, string $expectedPrefix)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals($expectedContext, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -319,7 +328,7 @@ class ContextAnalyzerTest extends TestCase
      */
     public function testUnicodeCursorPositions(string $input, int $cursor, int $expectedContext, string $expectedPrefix, ?string $expectedLeftSide = null)
     {
-        $result = $this->analyzer->analyze($input, $cursor);
+        $result = $this->analyze($input, $cursor);
 
         $this->assertEquals($expectedContext, $result->kinds);
         $this->assertEquals($expectedPrefix, $result->prefix);
@@ -378,5 +387,16 @@ class ContextAnalyzerTest extends TestCase
                 '👍🏽 $bar', 7, CompletionKind::VARIABLE, 'bar',
             ],
         ];
+    }
+
+    private function analyze(string $input, int $cursor)
+    {
+        $analysis = $this->analyzer->analyze($input, $cursor);
+
+        foreach ($this->refiners as $refiner) {
+            $analysis = $refiner->refine($analysis);
+        }
+
+        return $analysis;
     }
 }
