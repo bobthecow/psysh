@@ -33,6 +33,10 @@ class InsertOpenBracketAction implements ActionInterface
      */
     public function execute(Buffer $buffer, Terminal $terminal, Readline $readline): bool
     {
+        if ($this->shouldDedentForControlStructureBrace($buffer)) {
+            $this->dedentForControlStructureBrace($buffer);
+        }
+
         if (BracketPair::shouldAutoClose($this->bracket, $buffer)) {
             $closingBracket = BracketPair::getClosingBracket($this->bracket);
             $buffer->insert($this->bracket.$closingBracket);
@@ -50,5 +54,46 @@ class InsertOpenBracketAction implements ActionInterface
     public function getName(): string
     {
         return 'insert-open-bracket';
+    }
+
+    /**
+     * Detect Allman-style opening braces after a control structure line.
+     */
+    private function shouldDedentForControlStructureBrace(Buffer $buffer): bool
+    {
+        if ($this->bracket !== '{') {
+            return false;
+        }
+
+        $currentLine = $buffer->getCurrentLineText();
+        $cursorInLine = $buffer->getCursorPositionInLine();
+        $textBeforeCursor = \mb_substr($currentLine, 0, $cursorInLine);
+
+        if (\trim($currentLine) !== '' || \trim($textBeforeCursor) !== '' || $cursorInLine !== \mb_strlen($currentLine)) {
+            return false;
+        }
+
+        $linesBeforeCursor = \explode("\n", $buffer->getBeforeCursor());
+        \array_pop($linesBeforeCursor);
+        $previousLine = \end($linesBeforeCursor);
+
+        if ($previousLine === false) {
+            return false;
+        }
+
+        return (bool) \preg_match('/^\s*(?:(?:if|for|foreach|while|switch|elseif)\s*\([^)]*\)|else|do)\s*$/', $previousLine);
+    }
+
+    /**
+     * Align the opening brace with the preceding control structure line.
+     */
+    private function dedentForControlStructureBrace(Buffer $buffer): void
+    {
+        $cursorInLine = $buffer->getCursorPositionInLine();
+        $indent = \mb_substr($buffer->getCurrentLineText(), 0, $cursorInLine);
+        $dedentedIndent = $buffer->dedent($indent);
+
+        $buffer->deleteBackward($cursorInLine);
+        $buffer->insert($dedentedIndent);
     }
 }

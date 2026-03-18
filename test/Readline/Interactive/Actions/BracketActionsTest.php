@@ -76,6 +76,26 @@ class BracketActionsTest extends TestCase
         $this->assertBufferState('ar(<cursor>ray', $this->buffer);
     }
 
+    public function testInsertOpeningBraceDedentsAfterControlStructureLine()
+    {
+        $action = new InsertOpenBracketAction('{');
+        $this->setBufferState($this->buffer, "if (true)\n    <cursor>");
+
+        $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertBufferState("if (true)\n{<cursor>}", $this->buffer);
+    }
+
+    public function testInsertOpeningBraceDedentsAfterNestedControlStructureLine()
+    {
+        $action = new InsertOpenBracketAction('{');
+        $this->setBufferState($this->buffer, "    if (true)\n        <cursor>");
+
+        $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertBufferState("    if (true)\n    {<cursor>}", $this->buffer);
+    }
+
     public function testInsertCloseBracketSkipsOver()
     {
         $action = new InsertCloseBracketAction(')');
