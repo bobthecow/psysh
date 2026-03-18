@@ -1925,7 +1925,10 @@ class Shell extends Application
         }
 
         $message = \preg_replace(
-            "#(\\w:)?([\\\\/]\\w+)*[\\\\/]src[\\\\/]Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code#",
+            [
+                "#(?:[A-Za-z]:)?[\\\\/][^\\r\\n]*?[\\\\/]src[\\\\/]Execution(?:Loop)?Closure\\.php\\(\\d+\\) : eval\\(\\)'d code#",
+                "#\\bsrc[\\\\/]Execution(?:Loop)?Closure\\.php\\(\\d+\\) : eval\\(\\)'d code#",
+            ],
             "eval()'d code",
             $message
         );

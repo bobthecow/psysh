@@ -14,6 +14,7 @@ namespace Psy\Test;
 use Psy\CodeCleaner\NoReturnValue;
 use Psy\Configuration;
 use Psy\Exception\BreakException;
+use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Interactive\Input\History;
@@ -768,6 +769,23 @@ class ShellTest extends TestCase
 
         $expected = 'PARSE ERROR  PHP Parse error: message in test/ShellTest.php on line '.$line.'.';
         $this->assertSame($expected, \trim($streamContents));
+    }
+
+    public function testFormatExceptionStripsExecutionClosurePathsWithDotsInPath()
+    {
+        $shell = new Shell($this->getConfig(['theme' => 'compact']));
+        $exception = new ErrorException(
+            'Undefined variable: items',
+            0,
+            \E_NOTICE,
+            '/fake/path.to/psysh/src/ExecutionClosure.php(32) : eval()\'d code',
+            2
+        );
+
+        $this->assertSame(
+            '<warning> NOTICE </warning> Undefined variable: items on line 2.',
+            $shell->formatException($exception)
+        );
     }
 
     public function testGetInputMarksOutputWrittenForCommandOutput()
