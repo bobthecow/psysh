@@ -96,6 +96,16 @@ class BracketActionsTest extends TestCase
         $this->assertBufferState('test)<cursor>', $this->buffer);
     }
 
+    public function testInsertCloseBracketDedentsWhenTypingClosingBraceOnIndentedLine()
+    {
+        $action = new InsertCloseBracketAction('}');
+        $this->setBufferState($this->buffer, "if (true) {\n    echo \"wat\";\n    <cursor>");
+
+        $action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertBufferState("if (true) {\n    echo \"wat\";\n}<cursor>", $this->buffer);
+    }
+
     public function testInsertQuoteAutoCloses()
     {
         $action = new InsertQuoteAction('"');

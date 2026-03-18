@@ -40,6 +40,7 @@ class InsertCloseBracketAction implements ActionInterface
                 $buffer->moveCursorRight(1);
             }
         } else {
+            $buffer->autoDedentIfClosingBracket($this->bracket, $buffer->getBeforeCursor());
             $buffer->insert($this->bracket);
         }
 
