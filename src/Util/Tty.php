@@ -17,6 +17,7 @@ namespace Psy\Util;
 class Tty
 {
     private static ?bool $sttySupported = null;
+    private const DEFAULT_WIDTH = 100;
 
     /**
      * Check whether stty is available for terminal manipulation.
@@ -70,5 +71,32 @@ class Tty
         }
 
         return ($stat['mode'] & 0170000) === 0020000;
+    }
+
+    /**
+     * Get the current terminal width in columns.
+     */
+    public static function getWidth(int $default = self::DEFAULT_WIDTH): int
+    {
+        if (self::supportsStty() && \defined('STDOUT') && self::isatty(\STDOUT)) {
+            // Output format: "rows cols"
+            $size = @\shell_exec('stty size </dev/tty 2>/dev/null');
+            if ($size && \preg_match('/^\d+ (\d+)$/', \trim($size), $matches)) {
+                return (int) $matches[1];
+            }
+
+            $width = @\shell_exec('tput cols </dev/tty 2>/dev/null');
+            if ($width && \is_numeric(\trim($width))) {
+                return (int) \trim($width);
+            }
+        }
+
+        // Check COLUMNS environment variable (may be stale after resize)
+        $width = \getenv('COLUMNS');
+        if ($width && \is_numeric(\trim($width))) {
+            return (int) \trim($width);
+        }
+
+        return $default;
     }
 }

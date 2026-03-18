@@ -15,6 +15,11 @@ use Psy\Util\Tty;
 
 class TtyTest extends \Psy\Test\TestCase
 {
+    protected function tearDown(): void
+    {
+        \putenv('COLUMNS');
+    }
+
     public function testMemoryStreamIsNotATty()
     {
         $stream = \fopen('php://memory', 'r');
@@ -37,5 +42,16 @@ class TtyTest extends \Psy\Test\TestCase
         \stream_get_contents($pipes[1]);
         \fclose($pipes[1]);
         \proc_close($proc);
+    }
+
+    public function testGetWidthUsesColumnsEnvVar()
+    {
+        if (Tty::supportsStty() && \defined('STDOUT') && Tty::isatty(\STDOUT)) {
+            $this->markTestSkipped('COLUMNS overrides are ignored when a live TTY width is available.');
+        }
+
+        \putenv('COLUMNS=72');
+
+        $this->assertSame(72, Tty::getWidth());
     }
 }

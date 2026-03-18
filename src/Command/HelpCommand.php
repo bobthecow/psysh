@@ -11,7 +11,10 @@
 
 namespace Psy\Command;
 
+use Psy\Formatter\ManualWrapper;
+use Psy\Util\Tty;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,6 +26,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HelpCommand extends Command
 {
+    private const TABLE_OVERHEAD_TWO_COLUMNS = 7;
+    private const TABLE_OVERHEAD_THREE_COLUMNS = 10;
+    private const MIN_DESCRIPTION_WIDTH_FOR_ALIAS_COLUMN = 40;
+
     private ?Command $command = null;
     private ?InputInterface $commandInput = null;
 
@@ -96,36 +103,86 @@ class HelpCommand extends Command
             $shellOutput->page($cmd->asTextForInput($input));
         } else {
             $this->commandInput = null;
-            // list available commands
-            $commands = $this->getApplication()->all();
-
-            $table = $this->getTable($output);
-
-            foreach ($commands as $name => $command) {
-                if ($name !== $command->getName()) {
-                    continue;
-                }
-
-                if ($command->getAliases()) {
-                    $aliases = \sprintf('<comment>Aliases:</comment> %s', \implode(', ', $command->getAliases()));
-                } else {
-                    $aliases = '';
-                }
-
-                $table->addRow([
-                    \sprintf('<info>%s</info>', $name),
-                    $command->getDescription(),
-                    $aliases,
-                ]);
-            }
-
-            $shellOutput->startPaging();
-
-            $table->render();
-
-            $shellOutput->stopPaging();
+            $shellOutput->page(function (OutputInterface $pagedOutput): void {
+                $this->renderCommandList($pagedOutput);
+            });
         }
 
         return 0;
+    }
+
+    /**
+     * Render the top-level command list with fixed command widths and a
+     * conditional alias column when the terminal is wide enough.
+     */
+    private function renderCommandList(OutputInterface $output): void
+    {
+        $commands = [];
+
+        foreach ($this->getApplication()->all() as $name => $command) {
+            if ($name !== $command->getName()) {
+                continue;
+            }
+
+            $commands[] = [
+                'name'        => $name,
+                'description' => $command->getDescription(),
+                'aliasText'   => $command->getAliases()
+                    ? \sprintf('<comment>Aliases:</comment> %s', \implode(', ', $command->getAliases()))
+                    : '',
+            ];
+        }
+
+        $nameWidth = 0;
+        $aliasWidth = 0;
+        $descriptionWidth = 0;
+        $formatter = $output->getFormatter();
+        foreach ($commands as $command) {
+            $nameWidth = \max($nameWidth, Helper::width($command['name']));
+            $aliasWidth = \max($aliasWidth, Helper::width(Helper::removeDecoration($formatter, $command['aliasText'])));
+            $descriptionWidth = \max($descriptionWidth, Helper::width($command['description']));
+        }
+
+        $terminalWidth = Tty::getWidth();
+        $wrapper = new ManualWrapper();
+        $table = $this->getTable($output)->setColumnWidth(0, $nameWidth);
+        $descriptionWidthWithAliasColumn = $terminalWidth - $nameWidth - $aliasWidth - self::TABLE_OVERHEAD_THREE_COLUMNS;
+
+        if ($aliasWidth > 0 && $descriptionWidthWithAliasColumn >= self::MIN_DESCRIPTION_WIDTH_FOR_ALIAS_COLUMN) {
+            $descriptionColumnWidth = \min($descriptionWidth, $descriptionWidthWithAliasColumn);
+
+            $table
+                ->setColumnWidth(1, $descriptionColumnWidth)
+                ->setColumnWidth(2, $aliasWidth);
+
+            foreach ($commands as $command) {
+                $table->addRow([
+                    \sprintf('<info>%s</info>', $command['name']),
+                    $wrapper->wrap($command['description'], $descriptionColumnWidth),
+                    $command['aliasText'],
+                ]);
+            }
+
+            $table->render();
+
+            return;
+        }
+
+        $detailsWidth = \max(10, $terminalWidth - $nameWidth - self::TABLE_OVERHEAD_TWO_COLUMNS);
+        $table->setColumnWidth(1, $detailsWidth);
+
+        foreach ($commands as $command) {
+            $details = $wrapper->wrap($command['description'], $detailsWidth);
+            if ($command['aliasText'] !== '') {
+                $details .= "\n".$wrapper->wrap($command['aliasText'], $detailsWidth);
+            }
+
+            $table->addRow([
+                \sprintf('<info>%s</info>', $command['name']),
+                $details,
+            ]);
+        }
+
+        $table->render();
     }
 }
