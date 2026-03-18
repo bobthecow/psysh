@@ -82,11 +82,11 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      */
     public function close()
     {
-        if (isset($this->pipe)) {
+        if (\is_resource($this->pipe)) {
             \fclose($this->pipe);
         }
 
-        if (isset($this->proc)) {
+        if (\is_resource($this->proc)) {
             $exit = \proc_close($this->proc);
             if ($exit !== 0) {
                 throw new \RuntimeException('Error closing output stream');
