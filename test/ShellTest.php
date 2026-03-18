@@ -822,6 +822,76 @@ class ShellTest extends TestCase
         $this->assertSame([false], $readline->outputWrittenCalls);
     }
 
+    public function testLegacyReadlineAddsSpacerAfterInputBeforeReturnValueInNonCompactMode()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig(['theme' => 'modern']);
+        $config->setReadline($this->getLegacyPhysicalReadline(['1 + 1']));
+
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->getInput();
+        $this->assertSame('return 1 + 1;', $shell->flushCode());
+
+        $shell->writeReturnValue(2);
+        \rewind($stream);
+
+        $stdout = \preg_replace('/\e\\[[\d;]*m/', '', \stream_get_contents($stream));
+        $this->assertSame("\n= 2\n", $stdout);
+    }
+
+    public function testLegacyReadlineAddsSpacerAroundCommandOutputInNonCompactMode()
+    {
+        [$output, $stream] = $this->createTestShellOutput();
+        $config = $this->getConfig(['theme' => 'modern']);
+        $config->setReadline($this->getLegacyPhysicalReadline(['cmd', '42']));
+
+        $shell = new Shell($config);
+        $shell->add(new class() extends Command {
+            public function __construct()
+            {
+                parent::__construct('cmd');
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $output->writeln('visible command output');
+
+                return 0;
+            }
+        });
+
+        $shell->setOutput($output);
+
+        $shell->getInput();
+        $this->assertSame('return 42;', $shell->flushCode());
+        \rewind($stream);
+
+        $this->assertSame("\nvisible command output\n\n\n", \stream_get_contents($stream));
+    }
+
+    public function testLegacyReadlineDoesNotAddExtraSpacerBeforeReturnValueInCompactMode()
+    {
+        $output = $this->getOutput();
+        $stream = $output->getStream();
+        $config = $this->getConfig(['theme' => 'compact']);
+        $config->setReadline($this->getLegacyPhysicalReadline(['1 + 1']));
+
+        $shell = new Shell($config);
+        $shell->setOutput($output);
+
+        $shell->getInput();
+        $this->assertSame('return 1 + 1;', $shell->flushCode());
+
+        $shell->writeReturnValue(2);
+        \rewind($stream);
+
+        $stdout = \preg_replace('/\e\\[[\d;]*m/', '', \stream_get_contents($stream));
+        $this->assertSame("= 2\n", $stdout);
+    }
+
     public function testGetInputMarksOutputWrittenForShellOutputEvenWhenStreamPositionDoesNotAdvance()
     {
         $command = new class() extends Command {

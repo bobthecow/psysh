@@ -99,6 +99,8 @@ class Shell extends Application
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
     private bool $outputWritten = false;
+    private bool $legacyNeedsPromptSpacer = false;
+    private bool $writingLegacySpacer = false;
 
     /**
      * Create a new Psy Shell.
@@ -618,7 +620,12 @@ class Shell extends Application
 
         if ($output instanceof ShellOutput) {
             $output->setWriteListener(function (): void {
+                if ($this->writingLegacySpacer) {
+                    return;
+                }
+
                 $this->outputWritten = true;
+                $this->markLegacyOutputWritten();
             });
         }
     }
@@ -859,6 +866,10 @@ class Shell extends Application
                 continue;
             }
 
+            if (!$this->hasCode()) {
+                $this->writeLegacyInputSpacer();
+            }
+
             $input = $this->onInput($input);
 
             if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
@@ -868,6 +879,7 @@ class Shell extends Application
                 $this->runCommand($input);
                 if (!$this->outputWritten && $this->outputWasWrittenSince($outputPositions)) {
                     $this->outputWritten = true;
+                    $this->markLegacyOutputWritten();
                 }
                 $this->notifyOutputWritten();
 
@@ -1719,6 +1731,7 @@ class Shell extends Application
 
         // Incremental flush
         if ($out !== '' && !$isCleaning) {
+            $this->markLegacyOutputWritten();
             $this->output->write($out, false, OutputInterface::OUTPUT_RAW);
             $this->outputWantsNewline = (\substr($out, -1) !== "\n");
             $this->stdoutBuffer .= $out;
@@ -1796,6 +1809,7 @@ class Shell extends Application
         }
 
         $this->outputWritten = true;
+        $this->markLegacyOutputWritten();
 
         if ($this->output instanceof ShellOutput) {
             $this->output->page($formatted, OutputInterface::OUTPUT_RAW);
@@ -1829,6 +1843,8 @@ class Shell extends Application
             $this->context->setLastException($e);
             $this->outputWritten = true;
         }
+
+        $this->markLegacyOutputWritten();
 
         $output = $this->output;
         if ($output instanceof ConsoleOutput) {
@@ -1978,6 +1994,64 @@ class Shell extends Application
         $this->writeSpacer($output);
         $output->writeln('--');
         $this->writeSpacer($output);
+    }
+
+    /**
+     * Check whether the shell is using legacy readline with non-compact spacing.
+     */
+    private function usesLegacySpacerLayout(): bool
+    {
+        return $this->readline instanceof LegacyReadline && !$this->isCompactTheme();
+    }
+
+    /**
+     * Write a single blank spacer line for legacy readline.
+     */
+    private function writeLegacySpacer(): void
+    {
+        if (!$this->usesLegacySpacerLayout() || $this->writingLegacySpacer) {
+            return;
+        }
+
+        $this->writingLegacySpacer = true;
+
+        try {
+            $this->output->writeln('');
+        } finally {
+            $this->writingLegacySpacer = false;
+        }
+    }
+
+    /**
+     * Write the spacer separating the previous output block from the next prompt.
+     */
+    private function writeLegacyPromptSpacer(): void
+    {
+        if (!$this->legacyNeedsPromptSpacer) {
+            return;
+        }
+
+        $this->writeLegacySpacer();
+        $this->legacyNeedsPromptSpacer = false;
+    }
+
+    /**
+     * Write the spacer separating submitted input from subsequent output.
+     */
+    private function writeLegacyInputSpacer(): void
+    {
+        $this->writeLegacySpacer();
+        $this->legacyNeedsPromptSpacer = false;
+    }
+
+    /**
+     * Mark that visible output was written and the next prompt needs spacing.
+     */
+    private function markLegacyOutputWritten(): void
+    {
+        if ($this->usesLegacySpacerLayout()) {
+            $this->legacyNeedsPromptSpacer = true;
+        }
     }
 
     /**
@@ -2276,6 +2350,8 @@ class Shell extends Application
 
             return $line;
         }
+
+        $this->writeLegacyPromptSpacer();
 
         // Interactive readline manages bracketed paste internally
         $usesInteractiveReadline = $this->readline instanceof InteractiveReadlineInterface;
