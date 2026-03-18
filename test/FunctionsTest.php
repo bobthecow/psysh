@@ -1,0 +1,59 @@
+<?php
+
+/*
+ * This file is part of Psy Shell.
+ *
+ * (c) 2012-2026 Justin Hileman
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Psy\Test;
+
+use Psy\Configuration;
+use Psy\Readline\InteractiveReadline;
+
+class FunctionsTest extends TestCase
+{
+    public function testInfoReportsInteractiveReadlineDetails()
+    {
+        $configDir = \sys_get_temp_dir().'/psysh-functions-test-'.\uniqid('', true);
+        $config = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'configDir'  => $configDir,
+        ]);
+
+        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-info-history-');
+        $resetConfig = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'configDir'  => $configDir,
+        ]);
+
+        try {
+            $config->setHistoryFile($historyFile);
+            $config->setReadline(new InteractiveReadline($historyFile));
+            $config->setUseExperimentalReadline(true);
+            $config->setUseSuggestions(true);
+            $config->setUseTabCompletion(true);
+
+            \Psy\info($config);
+            $info = \Psy\info();
+
+            $this->assertSame(InteractiveReadline::class, $info['readline']['readline service']);
+            $this->assertTrue($info['readline']['interactive readline requested']);
+            $this->assertArrayNotHasKey('interactive readline supported', $info['readline']);
+
+            $this->assertSame('jsonl', $info['history']['history format']);
+
+            $this->assertTrue($info['autocomplete']['tab completion enabled']);
+            $this->assertSame('interactive readline', $info['autocomplete']['completion integration']);
+            $this->assertTrue($info['autocomplete']['inline suggestions']);
+        } finally {
+            \Psy\info($resetConfig);
+            @\unlink($historyFile);
+            @\unlink($configDir.'/update_check.json');
+            @\rmdir($configDir);
+        }
+    }
+}

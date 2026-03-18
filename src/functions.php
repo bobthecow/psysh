@@ -190,17 +190,22 @@ if (!\function_exists('Psy\\info')) {
         $input = [
             'interactive mode'  => $config->interactiveMode(),
             'input interactive' => $config->getInputInteractive(),
+            'bracketed paste'   => $config->useBracketedPaste(),
             'yolo'              => $config->yolo(),
         ];
 
-        if ($config->hasReadline()) {
-            $info = \readline_info();
+        $readlineService = $config->getReadline();
+        $interactiveReadline = $readlineService instanceof Readline\InteractiveReadlineInterface;
 
-            $readline = [
-                'readline available' => true,
-                'readline enabled'   => $config->useReadline(),
-                'readline service'   => \get_class($config->getReadline()),
-            ];
+        $readline = [
+            'readline available' => $config->hasReadline(),
+            'readline enabled'   => $config->useReadline(),
+            'readline service'   => \get_class($readlineService),
+        ];
+
+        // Only show system readline library info when actually using it
+        if ($config->hasReadline() && !$interactiveReadline) {
+            $info = \readline_info();
 
             if (isset($info['library_version'])) {
                 $readline['readline library'] = $info['library_version'];
@@ -209,10 +214,13 @@ if (!\function_exists('Psy\\info')) {
             if (isset($info['readline_name']) && $info['readline_name'] !== '') {
                 $readline['readline name'] = $info['readline_name'];
             }
-        } else {
-            $readline = [
-                'readline available' => false,
-            ];
+        }
+
+        $readline['interactive readline requested'] = $config->useExperimentalReadline();
+
+        // Show supported diagnostic when requested but not active
+        if (!$interactiveReadline) {
+            $readline['interactive readline supported'] = Readline\InteractiveReadline::isSupported();
         }
 
         $output = [
@@ -249,6 +257,7 @@ if (!\function_exists('Psy\\info')) {
 
         $history = [
             'history file'     => ConfigPaths::prettyPath($config->getHistoryFile()),
+            'history format'   => $interactiveReadline ? 'jsonl' : 'plain text',
             'history size'     => $config->getHistorySize(),
             'erase duplicates' => $config->getEraseDuplicates(),
         ];
@@ -291,9 +300,15 @@ if (!\function_exists('Psy\\info')) {
             }
         }
 
+        $completionIntegration = 'disabled';
+        if ($config->useTabCompletion()) {
+            $completionIntegration = $interactiveReadline ? 'interactive readline' : 'legacy readline shim';
+        }
+
         $autocomplete = [
-            'tab completion enabled' => $config->useTabCompletion(),
-            'bracketed paste'        => $config->useBracketedPaste(),
+            'tab completion enabled'  => $config->useTabCompletion(),
+            'completion integration'  => $completionIntegration,
+            'inline suggestions'      => $interactiveReadline && $config->useSuggestions(),
         ];
 
         $warmers = $config->getAutoloadWarmers();
@@ -375,7 +390,26 @@ if (!\function_exists('Psy\\info')) {
                 $core['commands'] = \array_map('get_class', $shell->all());
 
                 try {
-                    $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+                    $autocomplete['custom legacy matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+                } catch (\ReflectionException $e) {
+                    // shrug
+                }
+
+                try {
+                    $completionEngine = Sudo::fetchProperty($shell, 'completionEngine');
+                    if ($completionEngine !== null) {
+                        $autocomplete['completion sources'] = \array_map('get_class', Sudo::fetchProperty($completionEngine, 'sources'));
+                        $autocomplete['completion refiners'] = \array_map('get_class', Sudo::fetchProperty($completionEngine, 'refiners'));
+                    }
+                } catch (\ReflectionException $e) {
+                    // shrug
+                }
+
+                try {
+                    $pendingCompletionSources = Sudo::fetchProperty($shell, 'pendingCompletionSources');
+                    if (!empty($pendingCompletionSources)) {
+                        $autocomplete['pending completion sources'] = \array_map('get_class', $pendingCompletionSources);
+                    }
                 } catch (\ReflectionException $e) {
                     // shrug
                 }
