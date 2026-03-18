@@ -57,7 +57,7 @@ run_pty() {
 
     local command
     printf -v command '%q ' "$@"
-    command="${command% }"
+    command="stty cols 100 rows 40; exec ${command% }"
 
     set +e
     LAST_OUTPUT="$(printf '%b' "${input}" | script -qefc "${command}" /dev/null 2>&1 | normalize_output)"
