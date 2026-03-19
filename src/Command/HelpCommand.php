@@ -12,9 +12,9 @@
 namespace Psy\Command;
 
 use Psy\Formatter\ManualWrapper;
+use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Util\Tty;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -138,9 +138,9 @@ class HelpCommand extends Command
         $descriptionWidth = 0;
         $formatter = $output->getFormatter();
         foreach ($commands as $command) {
-            $nameWidth = \max($nameWidth, Helper::width($command['name']));
-            $aliasWidth = \max($aliasWidth, Helper::width(Helper::removeDecoration($formatter, $command['aliasText'])));
-            $descriptionWidth = \max($descriptionWidth, Helper::width($command['description']));
+            $nameWidth = \max($nameWidth, DisplayString::width($command['name']));
+            $aliasWidth = \max($aliasWidth, DisplayString::widthWithoutFormatting($command['aliasText'], $formatter));
+            $descriptionWidth = \max($descriptionWidth, DisplayString::width($command['description']));
         }
 
         $terminalWidth = Tty::getWidth();
