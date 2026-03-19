@@ -1134,7 +1134,7 @@ class ShellTest extends TestCase
      */
     public function testThrowsBadErrors($errno)
     {
-        $this->expectException(\Psy\Exception\ErrorException::class);
+        $this->expectException(ErrorException::class);
 
         $shell = new Shell($this->getConfig());
         $shell->handleError($errno, 'wheee', null, 13);
