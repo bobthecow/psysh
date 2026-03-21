@@ -18,16 +18,13 @@ class FunctionsTest extends TestCase
 {
     public function testInfoReportsInteractiveReadlineDetails()
     {
-        $configDir = \sys_get_temp_dir().'/psysh-functions-test-'.\uniqid('', true);
         $config = new Configuration([
             'configFile' => __DIR__.'/Fixtures/empty.php',
-            'configDir'  => $configDir,
         ]);
 
         $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-info-history-');
         $resetConfig = new Configuration([
             'configFile' => __DIR__.'/Fixtures/empty.php',
-            'configDir'  => $configDir,
         ]);
 
         try {
@@ -52,8 +49,6 @@ class FunctionsTest extends TestCase
         } finally {
             \Psy\info($resetConfig);
             @\unlink($historyFile);
-            @\unlink($configDir.'/update_check.json');
-            @\rmdir($configDir);
         }
     }
 }

@@ -38,11 +38,17 @@
 
 set -e
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly ROOT_DIR
+source "${ROOT_DIR}/test/test-env.sh"
+
 failed=0
 
 # Create temporary directory for PHAR tests
 temp_dir=$(mktemp -d)
 trap 'rm -rf "$temp_dir"' EXIT
+
+psysh_test_env_prepare "${temp_dir}/env"
 
 # Default test targets
 if [ "$#" -gt 0 ]; then
@@ -50,10 +56,10 @@ if [ "$#" -gt 0 ]; then
 else
   test_targets=()
   # Auto-detect available targets
-  if [ -f "bin/psysh" ]; then
+  if [ -f "${ROOT_DIR}/bin/psysh" ]; then
     test_targets+=("bin/psysh")
   fi
-  for phar_target in build/*/psysh; do
+  for phar_target in "${ROOT_DIR}"/build/*/psysh; do
     if [ -f "$phar_target" ]; then
       test_targets+=("$phar_target")
     fi
@@ -78,14 +84,9 @@ pass() {
 }
 
 get_test_dir() {
-  local target="$1"
-  # For PHARs, run from temp directory to avoid local version detection
-  if [[ "$target" == build/* ]] || [[ "$target" == *.phar ]]; then
-    echo "$temp_dir"
-  else
-    # For development binary, run from project root
-    pwd
-  fi
+  # Run all targets from a neutral directory so local config in the repository
+  # does not affect smoke tests.
+  echo "$temp_dir"
 }
 
 resolve_target_path() {
@@ -93,7 +94,7 @@ resolve_target_path() {
   if [[ "$target" = /* ]]; then
     echo "$target"
   else
-    echo "$(pwd)/$target"
+    echo "${ROOT_DIR}/$target"
   fi
 }
 
@@ -108,7 +109,7 @@ test_version() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && php "$resolved_target" --version 2>&1)
+  output=$(cd "$test_dir" && php "$resolved_target" --version --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -130,7 +131,7 @@ test_help() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && php "$resolved_target" --help 2>&1)
+  output=$(cd "$test_dir" && php "$resolved_target" --help --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -155,7 +156,7 @@ test_psy_info() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && echo "\\Psy\\info()" | php "$resolved_target" 2>&1)
+  output=$(cd "$test_dir" && echo "\\Psy\\info()" | php "$resolved_target" --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -180,7 +181,7 @@ test_help_command() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && echo "help" | php "$resolved_target" 2>&1 | cat)
+  output=$(cd "$test_dir" && echo "help" | php "$resolved_target" --no-trust-project 2>&1 | cat)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -207,7 +208,7 @@ test_basic_repl() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && echo 'echo "Hello, World!"; exit' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'echo "Hello, World!"; exit' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -229,7 +230,7 @@ test_math_expression() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && echo 'echo 2 + 2; exit' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'echo 2 + 2; exit' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "$output"
     return
@@ -252,14 +253,14 @@ test_cli_options() {
 
   # Test --quiet flag
   local output
-  output=$(cd "$test_dir" && echo 'echo "test"; exit' | php "$resolved_target" --quiet --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'echo "test"; exit' | php "$resolved_target" --quiet --no-interactive --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "Quiet flag test failed: $output"
     return
   fi
 
   # Test --warm-autoload flag (should not error)
-  output=$(cd "$test_dir" && echo 'echo "autoload test"; exit' | php "$resolved_target" --warm-autoload --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'echo "autoload test"; exit' | php "$resolved_target" --warm-autoload --no-interactive --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "Warm autoload flag test failed: $output"
     return
@@ -283,7 +284,7 @@ test_error_handling() {
   local output
   local exit_code
   set +e  # Disable exit on error for this test
-  output=$(cd "$test_dir" && echo 'invalid php syntax here; exit' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'invalid php syntax here; exit' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   exit_code=$?
   set -e  # Re-enable exit on error
 
@@ -310,7 +311,7 @@ test_exit_cleanly() {
   resolved_target=$(resolve_target_path "$target")
 
   local output
-  output=$(cd "$test_dir" && echo 'exit' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'exit' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   if [ $? != 0 ]; then
     fail "Exit test failed: $output"
     return
@@ -336,7 +337,7 @@ test_exit_status() {
   local output
   local exit_code
   set +e  # Temporarily disable exit on error for this test
-  output=$(cd "$test_dir" && echo 'exit(42)' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'exit(42)' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   exit_code=$?
   set -e  # Re-enable exit on error
   if [ $exit_code != 42 ]; then
@@ -347,7 +348,7 @@ test_exit_status() {
   # Test exit with string message (should exit with code 0)
   # Note: In non-interactive mode, BreakException messages aren't displayed
   set +e
-  output=$(cd "$test_dir" && echo 'exit("Custom message")' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'exit("Custom message")' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   exit_code=$?
   set -e
   if [ $exit_code != 0 ]; then
@@ -357,7 +358,7 @@ test_exit_status() {
 
   # Test default exit (should be code 0)
   set +e
-  output=$(cd "$test_dir" && echo 'exit()' | php "$resolved_target" --no-interactive 2>&1)
+  output=$(cd "$test_dir" && echo 'exit()' | php "$resolved_target" --no-interactive --no-trust-project 2>&1)
   exit_code=$?
   set -e
   if [ $exit_code != 0 ]; then

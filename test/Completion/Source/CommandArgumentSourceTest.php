@@ -24,23 +24,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CommandArgumentSourceTest extends TestCase
 {
-    private string $tempDir;
-
-    protected function setUp(): void
-    {
-        $this->tempDir = \sys_get_temp_dir().'/psysh-command-argument-source-test-'.\bin2hex(\random_bytes(8));
-        \mkdir($this->tempDir, 0777, true);
-    }
-
-    protected function tearDown(): void
-    {
-        @\unlink($this->tempDir.'/psysh_history');
-        @\unlink($this->tempDir.'/psysh_history.jsonl');
-        @\unlink($this->tempDir.'/update_check.json');
-        @\unlink($this->tempDir.'/manual_update_check.json');
-        @\rmdir($this->tempDir);
-    }
-
     public function testAppliesToUnknownAndSymbolContexts()
     {
         $source = new CommandArgumentSource([]);
@@ -147,9 +130,6 @@ class CommandArgumentSourceTest extends TestCase
     {
         return new Configuration([
             'configFile'   => \dirname(__DIR__, 2).'/Fixtures/empty.php',
-            'configDir'    => $this->tempDir,
-            'dataDir'      => $this->tempDir,
-            'runtimeDir'   => $this->tempDir,
             'trustProject' => false,
         ]);
     }

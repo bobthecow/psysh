@@ -223,9 +223,6 @@ class CompletionEngineTest extends TestCase
         $command = new \Psy\Command\ConfigCommand();
         $command->setConfiguration(new \Psy\Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
-            'configDir'    => \sys_get_temp_dir(),
-            'dataDir'      => \sys_get_temp_dir(),
-            'runtimeDir'   => \sys_get_temp_dir(),
             'trustProject' => false,
         ]));
 
@@ -244,9 +241,6 @@ class CompletionEngineTest extends TestCase
         $command = new \Psy\Command\ConfigCommand();
         $command->setConfiguration(new \Psy\Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
-            'configDir'    => \sys_get_temp_dir(),
-            'dataDir'      => \sys_get_temp_dir(),
-            'runtimeDir'   => \sys_get_temp_dir(),
             'trustProject' => false,
         ]));
 
@@ -265,9 +259,6 @@ class CompletionEngineTest extends TestCase
         $command = new \Psy\Command\ConfigCommand();
         $command->setConfiguration(new \Psy\Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
-            'configDir'    => \sys_get_temp_dir(),
-            'dataDir'      => \sys_get_temp_dir(),
-            'runtimeDir'   => \sys_get_temp_dir(),
             'trustProject' => false,
         ]));
 

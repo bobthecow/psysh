@@ -383,7 +383,7 @@ class ConfigPathsTest extends TestCase
             'null homeDir uses actual home' => [
                 (\getenv('HOME') ?: '/home/user').'/foo.php',
                 '~/foo.php',
-                '/tmp',
+                '/var/tmp',
                 null,
             ],
         ];

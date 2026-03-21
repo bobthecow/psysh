@@ -11,6 +11,9 @@
 
 use Psy\Shell;
 
+require_once __DIR__.'/bootstrap-env.php';
+Psy\Test\BootstrapEnv::isolate(\dirname(__DIR__).'/.test-env');
+
 // `make test-phar` copies the built PHAR next to the copied test tree.
 $pharPath = \dirname(__DIR__).'/psysh';
 
@@ -51,32 +54,6 @@ foreach ([
         require_once $fixtureFile;
     }
 }
-
-// Keep PHAR tests hermetic by redirecting config and history writes into the
-// temporary test tree via XDG directories. Leave HOME unchanged so path-format
-// tests still exercise the real process home directory semantics.
-$xdgRoot = \dirname(__DIR__).'/.xdg';
-$configDir = $xdgRoot.'/config';
-$dataDir = $xdgRoot.'/data';
-$runtimeDir = $xdgRoot.'/runtime';
-
-foreach ([$configDir, $dataDir, $runtimeDir] as $dir) {
-    if (!\is_dir($dir)) {
-        @\mkdir($dir, 0777, true);
-    }
-}
-
-$_SERVER['XDG_CONFIG_HOME'] = $configDir;
-$_ENV['XDG_CONFIG_HOME'] = $configDir;
-\putenv('XDG_CONFIG_HOME='.$configDir);
-
-$_SERVER['XDG_DATA_HOME'] = $dataDir;
-$_ENV['XDG_DATA_HOME'] = $dataDir;
-\putenv('XDG_DATA_HOME='.$dataDir);
-
-$_SERVER['XDG_RUNTIME_DIR'] = $runtimeDir;
-$_ENV['XDG_RUNTIME_DIR'] = $runtimeDir;
-\putenv('XDG_RUNTIME_DIR='.$runtimeDir);
 
 // Scoped PHAR builds rename vendor classes to `_Psy<hash>\...`; infer the
 // current prefix from Shell's Symfony parent class instead of hardcoding it.

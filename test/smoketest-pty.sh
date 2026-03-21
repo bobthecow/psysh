@@ -36,6 +36,7 @@ fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly ROOT_DIR
+source "${ROOT_DIR}/test/test-env.sh"
 readonly TARGET="${1:-bin/psysh}"
 
 if [[ ! -f "${ROOT_DIR}/${TARGET}" && ! -f "${TARGET}" ]]; then
@@ -48,14 +49,17 @@ LAST_OUTPUT=''
 LAST_STATUS=0
 TMP_DIR="$(mktemp -d)"
 readonly TMP_DIR
-readonly HOME_DIR="${TMP_DIR}/home"
-readonly CONFIG_DIR="${HOME_DIR}/.config"
 readonly CONFIG_FILE="${TMP_DIR}/psysh.php"
 readonly PROXY_PROJECT="${TMP_DIR}/proxy-project"
 readonly PAGER_SCRIPT="${TMP_DIR}/pager.sh"
 readonly TRUST_RUNNER="${TMP_DIR}/trust-runner.php"
 
 trap 'rm -rf "${TMP_DIR}"' EXIT
+
+psysh_test_env_prepare "${TMP_DIR}/env"
+
+readonly HOME_DIR="${HOME}"
+readonly CONFIG_DIR="${XDG_CONFIG_HOME}"
 
 mkdir -p "${CONFIG_DIR}/psysh" "${PROXY_PROJECT}/vendor/bin" "${PROXY_PROJECT}/vendor"
 printf '<?php return [];%s' $'\n' > "${CONFIG_FILE}"

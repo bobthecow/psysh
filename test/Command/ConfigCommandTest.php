@@ -22,18 +22,11 @@ class ConfigCommandTest extends \Psy\Test\TestCase
     private ConfigCommand $command;
     private Configuration $config;
     private Shell $shell;
-    private string $tempDir;
 
     protected function setUp(): void
     {
-        $this->tempDir = \sys_get_temp_dir().'/psysh-config-command-test-'.\bin2hex(\random_bytes(8));
-        \mkdir($this->tempDir, 0777, true);
-
         $this->config = new Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
-            'configDir'    => $this->tempDir,
-            'dataDir'      => $this->tempDir,
-            'runtimeDir'   => $this->tempDir,
             'trustProject' => false,
             'colorMode'    => Configuration::COLOR_MODE_FORCED,
         ]);
@@ -42,15 +35,6 @@ class ConfigCommandTest extends \Psy\Test\TestCase
         $this->command = new ConfigCommand();
         $this->command->setConfiguration($this->config);
         $this->command->setApplication($this->shell);
-    }
-
-    protected function tearDown(): void
-    {
-        @\unlink($this->tempDir.'/psysh_history');
-        @\unlink($this->tempDir.'/psysh_history.jsonl');
-        @\unlink($this->tempDir.'/update_check.json');
-        @\unlink($this->tempDir.'/manual_update_check.json');
-        @\rmdir($this->tempDir);
     }
 
     public function testConfigure()
