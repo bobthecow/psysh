@@ -21,6 +21,7 @@ use Psy\Readline\Interactive\InteractiveSession;
 use Psy\Readline\Interactive\Readline as InternalReadline;
 use Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource;
 use Psy\Readline\Interactive\Terminal;
+use Psy\Readline\Interactive\TerminalOutput;
 use Psy\Shell;
 use Psy\ShellAware;
 use Psy\Util\TerminalColor;
@@ -101,7 +102,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
 
         DebugLog::enable($output->getVerbosity());
 
-        $this->terminal = $terminal ?? new Terminal(new StdinReader(\STDIN), $output);
+        $this->terminal = $terminal ?? new Terminal(new StdinReader(\STDIN), new TerminalOutput($output));
         $this->session = new InteractiveSession($this->terminal);
         $this->history = new InteractiveHistory($this->historySize, $this->eraseDups);
         $this->resolveHistoryFiles();
