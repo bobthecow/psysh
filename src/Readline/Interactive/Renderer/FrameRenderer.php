@@ -160,6 +160,15 @@ class FrameRenderer
     }
 
     /**
+     * Clear previously submitted lines rendered above the current input.
+     */
+    public function clearHistoryLines(): void
+    {
+        $this->historyLines = [];
+        $this->historyRowCount = 0;
+    }
+
+    /**
      * Set overlay lines to display below the input.
      *
      * @param string[] $lines

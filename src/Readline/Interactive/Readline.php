@@ -446,6 +446,14 @@ class Readline
     }
 
     /**
+     * Clear previously submitted lines from the current input frame.
+     */
+    public function clearPreviousLines(): void
+    {
+        $this->frameRenderer->clearHistoryLines();
+    }
+
+    /**
      * Set whether the next readline() call should continue the current frame.
      */
     public function setContinueFrame(bool $continue): void

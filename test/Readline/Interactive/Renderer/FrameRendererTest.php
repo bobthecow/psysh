@@ -301,6 +301,28 @@ class FrameRendererTest extends TestCase
         $this->assertSame(17, $this->viewport->getAvailableRows(false));
     }
 
+    public function testClearedHistoryLinesAreNotRedrawnInInputFrame()
+    {
+        $this->setTheme('>>> ', '... ');
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'current<cursor>');
+
+        $this->renderer->addHistoryLines("echo 'one'\necho 'two'");
+        $this->renderer->render($buffer, null);
+
+        $this->writes = [];
+
+        $this->renderer->clearHistoryLines();
+        $this->renderer->render($buffer, null);
+
+        $output = \implode('', $this->writes);
+
+        $this->assertStringNotContainsString("echo 'one'", $output);
+        $this->assertStringNotContainsString("echo 'two'", $output);
+        $this->assertStringContainsString('>>> current', $output);
+    }
+
     public function testHistorySearchHighlightFallsBackOnInvalidUtf8Input()
     {
         $this->formatter->setDecorated(true);
