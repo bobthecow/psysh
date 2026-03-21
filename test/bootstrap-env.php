@@ -56,12 +56,12 @@ final class BootstrapEnv
         self::registerCleanup($root);
 
         return [
-            'HOME' => $homeDir,
+            'HOME'            => $homeDir,
             'XDG_CONFIG_HOME' => $configHome,
-            'XDG_DATA_HOME' => $dataHome,
+            'XDG_DATA_HOME'   => $dataHome,
             'XDG_RUNTIME_DIR' => $runtimeDir,
             'XDG_CONFIG_DIRS' => $configDirs,
-            'XDG_DATA_DIRS' => $dataDirs,
+            'XDG_DATA_DIRS'   => $dataDirs,
         ];
     }
 

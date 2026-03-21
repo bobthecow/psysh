@@ -12,4 +12,4 @@
 require_once __DIR__.'/bootstrap-env.php';
 require_once __DIR__.'/../vendor/autoload.php';
 
-\Psy\Test\BootstrapEnv::isolate();
+Psy\Test\BootstrapEnv::isolate();
