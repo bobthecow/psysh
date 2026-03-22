@@ -130,8 +130,6 @@ class ImplicitReturnPass extends CodeCleanerPass
      */
     private static function isThrowNode(Node $node): bool
     {
-        $legacyThrowStmt = 'PhpParser\\Node\\Stmt\\Throw_';
-
-        return $node instanceof Throw_ || $node instanceof $legacyThrowStmt;
+        return $node instanceof Throw_ || $node->getType() === 'Stmt_Throw';
     }
 }
