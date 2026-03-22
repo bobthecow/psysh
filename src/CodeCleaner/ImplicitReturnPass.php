@@ -14,6 +14,7 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Exit_;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\Expression;
@@ -74,14 +75,14 @@ class ImplicitReturnPass extends CodeCleanerPass
                     $case->stmts[] = $caseLast;
                 }
             }
-        } elseif ($last instanceof Expr && !($last instanceof Exit_)) {
+        } elseif ($last instanceof Expr && !($last instanceof Exit_) && !($last instanceof Throw_)) {
             // @codeCoverageIgnoreStart
             $nodes[\count($nodes) - 1] = new Return_($last, [
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
             ]);
             // @codeCoverageIgnoreEnd
-        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
+        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_) && !($last->expr instanceof Throw_)) {
             $nodes[\count($nodes) - 1] = new Return_($last->expr, [
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),

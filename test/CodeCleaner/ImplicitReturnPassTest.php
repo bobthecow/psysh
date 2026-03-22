@@ -108,6 +108,10 @@ return 1 + 1;
 EOS;
         $data[] = [$from, $to];
 
+        $from = 'throw new Exception("wat");';
+        $to = 'throw new Exception("wat");';
+        $data[] = [$from, $to];
+
         $data[] = ['exit()', 'exit;'];
 
         return $data;

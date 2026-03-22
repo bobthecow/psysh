@@ -245,7 +245,7 @@ TEXT, $dump);
 
     public function testObjectPropertiesUseTrailingCommasLikeVarExport(): void
     {
-        $dump = $this->dump(new class {
+        $dump = $this->dump(new class() {
             public $foo = 1;
         });
 

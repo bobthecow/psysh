@@ -175,4 +175,14 @@ class CodeCleanerTest extends TestCase
         $resolved = $cc->resolveClassName('Bar');
         $this->assertSame('\\StdClass', $resolved);
     }
+
+    public function testThrowExpressionDoesNotGetWrappedInReturn()
+    {
+        $cc = new CodeCleaner();
+
+        $this->assertSame(
+            "throw new Exception('wat');",
+            $cc->clean(["throw new Exception('wat')"])
+        );
+    }
 }
