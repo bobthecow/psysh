@@ -273,6 +273,32 @@ class ConfigurationTest extends TestCase
         $this->assertInstanceOf(ShellOutput::class, $output);
     }
 
+    public function testSetThemeNoopsWhenEffectiveThemeIsUnchanged()
+    {
+        $config = $this->getConfig();
+        $theme = $config->theme();
+
+        $config->setTheme('modern');
+        $this->assertSame($theme, $config->theme());
+
+        $classicConfig = $this->getConfig();
+        $classicConfig->setPrompt('>>> ');
+        $classicTheme = $classicConfig->theme();
+
+        $classicConfig->setTheme('classic');
+        $this->assertSame($classicTheme, $classicConfig->theme());
+    }
+
+    public function testSetThemeReplacesThemeWhenEffectiveThemeChanges()
+    {
+        $config = $this->getConfig();
+        $theme = $config->theme();
+
+        $config->setTheme('compact');
+        $this->assertNotSame($theme, $config->theme());
+        $this->assertSame('compact', $config->theme()->getName());
+    }
+
     public function getOutputDecoratedProvider()
     {
         return [

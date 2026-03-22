@@ -243,6 +243,19 @@ class ConfigCommandTest extends \Psy\Test\TestCase
         $this->assertSame('classic'.\PHP_EOL, $tester->getDisplay());
     }
 
+    public function testGetThemeIdentifiesBuiltinThemesByValue(): void
+    {
+        $this->config->setTheme(['compact' => true]);
+
+        $tester = new PsyCommandTester($this->command);
+        $tester->execute([
+            'action' => 'get',
+            'key'    => 'theme',
+        ]);
+
+        $this->assertSame('compact'.\PHP_EOL, $tester->getDisplay());
+    }
+
     public function testInteractiveShellSetResolvesErrorLoggingLevelExpression(): void
     {
         $stream = \fopen('php://memory', 'w+');

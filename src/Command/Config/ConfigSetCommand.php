@@ -101,14 +101,14 @@ class ConfigSetCommand extends AbstractConfigCommand
 
         try {
             $value = $option['parser']((string) $rawValue);
-            $option['setter']($value);
+            $changed = $option['setter']($value);
         } catch (\InvalidArgumentException $e) {
             $output->writeln(\sprintf('<error>%s</error>', $e->getMessage()));
 
             return 1;
         }
 
-        if ($option['refresh']) {
+        if ($option['refresh'] && $changed !== false) {
             $this->getShell()->applyRuntimeConfigChange($option['name']);
         }
 

@@ -114,6 +114,23 @@ class ThemeTest extends TestCase
         $this->assertSame('=> ', $theme->returnValue());
     }
 
+    public function testGetNameDetectsBuiltinThemesByValue()
+    {
+        $this->assertSame('modern', (new Theme('modern'))->getName());
+        $this->assertSame('compact', (new Theme(['compact' => true]))->getName());
+        $this->assertSame('classic', (new Theme([
+            'compact'      => true,
+            'prompt'       => '>>> ',
+            'bufferPrompt' => '... ',
+            'replayPrompt' => '--> ',
+            'returnValue'  => '=>  ',
+        ]))->getName());
+
+        $theme = new Theme('modern');
+        $theme->setPrompt('psy> ');
+        $this->assertNull($theme->getName());
+    }
+
     public function testGrayFallbackConfig()
     {
         $theme = new Theme([

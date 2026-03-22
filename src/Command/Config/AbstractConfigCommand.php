@@ -13,6 +13,7 @@ namespace Psy\Command\Config;
 
 use Psy\Command\Command;
 use Psy\Configuration;
+use Psy\Output\Theme;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
 /**
@@ -224,13 +225,16 @@ abstract class AbstractConfigCommand extends Command
             ],
             'theme' => [
                 'name'           => 'theme',
-                'acceptedValues' => ['modern', 'compact', 'classic'],
-                'parser'         => $enumParser('theme', ['modern', 'compact', 'classic'], 'modern|compact|classic'),
+                'acceptedValues' => Theme::BUILTIN_THEMES,
+                'parser'         => $enumParser('theme', Theme::BUILTIN_THEMES, \implode('|', Theme::BUILTIN_THEMES)),
                 'getter'         => function () use ($config): string {
                     return $config->theme()->getName() ?? 'custom';
                 },
-                'setter' => function (string $value) use ($config): void {
+                'setter' => function (string $value) use ($config): bool {
+                    $before = $config->theme();
                     $config->setTheme($value);
+
+                    return !$before->equals($config->theme());
                 },
                 'refresh' => true,
             ],

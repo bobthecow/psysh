@@ -235,8 +235,8 @@ if (!\function_exists('Psy\\info')) {
         ];
 
         $theme = $config->theme();
-        // @todo show styles (but only if they're different than default?)
-        $output['theme'] = [
+        $output['theme'] = $theme->getName() ?? [
+            // @todo show styles (but only if they're different than default?)
             'compact'      => $theme->compact(),
             'prompt'       => $theme->prompt(),
             'bufferPrompt' => $theme->bufferPrompt(),

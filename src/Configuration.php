@@ -3085,14 +3085,18 @@ class Configuration
             $theme = new Theme($theme);
         }
 
-        $this->theme = $theme;
-
         if (isset($this->prompt)) {
-            $this->theme->setPrompt($this->prompt);
+            $theme->setPrompt($this->prompt);
         }
 
+        if (isset($this->theme) && $this->theme->equals($theme)) {
+            return;
+        }
+
+        $this->theme = $theme;
+
         if (isset($this->output)) {
-            $this->output->setTheme($theme);
+            $this->output->setTheme($this->theme);
             $this->applyFormatterStyles();
         }
     }

@@ -53,4 +53,53 @@ class FunctionsTest extends TestCase
             @\unlink($historyFile);
         }
     }
+
+    public function testInfoUsesBuiltinThemeNameShorthand()
+    {
+        $config = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'theme'      => 'compact',
+        ]);
+        $resetConfig = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+        ]);
+
+        try {
+            \Psy\info($config);
+            $info = \Psy\info();
+
+            $this->assertSame('compact', $info['output']['theme']);
+        } finally {
+            \Psy\info($resetConfig);
+        }
+    }
+
+    public function testInfoKeepsExpandedThemeConfigForCustomThemes()
+    {
+        $config = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'theme'      => [
+                'compact' => true,
+                'prompt'  => '$ ',
+            ],
+        ]);
+        $resetConfig = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+        ]);
+
+        try {
+            \Psy\info($config);
+            $info = \Psy\info();
+
+            $this->assertSame([
+                'compact'      => true,
+                'prompt'       => '$ ',
+                'bufferPrompt' => '. ',
+                'replayPrompt' => '- ',
+                'returnValue'  => '= ',
+            ], $info['output']['theme']);
+        } finally {
+            \Psy\info($resetConfig);
+        }
+    }
 }

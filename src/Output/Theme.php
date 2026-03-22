@@ -19,6 +19,8 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  */
 class Theme
 {
+    public const BUILTIN_THEMES = ['modern', 'compact', 'classic'];
+
     const MODERN_THEME = []; // Defaults :)
 
     const COMPACT_THEME = [
@@ -32,6 +34,12 @@ class Theme
         'bufferPrompt' => '... ',
         'replayPrompt' => '--> ',
         'returnValue'  => '=>  ',
+    ];
+
+    private const BUILTIN_THEME_CONFIGS = [
+        'modern'  => self::MODERN_THEME,
+        'compact' => self::COMPACT_THEME,
+        'classic' => self::CLASSIC_THEME,
     ];
 
     // Custom themes fall back to DEFAULT_STYLES for any undefined style.
@@ -86,7 +94,6 @@ class Theme
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
 
     private bool $compact = false;
-    private ?string $name = null;
 
     private string $prompt = '> ';
     private string $bufferPrompt = '. ';
@@ -102,28 +109,12 @@ class Theme
      */
     public function __construct($config = 'modern')
     {
-        $themeName = null;
         if (\is_string($config)) {
-            $themeName = $config;
-
-            switch ($config) {
-                case 'modern':
-                    $config = static::MODERN_THEME;
-                    break;
-
-                case 'compact':
-                    $config = static::COMPACT_THEME;
-                    break;
-
-                case 'classic':
-                    $config = static::CLASSIC_THEME;
-                    break;
-
-                default:
-                    $themeName = null;
-                    \trigger_error(\sprintf('Unknown theme: %s', $config), \E_USER_NOTICE);
-                    $config = static::MODERN_THEME;
-                    break;
+            if (isset(self::BUILTIN_THEME_CONFIGS[$config])) {
+                $config = self::BUILTIN_THEME_CONFIGS[$config];
+            } else {
+                \trigger_error(\sprintf('Unknown theme: %s', $config), \E_USER_NOTICE);
+                $config = static::MODERN_THEME;
             }
         }
 
@@ -160,7 +151,6 @@ class Theme
         }
 
         $this->setStyles($config['styles'] ?? []);
-        $this->name = $themeName;
     }
 
     /**
@@ -168,7 +158,6 @@ class Theme
      */
     public function setCompact(bool $compact)
     {
-        $this->name = null;
         $this->compact = $compact;
     }
 
@@ -185,12 +174,6 @@ class Theme
      */
     public function setPrompt(string $prompt)
     {
-        // Called on every input; skip clearing name when unchanged.
-        if ($this->prompt === $prompt) {
-            return;
-        }
-
-        $this->name = null;
         $this->prompt = $prompt;
     }
 
@@ -207,7 +190,6 @@ class Theme
      */
     public function setBufferPrompt(string $bufferPrompt)
     {
-        $this->name = null;
         $this->bufferPrompt = $bufferPrompt;
     }
 
@@ -224,7 +206,6 @@ class Theme
      */
     public function setReplayPrompt(string $replayPrompt)
     {
-        $this->name = null;
         $this->replayPrompt = $replayPrompt;
     }
 
@@ -241,7 +222,6 @@ class Theme
      */
     public function setReturnValue(string $returnValue)
     {
-        $this->name = null;
         $this->returnValue = $returnValue;
     }
 
@@ -258,7 +238,6 @@ class Theme
      */
     public function setGrayFallback(string $grayFallback)
     {
-        $this->name = null;
         $this->grayFallback = $grayFallback;
     }
 
@@ -276,7 +255,6 @@ class Theme
      */
     public function setStyles(array $styles)
     {
-        $this->name = null;
         foreach (\array_keys(static::DEFAULT_STYLES) as $name) {
             $this->styles[$name] = $styles[$name] ?? static::DEFAULT_STYLES[$name];
         }
@@ -287,7 +265,27 @@ class Theme
      */
     public function getName(): ?string
     {
-        return $this->name;
+        foreach (self::BUILTIN_THEMES as $name) {
+            if ($this->equals(new self($name))) {
+                return $name;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Compare two themes by effective config.
+     */
+    public function equals(self $theme): bool
+    {
+        return $this->compact === $theme->compact
+            && $this->prompt === $theme->prompt
+            && $this->bufferPrompt === $theme->bufferPrompt
+            && $this->replayPrompt === $theme->replayPrompt
+            && $this->returnValue === $theme->returnValue
+            && $this->grayFallback === $theme->grayFallback
+            && $this->styles === $theme->styles;
     }
 
     /**
