@@ -357,9 +357,10 @@ class FrameRendererTest extends TestCase
         $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
         $this->assertCount(1, $paintedLines);
         $this->assertSame(
-            '>>> '.$this->formatter->getStyle('keyword')->apply('echo ')
+            '>>> '.$this->formatter->getStyle('keyword')->apply('echo')
+            .' '
             .$this->formatter->getStyle('string')->apply('"hi"')
-            .$this->formatter->getStyle('keyword')->apply(';'),
+            .';',
             $paintedLines[0]
         );
     }
@@ -407,9 +408,10 @@ class FrameRendererTest extends TestCase
             .'='
             .$this->formatter->getStyle('number')->apply('2')
             .' '
-            .$this->formatter->getStyle('keyword')->apply('echo ')
+            .$this->formatter->getStyle('keyword')->apply('echo')
+            .' '
             .$this->formatter->getStyle('string')->apply('"hi"')
-            .$this->formatter->getStyle('keyword')->apply(';'),
+            .';',
             $paintedLines[0]
         );
     }
@@ -431,6 +433,164 @@ class FrameRendererTest extends TestCase
         $this->assertCount(1, $paintedLines);
         $this->assertSame(
             '>>> '.$this->formatter->getStyle('command')->apply('help').' '.$this->formatter->getStyle('command_argument')->apply('show'),
+            $paintedLines[0]
+        );
+    }
+
+    public function testPhpInputHighlightsArrayKeysDifferentlyFromStringValues()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('array_key', new OutputFormatterStyle('blue'));
+        $this->formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, "['key' => 'value']<cursor>");
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> ['
+            .$this->formatter->getStyle('array_key')->apply("'key'")
+            .' => '
+            .$this->formatter->getStyle('string')->apply("'value'")
+            .']',
+            $paintedLines[0]
+        );
+    }
+
+    public function testPhpInputHighlightsObviousClassNames()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'new Foo(); Foo::class;<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '
+            .$this->formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$this->formatter->getStyle('class')->apply('Foo')
+            .'(); '
+            .$this->formatter->getStyle('class')->apply('Foo')
+            .'::class;',
+            $paintedLines[0]
+        );
+    }
+
+    public function testPhpInputKeepsPseudoClassStaticReferencesKeywordColored()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'self::VERSION; Foo::bar();<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '
+            .$this->formatter->getStyle('keyword')->apply('self')
+            .'::VERSION; '
+            .$this->formatter->getStyle('class')->apply('Foo')
+            .'::bar();',
+            $paintedLines[0]
+        );
+    }
+
+    public function testPhpInputKeepsPseudoClassReferenceContextsKeywordColored()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'new self(); $foo instanceof parent; new Foo();<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '
+            .$this->formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$this->formatter->getStyle('keyword')->apply('self')
+            .'(); $foo '
+            .$this->formatter->getStyle('keyword')->apply('instanceof')
+            .' '
+            .$this->formatter->getStyle('keyword')->apply('parent')
+            .'; '
+            .$this->formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$this->formatter->getStyle('class')->apply('Foo')
+            .'();',
+            $paintedLines[0]
+        );
+    }
+
+    public function testPhpInputHighlightsQualifiedClassNamesInReferenceContexts()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'new Command\\HelpCommand(); Foo\\Bar::baz();<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '
+            .$this->formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$this->formatter->getStyle('class')->apply('Command\\HelpCommand')
+            .'(); '
+            .$this->formatter->getStyle('class')->apply('Foo\\Bar')
+            .'::baz();',
+            $paintedLines[0]
+        );
+    }
+
+    public function testPhpInputHighlightsTrueFalseAndNull()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('bool', new OutputFormatterStyle('cyan'));
+        $this->formatter->setStyle('const', new OutputFormatterStyle('cyan'));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'true; false; null;<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '
+            .$this->formatter->getStyle('bool')->apply('true')
+            .'; '
+            .$this->formatter->getStyle('bool')->apply('false')
+            .'; '
+            .$this->formatter->getStyle('const')->apply('null')
+            .';',
             $paintedLines[0]
         );
     }

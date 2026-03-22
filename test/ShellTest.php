@@ -1329,7 +1329,7 @@ class ShellTest extends TestCase
     public function getReturnValues()
     {
         return [
-            ['{{return value}}', "= \"\033[32m{{return value}}\033[39m\"".\PHP_EOL],
+            ['{{return value}}', "= \033[32m\"\033[39m\033[32m{{return value}}\033[39m\033[32m\"\033[39m".\PHP_EOL],
             [1, "= \033[35m1\033[39m".\PHP_EOL],
         ];
     }

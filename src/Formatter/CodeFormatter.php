@@ -29,14 +29,19 @@ class CodeFormatter implements ReflectorFormatter
     const HIGHLIGHT_PUBLIC = 'public';
     const HIGHLIGHT_PROTECTED = 'protected';
     const HIGHLIGHT_PRIVATE = 'private';
+    const HIGHLIGHT_CLASS = 'class';
 
+    const HIGHLIGHT_BOOL = 'bool';
     const HIGHLIGHT_CONST = 'const';
     const HIGHLIGHT_NUMBER = 'number';
     const HIGHLIGHT_STRING = 'string';
+    const HIGHLIGHT_ARRAY_KEY = 'array_key';
     const HIGHLIGHT_COMMENT = 'code_comment';
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
-    private const TOKEN_MAP = [
+    private const CLASS_REFERENCE_KEYWORDS = [\T_NEW, \T_INSTANCEOF, \T_CATCH];
+
+    private const BASE_TOKEN_MAP = [
         // Not highlighted
         \T_OPEN_TAG           => self::HIGHLIGHT_DEFAULT,
         \T_OPEN_TAG_WITH_ECHO => self::HIGHLIGHT_DEFAULT,
@@ -72,6 +77,71 @@ class CodeFormatter implements ReflectorFormatter
 
         // @todo something better here?
         \T_INLINE_HTML => self::HIGHLIGHT_INLINE_HTML,
+    ];
+
+    private const KEYWORD_TOKENS = [
+        \T_ABSTRACT,
+        \T_ARRAY,
+        \T_AS,
+        \T_BREAK,
+        \T_CALLABLE,
+        \T_CASE,
+        \T_CATCH,
+        \T_CLONE,
+        \T_CONTINUE,
+        \T_DECLARE,
+        \T_DEFAULT,
+        \T_DO,
+        \T_ECHO,
+        \T_ELSE,
+        \T_ELSEIF,
+        \T_EMPTY,
+        \T_ENDDECLARE,
+        \T_ENDFOR,
+        \T_ENDFOREACH,
+        \T_ENDIF,
+        \T_ENDSWITCH,
+        \T_ENDWHILE,
+        \T_EVAL,
+        \T_EXIT,
+        \T_EXTENDS,
+        \T_FINAL,
+        \T_FINALLY,
+        \T_FN,
+        \T_FOR,
+        \T_FOREACH,
+        \T_FUNCTION,
+        \T_GLOBAL,
+        \T_GOTO,
+        \T_IF,
+        \T_IMPLEMENTS,
+        \T_INCLUDE,
+        \T_INCLUDE_ONCE,
+        \T_INSTANCEOF,
+        \T_INSTEADOF,
+        \T_INTERFACE,
+        \T_ISSET,
+        \T_LIST,
+        \T_LOGICAL_AND,
+        \T_LOGICAL_OR,
+        \T_LOGICAL_XOR,
+        \T_NAMESPACE,
+        \T_NEW,
+        \T_PRINT,
+        \T_REQUIRE,
+        \T_REQUIRE_ONCE,
+        \T_RETURN,
+        \T_STATIC,
+        \T_SWITCH,
+        \T_THROW,
+        \T_TRAIT,
+        \T_TRY,
+        \T_UNSET,
+        \T_USE,
+        \T_VAR,
+        \T_WHILE,
+        \T_YIELD,
+        \T_YIELD_FROM,
     ];
 
     /**
@@ -196,11 +266,22 @@ class CodeFormatter implements ReflectorFormatter
      */
     private static function tokenizeSpans(string $code): \Generator
     {
+        $tokens = \token_get_all($code);
+        $arrayKeyIndexes = self::findArrayKeyTokenIndexes($tokens);
+        [$classNameIndexes, $keywordNameIndexes] = self::findClassNameTokenIndexes($tokens);
         $spanType = null;
         $buffer = '';
 
-        foreach (\token_get_all($code) as $token) {
-            $nextType = self::nextHighlightType($token, $spanType);
+        foreach ($tokens as $index => $token) {
+            if (isset($arrayKeyIndexes[$index])) {
+                $nextType = self::HIGHLIGHT_ARRAY_KEY;
+            } elseif (isset($keywordNameIndexes[$index])) {
+                $nextType = self::HIGHLIGHT_KEYWORD;
+            } elseif (isset($classNameIndexes[$index])) {
+                $nextType = self::HIGHLIGHT_CLASS;
+            } else {
+                $nextType = self::nextHighlightType($token);
+            }
             $spanType = $spanType ?: $nextType;
 
             if ($spanType !== $nextType) {
@@ -218,30 +299,408 @@ class CodeFormatter implements ReflectorFormatter
     }
 
     /**
-     * Given a token and the current highlight span type, compute the next type.
+     * Given a token, compute the highlight type from the token map.
      *
-     * @param array|string $token       \token_get_all token
-     * @param string|null  $currentType
+     * @param array|string $token \token_get_all token
      *
      * @return string|null
      */
-    private static function nextHighlightType($token, $currentType)
+    private static function nextHighlightType($token)
     {
         if ($token === '"') {
             return self::HIGHLIGHT_STRING;
         }
 
         if (\is_array($token)) {
-            if ($token[0] === \T_WHITESPACE) {
-                return $currentType;
+            if (($literalHighlight = self::literalHighlightType($token)) !== null) {
+                return $literalHighlight;
             }
 
-            if (\array_key_exists($token[0], self::TOKEN_MAP)) {
-                return self::TOKEN_MAP[$token[0]];
+            $tokenMap = self::getTokenMap();
+            if (\array_key_exists($token[0], $tokenMap)) {
+                return $tokenMap[$token[0]];
             }
         }
 
-        return self::HIGHLIGHT_KEYWORD;
+        return self::HIGHLIGHT_DEFAULT;
+    }
+
+    /**
+     * Build the token-to-style map once so unsupported token constants on older
+     * PHP versions can be ignored safely.
+     *
+     * @return string[]
+     */
+    private static function getTokenMap(): array
+    {
+        static $tokenMap = null;
+
+        if ($tokenMap !== null) {
+            return $tokenMap;
+        }
+
+        $tokenMap = self::BASE_TOKEN_MAP;
+
+        foreach (self::KEYWORD_TOKENS as $tokenType) {
+            $tokenMap[$tokenType] = self::HIGHLIGHT_KEYWORD;
+        }
+
+        if (\defined('T_MATCH')) {
+            $tokenMap[\constant('T_MATCH')] = self::HIGHLIGHT_KEYWORD;
+        }
+
+        return $tokenMap;
+    }
+
+    /**
+     * Mark string literal tokens that are serving as array keys.
+     *
+     * This stays token-based instead of requiring a valid AST so it can work
+     * during interactive editing on incomplete input.
+     *
+     * @param array<int, array|string> $tokens
+     *
+     * @return array<int, true>
+     */
+    private static function findArrayKeyTokenIndexes(array $tokens): array
+    {
+        $arrayKeyIndexes = [];
+        $stack = [];
+        $pendingArrayParen = false;
+
+        foreach ($tokens as $index => $token) {
+            if (\is_array($token)) {
+                if ($token[0] === \T_ARRAY) {
+                    $pendingArrayParen = true;
+                }
+
+                if ($token[0] === \T_CONSTANT_ENCAPSED_STRING && self::isArrayContext($stack) && self::nextSignificantTokenIsDoubleArrow($tokens, $index)) {
+                    $arrayKeyIndexes[$index] = true;
+                }
+
+                if (!self::isIgnorableToken($token) && $token[0] !== \T_ARRAY) {
+                    $pendingArrayParen = false;
+                }
+
+                continue;
+            }
+
+            if ($token === '(') {
+                $stack[] = [
+                    'closing'   => ')',
+                    'arrayLike' => $pendingArrayParen,
+                ];
+                $pendingArrayParen = false;
+                continue;
+            }
+
+            if ($token === '[') {
+                $stack[] = [
+                    'closing'   => ']',
+                    'arrayLike' => true,
+                ];
+                $pendingArrayParen = false;
+                continue;
+            }
+
+            if (($token === ')' || $token === ']') && !empty($stack)) {
+                $top = \array_pop($stack);
+                if (($top['closing'] ?? null) !== $token) {
+                    $stack = [];
+                }
+            }
+
+            if ($token !== ',' && $token !== '=>' && $token !== '=') {
+                $pendingArrayParen = false;
+            }
+        }
+
+        return $arrayKeyIndexes;
+    }
+
+    /**
+     * @param array<int, array{closing: string, arrayLike: bool}> $stack
+     */
+    private static function isArrayContext(array $stack): bool
+    {
+        if ($stack === []) {
+            return false;
+        }
+
+        $top = $stack[\count($stack) - 1];
+
+        return !empty($top['arrayLike']);
+    }
+
+    /**
+     * @param array<int, array|string> $tokens
+     */
+    private static function nextSignificantTokenIsDoubleArrow(array $tokens, int $index): bool
+    {
+        $count = \count($tokens);
+
+        for ($i = $index + 1; $i < $count; $i++) {
+            $token = $tokens[$i];
+
+            if (self::isIgnorableToken($token)) {
+                continue;
+            }
+
+            return \is_array($token) && $token[0] === \T_DOUBLE_ARROW;
+        }
+
+        return false;
+    }
+
+    /**
+     * Mark tokens that are very likely to be class names from immediate syntax context.
+     *
+     * This is intentionally heuristic and conservative: declaration names,
+     * extends/implements lists, obvious runtime class references (`new`,
+     * `instanceof`, `catch`), and static references like `Foo::class`.
+     *
+     * On PHP 8+, qualified names arrive as T_NAME_* tokens and can be marked as
+     * a single unit. On PHP 7.4, qualified names are split across T_STRING and
+     * T_NS_SEPARATOR tokens, so we stitch them together only in these narrow,
+     * class-specific contexts.
+     *
+     * @param array<int, array|string> $tokens
+     *
+     * @return array{0: array<int, true>, 1: array<int, true>}
+     */
+    private static function findClassNameTokenIndexes(array $tokens): array
+    {
+        $classIndexes = [];
+        $keywordIndexes = [];
+        $context = null;
+
+        foreach ($tokens as $index => $token) {
+            if (self::isIgnorableToken($token)) {
+                continue;
+            }
+
+            if ($context !== null) {
+                if (self::literalHighlightType($token) !== null) {
+                    continue;
+                }
+
+                if (self::isClassNameToken($token)) {
+                    if (self::isPseudoClassToken($token)) {
+                        $keywordIndexes[$index] = true;
+                    } else {
+                        $classIndexes[$index] = true;
+                    }
+                    continue;
+                }
+
+                if (self::isNamespaceSeparatorToken($token)) {
+                    $classIndexes[$index] = true;
+                    continue;
+                }
+
+                if ($context === 'list' && ($token === ',' || $token === '&')) {
+                    continue;
+                }
+
+                if ($context === 'union' && ($token === '|' || $token === '&')) {
+                    continue;
+                }
+
+                if ($context === 'union' && $token === '?') {
+                    continue;
+                }
+
+                $context = null;
+            }
+
+            if (!\is_array($token)) {
+                continue;
+            }
+
+            $tokenType = $token[0];
+
+            if (self::isClassDeclarationKeyword($tokenType) && !self::previousSignificantTokenIs($tokens, $index, \T_DOUBLE_COLON)) {
+                $context = 'single';
+                continue;
+            }
+
+            if ($tokenType === \T_EXTENDS || $tokenType === \T_IMPLEMENTS) {
+                $context = 'list';
+                continue;
+            }
+
+            if (\in_array($tokenType, self::CLASS_REFERENCE_KEYWORDS, true)) {
+                $context = 'union';
+                continue;
+            }
+
+            if ($tokenType === \T_DOUBLE_COLON) {
+                self::markPreviousNameToken($tokens, $classIndexes, $keywordIndexes, $index - 1);
+            }
+        }
+
+        return [$classIndexes, $keywordIndexes];
+    }
+
+    /**
+     * @param array|string $token
+     */
+    private static function isIgnorableToken($token): bool
+    {
+        return \is_array($token) && ($token[0] === \T_WHITESPACE || $token[0] === \T_COMMENT || $token[0] === \T_DOC_COMMENT);
+    }
+
+    /**
+     * @param array|string $token
+     */
+    private static function isClassNameToken($token): bool
+    {
+        if (!\is_array($token)) {
+            return false;
+        }
+
+        if ($token[0] === \T_STRING) {
+            return true;
+        }
+
+        return \in_array($token[0], self::qualifiedNameTokenTypes(), true);
+    }
+
+    /**
+     * @param array|string $token
+     */
+    private static function isNamespaceSeparatorToken($token): bool
+    {
+        return \is_array($token) && $token[0] === \T_NS_SEPARATOR;
+    }
+
+    /**
+     * @return int[]
+     */
+    private static function qualifiedNameTokenTypes(): array
+    {
+        static $types = null;
+
+        if ($types !== null) {
+            return $types;
+        }
+
+        $types = [];
+
+        foreach (['T_NAME_QUALIFIED', 'T_NAME_FULLY_QUALIFIED', 'T_NAME_RELATIVE'] as $tokenName) {
+            if (\defined($tokenName)) {
+                $types[] = \constant($tokenName);
+            }
+        }
+
+        return $types;
+    }
+
+    private static function isClassDeclarationKeyword(int $tokenType): bool
+    {
+        if (\in_array($tokenType, [\T_CLASS, \T_INTERFACE, \T_TRAIT], true)) {
+            return true;
+        }
+
+        return \defined('T_ENUM') && $tokenType === \constant('T_ENUM');
+    }
+
+    /**
+     * @param array<int, array|string> $tokens
+     */
+    private static function previousSignificantTokenIs(array $tokens, int $index, int $tokenType): bool
+    {
+        for ($i = $index - 1; $i >= 0; $i--) {
+            $token = $tokens[$i];
+
+            if (self::isIgnorableToken($token)) {
+                continue;
+            }
+
+            return \is_array($token) && $token[0] === $tokenType;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<int, array|string> $tokens
+     * @param array<int, true>         $classIndexes
+     * @param array<int, true>         $keywordIndexes
+     */
+    private static function markPreviousNameToken(array $tokens, array &$classIndexes, array &$keywordIndexes, int $index): void
+    {
+        $chainIndexes = [];
+
+        for ($i = $index; $i >= 0; $i--) {
+            $token = $tokens[$i];
+
+            if (self::isIgnorableToken($token)) {
+                if ($chainIndexes === []) {
+                    continue;
+                }
+
+                break;
+            }
+
+            if (self::isNamespaceSeparatorToken($token) || self::isClassNameToken($token)) {
+                $chainIndexes[] = $i;
+                continue;
+            }
+
+            break;
+        }
+
+        if ($chainIndexes === []) {
+            return;
+        }
+
+        $firstIndex = $chainIndexes[0];
+        if (self::literalHighlightType($tokens[$firstIndex]) !== null) {
+            return;
+        }
+
+        if (self::isPseudoClassToken($tokens[$firstIndex])) {
+            $keywordIndexes[$firstIndex] = true;
+
+            return;
+        }
+
+        foreach ($chainIndexes as $chainIndex) {
+            $classIndexes[$chainIndex] = true;
+        }
+    }
+
+    /**
+     * @param array|string $token
+     */
+    private static function isPseudoClassToken($token): bool
+    {
+        return \is_array($token)
+            && $token[0] === \T_STRING
+            && \in_array(\strtolower($token[1]), ['self', 'parent', 'static'], true);
+    }
+
+    /**
+     * @param array|string $token
+     */
+    private static function literalHighlightType($token): ?string
+    {
+        if (!\is_array($token) || $token[0] !== \T_STRING) {
+            return null;
+        }
+
+        $value = \strtolower($token[1]);
+
+        if ($value === 'true' || $value === 'false') {
+            return self::HIGHLIGHT_BOOL;
+        }
+
+        if ($value === 'null') {
+            return self::HIGHLIGHT_CONST;
+        }
+
+        return null;
     }
 
     /**

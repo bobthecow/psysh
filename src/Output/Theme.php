@@ -64,8 +64,9 @@ class Theme
         // Types
         'number'       => ['magenta'],
         'integer'      => ['magenta'],
-        'float'        => ['yellow'],
+        'float'        => ['magenta'],
         'string'       => ['green'],
+        'array_key'    => ['blue'],
         'bool'         => ['cyan'],
         'keyword'      => ['yellow'],
         'comment'      => ['blue'],

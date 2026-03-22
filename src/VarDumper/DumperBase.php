@@ -93,9 +93,9 @@ abstract class DumperBase extends CliDumper
                 if (\is_int($key)) {
                     $this->line .= $this->style($style, (string) $key).' => ';
                 } else {
-                    $this->line .= $bin.'"';
-                    $this->appendEscapedString((string) $key, $style, $attr);
-                    $this->line .= '" => ';
+                    $this->line .= $bin.$this->style($style, '"');
+                    $this->appendEscapedString((string) $key, $style);
+                    $this->line .= $this->style($style, '"').' => ';
                 }
 
                 return;
@@ -117,7 +117,7 @@ abstract class DumperBase extends CliDumper
         }
 
         if ('' === $str) {
-            $this->line .= '""';
+            $this->line .= $this->style('str', '""');
             if ($cut) {
                 $this->line .= '…'.$cut;
             }
@@ -149,10 +149,14 @@ abstract class DumperBase extends CliDumper
         }
 
         if ($last) {
-            $this->line .= $useHeredocMultilineStrings ? '<<<'.$heredocLabel : '"""';
+            if ($useHeredocMultilineStrings) {
+                $this->line .= '<<<'.$this->style('str', (string) $heredocLabel);
+            } else {
+                $this->line .= $this->style('str', '"""');
+            }
             $this->dumpLine($cursor->depth);
         } else {
-            $this->line .= '"';
+            $this->line .= $this->style('str', '"');
         }
 
         foreach ($parts as $part) {
@@ -176,7 +180,7 @@ abstract class DumperBase extends CliDumper
                 if ($useHeredocMultilineStrings) {
                     $this->appendEscaped($displayPart, 'str', self::HEREDOC_ESCAPE_CHARS, self::HEREDOC_DELIMITERS);
                 } else {
-                    $this->appendEscapedString($displayPart, 'str', $attr);
+                    $this->appendEscapedString($displayPart, 'str');
                 }
             }
             if ($index++ === $last) {
@@ -187,9 +191,9 @@ abstract class DumperBase extends CliDumper
                             $this->line .= $this->indentPad;
                         }
                     }
-                    $this->line .= $useHeredocMultilineStrings ? $heredocLabel : '"""';
+                    $this->line .= $useHeredocMultilineStrings ? $this->style('str', (string) $heredocLabel) : $this->style('str', '"""');
                 } else {
-                    $this->line .= '"';
+                    $this->line .= $this->style('str', '"');
                 }
                 if ($cut < 0) {
                     $this->line .= '…';
@@ -260,7 +264,7 @@ abstract class DumperBase extends CliDumper
         return $this->formatter->getStyle($style)->apply($value);
     }
 
-    private function appendEscapedString(string $value, string $style, array $attr = []): void
+    private function appendEscapedString(string $value, string $style): void
     {
         $this->appendEscaped($value, $style, self::STRING_ESCAPE_CHARS, self::STRING_DELIMITERS);
     }

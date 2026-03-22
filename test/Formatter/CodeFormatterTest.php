@@ -13,6 +13,8 @@ namespace Psy\Test\Formatter;
 
 use Psy\Formatter\CodeFormatter;
 use Psy\Test\Fixtures\Formatter\SomeClass;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class CodeFormatterTest extends \Psy\Test\TestCase
 {
@@ -235,21 +237,184 @@ EOS;
     public function smallCodeLines()
     {
         return [
-            ['<?php $foo = 42;', 1, null, null, '<aside>1</aside>: \\<?php $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
-            ['<?php echo "yay $foo!";', 1, null, null, '<aside>1</aside>: \\<?php <keyword>echo </keyword><string>"yay </string>$foo<string>!"</string><keyword>;</keyword>'],
+            ['<?php $foo = 42;', 1, null, null, '<aside>1</aside>: \\<?php $foo = <number>42</number>;'],
+            ['<?php echo "yay $foo!";', 1, null, null, '<aside>1</aside>: \\<?php <keyword>echo</keyword> <string>"yay </string>$foo<string>!"</string>;'],
 
             // Start and end lines
-            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, null, '<aside>1</aside>: \\<?php <keyword>echo </keyword><string>\'wat\'</string><keyword>;</keyword>'],
-            ["<?php echo 'wat';\n\$foo = 42;", 2, 2, null, '<aside>2</aside>: $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
-            ["<?php echo 'wat';\n\$foo = 42;", 2, null, null, '<aside>2</aside>: $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
+            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, null, '<aside>1</aside>: \\<?php <keyword>echo</keyword> <string>\'wat\'</string>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, 2, null, '<aside>2</aside>: $foo = <number>42</number>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, null, null, '<aside>2</aside>: $foo = <number>42</number>;'],
 
             // With a line marker
-            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 2, '  <urgent>></urgent> <aside>2</aside>: $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 2, '  <urgent>></urgent> <aside>2</aside>: $foo = <number>42</number>;'],
 
             // Line marker before or after our line range
-            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 1, '<aside>2</aside>: $foo <keyword>= </keyword><number>42</number><keyword>;</keyword>'],
-            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, 3, '<aside>1</aside>: \<?php <keyword>echo </keyword><string>\'wat\'</string><keyword>;</keyword>'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 1, '<aside>2</aside>: $foo = <number>42</number>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, 3, '<aside>1</aside>: \<?php <keyword>echo</keyword> <string>\'wat\'</string>;'],
         ];
+    }
+
+    public function testFormatInputLinesLeavesStructuralPunctuationUnstyled()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+
+        $lines = CodeFormatter::formatInputLines('if ($foo) { return 1; }', $formatter);
+
+        $this->assertSame(
+            $formatter->getStyle('keyword')->apply('if').' ($foo) { '.$formatter->getStyle('keyword')->apply('return').' '.$formatter->getStyle('number')->apply('1').'; }',
+            $lines[0]
+        );
+    }
+
+    public function testFormatInputLinesHighlightsArrayStringKeysDifferentlyFromValues()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('array_key', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+
+        $lines = CodeFormatter::formatInputLines("['key' => 'value', \"other\" => 123]", $formatter);
+
+        $this->assertSame(
+            '['
+            .$formatter->getStyle('array_key')->apply("'key'")
+            .' => '
+            .$formatter->getStyle('string')->apply("'value'")
+            .', '
+            .$formatter->getStyle('array_key')->apply('"other"')
+            .' => '
+            .$formatter->getStyle('number')->apply('123')
+            .']',
+            $lines[0]
+        );
+    }
+
+    public function testFormatInputLinesHighlightsObviousClassNames()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+
+        $lines = CodeFormatter::formatInputLines('new Foo(); Foo::class; class Bar extends Baz implements Qux, Quux {}', $formatter);
+
+        $this->assertSame(
+            $formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$formatter->getStyle('class')->apply('Foo')
+            .'(); '
+            .$formatter->getStyle('class')->apply('Foo')
+            .'::class; class '
+            .$formatter->getStyle('class')->apply('Bar')
+            .' '
+            .$formatter->getStyle('keyword')->apply('extends')
+            .' '
+            .$formatter->getStyle('class')->apply('Baz')
+            .' '
+            .$formatter->getStyle('keyword')->apply('implements')
+            .' '
+            .$formatter->getStyle('class')->apply('Qux')
+            .', '
+            .$formatter->getStyle('class')->apply('Quux')
+            .' {}',
+            $lines[0]
+        );
+    }
+
+    public function testFormatInputLinesKeepsPseudoClassStaticReferencesKeywordColored()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+
+        $lines = CodeFormatter::formatInputLines('self::VERSION; parent::__construct(); static::make(); Foo::bar();', $formatter);
+
+        $this->assertSame(
+            $formatter->getStyle('keyword')->apply('self')
+            .'::VERSION; '
+            .$formatter->getStyle('keyword')->apply('parent')
+            .'::__construct(); '
+            .$formatter->getStyle('keyword')->apply('static')
+            .'::make(); '
+            .$formatter->getStyle('class')->apply('Foo')
+            .'::bar();',
+            $lines[0]
+        );
+    }
+
+    public function testFormatInputLinesKeepsPseudoClassReferenceContextsKeywordColored()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+
+        $lines = CodeFormatter::formatInputLines('new self(); $foo instanceof parent; catch (static $e) {} new Foo();', $formatter);
+
+        $this->assertSame(
+            $formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$formatter->getStyle('keyword')->apply('self')
+            .'(); $foo '
+            .$formatter->getStyle('keyword')->apply('instanceof')
+            .' '
+            .$formatter->getStyle('keyword')->apply('parent')
+            .'; '
+            .$formatter->getStyle('keyword')->apply('catch')
+            .' ('
+            .$formatter->getStyle('keyword')->apply('static')
+            .' $e) {} '
+            .$formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$formatter->getStyle('class')->apply('Foo')
+            .'();',
+            $lines[0]
+        );
+    }
+
+    public function testFormatInputLinesHighlightsQualifiedClassNamesInReferenceContexts()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
+
+        $lines = CodeFormatter::formatInputLines('new Command\\HelpCommand(); Foo\\Bar::baz();', $formatter);
+
+        $this->assertSame(
+            $formatter->getStyle('keyword')->apply('new')
+            .' '
+            .$formatter->getStyle('class')->apply('Command\\HelpCommand')
+            .'(); '
+            .$formatter->getStyle('class')->apply('Foo\\Bar')
+            .'::baz();',
+            $lines[0]
+        );
+    }
+
+    public function testFormatInputLinesHighlightsTrueFalseAndNull()
+    {
+        $formatter = new OutputFormatter();
+        $formatter->setDecorated(true);
+        $formatter->setStyle('bool', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('const', new OutputFormatterStyle('cyan'));
+
+        $lines = CodeFormatter::formatInputLines('true; false; null;', $formatter);
+
+        $this->assertSame(
+            $formatter->getStyle('bool')->apply('true')
+            .'; '
+            .$formatter->getStyle('bool')->apply('false')
+            .'; '
+            .$formatter->getStyle('const')->apply('null')
+            .';',
+            $lines[0]
+        );
     }
 
     /**

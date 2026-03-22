@@ -47,7 +47,7 @@ class Presenter
         'protected' => 'protected',
         'private'   => 'private',
         'meta'      => 'comment',
-        'key'       => 'comment',
+        'key'       => 'array_key',
         'index'     => 'number',
     ];
 

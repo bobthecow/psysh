@@ -163,26 +163,64 @@ bar
 TEXT, $this->dump("foo\nbar", 0, true));
     }
 
+    public function testDecoratedSingleLineStringsHighlightQuotes(): void
+    {
+        $formatter = $this->createFormatter(true);
+        $dump = $this->dumpWithFormatter($formatter, 'foo');
+
+        $this->assertSame(
+            $formatter->getStyle('string')->apply('"')
+            .$formatter->getStyle('string')->apply('foo')
+            .$formatter->getStyle('string')->apply('"'),
+            $dump
+        );
+    }
+
+    public function testDecoratedHeredocMarkersKeepArrowsNeutralAndLabelsStyled(): void
+    {
+        $formatter = $this->createFormatter(true);
+        $dump = $this->dumpWithFormatter($formatter, "foo\nbar");
+        $lines = \explode(\PHP_EOL, $dump);
+
+        $this->assertSame('<<<'.$formatter->getStyle('string')->apply('EOS'), $lines[0]);
+        $this->assertSame($formatter->getStyle('string')->apply('EOS'), $lines[3]);
+    }
+
+    public function testDecoratedTripleQuoteMultilineStringsHighlightQuotes(): void
+    {
+        $formatter = $this->createFormatter(true);
+        $dump = $this->dumpWithFormatter($formatter, "foo\nbar", 0, true);
+        $lines = \explode(\PHP_EOL, $dump);
+
+        $this->assertSame($formatter->getStyle('string')->apply('"""'), $lines[0]);
+        $this->assertSame($formatter->getStyle('string')->apply('"""'), $lines[3]);
+    }
+
+    public function testDecoratedAssociativeStringKeysHighlightQuotesWithKeyStyle(): void
+    {
+        $formatter = $this->createFormatter(true);
+        $dump = $this->dumpWithFormatter($formatter, ['key' => 1]);
+        $lines = \explode(\PHP_EOL, $dump);
+
+        $this->assertSame(
+            '  '
+            .$formatter->getStyle('array_key')->apply('"')
+            .$formatter->getStyle('array_key')->apply('key')
+            .$formatter->getStyle('array_key')->apply('"')
+            .' => '
+            .$formatter->getStyle('number')->apply('1')
+            .',',
+            $lines[1]
+        );
+    }
+
     private function dump($value, int $maxStringWidth = 0, bool $useDeprecatedMultilineStrings = false): string
     {
-        $formatter = new OutputFormatter(false);
+        return $this->dumpWithFormatter($this->createFormatter(false), $value, $maxStringWidth, $useDeprecatedMultilineStrings);
+    }
 
-        foreach ([
-            'number',
-            'integer',
-            'float',
-            'const',
-            'string',
-            'default',
-            'class',
-            'public',
-            'protected',
-            'private',
-            'comment',
-        ] as $style) {
-            $formatter->setStyle($style, new OutputFormatterStyle());
-        }
-
+    private function dumpWithFormatter(OutputFormatter $formatter, $value, int $maxStringWidth = 0, bool $useDeprecatedMultilineStrings = false): string
+    {
         $dumper = new Dumper($formatter, false, $useDeprecatedMultilineStrings);
         $dumper->setStyles([
             'num'       => 'number',
@@ -197,7 +235,7 @@ TEXT, $this->dump("foo\nbar", 0, true));
             'protected' => 'protected',
             'private'   => 'private',
             'meta'      => 'comment',
-            'key'       => 'comment',
+            'key'       => 'array_key',
             'index'     => 'number',
         ]);
         $dumper->setMaxStringWidth($maxStringWidth);
@@ -216,6 +254,26 @@ TEXT, $this->dump("foo\nbar", 0, true));
         });
 
         return $output;
+    }
+
+    private function createFormatter(bool $decorated): OutputFormatter
+    {
+        $formatter = new OutputFormatter($decorated);
+
+        $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+        $formatter->setStyle('integer', new OutputFormatterStyle('magenta'));
+        $formatter->setStyle('float', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('const', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $formatter->setStyle('array_key', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('default', new OutputFormatterStyle());
+        $formatter->setStyle('class', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('public', new OutputFormatterStyle());
+        $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('private', new OutputFormatterStyle('red'));
+        $formatter->setStyle('comment', new OutputFormatterStyle('blue'));
+
+        return $formatter;
     }
 
     /**

@@ -150,6 +150,7 @@ class ThemeTest extends TestCase
         $this->assertTrue($formatter->hasStyle('protected'));
         $this->assertTrue($formatter->hasStyle('private'));
         $this->assertTrue($formatter->hasStyle('string'));
+        $this->assertTrue($formatter->hasStyle('array_key'));
         $this->assertTrue($formatter->hasStyle('number'));
         $this->assertTrue($formatter->hasStyle('comment'));
     }
@@ -181,6 +182,7 @@ class ThemeTest extends TestCase
         // Styles should still be applied even with gray fallback
         $this->assertTrue($formatter->hasStyle('comment'));
         $this->assertTrue($formatter->hasStyle('code_comment'));
+        $this->assertTrue($formatter->hasStyle('array_key'));
         $this->assertTrue($formatter->hasStyle('input_frame'));
     }
 
