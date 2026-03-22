@@ -807,7 +807,7 @@ class CodeFormatter implements ReflectorFormatter
                 $mark = ($markLine === $lineNum) ? self::LINE_MARKER : self::NO_LINE_MARKER;
             }
 
-            yield \sprintf("%s<aside>%{$pad}s</aside>: %s", $mark, $lineNum, $line);
+            yield \sprintf("%s<whisper>%{$pad}s:</whisper> %s", $mark, $lineNum, $line);
         }
     }
 

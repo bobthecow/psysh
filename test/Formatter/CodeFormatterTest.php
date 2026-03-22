@@ -237,20 +237,20 @@ EOS;
     public function smallCodeLines()
     {
         return [
-            ['<?php $foo = 42;', 1, null, null, '<aside>1</aside>: \\<?php $foo = <number>42</number>;'],
-            ['<?php echo "yay $foo!";', 1, null, null, '<aside>1</aside>: \\<?php <keyword>echo</keyword> <string>"yay </string>$foo<string>!"</string>;'],
+            ['<?php $foo = 42;', 1, null, null, '<whisper>1:</whisper> \\<?php $foo = <number>42</number>;'],
+            ['<?php echo "yay $foo!";', 1, null, null, '<whisper>1:</whisper> \\<?php <keyword>echo</keyword> <string>"yay </string>$foo<string>!"</string>;'],
 
             // Start and end lines
-            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, null, '<aside>1</aside>: \\<?php <keyword>echo</keyword> <string>\'wat\'</string>;'],
-            ["<?php echo 'wat';\n\$foo = 42;", 2, 2, null, '<aside>2</aside>: $foo = <number>42</number>;'],
-            ["<?php echo 'wat';\n\$foo = 42;", 2, null, null, '<aside>2</aside>: $foo = <number>42</number>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, null, '<whisper>1:</whisper> \\<?php <keyword>echo</keyword> <string>\'wat\'</string>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, 2, null, '<whisper>2:</whisper> $foo = <number>42</number>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, null, null, '<whisper>2:</whisper> $foo = <number>42</number>;'],
 
             // With a line marker
-            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 2, '  <urgent>></urgent> <aside>2</aside>: $foo = <number>42</number>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 2, '  <urgent>></urgent> <whisper>2:</whisper> $foo = <number>42</number>;'],
 
             // Line marker before or after our line range
-            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 1, '<aside>2</aside>: $foo = <number>42</number>;'],
-            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, 3, '<aside>1</aside>: \<?php <keyword>echo</keyword> <string>\'wat\'</string>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 2, null, 1, '<whisper>2:</whisper> $foo = <number>42</number>;'],
+            ["<?php echo 'wat';\n\$foo = 42;", 1, 1, 3, '<whisper>1:</whisper> \<?php <keyword>echo</keyword> <string>\'wat\'</string>;'],
         ];
     }
 

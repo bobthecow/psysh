@@ -232,7 +232,9 @@ class ShellOutputAdapter implements OutputInterface
     private function numberLines(array $messages, int $type): array
     {
         $pad = \strlen((string) \count($messages));
-        $template = "%{$pad}s: %s";
+        $template = $this->output->isDecorated() && $this->output->getFormatter()->hasStyle('whisper')
+            ? "<whisper>%{$pad}s:</whisper> %s"
+            : "%{$pad}s: %s";
 
         if ($type & OutputInterface::OUTPUT_RAW) {
             $messages = \array_map([OutputFormatter::class, 'escape'], $messages);
