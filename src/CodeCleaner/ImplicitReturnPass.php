@@ -75,14 +75,14 @@ class ImplicitReturnPass extends CodeCleanerPass
                     $case->stmts[] = $caseLast;
                 }
             }
-        } elseif ($last instanceof Expr && !($last instanceof Exit_) && !($last instanceof Throw_)) {
+        } elseif ($last instanceof Expr && !($last instanceof Exit_) && !self::isThrowNode($last)) {
             // @codeCoverageIgnoreStart
             $nodes[\count($nodes) - 1] = new Return_($last, [
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
             ]);
             // @codeCoverageIgnoreEnd
-        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_) && !($last->expr instanceof Throw_)) {
+        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_) && !self::isThrowNode($last->expr)) {
             $nodes[\count($nodes) - 1] = new Return_($last->expr, [
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
@@ -101,7 +101,7 @@ class ImplicitReturnPass extends CodeCleanerPass
         // We're not adding a fallback return after namespace statements,
         // because code outside namespace statements doesn't really work, and
         // there's already an implicit return in the namespace statement anyway.
-        if (self::isNonExpressionStmt($last)) {
+        if (self::isNonExpressionStmt($last) && !self::isThrowNode($last)) {
             $nodes[] = new Return_(NoReturnValue::create());
         }
 
@@ -122,5 +122,16 @@ class ImplicitReturnPass extends CodeCleanerPass
             !$node instanceof Expression &&
             !$node instanceof Return_ &&
             !$node instanceof Namespace_;
+    }
+
+    /**
+     * PHP-Parser 4.x modeled standalone `throw` as Stmt\Throw_, while newer
+     * versions expose it as Expr\Throw_ inside Stmt\Expression.
+     */
+    private static function isThrowNode(Node $node): bool
+    {
+        $legacyThrowStmt = 'PhpParser\\Node\\Stmt\\Throw_';
+
+        return $node instanceof Throw_ || $node instanceof $legacyThrowStmt;
     }
 }
