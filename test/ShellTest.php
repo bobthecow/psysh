@@ -375,7 +375,7 @@ class ShellTest extends TestCase
             {
             }
 
-            public function setBracketedPaste(bool $enabled): void
+            public function setUseBracketedPaste(bool $enabled): void
             {
             }
 
@@ -600,9 +600,9 @@ class ShellTest extends TestCase
                 $this->theme = $theme;
             }
 
-            public function setBracketedPaste(bool $enabled): void
+            public function setUseBracketedPaste(bool $enabled): void
             {
-                $this->calls[] = 'setBracketedPaste';
+                $this->calls[] = 'setUseBracketedPaste';
                 $this->bracketedPaste = $enabled;
             }
 
@@ -1978,7 +1978,7 @@ class ShellTest extends TestCase
             {
             }
 
-            public function setBracketedPaste(bool $enabled): void
+            public function setUseBracketedPaste(bool $enabled): void
             {
             }
 

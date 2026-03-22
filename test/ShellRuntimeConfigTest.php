@@ -72,7 +72,7 @@ class ShellRuntimeConfigTest extends TestCase
         $readline->expects($this->once())->method('setOutput');
         $readline->method('setTheme');
         $readline->method('setRequireSemicolons');
-        $readline->method('setBracketedPaste');
+        $readline->method('setUseBracketedPaste');
         $readline->method('setUseSuggestions');
         $readline->method('getHistory')->willReturn(new History());
         $readline->method('readHistory')->willReturn(true);
@@ -129,7 +129,7 @@ class ShellRuntimeConfigTest extends TestCase
         $readline->expects($this->once())->method('setOutput');
         $readline->expects($this->exactly(2))->method('setTheme');
         $readline->expects($this->exactly(2))->method('setRequireSemicolons');
-        $readline->expects($this->exactly(2))->method('setBracketedPaste');
+        $readline->expects($this->exactly(2))->method('setUseBracketedPaste');
         $readline->expects($this->exactly(2))->method('setUseSuggestions');
         $readline->method('getHistory')->willReturn(new History());
         $readline->method('readHistory')->willReturn(true);

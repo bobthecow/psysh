@@ -297,10 +297,10 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     /**
      * {@inheritdoc}
      */
-    public function setBracketedPaste(bool $enabled): void
+    public function setUseBracketedPaste(bool $enabled): void
     {
         $this->assertBooted();
-        $this->session->setBracketedPaste($enabled);
+        $this->session->setUseBracketedPaste($enabled);
     }
 
     /**

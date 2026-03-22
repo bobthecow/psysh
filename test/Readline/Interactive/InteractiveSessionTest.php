@@ -26,14 +26,14 @@ class InteractiveSessionTest extends TestCase
         return $this->createMock(Terminal::class);
     }
 
-    public function testSetBracketedPasteDoesNotMutateTerminalBeforeStart(): void
+    public function testSetUseBracketedPasteDoesNotMutateTerminalBeforeStart(): void
     {
         $terminal = $this->mockTerminal();
         $terminal->expects($this->never())->method('enableBracketedPaste');
         $terminal->expects($this->never())->method('disableBracketedPaste');
 
         $session = new InteractiveSession($terminal);
-        $session->setBracketedPaste(true);
+        $session->setUseBracketedPaste(true);
     }
 
     public function testBracketedPasteConfigurationIsAppliedOnStart(): void
@@ -46,7 +46,7 @@ class InteractiveSessionTest extends TestCase
         $terminal->expects($this->once())->method('disableRawMode');
 
         $session = new InteractiveSession($terminal);
-        $session->setBracketedPaste(true);
+        $session->setUseBracketedPaste(true);
         $session->start();
         $session->stop();
     }
@@ -68,7 +68,7 @@ class InteractiveSessionTest extends TestCase
         $this->assertFalse($session->isActive());
     }
 
-    public function testSetBracketedPasteUpdatesTerminalWhileActive(): void
+    public function testSetUseBracketedPasteUpdatesTerminalWhileActive(): void
     {
         $terminal = $this->mockTerminal();
         $terminal->expects($this->once())->method('enableRawMode')->willReturn(true);
@@ -79,8 +79,8 @@ class InteractiveSessionTest extends TestCase
 
         $session = new InteractiveSession($terminal);
         $session->start();
-        $session->setBracketedPaste(true);
-        $session->setBracketedPaste(false);
+        $session->setUseBracketedPaste(true);
+        $session->setUseBracketedPaste(false);
         $session->stop();
     }
 
@@ -94,7 +94,7 @@ class InteractiveSessionTest extends TestCase
         $terminal->expects($this->once())->method('disableRawMode');
 
         $session = new InteractiveSession($terminal);
-        $session->setBracketedPaste(true);
+        $session->setUseBracketedPaste(true);
         $session->start();
         $session->stop();
         $session->stop();
@@ -110,7 +110,7 @@ class InteractiveSessionTest extends TestCase
         $terminal->expects($this->never())->method('enableBracketedPaste');
 
         $session = new InteractiveSession($terminal);
-        $session->setBracketedPaste(true);
+        $session->setUseBracketedPaste(true);
         $session->start();
     }
 }

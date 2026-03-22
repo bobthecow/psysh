@@ -205,22 +205,22 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
         }
     }
 
-    public function testSetBracketedPasteDelegatesToSession()
+    public function testSetUseBracketedPasteDelegatesToSession()
     {
         $reflection = new \ReflectionClass(InteractiveReadline::class);
         $interactiveReadline = $reflection->newInstanceWithoutConstructor();
 
         $session = $this->getMockBuilder(InteractiveSession::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['setBracketedPaste'])
+            ->onlyMethods(['setUseBracketedPaste'])
             ->getMock();
         $session->expects($this->once())
-            ->method('setBracketedPaste')
+            ->method('setUseBracketedPaste')
             ->with(true);
 
         $this->setPrivateProperty($interactiveReadline, 'booted', true);
         $this->setPrivateProperty($interactiveReadline, 'session', $session);
-        $interactiveReadline->setBracketedPaste(true);
+        $interactiveReadline->setUseBracketedPaste(true);
     }
 
     private function newReadline(History $history, $historyFile): InteractiveReadline

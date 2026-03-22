@@ -69,7 +69,7 @@ class InteractiveSession
     /**
      * Enable or disable bracketed paste mode for the active session.
      */
-    public function setBracketedPaste(bool $enabled): void
+    public function setUseBracketedPaste(bool $enabled): void
     {
         $this->bracketedPasteEnabled = $enabled;
 

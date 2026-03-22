@@ -34,7 +34,7 @@ interface InteractiveReadlineInterface extends ShellReadlineInterface
     /**
      * Enable or disable bracketed paste mode.
      */
-    public function setBracketedPaste(bool $enabled): void;
+    public function setUseBracketedPaste(bool $enabled): void;
 
     /**
      * Enable or disable inline suggestions.
