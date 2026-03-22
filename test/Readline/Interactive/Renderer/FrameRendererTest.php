@@ -365,6 +365,41 @@ class FrameRendererTest extends TestCase
         );
     }
 
+    public function testPhpInputCanDisableSyntaxHighlighting()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $this->setTheme('>>> ', '... ', true);
+        $this->renderer->setUseSyntaxHighlighting(false);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'echo "hi";<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame('>>> echo "hi";', $paintedLines[0]);
+    }
+
+    public function testDisabledSyntaxHighlightingKeepsFormatterLikeInputLiteral()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('info', new OutputFormatterStyle('green'));
+        $this->setTheme('>>> ', '... ', true);
+        $this->renderer->setUseSyntaxHighlighting(false);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, '<info>x</info><cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame('>>> <info>x</info>', $paintedLines[0]);
+    }
+
     public function testCommandInputHighlightsCommandNameWhenDecorated()
     {
         $this->formatter->setDecorated(true);
@@ -379,6 +414,23 @@ class FrameRendererTest extends TestCase
         $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
         $this->assertCount(1, $paintedLines);
         $this->assertSame('>>> '.$this->formatter->getStyle('command')->apply('help').' ls', $paintedLines[0]);
+    }
+
+    public function testCommandInputCanDisableSyntaxHighlighting()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('command', new OutputFormatterStyle('cyan', null, ['bold']));
+        $this->setTheme('>>> ', '... ', true);
+        $this->renderer->setUseSyntaxHighlighting(false);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'help ls<cursor>');
+
+        $this->renderer->render($buffer, null, null, true);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame('>>> help ls', $paintedLines[0]);
     }
 
     public function testCommandInputHighlightsOptionsAndCodeArguments()

@@ -73,6 +73,7 @@ class ShellRuntimeConfigTest extends TestCase
         $readline->method('setTheme');
         $readline->method('setRequireSemicolons');
         $readline->method('setUseBracketedPaste');
+        $readline->method('setUseSyntaxHighlighting');
         $readline->method('setUseSuggestions');
         $readline->method('getHistory')->willReturn(new History());
         $readline->method('readHistory')->willReturn(true);
@@ -130,6 +131,7 @@ class ShellRuntimeConfigTest extends TestCase
         $readline->expects($this->exactly(2))->method('setTheme');
         $readline->expects($this->exactly(2))->method('setRequireSemicolons');
         $readline->expects($this->exactly(2))->method('setUseBracketedPaste');
+        $readline->expects($this->exactly(2))->method('setUseSyntaxHighlighting');
         $readline->expects($this->exactly(2))->method('setUseSuggestions');
         $readline->method('getHistory')->willReturn(new History());
         $readline->method('readHistory')->willReturn(true);
@@ -151,6 +153,8 @@ class ShellRuntimeConfigTest extends TestCase
         $shell->applyRuntimeConfigChange('requireSemicolons');
         $config->setUseBracketedPaste(true);
         $shell->applyRuntimeConfigChange('useBracketedPaste');
+        $config->setUseSyntaxHighlighting(false);
+        $shell->applyRuntimeConfigChange('useSyntaxHighlighting');
         $config->setUseSuggestions(true);
         $shell->applyRuntimeConfigChange('useSuggestions');
     }

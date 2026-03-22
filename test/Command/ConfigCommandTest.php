@@ -62,6 +62,7 @@ class ConfigCommandTest extends \Psy\Test\TestCase
             'requireSemicolons',
             'semicolonsSuppressReturn',
             'useBracketedPaste',
+            'useSyntaxHighlighting',
             'useSuggestions',
         ] as $key) {
             $this->assertStringContainsString($key, $display);
@@ -94,6 +95,7 @@ class ConfigCommandTest extends \Psy\Test\TestCase
             'enum'                     => ['colorMode', Configuration::COLOR_MODE_FORCED],
             'theme'                    => ['theme', 'modern'],
             'semicolonsSuppressReturn' => ['semicolonsSuppressReturn', 'false'],
+            'useSyntaxHighlighting'    => ['useSyntaxHighlighting', 'true'],
         ];
     }
 
@@ -162,6 +164,14 @@ class ConfigCommandTest extends \Psy\Test\TestCase
                 Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE,
                 function (Configuration $config): void {
                     $this->assertSame(Configuration::SEMICOLONS_SUPPRESS_RETURN_DOUBLE, $config->semicolonsSuppressReturn());
+                },
+            ],
+            'useSyntaxHighlighting off' => [
+                'useSyntaxHighlighting',
+                'off',
+                'false',
+                function (Configuration $config): void {
+                    $this->assertFalse($config->useSyntaxHighlighting());
                 },
             ],
         ];

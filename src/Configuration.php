@@ -85,6 +85,7 @@ class Configuration
         'exceptionDetails',
         'errorLoggingLevel',
         'useExperimentalReadline',
+        'useSyntaxHighlighting',
         'useSuggestions',
         'forceArrayIndexes',
         'formatterStyles',
@@ -130,6 +131,7 @@ class Configuration
     private int $historySize = 0;
     private ?bool $eraseDuplicates = null;
     private bool $useExperimentalReadline = false;
+    private bool $useSyntaxHighlighting = true;
     private bool $useSuggestions = false;
     private ?string $manualDbFile = null;
     private bool $hasReadline;
@@ -1730,6 +1732,22 @@ class Configuration
     public function useExperimentalReadline(): bool
     {
         return $this->useExperimentalReadline;
+    }
+
+    /**
+     * Enable or disable syntax highlighting in interactive readline.
+     */
+    public function setUseSyntaxHighlighting(bool $enabled): void
+    {
+        $this->useSyntaxHighlighting = $enabled;
+    }
+
+    /**
+     * Check whether syntax highlighting is enabled in interactive readline.
+     */
+    public function useSyntaxHighlighting(): bool
+    {
+        return $this->useSyntaxHighlighting;
     }
 
     /**

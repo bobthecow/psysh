@@ -897,6 +897,27 @@ PHP
         $this->assertFalse($config->useExperimentalReadline());
     }
 
+    public function testInteractiveSyntaxHighlightingOption()
+    {
+        $config = $this->getConfig();
+        $this->assertTrue($config->useSyntaxHighlighting());
+
+        $config->setUseSyntaxHighlighting(false);
+        $this->assertFalse($config->useSyntaxHighlighting());
+
+        $config = new Configuration([
+            'configFile'            => __DIR__.'/Fixtures/empty.php',
+            'useSyntaxHighlighting' => false,
+        ]);
+        $this->assertFalse($config->useSyntaxHighlighting());
+
+        $config = new Configuration([
+            'configFile'            => __DIR__.'/Fixtures/empty.php',
+            'useSyntaxHighlighting' => true,
+        ]);
+        $this->assertTrue($config->useSyntaxHighlighting());
+    }
+
     public function testHistoryFileUsesLegacyPathForStandardReadline()
     {
         $dir = \sys_get_temp_dir().'/psysh-config-history-'.\uniqid('', true);

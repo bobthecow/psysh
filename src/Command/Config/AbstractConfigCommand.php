@@ -318,6 +318,18 @@ abstract class AbstractConfigCommand extends Command
                 },
                 'refresh' => true,
             ],
+            'usesyntaxhighlighting' => [
+                'name'           => 'useSyntaxHighlighting',
+                'acceptedValues' => ['on', 'off'],
+                'parser'         => $booleanParser('useSyntaxHighlighting', 'on|off'),
+                'getter'         => function () use ($config): bool {
+                    return $config->useSyntaxHighlighting();
+                },
+                'setter' => function (bool $value) use ($config): void {
+                    $config->setUseSyntaxHighlighting($value);
+                },
+                'refresh' => true,
+            ],
             'usesuggestions' => [
                 'name'           => 'useSuggestions',
                 'acceptedValues' => ['on', 'off'],

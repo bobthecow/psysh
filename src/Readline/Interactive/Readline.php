@@ -520,6 +520,14 @@ class Readline
     }
 
     /**
+     * Enable or disable syntax highlighting.
+     */
+    public function setUseSyntaxHighlighting(bool $enabled): void
+    {
+        $this->frameRenderer->setUseSyntaxHighlighting($enabled);
+    }
+
+    /**
      * Get the suggestion engine.
      */
     public function getSuggestionEngine(): SuggestionEngine

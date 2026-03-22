@@ -218,6 +218,10 @@ if (!\function_exists('Psy\\info')) {
 
         $readline['interactive readline requested'] = $config->useExperimentalReadline();
 
+        if ($interactiveReadline) {
+            $readline['syntax highlighting'] = $config->useSyntaxHighlighting();
+        }
+
         // Show supported diagnostic when requested but not active
         if (!$interactiveReadline) {
             $readline['interactive readline supported'] = Readline\InteractiveReadline::isSupported();

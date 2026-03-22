@@ -56,6 +56,7 @@ class FrameRenderer
     private int $historyRowCount = 0;
 
     private bool $errorMode = false;
+    private bool $useSyntaxHighlighting = true;
 
     private ?int $lastTerminalWidth = null;
     private ?int $lastTerminalHeight = null;
@@ -91,6 +92,14 @@ class FrameRenderer
     {
         $this->theme = $theme;
         $this->promptWidthCache = [];
+    }
+
+    /**
+     * Enable or disable syntax highlighting for input rendering.
+     */
+    public function setUseSyntaxHighlighting(bool $enabled): void
+    {
+        $this->useSyntaxHighlighting = $enabled;
     }
 
     /**
@@ -537,6 +546,10 @@ class FrameRenderer
 
         if ($historySearchTerm !== null) {
             return \explode("\n", $this->highlightSearchTerm($text, $historySearchTerm));
+        }
+
+        if (!$this->useSyntaxHighlighting) {
+            return \explode("\n", $text);
         }
 
         if ($isCommand) {

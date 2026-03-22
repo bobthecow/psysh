@@ -237,6 +237,7 @@ class Shell extends Application
             $readline->setTheme($this->config->theme());
             $readline->setRequireSemicolons($this->config->requireSemicolons());
             $readline->setUseBracketedPaste($this->config->useBracketedPaste());
+            $readline->setUseSyntaxHighlighting($this->config->useSyntaxHighlighting());
             $readline->setUseSuggestions($this->config->useSuggestions());
         } else {
             $readline->setRequireSemicolons($this->config->requireSemicolons());
@@ -542,6 +543,10 @@ class Shell extends Application
 
                 case 'useBracketedPaste':
                     $this->readline->setUseBracketedPaste($this->config->useBracketedPaste());
+                    break;
+
+                case 'useSyntaxHighlighting':
+                    $this->readline->setUseSyntaxHighlighting($this->config->useSyntaxHighlighting());
                     break;
 
                 case 'useSuggestions':

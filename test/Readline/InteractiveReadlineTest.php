@@ -223,6 +223,25 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
         $interactiveReadline->setUseBracketedPaste(true);
     }
 
+    public function testSetUseSyntaxHighlightingDelegatesToInternalReadline()
+    {
+        $reflection = new \ReflectionClass(InteractiveReadline::class);
+        $interactiveReadline = $reflection->newInstanceWithoutConstructor();
+
+        $internalReadline = $this->getMockBuilder(InternalReadline::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setUseSyntaxHighlighting'])
+            ->getMock();
+        $internalReadline->expects($this->once())
+            ->method('setUseSyntaxHighlighting')
+            ->with(false);
+
+        $this->setPrivateProperty($interactiveReadline, 'booted', true);
+        $this->setPrivateProperty($interactiveReadline, 'readline', $internalReadline);
+
+        $interactiveReadline->setUseSyntaxHighlighting(false);
+    }
+
     public function testSetCommandsDelegatesToInternalCommandHighlighter()
     {
         $reflection = new \ReflectionClass(InteractiveReadline::class);

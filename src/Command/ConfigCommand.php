@@ -62,6 +62,7 @@ class ConfigCommand extends AbstractConfigCommand implements CommandArgumentComp
                 'requireSemicolons',
                 'semicolonsSuppressReturn',
                 'useBracketedPaste',
+                'useSyntaxHighlighting',
                 'useSuggestions',
             ]).'.',
         ]);

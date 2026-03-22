@@ -383,6 +383,10 @@ class ShellTest extends TestCase
             {
             }
 
+            public function setUseSyntaxHighlighting(bool $enabled): void
+            {
+            }
+
             public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
             {
                 $this->completionEngine = $completionEngine;
@@ -535,6 +539,7 @@ class ShellTest extends TestCase
             public bool $shellWasSet = false;
             public ?bool $requireSemicolons = null;
             public ?bool $bracketedPaste = null;
+            public ?bool $syntaxHighlighting = null;
             public ?\Psy\Output\Theme $theme = null;
             public ?OutputInterface $output = null;
             public array $calls = [];
@@ -611,6 +616,12 @@ class ShellTest extends TestCase
                 $this->calls[] = 'setUseSuggestions';
             }
 
+            public function setUseSyntaxHighlighting(bool $enabled): void
+            {
+                $this->calls[] = 'setUseSyntaxHighlighting';
+                $this->syntaxHighlighting = $enabled;
+            }
+
             public function setCompletionEngine(\Psy\Completion\CompletionEngine $completionEngine): void
             {
             }
@@ -638,8 +649,9 @@ class ShellTest extends TestCase
         };
 
         $config = $this->getConfig([
-            'useBracketedPaste' => true,
-            'requireSemicolons' => true,
+            'useBracketedPaste'     => true,
+            'useSyntaxHighlighting' => false,
+            'requireSemicolons'     => true,
         ]);
         $config->setReadline($readline);
 
@@ -651,6 +663,7 @@ class ShellTest extends TestCase
         $this->assertTrue($readline->shellWasSet);
         $this->assertSame($config->requireSemicolons(), $readline->requireSemicolons);
         $this->assertSame($config->useBracketedPaste(), $readline->bracketedPaste);
+        $this->assertSame($config->useSyntaxHighlighting(), $readline->syntaxHighlighting);
         $this->assertSame($config->theme(), $readline->theme);
         $this->assertLessThan(
             \array_search('setTheme', $readline->calls, true),
@@ -658,6 +671,10 @@ class ShellTest extends TestCase
         );
         $this->assertLessThan(
             \array_search('setRequireSemicolons', $readline->calls, true),
+            \array_search('setOutput', $readline->calls, true)
+        );
+        $this->assertLessThan(
+            \array_search('setUseSyntaxHighlighting', $readline->calls, true),
             \array_search('setOutput', $readline->calls, true)
         );
     }
@@ -1983,6 +2000,10 @@ class ShellTest extends TestCase
             }
 
             public function setUseSuggestions(bool $enabled): void
+            {
+            }
+
+            public function setUseSyntaxHighlighting(bool $enabled): void
             {
             }
 

@@ -42,6 +42,11 @@ interface InteractiveReadlineInterface extends ShellReadlineInterface
     public function setUseSuggestions(bool $enabled): void;
 
     /**
+     * Enable or disable syntax highlighting.
+     */
+    public function setUseSyntaxHighlighting(bool $enabled): void;
+
+    /**
      * Set the CompletionEngine for context-aware tab completion and autosuggestions.
      */
     public function setCompletionEngine(CompletionEngine $completionEngine): void;

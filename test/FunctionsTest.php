@@ -39,6 +39,7 @@ class FunctionsTest extends TestCase
 
             $this->assertSame(InteractiveReadline::class, $info['readline']['readline service']);
             $this->assertTrue($info['readline']['interactive readline requested']);
+            $this->assertTrue($info['readline']['syntax highlighting']);
             $this->assertArrayNotHasKey('interactive readline supported', $info['readline']);
 
             $this->assertSame('jsonl', $info['history']['history format']);
@@ -46,6 +47,7 @@ class FunctionsTest extends TestCase
             $this->assertTrue($info['autocomplete']['tab completion enabled']);
             $this->assertSame('interactive readline', $info['autocomplete']['completion integration']);
             $this->assertTrue($info['autocomplete']['inline suggestions']);
+            $this->assertArrayNotHasKey('syntax highlighting', $info['autocomplete']);
         } finally {
             \Psy\info($resetConfig);
             @\unlink($historyFile);
