@@ -135,6 +135,14 @@ class Readline
     }
 
     /**
+     * Get the command highlighter for CommandAware registration.
+     */
+    public function getCommandHighlighter(): Helper\CommandHighlighter
+    {
+        return $this->frameRenderer->getCommandHighlighter();
+    }
+
+    /**
      * Set whether to require semicolons on all statements.
      *
      * By default, PsySH automatically inserts semicolons. When set to true,
@@ -178,6 +186,14 @@ class Readline
         }
 
         return false;
+    }
+
+    /**
+     * Check if the input should be highlighted as a command (not in an open string or comment).
+     */
+    private function isCommandInput(string $text): bool
+    {
+        return $this->isCommand($text) && !$this->isInOpenStringOrComment($text);
     }
 
     /**
@@ -269,7 +285,7 @@ class Readline
             }
             $this->terminal->endFrameRender();
 
-            $this->frameRenderer->addHistoryLines($this->lastSubmittedText);
+            $this->frameRenderer->addHistoryLines($this->lastSubmittedText, $this->isCommandInput($this->lastSubmittedText));
 
             $this->continueFrame = false;
         } else {
@@ -381,7 +397,8 @@ class Readline
     private function display(Buffer $buffer): void
     {
         $searchTerm = $this->history->isInHistory() ? $this->history->getSearchTerm() : null;
-        $this->frameRenderer->render($buffer, $this->currentSuggestion, $searchTerm);
+        $text = $buffer->getText();
+        $this->frameRenderer->render($buffer, $this->currentSuggestion, $searchTerm, $this->isCommandInput($text));
     }
 
     /**

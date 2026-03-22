@@ -705,6 +705,11 @@ class Shell extends Application
             $this->initializeTabCompletion();
         }
 
+        if ($this->readline instanceof CommandAware) {
+            $this->readline->setCommands($this->all());
+            $this->commandCompletion[] = $this->readline;
+        }
+
         $this->readline->readHistory();
 
         $this->output->writeln($this->getHeader());

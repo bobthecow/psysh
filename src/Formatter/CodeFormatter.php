@@ -13,6 +13,7 @@ namespace Psy\Formatter;
 
 use Psy\Exception\RuntimeException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 
 /**
  * A pretty-printer for code.
@@ -113,6 +114,52 @@ class CodeFormatter implements ReflectorFormatter
         $lines = self::numberLines($lines, $markLine);
 
         return \implode('', \iterator_to_array($lines));
+    }
+
+    /**
+     * Format a PHP snippet into ANSI-safe lines for inline shell rendering.
+     *
+     * Styles are applied line-by-line so multiline tokens do not leak styling
+     * across prompt boundaries.
+     *
+     * @return string[]
+     */
+    public static function formatInputLines(string $code, ?OutputFormatterInterface $formatter = null): array
+    {
+        $lines = [''];
+        $lineIndex = 0;
+        $first = true;
+
+        foreach (self::tokenizeSpans('<?php '.$code) as [$spanType, $spanText]) {
+            if ($first) {
+                $spanText = (string) \substr($spanText, \strlen('<?php '));
+                $first = false;
+
+                if ($spanText === '') {
+                    continue;
+                }
+            }
+
+            $parts = \preg_split('/(\r\n?|\n)/', $spanText, -1, \PREG_SPLIT_DELIM_CAPTURE);
+            if ($parts === false) {
+                $parts = [$spanText];
+            }
+
+            foreach ($parts as $part) {
+                if ($part === "\r" || $part === "\n" || $part === "\r\n") {
+                    $lines[++$lineIndex] = '';
+                    continue;
+                }
+
+                if ($part === '') {
+                    continue;
+                }
+
+                $lines[$lineIndex] .= self::formatInputSpan($spanType, $part, $formatter);
+            }
+        }
+
+        return $lines;
     }
 
     /**
@@ -315,5 +362,14 @@ class CodeFormatter implements ReflectorFormatter
     private static function isReflectable(\Reflector $reflector): bool
     {
         return ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionFunctionAbstract) && \is_file($reflector->getFileName());
+    }
+
+    private static function formatInputSpan(string $spanType, string $spanText, ?OutputFormatterInterface $formatter): string
+    {
+        if ($spanType === self::HIGHLIGHT_DEFAULT || $formatter === null || !$formatter->isDecorated() || !$formatter->hasStyle($spanType)) {
+            return $spanText;
+        }
+
+        return $formatter->getStyle($spanType)->apply($spanText);
     }
 }

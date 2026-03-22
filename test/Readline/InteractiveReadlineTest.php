@@ -223,6 +223,32 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
         $interactiveReadline->setUseBracketedPaste(true);
     }
 
+    public function testSetCommandsDelegatesToInternalCommandHighlighter()
+    {
+        $reflection = new \ReflectionClass(InteractiveReadline::class);
+        $interactiveReadline = $reflection->newInstanceWithoutConstructor();
+
+        $commandHighlighter = $this->getMockBuilder(\Psy\Readline\Interactive\Helper\CommandHighlighter::class)
+            ->onlyMethods(['setCommands'])
+            ->getMock();
+        $commandHighlighter->expects($this->once())
+            ->method('setCommands')
+            ->with(['help' => new \Psy\Command\HelpCommand()]);
+
+        $internalReadline = $this->getMockBuilder(InternalReadline::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getCommandHighlighter'])
+            ->getMock();
+        $internalReadline->expects($this->once())
+            ->method('getCommandHighlighter')
+            ->willReturn($commandHighlighter);
+
+        $this->setPrivateProperty($interactiveReadline, 'booted', true);
+        $this->setPrivateProperty($interactiveReadline, 'readline', $internalReadline);
+
+        $interactiveReadline->setCommands(['help' => new \Psy\Command\HelpCommand()]);
+    }
+
     private function newReadline(History $history, $historyFile): InteractiveReadline
     {
         $reflection = new \ReflectionClass(InteractiveReadline::class);

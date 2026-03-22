@@ -142,6 +142,9 @@ class ThemeTest extends TestCase
         $this->assertTrue($formatter->hasStyle('warning'));
         $this->assertTrue($formatter->hasStyle('whisper'));
         $this->assertTrue($formatter->hasStyle('aside'));
+        $this->assertTrue($formatter->hasStyle('command'));
+        $this->assertTrue($formatter->hasStyle('command_option'));
+        $this->assertTrue($formatter->hasStyle('command_argument'));
         $this->assertTrue($formatter->hasStyle('return'));
         $this->assertTrue($formatter->hasStyle('public'));
         $this->assertTrue($formatter->hasStyle('protected'));

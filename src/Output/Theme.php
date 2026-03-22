@@ -41,11 +41,14 @@ class Theme
         'error'   => ['white', 'red', ['bold']],
         'whisper' => ['gray'],
 
-        'aside'  => ['blue'],
-        'strong' => [null, null, ['bold']],
-        'return' => ['cyan'],
-        'urgent' => ['red'],
-        'hidden' => ['black'],
+        'aside'            => ['blue'],
+        'strong'           => [null, null, ['bold']],
+        'return'           => ['cyan'],
+        'urgent'           => ['red'],
+        'hidden'           => ['black'],
+        'command'          => ['cyan', null, ['bold']],
+        'command_option'   => ['yellow'],
+        'command_argument' => ['green'],
 
         // Keywords
         'public'    => [null, null, ['bold']],

@@ -11,6 +11,8 @@
 
 namespace Psy\Test\Readline\Interactive\Renderer;
 
+use Psy\Command\HelpCommand;
+use Psy\Command\ParseCommand;
 use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
@@ -338,6 +340,121 @@ class FrameRendererTest extends TestCase
         $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
         $this->assertCount(1, $paintedLines);
         $this->assertSame(">>> a\xFFb", $paintedLines[0]);
+    }
+
+    public function testPhpInputIsSyntaxHighlightedWhenDecorated()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'echo "hi";<cursor>');
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '.$this->formatter->getStyle('keyword')->apply('echo ')
+            .$this->formatter->getStyle('string')->apply('"hi"')
+            .$this->formatter->getStyle('keyword')->apply(';'),
+            $paintedLines[0]
+        );
+    }
+
+    public function testCommandInputHighlightsCommandNameWhenDecorated()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('command', new OutputFormatterStyle('cyan', null, ['bold']));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'help ls<cursor>');
+
+        $this->renderer->render($buffer, null, null, true);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame('>>> '.$this->formatter->getStyle('command')->apply('help').' ls', $paintedLines[0]);
+    }
+
+    public function testCommandInputHighlightsOptionsAndCodeArguments()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('command', new OutputFormatterStyle('cyan', null, ['bold']));
+        $this->formatter->setStyle('command_option', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('command_argument', new OutputFormatterStyle('green'));
+        $this->formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+        $this->formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $this->formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $this->setCommandHighlighterCommand('parse', new ParseCommand());
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'parse --depth=2 echo "hi";<cursor>');
+
+        $this->renderer->render($buffer, null, null, true);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '
+            .$this->formatter->getStyle('command')->apply('parse')
+            .' '
+            .$this->formatter->getStyle('command_option')->apply('--depth')
+            .'='
+            .$this->formatter->getStyle('number')->apply('2')
+            .' '
+            .$this->formatter->getStyle('keyword')->apply('echo ')
+            .$this->formatter->getStyle('string')->apply('"hi"')
+            .$this->formatter->getStyle('keyword')->apply(';'),
+            $paintedLines[0]
+        );
+    }
+
+    public function testCommandInputHighlightsPositionalArguments()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('command', new OutputFormatterStyle('cyan', null, ['bold']));
+        $this->formatter->setStyle('command_argument', new OutputFormatterStyle('green'));
+        $this->setCommandHighlighterCommand('help', new HelpCommand());
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, 'help show<cursor>');
+
+        $this->renderer->render($buffer, null, null, true);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(1, $paintedLines);
+        $this->assertSame(
+            '>>> '.$this->formatter->getStyle('command')->apply('help').' '.$this->formatter->getStyle('command_argument')->apply('show'),
+            $paintedLines[0]
+        );
+    }
+
+    public function testMultilineTokenHighlightDoesNotBleedAcrossPrompt()
+    {
+        $this->formatter->setDecorated(true);
+        $this->formatter->setStyle('code_comment', new OutputFormatterStyle('blue'));
+        $this->setTheme('>>> ', '... ', true);
+
+        $buffer = new Buffer();
+        $this->setBufferState($buffer, "/* foo\nbar */<cursor>");
+
+        $this->renderer->render($buffer, null);
+
+        $paintedLines = \array_values(\array_filter($this->writes, static fn (string $chunk): bool => $chunk !== "\r" && $chunk !== "\n"));
+        $this->assertCount(2, $paintedLines);
+        $this->assertSame('>>> '.$this->formatter->getStyle('code_comment')->apply('/* foo'), $paintedLines[0]);
+        $this->assertSame('... '.$this->formatter->getStyle('code_comment')->apply('bar */'), $paintedLines[1]);
+    }
+
+    private function setCommandHighlighterCommand(string $name, object $command): void
+    {
+        $this->renderer->getCommandHighlighter()->setCommands([$command]);
     }
 
     public function testRendererMovesBackByWrappedCursorRowBeforeRepaint()

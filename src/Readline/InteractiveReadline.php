@@ -11,6 +11,7 @@
 
 namespace Psy\Readline;
 
+use Psy\CommandAware;
 use Psy\Completion\CompletionEngine;
 use Psy\Exception\ThrowUpException;
 use Psy\Output\Theme;
@@ -36,7 +37,7 @@ use Symfony\Component\Console\Output\StreamOutput;
  * A pure-PHP readline with visual feedback, autosuggestions, tab completion,
  * and other interactive features.
  */
-class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
+class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, CommandAware
 {
     private InternalReadline $readline;
     private InteractiveHistory $history;
@@ -254,6 +255,12 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware
     {
         $this->assertBooted();
         $this->readline->setShell($shell);
+    }
+
+    public function setCommands(array $commands): void
+    {
+        $this->assertBooted();
+        $this->readline->getCommandHighlighter()->setCommands($commands);
     }
 
     /**

@@ -65,8 +65,7 @@ class InteractiveSmokeTest extends TestCase
             ->getMock();
         $shell->expects($this->atLeastOnce())
             ->method('has')
-            ->with('help')
-            ->willReturn(true);
+            ->willReturnCallback(static fn (string $name): bool => $name === 'help');
 
         $readline = new Readline($terminal);
         $readline->setShell($shell);
@@ -94,8 +93,7 @@ class InteractiveSmokeTest extends TestCase
             ->getMock();
         $shell->expects($this->atLeastOnce())
             ->method('has')
-            ->with('help')
-            ->willReturn(true);
+            ->willReturnCallback(static fn (string $name): bool => $name === 'help');
 
         $readline = new Readline($terminal);
         $readline->setShell($shell);
