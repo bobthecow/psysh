@@ -84,7 +84,7 @@ abstract class DumperBase extends CliDumper
             default:
             case Cursor::HASH_INDEXED:
                 if (self::DUMP_LIGHT_ARRAY & $this->flags) {
-                    return;
+                    break;
                 }
 
                 $style = 'index';
@@ -98,11 +98,15 @@ abstract class DumperBase extends CliDumper
                     $this->line .= $this->style($style, '"').' => ';
                 }
 
-                return;
+                break;
 
             case Cursor::HASH_RESOURCE:
             case Cursor::HASH_OBJECT:
                 parent::dumpKey($cursor);
+        }
+
+        if ($cursor->hardRefTo) {
+            $this->line .= $this->style('ref', '&'.($cursor->hardRefCount ? $cursor->hardRefTo : ''), ['count' => $cursor->hardRefCount]).' ';
         }
     }
 
@@ -217,6 +221,10 @@ abstract class DumperBase extends CliDumper
 
     protected function doStyle($style, $value, $attr = [])
     {
+        if ($attr['if_links'] ?? false) {
+            return '';
+        }
+
         if ('ref' === $style) {
             $value = \strtr($value, '@', '#');
         }
@@ -248,6 +256,7 @@ abstract class DumperBase extends CliDumper
         if ($endOfValue && 0 < $depth) {
             $this->line .= ',';
         }
+
         parent::dumpLine($depth, $endOfValue);
     }
 

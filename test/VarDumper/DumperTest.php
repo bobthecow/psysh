@@ -214,6 +214,44 @@ TEXT, $this->dump("foo\nbar", 0, true));
         );
     }
 
+    public function testAssociativeArrayReferencesKeepHardRefMarkers(): void
+    {
+        $value = 123;
+        $dump = $this->dump([
+            'a' => &$value,
+            'b' => &$value,
+        ]);
+
+        $this->assertSame(<<<'TEXT'
+[
+  "a" => &1 123,
+  "b" => &1 123,
+]
+TEXT, $dump);
+    }
+
+    public function testStyleOmitsIfLinksMarkersWhenLinksAreUnavailable(): void
+    {
+        $dumper = new class(new OutputFormatter(false)) extends Dumper {
+            public function inspectStyle(string $style, string $value, array $attr = []): string
+            {
+                return $this->style($style, $value, $attr);
+            }
+        };
+        $this->configureDumperStyles($dumper);
+
+        $this->assertSame('', $dumper->inspectStyle('default', '^', ['if_links' => true]));
+    }
+
+    public function testObjectPropertiesUseTrailingCommasLikeVarExport(): void
+    {
+        $dump = $this->dump(new class {
+            public $foo = 1;
+        });
+
+        $this->assertStringContainsString("+foo: 1,\n}", $dump);
+    }
+
     private function dump($value, int $maxStringWidth = 0, bool $useDeprecatedMultilineStrings = false): string
     {
         return $this->dumpWithFormatter($this->createFormatter(false), $value, $maxStringWidth, $useDeprecatedMultilineStrings);
@@ -222,22 +260,7 @@ TEXT, $this->dump("foo\nbar", 0, true));
     private function dumpWithFormatter(OutputFormatter $formatter, $value, int $maxStringWidth = 0, bool $useDeprecatedMultilineStrings = false): string
     {
         $dumper = new Dumper($formatter, false, $useDeprecatedMultilineStrings);
-        $dumper->setStyles([
-            'num'       => 'number',
-            'integer'   => 'integer',
-            'float'     => 'float',
-            'const'     => 'const',
-            'str'       => 'string',
-            'cchr'      => 'default',
-            'note'      => 'class',
-            'ref'       => 'default',
-            'public'    => 'public',
-            'protected' => 'protected',
-            'private'   => 'private',
-            'meta'      => 'comment',
-            'key'       => 'array_key',
-            'index'     => 'number',
-        ]);
+        $this->configureDumperStyles($dumper);
         $dumper->setMaxStringWidth($maxStringWidth);
 
         $output = '';
@@ -254,6 +277,26 @@ TEXT, $this->dump("foo\nbar", 0, true));
         });
 
         return $output;
+    }
+
+    private function configureDumperStyles(Dumper $dumper): void
+    {
+        $dumper->setStyles([
+            'num'       => 'number',
+            'integer'   => 'integer',
+            'float'     => 'float',
+            'const'     => 'const',
+            'str'       => 'string',
+            'cchr'      => 'default',
+            'note'      => 'class',
+            'ref'       => 'default',
+            'public'    => 'public',
+            'protected' => 'protected',
+            'private'   => 'private',
+            'meta'      => 'comment',
+            'key'       => 'array_key',
+            'index'     => 'number',
+        ]);
     }
 
     private function createFormatter(bool $decorated): OutputFormatter
