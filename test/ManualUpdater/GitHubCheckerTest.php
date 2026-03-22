@@ -12,8 +12,9 @@
 namespace Psy\Test\ManualUpdater;
 
 use Psy\ManualUpdater\GitHubChecker;
+use Psy\Test\TestCase;
 
-class GitHubCheckerTest extends \Psy\Test\TestCase
+class GitHubCheckerTest extends TestCase
 {
     public function testIsLatestReturnsFalseWhenNoCurrentVersion()
     {

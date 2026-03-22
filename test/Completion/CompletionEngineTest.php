@@ -12,15 +12,18 @@
 namespace Psy\Test\Completion;
 
 use Psy\Command\Command;
+use Psy\Command\ConfigCommand;
 use Psy\CommandArgumentCompletionAware;
 use Psy\Completion\AnalysisResult;
 use Psy\Completion\CompletionEngine;
 use Psy\Completion\CompletionKind;
 use Psy\Completion\CompletionRequest;
 use Psy\Completion\Refiner\CommandContextRefiner;
+use Psy\Completion\Source\CommandArgumentSource;
 use Psy\Completion\Source\SourceInterface;
 use Psy\Completion\Source\VariableSource;
 use Psy\Completion\SymbolCatalog;
+use Psy\Configuration;
 use Psy\Context;
 use Psy\Test\Fixtures\Completion\FixedResultSource;
 use Psy\Test\TestCase;
@@ -220,15 +223,15 @@ class CompletionEngineTest extends TestCase
     public function testConfigSetPartialValueKeepsEnumeratedValueCompletions(): void
     {
         $engine = new CompletionEngine(new Context());
-        $command = new \Psy\Command\ConfigCommand();
-        $command->setConfiguration(new \Psy\Configuration([
+        $command = new ConfigCommand();
+        $command->setConfiguration(new Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
             'trustProject' => false,
         ]));
 
         $engine->registerDefaultSources();
         $engine->addRefiner(new CommandContextRefiner([$command]));
-        $engine->addSource(new \Psy\Completion\Source\CommandArgumentSource([$command]));
+        $engine->addSource(new CommandArgumentSource([$command]));
 
         $result = $engine->getCompletions(new CompletionRequest('config set verbosity d', 22));
 
@@ -238,15 +241,15 @@ class CompletionEngineTest extends TestCase
     public function testConfigExpressionValueFallsBackToGenericPhpCompletion(): void
     {
         $engine = new CompletionEngine(new Context());
-        $command = new \Psy\Command\ConfigCommand();
-        $command->setConfiguration(new \Psy\Configuration([
+        $command = new ConfigCommand();
+        $command->setConfiguration(new Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
             'trustProject' => false,
         ]));
 
         $engine->registerDefaultSources();
         $engine->addRefiner(new CommandContextRefiner([$command]));
-        $engine->addSource(new \Psy\Completion\Source\CommandArgumentSource([$command]));
+        $engine->addSource(new CommandArgumentSource([$command]));
 
         $result = $engine->getCompletions(new CompletionRequest('config set errorLoggingLevel E_', 31));
 
@@ -256,15 +259,15 @@ class CompletionEngineTest extends TestCase
     public function testConfigCustomCommandValueFallsBackToGenericPhpCompletion(): void
     {
         $engine = new CompletionEngine(new Context());
-        $command = new \Psy\Command\ConfigCommand();
-        $command->setConfiguration(new \Psy\Configuration([
+        $command = new ConfigCommand();
+        $command->setConfiguration(new Configuration([
             'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
             'trustProject' => false,
         ]));
 
         $engine->registerDefaultSources();
         $engine->addRefiner(new CommandContextRefiner([$command]));
-        $engine->addSource(new \Psy\Completion\Source\CommandArgumentSource([$command]));
+        $engine->addSource(new CommandArgumentSource([$command]));
 
         $result = $engine->getCompletions(new CompletionRequest('config set clipboardCommand pb', 30));
 

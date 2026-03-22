@@ -14,9 +14,10 @@ namespace Psy\Test\Command;
 use Psy\Command\YoloCommand;
 use Psy\Readline\Readline;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class YoloCommandTest extends \Psy\Test\TestCase
+class YoloCommandTest extends TestCase
 {
     public function testConfigure()
     {

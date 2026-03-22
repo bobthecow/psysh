@@ -11,6 +11,7 @@
 
 namespace Psy\Completion;
 
+use PhpParser\Error as PhpParserError;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
@@ -81,10 +82,10 @@ class ContextAnalyzer
         // Try with semicolon first (most common case), then without
         try {
             $stmts = $this->parser->parse($code.';');
-        } catch (\PhpParser\Error $e) {
+        } catch (PhpParserError $e) {
             try {
                 $stmts = $this->parser->parse($code);
-            } catch (\PhpParser\Error $e2) {
+            } catch (PhpParserError $e2) {
                 return null;
             }
         }

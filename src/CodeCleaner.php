@@ -11,6 +11,7 @@
 
 namespace Psy;
 
+use PhpParser\Error as PhpParserError;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
@@ -639,7 +640,7 @@ class CodeCleaner
     {
         try {
             return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
+        } catch (PhpParserError $e) {
             if ($this->parseErrorIsUnclosedString($e, $code)) {
                 return false;
             }
@@ -663,13 +664,13 @@ class CodeCleaner
             try {
                 // Unexpected EOF, try again with an implicit semicolon
                 return $this->parser->parse($code.';');
-            } catch (\PhpParser\Error $e) {
+            } catch (PhpParserError $e) {
                 return false;
             }
         }
     }
 
-    private function parseErrorIsEOF(\PhpParser\Error $e): bool
+    private function parseErrorIsEOF(PhpParserError $e): bool
     {
         $msg = $e->getRawMessage();
 
@@ -683,7 +684,7 @@ class CodeCleaner
      * their own special beautiful snowflake syntax error just for
      * themselves.
      */
-    private function parseErrorIsUnclosedString(\PhpParser\Error $e, string $code): bool
+    private function parseErrorIsUnclosedString(PhpParserError $e, string $code): bool
     {
         if ($e->getRawMessage() !== 'Syntax error, unexpected T_ENCAPSED_AND_WHITESPACE') {
             return false;
@@ -698,12 +699,12 @@ class CodeCleaner
         return true;
     }
 
-    private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, string $code): bool
+    private function parseErrorIsUnterminatedComment(PhpParserError $e, string $code): bool
     {
         return $e->getRawMessage() === 'Unterminated comment';
     }
 
-    private function parseErrorIsTrailingComma(\PhpParser\Error $e, string $code): bool
+    private function parseErrorIsTrailingComma(PhpParserError $e, string $code): bool
     {
         return ($e->getRawMessage() === 'A trailing comma is not allowed here') && (\substr(\rtrim($code), -1) === ',');
     }

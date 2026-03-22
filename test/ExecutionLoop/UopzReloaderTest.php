@@ -11,6 +11,7 @@
 
 namespace Psy\Test\ExecutionLoop;
 
+use Psy\Configuration;
 use Psy\ExecutionLoop\UopzReloader;
 use Psy\Shell;
 use Psy\Test\TestCase;
@@ -380,7 +381,7 @@ const NS_CONST = 777;
 
     private function getShell(): Shell
     {
-        $config = new \Psy\Configuration([
+        $config = new Configuration([
             'configFile' => __DIR__.'/../Fixtures/empty.php',
         ]);
 

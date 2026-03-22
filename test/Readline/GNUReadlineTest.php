@@ -12,8 +12,9 @@
 namespace Psy\Test\Readline;
 
 use Psy\Readline\GNUReadline;
+use Psy\Test\TestCase;
 
-class GNUReadlineTest extends \Psy\Test\TestCase
+class GNUReadlineTest extends TestCase
 {
     private $historyFile;
 

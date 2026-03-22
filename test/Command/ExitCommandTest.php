@@ -12,9 +12,10 @@
 namespace Psy\Test\Command;
 
 use Psy\Command\ExitCommand;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ExitCommandTest extends \Psy\Test\TestCase
+class ExitCommandTest extends TestCase
 {
     public function testExecute()
     {

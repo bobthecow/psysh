@@ -20,9 +20,10 @@ use Psy\Context;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
 use Psy\Test\TempPaths;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CopyCommandTest extends \Psy\Test\TestCase
+class CopyCommandTest extends TestCase
 {
     private CopyCommand $command;
     /** @var Shell&MockObject */

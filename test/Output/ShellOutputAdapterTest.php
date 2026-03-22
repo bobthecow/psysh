@@ -12,10 +12,11 @@
 namespace Psy\Test\Output;
 
 use Psy\Output\ShellOutputAdapter;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ShellOutputAdapterTest extends \Psy\Test\TestCase
+class ShellOutputAdapterTest extends TestCase
 {
     public function testOutputInterfaceMethodsUseUntypedParametersForSymfony34Compatibility()
     {

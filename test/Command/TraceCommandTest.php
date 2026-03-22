@@ -12,9 +12,10 @@
 namespace Psy\Test\Command;
 
 use Psy\Command\TraceCommand;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class TraceCommandTest extends \Psy\Test\TestCase
+class TraceCommandTest extends TestCase
 {
     public function testExecuteWithCommandTester()
     {

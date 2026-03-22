@@ -17,10 +17,11 @@ use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Readline;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class HistoryCommandTest extends \Psy\Test\TestCase
+class HistoryCommandTest extends TestCase
 {
     private function getHistory(): array
     {

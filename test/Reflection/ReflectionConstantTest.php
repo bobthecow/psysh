@@ -12,10 +12,11 @@
 namespace Psy\Test\Reflection;
 
 use Psy\Reflection\ReflectionConstant;
+use Psy\Test\TestCase;
 
 const SOME_CONSTANT = 'yep';
 
-class ReflectionConstantTest extends \Psy\Test\TestCase
+class ReflectionConstantTest extends TestCase
 {
     public function testConstruction()
     {

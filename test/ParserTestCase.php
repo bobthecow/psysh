@@ -11,6 +11,7 @@
 
 namespace Psy\Test;
 
+use PhpParser\Error as PhpParserError;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Exception\ParseErrorException;
 use Psy\ParserFactory;
@@ -36,7 +37,7 @@ class ParserTestCase extends TestCase
         $code = $prefix.$code;
         try {
             return $this->getParser()->parse($code);
-        } catch (\PhpParser\Error $e) {
+        } catch (PhpParserError $e) {
             if (!$this->parseErrorIsEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
@@ -44,7 +45,7 @@ class ParserTestCase extends TestCase
             try {
                 // Unexpected EOF, try again with an implicit semicolon
                 return $this->getParser()->parse($code.';');
-            } catch (\PhpParser\Error $e) {
+            } catch (PhpParserError $e) {
                 return false;
             }
         }
@@ -91,7 +92,7 @@ class ParserTestCase extends TestCase
         return $this->printer;
     }
 
-    private function parseErrorIsEOF(\PhpParser\Error $e)
+    private function parseErrorIsEOF(PhpParserError $e)
     {
         $msg = $e->getRawMessage();
 

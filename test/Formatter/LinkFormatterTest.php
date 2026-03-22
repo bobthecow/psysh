@@ -12,8 +12,9 @@
 namespace Psy\Test\Formatter;
 
 use Psy\Formatter\LinkFormatter;
+use Psy\Test\TestCase;
 
-class LinkFormatterTest extends \Psy\Test\TestCase
+class LinkFormatterTest extends TestCase
 {
     protected function setUp(): void
     {

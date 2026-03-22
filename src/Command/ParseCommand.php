@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use PhpParser\Error as PhpParserError;
 use PhpParser\Node;
 use PhpParser\Parser;
 use Psy\Context;
@@ -117,7 +118,7 @@ HELP
 
         try {
             $nodes = $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
+        } catch (PhpParserError $e) {
             if ($this->parseErrorIsEOF($e)) {
                 $nodes = $this->parser->parse($code.';');
             } else {
@@ -132,7 +133,7 @@ HELP
         return 0;
     }
 
-    private function parseErrorIsEOF(\PhpParser\Error $e): bool
+    private function parseErrorIsEOF(PhpParserError $e): bool
     {
         $msg = $e->getRawMessage();
 

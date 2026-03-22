@@ -21,9 +21,10 @@ use Psy\Exception\RuntimeException;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\TestableReflectingCommand;
+use Psy\Test\TestCase;
 use Psy\Util\Mirror;
 
-class ReflectingCommandTest extends \Psy\Test\TestCase
+class ReflectingCommandTest extends TestCase
 {
     private TestableReflectingCommand $command;
     /** @var Shell&MockObject */

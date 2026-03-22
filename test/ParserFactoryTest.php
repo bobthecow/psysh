@@ -11,14 +11,16 @@
 
 namespace Psy\Test;
 
+use PhpParser\Parser;
+use PHPUnit\Framework\TestCase;
 use Psy\ParserFactory;
 
-class ParserFactoryTest extends \PHPUnit\Framework\TestCase
+class ParserFactoryTest extends TestCase
 {
     public function testCreateParser()
     {
         $factory = new ParserFactory();
         $parser = $factory->createParser();
-        $this->assertInstanceOf(\PhpParser\Parser::class, $parser);
+        $this->assertInstanceOf(Parser::class, $parser);
     }
 }

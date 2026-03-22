@@ -40,6 +40,7 @@ use Psy\VersionUpdater\NoopChecker;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -769,7 +770,7 @@ class Configuration
         // Non-interactive: warn and skip untrusted features (do not auto-trust)
         if (!$this->getInputInteractive() || !$input->isInteractive()) {
             $errorOutput = $output;
-            if ($errorOutput instanceof \Symfony\Component\Console\Output\ConsoleOutput) {
+            if ($errorOutput instanceof ConsoleOutput) {
                 $errorOutput = $errorOutput->getErrorOutput();
             }
 

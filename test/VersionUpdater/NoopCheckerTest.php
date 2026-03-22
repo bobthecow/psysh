@@ -12,9 +12,10 @@
 namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Psy\VersionUpdater\NoopChecker;
 
-class NoopCheckerTest extends \Psy\Test\TestCase
+class NoopCheckerTest extends TestCase
 {
     public function testTheThings()
     {

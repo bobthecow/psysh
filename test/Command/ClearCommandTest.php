@@ -12,9 +12,10 @@
 namespace Psy\Test\Command;
 
 use Psy\Command\ClearCommand;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ClearCommandTest extends \Psy\Test\TestCase
+class ClearCommandTest extends TestCase
 {
     public function testExecute()
     {

@@ -13,10 +13,11 @@ namespace Psy\Test\Formatter;
 
 use Psy\Formatter\CodeFormatter;
 use Psy\Test\Fixtures\Formatter\SomeClass;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-class CodeFormatterTest extends \Psy\Test\TestCase
+class CodeFormatterTest extends TestCase
 {
     /**
      * @dataProvider reflectors

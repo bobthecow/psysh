@@ -13,9 +13,10 @@ namespace Psy\Test\Util;
 
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionNamespace;
+use Psy\Test\TestCase;
 use Psy\Util\Mirror;
 
-class MirrorTest extends \Psy\Test\TestCase
+class MirrorTest extends TestCase
 {
     const FOO = 1;
     private $bar = 2;

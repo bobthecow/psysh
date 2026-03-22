@@ -13,8 +13,9 @@ namespace Psy\Test\Exception;
 
 use Psy\Exception\Exception;
 use Psy\Exception\ThrowUpException;
+use Psy\Test\TestCase;
 
-class ThrowUpExceptionTest extends \Psy\Test\TestCase
+class ThrowUpExceptionTest extends TestCase
 {
     public function testException()
     {

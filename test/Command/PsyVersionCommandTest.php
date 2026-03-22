@@ -13,9 +13,10 @@ namespace Psy\Test\Command;
 
 use Psy\Command\PsyVersionCommand;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class PsyVersionCommandTest extends \Psy\Test\TestCase
+class PsyVersionCommandTest extends TestCase
 {
     public function testExecute()
     {

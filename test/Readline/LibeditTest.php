@@ -12,8 +12,9 @@
 namespace Psy\Test\Readline;
 
 use Psy\Readline\Libedit;
+use Psy\Test\TestCase;
 
-class LibeditTest extends \Psy\Test\TestCase
+class LibeditTest extends TestCase
 {
     private $historyFile;
 

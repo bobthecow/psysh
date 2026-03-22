@@ -18,8 +18,9 @@ use Psy\Context;
 use Psy\Exception\RuntimeException;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
+use Psy\Test\TestCase;
 
-class ShowCommandTest extends \Psy\Test\TestCase
+class ShowCommandTest extends TestCase
 {
     private ShowCommand $command;
     /** @var Shell&MockObject */

@@ -14,9 +14,10 @@ namespace Psy\Test\Command;
 use Psy\Command\TimeitCommand;
 use Psy\Exception\InterruptException;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class TimeitCommandTest extends \Psy\Test\TestCase
+class TimeitCommandTest extends TestCase
 {
     public function testInterruptStopsMultipleExecutions()
     {

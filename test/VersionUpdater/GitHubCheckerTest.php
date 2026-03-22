@@ -12,9 +12,10 @@
 namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Psy\VersionUpdater\GitHubChecker;
 
-class GitHubCheckerTest extends \Psy\Test\TestCase
+class GitHubCheckerTest extends TestCase
 {
     /**
      * @dataProvider malformedResults

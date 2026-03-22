@@ -15,11 +15,12 @@ use Psy\Command\BufferCommand;
 use Psy\Readline\LegacyReadline;
 use Psy\Readline\Transient;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class BufferCommandTest extends \Psy\Test\TestCase
+class BufferCommandTest extends TestCase
 {
     public function testExecuteWithCommandTester()
     {

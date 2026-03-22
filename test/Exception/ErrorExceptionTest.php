@@ -13,8 +13,9 @@ namespace Psy\Test\Exception;
 
 use Psy\Exception\ErrorException;
 use Psy\Exception\Exception;
+use Psy\Test\TestCase;
 
-class ErrorExceptionTest extends \Psy\Test\TestCase
+class ErrorExceptionTest extends TestCase
 {
     public function testInstance()
     {

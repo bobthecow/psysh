@@ -11,9 +11,10 @@
 
 namespace Psy\Test\Util;
 
+use Psy\Test\TestCase;
 use Psy\Util\TerminalColor;
 
-class TerminalColorTest extends \Psy\Test\TestCase
+class TerminalColorTest extends TestCase
 {
     /**
      * @dataProvider luminanceProvider

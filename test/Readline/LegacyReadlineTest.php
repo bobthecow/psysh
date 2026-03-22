@@ -13,9 +13,10 @@ namespace Psy\Test\Readline;
 
 use Psy\Readline\LegacyReadline;
 use Psy\Readline\Readline;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class LegacyReadlineTest extends \Psy\Test\TestCase
+class LegacyReadlineTest extends TestCase
 {
     public function testReadlineReturnsCompleteStatementAcrossMultiplePhysicalLines()
     {

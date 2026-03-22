@@ -15,8 +15,9 @@ use Psy\CodeCleaner\CodeCleanerPass;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Test\Fixtures\Formatter\BoringTrait;
+use Psy\Test\TestCase;
 
-class SignatureFormatterTest extends \Psy\Test\TestCase
+class SignatureFormatterTest extends TestCase
 {
     const FOO = 'foo value';
     private static $bar = 'bar value';

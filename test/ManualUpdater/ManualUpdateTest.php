@@ -14,11 +14,12 @@ namespace Psy\Test\ManualUpdater;
 use Psy\ManualUpdater\Checker;
 use Psy\ManualUpdater\Installer;
 use Psy\ManualUpdater\ManualUpdate;
+use Psy\Test\TestCase;
 use Psy\VersionUpdater\Downloader;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class ManualUpdateTest extends \Psy\Test\TestCase
+class ManualUpdateTest extends TestCase
 {
     public function testSuccessWhenManualIsAlreadyLatest()
     {

@@ -12,8 +12,9 @@
 namespace Psy\Test\Reflection;
 
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Psy\Test\TestCase;
 
-class ReflectionLanguageConstructTest extends \Psy\Test\TestCase
+class ReflectionLanguageConstructTest extends TestCase
 {
     /**
      * @dataProvider languageConstructs

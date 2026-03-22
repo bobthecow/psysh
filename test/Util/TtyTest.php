@@ -11,9 +11,10 @@
 
 namespace Psy\Test\Util;
 
+use Psy\Test\TestCase;
 use Psy\Util\Tty;
 
-class TtyTest extends \Psy\Test\TestCase
+class TtyTest extends TestCase
 {
     protected function tearDown(): void
     {

@@ -16,8 +16,9 @@ use Psy\Command\WtfCommand;
 use Psy\Context;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
+use Psy\Test\TestCase;
 
-class WtfCommandTest extends \Psy\Test\TestCase
+class WtfCommandTest extends TestCase
 {
     private WtfCommand $command;
     /** @var Shell&MockObject */

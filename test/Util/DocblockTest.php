@@ -14,9 +14,10 @@ namespace Psy\Test\Util;
 use Psy\Test\Fixtures\Util\MagicChild;
 use Psy\Test\Fixtures\Util\MagicClass;
 use Psy\Test\Fixtures\Util\NoMagicClass;
+use Psy\Test\TestCase;
 use Psy\Util\Docblock;
 
-class DocblockTest extends \Psy\Test\TestCase
+class DocblockTest extends TestCase
 {
     protected function tearDown(): void
     {

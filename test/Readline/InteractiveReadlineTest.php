@@ -11,13 +11,15 @@
 
 namespace Psy\Test\Readline;
 
+use Psy\Command\HelpCommand;
 use Psy\Exception\ThrowUpException;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\InteractiveSession;
 use Psy\Readline\Interactive\Readline as InternalReadline;
 use Psy\Readline\InteractiveReadline;
+use Psy\Test\TestCase;
 
-class InteractiveReadlineTest extends \Psy\Test\TestCase
+class InteractiveReadlineTest extends TestCase
 {
     private const JSON_HISTORY_SIGNATURE = [
         'type'    => 'psysh-history',
@@ -252,7 +254,7 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
             ->getMock();
         $commandHighlighter->expects($this->once())
             ->method('setCommands')
-            ->with(['help' => new \Psy\Command\HelpCommand()]);
+            ->with(['help' => new HelpCommand()]);
 
         $internalReadline = $this->getMockBuilder(InternalReadline::class)
             ->disableOriginalConstructor()
@@ -265,7 +267,7 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
         $this->setPrivateProperty($interactiveReadline, 'booted', true);
         $this->setPrivateProperty($interactiveReadline, 'readline', $internalReadline);
 
-        $interactiveReadline->setCommands(['help' => new \Psy\Command\HelpCommand()]);
+        $interactiveReadline->setCommands(['help' => new HelpCommand()]);
     }
 
     private function newReadline(History $history, $historyFile): InteractiveReadline

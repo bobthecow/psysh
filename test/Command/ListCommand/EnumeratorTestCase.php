@@ -12,11 +12,12 @@
 namespace Psy\Test\Command\ListCommand;
 
 use Psy\Command\ListCommand;
+use Psy\Test\TestCase;
 use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\StringInput;
 
-abstract class EnumeratorTestCase extends \Psy\Test\TestCase
+abstract class EnumeratorTestCase extends TestCase
 {
     protected function getPresenter()
     {

@@ -13,8 +13,9 @@ namespace Psy\Test\ManualUpdater;
 
 use Psy\ManualUpdater\Installer;
 use Psy\Test\TempPaths;
+use Psy\Test\TestCase;
 
-class InstallerTest extends \Psy\Test\TestCase
+class InstallerTest extends TestCase
 {
     private $tempDir;
 

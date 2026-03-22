@@ -12,6 +12,7 @@
 namespace Psy\Test;
 
 use Psy\Configuration;
+use Psy\Exception\BreakException;
 use Psy\Output\PassthruPager;
 use Psy\Output\ProcOutputPager;
 use Psy\Output\ShellOutput;
@@ -88,7 +89,7 @@ class ShellRuntimeConfigTest extends TestCase
         try {
             $shell->getInput();
             $this->fail('Expected Ctrl+D to break out of the input loop.');
-        } catch (\Psy\Exception\BreakException $e) {
+        } catch (BreakException $e) {
             $this->assertStringContainsString('Ctrl+D', $e->getMessage());
         }
 

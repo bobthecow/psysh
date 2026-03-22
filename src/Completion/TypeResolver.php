@@ -11,6 +11,7 @@
 
 namespace Psy\Completion;
 
+use PhpParser\Error as PhpParserError;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\NullsafeMethodCall;
@@ -25,6 +26,7 @@ use PhpParser\Parser;
 use Psy\CodeCleaner;
 use Psy\Context;
 use Psy\ParserFactory;
+use Psy\Util\Docblock;
 
 /**
  * Resolves types from expressions.
@@ -185,7 +187,7 @@ class TypeResolver
                 $this->parser->parse('<?php '.$expression.';');
 
                 return $expression;
-            } catch (\PhpParser\Error $e) {
+            } catch (PhpParserError $e) {
                 // Parse failed, needs cleaning
             }
         }
@@ -339,7 +341,7 @@ class TypeResolver
     {
         try {
             $stmts = $this->parser->parse('<?php '.$expression.';');
-        } catch (\PhpParser\Error $e) {
+        } catch (PhpParserError $e) {
             return null;
         }
 
@@ -771,7 +773,7 @@ class TypeResolver
      */
     private function resolveReturnTypesFromDocblock(\ReflectionMethod $method, \ReflectionClass $classContext): array
     {
-        $docblock = new \Psy\Util\Docblock($method);
+        $docblock = new Docblock($method);
 
         if (empty($docblock->tags['return'])) {
             return [];
@@ -792,7 +794,7 @@ class TypeResolver
      */
     private function resolvePropertyTypesFromDocblock(\ReflectionProperty $property, \ReflectionClass $classContext): array
     {
-        $docblock = new \Psy\Util\Docblock($property);
+        $docblock = new Docblock($property);
 
         if (empty($docblock->tags['var'])) {
             return [];

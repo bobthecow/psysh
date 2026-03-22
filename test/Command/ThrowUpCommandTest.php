@@ -13,9 +13,10 @@ namespace Psy\Test\Command;
 
 use Psy\Command\ThrowUpCommand;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ThrowUpCommandTest extends \Psy\Test\TestCase
+class ThrowUpCommandTest extends TestCase
 {
     /**
      * @dataProvider executeThis

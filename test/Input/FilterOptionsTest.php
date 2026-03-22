@@ -12,10 +12,11 @@
 namespace Psy\Test\Input;
 
 use Psy\Input\FilterOptions;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\StringInput;
 
-class FilterOptionsTest extends \Psy\Test\TestCase
+class FilterOptionsTest extends TestCase
 {
     public function testGetOptions()
     {

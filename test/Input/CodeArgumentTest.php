@@ -12,9 +12,10 @@
 namespace Psy\Test\Input;
 
 use Psy\Input\CodeArgument;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Input\InputArgument;
 
-class CodeArgumentTest extends \Psy\Test\TestCase
+class CodeArgumentTest extends TestCase
 {
     /**
      * @dataProvider getInvalidModes

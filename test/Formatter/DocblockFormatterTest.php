@@ -12,9 +12,10 @@
 namespace Psy\Test\Formatter;
 
 use Psy\Formatter\DocblockFormatter;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
-class DocblockFormatterTest extends \Psy\Test\TestCase
+class DocblockFormatterTest extends TestCase
 {
     /**
      * This is a docblock!

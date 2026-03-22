@@ -13,10 +13,11 @@ namespace Psy\Test\Command;
 
 use Psy\Command\HelpCommand;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Psy\Util\Tty;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class HelpCommandTest extends \Psy\Test\TestCase
+class HelpCommandTest extends TestCase
 {
     protected function tearDown(): void
     {

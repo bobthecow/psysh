@@ -15,9 +15,10 @@ use Psy\Command\ConfigCommand;
 use Psy\Configuration;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class ConfigCommandTest extends \Psy\Test\TestCase
+class ConfigCommandTest extends TestCase
 {
     private ConfigCommand $command;
     private Configuration $config;

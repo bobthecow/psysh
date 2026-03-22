@@ -12,8 +12,9 @@
 namespace Psy\Test\Reflection;
 
 use Psy\Reflection\ReflectionNamespace;
+use Psy\Test\TestCase;
 
-class ReflectionNamespaceTest extends \Psy\Test\TestCase
+class ReflectionNamespaceTest extends TestCase
 {
     public function testConstruction()
     {

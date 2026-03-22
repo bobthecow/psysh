@@ -13,11 +13,12 @@ namespace Psy\Test\Input;
 
 use Psy\Input\CodeArgument;
 use Psy\Input\ShellInput;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 
-class ShellInputTest extends \Psy\Test\TestCase
+class ShellInputTest extends TestCase
 {
     public function testThrowsWhenCodeArgumentNotInFinalPosition()
     {

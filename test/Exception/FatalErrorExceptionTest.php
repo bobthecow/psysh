@@ -13,8 +13,9 @@ namespace Psy\Test\Exception;
 
 use Psy\Exception\Exception;
 use Psy\Exception\FatalErrorException;
+use Psy\Test\TestCase;
 
-class FatalErrorExceptionTest extends \Psy\Test\TestCase
+class FatalErrorExceptionTest extends TestCase
 {
     public function testInstance()
     {

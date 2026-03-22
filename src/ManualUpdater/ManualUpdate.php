@@ -15,6 +15,8 @@ use Psy\ConfigPaths;
 use Psy\Configuration;
 use Psy\Exception\ErrorException;
 use Psy\Exception\InvalidManualException;
+use Psy\Manual\V2Manual;
+use Psy\Manual\V3Manual;
 use Psy\VersionUpdater\Downloader;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -319,14 +321,14 @@ class ManualUpdate
 
         try {
             if (\substr($path, -4) === '.php') {
-                $manual = new \Psy\Manual\V3Manual($path);
+                $manual = new V3Manual($path);
 
                 return $manual->getMeta();
             }
 
             if (\substr($path, -7) === '.sqlite') {
                 $pdo = new \PDO('sqlite:'.$path);
-                $manual = new \Psy\Manual\V2Manual($pdo);
+                $manual = new V2Manual($pdo);
 
                 return $manual->getMeta();
             }

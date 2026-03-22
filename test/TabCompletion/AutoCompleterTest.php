@@ -19,10 +19,12 @@ use Psy\Completion\Source\MatcherAdapterSource;
 use Psy\Completion\Source\VariableSource;
 use Psy\Configuration;
 use Psy\Context;
+use Psy\TabCompletion\AutoCompleter;
 use Psy\TabCompletion\Matcher;
 use Psy\Test\Fixtures\Completion\InfoCapturingMatcher;
+use Psy\Test\TestCase;
 
-class AutoCompleterTest extends \Psy\Test\TestCase
+class AutoCompleterTest extends TestCase
 {
     public function testCompletionEngineModeUsesCanonicalSources()
     {
@@ -36,7 +38,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
             new ListCommand(),
         ]));
 
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
         $tabCompletion->setCompletionEngine($engine);
 
         $variables = $tabCompletion->processCallback('', 0, [
@@ -63,7 +65,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
             new Matcher\FunctionDefaultParametersMatcher(),
         ]));
 
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
         $tabCompletion->setCompletionEngine($engine);
 
         $line = 'psysh_tab_completion_default_param_fixture(';
@@ -78,7 +80,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
 
     public function testThrowsWithoutCompletionEngine()
     {
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('AutoCompleter requires a CompletionEngine.');
@@ -88,7 +90,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
 
     public function testCustomMatcherAddedBeforeCompletionEngineIsUsed()
     {
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
         $tabCompletion->addMatcher(new TestMatcher(['custom-before']));
         $tabCompletion->setCompletionEngine(new CompletionEngine(new Context()));
 
@@ -103,7 +105,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
 
     public function testCustomMatcherAddedAfterCompletionEngineIsUsed()
     {
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
         $tabCompletion->setCompletionEngine(new CompletionEngine(new Context()));
         $tabCompletion->addMatcher(new TestMatcher(['custom-after']));
 
@@ -120,7 +122,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
     {
         $matcher = new InfoCapturingMatcher();
 
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
         $tabCompletion->addMatcher($matcher);
         $tabCompletion->setCompletionEngine(new CompletionEngine(new Context()));
 
@@ -232,7 +234,7 @@ class AutoCompleterTest extends \Psy\Test\TestCase
             new CommandSource($commands),
         ]);
 
-        $tabCompletion = new \Psy\TabCompletion\AutoCompleter();
+        $tabCompletion = new AutoCompleter();
         $tabCompletion->setCompletionEngine($engine);
 
         $context->setAll(['foo' => 12, 'bar' => new \DOMDocument()]);

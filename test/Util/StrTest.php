@@ -11,9 +11,10 @@
 
 namespace Psy\Test\Util;
 
+use Psy\Test\TestCase;
 use Psy\Util\Str;
 
-class StrTest extends \Psy\Test\TestCase
+class StrTest extends TestCase
 {
     /**
      * @dataProvider unvisProvider

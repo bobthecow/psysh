@@ -13,6 +13,7 @@ namespace Psy\Test\VersionUpdater;
 
 use Psy\Exception\ErrorException;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\Downloader;
 use Psy\VersionUpdater\Installer;
@@ -22,7 +23,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SelfUpdateTest extends \Psy\Test\TestCase
+class SelfUpdateTest extends TestCase
 {
     private function getSelfUpdater(Checker $checker, Installer $installer): SelfUpdate
     {

@@ -16,6 +16,8 @@ use Psy\Configuration;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
+use Psy\Readline\Interactive\Input\History;
+use Psy\Readline\InteractiveReadline;
 use Psy\VersionUpdater\GitHubChecker;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -960,13 +962,13 @@ PHP
             'configFile' => __DIR__.'/Fixtures/empty.php',
             'configDir'  => $dir,
         ]);
-        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+        $config->setReadline(new InteractiveReadline(false));
 
         $jsonlHistoryFile = $config->getHistoryFile();
         $this->assertSame($dir.'/psysh_history.jsonl', $jsonlHistoryFile);
         $this->assertFileExists($jsonlHistoryFile);
 
-        $history = new \Psy\Readline\Interactive\Input\History();
+        $history = new History();
         $history->loadFromFile($jsonlHistoryFile);
         $commands = \array_map(fn ($entry) => $entry['command'], $history->getAll());
         $this->assertSame(['legacy one', 'legacy two'], $commands);
@@ -978,10 +980,10 @@ PHP
             'configFile' => __DIR__.'/Fixtures/empty.php',
             'configDir'  => $dir,
         ]);
-        $config2->setReadline(new \Psy\Readline\InteractiveReadline(false));
+        $config2->setReadline(new InteractiveReadline(false));
         $this->assertSame($jsonlHistoryFile, $config2->getHistoryFile());
 
-        $history2 = new \Psy\Readline\Interactive\Input\History();
+        $history2 = new History();
         $history2->loadFromFile($jsonlHistoryFile);
         $commands2 = \array_map(fn ($entry) => $entry['command'], $history2->getAll());
         $this->assertSame(['legacy one', 'legacy two'], $commands2);
@@ -1281,7 +1283,7 @@ PHP
     public function testUseTabCompletionWithInteractiveReadline()
     {
         $config = $this->getConfig();
-        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+        $config->setReadline(new InteractiveReadline(false));
 
         // Defaults to true with InteractiveReadlineInterface
         $this->assertTrue($config->useTabCompletion());
@@ -1293,7 +1295,7 @@ PHP
             'configFile'       => __DIR__.'/Fixtures/empty.php',
             'useTabCompletion' => false,
         ]);
-        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+        $config->setReadline(new InteractiveReadline(false));
 
         // Respects explicit false even with InteractiveReadlineInterface
         $this->assertFalse($config->useTabCompletion());

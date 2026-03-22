@@ -11,7 +11,9 @@
 
 namespace Psy\Test;
 
-abstract class TestCase extends \PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase as PhpUnitTestCase;
+
+abstract class TestCase extends PhpUnitTestCase
 {
     // No forward compatibility needed!
 }

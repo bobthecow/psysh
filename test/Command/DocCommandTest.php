@@ -17,13 +17,14 @@ use Psy\Command\DocCommand;
 use Psy\Configuration;
 use Psy\Context;
 use Psy\Shell;
+use Psy\Test\TestCase;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @group isolation-fail
  */
-class DocCommandTest extends \Psy\Test\TestCase
+class DocCommandTest extends TestCase
 {
     private DocCommand $command;
     /** @var Shell&MockObject */
