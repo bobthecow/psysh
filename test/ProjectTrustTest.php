@@ -200,16 +200,12 @@ class ProjectTrustTest extends TestCase
     {
         $trust = $this->getProjectTrust();
 
-        $tmpDir = \sys_get_temp_dir().'/psysh_trust_autoload_'.\getmypid();
+        $tmpDir = TempPaths::directory('psysh-test-trust-autoload-');
         $vendorDir = $tmpDir.'/vendor';
         @\mkdir($vendorDir, 0700, true);
         @\file_put_contents($vendorDir.'/autoload.php', "<?php\n");
 
         $this->assertTrue($trust->hasComposerAutoloadFiles($tmpDir));
-
-        @\unlink($vendorDir.'/autoload.php');
-        @\rmdir($vendorDir);
-        @\rmdir($tmpDir);
 
         // A non-existent path should not
         $this->assertFalse($trust->hasComposerAutoloadFiles('/non/existent/path'));
@@ -233,31 +229,24 @@ class ProjectTrustTest extends TestCase
 
     public function testTrustPersistenceAndRetrieval()
     {
-        $tmpDir = \sys_get_temp_dir().'/psysh_trust_test_'.\getmypid();
-        @\mkdir($tmpDir, 0700, true);
+        $tmpDir = TempPaths::directory('psysh-test-trust-');
 
-        try {
-            $configPaths = new ConfigPaths(['configDir' => $tmpDir]);
-            $trust = new ProjectTrust($configPaths);
+        $configPaths = new ConfigPaths(['configDir' => $tmpDir]);
+        $trust = new ProjectTrust($configPaths);
 
-            // Initially no trusted roots
-            $this->assertSame([], $trust->getTrustedProjectRoots());
+        // Initially no trusted roots
+        $this->assertSame([], $trust->getTrustedProjectRoots());
 
-            // Trust a root
-            $this->assertTrue($trust->saveTrustedProjectRoots(['/some/project']));
+        // Trust a root
+        $this->assertTrue($trust->saveTrustedProjectRoots(['/some/project']));
 
-            // Should be retrievable
-            $roots = $trust->getTrustedProjectRoots();
-            $this->assertContains('/some/project', $roots);
+        // Should be retrievable
+        $roots = $trust->getTrustedProjectRoots();
+        $this->assertContains('/some/project', $roots);
 
-            // Trust file should exist
-            $this->assertNotNull($trust->getProjectTrustFilePath());
-            $this->assertFileExists($trust->getProjectTrustFilePath());
-        } finally {
-            // Cleanup
-            @\unlink($tmpDir.'/trusted_projects.json');
-            @\rmdir($tmpDir);
-        }
+        // Trust file should exist
+        $this->assertNotNull($trust->getProjectTrustFilePath());
+        $this->assertFileExists($trust->getProjectTrustFilePath());
     }
 
     public function testSessionTrustFallback()

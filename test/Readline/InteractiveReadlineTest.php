@@ -27,7 +27,7 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
 
     public function testLegacyHistoryFileIsImportOnly()
     {
-        $legacyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history_legacy_');
+        $legacyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-legacy-');
         $legacyContents = "legacy one\nlegacy two\n";
         \file_put_contents($legacyFile, $legacyContents);
 
@@ -53,7 +53,7 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
 
     public function testExistingJsonlHistoryTakesPrecedenceOverLegacy()
     {
-        $legacyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history_legacy_');
+        $legacyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-legacy-');
         \file_put_contents($legacyFile, "legacy one\n");
 
         $jsonlFile = $legacyFile.'.jsonl';
@@ -84,7 +84,7 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
 
     public function testJsonlHistoryFileWithSignatureIsNotTreatedAsLegacy()
     {
-        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history_jsonl_');
+        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-jsonl-');
         \file_put_contents($historyFile, \json_encode(self::JSON_HISTORY_SIGNATURE)."\n");
 
         $history = new History();
@@ -108,7 +108,7 @@ class InteractiveReadlineTest extends \Psy\Test\TestCase
         $history->add('foo');
         $history->add('bar');
 
-        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history');
+        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         $readline = $this->newReadline($history, $historyFile);
 
         $this->assertTrue($readline->clearHistory());

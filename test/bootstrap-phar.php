@@ -11,6 +11,7 @@
 
 use Psy\Shell;
 
+require_once __DIR__.'/TempPaths.php';
 require_once __DIR__.'/bootstrap-env.php';
 Psy\Test\BootstrapEnv::isolate(\dirname(__DIR__).'/.test-env');
 

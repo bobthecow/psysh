@@ -19,6 +19,7 @@ use Psy\Configuration;
 use Psy\Context;
 use Psy\Shell;
 use Psy\Test\Fixtures\Command\PsyCommandTester;
+use Psy\Test\TempPaths;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CopyCommandTest extends \Psy\Test\TestCase
@@ -35,8 +36,7 @@ class CopyCommandTest extends \Psy\Test\TestCase
     {
         $this->context = new Context();
         $this->cleaner = new CodeCleaner();
-        $this->tempDir = \sys_get_temp_dir().'/psysh-copy-command-test-'.\bin2hex(\random_bytes(8));
-        \mkdir($this->tempDir, 0777, true);
+        $this->tempDir = TempPaths::directory('psysh-test-copy-command-', null, 0777);
         $this->config = new Configuration([
             'configFile' => \dirname(__DIR__).'/Fixtures/empty.php',
         ]);
@@ -57,13 +57,6 @@ class CopyCommandTest extends \Psy\Test\TestCase
         $this->command->setContext($this->context);
         $this->command->setCodeCleaner($this->cleaner);
         $this->command->setConfiguration($this->config);
-    }
-
-    protected function tearDown(): void
-    {
-        @\unlink($this->tempDir.'/psysh_history');
-        @\unlink($this->tempDir.'/psysh_history.jsonl');
-        @\rmdir($this->tempDir);
     }
 
     public function testConfigure()

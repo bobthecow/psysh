@@ -17,6 +17,7 @@ use Psy\Clipboard\Osc52ClipboardMethod;
 use Psy\ConfigPaths;
 use Psy\Configuration;
 use Psy\Test\Fixtures\TestableEnv;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 
 class ClipboardTest extends TestCase
@@ -98,20 +99,14 @@ class ClipboardTest extends TestCase
 
     private function makeKnownClipboardDir(): string
     {
-        $dir = \sys_get_temp_dir().'/psysh-clipboard-'.\bin2hex(\random_bytes(8));
+        $dir = TempPaths::directory('psysh-test-clipboard-', null, 0777);
         $file = $dir.\DIRECTORY_SEPARATOR.(\DIRECTORY_SEPARATOR === '\\' ? 'clip.exe' : 'pbcopy');
 
-        \mkdir($dir, 0777, true);
         \copy(\PHP_BINARY, $file);
 
         if (\DIRECTORY_SEPARATOR !== '\\') {
             \chmod($file, 0755);
         }
-
-        \register_shutdown_function(static function () use ($file, $dir): void {
-            @\unlink($file);
-            @\rmdir($dir);
-        });
 
         return $dir;
     }

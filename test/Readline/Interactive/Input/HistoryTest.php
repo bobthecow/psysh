@@ -12,6 +12,7 @@
 namespace Psy\Test\Readline\Interactive\Input;
 
 use Psy\Readline\Interactive\Input\History;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 
 /**
@@ -237,7 +238,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromFileResetsNavigationState()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         \file_put_contents($tempFile, \json_encode(['command' => 'repeat', 'timestamp' => 1000, 'lines' => 1])."\n");
 
         $history = new History();
@@ -271,7 +272,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromJsonlFile()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         // Write JSONL history file (most recent last)
         $lines = [
@@ -300,7 +301,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromJsonlFileWithSignature()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         $lines = [
             \json_encode(self::JSON_HISTORY_SIGNATURE),
@@ -322,7 +323,7 @@ class HistoryTest extends TestCase
 
     public function testImportFromLegacyPlainTextFile()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         // Legacy readline history format is plain text, one command per line.
         \file_put_contents($tempFile, "first command\nsecond command\nthird command\n");
@@ -341,7 +342,7 @@ class HistoryTest extends TestCase
 
     public function testImportFromLegacyPlainTextFileSkipsLibeditSignature()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         \file_put_contents($tempFile, "_HiStOrY_V2_\nfirst command\nsecond command\n");
 
         $history = new History();
@@ -357,7 +358,7 @@ class HistoryTest extends TestCase
 
     public function testImportFromLegacyPlainTextFileDecodesEscapedNewlines()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         \file_put_contents($tempFile, "echo \"a\"\\necho \"b\"\n");
 
         $history = new History();
@@ -373,7 +374,7 @@ class HistoryTest extends TestCase
 
     public function testImportFromLegacyPlainTextFileSkipsNullCommentsAndTimestamps()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         \file_put_contents($tempFile, "_HiStOrY_V2_\n\0timestamp\nvalid\0comment\n");
 
         $history = new History();
@@ -423,7 +424,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromLegacyPlainTextFileDoesNotImport()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         \file_put_contents($tempFile, "first command\nsecond command\n");
 
         $history = new History();
@@ -439,7 +440,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromJsonlFileWithMultiLine()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         $multiLineCmd = "function foo() {\n    return 42;\n}";
         $lines = [
@@ -461,7 +462,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromJsonlFileSkipsEmptyLines()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         // Write JSONL file with empty lines
         $lines = [
@@ -488,7 +489,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromFileRespectsMaxSize()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         // Write more entries than max size
         $lines = [
@@ -526,7 +527,7 @@ class HistoryTest extends TestCase
 
     public function testLoadFromInvalidJsonl()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         // Write file with mix of valid and invalid JSON
         $lines = [
@@ -554,7 +555,7 @@ class HistoryTest extends TestCase
 
     public function testSaveToJsonlFile()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         @\unlink($tempFile); // Remove the temp file so we can test creation
 
         $history = new History();
@@ -589,7 +590,7 @@ class HistoryTest extends TestCase
 
     public function testSaveToFileWithMultiLine()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         @\unlink($tempFile);
 
         $history = new History();
@@ -617,7 +618,7 @@ class HistoryTest extends TestCase
 
     public function testSaveToFileCreatesDirectory()
     {
-        $tempDir = \sys_get_temp_dir().'/psysh_test_'.\uniqid();
+        $tempDir = TempPaths::reserve('psysh-test-history-dir-');
         $tempFile = $tempDir.'/history';
 
         $this->assertDirectoryDoesNotExist($tempDir);
@@ -634,7 +635,7 @@ class HistoryTest extends TestCase
 
     public function testSaveEmptyHistory()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
 
         $history = new History();
         $history->saveToFile($tempFile);
@@ -651,7 +652,7 @@ class HistoryTest extends TestCase
 
     public function testRoundTripJsonl()
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh_history_test_');
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         @\unlink($tempFile);
 
         // Create history with various commands

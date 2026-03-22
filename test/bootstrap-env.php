@@ -13,9 +13,6 @@ namespace Psy\Test;
 
 final class BootstrapEnv
 {
-    /** @var array<string, bool> */
-    private static array $cleanupRoots = [];
-
     /**
      * Create and apply a hermetic test environment for PsySH config/data.
      *
@@ -23,7 +20,7 @@ final class BootstrapEnv
      */
     public static function isolate(?string $root = null): array
     {
-        $root = $root ?? self::makeTempDir('psysh-test-env-');
+        $root = $root ?? TempPaths::directory('psysh-test-env-', null, 0777);
 
         $homeDir = $root.'/home';
         $configHome = $homeDir.'/.config';
@@ -53,7 +50,6 @@ final class BootstrapEnv
         self::unsetEnv('PSYSH_CONFIG');
         self::unsetEnv('PSYSH_TRUST_PROJECT');
         self::unsetEnv('PSYSH_UNTRUSTED_PROJECT');
-        self::registerCleanup($root);
 
         return [
             'HOME'            => $homeDir,
@@ -63,19 +59,6 @@ final class BootstrapEnv
             'XDG_CONFIG_DIRS' => $configDirs,
             'XDG_DATA_DIRS'   => $dataDirs,
         ];
-    }
-
-    private static function makeTempDir(string $prefix): string
-    {
-        $path = \tempnam(\sys_get_temp_dir(), $prefix);
-        if ($path === false) {
-            throw new \RuntimeException('Failed to allocate temporary test directory');
-        }
-
-        @\unlink($path);
-        self::mkdir($path);
-
-        return $path;
     }
 
     private static function mkdir(string $dir): void
@@ -96,46 +79,5 @@ final class BootstrapEnv
     {
         unset($_SERVER[$name], $_ENV[$name]);
         \putenv($name);
-    }
-
-    private static function registerCleanup(string $root): void
-    {
-        if (isset(self::$cleanupRoots[$root])) {
-            return;
-        }
-
-        self::$cleanupRoots[$root] = true;
-
-        \register_shutdown_function(static function () use ($root): void {
-            self::rmrf($root);
-        });
-    }
-
-    private static function rmrf(string $path): void
-    {
-        if (!@\file_exists($path) && !@\is_link($path)) {
-            return;
-        }
-
-        if (!@\is_dir($path) || @\is_link($path)) {
-            @\unlink($path);
-
-            return;
-        }
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($iterator as $item) {
-            if ($item->isDir() && !$item->isLink()) {
-                @\rmdir($item->getPathname());
-            } else {
-                @\unlink($item->getPathname());
-            }
-        }
-
-        @\rmdir($path);
     }
 }

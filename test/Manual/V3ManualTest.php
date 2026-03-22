@@ -13,6 +13,7 @@ namespace Psy\Test\Manual;
 
 use Psy\Exception\InvalidManualException;
 use Psy\Manual\V3Manual;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 
 class V3ManualTest extends TestCase
@@ -22,19 +23,7 @@ class V3ManualTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = \sys_get_temp_dir().'/psysh_manual_test_'.\uniqid();
-        \mkdir($this->tempDir);
-    }
-
-    protected function tearDown(): void
-    {
-        if (\is_dir($this->tempDir)) {
-            foreach (\glob($this->tempDir.'/*') as $file) {
-                \unlink($file);
-            }
-            \rmdir($this->tempDir);
-        }
-        parent::tearDown();
+        $this->tempDir = TempPaths::directory('psysh-test-manual-');
     }
 
     public function testConstructorWithValidManual()

@@ -21,7 +21,7 @@ class IntervalCheckerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cacheFile = \tempnam(\sys_get_temp_dir(), 'psysh_manual_interval_test_');
+        $this->cacheFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-manual-interval-');
     }
 
     protected function tearDown(): void

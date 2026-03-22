@@ -19,7 +19,7 @@ class CommandClipboardMethodTest extends TestCase
 {
     public function testCopyReturnsTrueWhenCommandSucceeds()
     {
-        $target = \tempnam(\sys_get_temp_dir(), 'psysh-copy-');
+        $target = \tempnam(\sys_get_temp_dir(), 'psysh-test-copy-');
         $command = $this->phpCommand('file_put_contents('.\var_export($target, true).', stream_get_contents(STDIN));');
 
         $method = new CommandClipboardMethod($command);

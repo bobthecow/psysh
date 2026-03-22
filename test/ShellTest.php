@@ -1752,8 +1752,7 @@ class ShellTest extends TestCase
 
     public function testShellExecuteUsesNonInteractivePromptContext()
     {
-        $dir = \tempnam(\sys_get_temp_dir(), 'psysh_shell_test_');
-        \unlink($dir);
+        $dir = TempPaths::reserve('psysh-test-shell-');
 
         $options = [
             'configFile'      => __DIR__.'/Fixtures/empty.php',
@@ -2065,8 +2064,7 @@ class ShellTest extends TestCase
     private function getConfig(array $config = [])
     {
         // Mebbe there's a better way than this?
-        $dir = \tempnam(\sys_get_temp_dir(), 'psysh_shell_test_');
-        \unlink($dir);
+        $dir = TempPaths::reserve('psysh-test-shell-');
 
         $defaults = [
             'configDir'    => $dir,

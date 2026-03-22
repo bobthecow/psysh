@@ -13,36 +13,6 @@ namespace Psy\Test;
 
 class BinLauncherTest extends TestCase
 {
-    /** @var string[] */
-    private array $tempDirs = [];
-
-    /**
-     * @after
-     */
-    public function cleanupTempDirs(): void
-    {
-        foreach ($this->tempDirs as $dir) {
-            if (!@\is_dir($dir)) {
-                continue;
-            }
-
-            $iter = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::CHILD_FIRST
-            );
-
-            foreach ($iter as $path) {
-                if ($path->isDir() && !$path->isLink()) {
-                    @\rmdir($path->getPathname());
-                } else {
-                    @\unlink($path->getPathname());
-                }
-            }
-
-            @\rmdir($dir);
-        }
-    }
-
     /**
      * @group isolation-fail
      */
@@ -61,7 +31,7 @@ class BinLauncherTest extends TestCase
     public function testLauncherMarksDifferentProxyAsUntrusted(): void
     {
         $projectDir = $this->makeProjectWithPsyshDependency();
-        $proxyDir = $this->makeTempDir('psysh_proxy_test_');
+        $proxyDir = TempPaths::directory('psysh-test-bin-launcher-proxy-');
         @\file_put_contents($proxyDir.'/autoload.php', "<?php\n");
 
         $result = $this->runLauncher($projectDir, $proxyDir.'/autoload.php');
@@ -75,7 +45,7 @@ class BinLauncherTest extends TestCase
      */
     private function runLauncher(string $projectDir, ?string $proxyAutoload): array
     {
-        $runnerDir = $this->makeTempDir('psysh_launcher_runner_');
+        $runnerDir = TempPaths::directory('psysh-test-bin-launcher-runner-');
         $runner = $runnerDir.'/run.php';
         $autoload = \realpath(__DIR__.'/../vendor/autoload.php');
         $bin = \realpath(__DIR__.'/../bin/psysh');
@@ -162,7 +132,7 @@ PHP;
 
     private function makeProjectWithPsyshDependency(): string
     {
-        $projectDir = $this->makeTempDir('psysh_bin_launcher_test_');
+        $projectDir = TempPaths::directory('psysh-test-bin-launcher-');
 
         @\mkdir($projectDir.'/vendor', 0700, true);
         @\file_put_contents($projectDir.'/vendor/autoload.php', "<?php\n");
@@ -175,22 +145,5 @@ PHP;
         ], \JSON_PRETTY_PRINT)."\n");
 
         return $projectDir;
-    }
-
-    private function makeTempDir(string $prefix): string
-    {
-        $tmp = \tempnam(\sys_get_temp_dir(), $prefix);
-        if ($tmp === false) {
-            throw new \RuntimeException('Failed to create temporary path');
-        }
-
-        @\unlink($tmp);
-        if (!@\mkdir($tmp, 0700, true) && !@\is_dir($tmp)) {
-            throw new \RuntimeException('Failed to create temporary directory');
-        }
-
-        $this->tempDirs[] = $tmp;
-
-        return $tmp;
     }
 }

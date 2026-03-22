@@ -44,7 +44,7 @@ class CodeCleanerResolveFunctionNameTest extends TestCase
 
     public function testResolveUnknownFunction()
     {
-        $this->assertNull($this->cleaner->resolveFunctionName('definitely_not_a_real_psysh_test_function'));
+        $this->assertNull($this->cleaner->resolveFunctionName('definitely_not_a_real_psysh_function'));
     }
 
     public function testResolveNamespacedFunction()

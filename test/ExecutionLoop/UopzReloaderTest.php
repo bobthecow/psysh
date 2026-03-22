@@ -28,7 +28,7 @@ class UopzReloaderTest extends TestCase
             $this->markTestSkipped('uopz extension required for UopzReloader tests');
         }
 
-        $this->testFile = \tempnam(\sys_get_temp_dir(), 'psysh_reload_test_');
+        $this->testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-');
         $this->tempFiles[] = $this->testFile;
     }
 
@@ -91,7 +91,7 @@ class UopzTestClass {
 
     public function testReloadMethodWithThisBinding()
     {
-        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_this_test_');
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-this-');
         $this->tempFiles[] = $testFile;
 
         // Create class with method that uses $this to access private property
@@ -153,7 +153,7 @@ class UopzThisBindingTest {
 
     public function testReloadMethodPreservesReturnType()
     {
-        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_return_test_');
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-return-');
         $this->tempFiles[] = $testFile;
 
         \file_put_contents($testFile, '<?php
@@ -199,7 +199,7 @@ class UopzReturnTypeTest {
 
     public function testReloadClassConstant()
     {
-        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_const_test_');
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-const-');
         $this->tempFiles[] = $testFile;
 
         \file_put_contents($testFile, '<?php
@@ -229,7 +229,7 @@ class UopzConstTest {
 
     public function testReloadFunction()
     {
-        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_func_test_');
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-func-');
         $this->tempFiles[] = $testFile;
 
         \file_put_contents($testFile, '<?php
@@ -259,7 +259,7 @@ function uopzTestFunction() {
 
     public function testAddNewFunction()
     {
-        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_newfunc_test_');
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-newfunc-');
         $this->tempFiles[] = $testFile;
 
         // Start with a file that has no function
@@ -325,7 +325,7 @@ class UopzSkipTest {
 
     public function testReloadWithNamespace()
     {
-        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh_ns_test_');
+        $testFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-reload-namespace-');
         $this->tempFiles[] = $testFile;
 
         \file_put_contents($testFile, '<?php

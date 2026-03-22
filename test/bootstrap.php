@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+require_once __DIR__.'/TempPaths.php';
 require_once __DIR__.'/bootstrap-env.php';
 require_once __DIR__.'/../vendor/autoload.php';
 

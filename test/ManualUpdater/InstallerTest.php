@@ -12,6 +12,7 @@
 namespace Psy\Test\ManualUpdater;
 
 use Psy\ManualUpdater\Installer;
+use Psy\Test\TempPaths;
 
 class InstallerTest extends \Psy\Test\TestCase
 {
@@ -20,29 +21,7 @@ class InstallerTest extends \Psy\Test\TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = \sys_get_temp_dir().'/psysh-test-'.\uniqid();
-        \mkdir($this->tempDir, 0755, true);
-    }
-
-    public function tearDown(): void
-    {
-        if (\is_dir($this->tempDir)) {
-            $this->removeDirectory($this->tempDir);
-        }
-        parent::tearDown();
-    }
-
-    private function removeDirectory($dir)
-    {
-        if (!\is_dir($dir)) {
-            return;
-        }
-        $files = \array_diff(\scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dir.'/'.$file;
-            \is_dir($path) ? $this->removeDirectory($path) : \unlink($path);
-        }
-        \rmdir($dir);
+        $this->tempDir = TempPaths::directory('psysh-test-manual-updater-installer-', null, 0755);
     }
 
     public function testIsDataDirWritableReturnsTrueForWritableDirectory()

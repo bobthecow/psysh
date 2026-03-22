@@ -13,7 +13,7 @@ if (!isset($config)) {
     throw new Exception('$config not found');
 }
 
-$config->setRuntimeDir(\sys_get_temp_dir().'/psysh_test/withconfig/temp');
+$config->setRuntimeDir(\sys_get_temp_dir().'/psysh-test/withconfig/temp');
 
 return [
     'useReadline'       => true,

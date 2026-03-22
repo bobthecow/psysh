@@ -22,7 +22,7 @@ class FunctionsTest extends TestCase
             'configFile' => __DIR__.'/Fixtures/empty.php',
         ]);
 
-        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-info-history-');
+        $historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-info-history-');
         $resetConfig = new Configuration([
             'configFile' => __DIR__.'/Fixtures/empty.php',
         ]);

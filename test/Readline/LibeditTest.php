@@ -26,7 +26,7 @@ class LibeditTest extends \Psy\Test\TestCase
             $this->markTestSkipped('Libedit not enabled');
         }
 
-        $this->historyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history');
+        $this->historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         if (false === \file_put_contents($this->historyFile, "_HiStOrY_V2_\n")) {
             $this->fail('Unable to write history file: '.$this->historyFile);
         }

@@ -23,20 +23,11 @@ use Symfony\Component\Console\Output\StreamOutput;
 class ShellRuntimeConfigTest extends TestCase
 {
     private array $streams = [];
-    private array $tempDirs = [];
 
     protected function tearDown(): void
     {
         foreach ($this->streams as $stream) {
             \fclose($stream);
-        }
-
-        foreach ($this->tempDirs as $dir) {
-            @\unlink($dir.'/psysh_history');
-            @\unlink($dir.'/psysh_history.jsonl');
-            @\unlink($dir.'/update_check.json');
-            @\unlink($dir.'/manual_update_check.json');
-            @\rmdir($dir);
         }
     }
 
@@ -176,9 +167,7 @@ class ShellRuntimeConfigTest extends TestCase
 
     private function getConfig(array $config = []): Configuration
     {
-        $dir = \tempnam(\sys_get_temp_dir(), 'psysh_runtime_config_test_');
-        \unlink($dir);
-        $this->tempDirs[] = $dir;
+        $dir = TempPaths::reserve('psysh-test-runtime-config-');
 
         $defaults = [
             'configDir'    => $dir,

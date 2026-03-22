@@ -97,8 +97,7 @@ class ConfigurationTest extends TestCase
 
     public function testGetRuntimeDir()
     {
-        $dirName = \tempnam(\sys_get_temp_dir(), 'psysh-config-test-');
-        \unlink($dirName);
+        $dirName = TempPaths::reserve('psysh-test-config-');
 
         $config = $this->getConfig();
         $config->setRuntimeDir($dirName);
@@ -147,7 +146,7 @@ class ConfigurationTest extends TestCase
     {
         $config = $this->getConfig(__DIR__.'/Fixtures/config.php');
 
-        $runtimeDir = $this->joinPath(\realpath(\sys_get_temp_dir()), 'psysh_test', 'withconfig', 'temp');
+        $runtimeDir = $this->joinPath(\realpath(\sys_get_temp_dir()), 'psysh-test', 'withconfig', 'temp');
 
         $this->assertStringStartsWith($runtimeDir, \realpath($config->getTempFile('foo', 123)));
         $this->assertStringStartsWith($runtimeDir, \realpath(\dirname($config->getPipe('pipe', 123))));
@@ -184,7 +183,7 @@ class ConfigurationTest extends TestCase
     public function testLocalConfigSkippedWhenUntrusted()
     {
         $oldPwd = \getcwd();
-        $tmpConfigDir = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+        $tmpConfigDir = TempPaths::reserve('psysh-test-config-');
 
         try {
             \chdir(\realpath(__DIR__.'/Fixtures/project/'));
@@ -205,7 +204,7 @@ class ConfigurationTest extends TestCase
     public function testNonInteractiveWarningForUntrustedLocalConfig()
     {
         $oldPwd = \getcwd();
-        $tmpConfigDir = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+        $tmpConfigDir = TempPaths::reserve('psysh-test-config-');
 
         try {
             \chdir(\realpath(__DIR__.'/Fixtures/project/'));
@@ -745,7 +744,7 @@ class ConfigurationTest extends TestCase
         $oldXdgConfigHome = $_SERVER['XDG_CONFIG_HOME'] ?? null;
         $oldXdgConfigDirs = $_SERVER['XDG_CONFIG_DIRS'] ?? null;
 
-        $root = \sys_get_temp_dir().'/psysh-config-test-'.\getmypid().'-'.\uniqid('', true);
+        $root = TempPaths::directory('psysh-test-config-');
         $projectDir = $root.'/project';
         $xdgConfigHome = $root.'/xdg-config';
         $xdgConfigDirs = $root.'/xdg-config-dirs';
@@ -808,15 +807,6 @@ PHP
             } else {
                 unset($_SERVER['XDG_CONFIG_DIRS']);
             }
-
-            @\unlink($localConfigFile);
-            @\unlink($homeConfigFile);
-            @\rmdir($projectDir);
-            @\rmdir($xdgConfigHome.'/psysh');
-            @\rmdir($xdgConfigHome);
-            @\rmdir($xdgConfigDirs);
-            @\rmdir($root.'/home');
-            @\rmdir($root);
         }
     }
 
@@ -920,68 +910,55 @@ PHP
 
     public function testHistoryFileUsesLegacyPathForStandardReadline()
     {
-        $dir = \sys_get_temp_dir().'/psysh-config-history-'.\uniqid('', true);
-        \mkdir($dir, 0700, true);
+        $dir = TempPaths::directory('psysh-test-config-history-');
 
         $legacyHistoryFile = $dir.'/history';
         \file_put_contents($legacyHistoryFile, "echo 1\n");
 
-        try {
-            $config = new Configuration([
-                'configFile' => __DIR__.'/Fixtures/empty.php',
-                'configDir'  => $dir,
-            ]);
+        $config = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'configDir'  => $dir,
+        ]);
 
-            $this->assertSame($legacyHistoryFile, $config->getHistoryFile());
-        } finally {
-            @\unlink($legacyHistoryFile);
-            @\rmdir($dir);
-        }
+        $this->assertSame($legacyHistoryFile, $config->getHistoryFile());
     }
 
     public function testInteractiveHistoryBootstrapsFromLegacyThenDiverges()
     {
-        $dir = \sys_get_temp_dir().'/psysh-config-history-'.\uniqid('', true);
-        \mkdir($dir, 0700, true);
+        $dir = TempPaths::directory('psysh-test-config-history-');
 
         $legacyHistoryFile = $dir.'/history';
         \file_put_contents($legacyHistoryFile, "legacy one\nlegacy two\n");
 
-        try {
-            $config = new Configuration([
-                'configFile' => __DIR__.'/Fixtures/empty.php',
-                'configDir'  => $dir,
-            ]);
-            $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
+        $config = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'configDir'  => $dir,
+        ]);
+        $config->setReadline(new \Psy\Readline\InteractiveReadline(false));
 
-            $jsonlHistoryFile = $config->getHistoryFile();
-            $this->assertSame($dir.'/psysh_history.jsonl', $jsonlHistoryFile);
-            $this->assertFileExists($jsonlHistoryFile);
+        $jsonlHistoryFile = $config->getHistoryFile();
+        $this->assertSame($dir.'/psysh_history.jsonl', $jsonlHistoryFile);
+        $this->assertFileExists($jsonlHistoryFile);
 
-            $history = new \Psy\Readline\Interactive\Input\History();
-            $history->loadFromFile($jsonlHistoryFile);
-            $commands = \array_map(fn ($entry) => $entry['command'], $history->getAll());
-            $this->assertSame(['legacy one', 'legacy two'], $commands);
+        $history = new \Psy\Readline\Interactive\Input\History();
+        $history->loadFromFile($jsonlHistoryFile);
+        $commands = \array_map(fn ($entry) => $entry['command'], $history->getAll());
+        $this->assertSame(['legacy one', 'legacy two'], $commands);
 
-            // Once JSONL exists, it should no longer track legacy history updates.
-            \file_put_contents($legacyHistoryFile, "legacy one\nlegacy two\nlegacy three\n");
+        // Once JSONL exists, it should no longer track legacy history updates.
+        \file_put_contents($legacyHistoryFile, "legacy one\nlegacy two\nlegacy three\n");
 
-            $config2 = new Configuration([
-                'configFile' => __DIR__.'/Fixtures/empty.php',
-                'configDir'  => $dir,
-            ]);
-            $config2->setReadline(new \Psy\Readline\InteractiveReadline(false));
-            $this->assertSame($jsonlHistoryFile, $config2->getHistoryFile());
+        $config2 = new Configuration([
+            'configFile' => __DIR__.'/Fixtures/empty.php',
+            'configDir'  => $dir,
+        ]);
+        $config2->setReadline(new \Psy\Readline\InteractiveReadline(false));
+        $this->assertSame($jsonlHistoryFile, $config2->getHistoryFile());
 
-            $history2 = new \Psy\Readline\Interactive\Input\History();
-            $history2->loadFromFile($jsonlHistoryFile);
-            $commands2 = \array_map(fn ($entry) => $entry['command'], $history2->getAll());
-            $this->assertSame(['legacy one', 'legacy two'], $commands2);
-        } finally {
-            @\unlink($dir.'/psysh_history.jsonl');
-            @\unlink($legacyHistoryFile);
-            @\rmdir($dir);
-        }
+        $history2 = new \Psy\Readline\Interactive\Input\History();
+        $history2->loadFromFile($jsonlHistoryFile);
+        $commands2 = \array_map(fn ($entry) => $entry['command'], $history2->getAll());
+        $this->assertSame(['legacy one', 'legacy two'], $commands2);
     }
 
     private function getBoundStringInput($string, $configFile = null)

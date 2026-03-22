@@ -26,7 +26,7 @@ class GNUReadlineTest extends \Psy\Test\TestCase
             $this->markTestSkipped('GNUReadline not enabled');
         }
 
-        $this->historyFile = \tempnam(\sys_get_temp_dir(), 'psysh_test_history');
+        $this->historyFile = \tempnam(\sys_get_temp_dir(), 'psysh-test-history-');
         \file_put_contents($this->historyFile, "_HiStOrY_V2_\n");
     }
 
