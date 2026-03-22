@@ -389,6 +389,45 @@ class ContextAnalyzerTest extends TestCase
         ];
     }
 
+    public function testPartialInputRefinerRecoversTrailingObjectAccessAfterFunctionCall(): void
+    {
+        $result = $this->analyze('foo()->', \mb_strlen('foo()->'));
+
+        $this->assertEquals(CompletionKind::OBJECT_MEMBER, $result->kinds);
+        $this->assertSame('', $result->prefix);
+        $this->assertSame('foo()', $result->leftSide);
+    }
+
+    public function testPartialInputRefinerRecoversTrailingObjectAccessAfterParenthesizedExpression(): void
+    {
+        $input = '(new DateTime)->';
+        $result = $this->analyze($input, \mb_strlen($input));
+
+        $this->assertEquals(CompletionKind::OBJECT_MEMBER, $result->kinds);
+        $this->assertSame('', $result->prefix);
+        $this->assertSame('new DateTime', $result->leftSide);
+    }
+
+    public function testPartialInputRefinerRecoversTrailingObjectAccessAfterArrayDimFetch(): void
+    {
+        $input = '$foo[0]->';
+        $result = $this->analyze($input, \mb_strlen($input));
+
+        $this->assertEquals(CompletionKind::OBJECT_MEMBER, $result->kinds);
+        $this->assertSame('', $result->prefix);
+        $this->assertSame('$foo[0]', $result->leftSide);
+    }
+
+    public function testPartialInputRefinerRecoversTrailingObjectAccessInsideIncompleteMatchArm(): void
+    {
+        $input = 'match ($x) { 1 => foo()->';
+        $result = $this->analyze($input, \mb_strlen($input));
+
+        $this->assertEquals(CompletionKind::OBJECT_MEMBER, $result->kinds);
+        $this->assertSame('', $result->prefix);
+        $this->assertSame('foo()', $result->leftSide);
+    }
+
     private function analyze(string $input, int $cursor)
     {
         $analysis = $this->analyzer->analyze($input, $cursor);
