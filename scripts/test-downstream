@@ -7,7 +7,7 @@ readonly SCRIPT_DIR
 PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 readonly PSYSH_ROOT
 readonly DEFAULT_PROJECTS_TIER1=("laravel-tinker" "laravel-web-tinker")
-readonly DEFAULT_PROJECTS_ALL=("laravel-tinker" "laravel-web-tinker" "drush" "codeception" "magerun2" "cakephp-repl" "composer-repl-lib" "bdf-prime-shell")
+readonly DEFAULT_PROJECTS_ALL=("laravel-tinker" "laravel-web-tinker" "drush" "codeception" "magerun2" "cakephp-repl" "composer-repl-lib" "bdf-prime-shell" "mediawiki")
 readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
 
 usage() {
@@ -27,6 +27,7 @@ Project IDs:
   cakephp-repl
   composer-repl-lib
   bdf-prime-shell
+  mediawiki
 USAGE
 }
 
@@ -104,6 +105,12 @@ resolve_project() {
             ref="master"
             test_command="vendor/bin/phpunit"
             min_php="7.1"
+            ;;
+        mediawiki)
+            repo="wikimedia/mediawiki"
+            ref="master"
+            test_command="composer show psy/psysh"
+            min_php="8.2"
             ;;
         *)
             echo "Unknown project ID: $1" >&2

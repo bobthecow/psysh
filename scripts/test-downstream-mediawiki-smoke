@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+# This file is part of Psy Shell.
+#
+# (c) 2012-2026 Justin Hileman
+#
+# For the full copyright and license information, please view the LICENSE
+# file that was distributed with this source code.
+
+set -euo pipefail
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "Skipping mediawiki PTY smoke: Linux util-linux 'script' is required."
+    exit 0
+fi
+
+if ! command -v script >/dev/null 2>&1; then
+    echo "The 'script' command is required for mediawiki PTY smoke test."
+    exit 1
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PSYSH_ROOT
+readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
+readonly MEDIAWIKI_REF="${DOWNSTREAM_MEDIAWIKI_REF:-master}"
+readonly REPO_CONFIG_JSON="{\"type\":\"path\",\"url\":\"${PSYSH_ROOT}\",\"options\":{\"symlink\":true,\"versions\":{\"psy/psysh\":\"${OVERRIDE_VERSION}\"}}}"
+
+LAST_OUTPUT=''
+LAST_STATUS=0
+
+retry() {
+    local -r attempts="$1"
+    shift
+
+    local try=1
+    until "$@"; do
+        if [[ "${try}" -ge "${attempts}" ]]; then
+            echo "FAILED after ${attempts} attempts: $*" >&2
+            return 1
+        fi
+
+        try=$((try + 1))
+        echo "Retrying (${try}/${attempts}): $*" >&2
+        sleep 2
+    done
+}
+
+normalize_output() {
+    perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g; s/\r//g; s/.\x08//g;'
+}
+
+run_pty() {
+    local input="$1"
+    shift
+
+    local command
+    printf -v command '%q ' "$@"
+    command="stty cols 100 rows 40; exec ${command% }"
+
+    set +e
+    LAST_OUTPUT="$(printf '%b' "${input}" | script -qefc "${command}" /dev/null 2>&1 | normalize_output)"
+    LAST_STATUS=$?
+    set -e
+}
+
+assert_status() {
+    local expected="$1"
+    if [[ "${LAST_STATUS}" -ne "${expected}" ]]; then
+        echo "Expected exit status ${expected}, got ${LAST_STATUS}."
+        echo
+        echo "${LAST_OUTPUT}"
+        return 1
+    fi
+}
+
+assert_contains() {
+    local needle="$1"
+    if [[ "${LAST_OUTPUT}" != *"${needle}"* ]]; then
+        echo "Missing expected output: ${needle}"
+        echo
+        echo "${LAST_OUTPUT}"
+        return 1
+    fi
+}
+
+TMP_DIR="$(mktemp -d)"
+readonly TMP_DIR
+readonly WORK_DIR="${TMP_DIR}/mediawiki"
+readonly HOME_DIR="${TMP_DIR}/home"
+readonly CONFIG_DIR="${HOME_DIR}/.config"
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+mkdir -p "${CONFIG_DIR}/psysh"
+export COMPOSER_CACHE_DIR="${COMPOSER_CACHE_DIR:-${TMP_DIR}/composer-cache}"
+mkdir -p "${COMPOSER_CACHE_DIR}"
+
+echo "==> mediawiki PTY smoke"
+echo "    mediawiki/core: ${MEDIAWIKI_REF}"
+
+retry 3 git clone --depth 1 --branch "${MEDIAWIKI_REF}" "https://github.com/wikimedia/mediawiki.git" "${WORK_DIR}"
+mkdir -p "${WORK_DIR}/data"
+cd "${WORK_DIR}"
+
+retry 3 composer install --ignore-platform-reqs --no-interaction --no-progress
+composer config repositories.psysh "${REPO_CONFIG_JSON}"
+retry 3 composer update psy/psysh --with-all-dependencies --ignore-platform-reqs --no-interaction --no-progress
+
+# Install MediaWiki with SQLite so the shell can boot
+php maintenance/run.php install \
+    --dbtype=sqlite \
+    --dbpath="${WORK_DIR}/data" \
+    --pass=testpass123 \
+    "Test Wiki" "Admin"
+
+run_pty $'help\necho 21 * 2;\n$wgSitename\nexit\n' \
+    env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=dumb \
+    php maintenance/run.php shell
+
+echo -n "  MediaWiki shell PTY:  "
+assert_status 0 &&
+    assert_contains 'Show a list of commands' &&
+    assert_contains '42' &&
+    assert_contains 'Test Wiki' &&
+    assert_contains 'exit' &&
+    echo "PASSED"

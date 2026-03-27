@@ -33,6 +33,9 @@ jobs:
             php: '8.1'
           - project: bdf-prime-shell
             php: '8.2'
+          - project: mediawiki
+            php: '8.2'
+            extensions: 'curl, dom, intl, json, mbstring, pdo, pdo_sqlite, simplexml, xml, zip'
 
     steps:
       - name: Check out code
@@ -44,10 +47,10 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: none
-          extensions: curl, dom, json, mbstring, pdo, pdo_sqlite, simplexml, zip
+          extensions: ${{ matrix.extensions || 'curl, dom, json, mbstring, pdo, pdo_sqlite, simplexml, zip' }}
 
       - name: Make downstream runner executable
-        run: chmod +x scripts/test-downstream scripts/test-downstream-laravel-tinker-smoke scripts/test-downstream-composer-repl-lib-smoke
+        run: chmod +x scripts/test-downstream scripts/test-downstream-laravel-tinker-smoke scripts/test-downstream-composer-repl-lib-smoke scripts/test-downstream-mediawiki-smoke
 
       - name: Run downstream tests
         run: scripts/test-downstream "${DOWNSTREAM_PROJECT}"
@@ -64,3 +67,8 @@ jobs:
         if: matrix.project == 'composer-repl-lib'
         run: scripts/test-downstream-composer-repl-lib-smoke
         timeout-minutes: 10
+
+      - name: Run mediawiki PTY smoke
+        if: matrix.project == 'mediawiki'
+        run: scripts/test-downstream-mediawiki-smoke
+        timeout-minutes: 15
