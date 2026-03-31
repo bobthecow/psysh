@@ -18,14 +18,14 @@ namespace Psy\Logger;
  */
 class CallbackLogger
 {
-    private $callback;
+    private \Closure $callback;
 
     /**
      * @param callable $callback Callback to invoke with (string $kind, string $data)
      */
     public function __construct(callable $callback)
     {
-        $this->callback = $callback;
+        $this->callback = \Closure::fromCallable($callback);
     }
 
     /**

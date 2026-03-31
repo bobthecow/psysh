@@ -26,8 +26,7 @@ class ShellOutput extends ConsoleOutput
     private int $paging = 0;
     private OutputPager $pager;
     private Theme $theme;
-    /** @var callable|null */
-    private $writeListener = null;
+    private ?\Closure $writeListener = null;
 
     /**
      * Construct a ShellOutput instance.
@@ -88,7 +87,7 @@ class ShellOutput extends ConsoleOutput
      */
     public function setWriteListener(?callable $listener): void
     {
-        $this->writeListener = $listener;
+        $this->writeListener = $listener !== null ? \Closure::fromCallable($listener) : null;
     }
 
     /**

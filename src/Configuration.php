@@ -158,8 +158,7 @@ class Configuration
     private ?array $autoloadWarmers = null;
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
-    /** @var callable|null */
-    private $exceptionDetails = null;
+    private ?\Closure $exceptionDetails = null;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
@@ -2263,24 +2262,16 @@ class Configuration
      *
      * The callback receives the thrown exception and may return any dumpable
      * value; returning null suppresses additional output.
-     *
-     * @param callable $exceptionDetails
      */
-    public function setExceptionDetails($exceptionDetails): void
+    public function setExceptionDetails(callable $exceptionDetails): void
     {
-        if (!\is_callable($exceptionDetails)) {
-            throw new \InvalidArgumentException('Exception details callback must be callable');
-        }
-
-        $this->exceptionDetails = $exceptionDetails;
+        $this->exceptionDetails = \Closure::fromCallable($exceptionDetails);
     }
 
     /**
      * Get the configured exception details callback, if any.
-     *
-     * @return callable|null
      */
-    public function getExceptionDetails()
+    public function getExceptionDetails(): ?\Closure
     {
         return $this->exceptionDetails;
     }

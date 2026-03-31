@@ -25,8 +25,7 @@ class CatalogSource implements SourceInterface
     private int $kind;
     private SymbolCatalog $catalog;
 
-    /** @var callable */
-    private $catalogMethod;
+    private \Closure $catalogMethod;
 
     /**
      * @param int      $kind          CompletionKind bitmask to match
@@ -35,7 +34,7 @@ class CatalogSource implements SourceInterface
     public function __construct(int $kind, callable $catalogMethod, ?SymbolCatalog $catalog = null)
     {
         $this->kind = $kind;
-        $this->catalogMethod = $catalogMethod;
+        $this->catalogMethod = \Closure::fromCallable($catalogMethod);
         $this->catalog = $catalog ?? new SymbolCatalog();
     }
 
