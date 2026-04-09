@@ -175,7 +175,6 @@ class Configuration
     private bool $yolo = false;
     private ?Theme $theme = null;
     private bool $localConfigLoaded = false;
-    private bool $forceWarmAutoload = false;
 
     // services
     private ?Readline\Readline $readline = null;
@@ -327,7 +326,6 @@ class Configuration
         // Handle --warm-autoload
         if (self::getOptionFromInput($input, ['warm-autoload'])) {
             $config->setWarmAutoload(true);
-            $config->setForceWarmAutoload(true);
         }
 
         // Handle --yolo
@@ -701,11 +699,10 @@ class Configuration
     }
 
     /**
-     * Force autoload warming for this run, regardless of project trust status.
+     * @deprecated explicit autoload warming always respects project trust restrictions
      */
     public function setForceWarmAutoload(bool $force = true): void
     {
-        $this->forceWarmAutoload = $force;
     }
 
     /**
@@ -855,10 +852,6 @@ class Configuration
 
     private function shouldReportAutoloadWarming(string $projectRoot): bool
     {
-        if ($this->forceWarmAutoload) {
-            return false;
-        }
-
         if (!$this->hasComposerAutoloadWarmerConfigured()) {
             return false;
         }
@@ -2067,7 +2060,7 @@ class Configuration
             $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
         }
 
-        if ($this->forceWarmAutoload || $this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
+        if ($this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
             return $this->autoloadWarmers;
         }
 

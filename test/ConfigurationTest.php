@@ -232,6 +232,61 @@ class ConfigurationTest extends TestCase
         }
     }
 
+    public function testNonInteractiveWarningForUntrustedWarmAutoload()
+    {
+        $config = $this->getConfig();
+        $config->setWarmAutoload(true);
+        $config->setInteractiveMode(Configuration::INTERACTIVE_MODE_DISABLED);
+        $errorOutput = $this->captureErrorOutput($config);
+
+        $input = new StringInput('');
+        $input->setInteractive(false);
+
+        $config->loadLocalConfigWithPrompt($input, $config->getOutput());
+
+        $this->assertStringContainsString('Restricted Mode: skipping untrusted project features', $errorOutput->fetch());
+    }
+
+    public function testInteractivePromptIncludesWarmAutoloadForUntrustedProject()
+    {
+        $oldPwd = \getcwd();
+        $projectDir = TempPaths::directory('psysh-test-config-autoload-prompt-');
+
+        @\mkdir($projectDir.'/vendor', 0700, true);
+        @\file_put_contents($projectDir.'/vendor/autoload.php', "<?php\n");
+        @\file_put_contents($projectDir.'/composer.json', "{\n  \"name\": \"psysh/test-project\"\n}\n");
+
+        try {
+            \chdir($projectDir);
+
+            $config = new Configuration([
+                'configFile'      => __DIR__.'/Fixtures/empty.php',
+                'configDir'       => TempPaths::directory('psysh-test-config-dir-'),
+                'dataDir'         => TempPaths::directory('psysh-test-data-dir-'),
+                'runtimeDir'      => TempPaths::directory('psysh-test-runtime-dir-'),
+                'interactiveMode' => Configuration::INTERACTIVE_MODE_FORCED,
+                'trustProject'    => Configuration::PROJECT_TRUST_PROMPT,
+            ]);
+            $config->setWarmAutoload(true);
+
+            $input = new StringInput('');
+            $input->setInteractive(true);
+            $stream = \fopen('php://memory', 'r+');
+            \fwrite($stream, "n\n");
+            \rewind($stream);
+            $input->setStream($stream);
+
+            $output = new BufferedOutput();
+            $config->loadLocalConfigWithPrompt($input, $output);
+
+            $display = $output->fetch();
+            $this->assertStringContainsString('Trusting this project would enable:', $display);
+            $this->assertStringContainsString('Project autoload (vendor/autoload.php)', $display);
+        } finally {
+            \chdir($oldPwd);
+        }
+    }
+
     public function testUnknownConfigFileThrowsException()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -870,12 +925,23 @@ PHP
         $config = Configuration::fromInput($input);
         $this->assertCount(0, $config->getAutoloadWarmers());
 
-        // Test with --warm-autoload flag (should enable default warmer)
-        $input = $this->getBoundStringInput('--warm-autoload');
+        // Test with --warm-autoload flag in a trusted project
+        $input = $this->getBoundStringInput('--warm-autoload --trust-project');
         $config = Configuration::fromInput($input);
         $warmers = $config->getAutoloadWarmers();
         $this->assertCount(1, $warmers);
         $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
+    }
+
+    public function testConfigurationFromInputWarmAutoloadRequiresTrust()
+    {
+        $input = $this->getBoundStringInput('--warm-autoload');
+        $config = Configuration::fromInput($input);
+        $errorOutput = $this->captureErrorOutput($config);
+
+        $warmers = $config->getAutoloadWarmers();
+        $this->assertCount(0, $warmers);
+        $this->assertStringContainsString('Skipping project autoload', $errorOutput->fetch());
     }
 
     public function testConfigurationFromInputExperimentalReadline()
@@ -1268,16 +1334,17 @@ PHP
         $this->assertSame($customWarmer, $warmers[0]);
     }
 
-    public function testForceWarmAutoloadBypassesTrust()
+    public function testForceWarmAutoloadStillRespectsTrust()
     {
         $config = $this->getConfig();
         $config->setTrustProject(false);
         $config->setWarmAutoload(true);
         $config->setForceWarmAutoload(true);
+        $errorOutput = $this->captureErrorOutput($config);
 
         $warmers = $config->getAutoloadWarmers();
-        $this->assertCount(1, $warmers);
-        $this->assertInstanceOf('Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer', $warmers[0]);
+        $this->assertCount(0, $warmers);
+        $this->assertStringContainsString('Skipping project autoload', $errorOutput->fetch());
     }
 
     public function testUseTabCompletionWithInteractiveReadline()
