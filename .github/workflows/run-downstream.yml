@@ -34,7 +34,7 @@ jobs:
           - project: bdf-prime-shell
             php: '8.2'
           - project: mediawiki
-            php: '8.2'
+            php: '8.3'
             extensions: 'curl, dom, intl, json, mbstring, pdo, pdo_sqlite, simplexml, xml, zip'
 
     steps:

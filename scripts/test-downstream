@@ -110,7 +110,7 @@ resolve_project() {
             repo="wikimedia/mediawiki"
             ref="master"
             test_command="composer show psy/psysh"
-            min_php="8.2"
+            min_php="8.3"
             ;;
         *)
             echo "Unknown project ID: $1" >&2
