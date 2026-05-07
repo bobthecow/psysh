@@ -101,4 +101,11 @@ class StatementCompletenessPolicyTest extends TestCase
 
         $this->assertFalse($policy->hasUnrecoverableSyntaxError('if ($x)'));
     }
+
+    public function testTreatsSemicolonTerminatedInterpolationAsComplete(): void
+    {
+        $policy = new StatementCompletenessPolicy(new BufferAnalyzer(), false);
+
+        $this->assertTrue($policy->isCompleteStatement('echo "{$x}";'));
+    }
 }

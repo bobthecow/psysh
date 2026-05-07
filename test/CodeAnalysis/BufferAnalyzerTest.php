@@ -86,4 +86,14 @@ class BufferAnalyzerTest extends TestCase
         $this->assertTrue($service->analyze('} else')->hasControlStructureWithoutBody());
         $this->assertFalse($service->analyze('if ($foo) {')->hasControlStructureWithoutBody());
     }
+
+    public function testStringInterpolationBracesAreBalanced(): void
+    {
+        $service = new BufferAnalyzer();
+
+        $this->assertTrue($service->analyze('echo "{$x}";')->hasBalancedBrackets());
+        $this->assertTrue($service->analyze('echo "${x}";')->hasBalancedBrackets());
+        $this->assertTrue($service->analyze('echo "{$foo[0]}";')->hasBalancedBrackets());
+        $this->assertTrue($service->analyze('echo "{$foo->{bar}}";')->hasBalancedBrackets());
+    }
 }
