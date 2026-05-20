@@ -1020,6 +1020,31 @@ class ShellTest extends TestCase
         $this->assertSame([true], $readline->outputWrittenCalls);
     }
 
+    public function testShellOutputTracksVisibleWrites()
+    {
+        [$output] = $this->createTestShellOutput();
+
+        $output->writeln('visible output');
+
+        $this->assertTrue($output->consumeVisibleOutputWritten());
+        $this->assertFalse($output->consumeVisibleOutputWritten());
+    }
+
+    public function testShellOutputWriteListenerIsNoOpForBackwardsCompatibility()
+    {
+        [$output] = $this->createTestShellOutput();
+        $calls = 0;
+
+        $output->setWriteListener(static function () use (&$calls): void {
+            $calls++;
+        });
+
+        $output->writeln('visible output');
+
+        $this->assertSame(0, $calls);
+        $this->assertTrue($output->consumeVisibleOutputWritten());
+    }
+
     /**
      * @group isolation-fail
      */

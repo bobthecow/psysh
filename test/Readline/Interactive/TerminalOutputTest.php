@@ -36,22 +36,18 @@ class TerminalOutputTest extends TestCase
         $this->streams = [];
     }
 
-    public function testTerminalOutputDoesNotTriggerShellOutputWriteListener(): void
+    public function testTerminalOutputDoesNotMarkShellOutputWritten(): void
     {
-        $listenerCalls = 0;
         [$output, $stream] = $this->createTestShellOutput();
-        $output->setWriteListener(function () use (&$listenerCalls): void {
-            $listenerCalls++;
-        });
 
         $terminalOutput = new TerminalOutput($output);
         $terminalOutput->write('>>> ', false, OutputInterface::OUTPUT_RAW);
 
-        $this->assertSame(0, $listenerCalls);
+        $this->assertFalse($output->consumeVisibleOutputWritten());
 
         $output->writeln('visible shell output');
 
-        $this->assertSame(1, $listenerCalls);
+        $this->assertTrue($output->consumeVisibleOutputWritten());
 
         \rewind($stream);
         $this->assertStringContainsString('visible shell output', (string) \stream_get_contents($stream));
