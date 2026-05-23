@@ -119,6 +119,20 @@ resolve_project() {
     esac
 }
 
+configure_project_dependencies() {
+    local -r project="$1"
+
+    case "${project}" in
+        drush)
+            # Drush 14.x currently uses drupal/core-recommended 11.x-dev, which
+            # pins Twig versions Composer blocks because of security advisories.
+            # Use Drupal core directly so Composer can select a patched Twig.
+            composer remove --dev drupal/core-recommended --no-update --no-interaction --no-progress
+            composer require --dev drupal/core:^11.3 'twig/twig:^3.23@stable' --no-update --no-interaction --no-progress
+            ;;
+    esac
+}
+
 run_one_project() {
     local -r project="$1"
     local repo ref test_command min_php
@@ -161,6 +175,7 @@ run_one_project() {
         mkdir -p "${COMPOSER_CACHE_DIR}"
 
         composer config repositories.psysh "${repo_config_json}"
+        configure_project_dependencies "${project}"
 
         if [[ -f composer.lock ]]; then
             retry 3 composer update psy/psysh --with-all-dependencies --no-interaction --no-progress
