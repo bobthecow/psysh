@@ -170,10 +170,12 @@ class Sudo
         $instance = $refl->newInstanceWithoutConstructor();
 
         $constructor = $refl->getConstructor();
-        if (\PHP_VERSION_ID < 80100) {
-            $constructor->setAccessible(true);
+        if ($constructor !== null) {
+            if (\PHP_VERSION_ID < 80100) {
+                $constructor->setAccessible(true);
+            }
+            $constructor->invokeArgs($instance, $args);
         }
-        $constructor->invokeArgs($instance, $args);
 
         return $instance;
     }
