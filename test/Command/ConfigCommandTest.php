@@ -140,7 +140,9 @@ class ConfigCommandTest extends TestCase
                 (string) \E_WARNING,
                 'E_WARNING',
                 function (Configuration $config): void {
-                    $this->assertSame((\PHP_VERSION_ID < 80400 ? (\E_ALL | \E_STRICT) : \E_ALL) & \E_WARNING, $config->errorLoggingLevel());
+                    // E_WARNING is in E_ALL on every supported version, so the
+                    // computed mask is E_WARNING regardless of the E_STRICT bit.
+                    $this->assertSame(\E_WARNING, $config->errorLoggingLevel());
                 },
             ],
             'string' => [
@@ -267,7 +269,15 @@ class ConfigCommandTest extends TestCase
         $method->setAccessible(true);
         $method->invoke($this->shell, 'config set errorLoggingLevel (E_ALL & ~E_STRICT)');
 
-        $expected = (\PHP_VERSION_ID < 80400 ? (\E_ALL | \E_STRICT) : \E_ALL) & (\E_ALL & ~\E_STRICT);
+        // Constant references are stashed behind \constant() so PHP's
+        // compile-time bitwise folding doesn't access E_STRICT on PHP 8.4+
+        // (where the constant is still defined but deprecated).
+        if (\PHP_VERSION_ID < 80400) {
+            $eStrict = \constant('E_STRICT');
+            $expected = (\E_ALL | $eStrict) & (\E_ALL & ~$eStrict);
+        } else {
+            $expected = \E_ALL;
+        }
 
         $this->assertSame($expected, $this->config->errorLoggingLevel());
 

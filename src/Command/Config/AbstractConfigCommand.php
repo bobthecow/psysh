@@ -463,11 +463,16 @@ abstract class AbstractConfigCommand extends Command
             'E_USER_ERROR',
             'E_USER_WARNING',
             'E_USER_NOTICE',
-            'E_STRICT',
             'E_RECOVERABLE_ERROR',
             'E_DEPRECATED',
             'E_USER_DEPRECATED',
         ];
+
+        // E_STRICT was deprecated in PHP 8.4. The constant is still defined,
+        // but `\constant('E_STRICT')` triggers a deprecation notice.
+        if (\PHP_VERSION_ID < 80400) {
+            $names[] = 'E_STRICT';
+        }
 
         $constants = [];
 
