@@ -108,7 +108,7 @@ HELP
             $total = \array_sum($times);
             \rsort($times);
             // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
-            $median = $times[(int) \round($num / 2)];
+            $median = $times[\intdiv($num, 2)];
 
             $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $num) / 1e+9, $median / 1e+9, $total / 1e+9));
         }
