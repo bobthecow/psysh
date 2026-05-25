@@ -238,9 +238,9 @@ class HistorySearchTest extends TestCase
         $this->search->enter();
         $this->search->updateQuery('echo');
 
-        // Cancel via handleInput (Escape key)
+        // Cancel via handleKey (Escape key)
         $key = new Key("\x1b", Key::TYPE_CONTROL);
-        $this->search->handleInput($key, $buffer);
+        $this->search->handleKey($key, $buffer);
 
         $this->assertBufferState('origi<cursor>nal text', $buffer);
         $this->assertFalse($this->search->isActive());

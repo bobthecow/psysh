@@ -26,7 +26,7 @@ use Psy\Readline\Interactive\Renderer\OverlayViewport;
  * Manages the search query, match list, selection, viewport scrolling,
  * and rendering for reverse history search (Ctrl-R).
  */
-class HistorySearch
+class HistorySearch implements ReadlineMode
 {
     private Terminal $terminal;
     private History $history;
@@ -96,6 +96,14 @@ class HistorySearch
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function onExit(): void
+    {
+        $this->exit();
+    }
+
+    /**
      * Save the current buffer before starting search.
      */
     public function saveBuffer(Buffer $buffer): void
@@ -105,11 +113,9 @@ class HistorySearch
     }
 
     /**
-     * Handle input while in search mode.
-     *
-     * @return bool|null True to stay in search, false if exited (key consumed), null if exited (replay key)
+     * {@inheritdoc}
      */
-    public function handleInput(Key $key, Buffer $buffer)
+    public function handleKey(Key $key, Buffer $buffer): ?bool
     {
         $value = $key->getValue();
         $keyStr = (string) $key;
@@ -161,7 +167,7 @@ class HistorySearch
     /**
      * Render the search UI with overlay.
      */
-    public function display(): void
+    public function display(Buffer $buffer): void
     {
         $preview = $this->getSelectedMatch() ?? '';
         $searchPrompt = $this->terminal->format('<whisper>search:</whisper>').' '.$this->searchQuery;

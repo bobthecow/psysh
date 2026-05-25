@@ -19,6 +19,7 @@ use Psy\Context;
 use Psy\Readline\Interactive\Actions\InsertIndentOnTabAction;
 use Psy\Readline\Interactive\Actions\TabAction;
 use Psy\Readline\Interactive\Input\Buffer;
+use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Test\Readline\Interactive\BufferAssertionTrait;
@@ -61,8 +62,7 @@ class TabActionTest extends TestCase
         $this->terminal->method('getFormatter')->willReturn(new OutputFormatter());
         $this->readline->method('getOverlayAvailableRows')->willReturn(20);
         $this->readline->method('setOverlay');
-        $this->readline->method('enterMenuMode');
-        $this->readline->method('exitMenuMode');
+        $this->readline->method('pushMode');
     }
 
     public function testNoCompleterRingsBell()
@@ -100,8 +100,10 @@ class TabActionTest extends TestCase
 
         $this->setBufferState($this->buffer, '$test<cursor>');
 
+        $this->action->setInteractiveSelectionEnabled(true);
         $this->readline->expects($this->once())
-            ->method('setOverlay');
+            ->method('pushMode')
+            ->with($this->action);
 
         $result = $this->action->execute($this->buffer, $this->terminal, $this->readline);
     }
@@ -224,8 +226,10 @@ class TabActionTest extends TestCase
 
         $this->setBufferState($this->buffer, '$testVar<cursor>');
 
+        $this->action->setInteractiveSelectionEnabled(true);
         $this->readline->expects($this->once())
-            ->method('setOverlay');
+            ->method('pushMode')
+            ->with($this->action);
 
         $result = $this->action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -353,5 +357,35 @@ class TabActionTest extends TestCase
         // is in handleInteractiveSelection() which requires a TTY to test fully.
         // We're documenting the expected behavior here.
         $this->assertTrue($result);
+    }
+
+    public function testBackspaceAtStartOfBufferLeavesMenuForReplay(): void
+    {
+        $completer = $this->createMock(CompletionEngine::class);
+        $completer->method('getCompletions')->willReturn(['foo', 'bar']);
+
+        $action = new TabAction($completer);
+        $action->setInteractiveSelectionEnabled(true);
+
+        $this->setBufferState($this->buffer, '<cursor>');
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+
+        $this->assertNull($action->handleKey(new Key("\x7f", Key::TYPE_CONTROL), $this->buffer));
+        $this->assertBufferState('<cursor>', $this->buffer);
+    }
+
+    public function testInteractiveFilterAcceptsMultibyteCharacters(): void
+    {
+        $completer = $this->createMock(CompletionEngine::class);
+        $completer->method('getCompletions')->willReturn(['fooé', 'fooø']);
+
+        $action = new TabAction($completer);
+        $action->setInteractiveSelectionEnabled(true);
+
+        $this->setBufferState($this->buffer, 'foo<cursor>');
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
+
+        $this->assertTrue($action->handleKey(new Key('é', Key::TYPE_CHAR), $this->buffer));
+        $this->assertBufferState('fooé<cursor>', $this->buffer);
     }
 }
