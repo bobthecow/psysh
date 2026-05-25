@@ -320,6 +320,15 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
     }
 
     /**
+     * Enable or disable Unicode in PsySH-owned terminal UI.
+     */
+    public function setUseUnicode(bool $enabled): void
+    {
+        $this->assertBooted();
+        $this->terminal->setUseUnicode($enabled);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getHistory(): InteractiveHistory

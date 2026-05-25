@@ -14,10 +14,10 @@ namespace Psy\Readline\Interactive\Actions;
 use Psy\Completion\CompletionEngine;
 use Psy\Completion\CompletionRequest;
 use Psy\Completion\FuzzyMatcher;
-use Psy\Readline\Interactive\Helper\CompletionRenderer;
 use Psy\Readline\Interactive\Helper\CurrentWord;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Readline;
+use Psy\Readline\Interactive\Renderer\CompletionMenuWidget;
 use Psy\Readline\Interactive\Terminal;
 
 /**
@@ -324,11 +324,13 @@ class TabAction implements ActionInterface
             $this->scrollOffset = \max(0, \min($this->scrollOffset, $maxOffset));
         }
 
-        $renderer = new CompletionRenderer($terminal);
-        $lines = $renderer->render($this->filteredMatches, $this->selectedIndex, $maxRows, $this->scrollOffset, !$this->expanded);
-
-        // Prepend a blank separator line above the menu
-        $readline->renderOverlay($buffer, \array_merge([''], $lines));
+        $readline->setOverlay($buffer, new CompletionMenuWidget(
+            $terminal,
+            $this->filteredMatches,
+            $this->selectedIndex,
+            $this->scrollOffset,
+            $this->expanded,
+        ));
     }
 
     /**
@@ -370,8 +372,7 @@ class TabAction implements ActionInterface
             return;
         }
 
-        $renderer = new CompletionRenderer($terminal);
-        $layout = $renderer->calculateLayout($this->filteredMatches);
+        $layout = CompletionMenuWidget::calculateLayout($terminal, $this->filteredMatches);
         $this->totalRows = $layout['rows'];
         $this->totalColumns = $layout['columns'];
     }

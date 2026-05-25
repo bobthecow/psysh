@@ -60,7 +60,7 @@ class TabActionTest extends TestCase
         $this->terminal->method('getWidth')->willReturn(80);
         $this->terminal->method('getFormatter')->willReturn(new OutputFormatter());
         $this->readline->method('getOverlayAvailableRows')->willReturn(20);
-        $this->readline->method('renderOverlay');
+        $this->readline->method('setOverlay');
         $this->readline->method('enterMenuMode');
         $this->readline->method('exitMenuMode');
     }
@@ -101,7 +101,7 @@ class TabActionTest extends TestCase
         $this->setBufferState($this->buffer, '$test<cursor>');
 
         $this->readline->expects($this->once())
-            ->method('renderOverlay');
+            ->method('setOverlay');
 
         $result = $this->action->execute($this->buffer, $this->terminal, $this->readline);
     }
@@ -137,7 +137,7 @@ class TabActionTest extends TestCase
             ->method('isMultilineMode')
             ->willReturn(true);
         $this->readline->expects($this->never())
-            ->method('renderOverlay');
+            ->method('setOverlay');
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -154,7 +154,7 @@ class TabActionTest extends TestCase
             ->method('isMultilineMode')
             ->willReturn(true);
         $this->readline->expects($this->never())
-            ->method('renderOverlay');
+            ->method('setOverlay');
 
         $result = $action->execute($this->buffer, $this->terminal, $this->readline);
 
@@ -225,7 +225,7 @@ class TabActionTest extends TestCase
         $this->setBufferState($this->buffer, '$testVar<cursor>');
 
         $this->readline->expects($this->once())
-            ->method('renderOverlay');
+            ->method('setOverlay');
 
         $result = $this->action->execute($this->buffer, $this->terminal, $this->readline);
 

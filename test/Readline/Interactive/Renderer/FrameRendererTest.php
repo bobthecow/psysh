@@ -16,6 +16,7 @@ use Psy\Command\ParseCommand;
 use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
+use Psy\Readline\Interactive\Renderer\LinesWidget;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
 use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Readline\Interactive\Terminal;
@@ -689,7 +690,7 @@ class FrameRendererTest extends TestCase
     public function testSuggestionIsHiddenWhenOverlayIsVisible()
     {
         $this->setTheme('>>> ');
-        $this->renderer->setOverlayLines(['   menu item']);
+        $this->renderer->setOverlay(new LinesWidget(['   menu item']));
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'pri<cursor>');
@@ -721,11 +722,11 @@ class FrameRendererTest extends TestCase
     public function testRepaintStartsAtFirstChangedLogicalLine()
     {
         $this->setTheme('>>> ');
-        $this->renderer->setOverlayLines([
+        $this->renderer->setOverlay(new LinesWidget([
             '   one',
             '   two',
             '   three',
-        ]);
+        ]));
 
         $buffer = new Buffer();
         $this->setBufferState($buffer, 'x<cursor>');
@@ -735,11 +736,11 @@ class FrameRendererTest extends TestCase
         $this->cursorUpMoves = [];
         $this->clearToEndOfScreenCalls = 0;
 
-        $this->renderer->setOverlayLines([
+        $this->renderer->setOverlay(new LinesWidget([
             '   one',
             '   TWO',
             '   three',
-        ]);
+        ]));
         $this->renderer->render($buffer, null);
 
         // Changed line is second overlay row; with framed input, seek is 4 rows down.

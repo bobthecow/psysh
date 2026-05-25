@@ -28,6 +28,7 @@ use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\KeyBindings;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
+use Psy\Readline\Interactive\Renderer\WidgetInterface;
 use Psy\Readline\Interactive\Suggestion\SuggestionEngine;
 use Psy\Readline\Interactive\Suggestion\SuggestionResult;
 use Psy\Shell;
@@ -402,22 +403,20 @@ class Readline
     }
 
     /**
+     * Set (or clear) the overlay widget and redraw the frame.
+     */
+    public function setOverlay(Buffer $buffer, ?WidgetInterface $widget): void
+    {
+        $this->frameRenderer->setOverlay($widget);
+        $this->display($buffer);
+    }
+
+    /**
      * Clear the overlay and re-render.
      */
     public function clearOverlay(Buffer $buffer): void
     {
-        $this->frameRenderer->clearOverlay($buffer);
-    }
-
-    /**
-     * Render overlay lines and redraw the frame.
-     *
-     * @param string[] $lines
-     */
-    public function renderOverlay(Buffer $buffer, array $lines): void
-    {
-        $this->frameRenderer->setOverlayLines($lines);
-        $this->display($buffer);
+        $this->setOverlay($buffer, null);
     }
 
     /**

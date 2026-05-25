@@ -31,6 +31,7 @@ class Terminal
     private StdinReader $input;
     private StreamOutput $output;
     private bool $bracketedPasteEnabled = false;
+    private bool $useUnicode = true;
     private SymfonyTerminal $symfonyTerminal;
     private Cursor $cursor;
 
@@ -116,6 +117,22 @@ class Terminal
     public function flush(): void
     {
         \fflush($this->output->getStream());
+    }
+
+    /**
+     * Enable or disable Unicode in PsySH-owned terminal UI.
+     */
+    public function setUseUnicode(bool $useUnicode): void
+    {
+        $this->useUnicode = $useUnicode;
+    }
+
+    /**
+     * Check whether PsySH-owned terminal UI should use Unicode.
+     */
+    public function useUnicode(): bool
+    {
+        return $this->useUnicode;
     }
 
     /**

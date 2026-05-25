@@ -12,12 +12,12 @@
 namespace Psy\Readline\Interactive;
 
 use Psy\Output\Theme;
-use Psy\Readline\Interactive\Helper\HistorySearchRenderer;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\WordNavigationPolicy;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
+use Psy\Readline\Interactive\Renderer\HistorySearchOverlayWidget;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
 
 /**
@@ -43,7 +43,6 @@ class HistorySearch
     private bool $searchExpanded = false;
     private ?string $savedBufferText = null;
     private int $savedCursorPosition = 0;
-    private ?HistorySearchRenderer $renderer = null;
 
     public function __construct(
         Terminal $terminal,
@@ -65,7 +64,6 @@ class HistorySearch
     public function setTheme(Theme $theme): void
     {
         $this->theme = $theme;
-        $this->renderer = null;
     }
 
     /**
@@ -94,7 +92,7 @@ class HistorySearch
         $this->resetState();
         $this->savedBufferText = null;
         $this->savedCursorPosition = 0;
-        $this->frameRenderer->setOverlayLines([]);
+        $this->frameRenderer->setOverlay(null);
     }
 
     /**
@@ -342,31 +340,21 @@ class HistorySearch
      */
     private function updateOverlay(): void
     {
-        if (empty($this->searchMatches)) {
-            if ($this->searchQuery !== '') {
-                $noMatch = $this->terminal->format('   <whisper>(no matches)</whisper>');
-                $this->frameRenderer->setOverlayLines([$noMatch]);
-            } else {
-                $this->frameRenderer->setOverlayLines([]);
-            }
+        if (empty($this->searchMatches) && $this->searchQuery === '') {
+            $this->frameRenderer->setOverlay(null);
 
             return;
         }
 
-        if ($this->renderer === null) {
-            $this->renderer = new HistorySearchRenderer($this->terminal, $this->theme->replayPrompt());
-        }
-        $this->renderer->setQuery($this->searchQuery);
-        $maxRows = $this->getMaxRows();
-        $lines = $this->renderer->render(
+        $this->frameRenderer->setOverlay(new HistorySearchOverlayWidget(
+            $this->terminal,
+            $this->theme->replayPrompt(),
             $this->searchMatches,
             $this->currentMatchIndex,
-            $maxRows,
             $this->searchScrollOffset,
-            \count($this->searchMatches),
-        );
-
-        $this->frameRenderer->setOverlayLines($lines);
+            $this->searchQuery,
+            $this->searchExpanded,
+        ));
     }
 
     /**
