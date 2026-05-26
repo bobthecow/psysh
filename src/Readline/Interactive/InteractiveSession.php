@@ -62,6 +62,14 @@ class InteractiveSession
             $this->terminal->disableBracketedPaste();
         }
 
+        if ($this->terminal->isMouseReportingEnabled()) {
+            $this->terminal->disableMouseReporting();
+        }
+
+        if ($this->terminal->isAltScreenEnabled()) {
+            $this->terminal->disableAltScreen();
+        }
+
         $this->terminal->disableRawMode();
         $this->active = false;
     }

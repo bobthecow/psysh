@@ -115,6 +115,15 @@ class StdinReader
                 return $this->readBracketedPaste();
             }
 
+            // SGR mouse reports (\033[<button;col;row{M,m}) are reshaped
+            // into TYPE_MOUSE keys with a friendly value (e.g. 'wheel-up').
+            if (\preg_match('/^\033\[<(\d+);\d+;\d+([Mm])$/', $escapeKey->getValue(), $m)) {
+                $value = $this->mouseValue((int) $m[1], $m[2]);
+                if ($value !== null) {
+                    return new Key($value, Key::TYPE_MOUSE);
+                }
+            }
+
             return $escapeKey;
         }
 
@@ -138,6 +147,36 @@ class StdinReader
         }
 
         return new Key($char, Key::TYPE_CHAR);
+    }
+
+    /**
+     * Map an SGR mouse button code + event letter into a friendly Key value
+     * like 'wheel-up'. Modifier bits in the high nibble are ignored. Returns
+     * null for buttons we don't care to surface (motion-only reports, etc.).
+     */
+    private function mouseValue(int $button, string $event): ?string
+    {
+        // Mask off the modifier (shift/meta/ctrl) and motion bits.
+        // Wheel events live in 64..67; primary buttons in 0..2.
+        $base = $button & 0b11000011;
+
+        if ($event === 'M') {
+            switch ($base) {
+                case 0:  return 'press-left';
+                case 1:  return 'press-middle';
+                case 2:  return 'press-right';
+                case 64: return 'wheel-up';
+                case 65: return 'wheel-down';
+                case 66: return 'wheel-left';
+                case 67: return 'wheel-right';
+            }
+        } elseif ($event === 'm') {
+            // SGR releases ('m') only fire for primary buttons; wheel events
+            // never release. We don't currently care about releases.
+            return null;
+        }
+
+        return null;
     }
 
     /**
@@ -207,6 +246,11 @@ class StdinReader
 
         // SS3 keys: \033OM (keypad Enter), \033OA, etc.
         if (\preg_match('/^\033O[A-Z]$/', $sequence)) {
+            return true;
+        }
+
+        // SGR mouse reports: \033[<button;col;row{M,m}.
+        if (\preg_match('/^\033\[<\d+;\d+;\d+[Mm]$/', $sequence)) {
             return true;
         }
 

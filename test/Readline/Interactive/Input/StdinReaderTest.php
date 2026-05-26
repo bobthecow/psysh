@@ -235,6 +235,68 @@ class StdinReaderTest extends TestCase
         \fclose($stream);
     }
 
+    public function testMouseWheelDown()
+    {
+        $stream = \fopen('php://memory', 'r+');
+        \fwrite($stream, "\033[<65;10;20M");
+        \rewind($stream);
+
+        $input = new StdinReader($stream);
+        $key = $input->readKey();
+
+        $this->assertTrue($key->isMouse());
+        $this->assertSame('wheel-down', $key->getValue());
+        $this->assertSame('mouse:wheel-down', (string) $key);
+
+        \fclose($stream);
+    }
+
+    public function testMouseWheelUp()
+    {
+        $stream = \fopen('php://memory', 'r+');
+        \fwrite($stream, "\033[<64;5;5M");
+        \rewind($stream);
+
+        $input = new StdinReader($stream);
+        $key = $input->readKey();
+
+        $this->assertTrue($key->isMouse());
+        $this->assertSame('wheel-up', $key->getValue());
+
+        \fclose($stream);
+    }
+
+    public function testMouseLeftPress()
+    {
+        $stream = \fopen('php://memory', 'r+');
+        \fwrite($stream, "\033[<0;30;15M");
+        \rewind($stream);
+
+        $input = new StdinReader($stream);
+        $key = $input->readKey();
+
+        $this->assertTrue($key->isMouse());
+        $this->assertSame('press-left', $key->getValue());
+
+        \fclose($stream);
+    }
+
+    public function testMouseReleaseIsIgnored()
+    {
+        $stream = \fopen('php://memory', 'r+');
+        // SGR release event (lowercase m). We don't surface releases yet, so
+        // the raw escape sequence falls through as TYPE_ESCAPE.
+        \fwrite($stream, "\033[<0;30;15m");
+        \rewind($stream);
+
+        $input = new StdinReader($stream);
+        $key = $input->readKey();
+
+        $this->assertFalse($key->isMouse());
+
+        \fclose($stream);
+    }
+
     /**
      * Test bracketed paste start marker without end.
      */

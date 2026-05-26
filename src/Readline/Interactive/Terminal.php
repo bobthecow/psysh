@@ -32,6 +32,7 @@ class Terminal
     private StreamOutput $output;
     private bool $bracketedPasteEnabled = false;
     private bool $altScreenEnabled = false;
+    private bool $mouseReportingEnabled = false;
     private bool $useUnicode = true;
     private SymfonyTerminal $symfonyTerminal;
     private Cursor $cursor;
@@ -363,9 +364,8 @@ class Terminal
     /**
      * Switch to the alternate screen buffer, saving cursor position.
      *
-     * Used by Pager and any future full-takeover mode that wants to draw
-     * without disturbing terminal scrollback. Disabling restores the
-     * pre-switch screen contents.
+     * Terminals expose one alternate buffer. Treat it as a mode bit rather
+     * than a stack so repeated enable/disable calls are idempotent.
      */
     public function enableAltScreen(): void
     {
@@ -395,6 +395,41 @@ class Terminal
     public function isAltScreenEnabled(): bool
     {
         return $this->altScreenEnabled;
+    }
+
+    /**
+     * Enable button-and-wheel mouse reporting in SGR (1006) mode.
+     *
+     * Pager turns this on while it owns the screen so wheel events become
+     * keys.
+     */
+    public function enableMouseReporting(): void
+    {
+        if (!$this->mouseReportingEnabled) {
+            // 1000: button press/release events.
+            // 1006: SGR extended format (the only one the parser handles).
+            $this->write("\033[?1000h\033[?1006h", false);
+            $this->mouseReportingEnabled = true;
+        }
+    }
+
+    /**
+     * Disable mouse reporting.
+     */
+    public function disableMouseReporting(): void
+    {
+        if ($this->mouseReportingEnabled) {
+            $this->write("\033[?1006l\033[?1000l", false);
+            $this->mouseReportingEnabled = false;
+        }
+    }
+
+    /**
+     * Check if mouse reporting is enabled.
+     */
+    public function isMouseReportingEnabled(): bool
+    {
+        return $this->mouseReportingEnabled;
     }
 
     /**

@@ -100,6 +100,22 @@ class InteractiveSessionTest extends TestCase
         $session->stop();
     }
 
+    public function testStopDisablesTerminalModesOwnedByFullScreenUi(): void
+    {
+        $terminal = $this->mockTerminal();
+        $terminal->expects($this->once())->method('enableRawMode')->willReturn(true);
+        $terminal->expects($this->once())->method('isBracketedPasteEnabled')->willReturn(false);
+        $terminal->expects($this->once())->method('isMouseReportingEnabled')->willReturn(true);
+        $terminal->expects($this->once())->method('disableMouseReporting');
+        $terminal->expects($this->once())->method('isAltScreenEnabled')->willReturn(true);
+        $terminal->expects($this->once())->method('disableAltScreen');
+        $terminal->expects($this->once())->method('disableRawMode');
+
+        $session = new InteractiveSession($terminal);
+        $session->start();
+        $session->stop();
+    }
+
     public function testStartThrowsIfRawModeCannotBeEnabled(): void
     {
         $this->expectException(\RuntimeException::class);

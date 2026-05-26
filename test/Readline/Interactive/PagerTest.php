@@ -234,6 +234,25 @@ class PagerTest extends TestCase
         $this->assertSame('f', $this->pager->getSearchQuery());
     }
 
+    public function testMouseWheelDownScrolls(): void
+    {
+        $this->pager->resetState(\array_fill(0, 50, 'line'));
+        $this->pager->handleKey(new Key('wheel-down', Key::TYPE_MOUSE));
+
+        // Three lines per wheel tick.
+        $this->assertSame(3, $this->pager->getScrollOffset());
+    }
+
+    public function testMouseWheelUpScrolls(): void
+    {
+        $this->pager->resetState(\array_fill(0, 50, 'line'));
+        $this->pager->handleKey(new Key('G', Key::TYPE_CHAR));
+        $offsetAtBottom = $this->pager->getScrollOffset();
+        $this->pager->handleKey(new Key('wheel-up', Key::TYPE_MOUSE));
+
+        $this->assertSame($offsetAtBottom - 3, $this->pager->getScrollOffset());
+    }
+
     public function testSearchScrollsToFirstMatch(): void
     {
         $lines = \array_fill(0, 30, 'noise');

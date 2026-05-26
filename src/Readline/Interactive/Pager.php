@@ -102,6 +102,7 @@ class Pager
         // so we don't tear down terminal state that someone else set up.
         $startedSession = !$this->session->isActive();
         $altScreenEnabled = false;
+        $mouseReportingEnabled = false;
         $completed = false;
 
         try {
@@ -110,6 +111,8 @@ class Pager
             }
             $this->terminal->enableAltScreen();
             $altScreenEnabled = true;
+            $this->terminal->enableMouseReporting();
+            $mouseReportingEnabled = true;
 
             $this->render();
 
@@ -128,6 +131,9 @@ class Pager
 
             $completed = true;
         } finally {
+            if ($mouseReportingEnabled) {
+                $this->terminal->disableMouseReporting();
+            }
             if ($altScreenEnabled) {
                 $this->terminal->disableAltScreen();
             }
