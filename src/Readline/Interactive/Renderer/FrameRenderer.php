@@ -106,6 +106,16 @@ class FrameRenderer
     }
 
     /**
+     * Access the shared LineMetrics instance used by Pager (and any
+     * future widget that needs wrap-aware row math against the same
+     * cache the renderer uses).
+     */
+    public function getLineMetrics(): LineMetrics
+    {
+        return $this->lineMetrics;
+    }
+
+    /**
      * Render the full frame (input + overlay) to the terminal.
      */
     public function render(Buffer $buffer, ?SuggestionResult $suggestion, ?string $historySearchTerm = null, bool $isCommand = false): void
@@ -118,6 +128,26 @@ class FrameRenderer
 
         $this->viewport->setInputRowCount($inputRows);
         $this->renderOverlayInto($frame);
+
+        $this->syncFrame($frame);
+        $this->terminal->flush();
+    }
+
+    /**
+     * Render a single widget that occupies the full terminal: no input
+     * frame, no overlay. Used by Pager (and any future full-screen mode).
+     *
+     * The widget is given the entire terminal area and is expected to set
+     * its own cursor position on the frame.
+     */
+    public function renderFullScreenWidget(WidgetInterface $widget): void
+    {
+        $frame = new Frame([], 0, 0);
+        $area = new Area(
+            $this->lineMetrics->getTerminalWidth(),
+            \max(1, $this->terminal->getHeight()),
+        );
+        $widget->render($frame, $area);
 
         $this->syncFrame($frame);
         $this->terminal->flush();

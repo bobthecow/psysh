@@ -59,12 +59,16 @@ class LineMetrics
      */
     public function lineRowCount(string $line): int
     {
+        // Ask for the calculator first so it can invalidate the row cache if
+        // the terminal width has changed since the last call.
+        $softWrap = $this->softWrap();
+
         if (isset($this->rowCache[$line])) {
             return $this->rowCache[$line];
         }
 
         $width = DisplayString::widthWithoutAnsi($line);
-        $rows = $this->softWrap()->rowCountForDisplayWidth($width);
+        $rows = $softWrap->rowCountForDisplayWidth($width);
         $this->rowCache[$line] = $rows;
 
         return $rows;

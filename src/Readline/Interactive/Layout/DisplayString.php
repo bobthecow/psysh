@@ -142,7 +142,7 @@ class DisplayString
     /**
      * Remove terminal ANSI/control sequences from rendered text.
      */
-    private static function stripAnsi(string $text): string
+    public static function stripAnsi(string $text): string
     {
         return \preg_replace([self::ANSI_CSI_RX, self::ANSI_OSC_RX], '', $text) ?? $text;
     }

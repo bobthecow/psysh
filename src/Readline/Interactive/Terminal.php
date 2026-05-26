@@ -31,6 +31,7 @@ class Terminal
     private StdinReader $input;
     private StreamOutput $output;
     private bool $bracketedPasteEnabled = false;
+    private bool $altScreenEnabled = false;
     private bool $useUnicode = true;
     private SymfonyTerminal $symfonyTerminal;
     private Cursor $cursor;
@@ -357,6 +358,43 @@ class Terminal
     public function isBracketedPasteEnabled(): bool
     {
         return $this->bracketedPasteEnabled;
+    }
+
+    /**
+     * Switch to the alternate screen buffer, saving cursor position.
+     *
+     * Used by Pager and any future full-takeover mode that wants to draw
+     * without disturbing terminal scrollback. Disabling restores the
+     * pre-switch screen contents.
+     */
+    public function enableAltScreen(): void
+    {
+        if (!$this->altScreenEnabled) {
+            $this->write("\033[?1049h", false);
+            $this->altScreenEnabled = true;
+            // Cursor row tracking is meaningless across an alt-screen switch.
+            $this->invalidateFrame(true);
+        }
+    }
+
+    /**
+     * Return to the primary screen buffer, restoring the saved cursor.
+     */
+    public function disableAltScreen(): void
+    {
+        if ($this->altScreenEnabled) {
+            $this->write("\033[?1049l", false);
+            $this->altScreenEnabled = false;
+            $this->invalidateFrame(true);
+        }
+    }
+
+    /**
+     * Check if alternate screen mode is active.
+     */
+    public function isAltScreenEnabled(): bool
+    {
+        return $this->altScreenEnabled;
     }
 
     /**
