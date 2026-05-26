@@ -409,6 +409,11 @@ class ShellTest extends TestCase
             public function setOutputWritten(bool $written): void
             {
             }
+
+            public function getPager(): \Psy\Readline\Interactive\Pager
+            {
+                throw new \LogicException('getPager() is not implemented in this stub');
+            }
         };
 
         $config = $this->getConfig([
@@ -646,6 +651,11 @@ class ShellTest extends TestCase
 
             public function setOutputWritten(bool $written): void
             {
+            }
+
+            public function getPager(): \Psy\Readline\Interactive\Pager
+            {
+                throw new \LogicException('getPager() is not implemented in this stub');
             }
         };
 
@@ -2052,6 +2062,11 @@ class ShellTest extends TestCase
             public function setOutputWritten(bool $written): void
             {
                 $this->outputWrittenCalls[] = $written;
+            }
+
+            public function getPager(): \Psy\Readline\Interactive\Pager
+            {
+                throw new \LogicException('getPager() is not implemented in this stub');
             }
         };
     }

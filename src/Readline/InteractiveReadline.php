@@ -19,6 +19,7 @@ use Psy\Readline\Interactive\Helper\DebugLog;
 use Psy\Readline\Interactive\Input\History as InteractiveHistory;
 use Psy\Readline\Interactive\Input\StdinReader;
 use Psy\Readline\Interactive\InteractiveSession;
+use Psy\Readline\Interactive\Pager;
 use Psy\Readline\Interactive\Readline as InternalReadline;
 use Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource;
 use Psy\Readline\Interactive\Terminal;
@@ -43,6 +44,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
     private InteractiveHistory $history;
     private Terminal $terminal;
     private InteractiveSession $session;
+    private ?Pager $pager = null;
     /** @var string|false */
     private $historyFile;
     /** @var string|false */
@@ -246,6 +248,22 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
         }
 
         return true;
+    }
+
+    /**
+     * Get the userland Pager, lazily constructed using this Readline's
+     * Terminal/InputQueue/FrameRenderer and InteractiveSession.
+     *
+     * Available only after setOutput() has been called.
+     */
+    public function getPager(): Pager
+    {
+        $this->assertBooted();
+        if ($this->pager === null) {
+            $this->pager = $this->readline->createPager($this->session);
+        }
+
+        return $this->pager;
     }
 
     /**

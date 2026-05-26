@@ -14,6 +14,7 @@ namespace Psy\Readline;
 use Psy\Completion\CompletionEngine;
 use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\History;
+use Psy\Readline\Interactive\Pager;
 use Psy\Readline\Interactive\Terminal;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -68,4 +69,10 @@ interface InteractiveReadlineInterface extends ShellReadlineInterface
      * the current input frame or start a fresh one.
      */
     public function setOutputWritten(bool $written): void;
+
+    /**
+     * Get the userland Pager that shares this readline's terminal, input
+     * queue, and renderer.
+     */
+    public function getPager(): Pager;
 }

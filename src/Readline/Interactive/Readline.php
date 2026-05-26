@@ -614,4 +614,14 @@ class Readline
     {
         return \end($this->modeStack) ?: null;
     }
+
+    /**
+     * Construct a Pager that shares this Readline's terminal/input/frame
+     * collaborators. Caller supplies the InteractiveSession because raw-mode
+     * lifecycle is owned at a higher layer.
+     */
+    public function createPager(InteractiveSession $session): Pager
+    {
+        return new Pager($this->terminal, $session, $this->inputQueue, $this->frameRenderer);
+    }
 }

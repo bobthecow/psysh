@@ -23,6 +23,8 @@ interface OutputPager extends OutputInterface
     // /**
     //  * Writes a message to the output.
     //  *
+    //  * @todo tighten up param types?
+    //  *
     //  * @param string $message A message to write to the output
     //  * @param bool   $newline Whether to add a newline or not
     //  */

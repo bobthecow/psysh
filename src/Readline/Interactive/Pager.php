@@ -178,7 +178,7 @@ class Pager
     /**
      * Total number of content lines.
      *
-     * @internal Exposed for tests.
+     * @internal exposed for tests
      */
     public function getLineCount(): int
     {
@@ -186,7 +186,7 @@ class Pager
     }
 
     /**
-     * @internal Exposed for tests.
+     * @internal exposed for tests
      */
     public function getScrollOffset(): int
     {
@@ -194,7 +194,7 @@ class Pager
     }
 
     /**
-     * @internal Exposed for tests.
+     * @internal exposed for tests
      */
     public function getSearchQuery(): string
     {
@@ -202,7 +202,7 @@ class Pager
     }
 
     /**
-     * @internal Exposed for tests.
+     * @internal exposed for tests
      */
     public function isSearchInputActive(): bool
     {
@@ -218,7 +218,7 @@ class Pager
     }
 
     /**
-     * @internal Exposed for tests.
+     * @internal exposed for tests
      */
     public function getMatchCount(): int
     {
@@ -226,7 +226,7 @@ class Pager
     }
 
     /**
-     * @internal Exposed for tests.
+     * @internal exposed for tests
      */
     public function getExitMode(): string
     {
