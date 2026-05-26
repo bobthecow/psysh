@@ -32,6 +32,7 @@ use Psy\ExecutionLoop\UopzReloader;
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
+use Psy\Output\BuiltinOutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Readline\LegacyReadline;
@@ -242,6 +243,7 @@ class Shell extends Application
             }
             $readline->setUseSyntaxHighlighting($this->config->useSyntaxHighlighting());
             $readline->setUseSuggestions($this->config->useSuggestions());
+            $this->wireUserlandPagerIfRequested($readline);
         } else {
             $readline->setRequireSemicolons($this->config->requireSemicolons());
         }
@@ -254,6 +256,25 @@ class Shell extends Application
         $readline->setShell($this);
 
         return $readline;
+    }
+
+    /**
+     * Install the userland BuiltinOutputPager on the ShellOutput if the
+     * config asked for `pager => true` (or auto-selected it because the
+     * interactive readline is active).
+     */
+    private function wireUserlandPagerIfRequested(InteractiveReadlineInterface $readline): void
+    {
+        if ($this->config->getPager() !== true) {
+            return;
+        }
+
+        $output = $this->output ?? $this->config->getOutput();
+        if (!($output instanceof ShellOutput)) {
+            return;
+        }
+
+        $output->setPager(new BuiltinOutputPager($output, $readline->getPager()));
     }
 
     /**
@@ -528,6 +549,11 @@ class Shell extends Application
                 case 'pager':
                     if ($this->output instanceof ShellOutput) {
                         $pager = $this->config->getPager();
+                        if ($pager === true) {
+                            $pager = $this->readline instanceof InteractiveReadlineInterface
+                                ? new BuiltinOutputPager($this->output, $this->readline->getPager())
+                                : null;
+                        }
                         $this->output->setPager($pager === false ? null : $pager);
                     }
                     break;

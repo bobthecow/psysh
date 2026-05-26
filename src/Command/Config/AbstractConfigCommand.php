@@ -269,6 +269,10 @@ abstract class AbstractConfigCommand extends Command
                         return 'default';
                     }
 
+                    if ($pager === true) {
+                        return 'builtin';
+                    }
+
                     if (\is_string($pager)) {
                         return $pager;
                     }

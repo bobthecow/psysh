@@ -820,6 +820,32 @@ class ConfigurationTest extends TestCase
         $this->assertNull($config->getPager());
     }
 
+    public function testSetPagerAcceptsTrueForUserlandPager()
+    {
+        $config = new Configuration(['configFile' => __DIR__.'/Fixtures/empty.php']);
+        $config->setPager(true);
+
+        $this->assertTrue($config->getPager());
+    }
+
+    public function testExperimentalReadlinePagerFallsBackWhenInputIsNotInteractive()
+    {
+        $config = new Configuration(['configFile' => __DIR__.'/Fixtures/empty.php']);
+        $config->setUseExperimentalReadline(true);
+        $config->setInteractiveMode(Configuration::INTERACTIVE_MODE_DISABLED);
+        $config->setUsePcntl(false);
+
+        $this->assertNull($config->getPager());
+    }
+
+    public function testSetPagerRejectsUnexpectedValues()
+    {
+        $config = new Configuration(['configFile' => __DIR__.'/Fixtures/empty.php']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $config->setPager(42);
+    }
+
     public function testConfigurationFromInputBarePagerOverridesHomeAndLocalConfig()
     {
         $oldPwd = \getcwd();
