@@ -23,18 +23,16 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     private const LANGUAGE_CONSTRUCTS = [
         'isset' => [
-            'var' => [],
-            '...' => [
-                'isOptional'   => true,
-                'defaultValue' => null,
+            'var'  => [],
+            'vars' => [
+                'isVariadic' => true,
             ],
         ],
 
         'unset' => [
-            'var' => [],
-            '...' => [
-                'isOptional'   => true,
-                'defaultValue' => null,
+            'var'  => [],
+            'vars' => [
+                'isVariadic' => true,
             ],
         ],
 
@@ -44,14 +42,26 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
 
         'echo' => [
             'arg1' => [],
-            '...'  => [
-                'isOptional'   => true,
-                'defaultValue' => null,
+            'args' => [
+                'isVariadic' => true,
             ],
         ],
 
         'print' => [
             'arg' => [],
+        ],
+
+        'array' => [
+            'values' => [
+                'isVariadic' => true,
+            ],
+        ],
+
+        'list' => [
+            'var'  => [],
+            'vars' => [
+                'isVariadic' => true,
+            ],
         ],
 
         'die' => [
@@ -107,6 +117,16 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     public function returnsReference(): bool
     {
         return false;
+    }
+
+    public function hasReturnType(): bool
+    {
+        return false;
+    }
+
+    public function getReturnType(): ?\ReflectionType
+    {
+        return null;
     }
 
     /**

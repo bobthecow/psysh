@@ -31,6 +31,8 @@ class ReflectionLanguageConstructParameterTest extends TestCase
         $this->assertNull($refl->getClass());
         $this->assertSame('one', $refl->getName());
         $this->assertFalse($refl->isArray());
+        $this->assertFalse($refl->hasType());
+        $this->assertNull($refl->getType());
         $this->assertTrue($refl->isDefaultValueAvailable());
         $this->assertNull($refl->getDefaultValue());
         $this->assertFalse($refl->isOptional());
@@ -39,15 +41,19 @@ class ReflectionLanguageConstructParameterTest extends TestCase
         $reflTwo = new ReflectionLanguageConstructParameter($keyword, 'two', [
             'isArray'             => true,
             'isOptional'          => true,
+            'isVariadic'          => true,
             'isPassedByReference' => true,
         ]);
 
-        $this->assertNull($refl->getClass());
+        $this->assertNull($reflTwo->getClass());
         $this->assertSame('two', $reflTwo->getName());
         $this->assertTrue($reflTwo->isArray());
+        $this->assertFalse($reflTwo->hasType());
+        $this->assertNull($reflTwo->getType());
         $this->assertFalse($reflTwo->isDefaultValueAvailable());
         $this->assertNull($reflTwo->getDefaultValue());
         $this->assertTrue($reflTwo->isOptional());
+        $this->assertTrue($reflTwo->isVariadic());
         $this->assertTrue($reflTwo->isPassedByReference());
 
         $refl = new ReflectionLanguageConstructParameter($keyword, 'three', [
@@ -60,6 +66,7 @@ class ReflectionLanguageConstructParameterTest extends TestCase
         $this->assertTrue($refl->isDefaultValueAvailable());
         $this->assertSame(3, $refl->getDefaultValue());
         $this->assertFalse($refl->isOptional());
+        $this->assertFalse($refl->isVariadic());
         $this->assertFalse($refl->isPassedByReference());
     }
 }

@@ -35,6 +35,10 @@ class SignatureFormatterTest extends TestCase
         return null;
     }
 
+    private function variadicFakeMethod(...$values)
+    {
+    }
+
     /**
      * @dataProvider signatureReflectors
      */
@@ -91,6 +95,10 @@ class SignatureFormatterTest extends TestCase
             [
                 new \ReflectionMethod($this, 'nullableFakeMethod'),
                 'private function nullableFakeMethod(?bool $one, string $two = null, $three = null): ?array',
+            ],
+            [
+                new \ReflectionMethod($this, 'variadicFakeMethod'),
+                'private function variadicFakeMethod(...$values)',
             ],
         ];
 

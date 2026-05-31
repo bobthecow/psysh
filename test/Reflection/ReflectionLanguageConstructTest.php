@@ -61,6 +61,40 @@ class ReflectionLanguageConstructTest extends TestCase
         $this->assertNotEmpty($refl->getParameters());
     }
 
+    public function testArrayUsesManualParameterName()
+    {
+        $refl = new ReflectionLanguageConstruct('array');
+        $params = $refl->getParameters();
+        $this->assertCount(1, $params);
+        $this->assertSame('values', $params[0]->getName());
+        $this->assertTrue($params[0]->isVariadic());
+    }
+
+    /**
+     * @dataProvider varAndVariadicVarsLanguageConstructs
+     */
+    public function testUsesVarAndVariadicVarsParameters(string $keyword)
+    {
+        $refl = new ReflectionLanguageConstruct($keyword);
+        $params = $refl->getParameters();
+        $this->assertCount(2, $params);
+        $this->assertSame('var', $params[0]->getName());
+        $this->assertFalse($params[0]->isVariadic());
+        $this->assertSame('vars', $params[1]->getName());
+        $this->assertTrue($params[1]->isVariadic());
+    }
+
+    public function testEchoUsesArgAndVariadicArgsParameters()
+    {
+        $refl = new ReflectionLanguageConstruct('echo');
+        $params = $refl->getParameters();
+        $this->assertCount(2, $params);
+        $this->assertSame('arg1', $params[0]->getName());
+        $this->assertFalse($params[0]->isVariadic());
+        $this->assertSame('args', $params[1]->getName());
+        $this->assertTrue($params[1]->isVariadic());
+    }
+
     /**
      * @dataProvider languageConstructs
      */
@@ -72,7 +106,7 @@ class ReflectionLanguageConstructTest extends TestCase
         $this->fail();
     }
 
-    public function languageConstructs()
+    public static function languageConstructs()
     {
         return [
             ['isset'],
@@ -80,8 +114,19 @@ class ReflectionLanguageConstructTest extends TestCase
             ['empty'],
             ['echo'],
             ['print'],
+            ['array'],
+            ['list'],
             ['die'],
             ['exit'],
+        ];
+    }
+
+    public static function varAndVariadicVarsLanguageConstructs()
+    {
+        return [
+            ['isset'],
+            ['unset'],
+            ['list'],
         ];
     }
 
@@ -96,7 +141,7 @@ class ReflectionLanguageConstructTest extends TestCase
         $this->fail();
     }
 
-    public function unknownLanguageConstructs()
+    public static function unknownLanguageConstructs()
     {
         return [
             ['async'],

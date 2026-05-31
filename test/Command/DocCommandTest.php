@@ -16,6 +16,7 @@ use Psy\CodeCleaner;
 use Psy\Command\DocCommand;
 use Psy\Configuration;
 use Psy\Context;
+use Psy\Manual\ManualInterface;
 use Psy\Shell;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -31,6 +32,7 @@ class DocCommandTest extends TestCase
     private Shell $shell;
     private Context $context;
     private CodeCleaner $cleaner;
+    private ?ManualInterface $manual = null;
 
     protected function setUp(): void
     {
@@ -38,13 +40,13 @@ class DocCommandTest extends TestCase
         $this->cleaner = new CodeCleaner();
 
         $this->shell = $this->getMockBuilder(Shell::class)
-            ->setMethods(['getNamespace', 'getBoundClass', 'getBoundObject', 'getManual'])
+            ->onlyMethods(['getNamespace', 'getBoundClass', 'getBoundObject', 'getManual'])
             ->getMock();
 
         $this->shell->method('getNamespace')->willReturn(null);
         $this->shell->method('getBoundClass')->willReturn(null);
         $this->shell->method('getBoundObject')->willReturn(null);
-        $this->shell->method('getManual')->willReturn(null);
+        $this->shell->method('getManual')->willReturnCallback(fn () => $this->manual);
 
         $this->command = new DocCommand();
         $this->command->setApplication($this->shell);
@@ -103,6 +105,45 @@ class DocCommandTest extends TestCase
 
         $this->assertStringContainsString('array_map', $output);
         $this->assertStringContainsString('PHP manual not found', $output);
+    }
+
+    /**
+     * @dataProvider languageConstructManualEntries
+     */
+    public function testDocLanguageConstructUsesManualEntry(string $target, string $manualDoc, string $signature)
+    {
+        $this->manual = $this->getMockBuilder(ManualInterface::class)->getMock();
+        $this->manual->method('getVersion')->willReturn(2);
+        $this->manual->expects($this->once())
+            ->method('get')
+            ->with($target)
+            ->willReturn($manualDoc);
+
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => $target]);
+
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString($target, $output);
+        $this->assertStringContainsString($signature, \strip_tags($output));
+        $this->assertStringContainsString($manualDoc, $output);
+    }
+
+    public function testDocLanguageConstructFormatsSignature()
+    {
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'isset']);
+
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('isset', $output);
+        $this->assertStringContainsString('$var, ...$vars', \strip_tags($output));
+    }
+
+    public static function languageConstructManualEntries()
+    {
+        return [
+            ['array', 'Create an array.', '...$values'],
+            ['list', 'Assign variables as if they were an array.', '$var, ...$vars'],
+        ];
     }
 
     public function testDocConstant()
@@ -198,7 +239,7 @@ class DocCommandTest extends TestCase
     public function testUpdateManualWithConfiguration()
     {
         $config = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['getManualDbFile', 'getDataDir'])
+            ->onlyMethods(['getManualDbFile', 'getDataDir'])
             ->getMock();
 
         $config->method('getManualDbFile')->willReturn(null);
