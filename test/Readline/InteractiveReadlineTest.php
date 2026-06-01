@@ -17,6 +17,7 @@ use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\InteractiveSession;
 use Psy\Readline\Interactive\Readline as InternalReadline;
 use Psy\Readline\InteractiveReadline;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 
 class InteractiveReadlineTest extends TestCase
@@ -132,6 +133,25 @@ class InteractiveReadlineTest extends TestCase
         $readline = $this->newReadline($history, false);
 
         $this->assertSame(['foo', 'bar'], $readline->listHistory());
+    }
+
+    public function testListSessionHistoryExcludesLoadedHistory()
+    {
+        $historyFile = TempPaths::file('psysh-test-history-jsonl-');
+        \file_put_contents(
+            $historyFile,
+            \json_encode(self::JSON_HISTORY_SIGNATURE)."\n"
+            .\json_encode(['command' => 'loaded', 'timestamp' => 123, 'lines' => 1])."\n"
+        );
+
+        $history = new History();
+        $readline = $this->newReadline($history, $historyFile);
+
+        $this->assertTrue($readline->readHistory());
+        $this->assertSame([], $readline->listSessionHistory());
+
+        $readline->addHistory('session command');
+        $this->assertSame(['session command'], $readline->listSessionHistory());
     }
 
     public function testSetOutputDoesNotStartInteractiveSession()

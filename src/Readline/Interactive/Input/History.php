@@ -44,6 +44,7 @@ class History
     private int $maxSize;
     private bool $eraseDups;
     private int $revision = 0;
+    private int $sessionStartIndex = 0;
 
     public function __construct(int $maxSize = 10000, bool $eraseDups = false)
     {
@@ -69,7 +70,7 @@ class History
         }
 
         if ($this->eraseDups) {
-            $this->entries = \array_values(\array_filter($this->entries, fn ($entry) => $entry['command'] !== $line));
+            $this->removeDuplicateEntries($line);
         }
 
         $this->entries[] = [
@@ -79,7 +80,9 @@ class History
         ];
 
         if ($this->maxSize > 0 && \count($this->entries) > $this->maxSize) {
+            $trimmed = \count($this->entries) - $this->maxSize;
             $this->entries = \array_slice($this->entries, -$this->maxSize);
+            $this->sessionStartIndex = \max(0, $this->sessionStartIndex - $trimmed);
         }
 
         $this->revision++;
@@ -219,6 +222,20 @@ class History
     }
 
     /**
+     * Get commands added during the current REPL session.
+     *
+     * @return string[]
+     */
+    public function getSessionCommands(): array
+    {
+        if ($this->sessionStartIndex >= \count($this->entries)) {
+            return [];
+        }
+
+        return \array_column(\array_slice($this->entries, $this->sessionStartIndex), 'command');
+    }
+
+    /**
      * Search history for entries matching a query.
      *
      * @param string $query   The search query (smart-case: case-sensitive if query contains uppercase)
@@ -299,6 +316,7 @@ class History
         $this->temporaryEntry = null;
         $this->searchTerm = null;
         $this->lastNavigatedCommand = null;
+        $this->sessionStartIndex = 0;
         $this->revision++;
     }
 
@@ -570,6 +588,26 @@ class History
         $this->temporaryEntry = null;
         $this->searchTerm = null;
         $this->lastNavigatedCommand = null;
+        $this->sessionStartIndex = \count($this->entries);
         $this->revision++;
+    }
+
+    private function removeDuplicateEntries(string $line): void
+    {
+        $entries = [];
+
+        foreach ($this->entries as $i => $entry) {
+            if ($entry['command'] === $line) {
+                if ($i < $this->sessionStartIndex) {
+                    $this->sessionStartIndex--;
+                }
+
+                continue;
+            }
+
+            $entries[] = $entry;
+        }
+
+        $this->entries = $entries;
     }
 }

@@ -63,6 +63,13 @@ interface InteractiveReadlineInterface extends ShellReadlineInterface
     public function getHistory(): History;
 
     /**
+     * List entries added during the current REPL session.
+     *
+     * @return string[]
+     */
+    public function listSessionHistory(): array;
+
+    /**
      * Report whether visible output was written since the last input.
      *
      * The readline implementation uses this to decide whether to continue

@@ -13,8 +13,10 @@ namespace Psy\Test\Command;
 
 use Psy\Command\HistoryCommand;
 use Psy\Configuration;
+use Psy\Exception\RuntimeException;
 use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
+use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Readline\Readline;
 use Psy\Shell;
 use Psy\Test\TestCase;
@@ -40,10 +42,12 @@ class HistoryCommandTest extends TestCase
         ];
     }
 
-    private function createCommand(): HistoryCommand
+    private function createCommand(?Readline $readline = null): HistoryCommand
     {
-        $readline = $this->getMockBuilder(Readline::class)->getMock();
-        $readline->method('listHistory')->willReturn($this->getHistory());
+        if ($readline === null) {
+            $readline = $this->getMockBuilder(Readline::class)->getMock();
+            $readline->method('listHistory')->willReturn($this->getHistory());
+        }
 
         $command = new HistoryCommand();
         $command->setReadline($readline);
@@ -53,6 +57,15 @@ class HistoryCommandTest extends TestCase
         ])));
 
         return $command;
+    }
+
+    private function createSessionReadline(array $sessionHistory): InteractiveReadlineInterface
+    {
+        $readline = $this->getMockBuilder(InteractiveReadlineInterface::class)->getMock();
+        $readline->expects($this->never())->method('listHistory');
+        $readline->method('listSessionHistory')->willReturn($sessionHistory);
+
+        return $readline;
     }
 
     private function executeCommand(HistoryCommand $command, array $options): string
@@ -237,5 +250,75 @@ class HistoryCommandTest extends TestCase
         // Should not show line numbers
         $this->assertStringNotContainsString('0', $output);
         $this->assertStringNotContainsString('1', $output);
+    }
+
+    public function testSessionOptionShowsOnlyCurrentSessionHistory()
+    {
+        $readline = $this->createSessionReadline([
+            'echo "session one"',
+            'echo "session bacon"',
+            'history --session',
+        ]);
+
+        $command = $this->createCommand($readline);
+        $output = $this->executeCommand($command, ['--session' => true, '--grep' => 'bacon']);
+
+        $this->assertStringContainsString('session bacon', $output);
+        $this->assertStringNotContainsString('bacon fourth time', $output);
+        $this->assertStringNotContainsString('history --session', $output);
+    }
+
+    public function testSessionOptionRequiresInteractiveReadline()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The --session option is only available with interactive readline.');
+
+        $command = $this->createCommand();
+        $this->executeCommand($command, ['--session' => true]);
+    }
+
+    public function testSessionOptionCanLimitReplay()
+    {
+        $readline = $this->createSessionReadline([
+            'echo "session one"',
+            'echo "session two"',
+            'history --session --replay',
+        ]);
+
+        $command = $this->createCommand($readline);
+
+        $stream = \fopen('php://memory', 'w+');
+        $command->run(new ArrayInput(['--session' => true, '--replay' => true]), new StreamOutput($stream));
+
+        \rewind($stream);
+        $output = \stream_get_contents($stream);
+        \fclose($stream);
+
+        $this->assertStringContainsString('Replaying 2 lines of history', $output);
+    }
+
+    /**
+     * @dataProvider clearRestrictionOptions
+     */
+    public function testClearCannotBeRestricted(array $options)
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The --clear option cannot be combined with history filters or range options.');
+
+        $command = $this->createCommand();
+        $this->executeCommand($command, \array_merge(['--clear' => true], $options));
+    }
+
+    public static function clearRestrictionOptions(): array
+    {
+        return [
+            'show'        => [['--show' => '1..2']],
+            'head'        => [['--head' => '2']],
+            'tail'        => [['--tail' => '2']],
+            'session'     => [['--session' => true]],
+            'grep'        => [['--grep' => 'bacon']],
+            'insensitive' => [['--insensitive' => true]],
+            'invert'      => [['--invert' => true]],
+        ];
     }
 }

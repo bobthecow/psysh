@@ -189,6 +189,16 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
     /**
      * {@inheritdoc}
      */
+    public function listSessionHistory(): array
+    {
+        $this->assertBooted();
+
+        return $this->history->getSessionCommands();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function readHistory(): bool
     {
         $this->assertBooted();

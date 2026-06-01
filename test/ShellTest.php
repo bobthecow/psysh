@@ -349,6 +349,11 @@ class ShellTest extends TestCase
                 return [];
             }
 
+            public function listSessionHistory(): array
+            {
+                return [];
+            }
+
             public function readHistory(): bool
             {
                 return true;
@@ -576,6 +581,11 @@ class ShellTest extends TestCase
             }
 
             public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function listSessionHistory(): array
             {
                 return [];
             }
@@ -1995,6 +2005,11 @@ class ShellTest extends TestCase
             }
 
             public function listHistory(): array
+            {
+                return [];
+            }
+
+            public function listSessionHistory(): array
             {
                 return [];
             }

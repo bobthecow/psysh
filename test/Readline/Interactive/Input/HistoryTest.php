@@ -78,6 +78,57 @@ class HistoryTest extends TestCase
         $this->assertSame('first', $entries[0]['command']);
         $this->assertSame('second', $entries[1]['command']);
         $this->assertSame('third', $entries[2]['command']);
+        $this->assertSame(['first', 'second', 'third'], $history->getSessionCommands());
+    }
+
+    public function testSessionCommandsResetWhenHistoryIsLoaded()
+    {
+        $tempFile = TempPaths::file('psysh-test-history-');
+        \file_put_contents($tempFile, \json_encode(['command' => 'loaded', 'timestamp' => 1000, 'lines' => 1])."\n");
+
+        $history = new History();
+        $history->add('session before load');
+        $this->assertSame(['session before load'], $history->getSessionCommands());
+
+        $history->loadFromFile($tempFile);
+        $this->assertSame([], $history->getSessionCommands());
+
+        $history->add('session after load');
+        $this->assertSame(['session after load'], $history->getSessionCommands());
+    }
+
+    public function testSessionCommandsRespectEraseDups()
+    {
+        $tempFile = TempPaths::file('psysh-test-history-');
+        \file_put_contents(
+            $tempFile,
+            \json_encode(['command' => 'duplicate', 'timestamp' => 1000, 'lines' => 1])."\n"
+            .\json_encode(['command' => 'loaded', 'timestamp' => 2000, 'lines' => 1])."\n"
+        );
+
+        $history = new History(10000, true);
+        $history->loadFromFile($tempFile);
+
+        $history->add('duplicate');
+        $this->assertSame(['duplicate'], $history->getSessionCommands());
+
+        $history->add('other');
+        $history->add('duplicate');
+        $this->assertSame(['other', 'duplicate'], $history->getSessionCommands());
+    }
+
+    public function testSessionCommandsRespectMaxSize()
+    {
+        $tempFile = TempPaths::file('psysh-test-history-');
+        \file_put_contents($tempFile, \json_encode(['command' => 'loaded', 'timestamp' => 1000, 'lines' => 1])."\n");
+
+        $history = new History(2);
+        $history->loadFromFile($tempFile);
+
+        $history->add('session one');
+        $history->add('session two');
+
+        $this->assertSame(['session one', 'session two'], $history->getSessionCommands());
     }
 
     public function testSkipEmptyLines()
