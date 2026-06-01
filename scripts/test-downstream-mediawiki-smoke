@@ -103,9 +103,9 @@ retry 3 git clone --depth 1 --branch "${MEDIAWIKI_REF}" "https://github.com/wiki
 mkdir -p "${WORK_DIR}/data"
 cd "${WORK_DIR}"
 
-retry 3 composer install --ignore-platform-reqs --no-interaction --no-progress
+retry 3 composer install --no-interaction --no-progress
 composer config repositories.psysh "${REPO_CONFIG_JSON}"
-retry 3 composer update psy/psysh --with-all-dependencies --ignore-platform-reqs --no-interaction --no-progress
+retry 3 composer update psy/psysh --with-all-dependencies --no-interaction --no-progress
 
 # Install MediaWiki with SQLite so the shell can boot
 php maintenance/run.php install \
