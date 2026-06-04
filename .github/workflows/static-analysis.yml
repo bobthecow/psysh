@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.37.1
@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.37.1
