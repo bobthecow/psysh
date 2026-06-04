@@ -24,7 +24,8 @@ readonly SCRIPT_DIR
 PSYSH_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 readonly PSYSH_ROOT
 readonly OVERRIDE_VERSION="${DOWNSTREAM_PSYSH_VERSION:-0.12.99}"
-readonly LARAVEL_VERSION="${DOWNSTREAM_LARAVEL_VERSION:-^11.0}"
+readonly LARAVEL_APP_VERSION="${DOWNSTREAM_LARAVEL_APP_VERSION:-^12.0}"
+readonly LARAVEL_FRAMEWORK_VERSION="${DOWNSTREAM_LARAVEL_FRAMEWORK_VERSION:-^12.60}"
 readonly REPO_CONFIG_JSON="{\"type\":\"path\",\"url\":\"${PSYSH_ROOT}\",\"options\":{\"symlink\":true,\"versions\":{\"psy/psysh\":\"${OVERRIDE_VERSION}\"}}}"
 
 LAST_OUTPUT=''
@@ -97,16 +98,18 @@ export COMPOSER_CACHE_DIR="${COMPOSER_CACHE_DIR:-${TMP_DIR}/composer-cache}"
 mkdir -p "${COMPOSER_CACHE_DIR}"
 
 echo "==> laravel/tinker PTY smoke"
-echo "    laravel/laravel: ${LARAVEL_VERSION}"
+echo "    laravel/laravel: ${LARAVEL_APP_VERSION}"
+echo "    laravel/framework: ${LARAVEL_FRAMEWORK_VERSION}"
 
-retry 3 composer create-project --no-interaction --no-progress "laravel/laravel:${LARAVEL_VERSION}" "${WORK_DIR}"
+retry 3 composer create-project --no-interaction --no-progress "laravel/laravel:${LARAVEL_APP_VERSION}" "${WORK_DIR}"
 cd "${WORK_DIR}"
 
 composer config repositories.psysh "${REPO_CONFIG_JSON}"
+composer require "laravel/framework:${LARAVEL_FRAMEWORK_VERSION}" --no-update --no-interaction --no-progress
 if ! composer show laravel/tinker >/dev/null 2>&1; then
     retry 3 composer require laravel/tinker --no-interaction --no-progress
 fi
-retry 3 composer update psy/psysh --with-all-dependencies --no-interaction --no-progress
+retry 3 composer update laravel/framework psy/psysh --with-all-dependencies --no-interaction --no-progress
 
 run_pty $'help\necho 21 * 2;\nexit\n' \
     env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=dumb PSYSH_TRUST_PROJECT=false \
