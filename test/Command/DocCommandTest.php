@@ -16,6 +16,7 @@ use Psy\CodeCleaner;
 use Psy\Command\DocCommand;
 use Psy\Configuration;
 use Psy\Context;
+use Psy\Exception\UnexpectedTargetException;
 use Psy\Manual\ManualInterface;
 use Psy\Shell;
 use Psy\Test\TestCase;
