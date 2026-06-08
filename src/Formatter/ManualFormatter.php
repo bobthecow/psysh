@@ -32,6 +32,7 @@ class ManualFormatter
     private const TABLE_PREFERRED_WIDTH_PERCENTILE = 0.75;
     private const FORMATTER_OPEN_TAG_REGEX = '[a-z](?:[^\\\\<>]*+ | \\\\.)*';
     private const FORMATTER_CLOSE_TAG_REGEX = '[a-z][^<>]*+';
+    private const PHP_CODE_ROLE = 'php';
 
     private ManualWrapper $wrapper;
     private int $width;
@@ -579,12 +580,30 @@ class ManualFormatter
             return '';
         }
 
-        $lines = \explode("\n", \str_replace(["\r\n", "\r"], "\n", $data['text']));
+        $text = \str_replace(["\r\n", "\r"], "\n", $data['text']);
+        $role = \strtolower((string) ($data['role'] ?? ''));
+
+        if ($role !== self::PHP_CODE_ROLE && $role !== '') {
+            $text = OutputFormatter::escape($text);
+        } elseif ($this->startsWithPhpOpenTag($text)) {
+            $text = CodeFormatter::formatCodeBlock($text);
+        } elseif ($role === self::PHP_CODE_ROLE) {
+            $text = CodeFormatter::formatSnippetCodeBlock($text);
+        } else {
+            $text = OutputFormatter::escape($text);
+        }
+
+        $lines = \explode("\n", $text);
         $lines = \array_map(function ($line) use ($indent) {
-            return $indent.OutputFormatter::escape(\rtrim($line));
+            return $indent.\rtrim($line);
         }, $lines);
 
         return \implode("\n", $lines);
+    }
+
+    private function startsWithPhpOpenTag(string $text): bool
+    {
+        return \preg_match('/^\s*<\?(?:php\b|=)/i', $text) === 1;
     }
 
     /**
@@ -634,7 +653,7 @@ class ManualFormatter
             $desc = $this->descriptionText($param) ?? '';
 
             // Wrap in style tags first, THEN pad to avoid long color blocks
-            $typeFormatted = '<info>'.$type.'</info>'.$this->displayPadding($type, $typeWidth);
+            $typeFormatted = $this->formatType($type).$this->displayPadding($type, $typeWidth);
             $nameFormatted = '<strong>'.$name.'</strong>'.$this->displayPadding($name, $nameWidth);
 
             // Wrap description with proper indentation
@@ -723,10 +742,21 @@ class ManualFormatter
             $firstLine = \sprintf('  %s  ', $formattedType);
             $output = \array_merge($output, $this->formatWrappedText($desc, $indent, $firstLine, $wrapWidth));
         } else {
-            $output[] = \sprintf('  <info>%s</info>', $type);
+            $output[] = \sprintf('  %s', $formattedType);
         }
 
         return \implode("\n", $output);
+    }
+
+    private function formatType(string $type): string
+    {
+        if (\strpos($type, '|') === false) {
+            return '<info>'.$type.'</info>';
+        }
+
+        return \implode('|', \array_map(function (string $part): string {
+            return '<info>'.$part.'</info>';
+        }, \explode('|', $type)));
     }
 
     /**

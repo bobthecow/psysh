@@ -192,7 +192,7 @@ class ManualFormatterTest extends TestCase
         $result = $formatter->format($data);
         $this->assertFormattedLinesFitWidth($result, 50);
 
-        $this->assertStringContainsString('inside the table column instead of', $result);
+        $this->assertMatchesRegularExpression('/inside\s+the\s+table\s+column\s+instead\s+of/', $result);
     }
 
     public function testWrappedStyledTableCellsDoNotStyleAdjacentColumns()
@@ -497,6 +497,81 @@ class ManualFormatterTest extends TestCase
         $this->assertStringContainsString('Supported flags:', $result);
         $this->assertStringContainsString('XATTR_ROOT', $result);
         $this->assertStringContainsString('\\<?php', $result);
+        $this->assertStringContainsString("<string>'file'</string>", $result);
+    }
+
+    public function testFormatNonPhpCodeBlocksWithoutHighlighting()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'    => 'language',
+            'content' => [[
+                'type' => 'code',
+                'role' => 'shell',
+                'text' => 'php -r "echo 1 < 2;"',
+            ]],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('php -r "echo 1 \\< 2;"', $result);
+        $this->assertStringNotContainsString('<keyword>', $result);
+    }
+
+    public function testExplicitNonPhpRoleIsNotHighlightedByContentSniffing()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'    => 'language',
+            'content' => [[
+                'type' => 'code',
+                'role' => 'shell',
+                'text' => '<?php echo 1;',
+            ]],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('\\<?php echo 1;', $result);
+        $this->assertStringNotContainsString('<keyword>echo</keyword>', $result);
+    }
+
+    public function testXmlLikeCodeBlocksAreNotTreatedAsPhpOpenTags()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'    => 'language',
+            'content' => [[
+                'type' => 'code',
+                'text' => '<?xml version="1.0"?>',
+            ]],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('\\<?xml version="1.0"?', $result);
+        $this->assertStringNotContainsString('<inline_html>', $result);
+    }
+
+    public function testShortOpenTagsAreNotTreatedAsPhpOpenTags()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'    => 'language',
+            'content' => [[
+                'type' => 'code',
+                'text' => '<? echo 1;',
+            ]],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('\\<? echo 1;', $result);
+        $this->assertStringNotContainsString('<inline_html>', $result);
     }
 
     public function testHyperlinksUseInlineStyles()

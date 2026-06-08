@@ -255,6 +255,28 @@ EOS;
         ];
     }
 
+    public function testFormatCodeBlockHighlightsPhpWithoutLineNumbers()
+    {
+        $formatted = CodeFormatter::formatCodeBlock("<?php\nreturn ['key' => 42];");
+        $doubleArrow = OutputFormatter::escape('=>');
+
+        $this->assertSame(
+            "\\<?php\n<keyword>return</keyword> [<array_key>'key'</array_key> {$doubleArrow} <number>42</number>];",
+            $formatted
+        );
+    }
+
+    public function testFormatCodeBlockCanHighlightPhpSnippets()
+    {
+        $formatted = CodeFormatter::formatSnippetCodeBlock("return ['key' => 42];");
+        $doubleArrow = OutputFormatter::escape('=>');
+
+        $this->assertSame(
+            "<keyword>return</keyword> [<array_key>'key'</array_key> {$doubleArrow} <number>42</number>];",
+            $formatted
+        );
+    }
+
     public function testFormatInputLinesLeavesStructuralPunctuationUnstyled()
     {
         $formatter = new OutputFormatter();

@@ -39,6 +39,7 @@ class CodeFormatter implements ReflectorFormatter
     const HIGHLIGHT_COMMENT = 'code_comment';
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
+    private const PHP_SNIPPET_PREFIX = '<?php ';
     private const CLASS_REFERENCE_KEYWORDS = [\T_NEW, \T_INSTANCEOF, \T_CATCH];
 
     private const BASE_TOKEN_MAP = [
@@ -187,6 +188,24 @@ class CodeFormatter implements ReflectorFormatter
     }
 
     /**
+     * Format a PHP code block for shell output without line numbers.
+     */
+    public static function formatCodeBlock(string $code): string
+    {
+        return self::formatSpanBlock(self::tokenizeSpans($code));
+    }
+
+    /**
+     * Format a PHP snippet code block for shell output without line numbers.
+     *
+     * The code is tokenized as PHP without displaying a synthetic opening tag.
+     */
+    public static function formatSnippetCodeBlock(string $code): string
+    {
+        return self::formatSpanBlock(self::tokenizeSnippetSpans($code));
+    }
+
+    /**
      * Format a PHP snippet into ANSI-safe lines for inline shell rendering.
      *
      * Styles are applied line-by-line so multiline tokens do not leak styling
@@ -198,18 +217,8 @@ class CodeFormatter implements ReflectorFormatter
     {
         $lines = [''];
         $lineIndex = 0;
-        $first = true;
 
-        foreach (self::tokenizeSpans('<?php '.$code) as [$spanType, $spanText]) {
-            if ($first) {
-                $spanText = (string) \substr($spanText, \strlen('<?php '));
-                $first = false;
-
-                if ($spanText === '') {
-                    continue;
-                }
-            }
-
+        foreach (self::tokenizeSnippetSpans($code) as [$spanType, $spanText]) {
             $parts = \preg_split('/(\r\n?|\n)/', $spanText, -1, \PREG_SPLIT_DELIM_CAPTURE);
             if ($parts === false) {
                 $parts = [$spanText];
@@ -296,6 +305,39 @@ class CodeFormatter implements ReflectorFormatter
         if ($spanType !== null && $buffer !== '') {
             yield [$spanType, $buffer];
         }
+    }
+
+    /**
+     * @return \Generator [$spanType, $spanText] highlight spans
+     */
+    private static function tokenizeSnippetSpans(string $code): \Generator
+    {
+        $spans = self::tokenizeSpans(self::PHP_SNIPPET_PREFIX.$code);
+        $first = true;
+        $prefixLength = \strlen(self::PHP_SNIPPET_PREFIX);
+
+        foreach ($spans as [$spanType, $spanText]) {
+            if ($first) {
+                $spanText = (string) \substr($spanText, $prefixLength);
+                $first = false;
+
+                if ($spanText === '') {
+                    continue;
+                }
+            }
+
+            yield [$spanType, $spanText];
+        }
+    }
+
+    private static function formatSpanBlock(\Generator $spans): string
+    {
+        $output = '';
+        foreach (self::formatLines(self::splitLines($spans)) as $line) {
+            $output .= $line;
+        }
+
+        return \rtrim($output, "\r\n");
     }
 
     /**
