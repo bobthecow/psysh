@@ -427,6 +427,78 @@ class ManualFormatterTest extends TestCase
         $this->assertStringContainsString('  <info>string</info>  Content-only return.', $result);
     }
 
+    public function testUnionTypesStyleEachTypeSeparately()
+    {
+        $wideFormatter = new ManualFormatter(100, null);
+        $narrowFormatter = new ManualFormatter(40, null);
+
+        $data = [
+            'type'        => 'function',
+            'description' => 'Handles union types.',
+            'params'      => [[
+                'name'        => '$options',
+                'type'        => 'array|null',
+                'description' => 'Options.',
+            ]],
+            'return'      => [
+                'type'        => 'array|object',
+                'description' => 'Result.',
+            ],
+        ];
+
+        $wideResult = $wideFormatter->format($data);
+        $narrowResult = $narrowFormatter->format($data);
+
+        foreach ([$wideResult, $narrowResult] as $result) {
+            $this->assertStringContainsString('<info>array</info>|<info>null</info>', $result);
+            $this->assertStringContainsString('<info>array</info>|<info>object</info>', $result);
+            $this->assertStringNotContainsString('<info>array|null</info>', $result);
+            $this->assertStringNotContainsString('<info>array|object</info>', $result);
+        }
+    }
+
+    public function testFormatParameterContentBlocks()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'        => 'function',
+            'description' => 'Gets an attribute.',
+            'params'      => [[
+                'name'    => '$flags',
+                'type'    => 'int',
+                'content' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Controls how the attribute is read.',
+                    ],
+                    [
+                        'type'    => 'table',
+                        'title'   => 'Supported flags',
+                        'headers' => ['Flag', 'Description'],
+                        'rows'    => [
+                            ['<constant>XATTR_ROOT</constant>', 'Root namespace.'],
+                        ],
+                    ],
+                    [
+                        'type' => 'code',
+                        'role' => 'php',
+                        'text' => "<?php\nxattr_get('file', 'name', XATTR_ROOT);",
+                    ],
+                ],
+            ]],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('Param:', $result);
+        $this->assertStringContainsString('$flags', $result);
+        $this->assertStringContainsString('Controls how the attribute is read.', $result);
+        $this->assertStringContainsString('Supported flags:', $result);
+        $this->assertStringContainsString('XATTR_ROOT', $result);
+        $this->assertStringContainsString('\\<?php', $result);
+    }
+
     public function testHyperlinksUseInlineStyles()
     {
         // Set up inline styles for hyperlinks

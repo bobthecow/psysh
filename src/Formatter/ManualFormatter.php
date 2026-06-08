@@ -219,6 +219,12 @@ class ManualFormatter
                     }
                     break;
 
+                case 'code':
+                    if ($code = $this->formatCodeBlock($block, $indent)) {
+                        $blocks[] = $code;
+                    }
+                    break;
+
                 case 'paragraph':
                 default:
                     if (!empty($block['text'])) {
@@ -565,6 +571,20 @@ class ManualFormatter
     private function displayPadding(string $text, int $width): string
     {
         return \str_repeat(' ', \max(0, $width - $this->displayWidth($text)));
+    }
+
+    private function formatCodeBlock(array $data, string $indent): string
+    {
+        if (empty($data['text'])) {
+            return '';
+        }
+
+        $lines = \explode("\n", \str_replace(["\r\n", "\r"], "\n", $data['text']));
+        $lines = \array_map(function ($line) use ($indent) {
+            return $indent.OutputFormatter::escape(\rtrim($line));
+        }, $lines);
+
+        return \implode("\n", $lines);
     }
 
     /**
