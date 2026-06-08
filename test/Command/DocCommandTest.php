@@ -14,6 +14,10 @@ namespace Psy\Test\Command;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psy\CodeCleaner;
 use Psy\Command\DocCommand;
+use Psy\Completion\CompletionEngine;
+use Psy\Completion\CompletionRequest;
+use Psy\Completion\Refiner\CommandContextRefiner;
+use Psy\Completion\Source\CommandArgumentSource;
 use Psy\Configuration;
 use Psy\Context;
 use Psy\Exception\UnexpectedTargetException;
@@ -41,7 +45,7 @@ class DocCommandTest extends TestCase
         $this->cleaner = new CodeCleaner();
 
         $this->shell = $this->getMockBuilder(Shell::class)
-            ->onlyMethods(['getNamespace', 'getBoundClass', 'getBoundObject', 'getManual'])
+            ->onlyMethods(['boot', 'execute', 'getNamespace', 'getBoundClass', 'getBoundObject', 'getManual'])
             ->getMock();
 
         $this->shell->method('getNamespace')->willReturn(null);
@@ -137,6 +141,189 @@ class DocCommandTest extends TestCase
         $output = $tester->getDisplay();
         $this->assertStringContainsString('isset', $output);
         $this->assertStringContainsString('$var, ...$vars', \strip_tags($output));
+    }
+
+    public function testDocManualPageName()
+    {
+        $this->manual = $this->getMockBuilder(ManualInterface::class)->getMock();
+        $this->manual->method('getVersion')->willReturn(3);
+        $this->manual->expects($this->once())
+            ->method('get')
+            ->with('language.types.array')
+            ->willReturn([
+                'type'        => 'language',
+                'description' => 'Array manual page.',
+            ]);
+
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'language.types.array']);
+
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('Description:', $output);
+        $this->assertStringContainsString('Array manual page.', $output);
+    }
+
+    public function testDocLanguageConstructSuggestsRelatedManualPages()
+    {
+        $this->manual = $this->manualWithIds([
+            'array' => [
+                'type'        => 'function',
+                'description' => 'Creates an array.',
+            ],
+        ], [
+            'array',
+            'language.operators.array',
+            'language.types.array',
+        ]);
+
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'array']);
+
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('Creates an array.', $output);
+        $this->assertStringContainsString('Related manual pages:', $output);
+        $this->assertStringContainsString('language.operators.array', $output);
+        $this->assertStringContainsString('language.types.array', $output);
+    }
+
+    public function testDocDoesNotSuggestCurrentManualPageAsRelated()
+    {
+        $this->manual = $this->manualWithIds([
+            'array_merge' => [
+                'type'        => 'function',
+                'description' => 'Merge one or more arrays.',
+            ],
+        ], [
+            'array_merge',
+        ]);
+
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'array_merge']);
+
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('Merge one or more arrays.', $output);
+        $this->assertStringNotContainsString('Related manual pages', $output);
+    }
+
+    public function testDocArgumentCompletionIncludesManualPageIds()
+    {
+        $this->manual = $this->manualWithIds([], [
+            'language.operators.array',
+            'language.types.array',
+        ]);
+
+        $result = $this->completeDocInput('doc language.ty');
+
+        $this->assertContains('language.types.array', $result);
+        $this->assertNotContains('language.operators.array', $result);
+    }
+
+    public function testDocArgumentCompletionKeepsRuntimeTargetNames()
+    {
+        $result = $this->completeDocInput('doc array_mer');
+
+        $this->assertContains('array_merge', $result);
+    }
+
+    public function testDocArgumentCompletionSkipsMemberExpressions()
+    {
+        $this->assertSame([], $this->completeDocInput('doc DateTime::'));
+    }
+
+    public function testDocUnknownTargetSuggestsManualPageNames()
+    {
+        $this->manual = $this->manualWithIds([], [
+            'language.operators.array',
+            'language.types.array',
+        ]);
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['target' => 'langauge.types.array']);
+
+        $output = $tester->getDisplay();
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('  Unknown target  langauge.types.array', $output);
+        $this->assertStringContainsString('Did you mean?', $output);
+        $this->assertStringContainsString('doc language.types.array', $output);
+        $this->assertStringNotContainsString('doc language.operators.array', $output);
+    }
+
+    public function testDocUnknownTargetSuggestsFuzzyManualPageNames()
+    {
+        $this->manual = $this->manualWithIds([], [
+            'language.references.unset',
+        ]);
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['target' => 'language.referneces.unset']);
+
+        $output = $tester->getDisplay();
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('  Unknown target  language.referneces.unset', $output);
+        $this->assertStringContainsString('Did you mean?', $output);
+        $this->assertStringContainsString('doc language.references.unset', $output);
+    }
+
+    public function testDocUnknownTargetSuggestsFuzzyRuntimeTargetNames()
+    {
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['target' => 'array_merg']);
+
+        $output = $tester->getDisplay();
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('  Unknown target  array_merg', $output);
+        $this->assertStringContainsString('Did you mean?', $output);
+        $this->assertStringContainsString('doc array_merge', $output);
+    }
+
+    public function testDocUnknownTargetSuggestsFuzzyLanguageConstructNames()
+    {
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['target' => 'isste']);
+
+        $output = $tester->getDisplay();
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('  Unknown target  isste', $output);
+        $this->assertStringContainsString('Did you mean?', $output);
+        $this->assertStringContainsString('doc isset', $output);
+    }
+
+    public function testDocUnexpectedTargetDoesNotBecomeSuggestion()
+    {
+        $this->shell->expects($this->once())
+            ->method('execute')
+            ->willReturn([]);
+
+        $this->expectException(UnexpectedTargetException::class);
+        $this->expectExceptionMessage('Unable to inspect a non-object');
+
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => '$array_merg->foo']);
+    }
+
+    public function testDocUnknownTargetSuggestionsRespectCompactTheme()
+    {
+        $this->command->setConfiguration($this->createConfiguration(['theme' => 'compact']));
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['target' => 'array_merg']);
+
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('Unknown target  array_merg', $tester->getDisplay());
+        $this->assertStringNotContainsString('  Unknown target  array_merg', $tester->getDisplay());
+    }
+
+    public function testDocAdvertisedManualPageThatCannotLoadDoesNotSuggestItself()
+    {
+        $this->manual = $this->manualWithIds([], [
+            'language.types.array',
+        ]);
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['target' => 'language.types.array']);
+
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString('  Manual page exists but could not be loaded  language.types.array', $tester->getDisplay());
     }
 
     public static function languageConstructManualEntries()
@@ -254,5 +441,56 @@ class DocCommandTest extends TestCase
         // Should either succeed or fail with a reasonable error
         // (not the "Configuration not available" error)
         $this->assertStringNotContainsString('Configuration not available', $tester->getDisplay());
+    }
+
+    private function completeDocInput(string $input): array
+    {
+        $engine = new CompletionEngine($this->context, $this->cleaner);
+        $engine->addRefiner(new CommandContextRefiner([$this->command]));
+        $engine->addSource(new CommandArgumentSource([$this->command]));
+
+        return $engine->getCompletions(new CompletionRequest($input, \strlen($input)));
+    }
+
+    private function createConfiguration(array $config = []): Configuration
+    {
+        return new Configuration(\array_merge([
+            'configFile'   => \dirname(__DIR__).'/Fixtures/empty.php',
+            'trustProject' => false,
+        ], $config));
+    }
+
+    private function manualWithIds(array $docs, array $ids): ManualInterface
+    {
+        return new class($docs, $ids) implements ManualInterface {
+            private array $docs;
+            private array $ids;
+
+            public function __construct(array $docs, array $ids)
+            {
+                $this->docs = $docs;
+                $this->ids = $ids;
+            }
+
+            public function get(string $id)
+            {
+                return $this->docs[$id] ?? null;
+            }
+
+            public function getVersion(): int
+            {
+                return 3;
+            }
+
+            public function getMeta(): array
+            {
+                return [];
+            }
+
+            public function getIds(): array
+            {
+                return $this->ids;
+            }
+        };
     }
 }

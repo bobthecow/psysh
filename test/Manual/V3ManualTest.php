@@ -144,17 +144,43 @@ return new ManualDataNoGetMeta();';
         $this->assertSame('3.1.5', $meta['version']);
     }
 
+    public function testGetIds()
+    {
+        $filePath = $this->createManualFile([
+            'version'  => '3.0',
+            'language' => 'en',
+        ], [
+            'array',
+            'language.types.array',
+        ]);
+
+        $manual = new V3Manual($filePath);
+
+        $this->assertSame(['array', 'language.types.array'], $manual->getIds());
+    }
+
     /**
      * Create a valid v3 manual file for testing.
      *
-     * @param array $meta Metadata to include
+     * @param array      $meta Metadata to include
+     * @param array|null $ids  Manual IDs to include
      *
      * @return string Path to the created file
      */
-    private function createManualFile(array $meta): string
+    private function createManualFile(array $meta, ?array $ids = null): string
     {
         $filePath = $this->tempDir.'/manual_'.\uniqid().'.php';
         $metaExport = \var_export($meta, true);
+        $idsMethod = '';
+        if ($ids !== null) {
+            $idsExport = \var_export($ids, true);
+            $idsMethod = '
+    public function getIds(): array {
+        return '.$idsExport.';
+    }
+';
+        }
+
         $className = 'ManualData'.\str_replace('.', '_', \uniqid('', true));
         $content = '<?php
 class '.$className.' {
@@ -174,6 +200,7 @@ class '.$className.' {
     public function getMeta(): array {
         return $this->meta;
     }
+'.$idsMethod.'
 }
 return new '.$className.'();';
 

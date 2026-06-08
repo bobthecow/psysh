@@ -299,6 +299,20 @@ class Theme
     }
 
     /**
+     * Checks if the "gray" color exists on the output formatter.
+     */
+    public static function grayExists(OutputFormatterInterface $formatter): bool
+    {
+        try {
+            $formatter->format('<fg=gray></>');
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Apply the current output formatter error styles.
      */
     public function applyErrorStyles(OutputFormatterInterface $errorFormatter, bool $useGrayFallback)

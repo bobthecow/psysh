@@ -29,6 +29,13 @@ interface ManualInterface
     public function get(string $id);
 
     /**
+     * Get all available manual IDs, if the manual format exposes them.
+     *
+     * @return string[]
+     */
+    public function getIds(): array;
+
+    /**
      * Get the manual format version.
      *
      * @return int Major version number

@@ -11,12 +11,17 @@
 
 namespace Psy\Command;
 
+use Psy\CommandArgumentCompletionAware;
+use Psy\Completion\AnalysisResult;
+use Psy\Completion\SymbolCatalog;
 use Psy\Configuration;
+use Psy\Exception\UnexpectedTargetException;
 use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\ManualFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\ManualUpdater\ManualUpdate;
+use Psy\Output\ShellOutputAdapter;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Tty;
@@ -30,11 +35,22 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Read the documentation for an object, class, constant, method or property.
  */
-class DocCommand extends ReflectingCommand
+class DocCommand extends ReflectingCommand implements CommandArgumentCompletionAware
 {
     const INHERIT_DOC_TAG = '{@inheritdoc}';
 
     private ?Configuration $config = null;
+    private SymbolCatalog $symbolCatalog;
+    private ?string $completionCandidateCacheKey = null;
+    /** @var string[] */
+    private array $completionCandidateCache = [];
+
+    public function __construct($name = null)
+    {
+        parent::__construct($name);
+
+        $this->symbolCatalog = new SymbolCatalog();
+    }
 
     /**
      * Set the configuration instance.
@@ -80,6 +96,40 @@ HELP
 
     /**
      * {@inheritdoc}
+     */
+    public function supportsArgumentCompletion(AnalysisResult $analysis): bool
+    {
+        return !\preg_match('/(\?->|->|::)/', $this->completionTarget($analysis->input));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getArgumentCompletions(AnalysisResult $analysis): array
+    {
+        $manual = $this->getShell()->getManual();
+        $cacheKey = $this->symbolCatalog->getVersion().':'.($manual ? \spl_object_id($manual).':'.$manual->getVersion() : 'none');
+
+        if ($this->completionCandidateCacheKey === $cacheKey) {
+            return $this->completionCandidateCache;
+        }
+
+        $candidates = \array_merge(
+            $this->getRuntimeTargetCandidates(),
+            $this->getLanguageConstructCandidates(),
+            $this->getManualIds()
+        );
+
+        $candidates = \array_values(\array_unique($candidates));
+        \sort($candidates);
+
+        $this->completionCandidateCacheKey = $cacheKey;
+
+        return $this->completionCandidateCache = $candidates;
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @return int 0 if everything went fine, or an exit code
      */
@@ -96,12 +146,48 @@ HELP
             throw new RuntimeException('Not enough arguments (missing: "target").');
         }
 
+        if ($this->looksLikeManualPageName($value)) {
+            if (($status = $this->tryWriteManualPageTarget($output, $shellOutput, $value, true)) !== null) {
+                return $status;
+            }
+
+            if ($suggestions = $this->getManualPageSuggestions($value, true)) {
+                $this->writeManualTargetSuggestions($output, $value, $suggestions);
+
+                return 1;
+            }
+        }
+
+        $docFromManual = false;
+
         if (ReflectionLanguageConstruct::isLanguageConstruct($value)) {
             $reflector = new ReflectionLanguageConstruct($value);
-            $doc = $this->getManualDocById($value);
+            $doc = $this->getManualDocById($value, $output);
+            $docFromManual = $doc !== null;
         } else {
-            list($target, $reflector) = $this->getTargetAndReflector($value, $output);
-            $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
+            try {
+                list($target, $reflector) = $this->getTargetAndReflector($value, $output);
+            } catch (UnexpectedTargetException $e) {
+                throw $e;
+            } catch (\RuntimeException|\InvalidArgumentException $e) {
+                if (($status = $this->tryWriteManualPageTarget($output, $shellOutput, $value)) !== null) {
+                    return $status;
+                }
+
+                if ($suggestions = $this->getDocTargetSuggestions($value)) {
+                    $this->writeManualTargetSuggestions($output, $value, $suggestions);
+
+                    return 1;
+                }
+
+                throw $e;
+            }
+
+            $doc = $this->getManualDoc($reflector, $output);
+            $docFromManual = $doc !== null;
+            if (!$docFromManual) {
+                $doc = DocblockFormatter::format($reflector);
+            }
         }
 
         $hasManual = $this->getShell()->getManual() !== null;
@@ -122,6 +208,9 @@ HELP
             $output->writeln('    https://github.com/bobthecow/psysh/wiki/PHP-manual');
         } elseif ($doc !== null) {
             $output->writeln($doc);
+            if ($docFromManual && (ReflectionLanguageConstruct::isLanguageConstruct($value) || $this->looksLikeManualPageName($value))) {
+                $this->writeManualPageSuggestions($output, $value);
+            }
         }
 
         // Implicit --all if the original docblock has an {@inheritdoc} tag.
@@ -140,7 +229,7 @@ HELP
                 $output->writeln(SignatureFormatter::format($parent));
                 $output->writeln('');
 
-                if ($doc = $this->getManualDoc($parent) ?: DocblockFormatter::format($parent)) {
+                if ($doc = $this->getManualDoc($parent, $output) ?: DocblockFormatter::format($parent)) {
                     $output->writeln($doc);
                 }
             }
@@ -199,7 +288,7 @@ HELP
         }
     }
 
-    private function getManualDoc($reflector)
+    private function getManualDoc($reflector, ?OutputInterface $output = null)
     {
         switch (\get_class($reflector)) {
             case \ReflectionClass::class:
@@ -228,10 +317,10 @@ HELP
                 break;
 
             default:
-                return false;
+                return null;
         }
 
-        return $this->getManualDocById($id);
+        return $this->getManualDocById($id, $output);
     }
 
     /**
@@ -312,7 +401,7 @@ HELP
         }
     }
 
-    private function getManualDocById($id)
+    private function getManualDocById($id, ?OutputInterface $output = null)
     {
         if ($manual = $this->getShell()->getManual()) {
             switch ($manual->getVersion()) {
@@ -323,7 +412,7 @@ HELP
                 case 3:
                     if ($doc = $manual->get($id)) {
                         $width = Tty::getWidth();
-                        $formatter = new ManualFormatter($width, $manual);
+                        $formatter = new ManualFormatter($width, $manual, $output ? $output->getFormatter() : null);
 
                         return $formatter->format($doc);
                     }
@@ -332,5 +421,263 @@ HELP
         }
 
         return null;
+    }
+
+    private function writeManualPageSuggestions(OutputInterface $output, string $target): void
+    {
+        if (!$suggestions = $this->getManualPageSuggestions($target)) {
+            return;
+        }
+
+        $output->writeln('');
+        $output->writeln($this->formatManualPageSuggestions($suggestions));
+    }
+
+    private function writeManualPageDoc(ShellOutputAdapter $shellOutput, string $doc, string $target): void
+    {
+        $shellOutput->page(function (OutputInterface $pagedOutput) use ($doc, $target): void {
+            $pagedOutput->writeln($doc);
+            $this->writeManualPageSuggestions($pagedOutput, $target);
+        });
+    }
+
+    private function tryWriteManualPageTarget(OutputInterface $output, ShellOutputAdapter $shellOutput, string $target, bool $allowCaseInsensitiveLookup = false): ?int
+    {
+        if ($doc = $this->getManualDocById($target, $output)) {
+            $this->writeManualPageDoc($shellOutput, $doc, $target);
+
+            return 0;
+        }
+
+        if (!$allowCaseInsensitiveLookup) {
+            return null;
+        }
+
+        if (($manualPageId = $this->findManualPageId($target)) === null) {
+            return null;
+        }
+
+        if ($doc = $this->getManualDocById($manualPageId, $output)) {
+            $this->writeManualPageDoc($shellOutput, $doc, $manualPageId);
+
+            return 0;
+        }
+
+        $this->writeManualPageLoadError($output, $manualPageId);
+
+        return 1;
+    }
+
+    /**
+     * @param string[] $suggestions
+     */
+    private function writeManualTargetSuggestions(OutputInterface $output, string $target, array $suggestions): void
+    {
+        $output->writeln($this->formatErrorLabel('Unknown target').' '.$target);
+        $output->writeln('');
+        $output->writeln('<comment>Did you mean?</comment>');
+        foreach ($suggestions as $suggestion) {
+            $output->writeln('  doc '.$suggestion);
+        }
+    }
+
+    private function writeManualPageLoadError(OutputInterface $output, string $manualPageId): void
+    {
+        $output->writeln($this->formatErrorLabel('Manual page exists but could not be loaded').' '.$manualPageId);
+    }
+
+    private function formatErrorLabel(string $label): string
+    {
+        $indent = $this->config && $this->config->theme()->compact() ? '' : '  ';
+
+        return \sprintf('%s<error> %s </error>', $indent, $label);
+    }
+
+    private function looksLikeManualPageName(string $target): bool
+    {
+        return \strpos($target, '.') !== false;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getManualPageSuggestions(string $target, bool $broad = false): array
+    {
+        $target = \strtolower(\trim($target));
+        if ($target === '') {
+            return [];
+        }
+
+        $manualIds = $this->getManualIds();
+        $suffixes = ['.'.$target];
+
+        $suggestions = [];
+        foreach ($manualIds as $id) {
+            $normalizedId = \strtolower($id);
+            if ($normalizedId === $target) {
+                continue;
+            }
+
+            foreach ($suffixes as $suffix) {
+                if (\substr_compare($normalizedId, $suffix, -\strlen($suffix)) === 0) {
+                    $suggestions[$id] = true;
+                    break;
+                }
+            }
+        }
+
+        $suggestions = \array_keys($suggestions);
+        \sort($suggestions);
+
+        if (!empty($suggestions)) {
+            return \array_slice($suggestions, 0, 5);
+        }
+
+        if (!$broad) {
+            return [];
+        }
+
+        return $this->getFuzzySuggestions($target, $manualIds);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getDocTargetSuggestions(string $target): array
+    {
+        if ($suggestions = $this->getManualPageSuggestions($target, true)) {
+            return $suggestions;
+        }
+
+        return $this->getFuzzyRuntimeTargetSuggestions($target);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getFuzzyRuntimeTargetSuggestions(string $target): array
+    {
+        $target = \strtolower(\trim($target, " \t\n\r\0\x0B\\"));
+        if ($target === '') {
+            return [];
+        }
+
+        $candidates = \array_merge(
+            $this->getRuntimeTargetCandidates(),
+            $this->getLanguageConstructCandidates()
+        );
+
+        return $this->getFuzzySuggestions($target, $candidates, function ($candidate) {
+            return \strtolower(\trim($candidate, '\\'));
+        });
+    }
+
+    /**
+     * @param string[] $candidates
+     *
+     * @return string[]
+     */
+    private function getFuzzySuggestions(string $target, array $candidates, ?callable $normalize = null): array
+    {
+        $normalize = $normalize ?? function ($candidate) {
+            return \strtolower($candidate);
+        };
+
+        $maxDistance = $this->suggestionDistance($target);
+        $suggestions = [];
+
+        foreach ($candidates as $candidate) {
+            $normalizedCandidate = $normalize($candidate);
+            if ($normalizedCandidate === $target || \abs(\strlen($normalizedCandidate) - \strlen($target)) > $maxDistance) {
+                continue;
+            }
+
+            $distance = \levenshtein($target, $normalizedCandidate);
+            if ($distance <= $maxDistance) {
+                $suggestions[] = [$distance, $candidate];
+            }
+        }
+
+        \usort($suggestions, function ($left, $right) {
+            return [$left[0], $left[1]] <=> [$right[0], $right[1]];
+        });
+
+        return \array_slice(\array_map(function ($suggestion) {
+            return $suggestion[1];
+        }, $suggestions), 0, 5);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getRuntimeTargetCandidates(): array
+    {
+        $candidates = \array_merge(
+            $this->symbolCatalog->getFunctions(),
+            $this->symbolCatalog->getClasses(),
+            $this->symbolCatalog->getInterfaces(),
+            $this->symbolCatalog->getTraits(),
+            $this->symbolCatalog->getConstants()
+        );
+
+        $candidates = \array_values(\array_unique($candidates));
+        \sort($candidates);
+
+        return $candidates;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getLanguageConstructCandidates(): array
+    {
+        return ReflectionLanguageConstruct::getNames();
+    }
+
+    private function findManualPageId(string $target): ?string
+    {
+        $target = \strtolower(\trim($target));
+        foreach ($this->getManualIds() as $id) {
+            if (\strtolower($id) === $target) {
+                return $id;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getManualIds(): array
+    {
+        $manual = $this->getShell()->getManual();
+        if (!$manual) {
+            return [];
+        }
+
+        return $manual->getIds();
+    }
+
+    /**
+     * @param string[] $suggestions
+     */
+    private function formatManualPageSuggestions(array $suggestions): string
+    {
+        return \sprintf('<comment>Related manual pages:</comment> %s', \implode(', ', $suggestions));
+    }
+
+    private function completionTarget(string $input): string
+    {
+        if (!\preg_match('/^\s*[^\s]+\s+(.*)$/s', $input, $matches)) {
+            return '';
+        }
+
+        return $matches[1];
+    }
+
+    private function suggestionDistance(string $target): int
+    {
+        return \max(2, (int) \floor(\strlen($target) / 6));
     }
 }

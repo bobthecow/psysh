@@ -176,4 +176,14 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     {
         return \array_key_exists($keyword, self::LANGUAGE_CONSTRUCTS);
     }
+
+    /**
+     * Get known language construct names.
+     *
+     * @return string[]
+     */
+    public static function getNames(): array
+    {
+        return \array_keys(self::LANGUAGE_CONSTRUCTS);
+    }
 }
