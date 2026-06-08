@@ -75,6 +75,62 @@ class ManualFormatterTest extends TestCase
         $this->assertStringContainsString('Description:', $result);
     }
 
+    public function testSimpleReturnContentUsesAlignedLayout()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'        => 'function',
+            'description' => 'Gets a count.',
+            'return'      => [
+                'type'        => 'int',
+                'description' => 'Returns the count.',
+                'content'     => [[
+                    'type' => 'paragraph',
+                    'text' => 'Returns the count.',
+                ]],
+            ],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('  <info>int</info>  Returns the count.', $result);
+    }
+
+    public function testSingleParagraphContentDoesNotRequireLegacyDescription()
+    {
+        $formatter = new ManualFormatter(100, null);
+
+        $data = [
+            'type'    => 'function',
+            'content' => [[
+                'type' => 'paragraph',
+                'text' => 'Content-only description.',
+            ]],
+            'params' => [[
+                'name'    => '$value',
+                'type'    => 'mixed',
+                'content' => [[
+                    'type' => 'paragraph',
+                    'text' => 'Content-only parameter.',
+                ]],
+            ]],
+            'return' => [
+                'type'    => 'string',
+                'content' => [[
+                    'type' => 'paragraph',
+                    'text' => 'Content-only return.',
+                ]],
+            ],
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('Content-only description.', $result);
+        $this->assertStringContainsString('  <info>mixed</info>  <strong>$value</strong>  Content-only parameter.', $result);
+        $this->assertStringContainsString('  <info>string</info>  Content-only return.', $result);
+    }
+
     public function testHyperlinksUseInlineStyles()
     {
         // Set up inline styles for hyperlinks

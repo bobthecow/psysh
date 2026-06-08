@@ -12,6 +12,10 @@
 namespace Psy\Formatter;
 
 use Psy\Manual\ManualInterface;
+use Psy\Output\Theme;
+use Psy\Readline\Interactive\Layout\DisplayString;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 
 /**
  * Formats structured manual data for display at runtime.
@@ -27,17 +31,24 @@ class ManualFormatter
     private ManualWrapper $wrapper;
     private int $width;
     private ?ManualInterface $manual;
+    private OutputFormatterInterface $outputFormatter;
 
     /**
      * @param int                  $width  Terminal width for text wrapping
      * @param ManualInterface|null $manual Optional manual for generating hyperlinks
      */
-    public function __construct(int $width = 100, ?ManualInterface $manual = null)
+    public function __construct(int $width = 100, ?ManualInterface $manual = null, ?OutputFormatterInterface $outputFormatter = null)
     {
         $this->wrapper = new ManualWrapper();
         // Cap width at MAX_WIDTH for readability on ultra-wide terminals
         $this->width = \min($width, self::MAX_WIDTH);
         $this->manual = $manual;
+        $this->outputFormatter = $outputFormatter ?? new OutputFormatter();
+        if ($outputFormatter === null) {
+            (new Theme('modern'))->applyStyles($this->outputFormatter, !Theme::grayExists($this->outputFormatter));
+        }
+
+        $this->wrapper = new ManualWrapper($this->outputFormatter);
     }
 
     /**
@@ -55,15 +66,15 @@ class ManualFormatter
                 $output[] = $this->formatFunction($data);
                 break;
             case 'class':
+            case 'language':
                 $output[] = $this->formatClass($data);
                 break;
             case 'constant':
                 $output[] = $this->formatConstant($data);
                 break;
             default:
-                // Generic fallback
-                if (!empty($data['description'])) {
-                    $output[] = $this->formatDescription($data['description']);
+                if ($description = $this->formatDescriptionBody($data)) {
+                    $output[] = $description;
                 }
         }
 
@@ -79,8 +90,8 @@ class ManualFormatter
     {
         $output = [];
 
-        if (!empty($data['description'])) {
-            $output[] = $this->formatDescription($data['description']);
+        if ($description = $this->formatDescriptionBody($data)) {
+            $output[] = $description;
         }
 
         if (!empty($data['params'])) {
@@ -107,9 +118,8 @@ class ManualFormatter
     {
         $output = [];
 
-        // Description
-        if (!empty($data['description'])) {
-            $output[] = $this->formatDescription($data['description']);
+        if ($description = $this->formatDescriptionBody($data)) {
+            $output[] = $description;
         }
 
         // See also
@@ -133,8 +143,8 @@ class ManualFormatter
             $output[] = '<strong>Value:</strong> '.$this->thunkTags($data['value']);
         }
 
-        if (!empty($data['description'])) {
-            $output[] = $this->formatDescription($data['description']);
+        if ($description = $this->formatDescriptionBody($data)) {
+            $output[] = $description;
         }
 
         if (!empty($data['seeAlso'])) {
@@ -154,13 +164,91 @@ class ManualFormatter
     private function formatDescription(string $description): string
     {
         $output = ['<comment>Description:</comment>'];
-
-        $text = $this->thunkTags($description);
-        $wrapped = $this->wrapper->wrap($text, $this->width - 2);
-
-        $output = \array_merge($output, $this->indentWrappedLines($wrapped, '  '));
+        $output = \array_merge($output, $this->formatWrappedText($description, '  '));
 
         return \implode("\n", $output);
+    }
+
+    private function formatDescriptionBody(array $data): ?string
+    {
+        if ($this->hasStructuredContent($data['content'] ?? [])) {
+            return $this->formatContent($data['content']);
+        }
+
+        if ($description = $this->descriptionText($data, true)) {
+            return $this->formatDescription($description);
+        }
+
+        return null;
+    }
+
+    /**
+     * Format ordered manual content blocks.
+     *
+     * @param array $content Content blocks from the v3 manual
+     */
+    private function formatContent(array $content): string
+    {
+        $output = ['<comment>Description:</comment>'];
+        $blocks = $this->formatContentBlocks($content, '  ');
+
+        if (!empty($blocks)) {
+            $output[] = \implode("\n\n", $blocks);
+        }
+
+        return \implode("\n", $output);
+    }
+
+    private function formatContentBlocks(array $content, string $indent): array
+    {
+        $blocks = [];
+
+        foreach ($content as $block) {
+            switch ($block['type'] ?? 'paragraph') {
+                case 'heading':
+                    if (!empty($block['text'])) {
+                        $blocks[] = $indent.'<comment>'.$this->formatInlineText($block['text']).'</comment>';
+                    }
+                    break;
+
+                case 'paragraph':
+                default:
+                    if (!empty($block['text'])) {
+                        $blocks[] = \implode("\n", $this->formatWrappedText($block['text'], $indent));
+                    }
+                    break;
+            }
+        }
+
+        return $blocks;
+    }
+
+    private function hasStructuredContent(array $content): bool
+    {
+        if (\count($content) !== 1) {
+            return !empty($content);
+        }
+
+        return ($content[0]['type'] ?? 'paragraph') !== 'paragraph';
+    }
+
+    private function contentParagraphText(array $content): ?string
+    {
+        if (\count($content) !== 1 || ($content[0]['type'] ?? 'paragraph') !== 'paragraph') {
+            return null;
+        }
+
+        return $content[0]['text'] ?? null;
+    }
+
+    private function displayWidth(string $text): int
+    {
+        return DisplayString::widthWithoutFormatting($text, $this->outputFormatter);
+    }
+
+    private function displayPadding(string $text, int $width): string
+    {
+        return \str_repeat(' ', \max(0, $width - $this->displayWidth($text)));
     }
 
     /**
@@ -170,6 +258,10 @@ class ManualFormatter
      */
     private function formatParameters(array $params): string
     {
+        if ($this->hasStructuredParameterContent($params)) {
+            return $this->formatParametersStacked($params);
+        }
+
         // Decide layout based on terminal width
         // Use table layout for wide terminals (80+), stacked for narrow
         if ($this->width >= 80) {
@@ -188,39 +280,48 @@ class ManualFormatter
     {
         $output = ['<comment>Param:</comment>'];
 
-        // Calculate column widths (matching old format)
         $typeWidth = \max(\array_map(function ($param) {
-            return \mb_strlen($param['type'] ?? 'mixed');
+            return $this->displayWidth($param['type'] ?? 'mixed');
         }, $params));
 
         $nameWidth = \max(\array_map(function ($param) {
-            return \mb_strlen($param['name']);
+            return $this->displayWidth($param['name']);
         }, $params));
 
         // Build columns with padding OUTSIDE style tags
         $indent = \str_repeat(' ', $typeWidth + $nameWidth + 6);
-        $wrapWidth = $this->width - \mb_strlen($indent);
+        $wrapWidth = $this->width - $this->displayWidth($indent);
 
         foreach ($params as $param) {
             $type = $param['type'] ?? 'mixed';
             $name = $param['name'];
-            $desc = $this->thunkTags($param['description'] ?? '');
+            $desc = $this->descriptionText($param) ?? '';
 
             // Wrap in style tags first, THEN pad to avoid long color blocks
-            $typeFormatted = '<info>'.$type.'</info>'.\str_repeat(' ', $typeWidth - \mb_strlen($type));
-            $nameFormatted = '<strong>'.$name.'</strong>'.\str_repeat(' ', $nameWidth - \mb_strlen($name));
+            $typeFormatted = '<info>'.$type.'</info>'.$this->displayPadding($type, $typeWidth);
+            $nameFormatted = '<strong>'.$name.'</strong>'.$this->displayPadding($name, $nameWidth);
 
             // Wrap description with proper indentation
             if (!empty($desc)) {
-                $wrapped = $this->wrapper->wrap($desc, $wrapWidth);
                 $firstLine = '  '.$typeFormatted.'  '.$nameFormatted.'  ';
-                $output = \array_merge($output, $this->indentWrappedLines($wrapped, $indent, $firstLine));
+                $output = \array_merge($output, $this->formatWrappedText($desc, $indent, $firstLine, $wrapWidth));
             } else {
                 $output[] = '  '.$typeFormatted.'  '.$nameFormatted;
             }
         }
 
         return \implode("\n", $output);
+    }
+
+    private function hasStructuredParameterContent(array $params): bool
+    {
+        foreach ($params as $param) {
+            if ($this->hasStructuredContent($param['content'] ?? [])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -234,20 +335,23 @@ class ManualFormatter
 
         // Calculate type width for alignment
         $typeWidth = \max(\array_map(function ($param) {
-            return \mb_strlen($param['type'] ?? 'mixed');
+            return $this->displayWidth($param['type'] ?? 'mixed');
         }, $params));
 
         foreach ($params as $param) {
-            $type = \str_pad($param['type'] ?? 'mixed', $typeWidth);
+            $type = $param['type'] ?? 'mixed';
             $name = $param['name'];
 
-            $output[] = \sprintf('  <info>%s</info>  <strong>%s</strong>', $type, $name);
+            $output[] = \sprintf('  %s%s  <strong>%s</strong>', $this->formatType($type), $this->displayPadding($type, $typeWidth), $name);
 
-            if (!empty($param['description'])) {
-                $desc = $this->thunkTags($param['description']);
+            if ($this->hasStructuredContent($param['content'] ?? [])) {
+                $blocks = $this->formatContentBlocks($param['content'], '  ');
+                if (!empty($blocks)) {
+                    $output[] = \implode("\n\n", $blocks);
+                }
+            } elseif ($desc = $this->descriptionText($param)) {
                 $indent = \str_repeat(' ', $typeWidth + 4);
-                $wrapped = $this->wrapper->wrap($desc, $this->width - \mb_strlen($indent));
-                $output = \array_merge($output, $this->indentWrappedLines($wrapped, $indent));
+                $output = \array_merge($output, $this->formatWrappedText($desc, $indent));
             }
         }
 
@@ -264,16 +368,25 @@ class ManualFormatter
         $output = ['<comment>Return:</comment>'];
 
         $type = $return['type'] ?? 'unknown';
-        $desc = $return['description'] ?? '';
+        $desc = $this->descriptionText($return) ?? '';
+        $formattedType = $this->formatType($type);
 
-        $indent = \str_repeat(' ', \mb_strlen($type) + 4);
-        $wrapWidth = $this->width - \mb_strlen($indent);
+        if ($this->hasStructuredContent($return['content'] ?? [])) {
+            $output[] = \sprintf('  %s', $formattedType);
+            $blocks = $this->formatContentBlocks($return['content'], '  ');
+            if (!empty($blocks)) {
+                $output[] = \implode("\n\n", $blocks);
+            }
+
+            return \implode("\n", $output);
+        }
+
+        $indent = \str_repeat(' ', $this->displayWidth($type) + 4);
+        $wrapWidth = $this->width - $this->displayWidth($indent);
 
         if (!empty($desc)) {
-            $desc = $this->thunkTags($desc);
-            $wrapped = $this->wrapper->wrap($desc, $wrapWidth);
-            $firstLine = \sprintf('  <info>%s</info>  ', $type);
-            $output = \array_merge($output, $this->indentWrappedLines($wrapped, $indent, $firstLine));
+            $firstLine = \sprintf('  %s  ', $formattedType);
+            $output = \array_merge($output, $this->formatWrappedText($desc, $indent, $firstLine, $wrapWidth));
         } else {
             $output[] = \sprintf('  <info>%s</info>', $type);
         }
@@ -365,6 +478,27 @@ class ManualFormatter
         }
 
         return $output;
+    }
+
+    private function formatWrappedText(string $text, string $indent, ?string $firstIndent = null, ?int $width = null): array
+    {
+        $text = $this->thunkTags($text);
+        $width = $width ?? $this->width - $this->displayWidth($indent);
+        $wrapped = $this->wrapper->wrap($text, $width);
+
+        return $this->indentWrappedLines($wrapped, $indent, $firstIndent);
+    }
+
+    private function formatInlineText(string $text): string
+    {
+        return $this->thunkTags($text);
+    }
+
+    private function descriptionText(array $data, bool $preferContent = false): ?string
+    {
+        $content = $this->contentParagraphText($data['content'] ?? []);
+
+        return $preferContent ? ($content ?? $data['description'] ?? null) : ($data['description'] ?? $content);
     }
 
     /**
