@@ -4,12 +4,18 @@ updates:
     directory: /
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
     versioning-strategy: widen
   - package-ecosystem: composer
     directory: /build
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
   - package-ecosystem: "github-actions"
     directory: /
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7

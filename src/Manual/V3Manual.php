@@ -87,6 +87,20 @@ class V3Manual implements ManualInterface
     }
 
     /**
+     * Get all available manual IDs when supported by the loaded manual file.
+     *
+     * @return string[]
+     */
+    public function getIds(): array
+    {
+        if (!\method_exists($this->data, 'getIds')) {
+            return [];
+        }
+
+        return $this->data->getIds();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getVersion(): int

@@ -34,6 +34,12 @@ class ReflectionLanguageConstructTest extends TestCase
         $this->assertTrue(ReflectionLanguageConstruct::isLanguageConstruct($keyword));
     }
 
+    public function testGetNames()
+    {
+        $this->assertContains('array', ReflectionLanguageConstruct::getNames());
+        $this->assertContains('unset', ReflectionLanguageConstruct::getNames());
+    }
+
     /**
      * @dataProvider languageConstructs
      */

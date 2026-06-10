@@ -65,6 +65,13 @@ class V2ManualTest extends TestCase
         $this->assertNull($doc);
     }
 
+    public function testGetIds()
+    {
+        $manual = new V2Manual($this->db);
+
+        $this->assertSame(['array_map', 'strlen'], $manual->getIds());
+    }
+
     public function testGetMeta()
     {
         $manual = new V2Manual($this->db);
