@@ -71,7 +71,7 @@ use Symfony\Component\Console\Output\StreamOutput;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.12.23';
+    const VERSION = 'v0.12.24';
 
     private Configuration $config;
     private ?CodeCleaner $cleaner = null;
