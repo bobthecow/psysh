@@ -159,7 +159,9 @@ class ShellRuntimeConfigTest extends TestCase
         $shell = new Shell($config);
 
         $method = new \ReflectionMethod(Shell::class, 'getHeader');
-        $method->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
         $this->assertStringContainsString(' — ', $method->invoke($shell));
 
         $config->setUseUnicode(false);
@@ -192,7 +194,9 @@ class ShellRuntimeConfigTest extends TestCase
     private function getOutputPager(ShellOutput $output)
     {
         $reflection = new \ReflectionProperty(ShellOutput::class, 'pager');
-        $reflection->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $reflection->setAccessible(true);
+        }
 
         return $reflection->getValue($output);
     }
@@ -200,7 +204,9 @@ class ShellRuntimeConfigTest extends TestCase
     private function getOutputTheme(ShellOutput $output)
     {
         $reflection = new \ReflectionProperty(ShellOutput::class, 'theme');
-        $reflection->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $reflection->setAccessible(true);
+        }
 
         return $reflection->getValue($output);
     }

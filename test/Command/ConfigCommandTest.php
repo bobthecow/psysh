@@ -266,7 +266,9 @@ class ConfigCommandTest extends TestCase
         $this->shell->setOutput($output);
 
         $method = new \ReflectionMethod(Shell::class, 'runCommand');
-        $method->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
         $method->invoke($this->shell, 'config set errorLoggingLevel (E_ALL & ~E_STRICT)');
 
         // Constant references are stashed behind \constant() so PHP's
@@ -349,7 +351,9 @@ class ConfigCommandTest extends TestCase
         $this->shell->setOutput($output);
 
         $method = new \ReflectionMethod(Shell::class, 'runCommand');
-        $method->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
         $method->invoke($this->shell, 'config set clipboardCommand pbcopy --flag --verbose');
 
         $this->assertSame('pbcopy --flag --verbose', $this->config->clipboardCommand());

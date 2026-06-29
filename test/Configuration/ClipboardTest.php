@@ -93,7 +93,9 @@ class ClipboardTest extends TestCase
     private function setConfigPaths(Configuration $config, ConfigPaths $configPaths): void
     {
         $reflection = new \ReflectionProperty(Configuration::class, 'configPaths');
-        $reflection->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $reflection->setAccessible(true);
+        }
         $reflection->setValue($config, $configPaths);
     }
 
