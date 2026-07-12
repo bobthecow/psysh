@@ -58,9 +58,7 @@ class Installer
             $phar = new \PharData($tarballPath);
             $phar->extractTo($tempDir);
 
-            // Determine the manual filename
-            $manualFilename = $this->format === 'php' ? 'php_manual.php' : 'php_manual.sqlite';
-            $extractedFile = $tempDir.'/'.$manualFilename;
+            $extractedFile = $tempDir.'/'.$this->getManualFilename();
 
             if (!\file_exists($extractedFile)) {
                 return false;
@@ -81,9 +79,12 @@ class Installer
      */
     public function getInstallPath(): string
     {
-        $manualFilename = $this->format === 'php' ? 'php_manual.php' : 'php_manual.sqlite';
+        return $this->dataDir.'/'.$this->getManualFilename();
+    }
 
-        return $this->dataDir.'/'.$manualFilename;
+    private function getManualFilename(): string
+    {
+        return $this->format === 'php' ? 'php_manual.php' : 'php_manual.sqlite';
     }
 
     /**

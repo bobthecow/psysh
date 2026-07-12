@@ -72,20 +72,7 @@ class GitHubChecker implements Checker
 
     private function fetchLatestRelease()
     {
-        $context = \stream_context_create([
-            'http' => [
-                'user_agent' => 'PsySH/'.Shell::VERSION,
-                'timeout'    => 3.0,
-            ],
-        ]);
-
-        \set_error_handler(function () {
-            // Ignore errors - we'll handle failures below
-        });
-
-        $result = @\file_get_contents(self::RELEASES_URL, false, $context);
-
-        \restore_error_handler();
+        $result = $this->fetch(self::RELEASES_URL);
 
         if (!$result) {
             throw new \RuntimeException('Unable to fetch manual releases from GitHub');
@@ -138,20 +125,7 @@ class GitHubChecker implements Checker
         // Find manifest.json in assets
         foreach ($release['assets'] as $asset) {
             if ($asset['name'] === 'manifest.json') {
-                $context = \stream_context_create([
-                    'http' => [
-                        'user_agent' => 'PsySH/'.Shell::VERSION,
-                        'timeout'    => 3.0,
-                    ],
-                ]);
-
-                \set_error_handler(function () {
-                    // Ignore errors
-                });
-
-                $manifestContent = @\file_get_contents($asset['browser_download_url'], false, $context);
-
-                \restore_error_handler();
+                $manifestContent = $this->fetch($asset['browser_download_url']);
 
                 if ($manifestContent) {
                     return \json_decode($manifestContent, true);
@@ -160,5 +134,30 @@ class GitHubChecker implements Checker
         }
 
         return null;
+    }
+
+    /**
+     * Fetch a URL without leaking network warnings to the active error handler.
+     *
+     * @return string|false
+     */
+    private function fetch(string $url)
+    {
+        $context = \stream_context_create([
+            'http' => [
+                'user_agent' => 'PsySH/'.Shell::VERSION,
+                'timeout'    => 3.0,
+            ],
+        ]);
+
+        \set_error_handler(function () {
+            // Ignore errors
+        });
+
+        $result = @\file_get_contents($url, false, $context);
+
+        \restore_error_handler();
+
+        return $result;
     }
 }
