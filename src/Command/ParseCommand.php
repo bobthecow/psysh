@@ -16,6 +16,7 @@ use PhpParser\Node;
 use PhpParser\Parser;
 use Psy\Context;
 use Psy\ContextAware;
+use Psy\Exception\ParseErrorException;
 use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
 use Psy\VarDumper\Presenter;
@@ -119,7 +120,7 @@ HELP
         try {
             $nodes = $this->parser->parse($code);
         } catch (PhpParserError $e) {
-            if ($this->parseErrorIsEOF($e)) {
+            if (ParseErrorException::isUnexpectedEOF($e)) {
                 $nodes = $this->parser->parse($code.';');
             } else {
                 throw $e;
@@ -131,12 +132,5 @@ HELP
         $this->context->setReturnValue($nodes);
 
         return 0;
-    }
-
-    private function parseErrorIsEOF(PhpParserError $e): bool
-    {
-        $msg = $e->getRawMessage();
-
-        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }

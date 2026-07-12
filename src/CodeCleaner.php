@@ -653,7 +653,7 @@ class CodeCleaner
                 return false;
             }
 
-            if (!$this->parseErrorIsEOF($e)) {
+            if (!ParseErrorException::isUnexpectedEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
 
@@ -668,13 +668,6 @@ class CodeCleaner
                 return false;
             }
         }
-    }
-
-    private function parseErrorIsEOF(PhpParserError $e): bool
-    {
-        $msg = $e->getRawMessage();
-
-        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 
     /**

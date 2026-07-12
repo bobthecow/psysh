@@ -43,4 +43,14 @@ class ParseErrorException extends \PhpParser\Error implements Exception
     {
         return new self($e->getRawMessage(), $e->getAttributes());
     }
+
+    /**
+     * Check whether a PhpParser Error was caused by unexpected EOF.
+     */
+    public static function isUnexpectedEOF(\PhpParser\Error $e): bool
+    {
+        $message = $e->getRawMessage();
+
+        return $message === 'Unexpected token EOF' || \strpos($message, 'Syntax error, unexpected EOF') !== false;
+    }
 }

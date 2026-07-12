@@ -42,4 +42,21 @@ class ParseErrorExceptionTest extends TestCase
         $this->assertStringContainsString('{msg}', $e->getRawMessage());
         $this->assertStringContainsString('PHP Parse error:', $e->getMessage());
     }
+
+    /**
+     * @dataProvider unexpectedEOFProvider
+     */
+    public function testisUnexpectedEOF(string $message, bool $expected)
+    {
+        $this->assertSame($expected, ParseErrorException::isUnexpectedEOF(new PhpParserError($message)));
+    }
+
+    public static function unexpectedEOFProvider()
+    {
+        return [
+            'php-parser v5' => ['Unexpected token EOF', true],
+            'php-parser v4' => ['Syntax error, unexpected EOF on line 1', true],
+            'other error'   => ['Unexpected token ";"', false],
+        ];
+    }
 }

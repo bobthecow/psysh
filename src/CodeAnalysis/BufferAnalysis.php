@@ -12,6 +12,7 @@
 namespace Psy\CodeAnalysis;
 
 use PhpParser\Error;
+use Psy\Exception\ParseErrorException;
 use Psy\Readline\Interactive\Helper\TokenHelper;
 
 /**
@@ -152,7 +153,7 @@ class BufferAnalysis
             if ($lastParen !== false) {
                 $afterParen = \trim(\substr($trimmed, $lastParen + 1));
                 if ($afterParen === '') {
-                    if ($this->lastError !== null && !$this->isEOFError($this->lastError)) {
+                    if ($this->lastError !== null && !ParseErrorException::isUnexpectedEOF($this->lastError)) {
                         return false;
                     }
 
@@ -165,7 +166,7 @@ class BufferAnalysis
         $isBareElse = \preg_match('/^\s*else\s*$/', $trimmed);
 
         if ($isElseAfterBrace || $isBareElse) {
-            if ($isBareElse && $this->lastError !== null && !$this->isEOFError($this->lastError)) {
+            if ($isBareElse && $this->lastError !== null && !ParseErrorException::isUnexpectedEOF($this->lastError)) {
                 return false;
             }
 
@@ -180,13 +181,6 @@ class BufferAnalysis
      */
     public function hasEOFError(): bool
     {
-        return $this->lastError !== null && $this->isEOFError($this->lastError);
-    }
-
-    private function isEOFError(Error $error): bool
-    {
-        $msg = $error->getRawMessage();
-
-        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
+        return $this->lastError !== null && ParseErrorException::isUnexpectedEOF($this->lastError);
     }
 }
