@@ -54,11 +54,7 @@ class SelfUpdate
      */
     private function getDownloader(): Downloader
     {
-        if (!isset($this->downloader)) {
-            return Downloader\Factory::getDownloader();
-        }
-
-        return $this->downloader;
+        return $this->downloader ?? Downloader\Factory::getDownloader();
     }
 
     /**

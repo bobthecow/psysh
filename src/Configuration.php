@@ -2820,7 +2820,7 @@ class Configuration
      */
     public function getUpdateCheck(): string
     {
-        return isset($this->updateCheck) ? $this->updateCheck : Checker::WEEKLY;
+        return $this->updateCheck ?? Checker::WEEKLY;
     }
 
     /**
@@ -2870,7 +2870,7 @@ class Configuration
      */
     public function getUpdateManualCheck(): string
     {
-        return isset($this->updateManualCheck) ? $this->updateManualCheck : ManualUpdater\Checker::WEEKLY;
+        return $this->updateManualCheck ?? ManualUpdater\Checker::WEEKLY;
     }
 
     /**
