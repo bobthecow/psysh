@@ -124,6 +124,19 @@ class InteractiveReadlineTest extends TestCase
         @\unlink($historyFile);
     }
 
+    public function testAddHistoryDoesNotPersistWhenHistoryIsUnchanged()
+    {
+        $history = $this->getMockBuilder(History::class)
+            ->onlyMethods(['saveToFile'])
+            ->getMock();
+        $history->add('same command');
+        $history->expects($this->never())->method('saveToFile');
+
+        $readline = $this->newReadline($history, TempPaths::file('psysh-test-history-jsonl-'));
+
+        $this->assertTrue($readline->addHistory('same command'));
+    }
+
     public function testListHistoryIsChronological()
     {
         $history = new History();

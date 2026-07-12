@@ -156,8 +156,11 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
     public function addHistory(string $line): bool
     {
         $this->assertBooted();
+        $revision = $this->history->getRevision();
         $this->history->add($line);
-        $this->writeHistory();
+        if ($this->history->getRevision() !== $revision) {
+            $this->writeHistory();
+        }
 
         return true;
     }
