@@ -32,7 +32,9 @@ class ManualFormatter
     private const TABLE_PREFERRED_WIDTH_PERCENTILE = 0.75;
     private const FORMATTER_OPEN_TAG_REGEX = '[a-z](?:[^\\\\<>]*+ | \\\\.)*';
     private const FORMATTER_CLOSE_TAG_REGEX = '[a-z][^<>]*+';
+    private const MANUAL_REFERENCE_REGEX = '/(?<![A-Za-z0-9_\\\\])\\\\?[A-Za-z_][A-Za-z0-9_\\\\]*::[A-Za-z_][A-Za-z0-9_]*(?:\\(\\))?/';
     private const PHP_CODE_ROLE = 'php';
+    private const SEMANTIC_TAG_REGEX = 'parameter|function|constant|classname|type|literal|class';
 
     private ManualWrapper $wrapper;
     private int $width;
@@ -807,7 +809,7 @@ class ManualFormatter
             return LinkFormatter::styleWithHref('info', $displayText, $href);
         }
 
-        $formatted = $this->thunkTags($item);
+        $formatted = $this->thunkTags($item, false);
         if (\strpos($item, '<function>') !== false && \strpos($formatted, '()') === false) {
             $formatted .= '()';
         }
@@ -873,22 +875,20 @@ class ManualFormatter
      *
      * @return string Text with console format tags
      */
-    private function thunkTags(string $text): string
+    private function thunkTags(string $text, bool $linkReferences = true): string
     {
-        // First, escape any < and > that aren't part of our semantic tags
-        // Protect our semantic tags by replacing them with placeholders
-        $tagMap = [];
-        $tagIndex = 0;
-
-        // Protect semantic tags
-        $semanticTags = ['parameter', 'function', 'constant', 'classname', 'type', 'literal', 'class'];
-        foreach ($semanticTags as $tag) {
+        $semanticElements = [];
+        $linkManualReferences = $linkReferences
+            && $this->manual !== null
+            && LinkFormatter::supportsLinks()
+            && \strpos($text, '::') !== false;
+        if ($linkManualReferences) {
+            // Semantic references get their own styles below, so exclude them from bare reference linking.
             $text = \preg_replace_callback(
-                "/<{$tag}>|<\/{$tag}>/",
-                function ($matches) use (&$tagMap, &$tagIndex) {
-                    $placeholder = "\x00TAG{$tagIndex}\x00";
-                    $tagMap[$placeholder] = $matches[0];
-                    $tagIndex++;
+                '#<('.self::SEMANTIC_TAG_REGEX.')>([^<]*)<\/\\1>#',
+                function ($matches) use (&$semanticElements) {
+                    $placeholder = "\x00SEMANTIC".\count($semanticElements)."\x00";
+                    $semanticElements[$placeholder] = $matches[0];
 
                     return $placeholder;
                 },
@@ -896,11 +896,31 @@ class ManualFormatter
             );
         }
 
+        // First, escape any < and > that aren't part of our semantic tags
+        // Protect our semantic tags by replacing them with placeholders
+        $tagMap = [];
+        $text = \preg_replace_callback(
+            '#<\/?(?:'.self::SEMANTIC_TAG_REGEX.')>#',
+            function ($matches) use (&$tagMap) {
+                $placeholder = "\x00TAG".\count($tagMap)."\x00";
+                $tagMap[$placeholder] = $matches[0];
+
+                return $placeholder;
+            },
+            $text
+        );
+
         // Now escape any remaining < and > (these are content, not tags)
         $text = \str_replace(['<', '>'], ['\\<', '\\>'], $text);
 
+        $manualReferences = [];
+        if ($linkManualReferences) {
+            $text = $this->linkManualReferences($text, $manualReferences);
+        }
+
         // Restore protected tags
         $text = \str_replace(\array_keys($tagMap), \array_values($tagMap), $text);
+        $text = \str_replace(\array_keys($semanticElements), \array_values($semanticElements), $text);
 
         // Handle parameters: add $ prefix and make bold
         $text = \preg_replace_callback(
@@ -920,26 +940,44 @@ class ManualFormatter
         // Handle functions: add () suffix and make bold
         $text = \preg_replace_callback(
             '/<function>([^<]+)<\/function>/',
-            function ($matches) {
+            function ($matches) use ($linkReferences) {
                 $name = $matches[1];
                 // Add () if not already present
                 if (\substr($name, -2) !== '()') {
                     $name .= '()';
                 }
 
-                return '<strong>'.$name.'</strong>';
+                $href = $linkReferences ? $this->getManualHref($matches[1]) : null;
+
+                return LinkFormatter::styleWithHref('strong', $name, $href);
+            },
+            $text
+        );
+
+        // Handle class names separately so they can retain the class style while linked.
+        $text = \preg_replace_callback(
+            '/<(?:classname|class)>([^<]+)<\/(?:classname|class)>/',
+            function ($matches) use ($linkReferences) {
+                $href = $linkReferences ? $this->getManualHref($matches[1], false) : null;
+
+                return LinkFormatter::styleWithHref('class', $matches[1], $href);
+            },
+            $text
+        );
+
+        // Constants are only linked when the installed manual has a target.
+        $text = \preg_replace_callback(
+            '/<constant>([^<]+)<\/constant>/',
+            function ($matches) use ($linkReferences) {
+                $href = $linkReferences ? $this->getManualHref($matches[1]) : null;
+
+                return LinkFormatter::styleWithHref('info', $matches[1], $href);
             },
             $text
         );
 
         // Map other semantic tags to corresponding formats
         $replacements = [
-            '<constant>'   => '<info>',
-            '</constant>'  => '</info>',
-            '<classname>'  => '<class>',
-            '</classname>' => '</class>',
-            '<class>'      => '<class>',
-            '</class>'     => '</class>',
             '<type>'       => '<info>',
             '</type>'      => '</info>',
             '<literal>'    => '<return>',
@@ -947,7 +985,54 @@ class ManualFormatter
         ];
 
         $text = \str_replace(\array_keys($replacements), \array_values($replacements), $text);
+        $text = \str_replace(\array_keys($manualReferences), \array_values($manualReferences), $text);
 
         return $text;
+    }
+
+    /**
+     * Link untagged Class::member references when the manual confirms the target.
+     */
+    private function linkManualReferences(string $text, array &$manualReferences): string
+    {
+        return \preg_replace_callback(self::MANUAL_REFERENCE_REGEX, function ($matches) use (&$manualReferences) {
+            $reference = $matches[0];
+            $href = $this->getManualHref($reference);
+
+            if ($href === null) {
+                return $reference;
+            }
+
+            $placeholder = "\x00MANUAL_REFERENCE".\count($manualReferences)."\x00";
+            $manualReferences[$placeholder] = LinkFormatter::styleWithHref('function', $reference, $href);
+
+            return $placeholder;
+        }, $text);
+    }
+
+    /**
+     * Get a php.net URL for a manual reference.
+     *
+     * Semantic class tags originate in the PHP manual itself, so they can be
+     * trusted even when the compact manual has no standalone class entry.
+     */
+    private function getManualHref(string $reference, bool $requireManualEntry = true): ?string
+    {
+        if ($this->manual === null || !LinkFormatter::supportsLinks()) {
+            return null;
+        }
+
+        $id = \ltrim(\trim($reference), '\\');
+        if (\substr($id, -2) === '()') {
+            $id = \substr($id, 0, -2);
+        }
+
+        if ($requireManualEntry) {
+            if ($this->manual->get($id) === null) {
+                return null;
+            }
+        }
+
+        return LinkFormatter::getPhpNetUrl($id);
     }
 }

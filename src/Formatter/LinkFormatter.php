@@ -79,9 +79,8 @@ class LinkFormatter
      */
     public static function getPhpNetUrl(string $item): string
     {
-        // Normalize the item name for URL (lowercase, replace :: with . and _ with -)
-        $normalized = \str_replace('::', '.', $item);
-        $normalized = \str_replace('_', '-', $normalized);
+        // Normalize the item name for URL (lowercase, namespaces and underscores to -, :: to .)
+        $normalized = \str_replace(['\\', '::', '_'], ['-', '.', '-'], $item);
         $normalized = \strtolower($normalized);
 
         return 'https://php.net/'.$normalized;

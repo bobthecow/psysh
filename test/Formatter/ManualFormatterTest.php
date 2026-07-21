@@ -613,6 +613,89 @@ class ManualFormatterTest extends TestCase
         }
     }
 
+    public function testHyperlinksManualReferencesInDescriptions()
+    {
+        LinkFormatter::setStyles([
+            'class'    => 'fg=blue;options=underscore',
+            'function' => '',
+            'info'     => 'fg=green;options=bold',
+            'strong'   => 'options=bold',
+        ]);
+
+        $manualIds = [
+            'DateTimeInterface::format',
+            'PHP_VERSION',
+            'Random\\Engine\\Mt19937::generate',
+            'time',
+        ];
+        $manual = $this->getMockBuilder(\Psy\Manual\ManualInterface::class)->getMock();
+        $manual->method('get')
+            ->willReturnCallback(function ($id) use ($manualIds) {
+                if (\in_array($id, $manualIds, true)) {
+                    return ['type' => 'function', 'description' => 'Test'];
+                }
+
+                return null;
+            });
+
+        $formatter = new ManualFormatter(100, $manual);
+        $data = [
+            'type'        => 'function',
+            'description' => 'Use <classname>DateTimeImmutable</classname> with <function>time</function> and <constant>PHP_VERSION</constant>. '.
+                'Then call DateTimeInterface::format or Random\\Engine\\Mt19937::generate, but not MissingClass::method().',
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('DateTimeImmutable', $result);
+        $this->assertStringContainsString('time()', $result);
+        $this->assertStringContainsString('PHP_VERSION', $result);
+        $this->assertStringContainsString('DateTimeInterface::format', $result);
+        $this->assertStringContainsString('Random\\Engine\\Mt19937::generate', $result);
+        $this->assertStringContainsString('MissingClass::method()', $result);
+
+        if (LinkFormatter::supportsLinks()) {
+            $this->assertStringContainsString('href=https://php.net/datetimeimmutable', $result);
+            $this->assertStringContainsString('href=https://php.net/time', $result);
+            $this->assertStringContainsString('href=https://php.net/php-version', $result);
+            $this->assertStringContainsString('href=https://php.net/datetimeinterface.format', $result);
+            $this->assertStringContainsString('href=https://php.net/random-engine-mt19937.generate', $result);
+            $this->assertStringNotContainsString('href=https://php.net/missingclass.method', $result);
+        }
+    }
+
+    public function testManualReferencesRemainStyledWithoutManual()
+    {
+        $formatter = new ManualFormatter(100, null);
+        $data = [
+            'type'        => 'function',
+            'description' => 'Use <classname>DateTimeImmutable</classname> with <function>time</function> and DateTimeInterface::format.',
+        ];
+
+        $result = $formatter->format($data);
+
+        $this->assertStringContainsString('<class>DateTimeImmutable</class>', $result);
+        $this->assertStringContainsString('<strong>time()</strong>', $result);
+        $this->assertStringContainsString('DateTimeInterface::format', $result);
+        $this->assertStringNotContainsString('href=', $result);
+    }
+
+    public function testUnresolvedSeeAlsoClassRemainsUnlinked()
+    {
+        $manual = $this->getMockBuilder(\Psy\Manual\ManualInterface::class)->getMock();
+        $manual->method('get')->willReturn(null);
+
+        $formatter = new ManualFormatter(100, $manual);
+        $result = $formatter->format([
+            'type'        => 'function',
+            'description' => 'Test function.',
+            'seeAlso'     => ['<classname>DateTimeImmutable</classname>'],
+        ]);
+
+        $this->assertStringContainsString('<class>DateTimeImmutable</class>', $result);
+        $this->assertStringNotContainsString('href=', $result);
+    }
+
     public function testFormatterCapsWidthAtMaximum()
     {
         $formatter = new ManualFormatter(200); // Request very wide terminal
