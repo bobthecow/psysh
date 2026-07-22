@@ -22,6 +22,8 @@ use Psy\Configuration;
 use Psy\Context;
 use Psy\Exception\UnexpectedTargetException;
 use Psy\Manual\ManualInterface;
+use Psy\Readline\Interactive\ManualPager;
+use Psy\Readline\InteractiveReadline;
 use Psy\Shell;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -66,6 +68,20 @@ class DocCommandTest extends TestCase
         $this->assertContains('man', $this->command->getAliases());
         $this->assertNotEmpty($this->command->getDescription());
         $this->assertNotEmpty($this->command->getHelp());
+    }
+
+    public function testUsesDedicatedManualPagerWithInteractiveReadline(): void
+    {
+        $readline = $this->createMock(InteractiveReadline::class);
+        $readline->expects($this->once())
+            ->method('getManualPager')
+            ->willReturn($this->createMock(ManualPager::class));
+        $this->command->setReadline($readline);
+
+        $tester = new CommandTester($this->command);
+        $tester->execute(['target' => 'Psy\\Context']);
+
+        $this->assertStringContainsString('Context', $tester->getDisplay());
     }
 
     public function testDocClass()

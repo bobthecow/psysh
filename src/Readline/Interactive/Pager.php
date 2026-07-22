@@ -91,7 +91,7 @@ class Pager
         }
 
         // Inline path: small content prints without entering interactive mode.
-        if ($this->fitsInline($lines)) {
+        if ($this->shouldDisplayInline($lines)) {
             foreach ($lines as $line) {
                 $this->terminal->write($line."\n");
             }
@@ -115,7 +115,7 @@ class Pager
             }
             $this->terminal->enableAltScreen();
             $altScreenEnabled = true;
-            $this->terminal->enableMouseReporting();
+            $this->terminal->enableMouseReporting($this->reportsPointerMotion());
             $mouseReportingEnabled = true;
 
             $this->render();
@@ -272,6 +272,7 @@ class Pager
         $this->currentMatchIndex = -1;
         $this->quitting = false;
         $this->exitMode = self::EXIT_GRACEFUL;
+        $this->resetTransientState();
     }
 
     /**
@@ -300,7 +301,7 @@ class Pager
         $widget = new PagerWidget(
             $this->terminal,
             $this->frameRenderer->getLineMetrics(),
-            $this->lines,
+            $this->prepareLinesForRender($this->lines),
             $this->scrollOffset,
             $this->searchQuery,
             $this->searchInputActive,
@@ -468,25 +469,35 @@ class Pager
 
             return;
         }
-        $this->scrollOffset = \min($max, $this->scrollOffset + $count);
+        $this->setScrollOffset(\min($max, $this->scrollOffset + $count));
     }
 
     private function scrollUpLines(int $count): void
     {
-        $this->scrollOffset = \max(0, $this->scrollOffset - $count);
+        $this->setScrollOffset(\max(0, $this->scrollOffset - $count));
     }
 
     private function jumpToTop(): void
     {
-        $this->scrollOffset = 0;
+        $this->setScrollOffset(0);
     }
 
     private function jumpToBottom(): void
     {
-        $this->scrollOffset = $this->maxScrollOffset();
+        $this->setScrollOffset($this->maxScrollOffset());
     }
 
-    private function quitGracefully(): void
+    private function setScrollOffset(int $offset): void
+    {
+        if ($offset === $this->scrollOffset) {
+            return;
+        }
+
+        $this->scrollOffset = $offset;
+        $this->resetTransientState();
+    }
+
+    protected function quitGracefully(): void
     {
         $this->exitMode = self::EXIT_GRACEFUL;
         $this->quitting = true;
@@ -498,8 +509,51 @@ class Pager
         $this->quitting = true;
     }
 
+    /**
+     * Map a 1-indexed terminal coordinate to stored content.
+     *
+     * @return array{text: string, offset: int, line: int}|null
+     */
+    protected function contentPositionAt(int $column, int $row): ?array
+    {
+        $width = $this->frameRenderer->getLineMetrics()->getTerminalWidth();
+        $viewportRows = $this->viewportHeight();
+        if ($column < 1 || $column > $width || $row < 1 || $row > $viewportRows) {
+            return null;
+        }
+
+        $lineMetrics = $this->frameRenderer->getLineMetrics();
+        $rowsUsed = 0;
+        for ($i = $this->scrollOffset, $count = \count($this->lines); $i < $count; $i++) {
+            $lineRows = $lineMetrics->lineRowCount($this->lines[$i]);
+
+            // PagerWidget does not render a line when it cannot fit in the
+            // remaining viewport. Oversized first lines are rendered without
+            // their original formatting, so they have no stable content offset.
+            if ($lineRows > $viewportRows - $rowsUsed) {
+                return null;
+            }
+
+            if ($row - 1 < $rowsUsed + $lineRows) {
+                $wrappedRow = $row - 1 - $rowsUsed;
+                $offset = ($wrappedRow * $width) + $column - 1;
+
+                return [
+                    'text'   => $this->lines[$i],
+                    'offset' => $offset,
+                    'line'   => $i,
+                ];
+            }
+
+            $rowsUsed += $lineRows;
+        }
+
+        return null;
+    }
+
     private function beginSearch(): void
     {
+        $this->resetTransientState();
         $this->searchInputActive = true;
         $this->searchQuery = '';
         $this->matches = [];
@@ -616,7 +670,7 @@ class Pager
 
         // Above the viewport: scroll up so the match becomes the top line.
         if ($line < $this->scrollOffset) {
-            $this->scrollOffset = $line;
+            $this->setScrollOffset($line);
 
             return;
         }
@@ -644,7 +698,7 @@ class Pager
             $newScroll--;
         }
 
-        $this->scrollOffset = \min($this->maxScrollOffset(), $newScroll);
+        $this->setScrollOffset(\min($this->maxScrollOffset(), $newScroll));
     }
 
     private function buildBrowseBindings(): ClosureKeyBindings
@@ -669,6 +723,14 @@ class Pager
         $bindings->bind(fn () => $this->abort(), 'control:c', 'escape:');
 
         return $bindings;
+    }
+
+    /**
+     * Queue input events for the readline loop after the pager exits.
+     */
+    protected function replayInput(InputEvent $event, InputEvent ...$events): void
+    {
+        $this->inputQueue->replay($event, ...$events);
     }
 
     private function buildSearchInputBindings(): ClosureKeyBindings

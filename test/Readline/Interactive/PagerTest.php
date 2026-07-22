@@ -57,6 +57,7 @@ class PagerTest extends TestCase
         $terminal = $this->createMock(Terminal::class);
         $terminal->method('getHeight')->willReturn(10);
         $terminal->method('getWidth')->willReturn(40);
+        $terminal->expects($this->once())->method('enableMouseReporting')->with(false);
 
         $session = $this->createMock(InteractiveSession::class);
         $session->expects($this->once())->method('start');

@@ -32,7 +32,7 @@ class Terminal
     private StreamOutput $output;
     private bool $bracketedPasteEnabled = false;
     private bool $altScreenEnabled = false;
-    private bool $mouseReportingEnabled = false;
+    private ?int $mouseReportingMode = null;
     private bool $useUnicode = true;
     private SymfonyTerminal $symfonyTerminal;
     private Cursor $cursor;
@@ -398,18 +398,17 @@ class Terminal
     }
 
     /**
-     * Enable button-and-wheel mouse reporting in SGR (1006) mode.
-     *
-     * Pager turns this on while it owns the screen so wheel events become
-     * keys.
+     * Enable SGR button and wheel reporting, optionally including pointer
+     * motion for interactive hover states.
      */
-    public function enableMouseReporting(): void
+    public function enableMouseReporting(bool $motion = false): void
     {
-        if (!$this->mouseReportingEnabled) {
-            // 1000: button press/release events.
+        if ($this->mouseReportingMode === null) {
+            // 1000: button and wheel events. 1003 additionally reports
+            // pointer motion for interactive hover states.
             // 1006: SGR extended format (the only one the parser handles).
-            $this->write("\033[?1000h\033[?1006h", false);
-            $this->mouseReportingEnabled = true;
+            $this->mouseReportingMode = $motion ? 1003 : 1000;
+            $this->write("\033[?{$this->mouseReportingMode}h\033[?1006h", false);
         }
     }
 
@@ -418,9 +417,9 @@ class Terminal
      */
     public function disableMouseReporting(): void
     {
-        if ($this->mouseReportingEnabled) {
-            $this->write("\033[?1006l\033[?1000l", false);
-            $this->mouseReportingEnabled = false;
+        if ($this->mouseReportingMode !== null) {
+            $this->write("\033[?1006l\033[?{$this->mouseReportingMode}l", false);
+            $this->mouseReportingMode = null;
         }
     }
 
@@ -429,7 +428,7 @@ class Terminal
      */
     public function isMouseReportingEnabled(): bool
     {
-        return $this->mouseReportingEnabled;
+        return $this->mouseReportingMode !== null;
     }
 
     /**

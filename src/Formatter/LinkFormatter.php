@@ -79,11 +79,23 @@ class LinkFormatter
      */
     public static function getPhpNetUrl(string $item): string
     {
+        $item = self::normalizePhpNetReference($item);
+
         // Normalize the item name for URL (lowercase, namespaces and underscores to -, :: to .)
         $normalized = \str_replace(['\\', '::', '_'], ['-', '.', '-'], $item);
         $normalized = \strtolower($normalized);
 
         return 'https://php.net/'.$normalized;
+    }
+
+    /**
+     * Normalize a displayed PHP manual reference for lookup or navigation.
+     */
+    public static function normalizePhpNetReference(string $reference): string
+    {
+        $reference = \ltrim(\trim($reference), '\\');
+
+        return \substr($reference, -2) === '()' ? \substr($reference, 0, -2) : $reference;
     }
 
     /**

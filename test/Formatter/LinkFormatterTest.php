@@ -83,6 +83,7 @@ class LinkFormatterTest extends TestCase
         $this->assertSame('https://php.net/array-map', LinkFormatter::getPhpNetUrl('Array_Map'));
         $this->assertSame('https://php.net/pdo.--construct', LinkFormatter::getPhpNetUrl('PDO::__construct'));
         $this->assertSame('https://php.net/random-engine-mt19937.generate', LinkFormatter::getPhpNetUrl('Random\\Engine\\Mt19937::generate'));
+        $this->assertSame('https://php.net/datetimeimmutable', LinkFormatter::getPhpNetUrl(' \\DateTimeImmutable() '));
     }
 
     /**

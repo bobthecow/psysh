@@ -619,4 +619,13 @@ class Readline
     {
         return new Pager($this->terminal, $session, $this->inputQueue, $this->frameRenderer);
     }
+
+    /**
+     * Construct the specialized documentation pager using this Readline's
+     * terminal/input/frame collaborators.
+     */
+    public function createManualPager(InteractiveSession $session): ManualPager
+    {
+        return new ManualPager($this->terminal, $session, $this->inputQueue, $this->frameRenderer);
+    }
 }

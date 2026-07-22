@@ -22,6 +22,9 @@ use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\ManualUpdater\ManualUpdate;
 use Psy\Output\ShellOutputAdapter;
+use Psy\Readline\InteractiveReadline;
+use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Tty;
@@ -35,11 +38,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Read the documentation for an object, class, constant, method or property.
  */
-class DocCommand extends ReflectingCommand implements CommandArgumentCompletionAware
+class DocCommand extends ReflectingCommand implements CommandArgumentCompletionAware, ReadlineAware
 {
     const INHERIT_DOC_TAG = '{@inheritdoc}';
 
     private ?Configuration $config = null;
+    private ?Readline $readline = null;
     private SymbolCatalog $symbolCatalog;
     private ?string $completionCandidateCacheKey = null;
     /** @var string[] */
@@ -60,6 +64,14 @@ class DocCommand extends ReflectingCommand implements CommandArgumentCompletionA
     public function setConfiguration(Configuration $config)
     {
         $this->config = $config;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setReadline(Readline $readline)
+    {
+        $this->readline = $readline;
     }
 
     /**
@@ -192,8 +204,44 @@ HELP
 
         $hasManual = $this->getShell()->getManual() !== null;
 
-        $shellOutput->startPaging();
+        $this->pageDocumentation(
+            $shellOutput,
+            fn (OutputInterface $pagedOutput) => $this->writeReflectedDocumentation($pagedOutput, $input, $reflector, $doc, $docFromManual, $hasManual, $value)
+        );
 
+        // Set some magic local variables
+        $this->setCommandScopeVariables($reflector);
+
+        return 0;
+    }
+
+    /**
+     * Render documentation using the dedicated manual pager when the
+     * experimental readline implementation is active.
+     */
+    private function pageDocumentation(ShellOutputAdapter $shellOutput, \Closure $render): void
+    {
+        if ($this->readline instanceof InteractiveReadline) {
+            $shellOutput->pageWithPager($this->readline->getManualPager(), $render);
+
+            return;
+        }
+
+        $shellOutput->page($render);
+    }
+
+    /**
+     * @param mixed $reflector
+     */
+    private function writeReflectedDocumentation(
+        OutputInterface $output,
+        InputInterface $input,
+        $reflector,
+        ?string $doc,
+        bool $docFromManual,
+        bool $hasManual,
+        string $value
+    ): void {
         // Maybe include the declaring class
         if ($reflector instanceof \ReflectionMethod || $reflector instanceof \ReflectionProperty) {
             $output->writeln(SignatureFormatter::format($reflector->getDeclaringClass()));
@@ -215,7 +263,6 @@ HELP
 
         // Implicit --all if the original docblock has an {@inheritdoc} tag.
         if ($input->getOption('all') || ($doc && \stripos($doc, self::INHERIT_DOC_TAG) !== false)) {
-            $parent = $reflector;
             foreach ($this->getParentReflectors($reflector) as $parent) {
                 $output->writeln('');
                 $output->writeln('---');
@@ -229,18 +276,11 @@ HELP
                 $output->writeln(SignatureFormatter::format($parent));
                 $output->writeln('');
 
-                if ($doc = $this->getManualDoc($parent, $output) ?: DocblockFormatter::format($parent)) {
-                    $output->writeln($doc);
+                if ($parentDoc = $this->getManualDoc($parent, $output) ?: DocblockFormatter::format($parent)) {
+                    $output->writeln($parentDoc);
                 }
             }
         }
-
-        $shellOutput->stopPaging();
-
-        // Set some magic local variables
-        $this->setCommandScopeVariables($reflector);
-
-        return 0;
     }
 
     /**
@@ -435,7 +475,7 @@ HELP
 
     private function writeManualPageDoc(ShellOutputAdapter $shellOutput, string $doc, string $target): void
     {
-        $shellOutput->page(function (OutputInterface $pagedOutput) use ($doc, $target): void {
+        $this->pageDocumentation($shellOutput, function (OutputInterface $pagedOutput) use ($doc, $target): void {
             $pagedOutput->writeln($doc);
             $this->writeManualPageSuggestions($pagedOutput, $target);
         });

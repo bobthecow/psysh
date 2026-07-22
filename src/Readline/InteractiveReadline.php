@@ -19,6 +19,7 @@ use Psy\Readline\Interactive\Helper\DebugLog;
 use Psy\Readline\Interactive\Input\History as InteractiveHistory;
 use Psy\Readline\Interactive\Input\StdinReader;
 use Psy\Readline\Interactive\InteractiveSession;
+use Psy\Readline\Interactive\ManualPager;
 use Psy\Readline\Interactive\Pager;
 use Psy\Readline\Interactive\Readline as InternalReadline;
 use Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource;
@@ -45,6 +46,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
     private Terminal $terminal;
     private InteractiveSession $session;
     private ?Pager $pager = null;
+    private ?ManualPager $manualPager = null;
     /** @var string|false */
     private $historyFile;
     /** @var string|false */
@@ -277,6 +279,23 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
         }
 
         return $this->pager;
+    }
+
+    /**
+     * Get the pager dedicated to documentation output.
+     *
+     * ManualPager is independent of the configured general-purpose pager so
+     * documentation can provide richer navigation without changing paging
+     * behavior for history, source listings, or other command output.
+     */
+    public function getManualPager(): ManualPager
+    {
+        $this->assertBooted();
+        if ($this->manualPager === null) {
+            $this->manualPager = $this->readline->createManualPager($this->session);
+        }
+
+        return $this->manualPager;
     }
 
     /**

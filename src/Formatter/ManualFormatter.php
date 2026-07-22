@@ -1022,10 +1022,7 @@ class ManualFormatter
             return null;
         }
 
-        $id = \ltrim(\trim($reference), '\\');
-        if (\substr($id, -2) === '()') {
-            $id = \substr($id, 0, -2);
-        }
+        $id = LinkFormatter::normalizePhpNetReference($reference);
 
         if ($requireManualEntry) {
             if ($this->manual->get($id) === null) {
