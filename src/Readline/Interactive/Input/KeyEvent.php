@@ -14,14 +14,11 @@ namespace Psy\Readline\Interactive\Input;
 /**
  * Represents a key press.
  */
-class Key
+class KeyEvent extends InputEvent
 {
     public const TYPE_CHAR = 'char';
     public const TYPE_CONTROL = 'control';
     public const TYPE_ESCAPE = 'escape';
-    public const TYPE_EOF = 'eof';
-    public const TYPE_PASTE = 'paste';
-    public const TYPE_MOUSE = 'mouse';
 
     private string $value;
     private string $type;
@@ -73,36 +70,12 @@ class Key
     }
 
     /**
-     * Check if this is an EOF signal.
-     */
-    public function isEof(): bool
-    {
-        return $this->type === self::TYPE_EOF;
-    }
-
-    /**
-     * Check if this is pasted content.
-     */
-    public function isPaste(): bool
-    {
-        return $this->type === self::TYPE_PASTE;
-    }
-
-    /**
-     * Check if this is a mouse event.
-     */
-    public function isMouse(): bool
-    {
-        return $this->type === self::TYPE_MOUSE;
-    }
-
-    /**
      * Create a normalized copy of a key.
      */
-    public static function normalized(self $key): self
+    public function normalized(): self
     {
-        $value = $key->value;
-        $type = $key->type;
+        $value = $this->value;
+        $type = $this->type;
 
         // Normalize CR to LF for deterministic line-accept handling.
         if ($type === self::TYPE_CHAR && $value === "\r") {
@@ -134,6 +107,6 @@ class Key
             return 'char:'.$this->value;
         }
 
-        return $this->type.':'.$this->value;
+        throw new \LogicException(\sprintf('Unsupported key type: %s', $this->type));
     }
 }

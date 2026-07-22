@@ -67,7 +67,7 @@ class KeyBindings
     /**
      * Get the action bound to a key.
      */
-    public function get(Key $key): ?ActionInterface
+    public function get(KeyEvent $key): ?ActionInterface
     {
         return $this->bindings[(string) $key] ?? null;
     }

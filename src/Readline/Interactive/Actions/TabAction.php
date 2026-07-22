@@ -16,7 +16,7 @@ use Psy\Completion\CompletionRequest;
 use Psy\Completion\FuzzyMatcher;
 use Psy\Readline\Interactive\Helper\CurrentWord;
 use Psy\Readline\Interactive\Input\Buffer;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\ReadlineMode;
 use Psy\Readline\Interactive\Renderer\CompletionMenuWidget;
@@ -242,7 +242,7 @@ class TabAction implements ActionInterface, ReadlineMode
      * One iteration of the menu loop: update selection / filter / scroll
      * for the key, or return false/null to leave the menu.
      */
-    public function handleKey(Key $key, Buffer $buffer): ?bool
+    public function handleKey(KeyEvent $key, Buffer $buffer): ?bool
     {
         $keyStr = (string) $key;
         $keyValue = $key->getValue();

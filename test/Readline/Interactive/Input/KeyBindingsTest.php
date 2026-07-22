@@ -17,8 +17,8 @@ use Psy\Readline\Interactive\Actions\InsertLineBreakAction;
 use Psy\Readline\Interactive\HistorySearch;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
-use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\KeyBindings;
+use Psy\Readline\Interactive\Input\KeyEvent;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
@@ -48,11 +48,11 @@ class KeyBindingsTest extends TestCase
 
         $this->assertInstanceOf(
             FallbackAction::class,
-            $bindings->get(new Key("\n", Key::TYPE_CHAR))
+            $bindings->get(new KeyEvent("\n", KeyEvent::TYPE_CHAR))
         );
         $this->assertInstanceOf(
             FallbackAction::class,
-            $bindings->get(new Key("\r", Key::TYPE_CHAR))
+            $bindings->get(new KeyEvent("\r", KeyEvent::TYPE_CHAR))
         );
     }
 
@@ -62,23 +62,23 @@ class KeyBindingsTest extends TestCase
 
         $this->assertInstanceOf(
             InsertLineBreakAction::class,
-            $bindings->get(new Key("\033[13;2u", Key::TYPE_ESCAPE))
+            $bindings->get(new KeyEvent("\033[13;2u", KeyEvent::TYPE_ESCAPE))
         );
         $this->assertInstanceOf(
             InsertLineBreakAction::class,
-            $bindings->get(new Key("\033[13;2~", Key::TYPE_ESCAPE))
+            $bindings->get(new KeyEvent("\033[13;2~", KeyEvent::TYPE_ESCAPE))
         );
         $this->assertInstanceOf(
             InsertLineBreakAction::class,
-            $bindings->get(new Key("\033[27;2;13~", Key::TYPE_ESCAPE))
+            $bindings->get(new KeyEvent("\033[27;2;13~", KeyEvent::TYPE_ESCAPE))
         );
         $this->assertInstanceOf(
             InsertLineBreakAction::class,
-            $bindings->get(new Key("\033\r", Key::TYPE_ESCAPE))
+            $bindings->get(new KeyEvent("\033\r", KeyEvent::TYPE_ESCAPE))
         );
         $this->assertInstanceOf(
             InsertLineBreakAction::class,
-            $bindings->get(new Key("\033\n", Key::TYPE_ESCAPE))
+            $bindings->get(new KeyEvent("\033\n", KeyEvent::TYPE_ESCAPE))
         );
     }
 
@@ -88,14 +88,14 @@ class KeyBindingsTest extends TestCase
 
         $this->assertInstanceOf(
             FallbackAction::class,
-            $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE))
+            $bindings->get(new KeyEvent("\033[C", KeyEvent::TYPE_ESCAPE))
         );
     }
 
     public function testRightArrowAcceptsSuggestionWhenAvailable(): void
     {
         $bindings = $this->createDefaultBindings();
-        $action = $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE));
+        $action = $bindings->get(new KeyEvent("\033[C", KeyEvent::TYPE_ESCAPE));
         $this->assertNotNull($action);
 
         $buffer = new Buffer();
@@ -117,7 +117,7 @@ class KeyBindingsTest extends TestCase
     public function testRightArrowFallsBackToMoveRightWhenNoSuggestion(): void
     {
         $bindings = $this->createDefaultBindings();
-        $action = $bindings->get(new Key("\033[C", Key::TYPE_ESCAPE));
+        $action = $bindings->get(new KeyEvent("\033[C", KeyEvent::TYPE_ESCAPE));
         $this->assertNotNull($action);
 
         $buffer = new Buffer();
@@ -138,7 +138,7 @@ class KeyBindingsTest extends TestCase
     public function testEnterActionCanSubmitLine(): void
     {
         $bindings = $this->createDefaultBindings();
-        $action = $bindings->get(new Key("\n", Key::TYPE_CHAR));
+        $action = $bindings->get(new KeyEvent("\n", KeyEvent::TYPE_CHAR));
         $this->assertNotNull($action);
 
         $buffer = new Buffer();
@@ -161,7 +161,7 @@ class KeyBindingsTest extends TestCase
 
         $this->assertInstanceOf(
             FallbackAction::class,
-            $bindings->get(new Key("\x04", Key::TYPE_CONTROL))
+            $bindings->get(new KeyEvent("\x04", KeyEvent::TYPE_CONTROL))
         );
     }
 }

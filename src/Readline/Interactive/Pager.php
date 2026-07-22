@@ -12,9 +12,13 @@
 namespace Psy\Readline\Interactive;
 
 use Psy\Readline\Interactive\Input\ClosureKeyBindings;
+use Psy\Readline\Interactive\Input\EofEvent;
 use Psy\Readline\Interactive\Input\History;
+use Psy\Readline\Interactive\Input\InputEvent;
 use Psy\Readline\Interactive\Input\InputQueue;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
+use Psy\Readline\Interactive\Input\MouseEvent;
+use Psy\Readline\Interactive\Input\PasteEvent;
 use Psy\Readline\Interactive\Layout\DisplayString;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\PagerWidget;
@@ -117,14 +121,14 @@ class Pager
             $this->render();
 
             while (!$this->quitting) {
-                $key = $this->inputQueue->read();
-                if ($key->isEof()) {
+                $event = $this->inputQueue->read();
+                if ($event instanceof EofEvent) {
                     $this->exitMode = self::EXIT_ABORTED;
                     break;
                 }
 
-                $this->handleKey($key);
-                if (!$this->quitting) {
+                $shouldRender = $this->handleEvent($event);
+                if (!$this->quitting && $shouldRender) {
                     $this->render();
                 }
             }
@@ -148,31 +152,50 @@ class Pager
     }
 
     /**
-     * Dispatch a single key. Public for testability; production goes
+     * Dispatch a single input event. Public for testability; production goes
      * through page().
      *
      * @internal
      */
-    public function handleKey(Key $key): void
+    public function handleEvent(InputEvent $event): bool
     {
+        if ($event instanceof MouseEvent) {
+            return !$this->searchInputActive && $this->handleMouseEvent($event);
+        }
+
+        if (!$event instanceof KeyEvent) {
+            if ($event instanceof PasteEvent || $event instanceof EofEvent) {
+                return false;
+            }
+
+            throw new \LogicException(\sprintf('Unsupported input event: %s', \get_class($event)));
+        }
+
+        $key = $event;
         if ($this->searchInputActive) {
             $action = $this->searchInputBindings->get($key);
             if ($action !== null) {
                 $action($key);
 
-                return;
+                return true;
             }
-            if ($key->isChar() && !$key->isControl()) {
+            if ($key->isChar()) {
                 $this->appendToSearch($key->getValue());
+
+                return true;
             }
 
-            return;
+            return false;
         }
 
         $action = $this->browseBindings->get($key);
         if ($action !== null) {
             $action($key);
+
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -286,6 +309,63 @@ class Pager
             $this->currentMatchIndex,
         );
         $this->frameRenderer->renderFullScreenWidget($widget);
+    }
+
+    /**
+     * Decide whether content should bypass the interactive pager.
+     *
+     * @param string[] $lines
+     */
+    protected function shouldDisplayInline(array $lines): bool
+    {
+        return $this->fitsInline($lines);
+    }
+
+    /**
+     * Whether the terminal should report pointer motion as well as clicks.
+     */
+    protected function reportsPointerMotion(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Handle a mouse event.
+     */
+    protected function handleMouseEvent(MouseEvent $event): bool
+    {
+        if ($event->getAction() === MouseEvent::ACTION_WHEEL_DOWN) {
+            $this->scrollDownLines(3);
+
+            return true;
+        }
+        if ($event->getAction() === MouseEvent::ACTION_WHEEL_UP) {
+            $this->scrollUpLines(3);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Allow specialized pagers to decorate a render without changing the
+     * stored content that is later emitted to scrollback.
+     *
+     * @param string[] $lines
+     *
+     * @return string[]
+     */
+    protected function prepareLinesForRender(array $lines): array
+    {
+        return $lines;
+    }
+
+    /**
+     * Reset ephemeral state owned by a specialized pager.
+     */
+    protected function resetTransientState(): void
+    {
     }
 
     private function viewportHeight(): int
@@ -580,9 +660,6 @@ class Pager
 
         $bindings->bind(fn () => $this->jumpToTop(), 'char:g', 'escape:[H', 'escape:[1~');
         $bindings->bind(fn () => $this->jumpToBottom(), 'char:G', 'escape:[F', 'escape:[4~');
-
-        $bindings->bind(fn () => $this->scrollDownLines(3), 'mouse:wheel-down');
-        $bindings->bind(fn () => $this->scrollUpLines(3), 'mouse:wheel-up');
 
         $bindings->bind(fn () => $this->beginSearch(), 'char:/', 'control:r', 'control:s');
         $bindings->bind(fn () => $this->nextMatch(), 'char:n');

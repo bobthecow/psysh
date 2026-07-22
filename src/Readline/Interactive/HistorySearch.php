@@ -14,7 +14,7 @@ namespace Psy\Readline\Interactive;
 use Psy\Output\Theme;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
 use Psy\Readline\Interactive\Input\WordNavigationPolicy;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\HistorySearchOverlayWidget;
@@ -115,7 +115,7 @@ class HistorySearch implements ReadlineMode
     /**
      * {@inheritdoc}
      */
-    public function handleKey(Key $key, Buffer $buffer): ?bool
+    public function handleKey(KeyEvent $key, Buffer $buffer): ?bool
     {
         $value = $key->getValue();
         $keyStr = (string) $key;

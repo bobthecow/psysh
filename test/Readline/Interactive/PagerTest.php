@@ -11,8 +11,11 @@
 
 namespace Psy\Test\Readline\Interactive;
 
+use Psy\Readline\Interactive\Input\EofEvent;
+use Psy\Readline\Interactive\Input\InputEvent;
 use Psy\Readline\Interactive\Input\InputQueue;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
+use Psy\Readline\Interactive\Input\MouseEvent;
 use Psy\Readline\Interactive\InteractiveSession;
 use Psy\Readline\Interactive\Pager;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
@@ -36,7 +39,7 @@ class PagerTest extends TestCase
         $this->pager = new Pager(
             $terminal,
             $this->createMock(InteractiveSession::class),
-            $this->createMock(InputQueue::class),
+            new InputQueue($terminal),
             $frameRenderer,
         );
     }
@@ -44,7 +47,7 @@ class PagerTest extends TestCase
     public function testScrollDownAdvancesOffset(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('j', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('j', KeyEvent::TYPE_CHAR));
 
         $this->assertSame(1, $this->pager->getScrollOffset());
     }
@@ -62,7 +65,7 @@ class PagerTest extends TestCase
         $inputQueue = $this->createMock(InputQueue::class);
         $inputQueue->expects($this->once())
             ->method('read')
-            ->willReturn(new Key('', Key::TYPE_EOF));
+            ->willReturn(new EofEvent());
 
         $frameRenderer = $this->createMock(FrameRenderer::class);
         $frameRenderer->method('getLineMetrics')->willReturn(new LineMetrics($terminal));
@@ -104,7 +107,7 @@ class PagerTest extends TestCase
     public function testArrowDownAlsoScrolls(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key("\x1b[B", Key::TYPE_ESCAPE));
+        $this->pager->handleEvent(new KeyEvent("\x1b[B", KeyEvent::TYPE_ESCAPE));
 
         $this->assertSame(1, $this->pager->getScrollOffset());
     }
@@ -112,7 +115,7 @@ class PagerTest extends TestCase
     public function testScrollUpClampsAtZero(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('k', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('k', KeyEvent::TYPE_CHAR));
 
         $this->assertSame(0, $this->pager->getScrollOffset());
     }
@@ -120,7 +123,7 @@ class PagerTest extends TestCase
     public function testPageDownAdvancesByViewport(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key(' ', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent(' ', KeyEvent::TYPE_CHAR));
 
         // Terminal height 10 gives a 9-row viewport, so page-down moves by
         // max(1, 9 - 1) rows.
@@ -130,7 +133,7 @@ class PagerTest extends TestCase
     public function testJumpToBottomGoesToMaxScroll(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('G', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('G', KeyEvent::TYPE_CHAR));
 
         // 50 - 9 = 41.
         $this->assertSame(41, $this->pager->getScrollOffset());
@@ -139,8 +142,8 @@ class PagerTest extends TestCase
     public function testJumpToTopFromMiddle(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('G', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('g', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('G', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('g', KeyEvent::TYPE_CHAR));
 
         $this->assertSame(0, $this->pager->getScrollOffset());
     }
@@ -148,7 +151,7 @@ class PagerTest extends TestCase
     public function testQuitOnQIsGraceful(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('q', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('q', KeyEvent::TYPE_CHAR));
 
         $this->assertTrue($this->pager->isQuitting());
         $this->assertSame('graceful', $this->pager->getExitMode());
@@ -157,7 +160,7 @@ class PagerTest extends TestCase
     public function testCtrlCAborts(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key("\x03", Key::TYPE_CONTROL));
+        $this->pager->handleEvent(new KeyEvent("\x03", KeyEvent::TYPE_CONTROL));
 
         $this->assertTrue($this->pager->isQuitting());
         $this->assertSame('aborted', $this->pager->getExitMode());
@@ -166,7 +169,7 @@ class PagerTest extends TestCase
     public function testEscapeAborts(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key("\x1b", Key::TYPE_ESCAPE));
+        $this->pager->handleEvent(new KeyEvent("\x1b", KeyEvent::TYPE_ESCAPE));
 
         $this->assertSame('aborted', $this->pager->getExitMode());
     }
@@ -174,8 +177,8 @@ class PagerTest extends TestCase
     public function testScrollDownPastBottomQuitsGracefully(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('G', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('j', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('G', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('j', KeyEvent::TYPE_CHAR));
 
         $this->assertTrue($this->pager->isQuitting());
         $this->assertSame('graceful', $this->pager->getExitMode());
@@ -184,7 +187,7 @@ class PagerTest extends TestCase
     public function testSlashEntersSearchInput(): void
     {
         $this->pager->resetState(['foo', 'bar']);
-        $this->pager->handleKey(new Key('/', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
 
         $this->assertTrue($this->pager->isSearchInputActive());
     }
@@ -192,9 +195,9 @@ class PagerTest extends TestCase
     public function testTypingExtendsSearchQuery(): void
     {
         $this->pager->resetState(['foo', 'bar', 'foobar']);
-        $this->pager->handleKey(new Key('/', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('f', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('o', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('f', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('o', KeyEvent::TYPE_CHAR));
 
         $this->assertSame('fo', $this->pager->getSearchQuery());
         $this->assertSame(2, $this->pager->getMatchCount());
@@ -203,9 +206,9 @@ class PagerTest extends TestCase
     public function testEnterCommitsSearch(): void
     {
         $this->pager->resetState(['foo', 'bar']);
-        $this->pager->handleKey(new Key('/', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('f', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key("\r", Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('f', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent("\r", KeyEvent::TYPE_CHAR));
 
         $this->assertFalse($this->pager->isSearchInputActive());
     }
@@ -213,9 +216,9 @@ class PagerTest extends TestCase
     public function testEscapeInSearchInputCancels(): void
     {
         $this->pager->resetState(['foo']);
-        $this->pager->handleKey(new Key('/', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('f', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key("\x1b", Key::TYPE_ESCAPE));
+        $this->pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('f', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent("\x1b", KeyEvent::TYPE_ESCAPE));
 
         $this->assertFalse($this->pager->isSearchInputActive());
         $this->assertSame('', $this->pager->getSearchQuery());
@@ -226,10 +229,10 @@ class PagerTest extends TestCase
     public function testBackspaceTrimsSearchQuery(): void
     {
         $this->pager->resetState(['foo']);
-        $this->pager->handleKey(new Key('/', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('f', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('o', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key("\x7f", Key::TYPE_CONTROL));
+        $this->pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('f', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('o', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent("\x7f", KeyEvent::TYPE_CONTROL));
 
         $this->assertSame('f', $this->pager->getSearchQuery());
     }
@@ -237,7 +240,7 @@ class PagerTest extends TestCase
     public function testMouseWheelDownScrolls(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('wheel-down', Key::TYPE_MOUSE));
+        $this->pager->handleEvent(new MouseEvent(MouseEvent::ACTION_WHEEL_DOWN, 1, 1));
 
         // Three lines per wheel tick.
         $this->assertSame(3, $this->pager->getScrollOffset());
@@ -246,11 +249,29 @@ class PagerTest extends TestCase
     public function testMouseWheelUpScrolls(): void
     {
         $this->pager->resetState(\array_fill(0, 50, 'line'));
-        $this->pager->handleKey(new Key('G', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('G', KeyEvent::TYPE_CHAR));
         $offsetAtBottom = $this->pager->getScrollOffset();
-        $this->pager->handleKey(new Key('wheel-up', Key::TYPE_MOUSE));
+        $this->pager->handleEvent(new MouseEvent(MouseEvent::ACTION_WHEEL_UP, 1, 1));
 
         $this->assertSame($offsetAtBottom - 3, $this->pager->getScrollOffset());
+    }
+
+    public function testGenericPagerDoesNotFollowManualLinks(): void
+    {
+        $link = "\033]8;;https://php.net/time\033\\time()\033]8;;\033\\";
+        $this->pager->resetState([$link]);
+
+        $this->assertFalse($this->pager->handleEvent(new MouseEvent(MouseEvent::ACTION_RELEASE_LEFT, 1, 1)));
+        $this->assertFalse($this->pager->isQuitting());
+    }
+
+    public function testRejectsUnknownInputEvents(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Unsupported input event');
+
+        $this->pager->handleEvent(new class() extends InputEvent {
+        });
     }
 
     public function testSearchScrollsToFirstMatch(): void
@@ -258,10 +279,10 @@ class PagerTest extends TestCase
         $lines = \array_fill(0, 30, 'noise');
         $lines[25] = 'needle';
         $this->pager->resetState($lines);
-        $this->pager->handleKey(new Key('/', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('n', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('e', Key::TYPE_CHAR));
-        $this->pager->handleKey(new Key('e', Key::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('n', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('e', KeyEvent::TYPE_CHAR));
+        $this->pager->handleEvent(new KeyEvent('e', KeyEvent::TYPE_CHAR));
 
         $this->assertSame(1, $this->pager->getMatchCount());
         $this->assertGreaterThan(0, $this->pager->getScrollOffset());
@@ -290,11 +311,11 @@ class PagerTest extends TestCase
         $lines[50] = \str_repeat('x', 50).' needle '.\str_repeat('y', 30);
         $pager->resetState($lines);
 
-        $pager->handleKey(new Key('/', Key::TYPE_CHAR));
+        $pager->handleEvent(new KeyEvent('/', KeyEvent::TYPE_CHAR));
         foreach (\str_split('needle') as $c) {
-            $pager->handleKey(new Key($c, Key::TYPE_CHAR));
+            $pager->handleEvent(new KeyEvent($c, KeyEvent::TYPE_CHAR));
         }
-        $pager->handleKey(new Key("\r", Key::TYPE_CHAR));
+        $pager->handleEvent(new KeyEvent("\r", KeyEvent::TYPE_CHAR));
 
         // Match is at line 50; with 3-row lines and a 9-row viewport, three
         // lines fit. ScrollOffset 48 puts lines 48,49,50 in view.

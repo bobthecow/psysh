@@ -22,10 +22,13 @@ use Psy\Readline\Interactive\Actions\PreviousHistoryAction;
 use Psy\Readline\Interactive\Actions\SelfInsertAction;
 use Psy\Readline\Interactive\Actions\TabAction;
 use Psy\Readline\Interactive\Input\Buffer;
+use Psy\Readline\Interactive\Input\EofEvent;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Input\InputQueue;
-use Psy\Readline\Interactive\Input\Key;
 use Psy\Readline\Interactive\Input\KeyBindings;
+use Psy\Readline\Interactive\Input\KeyEvent;
+use Psy\Readline\Interactive\Input\MouseEvent;
+use Psy\Readline\Interactive\Input\PasteEvent;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
 use Psy\Readline\Interactive\Renderer\WidgetInterface;
@@ -300,24 +303,32 @@ class Readline
 
         try {
             while (true) {
-                $key = $this->inputQueue->read();
+                $event = $this->inputQueue->read();
 
-                if ($key->isEof()) {
+                if ($event instanceof EofEvent) {
                     $this->escapeCurrentFrameForAbort($buffer);
 
                     return false;
                 }
 
-                // Any keystroke clears error mode
-                $this->setInputFrameError(false);
-
-                if ($key->isPaste()) {
-                    $this->handlePastedContent($key->getValue(), $buffer);
+                if ($event instanceof PasteEvent) {
+                    $this->setInputFrameError(false);
+                    $this->handlePastedContent($event->getContent(), $buffer);
                     $this->syncMultilineMode($buffer->getText());
                     $this->display($buffer);
                     continue;
                 }
 
+                if ($event instanceof MouseEvent) {
+                    // Ignore delayed reports from an interactive widget.
+                    continue;
+                }
+                if (!$event instanceof KeyEvent) {
+                    throw new \LogicException(\sprintf('Unsupported input event: %s', \get_class($event)));
+                }
+
+                $key = $event;
+                $this->setInputFrameError(false);
                 $mode = $this->activeMode();
                 if ($mode !== null) {
                     $result = $mode->handleKey($key, $buffer);
@@ -326,7 +337,7 @@ class Readline
                     } else {
                         $this->popMode();
                         if ($result === null) {
-                            $this->replayKey($key);
+                            $this->inputQueue->replay($key);
                         }
                         $this->syncMultilineMode($buffer->getText());
                         $this->display($buffer);
@@ -420,22 +431,6 @@ class Readline
     public function clearOverlay(Buffer $buffer): void
     {
         $this->setOverlay($buffer, null);
-    }
-
-    /**
-     * Read the next key event from the queue.
-     */
-    public function readNextKey(): Key
-    {
-        return $this->inputQueue->read();
-    }
-
-    /**
-     * Replay a key event so the main loop can consume it.
-     */
-    public function replayKey(Key $key): void
-    {
-        $this->inputQueue->replay($key);
     }
 
     /**

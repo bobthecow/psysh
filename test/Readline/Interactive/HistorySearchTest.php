@@ -17,7 +17,7 @@ use Psy\Readline\Interactive\Actions\ReverseSearchAction;
 use Psy\Readline\Interactive\HistorySearch;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\History;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Renderer\FrameRenderer;
 use Psy\Readline\Interactive\Renderer\OverlayViewport;
@@ -239,7 +239,7 @@ class HistorySearchTest extends TestCase
         $this->search->updateQuery('echo');
 
         // Cancel via handleKey (Escape key)
-        $key = new Key("\x1b", Key::TYPE_CONTROL);
+        $key = new KeyEvent("\x1b", KeyEvent::TYPE_CONTROL);
         $this->search->handleKey($key, $buffer);
 
         $this->assertBufferState('origi<cursor>nal text', $buffer);

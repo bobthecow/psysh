@@ -11,7 +11,10 @@
 
 namespace Psy\Test\Readline\Interactive\Input;
 
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\EofEvent;
+use Psy\Readline\Interactive\Input\KeyEvent;
+use Psy\Readline\Interactive\Input\MouseEvent;
+use Psy\Readline\Interactive\Input\PasteEvent;
 use Psy\Readline\Interactive\Input\StdinReader;
 use Psy\Test\TestCase;
 
@@ -24,11 +27,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isChar());
         $this->assertSame('a', $key->getValue());
-        $this->assertSame(Key::TYPE_CHAR, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_CHAR, $key->getType());
 
         \fclose($stream);
     }
@@ -40,11 +44,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isControl());
         $this->assertSame("\x03", $key->getValue());
-        $this->assertSame(Key::TYPE_CONTROL, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_CONTROL, $key->getType());
 
         \fclose($stream);
     }
@@ -55,11 +60,9 @@ class StdinReaderTest extends TestCase
         // Don't write anything, stream is at EOF
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
-        $this->assertTrue($key->isEof());
-        $this->assertSame('', $key->getValue());
-        $this->assertSame(Key::TYPE_EOF, $key->getType());
+        $this->assertInstanceOf(EofEvent::class, $event);
 
         \fclose($stream);
     }
@@ -84,11 +87,11 @@ class StdinReaderTest extends TestCase
         // In real usage, if all this content arrives at once,
         // it would be detected as a paste. In this test environment,
         // it might just read the first character.
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
         // The test might not detect it as paste in this environment
         // but we can at least verify it doesn't crash
-        $this->assertInstanceOf(Key::class, $key);
+        $this->assertTrue($event instanceof KeyEvent || $event instanceof PasteEvent);
 
         \fclose($stream);
     }
@@ -100,11 +103,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isEscape());
         $this->assertSame("\033[A", $key->getValue());
-        $this->assertSame(Key::TYPE_ESCAPE, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_ESCAPE, $key->getType());
 
         \fclose($stream);
     }
@@ -116,11 +120,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isEscape());
         $this->assertSame("\033[13;2u", $key->getValue());
-        $this->assertSame(Key::TYPE_ESCAPE, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_ESCAPE, $key->getType());
 
         \fclose($stream);
     }
@@ -132,11 +137,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isEscape());
         $this->assertSame("\033[13;2:1u", $key->getValue());
-        $this->assertSame(Key::TYPE_ESCAPE, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_ESCAPE, $key->getType());
 
         \fclose($stream);
     }
@@ -148,11 +154,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isEscape());
         $this->assertSame("\033[27;2;13~", $key->getValue());
-        $this->assertSame(Key::TYPE_ESCAPE, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_ESCAPE, $key->getType());
 
         \fclose($stream);
     }
@@ -164,11 +171,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isEscape());
         $this->assertSame("\033\r", $key->getValue());
-        $this->assertSame(Key::TYPE_ESCAPE, $key->getType());
+        $this->assertSame(KeyEvent::TYPE_ESCAPE, $key->getType());
 
         \fclose($stream);
     }
@@ -180,9 +188,10 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $key = $input->readEvent();
 
         // Newlines are treated as regular chars, not control chars
+        $this->assertInstanceOf(KeyEvent::class, $key);
         $this->assertTrue($key->isChar());
         $this->assertSame("\n", $key->getValue());
 
@@ -204,12 +213,11 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
         // Should detect as paste
-        $this->assertTrue($key->isPaste());
-        $this->assertSame($pastedContent, $key->getValue());
-        $this->assertSame(Key::TYPE_PASTE, $key->getType());
+        $this->assertInstanceOf(PasteEvent::class, $event);
+        $this->assertSame($pastedContent, $event->getContent());
 
         \fclose($stream);
     }
@@ -226,11 +234,11 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
         // Should preserve escape sequences in the pasted content
-        $this->assertTrue($key->isPaste());
-        $this->assertSame($pastedContent, $key->getValue());
+        $this->assertInstanceOf(PasteEvent::class, $event);
+        $this->assertSame($pastedContent, $event->getContent());
 
         \fclose($stream);
     }
@@ -242,11 +250,12 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
-        $this->assertTrue($key->isMouse());
-        $this->assertSame('wheel-down', $key->getValue());
-        $this->assertSame('mouse:wheel-down', (string) $key);
+        $this->assertInstanceOf(MouseEvent::class, $event);
+        $this->assertSame(MouseEvent::ACTION_WHEEL_DOWN, $event->getAction());
+        $this->assertSame(10, $event->getColumn());
+        $this->assertSame(20, $event->getRow());
 
         \fclose($stream);
     }
@@ -258,10 +267,10 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
-        $this->assertTrue($key->isMouse());
-        $this->assertSame('wheel-up', $key->getValue());
+        $this->assertInstanceOf(MouseEvent::class, $event);
+        $this->assertSame(MouseEvent::ACTION_WHEEL_UP, $event->getAction());
 
         \fclose($stream);
     }
@@ -273,26 +282,46 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
-        $this->assertTrue($key->isMouse());
-        $this->assertSame('press-left', $key->getValue());
+        $this->assertInstanceOf(MouseEvent::class, $event);
+        $this->assertSame(MouseEvent::ACTION_PRESS_LEFT, $event->getAction());
+        $this->assertSame(30, $event->getColumn());
+        $this->assertSame(15, $event->getRow());
 
         \fclose($stream);
     }
 
-    public function testMouseReleaseIsIgnored()
+    public function testMouseMove()
     {
         $stream = \fopen('php://memory', 'r+');
-        // SGR release event (lowercase m). We don't surface releases yet, so
-        // the raw escape sequence falls through as TYPE_ESCAPE.
+        \fwrite($stream, "\033[<35;42;7M");
+        \rewind($stream);
+
+        $input = new StdinReader($stream);
+        $event = $input->readEvent();
+
+        $this->assertInstanceOf(MouseEvent::class, $event);
+        $this->assertSame(MouseEvent::ACTION_MOVE, $event->getAction());
+        $this->assertSame(42, $event->getColumn());
+        $this->assertSame(7, $event->getRow());
+
+        \fclose($stream);
+    }
+
+    public function testMouseLeftRelease()
+    {
+        $stream = \fopen('php://memory', 'r+');
         \fwrite($stream, "\033[<0;30;15m");
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
-        $this->assertFalse($key->isMouse());
+        $this->assertInstanceOf(MouseEvent::class, $event);
+        $this->assertSame(MouseEvent::ACTION_RELEASE_LEFT, $event->getAction());
+        $this->assertSame(30, $event->getColumn());
+        $this->assertSame(15, $event->getRow());
 
         \fclose($stream);
     }
@@ -308,11 +337,11 @@ class StdinReaderTest extends TestCase
         \rewind($stream);
 
         $input = new StdinReader($stream);
-        $key = $input->readKey();
+        $event = $input->readEvent();
 
         // Should still return as paste even without end marker
-        $this->assertTrue($key->isPaste());
-        $this->assertSame('some content', $key->getValue());
+        $this->assertInstanceOf(PasteEvent::class, $event);
+        $this->assertSame('some content', $event->getContent());
 
         \fclose($stream);
     }

@@ -19,7 +19,7 @@ use Psy\Context;
 use Psy\Readline\Interactive\Actions\InsertIndentOnTabAction;
 use Psy\Readline\Interactive\Actions\TabAction;
 use Psy\Readline\Interactive\Input\Buffer;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
 use Psy\Readline\Interactive\Readline;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Test\Readline\Interactive\BufferAssertionTrait;
@@ -370,7 +370,7 @@ class TabActionTest extends TestCase
         $this->setBufferState($this->buffer, '<cursor>');
         $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
 
-        $this->assertNull($action->handleKey(new Key("\x7f", Key::TYPE_CONTROL), $this->buffer));
+        $this->assertNull($action->handleKey(new KeyEvent("\x7f", KeyEvent::TYPE_CONTROL), $this->buffer));
         $this->assertBufferState('<cursor>', $this->buffer);
     }
 
@@ -385,7 +385,7 @@ class TabActionTest extends TestCase
         $this->setBufferState($this->buffer, 'foo<cursor>');
         $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
 
-        $this->assertTrue($action->handleKey(new Key('é', Key::TYPE_CHAR), $this->buffer));
+        $this->assertTrue($action->handleKey(new KeyEvent('é', KeyEvent::TYPE_CHAR), $this->buffer));
         $this->assertBufferState('fooé<cursor>', $this->buffer);
     }
 }

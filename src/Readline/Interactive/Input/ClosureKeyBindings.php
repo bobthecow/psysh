@@ -16,7 +16,7 @@ namespace Psy\Readline\Interactive\Input;
  *
  * Lighter sibling of KeyBindings. Instead of dispatching to ActionInterface
  * (which assumes a Buffer + Readline context), each binding is a
- * `callable(Key)`. Useful anywhere a small TUI surface needs its own input
+ * `callable(KeyEvent)`. Useful anywhere a small TUI surface needs its own input
  * dispatch without the full Action machinery: Pager today, future
  * interactive widgets later.
  *
@@ -32,7 +32,7 @@ class ClosureKeyBindings
     /**
      * Bind one or more key patterns to the same action.
      *
-     * @param callable $action      Action to invoke; receives the Key
+     * @param callable $action      Action to invoke; receives the KeyEvent
      * @param string   ...$patterns One or more key patterns (e.g. 'char:j', 'escape:[B')
      */
     public function bind(callable $action, string ...$patterns): void
@@ -45,7 +45,7 @@ class ClosureKeyBindings
     /**
      * Get the action bound to a key, or null if none.
      */
-    public function get(Key $key): ?callable
+    public function get(KeyEvent $key): ?callable
     {
         return $this->bindings[(string) $key] ?? null;
     }

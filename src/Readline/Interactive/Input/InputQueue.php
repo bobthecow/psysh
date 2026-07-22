@@ -20,7 +20,7 @@ class InputQueue
 {
     private Terminal $terminal;
 
-    /** @var Key[] */
+    /** @var InputEvent[] */
     private array $bufferedEvents = [];
 
     public function __construct(Terminal $terminal)
@@ -29,22 +29,30 @@ class InputQueue
     }
 
     /**
-     * Read the next key event, replaying buffered events first.
+     * Read the next input event, replaying buffered events first.
      */
-    public function read(): Key
+    public function read(): InputEvent
     {
         if (!empty($this->bufferedEvents)) {
             return \array_shift($this->bufferedEvents);
         }
 
-        return Key::normalized($this->terminal->readKey());
+        return $this->normalize($this->terminal->readEvent());
     }
 
     /**
-     * Push an event back so it is replayed on the next read.
+     * Push events back so they are replayed in argument order.
      */
-    public function replay(Key $key): void
+    public function replay(InputEvent $event, InputEvent ...$events): void
     {
-        \array_unshift($this->bufferedEvents, Key::normalized($key));
+        \array_unshift($events, $event);
+        for ($i = \count($events) - 1; $i >= 0; $i--) {
+            \array_unshift($this->bufferedEvents, $this->normalize($events[$i]));
+        }
+    }
+
+    private function normalize(InputEvent $event): InputEvent
+    {
+        return $event instanceof KeyEvent ? $event->normalized() : $event;
     }
 }

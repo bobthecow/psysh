@@ -11,7 +11,7 @@
 
 namespace Psy\Readline\Interactive;
 
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\InputEvent;
 use Psy\Readline\Interactive\Input\StdinReader;
 use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
@@ -259,11 +259,11 @@ class Terminal
     }
 
     /**
-     * Read a single key press from input.
+     * Read a single event from input.
      */
-    public function readKey(): Key
+    public function readEvent(): InputEvent
     {
-        return $this->input->readKey();
+        return $this->input->readEvent();
     }
 
     /**

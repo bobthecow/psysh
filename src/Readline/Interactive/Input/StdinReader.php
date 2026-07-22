@@ -16,6 +16,8 @@ namespace Psy\Readline\Interactive\Input;
  */
 class StdinReader
 {
+    private const SGR_MOUSE_RX = '/^\033\[<(\d+);(\d+);(\d+)([Mm])$/';
+
     /** @var resource */
     private $stream;
 
@@ -97,14 +99,14 @@ class StdinReader
     }
 
     /**
-     * Read a single key press from the input stream.
+     * Read a single event from the input stream.
      */
-    public function readKey(): Key
+    public function readEvent(): InputEvent
     {
         $char = \fgetc($this->stream);
 
         if ($char === false) {
-            return new Key('', Key::TYPE_EOF);
+            return new EofEvent();
         }
 
         // Escape sequences must be handled before paste detection.
@@ -116,11 +118,11 @@ class StdinReader
             }
 
             // SGR mouse reports (\033[<button;col;row{M,m}) are reshaped
-            // into TYPE_MOUSE keys with a friendly value (e.g. 'wheel-up').
-            if (\preg_match('/^\033\[<(\d+);\d+;\d+([Mm])$/', $escapeKey->getValue(), $m)) {
-                $value = $this->mouseValue((int) $m[1], $m[2]);
-                if ($value !== null) {
-                    return new Key($value, Key::TYPE_MOUSE);
+            // into mouse events with a friendly action (e.g. 'wheel-up').
+            if (\preg_match(self::SGR_MOUSE_RX, $escapeKey->getValue(), $m)) {
+                $action = $this->mouseAction((int) $m[1], $m[4]);
+                if ($action !== null) {
+                    return new MouseEvent($action, (int) $m[2], (int) $m[3]);
                 }
             }
 
@@ -132,48 +134,54 @@ class StdinReader
 
             // No ungetc support in PHP, so return any buffered content as a paste.
             if (\strlen($pastedContent) > 1) {
-                return new Key($pastedContent, Key::TYPE_PASTE);
+                return new PasteEvent($pastedContent);
             }
         }
 
         // CR/LF are handled as regular chars, not control characters.
         $ord = \ord($char);
         if ($ord < 32 && $char !== "\n" && $char !== "\r") {
-            return new Key($char, Key::TYPE_CONTROL);
+            return new KeyEvent($char, KeyEvent::TYPE_CONTROL);
         }
 
         if ($ord === 127) {
-            return new Key($char, Key::TYPE_CONTROL);
+            return new KeyEvent($char, KeyEvent::TYPE_CONTROL);
         }
 
-        return new Key($char, Key::TYPE_CHAR);
+        return new KeyEvent($char, KeyEvent::TYPE_CHAR);
     }
 
     /**
-     * Map an SGR mouse button code + event letter into a friendly Key value
-     * like 'wheel-up'. Modifier bits in the high nibble are ignored. Returns
-     * null for buttons we don't care to surface (motion-only reports, etc.).
+     * Map an SGR mouse button code + event letter into a friendly action.
+     * Modifier bits in the high nibble are ignored. Returns
+     * null for buttons we don't care to surface.
      */
-    private function mouseValue(int $button, string $event): ?string
+    private function mouseAction(int $button, string $event): ?string
     {
+        if ($event === 'M' && ($button & 0b00100000) !== 0) {
+            return MouseEvent::ACTION_MOVE;
+        }
+
         // Mask off the modifier (shift/meta/ctrl) and motion bits.
         // Wheel events live in 64..67; primary buttons in 0..2.
         $base = $button & 0b11000011;
 
         if ($event === 'M') {
             switch ($base) {
-                case 0:  return 'press-left';
-                case 1:  return 'press-middle';
-                case 2:  return 'press-right';
-                case 64: return 'wheel-up';
-                case 65: return 'wheel-down';
-                case 66: return 'wheel-left';
-                case 67: return 'wheel-right';
+                case 0:  return MouseEvent::ACTION_PRESS_LEFT;
+                case 1:  return MouseEvent::ACTION_PRESS_MIDDLE;
+                case 2:  return MouseEvent::ACTION_PRESS_RIGHT;
+                case 64: return MouseEvent::ACTION_WHEEL_UP;
+                case 65: return MouseEvent::ACTION_WHEEL_DOWN;
+                case 66: return MouseEvent::ACTION_WHEEL_LEFT;
+                case 67: return MouseEvent::ACTION_WHEEL_RIGHT;
             }
         } elseif ($event === 'm') {
-            // SGR releases ('m') only fire for primary buttons; wheel events
-            // never release. We don't currently care about releases.
-            return null;
+            switch ($base) {
+                case 0: return MouseEvent::ACTION_RELEASE_LEFT;
+                case 1: return MouseEvent::ACTION_RELEASE_MIDDLE;
+                case 2: return MouseEvent::ACTION_RELEASE_RIGHT;
+            }
         }
 
         return null;
@@ -182,7 +190,7 @@ class StdinReader
     /**
      * Read an escape sequence from the input stream.
      */
-    protected function readEscapeSequence(string $prefix): Key
+    protected function readEscapeSequence(string $prefix): KeyEvent
     {
         \stream_set_blocking($this->stream, false);
 
@@ -211,7 +219,7 @@ class StdinReader
 
         \stream_set_blocking($this->stream, true);
 
-        return new Key($sequence, Key::TYPE_ESCAPE);
+        return new KeyEvent($sequence, KeyEvent::TYPE_ESCAPE);
     }
 
     /**
@@ -219,6 +227,10 @@ class StdinReader
      */
     protected function isCompleteEscapeSequence(string $sequence): bool
     {
+        if (\strpos($sequence, "\033[<") === 0) {
+            return (bool) \preg_match(self::SGR_MOUSE_RX, $sequence);
+        }
+
         // Esc+Enter remaps (common in terminal keybind customization).
         if ($sequence === "\033\r" || $sequence === "\033\n") {
             return true;
@@ -249,11 +261,6 @@ class StdinReader
             return true;
         }
 
-        // SGR mouse reports: \033[<button;col;row{M,m}.
-        if (\preg_match('/^\033\[<\d+;\d+;\d+[Mm]$/', $sequence)) {
-            return true;
-        }
-
         // Alt+char: \033b, \033f, etc.
         if (\preg_match('/^\033[a-z]$/i', $sequence)) {
             return true;
@@ -268,7 +275,7 @@ class StdinReader
      * Called after detecting \033[200~ sequence.
      * Reads until \033[201~ is encountered.
      */
-    protected function readBracketedPaste(): Key
+    protected function readBracketedPaste(): PasteEvent
     {
         $content = '';
         $escapeBuffer = '';
@@ -300,7 +307,7 @@ class StdinReader
                     if ($escapeBuffer === "\033[201~") {
                         \stream_set_blocking($this->stream, true);
 
-                        return new Key($content, Key::TYPE_PASTE);
+                        return new PasteEvent($content);
                     }
 
                     if ($this->isCompleteEscapeSequence($escapeBuffer)) {
@@ -321,7 +328,7 @@ class StdinReader
             }
         }
 
-        return new Key($content, Key::TYPE_PASTE);
+        return new PasteEvent($content);
     }
 
     /**

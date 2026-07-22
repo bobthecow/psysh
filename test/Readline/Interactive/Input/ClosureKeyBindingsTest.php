@@ -12,7 +12,7 @@
 namespace Psy\Test\Readline\Interactive\Input;
 
 use Psy\Readline\Interactive\Input\ClosureKeyBindings;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
 use Psy\Test\TestCase;
 
 class ClosureKeyBindingsTest extends TestCase
@@ -23,9 +23,9 @@ class ClosureKeyBindingsTest extends TestCase
         $called = 0;
         $bindings->bind(function () use (&$called) { $called++; }, 'char:j');
 
-        $action = $bindings->get(new Key('j', Key::TYPE_CHAR));
+        $action = $bindings->get(new KeyEvent('j', KeyEvent::TYPE_CHAR));
         $this->assertNotNull($action);
-        $action(new Key('j', Key::TYPE_CHAR));
+        $action(new KeyEvent('j', KeyEvent::TYPE_CHAR));
         $this->assertSame(1, $called);
     }
 
@@ -36,9 +36,9 @@ class ClosureKeyBindingsTest extends TestCase
         $bindings->bind(function () use (&$called) { $called++; }, 'char:j', 'escape:[B', 'control:n');
 
         foreach ([
-            new Key('j', Key::TYPE_CHAR),
-            new Key("\x1b[B", Key::TYPE_ESCAPE),
-            new Key("\x0e", Key::TYPE_CONTROL),
+            new KeyEvent('j', KeyEvent::TYPE_CHAR),
+            new KeyEvent("\x1b[B", KeyEvent::TYPE_ESCAPE),
+            new KeyEvent("\x0e", KeyEvent::TYPE_CONTROL),
         ] as $key) {
             $action = $bindings->get($key);
             $this->assertNotNull($action, (string) $key);
@@ -51,6 +51,6 @@ class ClosureKeyBindingsTest extends TestCase
     public function testGetReturnsNullForUnboundKey(): void
     {
         $bindings = new ClosureKeyBindings();
-        $this->assertNull($bindings->get(new Key('z', Key::TYPE_CHAR)));
+        $this->assertNull($bindings->get(new KeyEvent('z', KeyEvent::TYPE_CHAR)));
     }
 }

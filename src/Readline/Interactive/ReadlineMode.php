@@ -12,7 +12,7 @@
 namespace Psy\Readline\Interactive;
 
 use Psy\Readline\Interactive\Input\Buffer;
-use Psy\Readline\Interactive\Input\Key;
+use Psy\Readline\Interactive\Input\KeyEvent;
 
 /**
  * A pushable input/render layer for interactive readline.
@@ -31,7 +31,7 @@ interface ReadlineMode
      *                   false: key consumed, pop mode after handling
      *                   null:  not consumed by this mode; pop and replay the key
      */
-    public function handleKey(Key $key, Buffer $buffer): ?bool;
+    public function handleKey(KeyEvent $key, Buffer $buffer): ?bool;
 
     /**
      * Render this mode's view of the terminal.
