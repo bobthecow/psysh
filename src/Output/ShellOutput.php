@@ -72,14 +72,36 @@ class ShellOutput extends ConsoleOutput
         }
 
         $this->startPaging();
+        try {
+            if (\is_callable($messages)) {
+                $messages($this);
+            } else {
+                $this->write($messages, true, $type);
+            }
+        } finally {
+            $this->stopPaging();
+        }
+    }
 
-        if (\is_callable($messages)) {
-            $messages($this);
-        } else {
-            $this->write($messages, true, $type);
+    /**
+     * Page output with a one-off pager without changing the configured pager.
+     *
+     * @param string|array|\Closure $messages
+     */
+    public function pageWithPager(OutputPager $pager, $messages, int $type = 0): void
+    {
+        if ($this->paging !== 0) {
+            throw new \LogicException('Cannot replace the pager during an active paging session');
         }
 
-        $this->stopPaging();
+        $configuredPager = $this->pager;
+        $this->pager = $pager;
+
+        try {
+            $this->page($messages, $type);
+        } finally {
+            $this->pager = $configuredPager;
+        }
     }
 
     /**

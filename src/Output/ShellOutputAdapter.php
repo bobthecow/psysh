@@ -11,6 +11,7 @@
 
 namespace Psy\Output;
 
+use Psy\Readline\Interactive\Pager;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -71,6 +72,23 @@ class ShellOutputAdapter implements OutputInterface
         }
 
         $this->stopPaging();
+    }
+
+    /**
+     * Page with a dedicated userland pager when ShellOutput is available.
+     * Other output implementations retain their normal paging behavior.
+     *
+     * @param string|array|\Closure $messages
+     */
+    public function pageWithPager(Pager $pager, $messages, int $type = 0): void
+    {
+        if ($this->output instanceof ShellOutput) {
+            $this->output->pageWithPager(new BuiltinOutputPager($this->output, $pager), $messages, $type);
+
+            return;
+        }
+
+        $this->page($messages, $type);
     }
 
     /**

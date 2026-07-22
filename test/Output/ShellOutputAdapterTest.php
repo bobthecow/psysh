@@ -11,10 +11,13 @@
 
 namespace Psy\Test\Output;
 
+use Psy\Output\ShellOutput;
 use Psy\Output\ShellOutputAdapter;
+use Psy\Readline\Interactive\Pager;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class ShellOutputAdapterTest extends TestCase
 {
@@ -64,5 +67,76 @@ class ShellOutputAdapterTest extends TestCase
         $adapter->writeln(['<info>hello</info>'], ShellOutputAdapter::NUMBER_LINES | OutputInterface::OUTPUT_RAW);
 
         $this->assertStringContainsString("0: <info>hello</info>\n", $output->fetch());
+    }
+
+    public function testPageWithPagerUsesDedicatedPagerAndRestoresConfiguredPager(): void
+    {
+        list($output, $stream) = $this->newShellOutput();
+
+        $pager = $this->createMock(Pager::class);
+        $pager->expects($this->once())->method('page')->with(['manual']);
+
+        $adapter = new ShellOutputAdapter($output);
+        $adapter->pageWithPager($pager, ['manual']);
+        $adapter->page(['default']);
+
+        \rewind($stream);
+        $this->assertSame("default\n", \stream_get_contents($stream));
+    }
+
+    public function testPageWithPagerRestoresConfiguredPagerAfterRenderThrows(): void
+    {
+        list($output, $stream) = $this->newShellOutput();
+
+        $pager = $this->createMock(Pager::class);
+        $pager->expects($this->once())->method('page')->with(['before error']);
+
+        $adapter = new ShellOutputAdapter($output);
+        try {
+            $adapter->pageWithPager($pager, function (OutputInterface $pagedOutput): void {
+                $pagedOutput->writeln('before error');
+
+                throw new \RuntimeException('render failed');
+            });
+            $this->fail('Expected render failure');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('render failed', $e->getMessage());
+        }
+
+        $adapter->page(['default']);
+        \rewind($stream);
+        $this->assertSame("default\n", \stream_get_contents($stream));
+    }
+
+    /**
+     * @return array{ShellOutput, resource}
+     */
+    private function newShellOutput(): array
+    {
+        $stream = \fopen('php://memory', 'w+');
+        $errorStream = \fopen('php://memory', 'w+');
+        $output = new class($stream, $errorStream) extends ShellOutput {
+            private $mainStream;
+            private StreamOutput $errorOutput;
+
+            public function __construct($mainStream, $errorStream)
+            {
+                $this->mainStream = $mainStream;
+                $this->errorOutput = new StreamOutput($errorStream, StreamOutput::VERBOSITY_NORMAL, false);
+                parent::__construct(StreamOutput::VERBOSITY_NORMAL, false);
+            }
+
+            public function getStream()
+            {
+                return $this->mainStream;
+            }
+
+            public function getErrorOutput(): OutputInterface
+            {
+                return $this->errorOutput;
+            }
+        };
+
+        return [$output, $stream];
     }
 }
