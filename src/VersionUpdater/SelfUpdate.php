@@ -111,11 +111,15 @@ class SelfUpdate
 
         $output->write("Downloading PsySH $latestVersion ...");
 
+        $downloader = null;
         try {
             $downloader = $this->getDownloader();
             $downloader->setTempDir($this->installer->getTempDirectory());
             $downloaded = $downloader->download($downloadUrl);
         } catch (ErrorException $e) {
+            if ($downloader !== null) {
+                $downloader->cleanup();
+            }
             $output->write(' <error>Failed.</error>');
             $output->writeln(\sprintf('<error>%s</error>', $e->getMessage()));
 

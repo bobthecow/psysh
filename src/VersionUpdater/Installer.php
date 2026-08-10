@@ -63,9 +63,15 @@ class Installer
         if (!\class_exists('\PharData')) {
             return false;
         }
-        $pharArchive = new \PharData($sourceArchive);
+        try {
+            $pharArchive = new \PharData($sourceArchive);
 
-        return $pharArchive->valid();
+            return $pharArchive->valid()
+                && isset($pharArchive['psysh'])
+                && $pharArchive['psysh']->isFile();
+        } catch (\UnexpectedValueException | \PharException $e) {
+            return false;
+        }
     }
 
     /**
@@ -73,22 +79,35 @@ class Installer
      */
     public function install(string $sourceArchive): bool
     {
-        $pharArchive = new \PharData($sourceArchive);
         $outputDirectory = \tempnam($this->tempDirectory, 'psysh-');
+        if ($outputDirectory === false) {
+            return false;
+        }
 
         // remove the temp file, and replace it with a sub-directory
         if (!\unlink($outputDirectory) || !\mkdir($outputDirectory, 0700)) {
             return false;
         }
 
-        $pharArchive->extractTo($outputDirectory, ['psysh'], true);
+        $extracted = $outputDirectory.'/psysh';
 
-        $renamed = \rename($outputDirectory.'/psysh', $this->installLocation);
+        try {
+            $pharArchive = new \PharData($sourceArchive);
+            $pharArchive->extractTo($outputDirectory, ['psysh'], true);
 
-        // Remove the sub-directory created to extract the psysh binary/phar
-        \rmdir($outputDirectory);
+            if (!\is_file($extracted)) {
+                return false;
+            }
 
-        return $renamed;
+            return \rename($extracted, $this->installLocation);
+        } catch (\UnexpectedValueException | \PharException $e) {
+            return false;
+        } finally {
+            if (\file_exists($extracted)) {
+                @\unlink($extracted);
+            }
+            @\rmdir($outputDirectory);
+        }
     }
 
     /**

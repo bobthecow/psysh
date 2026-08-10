@@ -12,16 +12,26 @@
 namespace Psy\VersionUpdater\Downloader;
 
 use Psy\Exception\ErrorException;
+use Psy\Util\DependencyChecker;
 use Psy\VersionUpdater\Downloader;
 
 class Factory
 {
+    private const CURL_FUNCTIONS = [
+        'curl_init',
+        'curl_setopt_array',
+        'curl_setopt',
+        'curl_exec',
+        'curl_error',
+        'curl_close',
+    ];
+
     /**
      * @throws ErrorException If no downloaders can be used
      */
     public static function getDownloader(): Downloader
     {
-        if (\extension_loaded('curl')) {
+        if (DependencyChecker::functionsAvailable(self::CURL_FUNCTIONS)) {
             return new CurlDownloader();
         } elseif (\ini_get('allow_url_fopen')) {
             return new FileDownloader();

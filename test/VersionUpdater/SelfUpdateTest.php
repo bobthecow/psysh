@@ -81,7 +81,10 @@ class SelfUpdateTest extends TestCase
         $checker = $this->getMockChecker();
         $output = $this->getMockOutput('TestCase Exception');
 
-        $downloader = $this->getMockDownloader(['download']);
+        $downloader = $this->getMockDownloader(['download', 'cleanup']);
+        $downloader
+            ->expects($this->once())
+            ->method('cleanup');
         $downloader
             ->method('download')
             ->willThrowException(new ErrorException('TestCase Exception'));

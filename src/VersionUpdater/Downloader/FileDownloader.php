@@ -38,7 +38,13 @@ class FileDownloader implements Downloader
 
         $this->outputFile = $targetName;
 
-        return (bool) \file_put_contents($this->outputFile, \file_get_contents($url));
+        if (!\copy($url, $this->outputFile)) {
+            return false;
+        }
+
+        $size = \filesize($this->outputFile);
+
+        return $size !== false && $size > 0;
     }
 
     /** {@inheritDoc} */
