@@ -494,9 +494,7 @@ if (!\function_exists('Psy\\bin')) {
                 $input->bind(new InputDefinition(\array_merge(Configuration::getInputOptions(), [
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
-                    new InputOption('self-update', 'u', InputOption::VALUE_NONE),
                     new InputOption('update-manual', null, InputOption::VALUE_OPTIONAL, '', false),
-                    new InputOption('info', null, InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ])));
