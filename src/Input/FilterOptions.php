@@ -21,9 +21,7 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class FilterOptions
 {
-    private bool $filter = false;
     private ?string $pattern = null;
-    private bool $insensitive = false;
     private bool $invert = false;
 
     /**
@@ -49,8 +47,10 @@ class FilterOptions
     {
         $this->validateInput($input);
 
-        if (!$pattern = $input->getOption('grep')) {
-            $this->filter = false;
+        $pattern = $input->getOption('grep');
+        if ($pattern === null || $pattern === false || $pattern === '') {
+            $this->pattern = null;
+            $this->invert = false;
 
             return;
         }
@@ -59,15 +59,13 @@ class FilterOptions
             $pattern = '/'.\preg_quote($pattern, '/').'/';
         }
 
-        if ($insensitive = $input->getOption('insensitive')) {
+        if ($input->getOption('insensitive')) {
             $pattern .= 'i';
         }
 
         $this->validateRegex($pattern);
 
-        $this->filter = true;
         $this->pattern = $pattern;
-        $this->insensitive = $insensitive;
         $this->invert = $input->getOption('invert');
     }
 
@@ -76,7 +74,7 @@ class FilterOptions
      */
     public function hasFilter(): bool
     {
-        return $this->filter;
+        return $this->pattern !== null;
     }
 
     /**
@@ -87,7 +85,7 @@ class FilterOptions
      */
     public function match(string $string, ?array &$matches = null): bool
     {
-        if ($this->filter === false || $this->pattern === null) {
+        if ($this->pattern === null) {
             return true;
         }
 
@@ -103,7 +101,8 @@ class FilterOptions
      */
     private function validateInput(InputInterface $input)
     {
-        if (!$input->getOption('grep')) {
+        $pattern = $input->getOption('grep');
+        if ($pattern === null || $pattern === false || $pattern === '') {
             foreach (['invert', 'insensitive'] as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--'.$option.' does not make sense without --grep');

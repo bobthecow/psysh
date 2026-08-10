@@ -43,6 +43,7 @@ class FilterOptionsTest extends TestCase
             ['--grep="bar" --invert'],
             ['--grep="bar" --insensitive'],
             ['--grep="bar" --invert --insensitive'],
+            ['--grep 0'],
             ['', false],
         ];
     }
@@ -96,6 +97,10 @@ class FilterOptionsTest extends TestCase
             ['--grep oo -i', 'FOOD', true],
             ['--grep foo -v', 'food', false],
             ['--grep foo -v', 'whatever', true],
+            ['--grep 0', 'value 0', true],
+            ['--grep 0', 'value one', false],
+            ['--grep 0 -i', 'VALUE 0', true],
+            ['--grep 0 -v', 'value one', true],
         ];
     }
 
