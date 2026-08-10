@@ -24,10 +24,11 @@ class CommandClipboardMethod implements ClipboardMethod
 
     public function copy(string $text, OutputInterface $output): bool
     {
+        $nullDevice = \PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
         $process = \proc_open($this->command, [
             0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
+            1 => ['file', $nullDevice, 'w'],
+            2 => ['file', $nullDevice, 'w'],
         ], $pipes);
         if ($process === false) {
             return false;
@@ -35,14 +36,9 @@ class CommandClipboardMethod implements ClipboardMethod
 
         $success = $this->writeAll($pipes[0], $text);
         \fclose($pipes[0]);
+        $exitCode = \proc_close($process);
 
-        // Drain stdout and stderr to prevent the child process from blocking.
-        \stream_get_contents($pipes[1]);
-        \fclose($pipes[1]);
-        \stream_get_contents($pipes[2]);
-        \fclose($pipes[2]);
-
-        return $success && \proc_close($process) === 0;
+        return $success && $exitCode === 0;
     }
 
     /**

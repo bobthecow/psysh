@@ -12,6 +12,7 @@
 namespace Psy\Test\Clipboard;
 
 use Psy\Clipboard\CommandClipboardMethod;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -19,7 +20,7 @@ class CommandClipboardMethodTest extends TestCase
 {
     public function testCopyReturnsTrueWhenCommandSucceeds()
     {
-        $target = \tempnam(\sys_get_temp_dir(), 'psysh-test-copy-');
+        $target = TempPaths::file('psysh-test-copy-');
         $command = $this->phpCommand('file_put_contents('.\var_export($target, true).', stream_get_contents(STDIN));');
 
         $method = new CommandClipboardMethod($command);
@@ -27,7 +28,6 @@ class CommandClipboardMethodTest extends TestCase
         $this->assertTrue($method->copy('copied text', new BufferedOutput()));
         $this->assertSame('copied text', \file_get_contents($target));
 
-        @\unlink($target);
     }
 
     public function testCopyReturnsFalseWhenCommandFails()
@@ -36,6 +36,23 @@ class CommandClipboardMethodTest extends TestCase
         $method = new CommandClipboardMethod($command);
 
         $this->assertFalse($method->copy('copied text', new BufferedOutput()));
+    }
+
+    public function testCopyDoesNotDeadlockWhenCommandWritesLargeDiscardedOutput()
+    {
+        $target = TempPaths::file('psysh-test-copy-');
+        $command = $this->phpCommand(
+            'fwrite(STDOUT, str_repeat("o", 1024 * 1024));'.
+            'fwrite(STDERR, str_repeat("e", 1024 * 1024));'.
+            'file_put_contents('.\var_export($target, true).', stream_get_contents(STDIN));'
+        );
+        $text = \str_repeat('copied text ', 100000);
+
+        $method = new CommandClipboardMethod($command);
+
+        $this->assertTrue($method->copy($text, new BufferedOutput()));
+        $this->assertSame(\hash('sha256', $text), \hash_file('sha256', $target));
+
     }
 
     private function phpCommand(string $code): string
