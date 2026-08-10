@@ -65,14 +65,12 @@ class ClassConstantEnumerator extends Enumerator
         $className = $reflector->getName();
 
         $constants = [];
-        foreach ($reflector->getConstants() as $name => $constant) {
-            $constReflector = new \ReflectionClassConstant($reflector->name, $name);
-
+        foreach ($reflector->getReflectionConstants() as $constReflector) {
             if ($noInherit && $constReflector->getDeclaringClass()->getName() !== $className) {
                 continue;
             }
 
-            $constants[$name] = $constReflector;
+            $constants[$constReflector->getName()] = $constReflector;
         }
 
         \ksort($constants, \SORT_NATURAL | \SORT_FLAG_CASE);

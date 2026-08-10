@@ -129,7 +129,7 @@ class PropertyEnumerator extends Enumerator
      */
     protected function getKindLabel(\ReflectionClass $reflector): string
     {
-        if (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        if ($reflector->isTrait()) {
             return 'Trait Properties';
         } else {
             return 'Class Properties';

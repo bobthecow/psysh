@@ -131,7 +131,7 @@ class MethodEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Methods';
-        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        } elseif ($reflector->isTrait()) {
             return 'Trait Methods';
         } else {
             return 'Class Methods';

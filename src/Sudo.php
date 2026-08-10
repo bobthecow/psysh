@@ -80,9 +80,6 @@ class Sudo
     public static function fetchStaticProperty($class, string $property)
     {
         $prop = self::getProperty(new \ReflectionClass($class), $property);
-        if (\PHP_VERSION_ID < 80100) {
-            $prop->setAccessible(true);
-        }
 
         return $prop->getValue();
     }
@@ -101,11 +98,7 @@ class Sudo
         $prop = self::getProperty(new \ReflectionClass($class), $property);
         $refl = $prop->getDeclaringClass();
 
-        if (\method_exists($refl, 'setStaticPropertyValue')) {
-            $refl->setStaticPropertyValue($property, $value);
-        } else {
-            $prop->setValue($value);
-        }
+        $refl->setStaticPropertyValue($property, $value);
 
         return $value;
     }
