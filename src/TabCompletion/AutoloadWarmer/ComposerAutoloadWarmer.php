@@ -445,56 +445,50 @@ class ComposerAutoloadWarmer implements AutoloadWarmerInterface
                 }
 
                 // Hardcode excluding known-bad classes
-                foreach (self::KNOWN_BAD_NAMESPACES as $namespace) {
-                    if (\stripos($class, $namespace) === 0) {
-                        return false;
-                    }
+                if ($this->matchesNamespace($class, self::KNOWN_BAD_NAMESPACES)) {
+                    return false;
                 }
 
                 $isVendorClass = $this->isVendorClass($class, $classMap);
 
                 // Apply vendor-specific exclude filters
-                if ($isVendorClass && !empty($this->excludeVendorNamespaces)) {
-                    foreach ($this->excludeVendorNamespaces as $namespace) {
-                        if (\stripos($class, $namespace) === 0) {
-                            return false;
-                        }
-                    }
+                if ($isVendorClass && $this->matchesNamespace($class, $this->excludeVendorNamespaces)) {
+                    return false;
                 }
 
                 // Apply general exclude filters
-                foreach ($this->excludeNamespaces as $namespace) {
-                    if (\stripos($class, $namespace) === 0) {
-                        return false;
-                    }
+                if ($this->matchesNamespace($class, $this->excludeNamespaces)) {
+                    return false;
                 }
 
                 // Apply vendor-specific include filters
                 if ($isVendorClass && !empty($this->includeVendorNamespaces)) {
-                    foreach ($this->includeVendorNamespaces as $namespace) {
-                        if (\stripos($class, $namespace) === 0) {
-                            return true;
-                        }
-                    }
-
-                    return false; // Vendor class doesn't match vendor filters
+                    return $this->matchesNamespace($class, $this->includeVendorNamespaces);
                 }
 
                 // Apply general include filters
                 if (!empty($this->includeNamespaces)) {
-                    foreach ($this->includeNamespaces as $namespace) {
-                        if (\stripos($class, $namespace) === 0) {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return $this->matchesNamespace($class, $this->includeNamespaces);
                 }
 
                 // No include filters provided, and didn't match exclude filters
                 return true;
             }),
         );
+    }
+
+    /**
+     * Check whether a class matches any of the given namespace prefixes.
+     */
+    private function matchesNamespace(string $class, array $namespaces): bool
+    {
+        foreach ($namespaces as $namespace) {
+            if (\stripos($class, $namespace) === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

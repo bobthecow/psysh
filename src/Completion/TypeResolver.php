@@ -199,7 +199,7 @@ class TypeResolver
 
         \array_shift($tokens);
 
-        $variables = [];
+        $lastVariable = null;
 
         for ($i = 0; $i < \count($tokens); $i++) {
             $token = $tokens[$i];
@@ -275,22 +275,21 @@ class TypeResolver
                 }
             }
 
-            $variables[] = [
-                    'start'             => $varStart,
-                    'end'               => $chainEnd,
-                    'hasIncompleteCall' => $hasIncompleteCall,
-                ];
+            $lastVariable = [
+                'start'             => $varStart,
+                'end'               => $chainEnd,
+                'hasIncompleteCall' => $hasIncompleteCall,
+            ];
         }
 
-        if (empty($variables)) {
+        if ($lastVariable === null) {
             return '';
         }
 
-        $lastVar = \end($variables);
-        $extractedTokens = \array_slice($tokens, $lastVar['start'], $lastVar['end'] - $lastVar['start'] + 1);
+        $extractedTokens = \array_slice($tokens, $lastVariable['start'], $lastVariable['end'] - $lastVariable['start'] + 1);
 
         $parts = [];
-        $strippedIncompleteCall = $lastVar['hasIncompleteCall'];
+        $strippedIncompleteCall = $lastVariable['hasIncompleteCall'];
 
         foreach ($extractedTokens as $token) {
             if (\is_array($token)) {
