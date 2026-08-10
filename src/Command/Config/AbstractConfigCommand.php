@@ -111,24 +111,24 @@ abstract class AbstractConfigCommand extends Command
                 return $resolved;
             };
         };
+        $verbosityValues = [
+            Configuration::VERBOSITY_QUIET,
+            Configuration::VERBOSITY_NORMAL,
+            Configuration::VERBOSITY_VERBOSE,
+            Configuration::VERBOSITY_VERY_VERBOSE,
+            Configuration::VERBOSITY_DEBUG,
+        ];
+        $colorModeValues = [
+            Configuration::COLOR_MODE_AUTO,
+            Configuration::COLOR_MODE_FORCED,
+            Configuration::COLOR_MODE_DISABLED,
+        ];
 
         $this->options = [
             'verbosity' => [
                 'name'           => 'verbosity',
-                'acceptedValues' => [
-                    Configuration::VERBOSITY_QUIET,
-                    Configuration::VERBOSITY_NORMAL,
-                    Configuration::VERBOSITY_VERBOSE,
-                    Configuration::VERBOSITY_VERY_VERBOSE,
-                    Configuration::VERBOSITY_DEBUG,
-                ],
-                'parser' => $configEnumParser('verbosity', [
-                    Configuration::VERBOSITY_QUIET,
-                    Configuration::VERBOSITY_NORMAL,
-                    Configuration::VERBOSITY_VERBOSE,
-                    Configuration::VERBOSITY_VERY_VERBOSE,
-                    Configuration::VERBOSITY_DEBUG,
-                ], 'quiet|normal|verbose|very_verbose|debug'),
+                'acceptedValues' => $verbosityValues,
+                'parser'         => $configEnumParser('verbosity', $verbosityValues, 'quiet|normal|verbose|very_verbose|debug'),
                 'getter' => function () use ($config): string {
                     return $config->verbosity();
                 },
@@ -205,16 +205,8 @@ abstract class AbstractConfigCommand extends Command
             ],
             'colormode' => [
                 'name'           => 'colorMode',
-                'acceptedValues' => [
-                    Configuration::COLOR_MODE_AUTO,
-                    Configuration::COLOR_MODE_FORCED,
-                    Configuration::COLOR_MODE_DISABLED,
-                ],
-                'parser' => $configEnumParser('colorMode', [
-                    Configuration::COLOR_MODE_AUTO,
-                    Configuration::COLOR_MODE_FORCED,
-                    Configuration::COLOR_MODE_DISABLED,
-                ], 'auto|forced|disabled'),
+                'acceptedValues' => $colorModeValues,
+                'parser'         => $configEnumParser('colorMode', $colorModeValues, 'auto|forced|disabled'),
                 'getter' => function () use ($config): string {
                     return $config->colorMode();
                 },

@@ -107,7 +107,7 @@ HELP
         if ($input->getOption('clear')) {
             $this->validateClearIsUnrestricted($input);
 
-            $this->clearHistory();
+            $this->readline->clearHistory();
             $output->writeln('<info>History cleared.</info>');
 
             return 0;
@@ -281,14 +281,6 @@ HELP
                 throw new RuntimeException('The --clear option cannot be combined with history filters or range options.');
             }
         }
-    }
-
-    /**
-     * Clear the readline history.
-     */
-    private function clearHistory()
-    {
-        $this->readline->clearHistory();
     }
 
     public static function escape(string $string): string

@@ -36,11 +36,9 @@ class ConfigCommand extends AbstractConfigCommand implements CommandArgumentComp
     private ?array $lastCompletionResult = null;
     private string $lastCompletionInput = '';
 
-    private string $defaultHelp = '';
-
     protected function configure(): void
     {
-        $this->defaultHelp = \implode("\n", [
+        $help = \implode("\n", [
             'Inspect or update runtime-configurable PsySH settings for the current session.',
             '',
             'e.g.',
@@ -75,7 +73,7 @@ class ConfigCommand extends AbstractConfigCommand implements CommandArgumentComp
                 new CodeArgument('value', CodeArgument::OPTIONAL, 'New value when using `set`.'),
             ])
             ->setDescription('Inspect or update runtime-configurable PsySH settings for the current session.')
-            ->setHelp($this->defaultHelp);
+            ->setHelp($help);
     }
 
     public function run(InputInterface $input, OutputInterface $output): int

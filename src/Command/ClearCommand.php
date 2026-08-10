@@ -28,7 +28,6 @@ class ClearCommand extends Command
     {
         $this
             ->setName('clear')
-            ->setDefinition([])
             ->setDescription('Clear the Psy Shell screen.')
             ->setHelp(
                 <<<'HELP'
