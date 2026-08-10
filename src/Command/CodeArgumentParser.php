@@ -44,7 +44,7 @@ class CodeArgumentParser
         try {
             return $this->parser->parse($code);
         } catch (PhpParserError $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
+            if (!ParseErrorException::isUnexpectedEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
 
