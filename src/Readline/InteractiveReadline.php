@@ -26,7 +26,6 @@ use Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource;
 use Psy\Readline\Interactive\Terminal;
 use Psy\Readline\Interactive\TerminalOutput;
 use Psy\Shell;
-use Psy\ShellAware;
 use Psy\Util\TerminalColor;
 use Psy\Util\Tty;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
@@ -39,7 +38,7 @@ use Symfony\Component\Console\Output\StreamOutput;
  * A pure-PHP readline with visual feedback, autosuggestions, tab completion,
  * and other interactive features.
  */
-class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, CommandAware
+class InteractiveReadline implements InteractiveReadlineInterface, CommandAware
 {
     private InternalReadline $readline;
     private InteractiveHistory $history;

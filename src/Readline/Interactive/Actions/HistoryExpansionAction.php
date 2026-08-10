@@ -243,15 +243,15 @@ class HistoryExpansionAction implements ActionInterface
         $definition = $cmd->getDefinition();
 
         // Only handle commands that accept a CodeArgument
-        $hasCodeArg = false;
+        $codeArgument = null;
         foreach ($definition->getArguments() as $arg) {
             if ($arg instanceof CodeArgument) {
-                $hasCodeArg = true;
+                $codeArgument = $arg;
                 break;
             }
         }
 
-        if (!$hasCodeArg) {
+        if ($codeArgument === null) {
             return null;
         }
 
@@ -265,14 +265,9 @@ class HistoryExpansionAction implements ActionInterface
             $input = new ShellInput($remainder);
             $input->bind($definition);
 
-            foreach ($definition->getArguments() as $arg) {
-                if ($arg instanceof CodeArgument) {
-                    $codeArg = $input->getArgument($arg->getName());
-                    if ($codeArg !== null && $codeArg !== '') {
-                        return [$commandName, $codeArg];
-                    }
-                    break;
-                }
+            $codeArg = $input->getArgument($codeArgument->getName());
+            if ($codeArg !== null && $codeArg !== '') {
+                return [$commandName, $codeArg];
             }
 
             return [$commandName];

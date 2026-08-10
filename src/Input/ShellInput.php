@@ -21,8 +21,6 @@ class ShellInput extends StringInput
 {
     public const REGEX_STRING = '([^\s]+?)(?:\s|(?<!\\\\)"|(?<!\\\\)\'|$)';
 
-    private bool $hasCodeArgument = false;
-
     /**
      * Unlike the parent implementation's tokens, this contains an array of
      * token/rest pairs, so that code arguments can be handled while parsing.
@@ -49,24 +47,16 @@ class ShellInput extends StringInput
      */
     public function bind(InputDefinition $definition): void
     {
-        $hasCodeArgument = false;
-
         if ($definition->getArgumentCount() > 0) {
             $args = $definition->getArguments();
-            $lastArg = \array_pop($args);
+            \array_pop($args);
             foreach ($args as $arg) {
                 if ($arg instanceof CodeArgument) {
                     $msg = \sprintf('Unexpected CodeArgument before the final position: %s', $arg->getName());
                     throw new \InvalidArgumentException($msg);
                 }
             }
-
-            if ($lastArg instanceof CodeArgument) {
-                $hasCodeArgument = true;
-            }
         }
-
-        $this->hasCodeArgument = $hasCodeArgument;
 
         parent::bind($definition);
     }

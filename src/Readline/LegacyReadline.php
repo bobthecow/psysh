@@ -24,7 +24,6 @@ class LegacyReadline implements ShellReadlineInterface
     private Readline $readline;
     private ?Shell $shell = null;
     private ?OutputInterface $output = null;
-    private bool $requireSemicolons = false;
     private ?string $bufferPrompt = null;
     private BufferAnalyzer $bufferAnalyzer;
     private StatementCompletenessPolicy $statementCompletenessPolicy;
@@ -133,10 +132,9 @@ class LegacyReadline implements ShellReadlineInterface
 
     public function setRequireSemicolons(bool $require): void
     {
-        $this->requireSemicolons = $require;
         $this->statementCompletenessPolicy = new StatementCompletenessPolicy(
             $this->bufferAnalyzer,
-            $this->requireSemicolons
+            $require
         );
     }
 

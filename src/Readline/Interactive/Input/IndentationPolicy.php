@@ -180,10 +180,6 @@ class IndentationPolicy
             if ($tokenType === \T_DOC_COMMENT) {
                 return true;
             }
-
-            if (\defined('T_BACKTICK') && $tokenType === T_BACKTICK) {
-                return true;
-            }
         }
 
         $trimmed = \rtrim($bufferText);

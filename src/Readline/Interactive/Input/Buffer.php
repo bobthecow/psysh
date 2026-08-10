@@ -33,7 +33,6 @@ class Buffer
     private WordNavigationPolicy $wordNavigationPolicy;
     private VisualNavigationPolicy $visualNavigationPolicy;
 
-    private bool $requireSemicolons = false;
     private bool $graphemeCacheInitialized = false;
     /** @var int[]|null */
     private ?array $graphemeBoundaries = null;
@@ -42,11 +41,10 @@ class Buffer
 
     public function __construct(bool $requireSemicolons = false)
     {
-        $this->requireSemicolons = $requireSemicolons;
         $this->bufferAnalyzer = new BufferAnalyzer();
         $this->statementCompletenessPolicy = new StatementCompletenessPolicy(
             $this->bufferAnalyzer,
-            $this->requireSemicolons
+            $requireSemicolons
         );
         $this->indentationPolicy = new IndentationPolicy();
         $this->tokenNavigationPolicy = new TokenNavigationPolicy();

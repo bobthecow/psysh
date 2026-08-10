@@ -130,7 +130,7 @@ class GNUReadline implements Readline
             $res = true;
         }
 
-        if (!$res || !$this->eraseDups && !$this->historySize > 0) {
+        if (!$res || (!$this->eraseDups && $this->historySize === 0)) {
             return $res;
         }
 

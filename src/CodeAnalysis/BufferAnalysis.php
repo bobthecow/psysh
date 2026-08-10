@@ -131,14 +131,7 @@ class BufferAnalysis
      */
     public function endsInOpenStringOrComment(): bool
     {
-        if ($this->tokens === []) {
-            return false;
-        }
-
-        $last = $this->tokens[\count($this->tokens) - 1];
-
-        return $last === '"' || $last === '`' ||
-            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT], true));
+        return TokenHelper::endsInOpenStringOrComment($this->tokens);
     }
 
     /**

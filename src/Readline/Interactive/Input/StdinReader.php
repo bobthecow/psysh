@@ -251,11 +251,6 @@ class StdinReader
             return true;
         }
 
-        // CSI-u protocol: \033[13;2u (Shift+Enter), \033[97;5u (Ctrl+A), etc.
-        if (\preg_match('/^\033\[\d+(?:[;:]\d+)*u$/', $sequence)) {
-            return true;
-        }
-
         // SS3 keys: \033OM (keypad Enter), \033OA, etc.
         if (\preg_match('/^\033O[A-Z]$/', $sequence)) {
             return true;

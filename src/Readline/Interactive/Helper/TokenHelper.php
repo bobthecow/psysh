@@ -27,6 +27,23 @@ class TokenHelper
     private const TRAILING_CHAR_OPS = ['+', '-', '*', '/', '%', '.', '=', '&', '|', '^', '<', '>', ','];
 
     /**
+     * Check whether a token stream ends inside a string or comment.
+     *
+     * @param array $tokens token_get_all tokens
+     */
+    public static function endsInOpenStringOrComment(array $tokens): bool
+    {
+        if ($tokens === []) {
+            return false;
+        }
+
+        $lastToken = $tokens[\count($tokens) - 1];
+
+        return $lastToken === '"' || $lastToken === '`' ||
+            (\is_array($lastToken) && \in_array($lastToken[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT], true));
+    }
+
+    /**
      * Check whether the last non-whitespace token is a trailing operator.
      *
      * Used to determine whether a statement continues onto the next line.

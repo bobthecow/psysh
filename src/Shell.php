@@ -35,6 +35,7 @@ use Psy\Input\ShellInput;
 use Psy\Input\SilentInput;
 use Psy\Output\BuiltinOutputPager;
 use Psy\Output\ShellOutput;
+use Psy\Readline\Interactive\Helper\TokenHelper;
 use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Readline\LegacyReadline;
 use Psy\Readline\Readline;
@@ -1608,10 +1609,8 @@ class Shell extends Application
         $code = $this->pendingInput->getPendingCodeBuffer();
         $code[] = $input;
         $tokens = @\token_get_all('<?php '.\implode(\PHP_EOL, $code));
-        $last = \array_pop($tokens);
 
-        return $last === '"' || $last === '`' ||
-            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT], true));
+        return TokenHelper::endsInOpenStringOrComment($tokens);
     }
 
     /**

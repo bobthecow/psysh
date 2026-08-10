@@ -113,10 +113,6 @@ class ArgumentExtractorVisitor extends NodeVisitorAbstract
      */
     private function extractArgs($node): void
     {
-        if (!\is_array($node->args)) {
-            return;
-        }
-
         foreach ($node->args as $arg) {
             if ($arg instanceof Node\Arg) {
                 $this->arguments[] = $this->printer->prettyPrintExpr($arg->value);

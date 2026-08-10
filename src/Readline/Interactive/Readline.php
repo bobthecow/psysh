@@ -21,6 +21,7 @@ use Psy\Readline\Interactive\Actions\NextHistoryAction;
 use Psy\Readline\Interactive\Actions\PreviousHistoryAction;
 use Psy\Readline\Interactive\Actions\SelfInsertAction;
 use Psy\Readline\Interactive\Actions\TabAction;
+use Psy\Readline\Interactive\Helper\TokenHelper;
 use Psy\Readline\Interactive\Input\Buffer;
 use Psy\Readline\Interactive\Input\EofEvent;
 use Psy\Readline\Interactive\Input\History;
@@ -52,7 +53,6 @@ class Readline
     private bool $multilineMode = false;
     private ?Shell $shell = null;
     private bool $requireSemicolons = false;
-    private Theme $theme;
 
     private ?TabAction $tabAction = null;
     private ?ExpandHistoryOnTabAction $expandHistoryAction = null;
@@ -80,12 +80,12 @@ class Readline
         $this->terminal = $terminal;
         $this->inputQueue = new InputQueue($this->terminal);
         $this->history = $history ?? new History();
-        $this->theme = new Theme();
+        $theme = new Theme();
 
         $this->suggestionEngine = new SuggestionEngine($this->history);
         $this->overlayViewport = new OverlayViewport($this->terminal);
-        $this->frameRenderer = new FrameRenderer($this->terminal, $this->overlayViewport, $this->theme);
-        $this->search = new HistorySearch($this->terminal, $this->history, $this->frameRenderer, $this->overlayViewport, $this->theme);
+        $this->frameRenderer = new FrameRenderer($this->terminal, $this->overlayViewport, $theme);
+        $this->search = new HistorySearch($this->terminal, $this->history, $this->frameRenderer, $this->overlayViewport, $theme);
 
         $this->bindings = $bindings ?? KeyBindings::createDefault($this->history, $this->search, $this->smartBrackets);
     }
@@ -95,7 +95,6 @@ class Readline
      */
     public function setTheme(Theme $theme): void
     {
-        $this->theme = $theme;
         $this->frameRenderer->setTheme($theme);
         $this->search->setTheme($theme);
     }
@@ -212,10 +211,8 @@ class Readline
     public function isInOpenStringOrComment(string $input): bool
     {
         $tokens = @\token_get_all('<?php '.$input);
-        $last = \array_pop($tokens);
 
-        return $last === '"' || $last === '`' ||
-            (\is_array($last) && \in_array($last[0], [\T_ENCAPSED_AND_WHITESPACE, \T_START_HEREDOC, \T_COMMENT]));
+        return TokenHelper::endsInOpenStringOrComment($tokens);
     }
 
     /**
