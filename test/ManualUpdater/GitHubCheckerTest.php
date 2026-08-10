@@ -12,6 +12,7 @@
 namespace Psy\Test\ManualUpdater;
 
 use Psy\ManualUpdater\GitHubChecker;
+use Psy\Test\Fixtures\HttpsStream;
 use Psy\Test\TestCase;
 
 class GitHubCheckerTest extends TestCase
@@ -30,32 +31,16 @@ class GitHubCheckerTest extends TestCase
 
     public function testIsLatestReturnsTrueWhenSameLanguageAndNewerVersion()
     {
-        // Create a partial mock that we can set internal state on
         $checker = new GitHubChecker('en', 'php', '4.0.0', 'en');
-
-        // Use reflection to set the latestVersion directly
-        $reflection = new \ReflectionClass($checker);
-        $property = $reflection->getProperty('latestVersion');
-        if (\PHP_VERSION_ID < 80100) {
-            $property->setAccessible(true);
-        }
-        $property->setValue($checker, '3.0.0');
+        $this->setLatestVersion($checker, '3.0.0');
 
         $this->assertTrue($checker->isLatest());
     }
 
     public function testIsLatestReturnsFalseWhenOlderVersion()
     {
-        // Create a partial mock that we can set internal state on
         $checker = new GitHubChecker('en', 'php', '2.0.0', 'en');
-
-        // Use reflection to set the latestVersion directly
-        $reflection = new \ReflectionClass($checker);
-        $property = $reflection->getProperty('latestVersion');
-        if (\PHP_VERSION_ID < 80100) {
-            $property->setAccessible(true);
-        }
-        $property->setValue($checker, '3.0.0');
+        $this->setLatestVersion($checker, '3.0.0');
 
         $this->assertFalse($checker->isLatest());
     }
@@ -73,19 +58,53 @@ class GitHubCheckerTest extends TestCase
     }
 
     /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testMissingReleaseAssetFailsOnlyWhenDownloadUrlIsRequested()
+    {
+        $manifestUrl = 'https://example.test/manifest.json';
+        $release = [[
+            'assets_url' => 'https://example.test/assets',
+            'assets'     => [[
+                'name'                 => 'manifest.json',
+                'browser_download_url' => $manifestUrl,
+            ]],
+        ]];
+        $manifest = [
+            'manuals' => [[
+                'lang'    => 'en',
+                'format'  => 'php',
+                'version' => '3.0.0',
+            ]],
+        ];
+
+        HttpsStream::register([
+            GitHubChecker::RELEASES_URL => \json_encode($release),
+            $manifestUrl                => \json_encode($manifest),
+        ]);
+
+        try {
+            $checker = new GitHubChecker('en', 'php', '3.0.0', 'en');
+            $this->assertSame('3.0.0', $checker->getLatest());
+            $this->assertTrue($checker->isLatest());
+
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('No manual download found');
+            $checker->getDownloadUrl();
+        } finally {
+            HttpsStream::restore();
+        }
+    }
+
+    /**
      * @dataProvider languageChangeProvider
      */
     public function testLanguageChangeDetection($currentLang, $targetLang, $currentVersion, $latestVersion, $expected)
     {
         $checker = new GitHubChecker($targetLang, 'php', $currentVersion, $currentLang);
 
-        // Set the latest version using reflection
-        $reflection = new \ReflectionClass($checker);
-        $property = $reflection->getProperty('latestVersion');
-        if (\PHP_VERSION_ID < 80100) {
-            $property->setAccessible(true);
-        }
-        $property->setValue($checker, $latestVersion);
+        $this->setLatestVersion($checker, $latestVersion);
 
         $this->assertEquals($expected, $checker->isLatest());
     }
@@ -109,13 +128,7 @@ class GitHubCheckerTest extends TestCase
     {
         $checker = new GitHubChecker('en', 'php', $currentVersion, 'en');
 
-        // Set the latest version using reflection
-        $reflection = new \ReflectionClass($checker);
-        $property = $reflection->getProperty('latestVersion');
-        if (\PHP_VERSION_ID < 80100) {
-            $property->setAccessible(true);
-        }
-        $property->setValue($checker, $latestVersion);
+        $this->setLatestVersion($checker, $latestVersion);
 
         $this->assertEquals($expected, $checker->isLatest());
     }
@@ -129,5 +142,14 @@ class GitHubCheckerTest extends TestCase
             'major version difference' => ['2.0.0', '3.0.0', false],
             'patch version newer'      => ['3.0.1', '3.0.0', true],
         ];
+    }
+
+    private function setLatestVersion(GitHubChecker $checker, string $version): void
+    {
+        $property = (new \ReflectionClass($checker))->getProperty('latestVersion');
+        if (\PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+        $property->setValue($checker, $version);
     }
 }

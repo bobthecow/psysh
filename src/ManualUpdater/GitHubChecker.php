@@ -63,8 +63,12 @@ class GitHubChecker implements Checker
 
     public function getDownloadUrl(): string
     {
-        if (!isset($this->downloadUrl)) {
+        if (!isset($this->latestVersion)) {
             $this->fetchLatestRelease();
+        }
+
+        if ($this->downloadUrl === null) {
+            throw new \RuntimeException(\sprintf('No manual download found for language "%s" in format "%s"', $this->lang, $this->format));
         }
 
         return $this->downloadUrl;
@@ -97,7 +101,6 @@ class GitHubChecker implements Checker
 
                     // Build download URL
                     $filename = \sprintf('psysh-manual-v%s-%s.tar.gz', $manual['version'], $this->lang);
-                    $this->downloadUrl = $release['assets_url'] ?? null;
 
                     // Find the actual asset URL
                     foreach ($release['assets'] as $asset) {

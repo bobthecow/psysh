@@ -99,6 +99,16 @@ class InstallerTest extends TestCase
         $this->assertFalse($result);
     }
 
+    public function testInstallReturnsFalseForCorruptTarball()
+    {
+        $tarball = $this->tempDir.'/corrupt.tar.gz';
+        \file_put_contents($tarball, 'not an archive');
+
+        $installer = new Installer($this->tempDir, 'php');
+
+        $this->assertFalse($installer->install($tarball));
+    }
+
     public function testInstallOverwritesExistingManual()
     {
         // Create existing manual

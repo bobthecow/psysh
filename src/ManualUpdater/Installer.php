@@ -68,6 +68,8 @@ class Installer
             $success = \rename($extractedFile, $this->getInstallPath());
 
             return $success;
+        } catch (\UnexpectedValueException | \PharException $e) {
+            return false;
         } finally {
             // Clean up temp directory
             $this->removeDirectory($tempDir);
