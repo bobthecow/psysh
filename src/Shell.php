@@ -2682,6 +2682,11 @@ class Shell extends Application
 
         $this->addLegacyMatchersToCompletionEngine($this->getDefaultCompletionCompatibilityMatchers());
 
+        $defaultMatchers = $this->getDefaultMatchers();
+        if (!empty($defaultMatchers)) {
+            $this->addLegacyMatchersToCompletionEngine($defaultMatchers);
+        }
+
         if (!empty($this->matchers)) {
             $this->addLegacyMatchersToCompletionEngine($this->matchers);
         }

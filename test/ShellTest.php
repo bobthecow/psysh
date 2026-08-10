@@ -24,6 +24,7 @@ use Psy\Readline\LegacyReadline;
 use Psy\Readline\Readline;
 use Psy\Shell;
 use Psy\ShellAware;
+use Psy\TabCompletion\Matcher\AbstractMatcher;
 use Psy\TabCompletion\Matcher\ClassMethodsMatcher;
 use Psy\Test\Fixtures\FakeShell;
 use Symfony\Component\Console\Application;
@@ -730,6 +731,59 @@ class ShellTest extends TestCase
         $autoCompleter = $autoCompleterProperty->getValue($shell);
         $this->assertNotNull($autoCompleter);
         $this->assertNotNull($completionEngineProperty->getValue($autoCompleter));
+    }
+
+    public function testDeprecatedDefaultMatchersExtensionPointIsStillAdapted()
+    {
+        $matcher = $this->createMock(AbstractMatcher::class);
+        $config = $this->getConfig(['useTabCompletion' => true]);
+
+        $shell = new class($config, $matcher) extends Shell {
+            public int $defaultMatcherCalls = 0;
+            private AbstractMatcher $defaultMatcher;
+
+            public function __construct(Configuration $config, AbstractMatcher $defaultMatcher)
+            {
+                parent::__construct($config);
+                $this->defaultMatcher = $defaultMatcher;
+            }
+
+            protected function getDefaultMatchers(): array
+            {
+                $this->defaultMatcherCalls++;
+
+                return [$this->defaultMatcher];
+            }
+        };
+
+        $shell->boot();
+        $initializeCompletion = new \ReflectionMethod(Shell::class, 'initializeCompletionEngine');
+        if (\PHP_VERSION_ID < 80100) {
+            $initializeCompletion->setAccessible(true);
+        }
+        $initializeCompletion->invoke($shell);
+
+        $this->assertSame(1, $shell->defaultMatcherCalls);
+
+        $completionEngineProperty = new \ReflectionProperty(Shell::class, 'completionEngine');
+        $sourcesProperty = new \ReflectionProperty(\Psy\Completion\CompletionEngine::class, 'sources');
+        $matchersProperty = new \ReflectionProperty(\Psy\Completion\Source\MatcherAdapterSource::class, 'matchers');
+        if (\PHP_VERSION_ID < 80100) {
+            $completionEngineProperty->setAccessible(true);
+            $sourcesProperty->setAccessible(true);
+            $matchersProperty->setAccessible(true);
+        }
+
+        $completionEngine = $completionEngineProperty->getValue($shell);
+        $sources = $sourcesProperty->getValue($completionEngine);
+        $adaptedMatchers = [];
+        foreach ($sources as $source) {
+            if ($source instanceof \Psy\Completion\Source\MatcherAdapterSource) {
+                $adaptedMatchers = \array_merge($adaptedMatchers, $matchersProperty->getValue($source));
+            }
+        }
+
+        $this->assertContains($matcher, $adaptedMatchers);
     }
 
     public function testBootConfiguresInteractiveReadline()
