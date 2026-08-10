@@ -123,4 +123,24 @@ class DisplayStringTest extends TestCase
         $this->assertStringContainsString("\033[38;5;4m\033]8;;https://php.net/time\033\\\033[4m\033[38;5;4mtime()", $result);
         $this->assertStringNotContainsString("\033[38;5;21m", $result);
     }
+
+    /**
+     * @dataProvider wideTruncationProvider
+     */
+    public function testTruncateNeverExceedsDisplayWidth(string $text, int $width, bool $withEllipsis)
+    {
+        $truncated = DisplayString::truncate($text, $width, $withEllipsis);
+
+        $this->assertLessThanOrEqual($width, DisplayString::width($truncated));
+    }
+
+    public static function wideTruncationProvider()
+    {
+        return [
+            ['界界', 3, false],
+            ['界界界', 3, true],
+            ['🙂🙂', 1, false],
+            ['🙂🙂', 2, true],
+        ];
+    }
 }

@@ -111,7 +111,9 @@ class DisplayString
         }
 
         if (!$withEllipsis || $maxWidth <= 3) {
-            return Helper::substr($text, 0, $maxWidth);
+            $offset = self::offsetForWidth($text, $maxWidth);
+
+            return \mb_substr($text, 0, $offset);
         }
 
         $targetWidth = $maxWidth - 3;

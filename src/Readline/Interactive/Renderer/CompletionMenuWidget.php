@@ -180,12 +180,26 @@ class CompletionMenuWidget implements WidgetInterface
      */
     private static function doCalculateLayout(int $maxWidth, array $items): array
     {
+        if (empty($items)) {
+            return [
+                'rows'         => 0,
+                'columns'      => 0,
+                'columnWidths' => [],
+            ];
+        }
+
         $widths = \array_map([DisplayString::class, 'width'], $items);
         $count = \count($items);
 
         // Naive guess based on the widest item.
-        $columns = \max(1, \intdiv($maxWidth, \max($widths) + 2));
+        $columns = \max(1, \min($count, \intdiv($maxWidth, \max($widths) + 2)));
         $columnWidths = self::calculateColumnWidths($widths, $count, $columns);
+
+        while ($columns > 1 && \array_sum($columnWidths) + ($columns - 1) * 2 + 3 > $maxWidth) {
+            $columns--;
+            $columnWidths = self::calculateColumnWidths($widths, $count, $columns);
+        }
+
         $maxColumns = \min($count, $columns + 5);
 
         // Try a few wider layouts; prefer the most columns that still fit.
@@ -199,7 +213,7 @@ class CompletionMenuWidget implements WidgetInterface
 
         // Cap single-column width so wide items don't soft-wrap.
         if ($columns === 1) {
-            $columnWidths[0] = \min($columnWidths[0], $maxWidth - 3);
+            $columnWidths[0] = \min($columnWidths[0], \max(0, $maxWidth - 3));
         }
 
         return [

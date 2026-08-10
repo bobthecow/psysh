@@ -167,9 +167,11 @@ class PagerWidget implements WidgetInterface
             $left = $this->hint ?? \sprintf('j/k scroll%s/ search%sq quit', $this->separator(), $this->separator());
         }
 
-        $leftWidth = DisplayString::widthWithoutAnsi($left);
+        $right = DisplayString::truncate($right, $width, true);
         $rightWidth = DisplayString::widthWithoutAnsi($right);
-        $padding = \max(1, $width - $leftWidth - $rightWidth);
+        $leftWidth = \max(0, $width - $rightWidth - 1);
+        $left = DisplayString::truncate($left, $leftWidth, true);
+        $padding = \max(0, $width - DisplayString::widthWithoutAnsi($left) - $rightWidth);
 
         $line = OutputFormatter::escape($left).\str_repeat(' ', $padding).OutputFormatter::escape($right);
 

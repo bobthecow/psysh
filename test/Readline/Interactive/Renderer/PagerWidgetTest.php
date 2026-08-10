@@ -155,6 +155,25 @@ class PagerWidgetTest extends TestCase
         $this->assertStringNotContainsString("\u{258D}", $status);
     }
 
+    public function testStatusLineDoesNotExceedAvailableWidth(): void
+    {
+        $terminal = $this->getTerminal(40);
+        $widget = new PagerWidget(
+            $terminal,
+            new LineMetrics($terminal),
+            ['foo', 'bar'],
+            0,
+            \str_repeat('needle', 20),
+            true,
+        );
+        $frame = new Frame([], 0, 0);
+        $widget->render($frame, new Area(40, 3));
+
+        $status = $frame->getLines()[2];
+        $this->assertLessThanOrEqual(40, \Psy\Readline\Interactive\Layout\DisplayString::widthWithoutAnsi($status));
+        $this->assertStringContainsString('2/2', $status);
+    }
+
     public function testOversizedLineRendersTruncatedPreview(): void
     {
         // Width 40, line that wraps to 5 rows (200 chars). With 4 viewport rows

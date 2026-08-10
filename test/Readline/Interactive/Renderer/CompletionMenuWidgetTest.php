@@ -29,6 +29,7 @@ class CompletionMenuWidgetTest extends TestCase
         $layout = CompletionMenuWidget::calculateLayout($terminal, $items);
 
         $this->assertSame($expectedColumns, $layout['columns']);
+        $this->assertLessThanOrEqual(\count($items), $layout['columns']);
     }
 
     /**
@@ -40,7 +41,7 @@ class CompletionMenuWidgetTest extends TestCase
             'fits in multiple columns' => [
                 80,
                 ['foo', 'bar', 'baz', 'qux'],
-                16,
+                4,
             ],
             'wide item forces single column' => [
                 40,
@@ -59,6 +60,27 @@ class CompletionMenuWidgetTest extends TestCase
         $this->assertSame(1, $layout['columns']);
         // 40 terminal width - 3 indent = 37 max column width
         $this->assertSame(37, $layout['columnWidths'][0]);
+    }
+
+    public function testEmptyLayoutIsWellDefined()
+    {
+        $terminal = $this->getTerminal(40);
+
+        $this->assertSame([
+            'rows'         => 0,
+            'columns'      => 0,
+            'columnWidths' => [],
+        ], CompletionMenuWidget::calculateLayout($terminal, []));
+    }
+
+    public function testInitialColumnGuessNeverProducesAnOverWidthRow()
+    {
+        $terminal = $this->getTerminal(80);
+        $lines = $this->renderMenu($terminal, \array_fill(0, 8, '12345678'));
+
+        foreach ($lines as $line) {
+            $this->assertLessThanOrEqual(80, \Psy\Readline\Interactive\Layout\DisplayString::width($line));
+        }
     }
 
     public function testWideItemsTruncatedInOutput()
