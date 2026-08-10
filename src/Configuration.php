@@ -156,7 +156,7 @@ class Configuration
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
     private bool $useOsc52Clipboard = false;
-    private ?array $autoloadWarmers = null;
+    private array $autoloadWarmers = [];
     private $implicitUse = false;
     private ?ShellLogger $logger = null;
     private ?\Closure $exceptionDetails = null;
@@ -590,11 +590,7 @@ class Configuration
 
         $this->loadLocalConfigIfTrusted();
 
-        $this->configPaths->overrideDirs([
-            'configDir'  => $this->configDir,
-            'dataDir'    => $this->dataDir,
-            'runtimeDir' => $this->runtimeDir,
-        ]);
+        $this->syncConfigPaths();
     }
 
     /**
@@ -843,11 +839,7 @@ class Configuration
         if (@\is_file($localConfig)) {
             $this->loadConfigFile($localConfig);
             $this->localConfigLoaded = true;
-            $this->configPaths->overrideDirs([
-                'configDir'  => $this->configDir,
-                'dataDir'    => $this->dataDir,
-                'runtimeDir' => $this->runtimeDir,
-            ]);
+            $this->syncConfigPaths();
         }
     }
 
@@ -862,10 +854,6 @@ class Configuration
 
     private function hasComposerAutoloadWarmerConfigured(): bool
     {
-        if ($this->autoloadWarmers === null) {
-            $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
-        }
-
         foreach ($this->autoloadWarmers as $warmer) {
             if ($warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer) {
                 return true;
@@ -977,11 +965,7 @@ class Configuration
     {
         $this->configDir = (string) $dir;
 
-        $this->configPaths->overrideDirs([
-            'configDir'  => $this->configDir,
-            'dataDir'    => $this->dataDir,
-            'runtimeDir' => $this->runtimeDir,
-        ]);
+        $this->syncConfigPaths();
     }
 
     /**
@@ -1003,11 +987,7 @@ class Configuration
     {
         $this->dataDir = (string) $dir;
 
-        $this->configPaths->overrideDirs([
-            'configDir'  => $this->configDir,
-            'dataDir'    => $this->dataDir,
-            'runtimeDir' => $this->runtimeDir,
-        ]);
+        $this->syncConfigPaths();
     }
 
     /**
@@ -1029,6 +1009,11 @@ class Configuration
     {
         $this->runtimeDir = (string) $dir;
 
+        $this->syncConfigPaths();
+    }
+
+    private function syncConfigPaths(): void
+    {
         $this->configPaths->overrideDirs([
             'configDir'  => $this->configDir,
             'dataDir'    => $this->dataDir,
@@ -2056,19 +2041,11 @@ class Configuration
      */
     public function setWarmAutoload($config): void
     {
-        if (!\is_bool($config) && !\is_array($config)) {
-            throw new \InvalidArgumentException('warmAutoload must be a boolean or configuration array');
-        }
-
-        // Parse and store warmers immediately
         $this->autoloadWarmers = $this->parseWarmAutoloadConfig($config);
     }
 
     /**
      * Get configured autoload warmers.
-     *
-     * If no warmers are explicitly configured, returns a default ComposerAutoloadWarmer
-     * with smart settings that work for most projects.
      *
      * To disable autoload warming, set 'warmAutoload' to false.
      *
@@ -2076,10 +2053,6 @@ class Configuration
      */
     public function getAutoloadWarmers(): array
     {
-        if ($this->autoloadWarmers === null) {
-            $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
-        }
-
         if ($this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
             return $this->autoloadWarmers;
         }
