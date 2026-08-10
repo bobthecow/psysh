@@ -123,7 +123,7 @@ class Pager
             while (!$this->quitting) {
                 $event = $this->inputQueue->read();
                 if ($event instanceof EofEvent) {
-                    $this->exitMode = self::EXIT_ABORTED;
+                    $this->abort();
                     break;
                 }
 

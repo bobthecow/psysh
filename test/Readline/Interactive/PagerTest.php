@@ -74,6 +74,9 @@ class PagerTest extends TestCase
 
         $pager = new Pager($terminal, $session, $inputQueue, $frameRenderer);
         $pager->page([\str_repeat('x', 400)]);
+
+        $this->assertTrue($pager->isQuitting());
+        $this->assertSame('aborted', $pager->getExitMode());
     }
 
     public function testDoesNotEmitScrollbackWhenRenderThrows(): void
