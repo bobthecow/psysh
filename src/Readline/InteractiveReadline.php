@@ -54,6 +54,7 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
     private bool $historyFilesResolved = false;
     private int $historySize;
     private bool $eraseDups;
+    private ?ContextAwareSource $completionSuggestionSource = null;
 
     /**
      * Interactive readline is supported if stdin is a TTY.
@@ -330,8 +331,14 @@ class InteractiveReadline implements InteractiveReadlineInterface, ShellAware, C
         $this->assertBooted();
         $this->readline->setCompletionEngine($completionEngine);
 
-        $suggestionSource = new ContextAwareSource($completionEngine);
-        $this->readline->getSuggestionEngine()->addSource($suggestionSource);
+        $suggestionEngine = $this->readline->getSuggestionEngine();
+        if ($this->completionSuggestionSource === null) {
+            $this->completionSuggestionSource = new ContextAwareSource($completionEngine);
+            $suggestionEngine->addSource($this->completionSuggestionSource);
+        } else {
+            $this->completionSuggestionSource->setCompleter($completionEngine);
+            $suggestionEngine->clearCache();
+        }
     }
 
     /**

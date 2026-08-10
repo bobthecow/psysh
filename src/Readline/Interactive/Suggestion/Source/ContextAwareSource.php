@@ -31,6 +31,14 @@ class ContextAwareSource implements SourceInterface
     }
 
     /**
+     * Replace the completion engine used for context-aware suggestions.
+     */
+    public function setCompleter(CompletionEngine $completer): void
+    {
+        $this->completer = $completer;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getSuggestion(string $buffer, int $cursorPosition): ?SuggestionResult
@@ -46,11 +54,11 @@ class ContextAwareSource implements SourceInterface
         $completion = $completions[0];
         $currentWord = CurrentWord::extract($buffer, $cursorPosition);
 
-        if ($currentWord !== '' && \stripos($completion, $currentWord) === 0) {
-            $suffix = \substr($completion, \strlen($currentWord));
-        } else {
-            $suffix = $completion;
+        if ($currentWord !== '' && \stripos($completion, $currentWord) !== 0) {
+            return null;
         }
+
+        $suffix = \substr($completion, \strlen($currentWord));
 
         return SuggestionResult::forAppend(
             $suffix,

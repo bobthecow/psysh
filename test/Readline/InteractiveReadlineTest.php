@@ -12,10 +12,12 @@
 namespace Psy\Test\Readline;
 
 use Psy\Command\HelpCommand;
+use Psy\Completion\CompletionEngine;
 use Psy\Exception\ThrowUpException;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\InteractiveSession;
 use Psy\Readline\Interactive\Readline as InternalReadline;
+use Psy\Readline\Interactive\Suggestion\SuggestionEngine;
 use Psy\Readline\InteractiveReadline;
 use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
@@ -179,6 +181,39 @@ class InteractiveReadlineTest extends TestCase
 
         $this->assertInstanceOf(InteractiveSession::class, $session);
         $this->assertFalse($session->isActive());
+    }
+
+    public function testReplacingCompletionEngineDoesNotAccumulateSuggestionSources()
+    {
+        $reflection = new \ReflectionClass(InteractiveReadline::class);
+        $interactiveReadline = $reflection->newInstanceWithoutConstructor();
+        $suggestionEngine = new SuggestionEngine(new History());
+
+        $internalReadline = $this->getMockBuilder(InternalReadline::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setCompletionEngine', 'getSuggestionEngine'])
+            ->getMock();
+        $internalReadline->expects($this->exactly(2))->method('setCompletionEngine');
+        $internalReadline->method('getSuggestionEngine')->willReturn($suggestionEngine);
+
+        $first = $this->createMock(CompletionEngine::class);
+        $first->method('getCompletions')->willReturn(['team']);
+        $second = $this->createMock(CompletionEngine::class);
+        $second->method('getCompletions')->willReturn(['test']);
+
+        $this->setPrivateProperty($interactiveReadline, 'booted', true);
+        $this->setPrivateProperty($interactiveReadline, 'readline', $internalReadline);
+
+        $interactiveReadline->setCompletionEngine($first);
+        $interactiveReadline->setCompletionEngine($second);
+
+        $result = $suggestionEngine->getSuggestion('$t', 2);
+        $this->assertNotNull($result);
+        $this->assertSame('est', $result->getDisplayText());
+
+        $sources = $this->getPrivateProperty($suggestionEngine, 'sources');
+        $contextSources = \array_filter($sources, fn ($source) => $source instanceof \Psy\Readline\Interactive\Suggestion\Source\ContextAwareSource);
+        $this->assertCount(1, $contextSources);
     }
 
     public function testReadlineStartsSessionBeforeReading()
