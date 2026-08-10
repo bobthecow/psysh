@@ -17,6 +17,22 @@ use Psy\Test\TestCase;
 
 class ProcessForkerTest extends TestCase
 {
+    public function testSupportProbeRejectsDisabledPcntlFunction()
+    {
+        $code = 'require '.\var_export($this->getBootstrap(), true).'; echo json_encode(['
+            .'Psy\\ExecutionLoop\\ProcessForker::isPcntlSupported(), '
+            .'Psy\\ExecutionLoop\\ProcessForker::disabledPcntlFunctions()]);';
+        $command = \escapeshellarg(\PHP_BINARY).' -d disable_functions=pcntl_async_signals -r '.\escapeshellarg($code);
+
+        \exec($command, $output, $exitCode);
+
+        [$supported, $disabled] = \json_decode(\implode("\n", $output), true);
+
+        $this->assertSame(0, $exitCode);
+        $this->assertFalse($supported);
+        $this->assertContains('pcntl_async_signals', $disabled);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -70,6 +86,15 @@ class ProcessForkerTest extends TestCase
         ];
     }
 
+    private function getBootstrap(): string
+    {
+        $processForkerPath = (new \ReflectionClass(ProcessForker::class))->getFileName();
+        // The test harness loads the PHAR rather than executing it, so Phar::running() is empty.
+        return \strpos((string) $processForkerPath, 'phar://') === 0
+            ? __DIR__.'/../bootstrap-phar.php'
+            : __DIR__.'/../bootstrap.php';
+    }
+
     /**
      * @return array{stdout: string, stderr: string, exitCode: int}
      */
@@ -77,11 +102,7 @@ class ProcessForkerTest extends TestCase
     {
         $runner = TempPaths::file('psysh-test-process-forker-');
         $directory = TempPaths::directory('psysh-test-process-forker-config-');
-        $processForkerPath = (new \ReflectionClass(ProcessForker::class))->getFileName();
-        // The test harness loads the PHAR rather than executing it, so Phar::running() is empty.
-        $bootstrap = \strpos((string) $processForkerPath, 'phar://') === 0
-            ? __DIR__.'/../bootstrap-phar.php'
-            : __DIR__.'/../bootstrap.php';
+        $bootstrap = $this->getBootstrap();
 
         $script = <<<'PHP'
 <?php
