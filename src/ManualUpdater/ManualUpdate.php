@@ -89,8 +89,12 @@ class ManualUpdate
             throw new \RuntimeException('Unable to find a writable data directory for manual installation');
         }
 
-        $phpManualPath = $dataDir.'/php_manual.php';
-        $sqliteManualPath = $dataDir.'/php_manual.sqlite';
+        $installers = [
+            'php'    => new Installer($dataDir, 'php'),
+            'sqlite' => new Installer($dataDir, 'sqlite'),
+        ];
+        $phpManualPath = $installers['php']->getInstallPath();
+        $sqliteManualPath = $installers['sqlite']->getInstallPath();
 
         $formats = self::getFormatsToUpdate(
             $input,
@@ -106,12 +110,13 @@ class ManualUpdate
         $updates = [];
 
         foreach ($formats as $format) {
-            $path = $format === 'php' ? $phpManualPath : $sqliteManualPath;
+            $installer = $installers[$format];
+            $path = $installer->getInstallPath();
             $meta = self::getManualMeta($path);
 
             $updates[] = [
                 'checker'   => new GitHubChecker($checkerLang, $format, $meta['version'] ?? null, $meta['lang'] ?? null),
-                'installer' => new Installer($dataDir, $format),
+                'installer' => $installer,
             ];
         }
 
