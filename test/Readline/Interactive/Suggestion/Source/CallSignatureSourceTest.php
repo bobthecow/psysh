@@ -120,7 +120,8 @@ class CallSignatureSourceTest extends TestCase
             $this->assertStringContainsString('offset', $result->getDisplayText());
         }
 
-        $this->assertStringContainsString('=', $result->getDisplayText());
+        $this->assertStringNotContainsString('= ...', $result->getDisplayText());
+        \token_get_all('<?php '.$result->applyToBuffer('substr(').';', \TOKEN_PARSE);
     }
 
     public function testHandlesVariadicParameters()
@@ -135,16 +136,44 @@ class CallSignatureSourceTest extends TestCase
 
     public function testEmptySignatureForNoParameters()
     {
-        // Functions with no parameters should return empty string
-        // phpversion() has optional parameter, but let's test the concept
         $result = $this->source->getSuggestion('time(', \mb_strlen('time('));
 
-        // time() has no parameters
-        if ($result !== null) {
-            $this->assertEquals('', $result->getDisplayText());
-        } else {
-            // Or it might return null, which is also fine
-            $this->assertNull($result);
-        }
+        $this->assertNotNull($result);
+        $this->assertSame('', $result->getDisplayText());
+        $this->assertSame('time()', $result->applyToBuffer('time('));
+    }
+
+    public function testFunctionDefinedAfterCacheMissCanBeSuggested()
+    {
+        $function = 'psysh_dynamic_signature_source_fixture';
+        $this->assertFalse(\function_exists($function));
+        $this->assertNull($this->source->getSuggestion($function.'(', \strlen($function) + 1));
+
+        eval('function '.$function.'($argument = 1) {}');
+
+        $result = $this->source->getSuggestion($function.'(', \strlen($function) + 1);
+        $this->assertNotNull($result);
+        $this->assertSame('$argument = 1', $result->getDisplayText());
+    }
+
+    /**
+     * @dataProvider internalOptionalParameterProvider
+     */
+    public function testUnavailableInternalDefaultsDoNotCreateInvalidPhp(string $function)
+    {
+        $buffer = $function.'(';
+        $result = $this->source->getSuggestion($buffer, \strlen($buffer));
+
+        $this->assertNotNull($result);
+        $this->assertStringNotContainsString('= ...', $result->getAcceptText());
+        \token_get_all('<?php '.$result->applyToBuffer($buffer).';', \TOKEN_PARSE);
+    }
+
+    public static function internalOptionalParameterProvider()
+    {
+        return [
+            ['date'],
+            ['error_reporting'],
+        ];
     }
 }

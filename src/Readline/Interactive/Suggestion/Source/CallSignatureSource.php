@@ -21,7 +21,7 @@ use Psy\Readline\Interactive\Suggestion\SuggestionResult;
  */
 class CallSignatureSource implements SourceInterface
 {
-    /** @var array<string, ?string> Cached formatted signatures keyed by function name. */
+    /** @var array<string, string> Cached formatted signatures keyed by function name. */
     private array $signatureCache = [];
 
     /**
@@ -68,7 +68,7 @@ class CallSignatureSource implements SourceInterface
      */
     private function getFunctionSignature(string $functionName): ?string
     {
-        if (\array_key_exists($functionName, $this->signatureCache)) {
+        if (isset($this->signatureCache[$functionName])) {
             return $this->signatureCache[$functionName];
         }
 
@@ -82,7 +82,9 @@ class CallSignatureSource implements SourceInterface
             // Leave as null.
         }
 
-        $this->signatureCache[$functionName] = $signature;
+        if ($signature !== null) {
+            $this->signatureCache[$functionName] = $signature;
+        }
 
         return $signature;
     }
@@ -110,7 +112,10 @@ class CallSignatureSource implements SourceInterface
             $paramStr .= '$'.$param->getName();
 
             if ($param->isOptional() && !$param->isVariadic()) {
-                $paramStr .= ' = '.$this->formatDefaultValue($param);
+                $default = $this->formatDefaultValue($param);
+                if ($default !== null) {
+                    $paramStr .= ' = '.$default;
+                }
             }
 
             $parts[] = $paramStr;
@@ -122,12 +127,16 @@ class CallSignatureSource implements SourceInterface
     /**
      * Format a parameter's default value for display in the signature.
      */
-    private function formatDefaultValue(\ReflectionParameter $parameter): string
+    private function formatDefaultValue(\ReflectionParameter $parameter): ?string
     {
+        if (!$parameter->isDefaultValueAvailable()) {
+            return null;
+        }
+
         try {
             $default = $parameter->getDefaultValue();
         } catch (\ReflectionException $e) {
-            return '...';
+            return null;
         }
 
         if ($default === null) {
