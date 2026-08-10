@@ -40,8 +40,9 @@ class PsyTestComposerFixtureAutoloader
             $loader->addClassMap($classMap);
         }
 
-        // DO NOT register this loader globally - it's only for testing
-        // $loader->register(true);
+        // Give ComposerAutoloadWarmer a target path for matching this loader to
+        // the explicit fixture vendor directory.
+        $loader->addPsr4('PsyTestComposerFixture\\', \dirname(__DIR__).'/fixture-src');
 
         return $loader;
     }

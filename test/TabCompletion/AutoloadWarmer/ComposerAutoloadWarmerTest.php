@@ -12,10 +12,42 @@
 namespace Psy\Test\TabCompletion\AutoloadWarmer;
 
 use Psy\TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 
 class ComposerAutoloadWarmerTest extends TestCase
 {
+    private static ?\Composer\Autoload\ClassLoader $fixtureLoader = null;
+    private static ?string $fixtureVendorDir = null;
+
+    public static function setUpBeforeClass(): void
+    {
+        $fixtureSource = __DIR__.'/../../Fixtures/autoload-warmer-vendor';
+        $fixtureRoot = TempPaths::directory('psysh-autoload-warmer-');
+        self::$fixtureVendorDir = $fixtureRoot.'/vendor';
+        \mkdir($fixtureRoot.'/src', 0700, true);
+        \mkdir($fixtureRoot.'/tests', 0700, true);
+        \mkdir(self::$fixtureVendorDir.'/composer', 0700, true);
+        \mkdir(self::$fixtureVendorDir.'/tests', 0700, true);
+
+        \copy($fixtureSource.'/../empty.php', $fixtureRoot.'/src/Fixture.php');
+        \copy($fixtureSource.'/../empty.php', $fixtureRoot.'/tests/Fixture.php');
+        \copy($fixtureSource.'/autoload.php', self::$fixtureVendorDir.'/autoload.php');
+        \copy($fixtureSource.'/composer/autoload_real.php', self::$fixtureVendorDir.'/composer/autoload_real.php');
+        \copy($fixtureSource.'/composer/autoload_classmap.php', self::$fixtureVendorDir.'/composer/autoload_classmap.php');
+        \copy($fixtureSource.'/composer/ClassLoader.php', self::$fixtureVendorDir.'/tests/Fixture.php');
+
+        self::$fixtureLoader = require self::$fixtureVendorDir.'/autoload.php';
+        self::$fixtureLoader->register(true);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$fixtureLoader !== null) {
+            self::$fixtureLoader->unregister();
+        }
+    }
+
     /**
      * Get fixture vendor directory for fast, deterministic testing.
      *
@@ -24,7 +56,7 @@ class ComposerAutoloadWarmerTest extends TestCase
      */
     private function getFixtureVendorDir(): string
     {
-        return __DIR__.'/../../Fixtures/autoload-warmer-vendor';
+        return self::$fixtureVendorDir;
     }
 
     /**
@@ -71,8 +103,8 @@ class ComposerAutoloadWarmerTest extends TestCase
         $warmer = new ComposerAutoloadWarmer([], $this->getFixtureVendorDir());
         $classes = $warmer->getClassNames();
 
-        // Should return an array
-        $this->assertIsArray($classes);
+        $this->assertContains('Psy\\Shell', $classes);
+        $this->assertNotContains('Symfony\\Component\\Console\\Application', $classes);
 
         // Should only include Psy classes (non-vendor)
         foreach ($classes as $class) {
@@ -92,11 +124,12 @@ class ComposerAutoloadWarmerTest extends TestCase
         $classesWithoutVendor = $warmerWithoutVendor->getClassNames();
         $classesWithVendor = $warmerWithVendor->getClassNames();
 
-        // With vendor should discover at least as many classes
-        $this->assertGreaterThanOrEqual(
+        $this->assertGreaterThan(
             \count($classesWithoutVendor),
             \count($classesWithVendor)
         );
+        $this->assertContains('Symfony\\Component\\Console\\Application', $classesWithVendor);
+        $this->assertContains('Doctrine\\ORM\\EntityManager', $classesWithVendor);
     }
 
     public function testIncludeNamespacesFilter()
@@ -108,9 +141,8 @@ class ComposerAutoloadWarmerTest extends TestCase
 
         $classes = $warmer->getClassNames();
 
-        // Should return an array
-        $this->assertIsArray($classes);
-        $this->assertGreaterThanOrEqual(0, \count($classes));
+        $this->assertNotEmpty($classes);
+        $this->assertContains('Psy\\Shell', $classes);
 
         // All classes should be in the Psy namespace
         foreach ($classes as $class) {
@@ -126,7 +158,8 @@ class ComposerAutoloadWarmerTest extends TestCase
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertGreaterThanOrEqual(0, \count($classes));
+        $this->assertNotEmpty($classes);
+        $this->assertContains('Doctrine\\ORM\\EntityManager', $classes);
 
         // No classes should be from Symfony namespace
         foreach ($classes as $class) {
@@ -138,7 +171,7 @@ class ComposerAutoloadWarmerTest extends TestCase
     {
         $warmer = new ComposerAutoloadWarmer(['includeVendor' => true], $this->getFixtureVendorDir());
         $classes = $warmer->getClassNames();
-        $this->assertGreaterThanOrEqual(0, \count($classes));
+        $this->assertNotEmpty($classes);
 
         // Check that test classes are excluded
         foreach ($classes as $class) {
@@ -165,11 +198,14 @@ class ComposerAutoloadWarmerTest extends TestCase
         $classesWithTests = $warmer->getClassNames();
         $classesWithoutTests = $warmerWithoutTests->getClassNames();
 
-        // With tests should discover at least as many classes
-        $this->assertGreaterThanOrEqual(
+        $this->assertGreaterThan(
             \count($classesWithoutTests),
             \count($classesWithTests)
         );
+        $this->assertContains('Psy\\Test\\ShellTest', $classesWithTests);
+        $this->assertNotContains('Psy\\Test\\ShellTest', $classesWithoutTests);
+        $this->assertContains('Symfony\\Component\\Console\\Tests\\ApplicationTest', $classesWithTests);
+        $this->assertNotContains('Symfony\\Component\\Console\\Tests\\ApplicationTest', $classesWithoutTests);
     }
 
     public function testMultipleWarmCallsAreSafe()
@@ -199,7 +235,7 @@ class ComposerAutoloadWarmerTest extends TestCase
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertGreaterThanOrEqual(0, \count($classes));
+        $this->assertNotEmpty($classes);
 
         // Check that classes match the normalized prefixes
         foreach ($classes as $class) {
@@ -215,20 +251,19 @@ class ComposerAutoloadWarmerTest extends TestCase
     {
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor'     => true,
-            'includeNamespaces' => ['Psy\\', 'Symfony\\Console\\'],
+            'includeNamespaces' => ['Psy\\', 'Symfony\\Component\\Console\\'],
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
 
-        // Should return an array
-        $this->assertIsArray($classes);
+        $this->assertNotEmpty($classes);
 
         foreach ($classes as $class) {
             $matchesPsy = \strpos($class, 'Psy\\') === 0;
-            $matchesSymfony = \strpos($class, 'Symfony\\Console\\') === 0;
+            $matchesSymfony = \strpos($class, 'Symfony\\Component\\Console\\') === 0;
             $this->assertTrue(
                 $matchesPsy || $matchesSymfony,
-                "Class $class should be in Psy\\ or Symfony\\Console\\ namespace"
+                "Class $class should be in Psy\\ or Symfony\\Component\\Console\\ namespace"
             );
         }
     }
@@ -240,70 +275,36 @@ class ComposerAutoloadWarmerTest extends TestCase
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertIsArray($classes);
-
-        // Verify only Symfony vendor classes are included (and no other vendor classes)
-        foreach ($classes as $class) {
-            // If it's a vendor class, it must be Symfony
-            if (\strpos($class, 'Composer\\') === 0 ||
-                (\strpos($class, 'Symfony\\') !== 0 && $this->looksLikeVendorClass($class))) {
-                $this->fail("Non-Symfony vendor class $class should not be included");
-            }
-        }
-
-        // Test passes - config was accepted and filtering works correctly
-        $this->assertTrue(true);
-    }
-
-    private function looksLikeVendorClass(string $class): bool
-    {
-        // Common vendor package prefixes
-        return \strpos($class, 'PHPUnit\\') === 0 ||
-               \strpos($class, 'Doctrine\\') === 0 ||
-               \strpos($class, 'Monolog\\') === 0;
+        $this->assertContains('Symfony\\Component\\Console\\Application', $classes);
+        $this->assertNotContains('Doctrine\\ORM\\EntityManager', $classes);
+        $this->assertNotContains('PHPUnit\\Framework\\TestCase', $classes);
+        $this->assertNotContains('PhpParser\\Parser', $classes);
     }
 
     public function testIncludeVendorNamespacesFiltersVendorOnly()
     {
         $warmer = new ComposerAutoloadWarmer([
-            'includeVendorNamespaces' => ['Symfony\\Console\\'],
+            'includeVendorNamespaces' => ['Symfony\\Component\\Console\\'],
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertIsArray($classes);
-
-        // Check that vendor classes are filtered correctly
-        $hasOtherVendor = false;
-        $hasSymfonyConsole = false;
-
-        foreach ($classes as $class) {
-            if (\strpos($class, 'Symfony\\Console\\') === 0) {
-                $hasSymfonyConsole = true;
-            } elseif (\strpos($class, 'Symfony\\') === 0) {
-                // Other Symfony namespace - should be excluded
-                $this->fail("Class $class should not be included (only Symfony\\Console\\ allowed)");
-            } elseif (\strpos($class, 'Composer\\') === 0 || \strpos($class, 'nikic\\') === 0) {
-                // Other vendor packages should be excluded
-                $hasOtherVendor = true;
-            }
-            // Psy classes (non-vendor) are allowed but not required in minimal classmaps
-        }
-
-        // Should NOT have other vendor classes
-        $this->assertFalse($hasOtherVendor, 'Should not include vendor classes outside includeVendorNamespaces');
-
-        // Note: We don't require Psy classes to exist in classmap since the environment
-        // may have a minimal/non-optimized classmap with only autoloader metadata classes
+        $this->assertNotEmpty($classes);
+        $this->assertContains('Symfony\\Component\\Console\\Application', $classes);
+        $this->assertNotContains('Doctrine\\ORM\\EntityManager', $classes);
+        $this->assertNotContains('Symfony\\Component\\VarDumper\\VarDumper', $classes);
+        $this->assertNotContains('PHPUnit\\Framework\\TestCase', $classes);
+        $this->assertNotContains('PhpParser\\Parser', $classes);
     }
 
     public function testExcludeVendorNamespacesImpliesIncludeVendor()
     {
         $warmer = new ComposerAutoloadWarmer([
-            'excludeVendorNamespaces' => ['Symfony\\Debug\\'],
+            'excludeVendorNamespaces' => ['Symfony\\Component\\VarDumper\\'],
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertIsArray($classes);
+        $this->assertContains('Symfony\\Component\\Console\\Application', $classes);
+        $this->assertContains('Doctrine\\ORM\\EntityManager', $classes);
 
         // Should include vendor classes
         $vendorCount = 0;
@@ -313,28 +314,27 @@ class ComposerAutoloadWarmerTest extends TestCase
             }
         }
 
-        // Should not include Symfony\Debug classes
+        // Should not include Symfony VarDumper classes
         foreach ($classes as $class) {
-            $this->assertNotSame(0, \strpos($class, 'Symfony\\Debug\\'), "Should not include $class");
+            $this->assertNotSame(0, \strpos($class, 'Symfony\\Component\\VarDumper\\'), "Should not include $class");
         }
 
-        // Test passes - config was accepted and filtering works correctly
-        $this->assertTrue(true);
+        $this->assertGreaterThan(0, $vendorCount);
     }
 
     public function testExcludeVendorNamespacesWithExplicitIncludeVendor()
     {
         $warmer = new ComposerAutoloadWarmer([
             'includeVendor'           => true,
-            'excludeVendorNamespaces' => ['Symfony\\VarDumper\\'],
+            'excludeVendorNamespaces' => ['Symfony\\Component\\VarDumper\\'],
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertIsArray($classes);
+        $this->assertNotEmpty($classes);
 
         // Should not include Symfony\VarDumper classes
         foreach ($classes as $class) {
-            $this->assertNotSame(0, \strpos($class, 'Symfony\\VarDumper\\'), "Should not include $class");
+            $this->assertNotSame(0, \strpos($class, 'Symfony\\Component\\VarDumper\\'), "Should not include $class");
         }
     }
 
@@ -364,18 +364,20 @@ class ComposerAutoloadWarmerTest extends TestCase
     {
         $warmer = new ComposerAutoloadWarmer([
             'includeNamespaces'       => ['Psy\\TabCompletion\\'],
-            'includeVendorNamespaces' => ['Symfony\\Console\\'],
+            'includeVendorNamespaces' => ['Symfony\\Component\\Console\\'],
         ], $this->getFixtureVendorDir());
 
         $classes = $warmer->getClassNames();
-        $this->assertIsArray($classes);
+        $this->assertNotEmpty($classes);
+        $this->assertContains('Psy\\TabCompletion\\AutoCompleter', $classes);
+        $this->assertContains('Symfony\\Component\\Console\\Application', $classes);
 
         foreach ($classes as $class) {
             $isPsyTabCompletion = \strpos($class, 'Psy\\TabCompletion\\') === 0;
-            $isSymfonyConsole = \strpos($class, 'Symfony\\Console\\') === 0;
+            $isSymfonyConsole = \strpos($class, 'Symfony\\Component\\Console\\') === 0;
             $this->assertTrue(
                 $isPsyTabCompletion || $isSymfonyConsole,
-                "Class $class should be Psy\\TabCompletion\\ or Symfony\\Console\\"
+                "Class $class should be Psy\\TabCompletion\\ or Symfony\\Component\\Console\\"
             );
         }
     }

@@ -23,6 +23,18 @@ use Psy\Test\Fixtures\Command\ListCommand\TraitGolf;
 
 class ClassEnumeratorTest extends EnumeratorTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        \class_exists(ClassAlfa::class);
+        \class_exists(ClassBravo::class);
+        \class_exists(ClassCharlie::class);
+        \interface_exists(InterfaceDelta::class);
+        \interface_exists(InterfaceEcho::class);
+        \trait_exists(TraitFoxtrot::class);
+        \trait_exists(TraitGolf::class);
+        \class_exists(\Psy\Shell::class);
+    }
+
     public function testEnumerateReturnsNothingForTarget()
     {
         $enumerator = new ClassEnumerator($this->getPresenter());
