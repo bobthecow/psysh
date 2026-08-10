@@ -83,7 +83,9 @@ abstract class AbstractConfigCommand extends Command
                 }
             };
         };
-        $enumParser = function (string $name, array $values, string $acceptedValues): callable {
+        $enumParser = function (string $name, array $values): callable {
+            $acceptedValues = \implode('|', $values);
+
             return function (string $value) use ($name, $values, $acceptedValues): string {
                 if (!\in_array($value, $values, true)) {
                     throw new \InvalidArgumentException(\sprintf('Invalid %s value: %s. Accepted values: %s', $name, $value, $acceptedValues));
@@ -92,7 +94,9 @@ abstract class AbstractConfigCommand extends Command
                 return $value;
             };
         };
-        $configEnumParser = function (string $name, array $values, string $acceptedValues): callable {
+        $configEnumParser = function (string $name, array $values): callable {
+            $acceptedValues = \implode('|', $values);
+
             return function (string $value) use ($name, $values, $acceptedValues): string {
                 if (\in_array($value, $values, true)) {
                     return $value;
@@ -128,7 +132,7 @@ abstract class AbstractConfigCommand extends Command
             'verbosity' => [
                 'name'           => 'verbosity',
                 'acceptedValues' => $verbosityValues,
-                'parser'         => $configEnumParser('verbosity', $verbosityValues, 'quiet|normal|verbose|very_verbose|debug'),
+                'parser'         => $configEnumParser('verbosity', $verbosityValues),
                 'getter' => function () use ($config): string {
                     return $config->verbosity();
                 },
@@ -206,7 +210,7 @@ abstract class AbstractConfigCommand extends Command
             'colormode' => [
                 'name'           => 'colorMode',
                 'acceptedValues' => $colorModeValues,
-                'parser'         => $configEnumParser('colorMode', $colorModeValues, 'auto|forced|disabled'),
+                'parser'         => $configEnumParser('colorMode', $colorModeValues),
                 'getter' => function () use ($config): string {
                     return $config->colorMode();
                 },
@@ -218,7 +222,7 @@ abstract class AbstractConfigCommand extends Command
             'theme' => [
                 'name'           => 'theme',
                 'acceptedValues' => Theme::BUILTIN_THEMES,
-                'parser'         => $enumParser('theme', Theme::BUILTIN_THEMES, \implode('|', Theme::BUILTIN_THEMES)),
+                'parser'         => $enumParser('theme', Theme::BUILTIN_THEMES),
                 'getter'         => function () use ($config): string {
                     return $config->theme()->getName() ?? 'custom';
                 },
