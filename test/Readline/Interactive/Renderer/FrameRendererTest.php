@@ -100,6 +100,22 @@ class FrameRendererTest extends TestCase
         ]));
     }
 
+    public function testResetClearsLineMetricsCache()
+    {
+        $metrics = $this->renderer->getLineMetrics();
+        $metrics->lineRowCount('cached line');
+
+        $cache = new \ReflectionProperty(\Psy\Readline\Interactive\Renderer\LineMetrics::class, 'rowCache');
+        if (\PHP_VERSION_ID < 80100) {
+            $cache->setAccessible(true);
+        }
+        $this->assertNotEmpty($cache->getValue($metrics));
+
+        $this->renderer->reset();
+
+        $this->assertSame([], $cache->getValue($metrics));
+    }
+
     /**
      * Regression test: cursor position must use display width, not code points.
      *

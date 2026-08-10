@@ -48,7 +48,7 @@ class LineMetrics
         if ($this->softWrapCalculator === null || $this->cachedWidth !== $width) {
             $this->softWrapCalculator = new SoftWrapCalculator($width);
             $this->cachedWidth = $width;
-            $this->rowCache = [];
+            $this->clearCache();
         }
 
         return $this->softWrapCalculator;
@@ -72,6 +72,14 @@ class LineMetrics
         $this->rowCache[$line] = $rows;
 
         return $rows;
+    }
+
+    /**
+     * Clear cached measurements while retaining the current wrap calculator.
+     */
+    public function clearCache(): void
+    {
+        $this->rowCache = [];
     }
 
     /**

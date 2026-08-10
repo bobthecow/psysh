@@ -202,6 +202,7 @@ class FrameRenderer
         $this->previousFrame = Frame::empty();
         $this->overlay = null;
         $this->inputWidget->reset();
+        $this->lineMetrics->clearCache();
         $this->lastTerminalWidth = null;
         $this->lastTerminalHeight = null;
     }
