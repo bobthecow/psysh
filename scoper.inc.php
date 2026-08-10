@@ -24,9 +24,9 @@ $polyfillsBootstraps = \array_map(
     )
 );
 
+$polyfillStubDirs = \glob(__DIR__.'/vendor/symfony/polyfill-*/Resources/stubs', \GLOB_ONLYDIR) ?: [];
 $polyfillsStubs = [];
-
-try {
+if (!empty($polyfillStubDirs)) {
     $polyfillsStubs = \array_map(
         function (SplFileInfo $fileInfo) {
             return $fileInfo->getPathname();
@@ -34,13 +34,11 @@ try {
         \iterator_to_array(
             Finder::create()
                 ->files()
-                ->in(__DIR__.'/vendor/symfony/polyfill-*/Resources/stubs')
+                ->in($polyfillStubDirs)
                 ->name('*.php'),
             false
         )
     );
-} catch (Throwable $e) {
-    // There may not be any stubs?
 }
 
 return [
