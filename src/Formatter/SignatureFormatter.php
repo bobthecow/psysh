@@ -283,7 +283,7 @@ class SignatureFormatter implements ReflectorFormatter
      */
     private static function formatFunctionReturnType(\ReflectionFunctionAbstract $reflector): string
     {
-        if (!\method_exists($reflector, 'hasReturnType') || !$reflector->hasReturnType()) {
+        if (!$reflector->hasReturnType()) {
             return '';
         }
 
@@ -381,17 +381,9 @@ class SignatureFormatter implements ReflectorFormatter
         foreach ($reflector->getParameters() as $param) {
             $hint = '';
             try {
-                if (\method_exists($param, 'getType')) {
-                    // Only include the inquisitive nullable type iff param default value is not null.
-                    $defaultIsNull = $param->isOptional() && $param->isDefaultValueAvailable() && @$param->getDefaultValue() === null;
-                    $hint = self::formatReflectionType($param->getType(), !$defaultIsNull);
-                } else {
-                    if ($param->isArray()) {
-                        $hint = '<keyword>array</keyword>';
-                    } elseif ($class = $param->getClass()) {
-                        $hint = LinkFormatter::styleWithHref('class', self::normalizeName($class->getName()), self::getManualHref($class));
-                    }
-                }
+                // Only include the inquisitive nullable type iff param default value is not null.
+                $defaultIsNull = $param->isOptional() && $param->isDefaultValueAvailable() && @$param->getDefaultValue() === null;
+                $hint = self::formatReflectionType($param->getType(), !$defaultIsNull);
             } catch (\Throwable $e) {
                 // sometimes we just don't know...
                 // bad class names, or autoloaded classes that haven't been loaded yet, or whathaveyou.
@@ -486,22 +478,6 @@ class SignatureFormatter implements ReflectorFormatter
         }
 
         return $nullable.LinkFormatter::styleWithHref('class', $typeName, $href);
-    }
-
-    /**
-     * Wrap text in a style tag, optionally including an href.
-     *
-     * @deprecated use LinkFormatter::styleWithHref directly
-     *
-     * @param string      $style The style name (e.g., 'class', 'function')
-     * @param string      $text  The text to wrap
-     * @param string|null $href  Optional hyperlink URL
-     *
-     * @return string Formatted text with style and optional href
-     */
-    private static function styleWithHref(string $style, string $text, ?string $href = null): string
-    {
-        return LinkFormatter::styleWithHref($style, $text, $href);
     }
 
     /**

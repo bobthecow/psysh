@@ -352,7 +352,7 @@ class Theme
      */
     private function getStyleAsInline(string $name, bool $useGrayFallback = false): string
     {
-        $style = $this->getStyle($name, $useGrayFallback) ?? static::DEFAULT_STYLES[$name] ?? [null, null, []];
+        $style = $this->getStyle($name, $useGrayFallback);
         $fg = $style[0] ?? null;
         $bg = $style[1] ?? null;
         $options = $style[2] ?? [];
