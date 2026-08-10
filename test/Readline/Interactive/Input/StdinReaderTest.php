@@ -67,33 +67,25 @@ class StdinReaderTest extends TestCase
         \fclose($stream);
     }
 
-    /**
-     * Test detecting paste with multiple lines.
-     *
-     * Note: This is hard to test in unit tests because it relies on
-     * stream_select and non-blocking I/O behavior that doesn't work
-     * well with memory streams. This test documents the expected
-     * behavior but may not actually trigger paste detection.
-     */
     public function testPasteDetection()
     {
-        $stream = \fopen('php://memory', 'r+');
+        $streams = \stream_socket_pair(\STREAM_PF_UNIX, \STREAM_SOCK_STREAM, \STREAM_IPPROTO_IP);
+        if ($streams === false) {
+            $this->markTestSkipped('Socket pairs are not supported on this platform');
+        }
+
+        [$stream, $writer] = $streams;
         $pastedContent = "line1\nline2\nline3";
-        \fwrite($stream, $pastedContent);
-        \rewind($stream);
+        \fwrite($writer, $pastedContent);
 
         $input = new StdinReader($stream);
-
-        // In real usage, if all this content arrives at once,
-        // it would be detected as a paste. In this test environment,
-        // it might just read the first character.
         $event = $input->readEvent();
 
-        // The test might not detect it as paste in this environment
-        // but we can at least verify it doesn't crash
-        $this->assertTrue($event instanceof KeyEvent || $event instanceof PasteEvent);
+        $this->assertInstanceOf(PasteEvent::class, $event);
+        $this->assertSame($pastedContent, $event->getContent());
 
         \fclose($stream);
+        \fclose($writer);
     }
 
     public function testEscapeSequence()

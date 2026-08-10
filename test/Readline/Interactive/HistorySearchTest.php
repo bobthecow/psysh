@@ -216,13 +216,7 @@ class HistorySearchTest extends TestCase
 
         $this->search->updateQuery('goodbye');
 
-        // Accept by simulating Enter key
-        $match = $this->search->getSelectedMatch();
-        $this->assertSame('echo "goodbye"', $match);
-
-        $buffer->clear();
-        $buffer->insert($match);
-        $this->search->exit();
+        $this->assertFalse($this->search->handleKey(new KeyEvent("\r", KeyEvent::TYPE_CHAR), $buffer));
 
         $this->assertSame('echo "goodbye"', $buffer->getText());
         $this->assertFalse($this->search->isActive());

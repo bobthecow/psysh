@@ -13,6 +13,7 @@ namespace Psy\Test\Readline\Interactive\Suggestion;
 
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\Interactive\Suggestion\FrecencyIndex;
+use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
 
 class FrecencyIndexTest extends TestCase
@@ -78,26 +79,24 @@ class FrecencyIndexTest extends TestCase
 
     public function testScoresRecentWordsHigher()
     {
+        $historyFile = TempPaths::file('psysh-test-frecency-');
+        $now = \time();
+        $lines = [
+            \json_encode(['type' => 'psysh-history', 'format' => 'jsonl', 'version' => 1]),
+            \json_encode(['command' => 'old_function($x)', 'timestamp' => $now - 20 * 86400, 'lines' => 1]),
+            \json_encode(['command' => 'recent_function($y)', 'timestamp' => $now - 3600, 'lines' => 1]),
+        ];
+        \file_put_contents($historyFile, \implode("\n", $lines)."\n");
+
         $history = new History();
-
-        // Add old entry (will be filtered by 30-day window in real use)
-        // For testing, we'll add recent ones with different implicit recency
-        $history->add('old_function($x)');
-
-        // Sleep a tiny bit to ensure timestamp difference
-        \usleep(1000);
-
-        $history->add('recent_function($y)');
+        $history->loadFromFile($historyFile);
 
         $index = new FrecencyIndex($history);
 
         $oldScore = $index->getScore('old_function');
         $recentScore = $index->getScore('recent_function');
 
-        // Both should be scored, recent might be slightly higher
-        // but this is hard to test precisely due to time granularity
-        $this->assertGreaterThan(0, $oldScore);
-        $this->assertGreaterThan(0, $recentScore);
+        $this->assertGreaterThan($oldScore, $recentScore);
     }
 
     public function testReturnsZeroForUnknownWords()

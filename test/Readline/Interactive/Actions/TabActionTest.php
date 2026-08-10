@@ -338,25 +338,20 @@ class TabActionTest extends TestCase
 
     public function testBackspaceToEmptyExitsInteractiveMode()
     {
-        $this->context->setAll([
-            'test1' => 'value1',
-            'test2' => 'value2',
-            'test3' => 'value3',
-        ]);
+        $completer = $this->createMock(CompletionEngine::class);
+        $completer->method('getCompletions')->willReturn(['team', 'test']);
+        $action = new TabAction($completer);
+        $action->setInteractiveSelectionEnabled(true);
 
         $this->setBufferState($this->buffer, '$te<cursor>');
+        $this->assertTrue($action->execute($this->buffer, $this->terminal, $this->readline));
 
-        $result = $this->action->execute($this->buffer, $this->terminal, $this->readline);
+        $backspace = new KeyEvent("\x7f", KeyEvent::TYPE_CONTROL);
+        $this->assertTrue($action->handleKey($backspace, $this->buffer));
+        $this->assertBufferState('$t<cursor>', $this->buffer);
 
-        // Note: In actual interactive mode with a TTY, the user would now be able to:
-        // 1. Type characters to filter
-        // 2. Backspace until filter is empty
-        // 3. Interactive mode should exit, returning control to terminal
-        //
-        // This test verifies the basic setup. The backspace-to-exit logic
-        // is in handleInteractiveSelection() which requires a TTY to test fully.
-        // We're documenting the expected behavior here.
-        $this->assertTrue($result);
+        $this->assertFalse($action->handleKey($backspace, $this->buffer));
+        $this->assertBufferState('$<cursor>', $this->buffer);
     }
 
     public function testBackspaceAtStartOfBufferLeavesMenuForReplay(): void
