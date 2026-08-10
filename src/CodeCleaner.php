@@ -69,7 +69,6 @@ class CodeCleaner
     private NodeTraverser $traverser;
     private ?array $namespace = null;
     private array $messages = [];
-    private array $aliasesByNamespace = [];
     private array $aliasesByTypeByNamespace = [];
 
     /**
@@ -326,7 +325,6 @@ class CodeCleaner
     public function setAliasesForNamespace(?Name $namespace, array $aliases)
     {
         $namespaceKey = \strtolower($namespace ? $namespace->toString() : '');
-        $this->aliasesByNamespace[$namespaceKey] = $aliases;
         $this->aliasesByTypeByNamespace[$namespaceKey][Use_::TYPE_NORMAL] = $aliases;
     }
 
@@ -345,7 +343,7 @@ class CodeCleaner
         $namespaceName = $namespace instanceof Name ? $namespace->toString() : $namespace;
         $namespaceKey = \strtolower($namespaceName ?? '');
 
-        return $this->aliasesByTypeByNamespace[$namespaceKey][Use_::TYPE_NORMAL] ?? $this->aliasesByNamespace[$namespaceKey] ?? [];
+        return $this->aliasesByTypeByNamespace[$namespaceKey][Use_::TYPE_NORMAL] ?? [];
     }
 
     /**
@@ -358,7 +356,6 @@ class CodeCleaner
     {
         $namespaceKey = \strtolower($namespace ? $namespace->toString() : '');
         $this->aliasesByTypeByNamespace[$namespaceKey] = $aliasesByType;
-        $this->aliasesByNamespace[$namespaceKey] = $aliasesByType[Use_::TYPE_NORMAL] ?? [];
     }
 
     /**
@@ -373,15 +370,7 @@ class CodeCleaner
         $namespaceName = $namespace instanceof Name ? $namespace->toString() : $namespace;
         $namespaceKey = \strtolower($namespaceName ?? '');
 
-        if (isset($this->aliasesByTypeByNamespace[$namespaceKey])) {
-            return $this->aliasesByTypeByNamespace[$namespaceKey];
-        }
-
-        if (!isset($this->aliasesByNamespace[$namespaceKey])) {
-            return [];
-        }
-
-        return [Use_::TYPE_NORMAL => $this->aliasesByNamespace[$namespaceKey]];
+        return $this->aliasesByTypeByNamespace[$namespaceKey] ?? [];
     }
 
     /**
@@ -641,15 +630,11 @@ class CodeCleaner
         try {
             return $this->parser->parse($code);
         } catch (PhpParserError $e) {
-            if ($this->parseErrorIsUnclosedString($e, $code)) {
-                return false;
-            }
-
-            if ($this->parseErrorIsUnterminatedComment($e, $code)) {
-                return false;
-            }
-
-            if ($this->parseErrorIsTrailingComma($e, $code)) {
+            if (
+                $this->parseErrorIsUnclosedString($e, $code) ||
+                $this->parseErrorIsUnterminatedComment($e) ||
+                $this->parseErrorIsTrailingComma($e, $code)
+            ) {
                 return false;
             }
 
@@ -692,7 +677,7 @@ class CodeCleaner
         return true;
     }
 
-    private function parseErrorIsUnterminatedComment(PhpParserError $e, string $code): bool
+    private function parseErrorIsUnterminatedComment(PhpParserError $e): bool
     {
         return $e->getRawMessage() === 'Unterminated comment';
     }
