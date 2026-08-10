@@ -28,8 +28,13 @@ class IntervalChecker extends GitHubChecker
         $cached = \json_decode(@\file_get_contents($this->cacheFile, false));
         if ($cached && isset($cached->last_check) && isset($cached->release)) {
             $now = new \DateTime();
-            $lastCheck = new \DateTime($cached->last_check);
-            if ($lastCheck >= $now->sub($this->getDateInterval())) {
+            try {
+                $lastCheck = new \DateTime($cached->last_check);
+            } catch (\Exception $e) {
+                $lastCheck = null;
+            }
+
+            if ($lastCheck !== null && $lastCheck >= $now->sub($this->getDateInterval())) {
                 return $cached->release;
             }
         }

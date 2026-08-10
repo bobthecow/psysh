@@ -11,8 +11,10 @@
 
 namespace Psy\Test\VersionUpdater;
 
+use Psy\Test\Fixtures\HttpsStream;
 use Psy\Test\TestCase;
 use Psy\VersionUpdater\Checker;
+use Psy\VersionUpdater\GitHubChecker;
 use Psy\VersionUpdater\IntervalChecker;
 
 class IntervalCheckerTest extends TestCase
@@ -97,5 +99,44 @@ class IntervalCheckerTest extends TestCase
         // Network call will return latest version (not v0.9.0)
         $this->assertNotNull($release);
         $this->assertNotSame('v0.9.0', $release->tag_name);
+    }
+
+    public function testInvalidIntervalStillThrowsForValidCacheTimestamp()
+    {
+        $cacheData = [
+            'last_check' => \date(\DATE_ATOM),
+            'release'    => ['tag_name' => 'v0.9.0'],
+        ];
+        \file_put_contents($this->cacheFile, \json_encode($cacheData));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid interval configured');
+
+        (new IntervalChecker($this->cacheFile, 'invalid'))->fetchLatestRelease();
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testMalformedCacheTimestampFallsBackToRemoteRelease()
+    {
+        $cacheData = [
+            'last_check' => 'not-a-date',
+            'release'    => ['tag_name' => 'v0.9.0'],
+        ];
+        \file_put_contents($this->cacheFile, \json_encode($cacheData));
+
+        HttpsStream::register([
+            GitHubChecker::URL => \json_encode(['tag_name' => 'v1.2.3']),
+        ]);
+
+        try {
+            $release = (new IntervalChecker($this->cacheFile, Checker::DAILY))->fetchLatestRelease();
+        } finally {
+            HttpsStream::restore();
+        }
+
+        $this->assertSame('v1.2.3', $release->tag_name);
     }
 }
