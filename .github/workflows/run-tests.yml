@@ -56,13 +56,8 @@ jobs:
           command: composer bin phpunit update --no-interaction --no-progress
 
       - name: Run tests
-        if: inputs.continue_on_error == false
         run: make test
-
-      - name: Run tests (but don't complain)
-        if: inputs.continue_on_error == true
-        run: make test
-        continue-on-error: true
+        continue-on-error: ${{ inputs.continue_on_error }}
 
       - name: Smoke test
         run: test/smoketest.sh

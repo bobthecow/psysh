@@ -38,7 +38,7 @@ class ParserTestCase extends TestCase
         try {
             return $this->getParser()->parse($code);
         } catch (PhpParserError $e) {
-            if (!$this->parseErrorIsEOF($e)) {
+            if (!ParseErrorException::isUnexpectedEOF($e)) {
                 throw ParseErrorException::fromParseError($e);
             }
 
@@ -90,12 +90,5 @@ class ParserTestCase extends TestCase
         }
 
         return $this->printer;
-    }
-
-    private function parseErrorIsEOF(PhpParserError $e)
-    {
-        $msg = $e->getRawMessage();
-
-        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }

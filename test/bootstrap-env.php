@@ -16,9 +16,8 @@ final class BootstrapEnv
     /**
      * Create and apply a hermetic test environment for PsySH config/data.
      *
-     * @return array<string, string> Applied directory paths keyed by env name
      */
-    public static function isolate(?string $root = null): array
+    public static function isolate(?string $root = null): void
     {
         $root = $root ?? TempPaths::directory('psysh-test-env-', null, 0777);
 
@@ -50,15 +49,6 @@ final class BootstrapEnv
         self::unsetEnv('PSYSH_CONFIG');
         self::unsetEnv('PSYSH_TRUST_PROJECT');
         self::unsetEnv('PSYSH_UNTRUSTED_PROJECT');
-
-        return [
-            'HOME'            => $homeDir,
-            'XDG_CONFIG_HOME' => $configHome,
-            'XDG_DATA_HOME'   => $dataHome,
-            'XDG_RUNTIME_DIR' => $runtimeDir,
-            'XDG_CONFIG_DIRS' => $configDirs,
-            'XDG_DATA_DIRS'   => $dataDirs,
-        ];
     }
 
     private static function mkdir(string $dir): void
