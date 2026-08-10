@@ -41,9 +41,6 @@ use Psy\CodeCleaner;
 class ImplicitUsePass extends CodeCleanerPass
 {
     private ?array $shortNameMap = null;
-    private array $implicitUses = [];
-    private array $seenNames = [];
-    private array $existingAliases = [];
     private array $includeNamespaces = [];
     private array $excludeNamespaces = [];
     private ?string $currentNamespace = null;
@@ -72,17 +69,15 @@ class ImplicitUsePass extends CodeCleanerPass
 
         $this->buildShortNameMap();
 
-        // Reset state for this traversal
-        $this->implicitUses = [];
-        $this->seenNames = [];
-        $this->existingAliases = [];
         $this->currentNamespace = null;
 
         $modified = false;
+        $hasNamespace = false;
 
         // Collect use statements and seen names for each namespace
         foreach ($nodes as $node) {
             if ($node instanceof Namespace_) {
+                $hasNamespace = true;
                 $this->currentNamespace = $node->name ? $node->name->toString() : null;
 
                 $perNamespaceAliases = [];
@@ -99,14 +94,6 @@ class ImplicitUsePass extends CodeCleanerPass
                     $node->stmts = \array_merge($this->createUseStatements($perNamespaceUses), $node->stmts ?? []);
                     $modified = true;
                 }
-            }
-        }
-
-        $hasNamespace = false;
-        foreach ($nodes as $node) {
-            if ($node instanceof Namespace_) {
-                $hasNamespace = true;
-                break;
             }
         }
 
@@ -146,7 +133,7 @@ class ImplicitUsePass extends CodeCleanerPass
                         $aliasStr = $alias instanceof Name ? $alias->toString() : (string) $alias;
                         $aliases[\strtolower($aliasStr)] = true;
                     } else {
-                        $aliases[\strtolower($this->getShortName($useItem->name))] = true;
+                        $aliases[\strtolower($useItem->name->getLast())] = true;
                     }
                 }
             }
@@ -169,8 +156,8 @@ class ImplicitUsePass extends CodeCleanerPass
             }
 
             if ($node instanceof Name && !$node instanceof FullyQualifiedName) {
-                if (!$this->isQualified($node)) {
-                    $shortName = $this->getShortName($node);
+                if (\strpos($node->toString(), '\\') === false) {
+                    $shortName = $node->getLast();
                     $shortNameLower = \strtolower($shortName);
 
                     if (isset($seen[$shortNameLower])) {
@@ -229,7 +216,7 @@ class ImplicitUsePass extends CodeCleanerPass
     private function shouldAddImplicitUseInContext(string $shortName, string $shortNameLower, array $aliases): bool
     {
         // Rule 1: No existing unqualified name (class/interface/trait) with that short name
-        if (\class_exists($shortName, false) || \interface_exists($shortName, false) || \trait_exists($shortName, false)) {
+        if ($this->classLikeExists($shortName)) {
             return false;
         }
 
@@ -247,7 +234,7 @@ class ImplicitUsePass extends CodeCleanerPass
         if ($this->currentNamespace !== null) {
             $expectedFqn = \trim($this->currentNamespace, '\\').'\\'.$shortName;
 
-            if (\class_exists($expectedFqn, false) || \interface_exists($expectedFqn, false) || \trait_exists($expectedFqn, false)) {
+            if ($this->classLikeExists($expectedFqn)) {
                 return false;
             }
         }
@@ -345,32 +332,9 @@ class ImplicitUsePass extends CodeCleanerPass
         return \array_map(fn ($namespace) => \trim($namespace, '\\').'\\', $namespaces);
     }
 
-    /**
-     * Get short name from a Name node.
-     */
-    private function getShortName(Name $name): string
+    private function classLikeExists(string $name): bool
     {
-        $parts = $this->getParts($name);
-
-        return \end($parts);
-    }
-
-    /**
-     * Check if a name is qualified (contains namespace separator).
-     */
-    private function isQualified(Name $name): bool
-    {
-        return \count($this->getParts($name)) > 1;
-    }
-
-    /**
-     * Backwards compatibility shim for PHP-Parser 4.x.
-     *
-     * @return string[]
-     */
-    private function getParts(Name $name): array
-    {
-        return \method_exists($name, 'getParts') ? $name->getParts() : $name->parts;
+        return \class_exists($name, false) || \interface_exists($name, false) || \trait_exists($name, false);
     }
 
     /**

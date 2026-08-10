@@ -50,7 +50,6 @@ parameters:
     - message: "#^Access to an undefined property PhpParser\\\\Node\\\\Name::\\$parts\\.$#"
       paths:
         - ../../src/CodeCleaner.php
-        - ../../src/CodeCleaner/ImplicitUsePass.php
         - ../../src/CodeCleaner/NamespaceAwarePass.php
         - ../../src/CodeCleaner/NamespacePass.php
         - ../../src/CodeCleaner/ValidConstructorPass.php
