@@ -3,8 +3,8 @@ PSYSH_SRC_FILES = $(shell find src -type f -name "*.php")
 VERSION = $(shell git describe --tag --always --dirty=-dev)
 
 COMPOSER_OPTS = --no-interaction --no-progress --verbose
-COMPOSER_REQUIRE_OPTS = $(COMPOSER_OPTS) --no-update
-COMPOSER_UPDATE_OPTS = $(COMPOSER_OPTS) --prefer-stable --no-dev --classmap-authoritative --prefer-dist
+COMPOSER_INSTALL_OPTS = $(COMPOSER_OPTS) --no-dev --classmap-authoritative --prefer-dist
+COMPOSER_UPDATE_OPTS = $(COMPOSER_INSTALL_OPTS) --prefer-stable
 DOWNSTREAM_ALL_PROJECTS = $(shell scripts/test-downstream --list | tr '\n' ' ')
 
 ifneq ($(CI),)
@@ -96,24 +96,20 @@ vendor/autoload.php: composer.lock
 	composer install
 	touch $@
 
-vendor-bin/%/vendor/autoload.php: vendor/autoload.php vendor-bin/%/composer.json
+vendor-bin/%/vendor/autoload.php: vendor-bin/%/composer.json | vendor/autoload.php
 	composer bin $* install
 	touch $@
 
-vendor/bin/box: vendor-bin/box/vendor/autoload.php
-	composer bin box install
+vendor/bin/box: | vendor-bin/box/vendor/autoload.php
 	ln -sf ../../vendor-bin/box/vendor/humbug/box/bin/box $@
 
-vendor/bin/phpunit: vendor-bin/phpunit/vendor/autoload.php
-	composer bin phpunit install --ignore-platform-reqs
+vendor/bin/phpunit: | vendor-bin/phpunit/vendor/autoload.php
 	ln -sf ../../vendor-bin/phpunit/vendor/phpunit/phpunit/phpunit $@
 
-vendor/bin/phpstan: vendor-bin/phpstan/vendor/autoload.php
-	composer bin phpstan install --ignore-platform-reqs
+vendor/bin/phpstan: | vendor-bin/phpstan/vendor/autoload.php
 	ln -sf ../../vendor-bin/phpstan/vendor/phpstan/phpstan/phpstan $@
 
-vendor/bin/phan: vendor-bin/phan/vendor/autoload.php
-	composer bin phan install --ignore-platform-reqs
+vendor/bin/phan: | vendor-bin/phan/vendor/autoload.php
 	ln -sf ../../vendor-bin/phan/vendor/phan/phan/phan $@
 
 
