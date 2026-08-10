@@ -550,28 +550,6 @@ class UopzReloaderVisitor extends NodeVisitorAbstract
 
             return;
         }
-
-        // If/switch/for/while/etc control structures at top level
-        if ($this->isControlStructure($node)) {
-            $type = 'if';
-            if ($node instanceof Stmt\Switch_) {
-                $type = 'switch';
-            } elseif ($node instanceof Stmt\For_) {
-                $type = 'for';
-            } elseif ($node instanceof Stmt\Foreach_) {
-                $type = 'foreach';
-            } elseif ($node instanceof Stmt\While_) {
-                $type = 'while';
-            } elseif ($node instanceof Stmt\Do_) {
-                $type = 'do-while';
-            } elseif ($node instanceof Stmt\TryCatch) {
-                $type = 'try-catch';
-            }
-
-            $this->addWarning(\sprintf('Not re-run: %s (...) { ... }', $type));
-
-            return;
-        }
     }
 
     /**
