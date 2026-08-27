@@ -25,6 +25,7 @@ use Psy\Exception\Exception as PsyException;
 use Psy\Exception\InterruptException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\ThrowUpException;
+use Psy\ExecutionLoop\ExecutionCleanupListener;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\ExecutionLoop\SignalHandler;
@@ -99,6 +100,8 @@ class Shell extends Application
     private bool $nonInteractive = false;
     private int $runDepth = 0;
     private int $executionDepth = 0;
+    /** @var array<int, ExecutionCleanupListener[]> */
+    private array $executionCleanupStack = [];
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
     private bool $outputWritten = false;
@@ -1007,17 +1010,35 @@ class Shell extends Application
     }
 
     /**
+     * Establish cleanup ownership before execution setup can fail.
+     *
+     * @internal
+     */
+    public function beforeExecute(): void
+    {
+        $this->executionCleanupStack[] = [];
+    }
+
+    /**
      * Run execution loop listeners on code to be executed.
      *
      * @param string $code
      */
     public function onExecute(string $code): string
     {
+        $executionIndex = \count($this->executionCleanupStack) - 1;
+
         $this->errorReporting = \error_reporting();
         $this->enableInteractiveSignalCharsIfNeeded();
 
         foreach ($this->loopListeners as $listener) {
-            if (($return = $listener->onExecute($this, $code)) !== null) {
+            $return = $listener->onExecute($this, $code);
+
+            if ($listener instanceof ExecutionCleanupListener) {
+                $this->executionCleanupStack[$executionIndex][] = $listener;
+            }
+
+            if ($return !== null) {
                 $code = $return;
             }
         }
@@ -1037,7 +1058,16 @@ class Shell extends Application
      */
     public function afterExecute()
     {
-        foreach (\array_reverse($this->loopListeners) as $listener) {
+        $listeners = \array_pop($this->executionCleanupStack);
+        if ($listeners === null) {
+            return;
+        }
+
+        if ($this->executionCleanupStack === []) {
+            $this->disableInteractiveSignalCharsIfNeeded();
+        }
+
+        foreach (\array_reverse($listeners) as $listener) {
             $listener->afterExecute($this);
         }
     }

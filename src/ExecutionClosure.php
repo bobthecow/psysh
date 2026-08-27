@@ -26,6 +26,8 @@ class ExecutionClosure
     public function __construct(Shell $__psysh__)
     {
         $this->setClosure($__psysh__, function () use ($__psysh__) {
+            $__psysh__->beforeExecute();
+
             try {
                 try {
                     // Restore execution scope variables

@@ -38,6 +38,8 @@ class ExecutionLoopClosure extends ExecutionClosure
                 try {
                     $__psysh__->getInput();
 
+                    $__psysh__->beforeExecute();
+
                     try {
                         try {
                             // Pull in any new execution scope variables

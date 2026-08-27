@@ -22,7 +22,9 @@ if (!\is_file($pharPath)) {
     throw new RuntimeException('Could not find PsySH PHAR bootstrap.');
 }
 
-require_once $pharPath;
+// Load the bundled autoloader without running the launcher's local-project discovery.
+Phar::loadPhar($pharPath, 'psysh.phar');
+require_once 'phar://psysh.phar/vendor/autoload.php';
 
 // PHPUnit only sees the copied `test/` tree, so wire `Psy\Test\...` classes
 // directly to files under this directory.

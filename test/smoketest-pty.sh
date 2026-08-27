@@ -162,6 +162,11 @@ $before = trim((string) shell_exec('stty -g 2>/dev/null'));
 $shell->execute('21 * 2', true);
 $after = trim((string) shell_exec('stty -g 2>/dev/null'));
 
+if ($before === '' || $after === '') {
+    fwrite(STDERR, "Unable to read terminal state.\n");
+    exit(1);
+}
+
 if ($before !== $after) {
     fwrite(STDERR, "Terminal state changed during direct execution.\n");
     exit(1);
@@ -348,12 +353,12 @@ test_direct_execute_terminal_state() {
   fi
 
   run_pty '' \
-    bash -c 'stty isig; exec "$@"' _ \
+    bash -c 'stty isig && exec "$@"' _ \
     php "${SIGNAL_RUNNER}" "${ROOT_DIR}/vendor/autoload.php" signal-handler "${TMP_DIR}" "${CONFIG_FILE}"
   assert_status 0 || return 1
 
   run_pty '' \
-    bash -c 'stty isig; exec "$@"' _ \
+    bash -c 'stty isig && exec "$@"' _ \
     php "${SIGNAL_RUNNER}" "${ROOT_DIR}/vendor/autoload.php" shell "${TMP_DIR}" "${CONFIG_FILE}"
   assert_status 0 && pass
 }
@@ -362,7 +367,15 @@ test_signal_handler_terminal_state() {
   echo -n "  Signal handler state:  "
 
   run_pty $'echo 42;\nexit\n' \
-    bash -c 'stty isig; before=$(stty -g); "$@"; status=$?; after=$(stty -g); [[ "$before" = "$after" ]] || exit 99; exit "$status"' _ \
+    bash -c '
+      stty isig || exit 98
+      before=$(stty -g) || exit 98
+      "$@"
+      status=$?
+      after=$(stty -g) || exit 98
+      [[ -n "$before" && -n "$after" && "$before" = "$after" ]] || exit 99
+      exit "$status"
+    ' _ \
     env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=xterm-256color \
     php "${BIN_PATH}" -c "${SIGNAL_CONFIG_FILE}" --no-pager --no-trust-project
 
