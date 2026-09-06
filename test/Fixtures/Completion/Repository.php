@@ -32,4 +32,28 @@ class Repository
     {
         return new User();
     }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function all()
+    {
+        return new Collection();
+    }
+
+    /**
+     * @return iterable<User>
+     */
+    public function page()
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string, User>
+     */
+    public function keyed()
+    {
+        return [];
+    }
 }
