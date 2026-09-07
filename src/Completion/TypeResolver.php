@@ -850,7 +850,11 @@ class TypeResolver
             return [];
         }
 
-        if (\preg_match('/^[\w\\\\]+<(.+)>$/', $typeString, $matches)) {
+        // A generic names the type of the value itself, not of what it holds:
+        // `Collection<int, User>` is a Collection. Resolving the arguments
+        // instead offers the members of the wrong class, and for more than one
+        // argument produces a type name no class ever has ("int, User").
+        if (\preg_match('/^([\w\\\\]+)<.+>$/', $typeString, $matches)) {
             return $this->parseDocblockTypes($matches[1], $classContext);
         }
 

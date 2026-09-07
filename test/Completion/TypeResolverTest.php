@@ -412,6 +412,30 @@ class TypeResolverTest extends TestCase
                 ['Psy\Test\Fixtures\Completion\City'],
             ],
 
+            // Generic docblock return types name the container, not what it
+            // holds: the expression is a Collection, so it is the Collection's
+            // members that can follow it.
+            'generic docblock return type' => [
+                fn ($ctx) => $ctx->setAll(['repo' => new Repository()]),
+                '$repo->all()',
+                ['Psy\Test\Fixtures\Completion\Collection'],
+            ],
+            'generic docblock return type with a non-class container' => [
+                fn ($ctx) => $ctx->setAll(['repo' => new Repository()]),
+                '$repo->page()',
+                [],
+            ],
+            'generic docblock return type continues a chain' => [
+                fn ($ctx) => $ctx->setAll(['repo' => new Repository()]),
+                '$repo->all()->first()',
+                ['Psy\Test\Fixtures\Completion\User'],
+            ],
+            'generic array docblock return type' => [
+                fn ($ctx) => $ctx->setAll(['repo' => new Repository()]),
+                '$repo->keyed()',
+                [],
+            ],
+
             // Docblock return types
             'docblock return type' => [
                 fn ($ctx) => $ctx->setAll(['city' => new City()]),
