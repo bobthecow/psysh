@@ -66,6 +66,13 @@ interface Listener
     public function onExecute(Shell $shell, string $code);
 
     /**
+     * Called after executing user code, even if execution throws.
+     *
+     * @param Shell $shell
+     */
+    public function afterExecute(Shell $shell);
+
+    /**
      * Called at the end of each loop.
      *
      * @param Shell $shell

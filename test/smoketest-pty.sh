@@ -13,7 +13,7 @@
 # Integration smoke tests that run PsySH under a PTY (pseudo-terminal) via
 # the Linux util-linux `script` command. These tests verify interactive
 # behavior that requires a real terminal: command execution, pager lifecycle,
-# Composer proxy startup, and project trust flags.
+# Composer proxy startup, project trust flags, and direct execution cleanup.
 #
 # Usage:
 #   test/smoketest-pty.sh                    # Test bin/psysh (default)
@@ -50,9 +50,11 @@ LAST_STATUS=0
 TMP_DIR="$(mktemp -d)"
 readonly TMP_DIR
 readonly CONFIG_FILE="${TMP_DIR}/psysh.php"
+readonly SIGNAL_CONFIG_FILE="${TMP_DIR}/psysh-signal.php"
 readonly PROXY_PROJECT="${TMP_DIR}/proxy-project"
 readonly PAGER_SCRIPT="${TMP_DIR}/pager.sh"
 readonly TRUST_RUNNER="${TMP_DIR}/trust-runner.php"
+readonly SIGNAL_RUNNER="${TMP_DIR}/signal-runner.php"
 
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
@@ -63,6 +65,7 @@ readonly CONFIG_DIR="${XDG_CONFIG_HOME}"
 
 mkdir -p "${CONFIG_DIR}/psysh" "${PROXY_PROJECT}/vendor/bin" "${PROXY_PROJECT}/vendor"
 printf '<?php return [];%s' $'\n' > "${CONFIG_FILE}"
+printf '<?php return ["usePcntl" => false];%s' $'\n' > "${SIGNAL_CONFIG_FILE}"
 printf '<?php%s' $'\n' > "${PROXY_PROJECT}/vendor/autoload.php"
 cat > "${PROXY_PROJECT}/composer.lock" <<'JSON'
 {
@@ -122,6 +125,49 @@ echo json_encode([
 ]);
 PHP
 
+cat > "${SIGNAL_RUNNER}" <<'PHP'
+<?php
+require $argv[1];
+
+use Psy\Configuration;
+use Psy\Shell;
+use Symfony\Component\Console\Output\StreamOutput;
+
+class ShellWithoutLoopListeners extends Shell
+{
+    protected function getDefaultLoopListeners(): array
+    {
+        return [];
+    }
+}
+
+$mode = $argv[2];
+$tempDir = $argv[3];
+$configFile = $argv[4];
+$config = new Configuration([
+    'configDir'               => $tempDir,
+    'configFile'              => $configFile,
+    'dataDir'                 => $tempDir,
+    'runtimeDir'              => $tempDir,
+    'trustProject'            => false,
+    'useExperimentalReadline' => $mode === 'shell',
+    'usePcntl'                => false,
+]);
+$shell = $mode === 'shell'
+    ? new ShellWithoutLoopListeners($config)
+    : new Shell($config);
+$shell->setOutput(new StreamOutput(fopen('php://memory', 'w+')));
+
+$before = trim((string) shell_exec('stty -g 2>/dev/null'));
+$shell->execute('21 * 2', true);
+$after = trim((string) shell_exec('stty -g 2>/dev/null'));
+
+if ($before !== $after) {
+    fwrite(STDERR, "Terminal state changed during direct execution.\n");
+    exit(1);
+}
+PHP
+
 BIN_PATH="$(cd "${ROOT_DIR}" && php -r 'echo realpath($argv[1]);' "${TARGET}")"
 readonly BIN_PATH
 
@@ -169,6 +215,10 @@ fail() {
 
 pass() {
   echo "PASSED"
+}
+
+skip() {
+  echo "SKIPPED ($1)"
 }
 
 assert_status() {
@@ -289,12 +339,46 @@ test_pager_lifecycle() {
     pass
 }
 
+test_direct_execute_terminal_state() {
+  echo -n "  Direct execute signals: "
+
+  if [[ "${TARGET}" != "bin/psysh" ]]; then
+    skip "source-only test"
+    return
+  fi
+
+  run_pty '' \
+    bash -c 'stty isig; exec "$@"' _ \
+    php "${SIGNAL_RUNNER}" "${ROOT_DIR}/vendor/autoload.php" signal-handler "${TMP_DIR}" "${CONFIG_FILE}"
+  assert_status 0 || return 1
+
+  run_pty '' \
+    bash -c 'stty isig; exec "$@"' _ \
+    php "${SIGNAL_RUNNER}" "${ROOT_DIR}/vendor/autoload.php" shell "${TMP_DIR}" "${CONFIG_FILE}"
+  assert_status 0 && pass
+}
+
+test_signal_handler_terminal_state() {
+  echo -n "  Signal handler state:  "
+
+  run_pty $'echo 42;\nexit\n' \
+    bash -c 'stty isig; before=$(stty -g); "$@"; status=$?; after=$(stty -g); [[ "$before" = "$after" ]] || exit 99; exit "$status"' _ \
+    env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=xterm-256color \
+    php "${BIN_PATH}" -c "${SIGNAL_CONFIG_FILE}" --no-pager --no-trust-project
+
+  assert_status 0 &&
+    assert_contains '42' &&
+    pass
+}
+
 echo "PsySH PTY Smoke Tests (${TARGET})"
 test_direct_startup || true
 test_exit_code_path || true
 test_composer_proxy_startup || true
 test_trust_flags || true
 test_pager_lifecycle || true
+test_direct_execute_terminal_state || true
+test_signal_handler_terminal_state || true
 
 if [[ "${FAILED}" -ne 0 ]]; then
   exit 1

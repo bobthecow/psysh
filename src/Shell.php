@@ -97,6 +97,7 @@ class Shell extends Application
     private bool $lastExecSuccess = true;
     private bool $suppressReturnValue = false;
     private bool $nonInteractive = false;
+    private int $runDepth = 0;
     private int $executionDepth = 0;
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
@@ -710,6 +711,8 @@ class Shell extends Application
         $this->clearPendingCode();
         $this->warmAutoloader();
 
+        $this->runDepth++;
+
         // Treat the whole run as one execution, so nested execute() calls don't reload includes.
         $this->executionDepth++;
 
@@ -722,7 +725,16 @@ class Shell extends Application
             }
         } finally {
             $this->executionDepth--;
+            $this->runDepth--;
         }
+    }
+
+    /**
+     * Check whether a full shell run is active.
+     */
+    public function isRunActive(): bool
+    {
+        return $this->runDepth > 0;
     }
 
     /**
@@ -1021,6 +1033,16 @@ class Shell extends Application
     }
 
     /**
+     * Run execution loop listeners after executing user code.
+     */
+    public function afterExecute()
+    {
+        foreach (\array_reverse($this->loopListeners) as $listener) {
+            $listener->afterExecute($this);
+        }
+    }
+
+    /**
      * Run execution loop listeners after each loop.
      */
     public function afterLoop()
@@ -1155,7 +1177,8 @@ class Shell extends Application
     private function enableInteractiveSignalCharsIfNeeded(): void
     {
         if (
-            $this->interactiveSignalCharsEnabled
+            $this->runDepth < 1
+            || $this->interactiveSignalCharsEnabled
             || $this->nonInteractive
             || !($this->readline instanceof InteractiveReadlineInterface)
             || $this->hasSigintExecutionListener()

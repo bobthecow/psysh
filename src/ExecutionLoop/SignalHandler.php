@@ -20,13 +20,18 @@ use Psy\Util\DependencyChecker;
  */
 class SignalHandler extends AbstractListener
 {
+    private int $executionDepth = 0;
     private bool $sigintHandlerInstalled = false;
     private bool $restoreStty = false;
     private bool $wasInterrupted = false;
     private ?string $originalStty = null;
+    /** @var callable|int|null */
+    private $originalSigintHandler;
+    private ?bool $originalAsyncSignals = null;
 
     public const PCNTL_FUNCTIONS = [
         'pcntl_signal',
+        'pcntl_signal_get_handler',
         'pcntl_async_signals',
     ];
 
@@ -59,36 +64,55 @@ class SignalHandler extends AbstractListener
     public function onExecute(Shell $shell, string $code)
     {
         $this->wasInterrupted = false;
+        $this->executionDepth++;
 
-        // Ensure signal processing is enabled so Ctrl-C can interrupt execution
-        if (@\posix_isatty(\STDIN)) {
-            @\shell_exec('stty isig 2>/dev/null');
-            $this->restoreStty = true;
+        // Nested executions share the signal state owned by their outer execution.
+        if ($this->executionDepth === 1) {
+            $this->originalSigintHandler = \pcntl_signal_get_handler(\SIGINT);
+            $this->originalAsyncSignals = \pcntl_async_signals();
+
+            // Ensure signal processing is enabled so Ctrl-C can interrupt execution
+            if ($shell->isRunActive() && @\posix_isatty(\STDIN)) {
+                @\shell_exec('stty isig 2>/dev/null');
+                $this->restoreStty = true;
+            }
+
+            \pcntl_async_signals(true);
+
+            // Install SIGINT handler that throws exception during execution
+            $interrupted = &$this->wasInterrupted;
+            $this->sigintHandlerInstalled = \pcntl_signal(\SIGINT, function () use (&$interrupted) {
+                $interrupted = true;
+                throw new InterruptException('Ctrl+C');
+            });
         }
-
-        \pcntl_async_signals(true);
-
-        // Install SIGINT handler that throws exception during execution
-        $interrupted = &$this->wasInterrupted;
-        $this->sigintHandlerInstalled = \pcntl_signal(\SIGINT, function () use (&$interrupted) {
-            $interrupted = true;
-            throw new InterruptException('Ctrl+C');
-        });
 
         return null;
     }
 
     /**
-     * Called at the end of each loop.
+     * Restore signal state after executing user code.
      *
      * Restores terminal state and clears stdin if execution was interrupted.
      */
-    public function afterLoop(Shell $shell)
+    public function afterExecute(Shell $shell)
     {
-        // Restore default SIGINT handler after execution
+        $this->executionDepth--;
+
+        if ($this->executionDepth > 0) {
+            return;
+        }
+
+        // Restore the SIGINT handler and async mode from before execution
         if ($this->sigintHandlerInstalled) {
-            \pcntl_signal(\SIGINT, \SIG_DFL);
+            \pcntl_signal(\SIGINT, $this->originalSigintHandler);
             $this->sigintHandlerInstalled = false;
+        }
+        $this->originalSigintHandler = null;
+
+        if ($this->originalAsyncSignals !== null) {
+            \pcntl_async_signals($this->originalAsyncSignals);
+            $this->originalAsyncSignals = null;
         }
 
         // Restore terminal to raw mode after execution
