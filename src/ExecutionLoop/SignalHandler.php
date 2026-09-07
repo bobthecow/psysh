@@ -14,12 +14,14 @@ namespace Psy\ExecutionLoop;
 use Psy\Exception\InterruptException;
 use Psy\Shell;
 use Psy\Util\DependencyChecker;
+use Psy\Util\Tty;
 
 /**
  * A signal handler for interrupting execution with Ctrl-C, used when process forking is disabled.
  */
-class SignalHandler extends AbstractListener
+class SignalHandler extends AbstractListener implements ExecutionCleanupListener
 {
+    private int $executionDepth = 0;
     private bool $sigintHandlerInstalled = false;
     private bool $restoreStty = false;
     private bool $wasInterrupted = false;
@@ -52,7 +54,7 @@ class SignalHandler extends AbstractListener
      */
     public function beforeRun(Shell $shell)
     {
-        if (@\posix_isatty(\STDIN)) {
+        if (Tty::supportsStty()) {
             $this->originalStty = @\shell_exec('stty -g 2>/dev/null');
         }
     }
@@ -62,39 +64,48 @@ class SignalHandler extends AbstractListener
      */
     public function onExecute(Shell $shell, string $code)
     {
-        $this->wasInterrupted = false;
+        $this->executionDepth++;
 
-        // Nested executions share the signal state owned by their outer loop.
-        if ($this->originalAsyncSignals === null) {
-            $this->originalSigintHandler = \pcntl_signal_get_handler(\SIGINT);
-            $this->originalAsyncSignals = \pcntl_async_signals();
-
-            // Ensure signal processing is enabled so Ctrl-C can interrupt execution
-            if ($shell->isRunActive() && @\posix_isatty(\STDIN)) {
-                @\shell_exec('stty isig 2>/dev/null');
-                $this->restoreStty = true;
-            }
-
-            \pcntl_async_signals(true);
-
-            // Install SIGINT handler that throws exception during execution
-            $interrupted = &$this->wasInterrupted;
-            $this->sigintHandlerInstalled = \pcntl_signal(\SIGINT, function () use (&$interrupted) {
-                $interrupted = true;
-                throw new InterruptException('Ctrl+C');
-            });
+        // Nested executions share the signal state owned by their outer execution.
+        if ($this->executionDepth > 1) {
+            return null;
         }
+
+        $this->wasInterrupted = false;
+        $this->originalSigintHandler = \pcntl_signal_get_handler(\SIGINT);
+        $this->originalAsyncSignals = \pcntl_async_signals();
+
+        // Ensure signal processing is enabled so Ctrl-C can interrupt execution
+        if ($shell->isRunActive() && Tty::supportsStty()) {
+            @\shell_exec('stty isig 2>/dev/null');
+            $this->restoreStty = true;
+        }
+
+        \pcntl_async_signals(true);
+
+        // Install SIGINT handler that throws exception during execution
+        $interrupted = &$this->wasInterrupted;
+        $this->sigintHandlerInstalled = \pcntl_signal(\SIGINT, function () use (&$interrupted) {
+            $interrupted = true;
+            throw new InterruptException('Ctrl+C');
+        });
 
         return null;
     }
 
     /**
-     * Called at the end of each loop.
+     * Restore signal state after executing user code.
      *
      * Restores terminal state and clears stdin if execution was interrupted.
      */
-    public function afterLoop(Shell $shell)
+    public function afterExecute(Shell $shell)
     {
+        $this->executionDepth--;
+
+        if ($this->executionDepth > 0) {
+            return;
+        }
+
         // Restore the SIGINT handler and async mode from before execution
         if ($this->sigintHandlerInstalled) {
             \pcntl_signal(\SIGINT, $this->originalSigintHandler);
@@ -114,9 +125,9 @@ class SignalHandler extends AbstractListener
             $this->restoreStty = false;
         }
 
-        // Clear any pending input from the interrupted stdin stream
-        // The SIGINT may have left the stream in a bad state
-        if ($this->wasInterrupted && \defined('STDIN') && \is_resource(\STDIN)) {
+        // Clear interrupted prompt input only when the shell owns the run.
+        // Standalone execute() calls leave the caller's stdin untouched.
+        if ($this->wasInterrupted && $shell->isRunActive() && \defined('STDIN') && \is_resource(\STDIN)) {
             // Check if the stream is still usable
             $meta = @\stream_get_meta_data(\STDIN);
             if ($meta && !($meta['eof'] ?? false)) {
@@ -126,8 +137,8 @@ class SignalHandler extends AbstractListener
                 }
                 @\stream_set_blocking(\STDIN, true);
             }
-            $this->wasInterrupted = false;
         }
+        $this->wasInterrupted = false;
     }
 
     /**

@@ -16,6 +16,7 @@ use Psy\Exception\BreakException;
 use Psy\Exception\InterruptException;
 use Psy\Shell;
 use Psy\Util\DependencyChecker;
+use Psy\Util\Tty;
 
 /**
  * An execution loop listener that forks the process before executing code.
@@ -23,8 +24,9 @@ use Psy\Util\DependencyChecker;
  * This is awesome, as the session won't die prematurely if user input includes
  * a fatal error, such as redeclaring a class or function.
  */
-class ProcessForker extends AbstractListener
+class ProcessForker extends AbstractListener implements ExecutionCleanupListener
 {
+    private int $executionDepth = 0;
     private ?int $savegame = null;
     /** @var resource */
     private $up;
@@ -227,7 +229,7 @@ class ProcessForker extends AbstractListener
         $this->up = $up;
 
         // Save original stty state so we can restore on exit
-        if (@\posix_isatty(\STDIN)) {
+        if (Tty::supportsStty()) {
             $this->originalStty = @\shell_exec('stty -g 2>/dev/null');
         }
     }
@@ -237,10 +239,17 @@ class ProcessForker extends AbstractListener
      */
     public function onExecute(Shell $shell, string $code)
     {
+        $this->executionDepth++;
+
+        // Nested executions share the signal state owned by their outer execution.
+        if ($this->executionDepth > 1) {
+            return null;
+        }
+
         // Only handle SIGINT in the child process
         if (isset($this->up)) {
             // Ensure signal processing is enabled so Ctrl-C can interrupt execution
-            if (@\posix_isatty(\STDIN)) {
+            if (Tty::supportsStty()) {
                 @\shell_exec('stty isig 2>/dev/null');
                 $this->restoreStty = true;
             }
@@ -257,23 +266,17 @@ class ProcessForker extends AbstractListener
     }
 
     /**
-     * Create a savegame at the start of each loop iteration.
-     *
-     * @param Shell $shell
+     * Restore signal state after executing user code.
      */
-    public function beforeLoop(Shell $shell)
+    public function afterExecute(Shell $shell)
     {
-        $this->createSavegame();
-    }
+        $this->executionDepth--;
 
-    /**
-     * Clean up old savegames at the end of each loop iteration.
-     *
-     * Restores terminal state and clears stdin if execution was interrupted.
-     */
-    public function afterLoop(Shell $shell)
-    {
-        // Only handle cleanup in child process
+        if ($this->executionDepth > 0) {
+            return;
+        }
+
+        // Only handle cleanup in the child process
         if (isset($this->up)) {
             // Restore default SIGINT handler after execution
             \pcntl_signal(\SIGINT, \SIG_DFL);
@@ -285,7 +288,23 @@ class ProcessForker extends AbstractListener
                 $this->restoreStty = false;
             }
         }
+    }
 
+    /**
+     * Create a savegame at the start of each loop iteration.
+     *
+     * @param Shell $shell
+     */
+    public function beforeLoop(Shell $shell)
+    {
+        $this->createSavegame();
+    }
+
+    /**
+     * Clean up old savegames at the end of each loop iteration.
+     */
+    public function afterLoop(Shell $shell)
+    {
         // if there's an old savegame hanging around, let's kill it.
         if (isset($this->savegame)) {
             \posix_kill($this->savegame, \SIGKILL);

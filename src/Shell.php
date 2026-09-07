@@ -25,6 +25,7 @@ use Psy\Exception\Exception as PsyException;
 use Psy\Exception\InterruptException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\ThrowUpException;
+use Psy\ExecutionLoop\ExecutionCleanupListener;
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\ExecutionLoop\RunkitReloader;
 use Psy\ExecutionLoop\SignalHandler;
@@ -97,7 +98,10 @@ class Shell extends Application
     private bool $lastExecSuccess = true;
     private bool $suppressReturnValue = false;
     private bool $nonInteractive = false;
-    private bool $runActive = false;
+    private int $runDepth = 0;
+    private int $executionDepth = 0;
+    /** @var array<int, ExecutionCleanupListener[]> */
+    private array $executionCleanupStack = [];
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
     private bool $outputWritten = false;
@@ -710,7 +714,10 @@ class Shell extends Application
         $this->clearPendingCode();
         $this->warmAutoloader();
 
-        $this->runActive = true;
+        $this->runDepth++;
+
+        // Treat the whole run as one execution, so nested execute() calls don't reload includes.
+        $this->executionDepth++;
 
         try {
             if ($this->config->getInputInteractive()) {
@@ -720,7 +727,8 @@ class Shell extends Application
                 return $this->doNonInteractiveRun($this->config->rawOutput());
             }
         } finally {
-            $this->runActive = false;
+            $this->executionDepth--;
+            $this->runDepth--;
         }
     }
 
@@ -729,7 +737,7 @@ class Shell extends Application
      */
     public function isRunActive(): bool
     {
-        return $this->runActive;
+        return $this->runDepth > 0;
     }
 
     /**
@@ -771,7 +779,9 @@ class Shell extends Application
         $exitCode = 1;
 
         try {
-            $this->loadIncludes();
+            if ($this->executionDepth === 1) {
+                $this->loadIncludes();
+            }
             $loop = new ExecutionLoopClosure($this);
             $exitCode = $loop->execute() ?? 0;
 
@@ -785,7 +795,9 @@ class Shell extends Application
         } catch (\Throwable $e) {
             $this->writeException($e);
 
-            return 1;
+            $exitCode = 1;
+
+            return $exitCode;
         } finally {
             $this->afterRun($exitCode);
         }
@@ -817,22 +829,20 @@ class Shell extends Application
         $exitCode = 1;
 
         try {
-            $this->loadIncludes();
+            if ($this->executionDepth === 1) {
+                $this->loadIncludes();
+            }
 
-            try {
-                // For non-interactive execution, read only from the input buffer or from piped input.
-                // Otherwise it'll try to readline and hang, waiting for user input with no indication of
-                // what's holding things up.
-                if (!empty($this->inputBuffer) || $this->config->inputIsPiped()) {
-                    $this->getInput(false);
-                }
+            // For non-interactive execution, read only from the input buffer or from piped input.
+            // Otherwise it'll try to readline and hang, waiting for user input with no indication of
+            // what's holding things up.
+            if (!empty($this->inputBuffer) || $this->config->inputIsPiped()) {
+                $this->getInput(false);
+            }
 
-                if ($this->hasCode()) {
-                    $ret = $this->execute($this->flushCode());
-                    $this->writeReturnValue($ret, $rawOutput);
-                }
-            } finally {
-                $this->afterLoop();
+            if ($this->hasCode()) {
+                $ret = $this->execute($this->flushCode());
+                $this->writeReturnValue($ret, $rawOutput);
             }
 
             $exitCode = 0;
@@ -846,7 +856,9 @@ class Shell extends Application
         } catch (\Throwable $e) {
             $this->writeException($e);
 
-            return 1;
+            $exitCode = 1;
+
+            return $exitCode;
         } finally {
             try {
                 $this->afterRun($exitCode);
@@ -873,20 +885,25 @@ class Shell extends Application
 
     /**
      * Load user-defined includes.
+     *
+     * The shell output must be configured first; otherwise, reporting an include failure will abort loading.
      */
     private function loadIncludes()
     {
         // Load user-defined includes
         $load = function (self $__psysh__) {
             \set_error_handler([$__psysh__, 'handleError']);
-            foreach ($__psysh__->getIncludes() as $__psysh_include__) {
-                try {
-                    include_once $__psysh_include__;
-                } catch (\Exception $_e) {
-                    $__psysh__->writeException($_e);
+            try {
+                foreach ($__psysh__->getIncludes() as $__psysh_include__) {
+                    try {
+                        include_once $__psysh_include__;
+                    } catch (\Throwable $_e) {
+                        $__psysh__->writeException($_e);
+                    }
                 }
+            } finally {
+                \restore_error_handler();
             }
-            \restore_error_handler();
             unset($__psysh_include__);
 
             // Override any new local variables with pre-defined scope variables
@@ -1021,17 +1038,35 @@ class Shell extends Application
     }
 
     /**
+     * Establish cleanup ownership before execution setup can fail.
+     *
+     * @internal
+     */
+    public function beforeExecute(): void
+    {
+        $this->executionCleanupStack[] = [];
+    }
+
+    /**
      * Run execution loop listeners on code to be executed.
      *
      * @param string $code
      */
     public function onExecute(string $code): string
     {
+        $executionIndex = \count($this->executionCleanupStack) - 1;
+
         $this->errorReporting = \error_reporting();
         $this->enableInteractiveSignalCharsIfNeeded();
 
         foreach ($this->loopListeners as $listener) {
-            if (($return = $listener->onExecute($this, $code)) !== null) {
+            $return = $listener->onExecute($this, $code);
+
+            if ($listener instanceof ExecutionCleanupListener) {
+                $this->executionCleanupStack[$executionIndex][] = $listener;
+            }
+
+            if ($return !== null) {
                 $code = $return;
             }
         }
@@ -1044,6 +1079,25 @@ class Shell extends Application
         $output->writeln(\sprintf('<whisper>%s</whisper>', OutputFormatter::escape($code)), ConsoleOutput::VERBOSITY_DEBUG);
 
         return $code;
+    }
+
+    /**
+     * Run execution loop listeners after executing user code.
+     */
+    public function afterExecute()
+    {
+        $listeners = \array_pop($this->executionCleanupStack);
+        if ($listeners === null) {
+            return;
+        }
+
+        if ($this->executionCleanupStack === []) {
+            $this->disableInteractiveSignalCharsIfNeeded();
+        }
+
+        foreach (\array_reverse($listeners) as $listener) {
+            $listener->afterExecute($this);
+        }
     }
 
     /**
@@ -1181,7 +1235,7 @@ class Shell extends Application
     private function enableInteractiveSignalCharsIfNeeded(): void
     {
         if (
-            !$this->runActive
+            $this->runDepth < 1
             || $this->interactiveSignalCharsEnabled
             || $this->nonInteractive
             || !($this->readline instanceof InteractiveReadlineInterface)
@@ -1369,7 +1423,7 @@ class Shell extends Application
     }
 
     /**
-     * Add includes, to be parsed and executed before running the interactive shell.
+     * Add includes to be parsed and executed before the outermost shell execution.
      *
      * @param array $includes
      */
@@ -1379,7 +1433,7 @@ class Shell extends Application
     }
 
     /**
-     * Get PHP files to be parsed and executed before running the interactive shell.
+     * Get PHP files to be parsed and executed before the outermost shell execution.
      *
      * @return string[]
      */
@@ -2247,6 +2301,9 @@ class Shell extends Application
     /**
      * Execute code in the shell execution context.
      *
+     * Configured includes are loaded before the outermost execution. The shell
+     * output must be configured first so include failures can be reported.
+     *
      * @param string $code
      * @param bool   $throwExceptions
      *
@@ -2256,25 +2313,35 @@ class Shell extends Application
     {
         $this->boot();
 
-        $this->setCode($code, true);
-
-        if ($logger = $this->config->getLogger()) {
-            $logger->logExecute($code);
-        }
-
-        $closure = new ExecutionClosure($this);
-
-        if ($throwExceptions) {
-            return $closure->execute();
-        }
+        $this->executionDepth++;
 
         try {
-            return $closure->execute();
-        } catch (BreakException $_e) {
-            // Re-throw BreakException so it can propagate exit codes
-            throw $_e;
-        } catch (\Throwable $_e) {
-            $this->writeException($_e);
+            if ($this->executionDepth === 1) {
+                $this->loadIncludes();
+            }
+
+            $this->setCode($code, true);
+
+            if ($logger = $this->config->getLogger()) {
+                $logger->logExecute($code);
+            }
+
+            $closure = new ExecutionClosure($this);
+
+            if ($throwExceptions) {
+                return $closure->execute();
+            }
+
+            try {
+                return $closure->execute();
+            } catch (BreakException $_e) {
+                // Re-throw BreakException so it can propagate exit codes
+                throw $_e;
+            } catch (\Throwable $_e) {
+                $this->writeException($_e);
+            }
+        } finally {
+            $this->executionDepth--;
         }
     }
 

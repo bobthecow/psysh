@@ -26,6 +26,8 @@ class ExecutionClosure
     public function __construct(Shell $__psysh__)
     {
         $this->setClosure($__psysh__, function () use ($__psysh__) {
+            $__psysh__->beforeExecute();
+
             try {
                 try {
                     // Restore execution scope variables
@@ -60,10 +62,7 @@ class ExecutionClosure
 
                 return $_;
             } finally {
-                // Full shell runs settle listeners at their outer loop boundary.
-                if (!$__psysh__->isRunActive()) {
-                    $__psysh__->afterLoop();
-                }
+                $__psysh__->afterExecute();
             }
         });
     }

@@ -11,6 +11,10 @@
 
 namespace Psy\Test\Fixtures\Completion;
 
+/**
+ * @template TKey of array-key
+ * @template TValue
+ */
 class Collection
 {
     public function filter(callable $callback): self

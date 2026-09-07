@@ -140,7 +140,15 @@ class Presenter
 
     private function escapeOutput(string $output): string
     {
-        $output = \preg_replace('/\\\\(?=[<>])/', '\\\\\\\\', $output);
+        // Symfony Console used to drop backslashes immediately before formatter
+        // markup. Probe `>` because it distinguishes the fixed behavior across
+        // every supported Console version, including 3.4.
+        static $needsBackslashWorkaround = null;
+        $needsBackslashWorkaround ??= OutputFormatter::escape('\\>') === '\\>';
+
+        if ($needsBackslashWorkaround) {
+            $output = \preg_replace('/\\\\(?=[<>])/', '\\\\\\\\', $output);
+        }
 
         return OutputFormatter::escape($output);
     }

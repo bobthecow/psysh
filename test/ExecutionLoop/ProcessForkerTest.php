@@ -41,6 +41,7 @@ class ProcessForkerTest extends TestCase
         $this->assertTrue($state['handlerRestored']);
         $this->assertSame($asyncSignals, $state['asyncSignals']);
         $this->assertTrue($state['exceptionRendered']);
+        $this->assertTrue($state['nestedHandlerActive']);
         $this->assertIsInt($state['sessionPid']);
         $this->assertIsInt($state['runnerPid']);
         $this->assertNotSame($state['runnerPid'], $state['sessionPid']);
@@ -72,11 +73,11 @@ class ProcessForkerTest extends TestCase
     {
         $runner = TempPaths::file('psysh-test-process-forker-');
         $directory = TempPaths::directory('psysh-test-process-forker-config-');
-        $autoload = \realpath(__DIR__.'/../../vendor/autoload.php');
-
-        if ($autoload === false) {
-            throw new \RuntimeException('Unable to resolve autoload path');
-        }
+        $processForkerPath = (new \ReflectionClass(ProcessForker::class))->getFileName();
+        // The test harness loads the PHAR rather than executing it, so Phar::running() is empty.
+        $bootstrap = \strpos((string) $processForkerPath, 'phar://') === 0
+            ? __DIR__.'/../bootstrap-phar.php'
+            : __DIR__.'/../bootstrap.php';
 
         $script = <<<'PHP'
 <?php
@@ -104,19 +105,21 @@ if ($argv[3] === 'state') {
     };
     pcntl_signal(SIGINT, $handler);
     pcntl_async_signals($argv[4] === '1');
-    $shell->addInput('$pid = posix_getpid()', true);
+    $shell->setScopeVariables(['shell' => $shell]);
+    $shell->addInput('$shell->execute("return 42;", true); $nestedHandlerActive = is_callable(pcntl_signal_get_handler(SIGINT)); $pid = posix_getpid()', true);
 
     $status = $shell->run(null, $output);
     $output->fetch();
     $shell->writeException(new BreakException('finished'));
 
     echo json_encode([
-        'status'            => $status,
-        'handlerRestored'   => pcntl_signal_get_handler(SIGINT) === $handler,
-        'asyncSignals'      => pcntl_async_signals(),
-        'exceptionRendered' => strpos($output->fetch(), 'finished') !== false,
-        'sessionPid'        => $shell->getScopeVariable('pid'),
-        'runnerPid'         => posix_getpid(),
+        'status'              => $status,
+        'handlerRestored'     => pcntl_signal_get_handler(SIGINT) === $handler,
+        'asyncSignals'        => pcntl_async_signals(),
+        'exceptionRendered'   => strpos($output->fetch(), 'finished') !== false,
+        'nestedHandlerActive' => $shell->getScopeVariable('nestedHandlerActive'),
+        'sessionPid'          => $shell->getScopeVariable('pid'),
+        'runnerPid'           => posix_getpid(),
     ]);
 } else {
     exit($shell->run());
@@ -131,7 +134,7 @@ PHP;
             '%s %s %s %s %s %s',
             \escapeshellarg(\PHP_BINARY),
             \escapeshellarg($runner),
-            \escapeshellarg($autoload),
+            \escapeshellarg($bootstrap),
             \escapeshellarg($directory),
             \escapeshellarg($mode),
             \escapeshellarg($asyncSignals)
