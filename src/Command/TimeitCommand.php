@@ -92,6 +92,7 @@ HELP
         self::$start = null;
         self::$times = [];
 
+        $_ = null;
         try {
             do {
                 try {
