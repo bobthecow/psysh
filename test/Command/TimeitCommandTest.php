@@ -12,13 +12,90 @@
 namespace Psy\Test\Command;
 
 use Psy\Command\TimeitCommand;
+use Psy\Configuration;
 use Psy\Exception\InterruptException;
 use Psy\Shell;
 use Psy\Test\TestCase;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class TimeitCommandTest extends TestCase
 {
+    /**
+     * @dataProvider throwingCode
+     */
+    public function testThrowingCodeReportsTiming(string $code, string $exceptionClass)
+    {
+        $shell = $this->getMockBuilder(Shell::class)
+            ->setConstructorArgs([new Configuration(['usePcntl' => false])])
+            ->setMethods(['writeReturnValue'])
+            ->getMock();
+        $shell->setOutput(new BufferedOutput());
+        $shell->expects($this->never())->method('writeReturnValue');
+
+        $command = new TimeitCommand();
+        $command->setApplication($shell);
+        $tester = new CommandTester($command);
+
+        try {
+            $tester->execute(['code' => $code, '--num' => '5']);
+            $this->fail('The exception should propagate.');
+        } catch (\Throwable $e) {
+            $this->assertInstanceOf($exceptionClass, $e);
+            $this->assertSame('test', $e->getMessage());
+        }
+
+        $this->assertMatchesRegularExpression('/^Command took \d+\.\d{6} seconds to complete\.\n$/', $tester->getDisplay(true));
+    }
+
+    public function throwingCode()
+    {
+        return [
+            ['throw new \\Exception("test")', \Exception::class],
+            ['throw new \\Error("test")', \Error::class],
+            ['throw new \\Psy\\Exception\\InterruptException("test")', InterruptException::class],
+            ['(function () { throw new \\Exception("test"); })()', \Exception::class],
+            ['return (function () { throw new \\Exception("test"); })()', \Exception::class],
+        ];
+    }
+
+    public function testFailedIterationsUseRecordedTimingCount()
+    {
+        $exception = new \Exception('test');
+        $iterations = 0;
+        $callback = function () use ($exception, &$iterations) {
+            \usleep(1000);
+            if (++$iterations === 2) {
+                throw $exception;
+            }
+
+            return 42;
+        };
+
+        $shell = $this->getMockBuilder(Shell::class)
+            ->setConstructorArgs([new Configuration(['usePcntl' => false])])
+            ->setMethods(['writeReturnValue'])
+            ->getMock();
+        $shell->setOutput(new BufferedOutput());
+        $shell->setScopeVariables(['callback' => $callback]);
+        $shell->expects($this->never())->method('writeReturnValue');
+
+        $command = new TimeitCommand();
+        $command->setApplication($shell);
+        $tester = new CommandTester($command);
+
+        try {
+            $tester->execute(['code' => '$callback()', '--num' => '5']);
+            $this->fail('The exception should propagate.');
+        } catch (\Throwable $e) {
+            $this->assertSame($exception, $e);
+        }
+
+        $this->assertSame(2, $iterations);
+        $this->assertSame(1, \preg_match('/Command took (\d+\.\d{6}) seconds on average \((\d+\.\d{6}) median; (\d+\.\d{6}) total\) to complete\./', $tester->getDisplay(), $matches));
+        $this->assertEqualsWithDelta((float) $matches[3] / 2, (float) $matches[1], 0.000001);
+    }
+
     public function testInterruptStopsMultipleExecutions()
     {
         $this->expectException(InterruptException::class);
@@ -42,10 +119,15 @@ class TimeitCommandTest extends TestCase
         $tester = new CommandTester($command);
 
         // Request 5 iterations, but should stop after first one throws
-        $tester->execute([
-            'code'  => '1 + 1',
-            '--num' => '5',
-        ]);
+        try {
+            $tester->execute([
+                'code'  => '1 + 1',
+                '--num' => '5',
+            ]);
+        } finally {
+            // No timing should be reported if execution never started.
+            $this->assertSame('', $tester->getDisplay());
+        }
 
         // If we reach this point, execution was not interrupted
         $this->fail();

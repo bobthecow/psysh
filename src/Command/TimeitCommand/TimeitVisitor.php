@@ -15,6 +15,7 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Stmt\Expression;
@@ -93,11 +94,12 @@ class TimeitVisitor extends NodeVisitorAbstract
         \array_unshift($nodes, new Expression($this->getStartCall(), []));
 
         // append a `markEnd` call (wrapping the final node, if it's an expression)
+        // Keep standalone throws as statements for PHP 7.4 compatibility.
         $last = $nodes[\count($nodes) - 1];
-        if ($last instanceof Expr) {
+        if ($last instanceof Expr && !($last instanceof Throw_)) {
             \array_pop($nodes);
             $nodes[] = $this->getEndCall($last);
-        } elseif ($last instanceof Expression) {
+        } elseif ($last instanceof Expression && !($last->expr instanceof Throw_)) {
             \array_pop($nodes);
             $nodes[] = new Expression($this->getEndCall($last->expr), $last->getAttributes());
         } elseif ($last instanceof Return_) {

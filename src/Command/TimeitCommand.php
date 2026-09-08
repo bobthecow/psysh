@@ -89,28 +89,33 @@ HELP
 
         $instrumentedCode = $this->instrumentCode($code);
 
+        self::$start = null;
         self::$times = [];
 
-        do {
-            $_ = $shell->execute($instrumentedCode, true);
-            $this->ensureEndMarked();
-        } while (\count(self::$times) < $num);
+        try {
+            do {
+                try {
+                    $_ = $shell->execute($instrumentedCode, true);
+                } finally {
+                    $this->ensureEndMarked();
+                }
+            } while (\count(self::$times) < $num);
 
-        $shell->writeReturnValue($_);
+            $shell->writeReturnValue($_);
+        } finally {
+            $times = self::$times;
+            self::$times = [];
+            $count = \count($times);
 
-        $times = self::$times;
-        self::$times = [];
+            if ($count === 1) {
+                $output->writeln(\sprintf(self::RESULT_MSG, $times[0] / 1e+9));
+            } elseif ($count > 1) {
+                $total = \array_sum($times);
+                \rsort($times);
+                $median = $times[\intdiv($count, 2)];
 
-        if ($num === 1) {
-            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
-            $output->writeln(\sprintf(self::RESULT_MSG, $times[0] / 1e+9));
-        } else {
-            $total = \array_sum($times);
-            \rsort($times);
-            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
-            $median = $times[\intdiv($num, 2)];
-
-            $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $num) / 1e+9, $median / 1e+9, $total / 1e+9));
+                $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $count) / 1e+9, $median / 1e+9, $total / 1e+9));
+            }
         }
 
         return 0;

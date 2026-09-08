@@ -51,6 +51,7 @@ class TimeitVisitorTest extends ParserTestCase
             ['return 1', "$start(); return $end(1);"],
             ['return 1; 2', "$start(); return $end(1); $end(2);"],
             ['return 1; function h() {}', "$start(); return $end(1); function h() {} $end($noReturn);"],
+            ['throw new \\Exception()', "$start(); throw new \\Exception(); $end($noReturn);"],
         ];
     }
 }
