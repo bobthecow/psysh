@@ -24,6 +24,10 @@ class ProcessForkerTest extends TestCase
         if (!ProcessForker::isSupported()) {
             $this->markTestSkipped('Process forking is not supported');
         }
+
+        if (!\function_exists('posix_setsid')) {
+            $this->markTestSkipped('Process group isolation is not supported');
+        }
     }
 
     /**
@@ -81,6 +85,11 @@ class ProcessForkerTest extends TestCase
 
         $script = <<<'PHP'
 <?php
+if (posix_setsid() === -1) {
+    fwrite(STDERR, "Unable to isolate ProcessForker test runner\n");
+    exit(1);
+}
+
 require $argv[1];
 
 use Psy\Configuration;
@@ -130,17 +139,14 @@ PHP;
             throw new \RuntimeException('Unable to write ProcessForker test runner');
         }
 
-        $command = \sprintf(
-            '%s %s %s %s %s %s',
-            \escapeshellarg(\PHP_BINARY),
-            \escapeshellarg($runner),
-            \escapeshellarg($bootstrap),
-            \escapeshellarg($directory),
-            \escapeshellarg($mode),
-            \escapeshellarg($asyncSignals)
-        );
-
-        $process = \proc_open($command, [
+        $process = \proc_open([
+            \PHP_BINARY,
+            $runner,
+            $bootstrap,
+            $directory,
+            $mode,
+            $asyncSignals,
+        ], [
             0 => ['pipe', 'r'],
             1 => ['pipe', 'w'],
             2 => ['pipe', 'w'],
@@ -149,6 +155,9 @@ PHP;
         if (!\is_resource($process)) {
             throw new \RuntimeException('Unable to launch ProcessForker test runner');
         }
+
+        $initialStatus = \proc_get_status($process);
+        $runnerPid = $initialStatus['pid'];
 
         \fwrite($pipes[0], $input);
         @\fclose($pipes[0]);
@@ -198,12 +207,20 @@ PHP;
             }
         } finally {
             if ($failure !== null) {
-                @\proc_terminate($process);
+                // Stop the runner first, including if it hasn't reached setsid() yet.
+                @\proc_terminate($process, \SIGKILL);
+                // Kill any workers remaining in its isolated process group.
+                @\posix_kill(-$runnerPid, \SIGKILL);
             }
 
             @\fclose($pipes[1]);
             @\fclose($pipes[2]);
             $exitCode = \proc_close($process);
+
+            // Older PHP versions can lose an exit code already read by proc_get_status().
+            if ($exitCode === -1 && !$initialStatus['running']) {
+                $exitCode = $initialStatus['exitcode'];
+            }
         }
 
         if ($failure !== null) {
