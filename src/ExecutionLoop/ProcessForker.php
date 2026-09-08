@@ -16,6 +16,7 @@ use Psy\Exception\BreakException;
 use Psy\Exception\InterruptException;
 use Psy\Shell;
 use Psy\Util\DependencyChecker;
+use Psy\Util\Tty;
 
 /**
  * An execution loop listener that forks the process before executing code.
@@ -23,12 +24,12 @@ use Psy\Util\DependencyChecker;
  * This is awesome, as the session won't die prematurely if user input includes
  * a fatal error, such as redeclaring a class or function.
  */
-class ProcessForker extends AbstractListener
+class ProcessForker extends AbstractListener implements ExecutionCleanupListener
 {
+    private int $executionDepth = 0;
     private ?int $savegame = null;
     /** @var resource */
     private $up;
-    private bool $sigintHandlerInstalled = false;
     private bool $restoreStty = false;
     private ?string $originalStty = null;
 
@@ -36,6 +37,8 @@ class ProcessForker extends AbstractListener
         'pcntl_fork',
         'pcntl_signal_dispatch',
         'pcntl_signal',
+        'pcntl_signal_get_handler',
+        'pcntl_async_signals',
         'pcntl_waitpid',
         'pcntl_wexitstatus',
     ];
@@ -127,6 +130,9 @@ class ProcessForker extends AbstractListener
             // We won't be needing this one.
             \fclose($up);
 
+            $originalSigintHandler = \pcntl_signal_get_handler(\SIGINT);
+            $originalAsyncSignals = \pcntl_async_signals();
+
             // Install SIGINT handler in parent to interrupt child
             \pcntl_async_signals(true);
             $interrupted = false;
@@ -141,76 +147,71 @@ class ProcessForker extends AbstractListener
             $write = null;
             $except = null;
 
-            do {
-                if ($interrupted) {
-                    // Wait for child to exit (it should handle SIGINT gracefully)
-                    \pcntl_waitpid($pid, $status);
+            try {
+                do {
+                    if ($interrupted) {
+                        // Wait for child to exit (it should handle SIGINT gracefully)
+                        \pcntl_waitpid($pid, $status);
 
-                    // Try to read any final output from child before it exited
-                    $content = @\stream_get_contents($down);
-                    \fclose($down);
+                        // Try to read any final output from child before it exited
+                        $content = @\stream_get_contents($down);
+                        \fclose($down);
 
-                    if ($sigintHandlerInstalled) {
-                        \pcntl_signal(\SIGINT, \SIG_DFL);
-                    }
+                        $this->clearStdinBuffer();
 
-                    $this->clearStdinBuffer();
-
-                    // Restore scope variables and exit code if child sent any
-                    // If child didn't send data, use the actual process exit status
-                    $exitCode = \pcntl_wexitstatus($status);
-                    if ($content) {
-                        $data = @\unserialize($content);
-                        if (\is_array($data) && isset($data['exitCode'], $data['scopeVars'])) {
-                            $exitCode = $data['exitCode'];
-                            $shell->setScopeVariables($data['scopeVars']);
+                        // Restore scope variables and exit code if child sent any
+                        // If child didn't send data, use the actual process exit status
+                        $exitCode = \pcntl_wexitstatus($status);
+                        if ($content) {
+                            $data = @\unserialize($content);
+                            if (\is_array($data) && isset($data['exitCode'], $data['scopeVars'])) {
+                                $exitCode = $data['exitCode'];
+                                $shell->setScopeVariables($data['scopeVars']);
+                            }
                         }
+
+                        throw new BreakException('Exiting main thread', $exitCode);
                     }
 
-                    throw new BreakException('Exiting main thread', $exitCode);
-                }
+                    $n = @\stream_select($read, $write, $except, null);
 
-                $n = @\stream_select($read, $write, $except, null);
+                    if ($n === false) {
+                        $err = \error_get_last();
+                        $errMessage = \is_array($err) ? ($err['message'] ?? null) : null;
 
-                if ($n === 0) {
-                    throw new \RuntimeException('Process timed out waiting for execution loop');
-                }
+                        // If there's no error message, or it's an interrupted system call, just retry
+                        if ($errMessage === null || \stripos($errMessage, 'interrupted system call') !== false) {
+                            continue;
+                        }
 
-                if ($n === false) {
-                    $err = \error_get_last();
-                    $errMessage = \is_array($err) ? ($err['message'] ?? null) : null;
-
-                    // If there's no error message, or it's an interrupted system call, just retry
-                    if ($errMessage === null || \stripos($errMessage, 'interrupted system call') !== false) {
-                        continue;
+                        throw new \RuntimeException(\sprintf('Error waiting for execution loop: %s', $errMessage));
                     }
+                } while ($n < 1);
 
-                    throw new \RuntimeException(\sprintf('Error waiting for execution loop: %s', $errMessage));
+                $content = \stream_get_contents($down);
+                \fclose($down);
+
+                // Wait for child to exit and get its exit status
+                \pcntl_waitpid($pid, $status);
+
+                // If child didn't send data, use the actual process exit status
+                $exitCode = \pcntl_wexitstatus($status);
+                if ($content) {
+                    $data = @\unserialize($content);
+                    if (\is_array($data) && isset($data['exitCode'], $data['scopeVars'])) {
+                        $exitCode = $data['exitCode'];
+                        $shell->setScopeVariables($data['scopeVars']);
+                    }
                 }
-            } while ($n < 1);
 
-            $content = \stream_get_contents($down);
-            \fclose($down);
-
-            // Wait for child to exit and get its exit status
-            \pcntl_waitpid($pid, $status);
-
-            // Restore default SIGINT handler
-            if ($sigintHandlerInstalled) {
-                \pcntl_signal(\SIGINT, \SIG_DFL);
-            }
-
-            // If child didn't send data, use the actual process exit status
-            $exitCode = \pcntl_wexitstatus($status);
-            if ($content) {
-                $data = @\unserialize($content);
-                if (\is_array($data) && isset($data['exitCode'], $data['scopeVars'])) {
-                    $exitCode = $data['exitCode'];
-                    $shell->setScopeVariables($data['scopeVars']);
+                throw new BreakException('Exiting main thread', $exitCode);
+            } finally {
+                if ($sigintHandlerInstalled) {
+                    \pcntl_signal(\SIGINT, $originalSigintHandler);
                 }
-            }
 
-            throw new BreakException('Exiting main thread', $exitCode);
+                \pcntl_async_signals($originalAsyncSignals);
+            }
         }
 
         // This is the child process. It's going to do all the work.
@@ -228,7 +229,7 @@ class ProcessForker extends AbstractListener
         $this->up = $up;
 
         // Save original stty state so we can restore on exit
-        if (@\posix_isatty(\STDIN)) {
+        if (Tty::supportsStty()) {
             $this->originalStty = @\shell_exec('stty -g 2>/dev/null');
         }
     }
@@ -238,10 +239,17 @@ class ProcessForker extends AbstractListener
      */
     public function onExecute(Shell $shell, string $code)
     {
+        $this->executionDepth++;
+
+        // Nested executions share the signal state owned by their outer execution.
+        if ($this->executionDepth > 1) {
+            return null;
+        }
+
         // Only handle SIGINT in the child process
         if (isset($this->up)) {
             // Ensure signal processing is enabled so Ctrl-C can interrupt execution
-            if (@\posix_isatty(\STDIN)) {
+            if (Tty::supportsStty()) {
                 @\shell_exec('stty isig 2>/dev/null');
                 $this->restoreStty = true;
             }
@@ -258,6 +266,31 @@ class ProcessForker extends AbstractListener
     }
 
     /**
+     * Restore signal state after executing user code.
+     */
+    public function afterExecute(Shell $shell)
+    {
+        $this->executionDepth--;
+
+        if ($this->executionDepth > 0) {
+            return;
+        }
+
+        // Only handle cleanup in the child process
+        if (isset($this->up)) {
+            // Restore default SIGINT handler after execution
+            \pcntl_signal(\SIGINT, \SIG_DFL);
+
+            // Restore terminal to raw mode after execution
+            // This prevents Ctrl-C at the prompt from generating SIGINT
+            if ($this->restoreStty) {
+                @\shell_exec('stty -isig 2>/dev/null');
+                $this->restoreStty = false;
+            }
+        }
+    }
+
+    /**
      * Create a savegame at the start of each loop iteration.
      *
      * @param Shell $shell
@@ -269,26 +302,9 @@ class ProcessForker extends AbstractListener
 
     /**
      * Clean up old savegames at the end of each loop iteration.
-     *
-     * Restores terminal state and clears stdin if execution was interrupted.
      */
     public function afterLoop(Shell $shell)
     {
-        // Only handle cleanup in child process
-        if (isset($this->up)) {
-            // Restore default SIGINT handler after execution
-            if (!$this->sigintHandlerInstalled) {
-                \pcntl_signal(\SIGINT, \SIG_DFL);
-            }
-
-            // Restore terminal to raw mode after execution
-            // This prevents Ctrl-C at the prompt from generating SIGINT
-            if ($this->restoreStty) {
-                @\shell_exec('stty -isig 2>/dev/null');
-                $this->restoreStty = false;
-            }
-        }
-
         // if there's an old savegame hanging around, let's kill it.
         if (isset($this->savegame)) {
             \posix_kill($this->savegame, \SIGKILL);

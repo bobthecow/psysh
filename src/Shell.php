@@ -700,7 +700,7 @@ class Shell extends Application
     /**
      * Runs PsySH.
      *
-     * @throws \Throwable if thrown via the `throw-up` command
+     * @throws \Throwable if thrown via the `throw-up` command when process forking is not active
      *
      * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
@@ -746,7 +746,7 @@ class Shell extends Application
      * Initializes tab completion and readline history, then spins up the
      * execution loop.
      *
-     * @throws \Throwable if thrown via the `throw-up` command
+     * @throws \Throwable if thrown via the `throw-up` command when process forking is not active
      *
      * @return int 0 if everything went fine, or an error code
      */
@@ -771,19 +771,35 @@ class Shell extends Application
 
         try {
             $this->beforeRun();
+        } catch (BreakException $e) {
+            // The ProcessForker throws a BreakException to finish the main thread.
+            return $e->getCode();
+        }
+
+        $exitCode = 1;
+
+        try {
             if ($this->executionDepth === 1) {
                 $this->loadIncludes();
             }
             $loop = new ExecutionLoopClosure($this);
-            $exitCode = $loop->execute();
-            $this->afterRun($exitCode ?? 0);
+            $exitCode = $loop->execute() ?? 0;
 
-            return $exitCode ?? 0;
+            return $exitCode;
         } catch (ThrowUpException $e) {
             throw $e->getPrevious();
         } catch (BreakException $e) {
-            // The ProcessForker throws a BreakException to finish the main thread.
-            return $e->getCode();
+            $exitCode = $e->getCode();
+
+            return $exitCode;
+        } catch (\Throwable $e) {
+            $this->writeException($e);
+
+            $exitCode = 1;
+
+            return $exitCode;
+        } finally {
+            $this->afterRun($exitCode);
         }
     }
 
@@ -799,8 +815,6 @@ class Shell extends Application
      */
     private function doNonInteractiveRun(bool $rawOutput): int
     {
-        $this->nonInteractive = true;
-
         // If raw output is enabled (or output is piped) we don't want startup messages.
         if (!$rawOutput && !$this->config->outputIsPiped()) {
             $this->output->writeln($this->getHeader());
@@ -810,34 +824,48 @@ class Shell extends Application
         }
 
         $this->beforeRun();
-        if ($this->executionDepth === 1) {
-            $this->loadIncludes();
-        }
 
-        // For non-interactive execution, read only from the input buffer or from piped input.
-        // Otherwise it'll try to readline and hang, waiting for user input with no indication of
-        // what's holding things up.
-        if (!empty($this->inputBuffer) || $this->config->inputIsPiped()) {
-            $this->getInput(false);
-        }
+        $this->nonInteractive = true;
+        $exitCode = 1;
 
         try {
+            if ($this->executionDepth === 1) {
+                $this->loadIncludes();
+            }
+
+            // For non-interactive execution, read only from the input buffer or from piped input.
+            // Otherwise it'll try to readline and hang, waiting for user input with no indication of
+            // what's holding things up.
+            if (!empty($this->inputBuffer) || $this->config->inputIsPiped()) {
+                $this->getInput(false);
+            }
+
             if ($this->hasCode()) {
                 $ret = $this->execute($this->flushCode());
                 $this->writeReturnValue($ret, $rawOutput);
             }
+
+            $exitCode = 0;
+
+            return 0;
         } catch (BreakException $e) {
             // User called exit() in non-interactive mode
-            $this->afterRun($e->getCode());
-            $this->nonInteractive = false;
+            $exitCode = $e->getCode();
 
-            return $e->getCode();
+            return $exitCode;
+        } catch (\Throwable $e) {
+            $this->writeException($e);
+
+            $exitCode = 1;
+
+            return $exitCode;
+        } finally {
+            try {
+                $this->afterRun($exitCode);
+            } finally {
+                $this->nonInteractive = false;
+            }
         }
-
-        $this->afterRun(0);
-        $this->nonInteractive = false;
-
-        return 0;
     }
 
     /**

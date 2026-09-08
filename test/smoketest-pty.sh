@@ -13,7 +13,7 @@
 # Integration smoke tests that run PsySH under a PTY (pseudo-terminal) via
 # the Linux util-linux `script` command. These tests verify interactive
 # behavior that requires a real terminal: command execution, pager lifecycle,
-# Composer proxy startup, project trust flags, and direct execution cleanup.
+# Composer proxy startup, project trust flags, and signal cleanup.
 #
 # Usage:
 #   test/smoketest-pty.sh                    # Test bin/psysh (default)
@@ -210,6 +210,24 @@ run_php() {
   set -e
 }
 
+run_shell_with_terminal_check() {
+  local input="$1"
+  local config_file="$2"
+
+  run_pty "${input}" \
+    bash -c '
+      stty isig || exit 98
+      before=$(stty -g) || exit 98
+      "$@"
+      status=$?
+      after=$(stty -g) || exit 98
+      [[ -n "$before" && -n "$after" && "$before" = "$after" ]] || exit 99
+      exit "$status"
+    ' _ \
+    env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=xterm-256color \
+    php "${BIN_PATH}" -c "${config_file}" --no-pager --no-trust-project
+}
+
 fail() {
   FAILED=1
   echo "FAILED"
@@ -366,22 +384,30 @@ test_direct_execute_terminal_state() {
 test_signal_handler_terminal_state() {
   echo -n "  Signal handler state:  "
 
-  run_pty $'echo 42;\nexit\n' \
-    bash -c '
-      stty isig || exit 98
-      before=$(stty -g) || exit 98
-      "$@"
-      status=$?
-      after=$(stty -g) || exit 98
-      [[ -n "$before" && -n "$after" && "$before" = "$after" ]] || exit 99
-      exit "$status"
-    ' _ \
-    env HOME="${HOME_DIR}" XDG_CONFIG_HOME="${CONFIG_DIR}" TERM=xterm-256color \
-    php "${BIN_PATH}" -c "${SIGNAL_CONFIG_FILE}" --no-pager --no-trust-project
+  run_shell_with_terminal_check $'throw-up new \\\\Exception("boom")\n' "${SIGNAL_CONFIG_FILE}"
+  assert_status 1 &&
+    assert_contains 'THROW UP' || return 1
+
+  run_shell_with_terminal_check $'echo 42;\nexit\n' "${SIGNAL_CONFIG_FILE}"
 
   assert_status 0 &&
     assert_contains '42' &&
     pass
+}
+
+test_process_forker_terminal_state() {
+  echo -n "  Process forker state:   "
+
+  run_shell_with_terminal_check $'throw-up new \\\\Exception("boom")\n' "${CONFIG_FILE}"
+  assert_status 1 &&
+    assert_contains 'THROW UP' || return 1
+
+  run_shell_with_terminal_check $'echo 42;\nexit\n' "${CONFIG_FILE}"
+  assert_status 0 &&
+    assert_contains '42' || return 1
+
+  run_shell_with_terminal_check $'exit(3)\n' "${CONFIG_FILE}"
+  assert_status 3 && pass
 }
 
 echo "PsySH PTY Smoke Tests (${TARGET})"
@@ -392,6 +418,7 @@ test_trust_flags || true
 test_pager_lifecycle || true
 test_direct_execute_terminal_state || true
 test_signal_handler_terminal_state || true
+test_process_forker_terminal_state || true
 
 if [[ "${FAILED}" -ne 0 ]]; then
   exit 1
