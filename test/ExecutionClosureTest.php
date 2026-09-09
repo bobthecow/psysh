@@ -147,6 +147,70 @@ PHP;
         $this->assertSame(1, $listener->onExecuteCalls);
     }
 
+    /**
+     * @dataProvider executionCleanupFailures
+     */
+    public function testCleanupAttemptsEveryListenerAndPreservesFirstFailure(bool $loop, bool $evaluationFails, bool $outputFails)
+    {
+        $completed = new ExecutionClosureListener();
+        $firstFailure = new \LogicException('first cleanup failure');
+        $lastFailure = new \LogicException('last cleanup failure');
+        $first = new FailingExecutionCleanupListener($firstFailure);
+        $last = new FailingExecutionCleanupListener($lastFailure);
+        // Cleanup runs in reverse setup order.
+        $shell = $this->createShell([$completed, $last, $first]);
+        $failure = new \RuntimeException('evaluation failure');
+        $outputFailure = new \LogicException('output cleanup failure');
+        $shell->setScopeVariables(['failure' => $failure, 'outputFailure' => $outputFailure]);
+        $code = $outputFails ? 'ob_start(function () use ($outputFailure) { throw $outputFailure; }); ' : '';
+        $code .= $evaluationFails ? 'throw $failure;' : '$answer = 42;';
+        $level = \ob_get_level();
+
+        if ($loop) {
+            $shell->addInput($code, true);
+            $shell->addInput('exit', true);
+            $this->assertSame(0, (new ExecutionLoopClosure($shell))->execute());
+            $caught = $shell->getScopeVariable('_e');
+        } else {
+            try {
+                $shell->execute($code, true);
+                $this->fail('Expected evaluation or cleanup failure');
+            } catch (\RuntimeException|\LogicException $e) {
+                $caught = $e;
+            }
+        }
+
+        $expected = $evaluationFails ? $failure : ($outputFails ? $outputFailure : $firstFailure);
+        $this->assertSame($expected, $caught);
+        $this->assertSame($level, \ob_get_level());
+        $this->assertSame($level, $completed->outputBufferLevel);
+        $this->assertSame(1, $completed->afterExecuteCalls);
+        $this->assertSame(1, $first->afterExecuteCalls);
+        $this->assertSame(1, $last->afterExecuteCalls);
+        if (!$evaluationFails && !$outputFails) {
+            $this->assertSame(42, $completed->scopeVariables['answer']);
+        }
+
+        // A cleanup failure must not leave a frame behind for the next call.
+        $first->failure = $last->failure = null;
+        $this->assertSame(43, $shell->execute('43', true));
+        $this->assertSame(2, $completed->afterExecuteCalls);
+    }
+
+    public function executionCleanupFailures(): array
+    {
+        return [
+            [false, false, false],
+            [false, true, false],
+            [false, false, true],
+            [false, true, true],
+            [true, false, false],
+            [true, true, false],
+            [true, false, true],
+            [true, true, true],
+        ];
+    }
+
     public function testExecutionLoopPairsExecutionCallbacksWithoutChangingLoopCallbacks()
     {
         [$shell, $listener] = $this->getShell();
@@ -407,6 +471,25 @@ class ThrowingExecutionClosureListener extends ExecutionClosureListener
         parent::onExecute($shell, $code);
 
         throw new \RuntimeException('failed');
+    }
+}
+
+class FailingExecutionCleanupListener extends ExecutionClosureListener
+{
+    public ?\Throwable $failure;
+
+    public function __construct(\Throwable $failure)
+    {
+        $this->failure = $failure;
+    }
+
+    public function afterExecute(Shell $shell)
+    {
+        parent::afterExecute($shell);
+
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
     }
 }
 

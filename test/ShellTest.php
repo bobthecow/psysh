@@ -16,6 +16,7 @@ use Psy\Configuration;
 use Psy\Exception\BreakException;
 use Psy\Exception\ErrorException;
 use Psy\Exception\ParseErrorException;
+use Psy\ExecutionLoopClosure;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Interactive\Input\History;
 use Psy\Readline\InteractiveReadlineInterface;
@@ -1981,6 +1982,285 @@ class ShellTest extends TestCase
             ['"{{return value}}"', '{{return value}}'],
             ['1', 1],
         ];
+    }
+
+    /**
+     * @dataProvider getExecutionCleanupModes
+     */
+    public function testExecutionRestoresCallerBuffers(string $mode, bool $throw)
+    {
+        $output = $this->getOutput();
+        $shell = new Shell($this->getConfig(['usePcntl' => false]));
+        $shell->setOutput($output);
+        $level = \ob_get_level();
+        \ob_start();
+        echo 'before';
+
+        try {
+            $this->executeForCleanupTest($shell, $mode, 'ob_start(); echo "one"; ob_start(); echo "two"; '.($throw ? 'throw new \\RuntimeException("failure");' : '$saved = 42;'));
+
+            $this->assertSame($level + 1, \ob_get_level());
+            echo 'after';
+            $this->assertSame('beforeafter', \ob_get_contents());
+            \rewind($output->getStream());
+            $stdout = \stream_get_contents($output->getStream());
+            if ($throw) {
+                $this->assertStringNotContainsString('onetwo', $stdout);
+            } else {
+                $this->assertStringContainsString('onetwo', $stdout);
+                $this->assertSame('onetwo', $shell->getScopeVariable('__out'));
+                $this->assertSame(42, $shell->getScopeVariable('saved'));
+                $this->assertSame(['saved', '_', '__out'], $shell->getScopeVariableNames());
+            }
+        } finally {
+            while (\ob_get_level() > $level) {
+                \ob_end_clean();
+            }
+        }
+    }
+
+    /**
+     * @dataProvider getExecutionCleanupModes
+     */
+    public function testExecutionDoesNotCloseCallerBufferWhenCodeClosesShellBuffer(string $mode, bool $throw)
+    {
+        $shell = new Shell($this->getConfig(['usePcntl' => false]));
+        $shell->setOutput($this->getOutput());
+        $level = \ob_get_level();
+        \ob_start();
+        echo 'caller';
+
+        try {
+            $this->executeForCleanupTest($shell, $mode, 'ob_end_clean(); '.($throw ? 'throw new \\RuntimeException("failure");' : 'return 42;'));
+            $this->assertSame($level + 1, \ob_get_level());
+            $this->assertSame('caller', \ob_get_contents());
+        } finally {
+            while (\ob_get_level() > $level) {
+                \ob_end_clean();
+            }
+        }
+    }
+
+    public function getExecutionCleanupModes(): array
+    {
+        return [
+            'execute success' => ['execute', false],
+            'execute failure' => ['execute', true],
+            'caught failure'  => ['caught', true],
+            'loop success'    => ['loop', false],
+            'loop failure'    => ['loop', true],
+        ];
+    }
+
+    /**
+     * @dataProvider getExecutionCleanupModes
+     */
+    public function testExecutionRestoresCallerErrorHandler(string $mode, bool $throw)
+    {
+        $shell = new Shell($this->getConfig(['usePcntl' => false]));
+        $shell->setOutput($this->getOutput());
+        $errors = [];
+        $handler = static function ($severity, $message) use (&$errors) {
+            $errors[] = $message;
+
+            return true;
+        };
+        $previous = \set_error_handler($handler, \E_USER_WARNING);
+
+        try {
+            $this->executeForCleanupTest($shell, $mode, 'set_error_handler(function () {}); set_error_handler(function () {}); '.($throw ? 'throw new \\RuntimeException("failure");' : 'return 42;'));
+            $this->assertSame($handler, $this->getCurrentErrorHandler());
+            @\trigger_error('ignored notice', \E_USER_NOTICE);
+            \trigger_error('caller warning', \E_USER_WARNING);
+            $this->assertSame(['caller warning'], $errors);
+        } finally {
+            // Keep a failed regression from leaking handlers into other tests.
+            while (($current = $this->getCurrentErrorHandler()) !== $handler && $current !== null) {
+                \restore_error_handler();
+            }
+            \restore_error_handler();
+        }
+
+        $this->assertSame($previous, $this->getCurrentErrorHandler());
+    }
+
+    /**
+     * @dataProvider getExecutionCleanupModes
+     */
+    public function testExecutionCleansUpWhenOutputCallbackThrows(string $mode, bool $throw)
+    {
+        $failure = $throw ? new \RuntimeException('failure') : new \LogicException('callback failure');
+        $shell = $this->getMockBuilder(Shell::class)
+            ->setConstructorArgs([$this->getConfig(['usePcntl' => false])])
+            ->onlyMethods(['writeException'])
+            ->getMock();
+        $shell->setOutput($this->getOutput());
+        $shell->setScopeVariables(['failure' => $failure]);
+        $exceptions = [];
+        $shell->method('writeException')->willReturnCallback(static function ($e) use (&$exceptions) {
+            if (!$e instanceof BreakException) {
+                $exceptions[] = $e;
+            }
+        });
+        $level = \ob_get_level();
+        $handler = $this->getCurrentErrorHandler();
+        $code = 'ob_start(function () { throw new \\LogicException("later cleanup failure"); }); ob_start(function () { throw new \\LogicException("callback failure"); }); '.($throw ? 'throw $failure;' : 'return 42;');
+
+        try {
+            if ($mode === 'execute') {
+                try {
+                    $shell->execute($code, true);
+                    $this->fail('Expected execution or output cleanup to throw');
+                } catch (\RuntimeException|\LogicException $e) {
+                    $exceptions[] = $e;
+                }
+            } else {
+                $this->executeForCleanupTest($shell, $mode, $code);
+            }
+
+            $this->assertSame($level, \ob_get_level());
+            $this->assertSame($handler, $this->getCurrentErrorHandler());
+            $this->assertCount(1, $exceptions);
+            if ($throw) {
+                $this->assertSame($failure, $exceptions[0]);
+            } else {
+                $this->assertInstanceOf(\LogicException::class, $exceptions[0]);
+                $this->assertSame('callback failure', $exceptions[0]->getMessage());
+            }
+        } finally {
+            while (\ob_get_level() > $level) {
+                try {
+                    \ob_end_clean();
+                } catch (\Throwable $e) {
+                }
+            }
+        }
+    }
+
+    /**
+     * @dataProvider getNestedExecutionCleanupModes
+     */
+    public function testNestedExecutionRestoresOuterState(string $mode, bool $throw, bool $sameShell)
+    {
+        $shell = new Shell($this->getConfig(['usePcntl' => false]));
+        $shell->setOutput($this->getOutput());
+        $inner = $sameShell ? $shell : new Shell($this->getConfig());
+        $inner->setOutput($this->getOutput());
+        $observed = [];
+        $nested = function () use ($inner, $throw, &$observed) {
+            $observed['beforeLevel'] = \ob_get_level();
+            $observed['beforeHandler'] = $this->getCurrentErrorHandler();
+            try {
+                $inner->execute('ob_start(); echo "inner"; set_error_handler(function () {}); '.($throw ? 'throw new \\RuntimeException("failure");' : 'return 42;'), true);
+            } catch (\RuntimeException $e) {
+                $observed['exception'] = $e->getMessage();
+            }
+            $observed['afterLevel'] = \ob_get_level();
+            $observed['afterHandler'] = $this->getCurrentErrorHandler();
+        };
+        $shell->setScopeVariables(['nested' => $nested]);
+        $level = \ob_get_level();
+        $handler = $this->getCurrentErrorHandler();
+
+        try {
+            $this->executeForCleanupTest($shell, $mode, 'ob_start(); echo "outer before"; $nested(); echo "outer after";');
+
+            $this->assertSame($observed['beforeLevel'], $observed['afterLevel']);
+            $this->assertSame($observed['beforeHandler'], $observed['afterHandler']);
+            $this->assertSame($level, \ob_get_level());
+            $this->assertSame($handler, $this->getCurrentErrorHandler());
+            $this->assertSame('outer beforeouter after', $shell->getScopeVariable('__out'));
+            $this->assertSame($throw ? 'failure' : null, $observed['exception'] ?? null);
+        } finally {
+            while (\ob_get_level() > $level) {
+                \ob_end_clean();
+            }
+        }
+    }
+
+    public function getNestedExecutionCleanupModes(): array
+    {
+        return [
+            ['execute', false, true],
+            ['execute', true, true],
+            ['execute', false, false],
+            ['execute', true, false],
+            ['loop', false, true],
+            ['loop', true, true],
+            ['loop', false, false],
+            ['loop', true, false],
+        ];
+    }
+
+    public function testExecutionWithNonRemovableBufferStopsCapturingApplicationOutput()
+    {
+        // PHP cannot remove this buffer, so exercise it outside PHPUnit's
+        // own output buffering and let process shutdown dispose of it.
+        $code = <<<'PHP'
+require $argv[1];
+$shell = new \Psy\Shell(new \Psy\Configuration(['usePcntl' => false, 'trustProject' => false]));
+$output = new \Symfony\Component\Console\Output\BufferedOutput();
+$shell->setOutput($output);
+$handler = set_error_handler(static function () {});
+restore_error_handler();
+try {
+    $shell->execute('ob_start(null, 1, 0);', true);
+    exit(1);
+} catch (\RuntimeException $e) {
+    if ($e->getMessage() !== 'Unable to close a non-removable output buffer') {
+        exit(2);
+    }
+}
+$restored = set_error_handler(null);
+restore_error_handler();
+if ($handler !== $restored) {
+    exit(3);
+}
+echo 'application output';
+if ($output->fetch() !== '') {
+    exit(4);
+}
+PHP;
+        $process = \proc_open([\PHP_BINARY, '-r', $code, __DIR__.'/bootstrap.php'], [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ], $pipes);
+        $this->assertIsResource($process);
+        \fclose($pipes[0]);
+        $stdout = \stream_get_contents($pipes[1]);
+        $stderr = \stream_get_contents($pipes[2]);
+        \fclose($pipes[1]);
+        \fclose($pipes[2]);
+
+        $this->assertSame(0, \proc_close($process), $stderr);
+        $this->assertSame('application output', $stdout);
+    }
+
+    private function getCurrentErrorHandler()
+    {
+        $handler = \set_error_handler(null);
+        \restore_error_handler();
+
+        return $handler;
+    }
+
+    private function executeForCleanupTest(Shell $shell, string $mode, string $code): void
+    {
+        if ($mode === 'loop') {
+            $shell->boot();
+            $shell->addInput($code, true);
+            $shell->addInput('exit', true);
+            $this->assertSame(0, (new ExecutionLoopClosure($shell))->execute());
+
+            return;
+        }
+
+        try {
+            $shell->execute($code, $mode === 'execute');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('failure', $e->getMessage());
+        }
     }
 
     public function testShellExecuteUsesNonInteractivePromptContext()

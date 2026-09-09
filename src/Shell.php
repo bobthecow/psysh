@@ -100,7 +100,7 @@ class Shell extends Application
     private bool $nonInteractive = false;
     private int $runDepth = 0;
     private int $executionDepth = 0;
-    /** @var array<int, ExecutionCleanupListener[]> */
+    /** @var ExecutionCleanupState[] */
     private array $executionCleanupStack = [];
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
@@ -1044,7 +1044,17 @@ class Shell extends Application
      */
     public function beforeExecute(): void
     {
-        $this->executionCleanupStack[] = [];
+        $this->executionCleanupStack[] = new ExecutionCleanupState($this);
+    }
+
+    /**
+     * Settle output and error handling before publishing execution results.
+     *
+     * @internal
+     */
+    public function flushExecutionOutput(): void
+    {
+        \end($this->executionCleanupStack)->closeOutput(true);
     }
 
     /**
@@ -1054,7 +1064,7 @@ class Shell extends Application
      */
     public function onExecute(string $code): string
     {
-        $executionIndex = \count($this->executionCleanupStack) - 1;
+        $execution = \end($this->executionCleanupStack);
 
         $this->errorReporting = \error_reporting();
         $this->enableInteractiveSignalCharsIfNeeded();
@@ -1063,7 +1073,7 @@ class Shell extends Application
             $return = $listener->onExecute($this, $code);
 
             if ($listener instanceof ExecutionCleanupListener) {
-                $this->executionCleanupStack[$executionIndex][] = $listener;
+                $execution->listeners[] = $listener;
             }
 
             if ($return !== null) {
@@ -1083,20 +1093,43 @@ class Shell extends Application
 
     /**
      * Run execution loop listeners after executing user code.
+     *
+     * Always attempt every cleanup. An existing execution exception takes
+     * precedence; otherwise propagate the first cleanup exception.
      */
-    public function afterExecute()
+    public function afterExecute(?\Throwable $exception = null)
     {
-        $listeners = \array_pop($this->executionCleanupStack);
-        if ($listeners === null) {
+        $execution = \array_pop($this->executionCleanupStack);
+        if ($execution === null) {
             return;
         }
 
-        if ($this->executionCleanupStack === []) {
-            $this->disableInteractiveSignalCharsIfNeeded();
+        $failure = $exception;
+        try {
+            // Successful evaluations already flushed before saving their scope.
+            $execution->closeOutput(false);
+        } catch (\Throwable $e) {
+            $failure ??= $e;
         }
 
-        foreach (\array_reverse($listeners) as $listener) {
-            $listener->afterExecute($this);
+        try {
+            if ($this->executionCleanupStack === []) {
+                $this->disableInteractiveSignalCharsIfNeeded();
+            }
+        } catch (\Throwable $e) {
+            $failure ??= $e;
+        }
+
+        foreach (\array_reverse($execution->listeners) as $listener) {
+            try {
+                $listener->afterExecute($this);
+            } catch (\Throwable $e) {
+                $failure ??= $e;
+            }
+        }
+
+        if ($exception === null && $failure !== null) {
+            throw $failure;
         }
     }
 
