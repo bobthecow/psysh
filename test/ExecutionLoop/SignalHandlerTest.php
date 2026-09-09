@@ -13,6 +13,7 @@ namespace Psy\Test\ExecutionLoop;
 
 use Psy\Configuration;
 use Psy\ExecutionLoop\SignalHandler;
+use Psy\Readline\Readline;
 use Psy\Shell;
 use Psy\Test\TempPaths;
 use Psy\Test\TestCase;
@@ -228,6 +229,9 @@ PHP;
             'trustProject' => false,
             'usePcntl'     => false,
         ], $options));
+        $readline = $this->createMock(Readline::class);
+        $readline->method('readline')->willReturn(false);
+        $config->setReadline($readline);
 
         $shell = new Shell($config);
         $shell->setOutput(new BufferedOutput());

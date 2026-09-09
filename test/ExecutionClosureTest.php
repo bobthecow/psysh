@@ -17,6 +17,7 @@ use Psy\ExecutionLoop\AbstractListener;
 use Psy\ExecutionLoop\ExecutionCleanupListener;
 use Psy\ExecutionLoop\Listener;
 use Psy\ExecutionLoopClosure;
+use Psy\Readline\Readline;
 use Psy\Shell;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -378,6 +379,9 @@ PHP;
             'runtimeDir'   => $dir,
             'trustProject' => false,
         ], $options));
+        $readline = $this->createMock(Readline::class);
+        $readline->method('readline')->willReturn(false);
+        $config->setReadline($readline);
         $shell = new ExecutionClosureTestShell($config, $listeners);
         $shell->setOutput(new BufferedOutput());
 
