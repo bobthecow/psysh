@@ -134,7 +134,8 @@ class Configuration
     private bool $useExperimentalReadline = false;
     private bool $useSyntaxHighlighting = true;
     private bool $useSuggestions = false;
-    private ?string $manualDbFile = null;
+    private ?string $configuredManualDbFile = null;
+    private ?string $discoveredManualDbFile = null;
     private bool $hasReadline;
     private ?bool $useReadline = null;
     private bool $useBracketedPaste = false;
@@ -2461,14 +2462,28 @@ class Configuration
      */
     public function setManualDbFile(string $filename)
     {
-        $this->manualDbFile = (string) $filename;
+        $previousConfiguredManualDbFile = $this->configuredManualDbFile;
+        $previousManualDb = $this->manualDb;
+        $previousManual = $this->manual;
+
+        $this->configuredManualDbFile = (string) $filename;
+        $this->manualDb = null;
+        $this->manual = null;
 
         // Reconfigure SignatureFormatter with new manual database
         try {
             SignatureFormatter::setManual($this->getManual());
-        } catch (InvalidManualException $e) {
-            // Show user-friendly error for invalid explicitly configured manual
-            throw new \InvalidArgumentException($e->getMessage(), 0, $e);
+        } catch (\Throwable $e) {
+            $this->configuredManualDbFile = $previousConfiguredManualDbFile;
+            $this->manualDb = $previousManualDb;
+            $this->manual = $previousManual;
+
+            if ($e instanceof InvalidManualException) {
+                // Show user-friendly error for invalid explicitly configured manual
+                throw new \InvalidArgumentException($e->getMessage(), 0, $e);
+            }
+
+            throw $e;
         }
     }
 
@@ -2483,8 +2498,12 @@ class Configuration
      */
     public function getManualDbFile()
     {
-        if (isset($this->manualDbFile)) {
-            return $this->manualDbFile;
+        if (isset($this->configuredManualDbFile)) {
+            return $this->configuredManualDbFile;
+        }
+
+        if (isset($this->discoveredManualDbFile)) {
+            return $this->discoveredManualDbFile;
         }
 
         // Prefer v3 format over v2
@@ -2496,7 +2515,7 @@ class Configuration
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 
-            return $this->manualDbFile = $files[0];
+            return $this->discoveredManualDbFile = $files[0];
         }
 
         return null;
@@ -2553,6 +2572,36 @@ class Configuration
     }
 
     /**
+     * Reload the PHP manual from disk.
+     *
+     * Explicitly configured manual paths remain pinned.
+     *
+     * @return bool Whether the updated manual became active
+     */
+    public function reloadManual(string $updatedFile): bool
+    {
+        if (isset($this->configuredManualDbFile) && $this->configuredManualDbFile !== $updatedFile) {
+            $configuredPath = \realpath($this->configuredManualDbFile);
+            if ($configuredPath === false || $configuredPath !== \realpath($updatedFile)) {
+                return false;
+            }
+
+            $updatedFile = $this->configuredManualDbFile;
+        }
+
+        $manual = V3Manual::reload($updatedFile);
+
+        if (!isset($this->configuredManualDbFile)) {
+            $this->discoveredManualDbFile = $updatedFile;
+        }
+        $this->manualDb = null;
+        $this->manual = $manual;
+        SignatureFormatter::setManual($manual);
+
+        return true;
+    }
+
+    /**
      * Load manual from filesystem or bundled Phar, preferring newest English version.
      *
      * Priority:
@@ -2565,8 +2614,8 @@ class Configuration
     private function loadManual()
     {
         // Priority 1: If user explicitly configured a manual file, use it
-        if (isset($this->manualDbFile)) {
-            $manual = $this->loadManualFromFile($this->manualDbFile);
+        if (isset($this->configuredManualDbFile)) {
+            $manual = $this->loadManualFromFile($this->configuredManualDbFile);
             if ($manual !== null) {
                 return $manual;
             }

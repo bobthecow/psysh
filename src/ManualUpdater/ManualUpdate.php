@@ -37,6 +37,9 @@ class ManualUpdate
     private array $updates;
     private ?Downloader $downloader = null;
 
+    /** @var array{path: string, version: string}[] */
+    private array $installedManuals = [];
+
     /**
      * @param array{checker: Checker, installer: Installer} ...$updates Update configuration(s)
      */
@@ -126,6 +129,16 @@ class ManualUpdate
     }
 
     /**
+     * Get the manual files installed by the most recent run.
+     *
+     * @return string[]
+     */
+    public function getInstalledFiles(): array
+    {
+        return \array_column($this->installedManuals, 'path');
+    }
+
+    /**
      * Get the currently set Downloader or create one based on the capabilities of the php environment.
      *
      * @throws ErrorException if a downloader cannot be created for the php environment
@@ -140,6 +153,8 @@ class ManualUpdate
      */
     public function run(InputInterface $input, OutputInterface $output): int
     {
+        $this->installedManuals = [];
+
         foreach ($this->updates as $update) {
             if (!$update['installer']->isDataDirWritable()) {
                 $output->writeln('<error>Data directory is not writable.</error>');
@@ -150,8 +165,6 @@ class ManualUpdate
 
         $downloader = $this->getDownloader();
         $downloader->setTempDir(\sys_get_temp_dir());
-        $installed = [];
-
         // Download and install each format
         foreach ($this->updates as $update) {
             $checker = $update['checker'];
@@ -194,16 +207,21 @@ class ManualUpdate
                 return self::FAILURE;
             }
 
-            $installed[] = [$installer->getInstallPath(), $latestVersion];
+            $installPath = $installer->getInstallPath();
+            $this->installedManuals[] = [
+                'path'    => $installPath,
+                'version' => $latestVersion,
+            ];
 
             $downloader->cleanup();
         }
 
-        if (empty($installed)) {
+        if (empty($this->installedManuals)) {
             $output->writeln('<info>Manual is up-to-date.</info>');
         } else {
-            foreach ($installed as [$installPath, $version]) {
-                $prettyPath = ConfigPaths::prettyPath($installPath);
+            foreach ($this->installedManuals as $installed) {
+                $prettyPath = ConfigPaths::prettyPath($installed['path']);
+                $version = $installed['version'];
                 $output->writeln("Installed manual v{$version} to <info>{$prettyPath}</info>");
             }
         }

@@ -42,6 +42,7 @@ class ManualUpdateTest extends TestCase
         $result = $manualUpdate->run($input, $output);
 
         $this->assertEquals(ManualUpdate::SUCCESS, $result);
+        $this->assertSame([], $manualUpdate->getInstalledFiles());
         $this->assertStringContainsString('up-to-date', $output->fetch());
     }
 
@@ -109,6 +110,7 @@ class ManualUpdateTest extends TestCase
         $result = $manualUpdate->run($input, $output);
 
         $this->assertEquals(ManualUpdate::SUCCESS, $result);
+        $this->assertSame(['/tmp/php_manual.php'], $manualUpdate->getInstalledFiles());
         $outputText = $output->fetch();
         $this->assertStringContainsString('Downloading', $outputText);
         $this->assertStringContainsString('3.0.0', $outputText);

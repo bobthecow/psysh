@@ -144,6 +144,47 @@ return new ManualDataNoGetMeta();';
         $this->assertSame('3.1.5', $meta['version']);
     }
 
+    public function testReloadsChangedManualAtSamePath()
+    {
+        $filePath = $this->tempDir.'/reload.php';
+        $this->writeReloadableManualFile($filePath, '3.0.0', 'Old documentation');
+
+        $manual = new V3Manual($filePath);
+        $this->assertSame('3.0.0', $manual->getMeta()['version']);
+
+        // Without invalidation, the same path continues using the cached object.
+        $this->writeReloadableManualFile($filePath, '3.1.0', 'Updated documentation', 5);
+        $cached = new V3Manual($filePath);
+        $this->assertSame('3.0.0', $cached->getMeta()['version']);
+
+        $updated = V3Manual::reload($filePath);
+        $this->assertSame('3.1.0', $updated->getMeta()['version']);
+        $this->assertSame('Updated documentation', $updated->get('test'));
+    }
+
+    public function testReloadOnlySuppressesHaltOffsetWarning()
+    {
+        $filePath = $this->tempDir.'/reload-warning.php';
+        $this->writeReloadableManualFile($filePath, '3.0.0', 'Old documentation');
+        new V3Manual($filePath);
+
+        $this->writeReloadableManualFile($filePath, '3.1.0', 'Updated documentation', 0, 'Manual warning');
+        $warnings = [];
+        \set_error_handler(static function ($severity, $message) use (&$warnings) {
+            $warnings[] = [$severity, $message];
+
+            return true;
+        });
+
+        try {
+            V3Manual::reload($filePath);
+        } finally {
+            \restore_error_handler();
+        }
+
+        $this->assertSame([[\E_USER_WARNING, 'Manual warning']], $warnings);
+    }
+
     public function testGetIds()
     {
         $filePath = $this->createManualFile([
@@ -207,5 +248,32 @@ return new '.$className.'();';
         \file_put_contents($filePath, $content);
 
         return $filePath;
+    }
+
+    private function writeReloadableManualFile(string $filePath, string $version, string $doc, int $padding = 0, ?string $warning = null): void
+    {
+        $content = '<?php
+'.\str_repeat("// padding\n", $padding).'
+'.($warning === null ? '' : '\trigger_error('.\var_export($warning, true).', \E_USER_WARNING);').'
+return new class {
+    private const META = [\'version\' => \''.$version.'\'];
+
+    public function get(string $id) {
+        if ($id !== \'test\') {
+            return null;
+        }
+
+        return trim(file_get_contents(__FILE__, false, null, __COMPILER_HALT_OFFSET__));
+    }
+
+    public function getMeta(): array {
+        return self::META;
+    }
+};
+
+__halt_compiler();
+'.$doc;
+
+        \file_put_contents($filePath, $content);
     }
 }

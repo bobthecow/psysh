@@ -315,9 +315,25 @@ HELP
             $manualUpdate = ManualUpdate::fromConfig($this->config, $updateInput, $output);
             $result = $manualUpdate->run($updateInput, $output);
 
-            if ($result === 0) {
-                $output->writeln('');
-                $output->writeln('Restart PsySH to use the updated manual.');
+            if ($result === ManualUpdate::SUCCESS) {
+                $installedFiles = $manualUpdate->getInstalledFiles();
+                $phpManualFile = null;
+                $legacyManualInstalled = false;
+                foreach ($installedFiles as $installedFile) {
+                    if (\substr($installedFile, -4) === '.php') {
+                        $phpManualFile = $installedFile;
+                    } elseif (\substr($installedFile, -7) === '.sqlite') {
+                        $legacyManualInstalled = true;
+                    }
+                }
+
+                if ($phpManualFile !== null && $this->config->reloadManual($phpManualFile)) {
+                    $output->writeln('');
+                    $output->writeln('<info>Using the updated manual.</info>');
+                } elseif ($legacyManualInstalled) {
+                    $output->writeln('');
+                    $output->writeln('Restart PsySH to use the updated manual.');
+                }
             }
 
             return $result;
