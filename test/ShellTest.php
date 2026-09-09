@@ -2194,6 +2194,12 @@ class ShellTest extends TestCase
 
     public function testExecutionWithNonRemovableBufferStopsCapturingApplicationOutput()
     {
+        $shellPath = (new \ReflectionClass(Shell::class))->getFileName();
+        // Subprocesses must use the same source or PHAR bootstrap as this test.
+        $bootstrap = \strpos((string) $shellPath, 'phar://') === 0
+            ? __DIR__.'/bootstrap-phar.php'
+            : __DIR__.'/bootstrap.php';
+
         // PHP cannot remove this buffer, so exercise it outside PHPUnit's
         // own output buffering and let process shutdown dispose of it.
         $code = <<<'PHP'
@@ -2221,7 +2227,7 @@ if ($output->fetch() !== '') {
     exit(4);
 }
 PHP;
-        $process = \proc_open([\PHP_BINARY, '-r', $code, __DIR__.'/bootstrap.php'], [
+        $process = \proc_open([\PHP_BINARY, '-r', $code, $bootstrap], [
             0 => ['pipe', 'r'],
             1 => ['pipe', 'w'],
             2 => ['pipe', 'w'],
