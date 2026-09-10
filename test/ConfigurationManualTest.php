@@ -170,7 +170,8 @@ class ConfigurationManualTest extends TestCase
 
     private function writeManual(string $filePath, string $version, string $doc): void
     {
-        $meta = \var_export(['version' => $version], true);
+        // Non-English local manuals take precedence over the bundled PHAR manual.
+        $meta = \var_export(['version' => $version, 'lang' => 'fr'], true);
         $doc = \var_export($doc, true);
         $content = '<?php
 return new class {
