@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Readline\Interactive;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Psy\Readline\Interactive\Input\EofEvent;
 use Psy\Readline\Interactive\Input\InputEvent;
 use Psy\Readline\Interactive\Input\InputQueue;
@@ -38,7 +39,7 @@ class PagerTest extends TestCase
 
         $this->pager = new Pager(
             $terminal,
-            $this->createMock(InteractiveSession::class),
+            $this->createSessionMock(),
             new InputQueue($terminal),
             $frameRenderer,
         );
@@ -59,7 +60,7 @@ class PagerTest extends TestCase
         $terminal->method('getWidth')->willReturn(40);
         $terminal->expects($this->once())->method('enableMouseReporting')->with(false);
 
-        $session = $this->createMock(InteractiveSession::class);
+        $session = $this->createSessionMock();
         $session->expects($this->once())->method('start');
         $session->expects($this->once())->method('stop');
 
@@ -86,7 +87,7 @@ class PagerTest extends TestCase
         $terminal->method('getWidth')->willReturn(40);
         $terminal->expects($this->never())->method('write');
 
-        $session = $this->createMock(InteractiveSession::class);
+        $session = $this->createSessionMock();
         $session->method('isActive')->willReturn(false);
         $session->expects($this->once())->method('start');
         $session->expects($this->once())->method('stop');
@@ -306,7 +307,7 @@ class PagerTest extends TestCase
 
         $pager = new Pager(
             $terminal,
-            $this->createMock(InteractiveSession::class),
+            $this->createSessionMock(),
             $this->createMock(InputQueue::class),
             $frameRenderer,
         );
@@ -324,5 +325,16 @@ class PagerTest extends TestCase
         // Match is at line 50; with 3-row lines and a 9-row viewport, three
         // lines fit. ScrollOffset 48 puts lines 48,49,50 in view.
         $this->assertSame(48, $pager->getScrollOffset());
+    }
+
+    /**
+     * @return InteractiveSession&MockObject
+     */
+    private function createSessionMock(): InteractiveSession
+    {
+        return $this->getMockBuilder(InteractiveSession::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['start', 'stop', 'isActive'])
+            ->getMock();
     }
 }

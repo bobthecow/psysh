@@ -16,8 +16,10 @@ use Psy\Configuration;
 use Psy\Exception\RuntimeException;
 use Psy\Output\PassthruPager;
 use Psy\Output\ShellOutput;
+use Psy\Readline\InteractiveReadline;
 use Psy\Readline\InteractiveReadlineInterface;
 use Psy\Readline\Readline;
+use Psy\Readline\Transient;
 use Psy\Shell;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -45,7 +47,9 @@ class HistoryCommandTest extends TestCase
     private function createCommand(?Readline $readline = null): HistoryCommand
     {
         if ($readline === null) {
-            $readline = $this->getMockBuilder(Readline::class)->getMock();
+            $readline = $this->getMockBuilder(Transient::class)
+                ->onlyMethods(['listHistory'])
+                ->getMock();
             $readline->method('listHistory')->willReturn($this->getHistory());
         }
 
@@ -61,7 +65,9 @@ class HistoryCommandTest extends TestCase
 
     private function createSessionReadline(array $sessionHistory): InteractiveReadlineInterface
     {
-        $readline = $this->getMockBuilder(InteractiveReadlineInterface::class)->getMock();
+        $readline = $this->getMockBuilder(InteractiveReadline::class)
+            ->onlyMethods(['listHistory', 'listSessionHistory'])
+            ->getMock();
         $readline->expects($this->never())->method('listHistory');
         $readline->method('listSessionHistory')->willReturn($sessionHistory);
 

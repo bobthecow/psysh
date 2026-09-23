@@ -11,6 +11,7 @@
 
 namespace Psy\Test\Readline\Interactive;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Psy\Readline\Interactive\Input\EofEvent;
 use Psy\Readline\Interactive\Input\InputQueue;
 use Psy\Readline\Interactive\Input\KeyEvent;
@@ -42,7 +43,7 @@ class ManualPagerTest extends TestCase
         $this->inputQueue = new InputQueue($terminal);
         $this->pager = new ManualPager(
             $terminal,
-            $this->createMock(InteractiveSession::class),
+            $this->createSessionMock(),
             $this->inputQueue,
             $frameRenderer,
         );
@@ -75,7 +76,7 @@ class ManualPagerTest extends TestCase
         $inputQueue = new InputQueue($terminal);
         $frameRenderer = $this->createMock(FrameRenderer::class);
         $frameRenderer->method('getLineMetrics')->willReturn(new LineMetrics($terminal));
-        $pager = new ManualPager($terminal, $this->createMock(InteractiveSession::class), $inputQueue, $frameRenderer);
+        $pager = new ManualPager($terminal, $this->createSessionMock(), $inputQueue, $frameRenderer);
 
         $link = "\033]8;;https://php.net/random-engine-mt19937.generate\033\\Random\\Engine\\Mt19937::generate()\033]8;;\033\\";
         $pager->resetState([\str_repeat('x', 12).$link]);
@@ -149,7 +150,7 @@ class ManualPagerTest extends TestCase
                 $renderedLines[] = $frame->getLines()[0];
             });
 
-        $pager = new ManualPager($terminal, $this->createMock(InteractiveSession::class), $inputQueue, $frameRenderer);
+        $pager = new ManualPager($terminal, $this->createSessionMock(), $inputQueue, $frameRenderer);
         $pager->page([$line]);
 
         $this->assertStringNotContainsString("\033[4mtime()\033[24m", $renderedLines[0]);
@@ -164,7 +165,7 @@ class ManualPagerTest extends TestCase
 
         $frameRenderer = $this->createMock(FrameRenderer::class);
         $frameRenderer->method('getLineMetrics')->willReturn(new LineMetrics($terminal));
-        $pager = new class($terminal, $this->createMock(InteractiveSession::class), new InputQueue($terminal), $frameRenderer) extends ManualPager {
+        $pager = new class($terminal, $this->createSessionMock(), new InputQueue($terminal), $frameRenderer) extends ManualPager {
             /**
              * @param string[] $lines
              *
@@ -197,7 +198,7 @@ class ManualPagerTest extends TestCase
         $line = "\033]8;;https://php.net/time\033\\time()\033]8;;\033\\";
         $terminal->expects($this->once())->method('write')->with($line."\n");
 
-        $session = $this->createMock(InteractiveSession::class);
+        $session = $this->createSessionMock();
         $session->expects($this->once())->method('start');
         $session->expects($this->once())->method('stop');
 
@@ -217,5 +218,16 @@ class ManualPagerTest extends TestCase
         $this->assertSame('doc time', $command->getContent());
         $this->assertInstanceOf(KeyEvent::class, $submit);
         $this->assertSame("\n", $submit->getValue());
+    }
+
+    /**
+     * @return InteractiveSession&MockObject
+     */
+    private function createSessionMock(): InteractiveSession
+    {
+        return $this->getMockBuilder(InteractiveSession::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['start', 'stop', 'isActive'])
+            ->getMock();
     }
 }

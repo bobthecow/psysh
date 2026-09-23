@@ -12,7 +12,7 @@
 namespace Psy\Test\Command;
 
 use Psy\Command\YoloCommand;
-use Psy\Readline\Readline;
+use Psy\Readline\Transient;
 use Psy\Shell;
 use Psy\Test\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -112,7 +112,9 @@ class YoloCommandTest extends TestCase
 
     private function createCommand($shell, array $history): YoloCommand
     {
-        $readline = $this->getMockBuilder(Readline::class)->getMock();
+        $readline = $this->getMockBuilder(Transient::class)
+            ->onlyMethods(['listHistory'])
+            ->getMock();
         $readline->method('listHistory')->willReturn($history);
 
         $command = new YoloCommand();

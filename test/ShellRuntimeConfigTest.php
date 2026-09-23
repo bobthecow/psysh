@@ -17,7 +17,7 @@ use Psy\Output\PassthruPager;
 use Psy\Output\ProcOutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Readline\Interactive\Input\History;
-use Psy\Readline\InteractiveReadlineInterface;
+use Psy\Readline\InteractiveReadline;
 use Psy\Shell;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -60,7 +60,7 @@ class ShellRuntimeConfigTest extends TestCase
         $shell = new Shell($config);
         $output = $this->getOutput();
 
-        $readline = $this->getMockBuilder(InteractiveReadlineInterface::class)->getMock();
+        $readline = $this->createMock(InteractiveReadline::class);
         $readline->expects($this->once())->method('setOutput');
         $readline->method('setTheme');
         $readline->method('setRequireSemicolons');
@@ -118,7 +118,7 @@ class ShellRuntimeConfigTest extends TestCase
         $shell = new Shell($config);
         $output = $this->getOutput();
 
-        $readline = $this->getMockBuilder(InteractiveReadlineInterface::class)->getMock();
+        $readline = $this->createMock(InteractiveReadline::class);
         $readline->expects($this->once())->method('setOutput');
         $readline->expects($this->exactly(2))->method('setTheme');
         $readline->expects($this->exactly(2))->method('setRequireSemicolons');
