@@ -41,6 +41,9 @@ class ProcessForker extends AbstractListener implements ExecutionCleanupListener
         'pcntl_async_signals',
         'pcntl_waitpid',
         'pcntl_wexitstatus',
+        'pcntl_wifexited',
+        'pcntl_wifsignaled',
+        'pcntl_wtermsig',
     ];
 
     public const POSIX_FUNCTIONS = [
@@ -360,8 +363,12 @@ class ProcessForker extends AbstractListener implements ExecutionCleanupListener
             // we're the savegame now... let's wait and see what happens
             \pcntl_waitpid($pid, $status);
 
-            // worker exited cleanly, let's bail
-            if (!\pcntl_wexitstatus($status)) {
+            // Recover from errors and crashes, but honor termination signals.
+            $recover = \pcntl_wifexited($status)
+                ? \pcntl_wexitstatus($status) !== 0
+                : \pcntl_wifsignaled($status) && \in_array(\pcntl_wtermsig($status), [\SIGSEGV, \SIGBUS, \SIGABRT, \SIGILL, \SIGFPE, \SIGTRAP], true);
+
+            if (!$recover) {
                 \posix_kill(\posix_getpid(), \SIGKILL);
             }
 
