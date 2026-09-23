@@ -117,6 +117,7 @@ class IntervalCheckerTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
      * @preserveGlobalState disabled
      */
     public function testMalformedCacheTimestampFallsBackToRemoteRelease()

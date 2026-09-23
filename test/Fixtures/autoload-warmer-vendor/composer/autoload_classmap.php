@@ -67,5 +67,4 @@ return [
     // Monolog vendor classes
     'Monolog\\Logger'                 => $vendorFixture,
     'Monolog\\Handler\\StreamHandler' => $vendorFixture,
-
 ];

@@ -133,7 +133,7 @@ abstract class AbstractConfigCommand extends Command
                 'name'           => 'verbosity',
                 'acceptedValues' => $verbosityValues,
                 'parser'         => $configEnumParser('verbosity', $verbosityValues),
-                'getter' => function () use ($config): string {
+                'getter'         => function () use ($config): string {
                     return $config->verbosity();
                 },
                 'setter' => function (string $value) use ($config): void {
@@ -211,7 +211,7 @@ abstract class AbstractConfigCommand extends Command
                 'name'           => 'colorMode',
                 'acceptedValues' => $colorModeValues,
                 'parser'         => $configEnumParser('colorMode', $colorModeValues),
-                'getter' => function () use ($config): string {
+                'getter'         => function () use ($config): string {
                     return $config->colorMode();
                 },
                 'setter' => function (string $value) use ($config): void {

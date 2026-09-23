@@ -27,7 +27,6 @@ class CommandClipboardMethodTest extends TestCase
 
         $this->assertTrue($method->copy('copied text', new BufferedOutput()));
         $this->assertSame('copied text', \file_get_contents($target));
-
     }
 
     public function testCopyReturnsFalseWhenCommandFails()
@@ -52,7 +51,6 @@ class CommandClipboardMethodTest extends TestCase
 
         $this->assertTrue($method->copy($text, new BufferedOutput()));
         $this->assertSame(\hash('sha256', $text), \hash_file('sha256', $target));
-
     }
 
     private function phpCommand(string $code): string

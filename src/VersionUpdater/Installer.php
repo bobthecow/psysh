@@ -69,7 +69,7 @@ class Installer
             return $pharArchive->valid()
                 && isset($pharArchive['psysh'])
                 && $pharArchive['psysh']->isFile();
-        } catch (\UnexpectedValueException | \PharException $e) {
+        } catch (\UnexpectedValueException|\PharException $e) {
             return false;
         }
     }
@@ -100,7 +100,7 @@ class Installer
             }
 
             return \rename($extracted, $this->installLocation);
-        } catch (\UnexpectedValueException | \PharException $e) {
+        } catch (\UnexpectedValueException|\PharException $e) {
             return false;
         } finally {
             if (\file_exists($extracted)) {

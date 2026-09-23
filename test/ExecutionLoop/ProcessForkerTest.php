@@ -89,6 +89,7 @@ class ProcessForkerTest extends TestCase
     private function getBootstrap(): string
     {
         $processForkerPath = (new \ReflectionClass(ProcessForker::class))->getFileName();
+
         // The test harness loads the PHAR rather than executing it, so Phar::running() is empty.
         return \strpos((string) $processForkerPath, 'phar://') === 0
             ? __DIR__.'/../bootstrap-phar.php'

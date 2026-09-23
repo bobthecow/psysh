@@ -59,6 +59,7 @@ class GitHubCheckerTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
      * @preserveGlobalState disabled
      */
     public function testMissingReleaseAssetFailsOnlyWhenDownloadUrlIsRequested()

@@ -15,7 +15,6 @@ final class BootstrapEnv
 {
     /**
      * Create and apply a hermetic test environment for PsySH config/data.
-     *
      */
     public static function isolate(?string $root = null): void
     {
