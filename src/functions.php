@@ -545,7 +545,7 @@ if (!\function_exists('Psy\\bin')) {
                 $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
                 $name = $argv ? \basename(\reset($argv)) : 'psysh';
 
-                $selfUpdateOption = $shellIsPhar ? "\n  <info>-u, --self-update</info>       Install a newer version if available" : '';
+                $selfUpdateOption = $shellIsPhar ? "\n  <info>-u, --self-update</info>            Install a newer version if available" : '';
 
                 $helpText = <<<EOL
 $version
