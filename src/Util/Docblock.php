@@ -86,6 +86,39 @@ class Docblock
 
         if ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionClassConstant || $reflector instanceof \ReflectionFunctionAbstract || $reflector instanceof \ReflectionProperty) {
             $this->setComment($reflector->getDocComment());
+        } elseif ($reflector instanceof \ReflectionParameter && \method_exists($reflector, 'getDocComment')) {
+            $this->setComment($reflector->getDocComment());
+        }
+
+        if ($reflector instanceof \ReflectionFunctionAbstract && \method_exists(\ReflectionParameter::class, 'getDocComment')) {
+            $this->addParameterComments($reflector);
+        }
+    }
+
+    /**
+     * Add parameter-local descriptions, preserving types from existing @param tags.
+     */
+    private function addParameterComments(\ReflectionFunctionAbstract $reflector): void
+    {
+        foreach ($reflector->getParameters() as $parameter) {
+            $docblock = new self($parameter);
+            if ($docblock->desc === '') {
+                continue;
+            }
+
+            $name = '$'.$parameter->getName();
+            foreach ($this->tags['param'] ?? [] as $index => $tag) {
+                if (\ltrim($tag['var'] ?? '', '&.') === $name) {
+                    $this->tags['param'][$index]['desc'] = $docblock->desc;
+                    continue 2;
+                }
+            }
+
+            $this->tags['param'][] = [
+                'type' => $parameter->hasType() ? (string) $parameter->getType() : null,
+                'var'  => $name,
+                'desc' => $docblock->desc,
+            ];
         }
     }
 

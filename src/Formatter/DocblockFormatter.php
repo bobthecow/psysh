@@ -72,6 +72,7 @@ class DocblockFormatter implements ReflectorFormatter
     private static function formatVector(array $vector, array $lines): string
     {
         $template = [' '];
+        $descriptionIndent = 2;
         foreach ($vector as $type) {
             $max = 0;
             foreach ($lines as $line) {
@@ -83,10 +84,16 @@ class DocblockFormatter implements ReflectorFormatter
             }
 
             $template[] = self::getVectorParamTemplate($type, $max);
+            if ($type !== 'desc') {
+                $descriptionIndent += $max + 1;
+            }
         }
         $template = \implode(' ', $template);
 
-        return \implode("\n", \array_map(function ($line) use ($template) {
+        return \implode("\n", \array_map(function ($line) use ($template, $descriptionIndent) {
+            if (isset($line['desc'])) {
+                $line['desc'] = \str_replace("\n", "\n".\str_repeat(' ', $descriptionIndent), $line['desc']);
+            }
             $escaped = \array_map(fn ($l) => ($l === null) ? '' : OutputFormatter::escape($l), $line);
 
             return \rtrim(\vsprintf($template, $escaped));

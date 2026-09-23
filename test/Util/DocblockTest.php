@@ -14,6 +14,7 @@ namespace Psy\Test\Util;
 use Psy\Test\Fixtures\Util\MagicChild;
 use Psy\Test\Fixtures\Util\MagicClass;
 use Psy\Test\Fixtures\Util\NoMagicClass;
+use Psy\Test\Fixtures\Util\ParameterDocblocks;
 use Psy\Test\TestCase;
 use Psy\Util\Docblock;
 
@@ -113,6 +114,54 @@ class DocblockTest extends TestCase
                 [],
             ],
         ];
+    }
+
+    public function testParameterDocblock()
+    {
+        if (!\method_exists(\ReflectionParameter::class, 'getDocComment')) {
+            $this->markTestSkipped('Parameter doc comments require PHP 8.6.');
+        }
+
+        $function = new \ReflectionFunction(ParameterDocblocks::withTaggedParameter());
+
+        $docblock = new Docblock($function->getParameters()[0]);
+
+        $this->assertSame('The name to look up.', $docblock->desc);
+        $this->assertSame(['Use an ID instead.'], $docblock->tag('deprecated'));
+    }
+
+    public function testFunctionParameterDocblocks()
+    {
+        if (!\method_exists(\ReflectionParameter::class, 'getDocComment')) {
+            $this->markTestSkipped('Parameter doc comments require PHP 8.6.');
+        }
+
+        $function = new \ReflectionFunction(ParameterDocblocks::withParameterOverrides());
+
+        $docblock = new Docblock($function);
+
+        $this->assertSame('Look up names.', $docblock->desc);
+        $this->assertSame([
+            ['type' => 'list<string>', 'var' => '&$names', 'desc' => 'The names to search.'],
+            ['type' => 'string', 'var' => '$legacy', 'desc' => 'Keep this description.'],
+            ['type' => 'positive-int', 'var' => '...$ids', 'desc' => "The IDs to match.\nInclude all matching names."],
+            ['type' => '?string', 'var' => '$filter', 'desc' => 'An optional filter.'],
+        ], $docblock->tag('param'));
+    }
+
+    public function testMethodParameterDocblocksWithoutMethodComment()
+    {
+        if (!\method_exists(\ReflectionParameter::class, 'getDocComment')) {
+            $this->markTestSkipped('Parameter doc comments require PHP 8.6.');
+        }
+
+        $docblock = new Docblock(new \ReflectionMethod(ParameterDocblocks::class, 'search'));
+
+        $this->assertSame('', $docblock->desc);
+        $this->assertSame([
+            ['type' => 'string', 'var' => '$query', 'desc' => 'The query.'],
+            ['type' => null, 'var' => '$options', 'desc' => 'Search options.'],
+        ], $docblock->tag('param'));
     }
 
     /**

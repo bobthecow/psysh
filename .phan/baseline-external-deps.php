@@ -28,5 +28,7 @@ return [
         'src/TabCompletion/AutoloadWarmer/ComposerAutoloadWarmer.php' => ['PhanUndeclaredClassMethod'],
         'src/TabCompletion/Matcher/MongoClientMatcher.php' => ['PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod'],
         'src/TabCompletion/Matcher/MongoDatabaseMatcher.php' => ['PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod'],
+        // ReflectionParameter::getDocComment() is guarded by method_exists for PHP 8.6.
+        'src/Util/Docblock.php' => ['PhanUndeclaredMethod'],
     ],
 ];
