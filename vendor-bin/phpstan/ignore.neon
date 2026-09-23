@@ -35,6 +35,19 @@ parameters:
     - message: "#^Class (UnitEnum|ReflectionUnionType)+ not found\\.$#"
       paths:
         - ../../src/ExecutionLoop/ProcessForker.php
+    # PHP 8.6 tests run only after checking the runtime supports these reflection APIs.
+    - message: "#^Call to an undefined method ReflectionParameter::getDocComment\\(\\)\\.$#"
+      paths:
+        - ../../test/CodeCleanerParameterDocCommentTest.php
+    - message: "#^Call to an undefined method ReflectionProperty::getHook\\(\\)\\.$#"
+      paths:
+        - ../../test/CodeCleanerParameterDocCommentTest.php
+    - message: "#^Access to constant Get on an unknown class PropertyHookType\\.$#"
+      paths:
+        - ../../test/CodeCleanerParameterDocCommentTest.php
+    - message: "#^Call to an undefined method ReflectionProperty::(isReadOnly|getDefaultValue)\\(\\)\\.$#"
+      paths:
+        - ../../test/Php86FeaturesTest.php
     # PHP8.0 introduced second argument for
     - "#^Class IteratorIterator constructor invoked with 2 parameters, 1 required\\.$#"
     # Backwards-compatiblity with PHP-Parser 4.x

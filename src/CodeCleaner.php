@@ -45,6 +45,7 @@ use Psy\CodeCleaner\LoopContextPass;
 use Psy\CodeCleaner\MagicConstantsPass;
 use Psy\CodeCleaner\NamespaceAwarePass;
 use Psy\CodeCleaner\NamespacePass;
+use Psy\CodeCleaner\ParameterDocCommentPass;
 use Psy\CodeCleaner\PassableByReferencePass;
 use Psy\CodeCleaner\RequirePass;
 use Psy\CodeCleaner\ReturnTypePass;
@@ -90,7 +91,8 @@ class CodeCleaner
         $this->implicitUse = \is_array($implicitUse) ? $implicitUse : false;
 
         $this->parser = $parser ?? (new ParserFactory())->createParser();
-        $this->printer = $printer ?: new Printer();
+        // @phan-suppress-next-line PhanAccessMethodInternal -- Internal to PsySH, including this namespace.
+        $this->printer = $printer ?: new CodeCleaner\Printer();
         $this->traverser = $traverser ?: new NodeTraverser();
 
         // Try to add implicit `use` statements and an implicit namespace, based on the file in
@@ -136,6 +138,8 @@ class CodeCleaner
             new LeavePsyshAlonePass(),
             new ExitPass(),
             new ImplicitReturnPass(),
+            // @phan-suppress-next-line PhanAccessMethodInternal -- Internal to PsySH, including this namespace.
+            new ParameterDocCommentPass($this->parser),
             new MagicConstantsPass(),
             new NamespacePass(),      // must run after the implicit return pass
             ...$usePasses,            // must run after the namespace pass has re-injected the current namespace
