@@ -11,7 +11,10 @@
 
 namespace Psy\Test\CodeCleaner;
 
+use PhpParser\Node\Expr\FuncCall;
+use Psy\CodeCleaner;
 use Psy\CodeCleaner\ExitPass;
+use Psy\Exception\BreakException;
 
 class ExitPassTest extends CodeCleanerTestCase
 {
@@ -34,6 +37,47 @@ class ExitPassTest extends CodeCleanerTestCase
     public function testExitStatement($from, $to)
     {
         $this->assertProcessesAs($from, $to);
+    }
+
+    /**
+     * @dataProvider callableExitStatements
+     */
+    public function testCallableExitStatement(string $code, string $args)
+    {
+        if (!\method_exists(FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Requires PHP-Parser 5.9 or newer.');
+        }
+
+        $this->assertProcessesAs($code, $this->exitCall($args).';');
+    }
+
+    public function callableExitStatements(): array
+    {
+        return [
+            ['exit(?);', '?'],
+            ['die(status: ?);', 'status: ?'],
+            ['exit(17, ...);', '17, ...'],
+            ['die(...);', '...'],
+            ['exit(status: 17);', 'status: 17'],
+            ['\\exit(?);', '?'],
+        ];
+    }
+
+    /**
+     * @requires PHP >= 8.6
+     */
+    public function testPartialExitThrowsWhenInvoked()
+    {
+        if (!\method_exists(FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Requires PHP-Parser 5.9 or newer.');
+        }
+
+        $exit = eval((new CodeCleaner())->clean(['exit(status: ?)']));
+        $this->assertInstanceOf(\Closure::class, $exit);
+        $this->expectException(BreakException::class);
+        $this->expectExceptionCode(17);
+
+        $exit(17);
     }
 
     /**
