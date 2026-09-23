@@ -68,7 +68,7 @@ class PartialInputRefiner implements AnalysisRefinerInterface
         }
 
         if (\preg_match('/([\w\\\\]*\\\\)$/', $trimmed, $matches)) {
-            return new AnalysisResult(CompletionKind::SYMBOL | CompletionKind::NAMESPACE, $matches[1]);
+            return new AnalysisResult(CompletionKind::SYMBOL | CompletionKind::NAMESPACE_NAME, $matches[1]);
         }
 
         if (\preg_match('/([\w\\\\]+)::\$(\w*)$/', $trimmed, $matches)) {
@@ -106,7 +106,7 @@ class PartialInputRefiner implements AnalysisRefinerInterface
             CompletionKind::OBJECT_MEMBER,
             CompletionKind::STATIC_MEMBER,
             CompletionKind::CLASS_NAME,
-            CompletionKind::SYMBOL | CompletionKind::NAMESPACE,
+            CompletionKind::SYMBOL | CompletionKind::NAMESPACE_NAME,
         ], true);
     }
 

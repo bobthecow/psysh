@@ -48,7 +48,9 @@ class CompletionKind
     // Global symbols
     public const FUNCTION_NAME = 1 << 11;  // foo|()
     public const CONSTANT = 1 << 12;       // CONST|
-    public const NAMESPACE = 1 << 13;      // namespace Foo\|, use Foo\|
+
+    // Renamed from NAMESPACE because PHP 8.6 deprecates that class constant name.
+    public const NAMESPACE_NAME = 1 << 13; // namespace Foo\|, use Foo\|
 
     // PsySH-specific
     public const COMMAND = 1 << 14;        // ls|, doc|

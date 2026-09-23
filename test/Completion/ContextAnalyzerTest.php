@@ -269,7 +269,7 @@ class ContextAnalyzerTest extends TestCase
             ['Foo::', 5, CompletionKind::STATIC_MEMBER],
             ['new ', 4, CompletionKind::CLASS_NAME],
             ['6 + $b', 6, CompletionKind::VARIABLE, 'b'],
-            ['Psy\\', 4, CompletionKind::SYMBOL | CompletionKind::NAMESPACE, 'Psy\\'],
+            ['Psy\\', 4, CompletionKind::SYMBOL | CompletionKind::NAMESPACE_NAME, 'Psy\\'],
             ['1', 1, CompletionKind::UNKNOWN],
             ['6 + 1', 5, CompletionKind::UNKNOWN],
             ['echo 1', 6, CompletionKind::UNKNOWN],

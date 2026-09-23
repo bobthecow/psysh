@@ -27,7 +27,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testAppliesToNamespaceContext()
     {
-        $this->assertTrue($this->source->appliesToKind(CompletionKind::NAMESPACE));
+        $this->assertTrue($this->source->appliesToKind(CompletionKind::NAMESPACE_NAME));
     }
 
     public function testDoesNotApplyToOtherContexts()
@@ -43,7 +43,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testEmptyPrefix()
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, '');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, '');
         $completions = $this->source->getCompletions($analysis);
 
         $this->assertContains('Psy', $completions);
@@ -59,7 +59,7 @@ class NamespaceSourceTest extends TestCase
      */
     public function testPrefixFiltering(string $prefix, array $expectedNamespaces)
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, $prefix);
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, $prefix);
         $completions = $this->source->getCompletions($analysis);
 
         foreach ($expectedNamespaces as $expected) {
@@ -81,7 +81,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testCaseInsensitiveMatching()
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, 'psy');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, 'psy');
         $completions = $this->source->getCompletions($analysis);
 
         $this->assertContains('Psy', $completions);
@@ -89,7 +89,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testIncludesNestedNamespaces()
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, 'Psy\\Completion');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, 'Psy\\Completion');
         $completions = $this->source->getCompletions($analysis);
 
         $this->assertContains('Psy\\Completion', $completions);
@@ -98,7 +98,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testSortingOrder()
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, 'Psy\\');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, 'Psy\\');
         $completions = $this->source->getCompletions($analysis);
 
         // Should be sorted alphabetically
@@ -109,7 +109,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testNoPrefix()
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, '');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, '');
         $completions = $this->source->getCompletions($analysis);
 
         // Should return multiple namespaces
@@ -120,7 +120,7 @@ class NamespaceSourceTest extends TestCase
     {
         // For class Psy\Completion\Source\VariableSource, should extract:
         // Psy, Psy\Completion, Psy\Completion\Source
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, 'Psy');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, 'Psy');
         $completions = $this->source->getCompletions($analysis);
 
         $this->assertContains('Psy', $completions);
@@ -128,7 +128,7 @@ class NamespaceSourceTest extends TestCase
 
     public function testNoGlobalNamespace()
     {
-        $analysis = new AnalysisResult(CompletionKind::NAMESPACE, '');
+        $analysis = new AnalysisResult(CompletionKind::NAMESPACE_NAME, '');
         $completions = $this->source->getCompletions($analysis);
 
         // Should not include classes without namespace (global namespace)

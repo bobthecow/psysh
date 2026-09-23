@@ -34,7 +34,7 @@ class NamespaceSource implements SourceInterface
      */
     public function appliesToKind(int $kinds): bool
     {
-        return ($kinds & CompletionKind::NAMESPACE) !== 0;
+        return ($kinds & CompletionKind::NAMESPACE_NAME) !== 0;
     }
 
     /**
