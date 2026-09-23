@@ -502,6 +502,68 @@ class TypeResolverTest extends TestCase
         $this->assertTrue($types === [] || $types === ['DateTime']);
     }
 
+    /**
+     * @dataProvider firstClassCallableProvider
+     */
+    public function testFirstClassCallableResolvesToClosure(string $expression)
+    {
+        if (!\method_exists(\PhpParser\Node\Expr\FuncCall::class, 'isFirstClassCallable')) {
+            $this->markTestSkipped('First-class callables require PHP Parser 4.13 or newer.');
+        }
+
+        $this->context->setAll(['repo' => new Repository()]);
+
+        $this->assertSame(['Closure'], $this->resolver->resolveTypes($expression));
+    }
+
+    public function firstClassCallableProvider(): array
+    {
+        return [
+            ['strlen(...)'],
+            ['$callable(...)'],
+            ['$repo->find(...)'],
+            ['DateTime::createFromFormat(...)'],
+        ];
+    }
+
+    /**
+     * @dataProvider partialApplicationProvider
+     */
+    public function testPartialApplicationResolvesToClosure(string $expression)
+    {
+        if (!\method_exists(\PhpParser\Node\Expr\FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Partial function application requires PHP Parser 5.9 or newer.');
+        }
+
+        $this->context->setAll(['repo' => new Repository()]);
+
+        $this->assertSame(['Closure'], $this->resolver->resolveTypes($expression));
+    }
+
+    public function partialApplicationProvider(): array
+    {
+        return [
+            ['strlen(?)'],
+            ['$callable(?)'],
+            ['$repo->find(?)'],
+            ['$repo->find(id: ?)'],
+            ['$repo->findOneBy([], ...)'],
+            ['DateTime::createFromFormat("Y-m-d", ?)'],
+            ['$repo->{$method}(?)'],
+            ['DateTime::{$method}(?)'],
+        ];
+    }
+
+    public function testConstructorWithPlaceholdersDoesNotResolveToClosure()
+    {
+        if (!\method_exists(\PhpParser\Node\Expr\FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Partial function application requires PHP Parser 5.9 or newer.');
+        }
+
+        $this->assertSame([], $this->resolver->resolveTypes('new DateTime(?)'));
+        $this->assertSame([], $this->resolver->resolveTypes('new DateTime(...)'));
+    }
+
     public function testStaticFactoryChainWithIncompleteMemberReturnsReceiverType()
     {
         $types = $this->resolver->resolveTypes('DateTime::createFromFormat("Y-m-d", "2025-01-01")->for');

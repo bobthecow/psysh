@@ -443,6 +443,14 @@ class TypeResolver
      */
     private function resolveExpressionTypes($expr): array
     {
+        if ($expr instanceof Node\Expr\FuncCall || $expr instanceof MethodCall || $expr instanceof StaticCall) {
+            foreach ($expr->args as $arg) {
+                if ($arg instanceof Node\ArgPlaceholder || $arg instanceof Node\VariadicPlaceholder) {
+                    return [\Closure::class];
+                }
+            }
+        }
+
         if (
             $expr instanceof MethodCall
             || $expr instanceof PropertyFetch
