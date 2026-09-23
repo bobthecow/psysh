@@ -45,10 +45,14 @@ class FilterOptions
      */
     public function bind(InputInterface $input)
     {
-        $this->validateInput($input);
-
         $pattern = $input->getOption('grep');
         if ($pattern === null || $pattern === false || $pattern === '') {
+            foreach (['invert', 'insensitive'] as $option) {
+                if ($input->getOption($option)) {
+                    throw new RuntimeException('--'.$option.' does not make sense without --grep');
+                }
+            }
+
             $this->pattern = null;
             $this->invert = false;
 
@@ -90,25 +94,6 @@ class FilterOptions
         }
 
         return \preg_match($this->pattern, $string, $matches) xor $this->invert;
-    }
-
-    /**
-     * Validate that grep, invert and insensitive input options are consistent.
-     *
-     * @throws RuntimeException if input is invalid
-     *
-     * @param InputInterface $input
-     */
-    private function validateInput(InputInterface $input)
-    {
-        $pattern = $input->getOption('grep');
-        if ($pattern === null || $pattern === false || $pattern === '') {
-            foreach (['invert', 'insensitive'] as $option) {
-                if ($input->getOption($option)) {
-                    throw new RuntimeException('--'.$option.' does not make sense without --grep');
-                }
-            }
-        }
     }
 
     /**
