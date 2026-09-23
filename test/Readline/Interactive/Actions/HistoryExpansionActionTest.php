@@ -152,6 +152,50 @@ class HistoryExpansionActionTest extends TestCase
         $this->assertBufferState('echo $bar<cursor>', $this->buffer);
     }
 
+    /**
+     * @dataProvider partialApplicationArgumentsProvider
+     */
+    public function testPartialApplicationArguments(string $command, string $pattern, string $expected)
+    {
+        if (!\method_exists(\PhpParser\Node\Expr\FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Partial function application requires PHP Parser 5.9 or newer.');
+        }
+
+        $this->history->add($command);
+        $this->setBufferState($this->buffer, $pattern.'<cursor>');
+
+        $this->action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertBufferState($expected.'<cursor>', $this->buffer);
+    }
+
+    public function partialApplicationArgumentsProvider(): array
+    {
+        return [
+            ['str_replace(?, "replacement", ?)', '!^', '?'],
+            ['str_replace(?, "replacement", ?)', '!$', '?'],
+            ['str_replace(?, "replacement", ?)', '!*', '? "replacement" ?'],
+            ['str_replace(search: ?, replace: "replacement", subject: ?)', '!$', 'subject: ?'],
+            ['str_replace("search", ...)', '!$', '...'],
+            ['$user->getName(?, ...)', '!*', '? ...'],
+            ['User::find(?, ...)', '!*', '? ...'],
+        ];
+    }
+
+    public function testFirstClassCallableArgument()
+    {
+        if (!\method_exists(\PhpParser\Node\Expr\FuncCall::class, 'isFirstClassCallable')) {
+            $this->markTestSkipped('First-class callables require PHP Parser 4.13 or newer.');
+        }
+
+        $this->history->add('strlen(...)');
+        $this->setBufferState($this->buffer, '!$<cursor>');
+
+        $this->action->execute($this->buffer, $this->terminal, $this->readline);
+
+        $this->assertBufferState('...<cursor>', $this->buffer);
+    }
+
     public function testNoExpansionWhenNoHistory()
     {
         $this->setBufferState($this->buffer, '!!<cursor>');

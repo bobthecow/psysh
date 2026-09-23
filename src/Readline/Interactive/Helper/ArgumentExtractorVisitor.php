@@ -116,6 +116,10 @@ class ArgumentExtractorVisitor extends NodeVisitorAbstract
         foreach ($node->args as $arg) {
             if ($arg instanceof Node\Arg) {
                 $this->arguments[] = $this->printer->prettyPrintExpr($arg->value);
+            } elseif ($arg instanceof Node\ArgPlaceholder) {
+                $this->arguments[] = ($arg->name !== null ? $arg->name->toString().': ' : '').'?';
+            } elseif ($arg instanceof Node\VariadicPlaceholder) {
+                $this->arguments[] = '...';
             }
         }
     }
