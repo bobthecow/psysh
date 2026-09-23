@@ -18,6 +18,8 @@ use PhpParser\Node\Expr\ArrayDimFetch;
 // @todo Drop PhpParser\Node\Expr\ArrayItem once we drop support for PHP-Parser 4.x
 use PhpParser\Node\Expr\ArrayItem as LegacyArrayItem;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\MethodCall;
@@ -86,8 +88,15 @@ class ListPass extends CodeCleanerPass
     {
         $value = ($item instanceof ArrayItem || $item instanceof LegacyArrayItem) ? $item->value : $item;
 
+        $viaProperty = false;
         while ($value instanceof ArrayDimFetch || $value instanceof PropertyFetch) {
+            $viaProperty = $viaProperty || $value instanceof PropertyFetch;
             $value = $value->var;
+        }
+
+        // PHP 8.6 permits writes through properties of objects held in constants.
+        if (\PHP_VERSION_ID >= 80600 && $viaProperty && ($value instanceof ConstFetch || $value instanceof ClassConstFetch)) {
+            return true;
         }
 
         // We just kind of give up if it's a method call. We can't tell if it's

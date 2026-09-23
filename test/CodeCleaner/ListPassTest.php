@@ -11,6 +11,8 @@
 
 namespace Psy\Test\CodeCleaner;
 
+use PhpParser\Node\Expr\FuncCall;
+use Psy\CodeCleaner;
 use Psy\CodeCleaner\ListPass;
 use Psy\Exception\ParseErrorException;
 
@@ -52,6 +54,10 @@ class ListPassTest extends CodeCleanerTestCase
             ['[] = []', $errorEmptyList],
             ['[,] = [1,2]', $errorEmptyList],
             ['[,,] = [1,2,3]', $errorEmptyList],
+            ['[OBJ] = [1]', $errorNonVariableAssign],
+            ['[OBJ[0]] = [1]', $errorNonVariableAssign],
+            ['[C::OBJ] = [1]', $errorNonVariableAssign],
+            ['[C::OBJ[0]] = [1]', $errorNonVariableAssign],
         ];
     }
 
@@ -89,5 +95,69 @@ class ListPassTest extends CodeCleanerTestCase
             ['[$a->c()->d, $a->c()->e] = [1, 2]'],
             ['[x()->a, x()->b] = [1, 2]'],
         ];
+    }
+
+    /**
+     * @dataProvider constantPropertyStatements
+     */
+    public function testConstantPropertyAssignment($code)
+    {
+        $stmts = $this->parseConstantPropertyStatement($code);
+        $expected = $this->prettyPrint($stmts);
+
+        if (\PHP_VERSION_ID < 80600) {
+            $this->expectException(ParseErrorException::class);
+            $this->expectExceptionMessage('Assignments can only happen to writable values');
+        }
+
+        $this->assertSame($expected, $this->prettyPrint($this->traverse($stmts)));
+    }
+
+    public function constantPropertyStatements()
+    {
+        return [
+            ['[OBJ->value] = [1]'],
+            ['[OBJ->items[0]] = [1]'],
+            ['[OBJ[0]->value] = [1]'],
+            ['[C::OBJ->value] = [1]'],
+            ['[C::OBJ->items[0]] = [1]'],
+            ['[C::OBJ[0]->value] = [1]'],
+            ['list(OBJ->value, C::OBJ->value) = [1, 2]'],
+        ];
+    }
+
+    /**
+     * @requires PHP >= 8.6
+     */
+    public function testCleanedConstantPropertyAssignment()
+    {
+        if (!\method_exists(FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Requires PHP-Parser 5.9 or newer.');
+        }
+
+        $object = (object) ['value' => null, 'items' => []];
+        $constant = 'PSYSH_LIST_OBJECT_'.\uniqid();
+        \define($constant, $object);
+
+        $cleaner = new CodeCleaner();
+        $code = '$class = new class { const OBJECT = \\'.$constant.'; };'.
+            '[\\'.$constant.'->value, $class::OBJECT->items[0]] = [42, 23];';
+        eval($cleaner->clean([$code]));
+
+        $this->assertSame(42, $object->value);
+        $this->assertSame([23], $object->items);
+    }
+
+    private function parseConstantPropertyStatement(string $code): array
+    {
+        try {
+            return $this->parse($code);
+        } catch (ParseErrorException $e) {
+            if (\method_exists(FuncCall::class, 'isPartialFunctionApplication')) {
+                throw $e;
+            }
+
+            $this->markTestSkipped('This PHP-Parser version does not support constant property access.');
+        }
     }
 }
