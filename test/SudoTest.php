@@ -49,6 +49,97 @@ class SudoTest extends TestCase
         $this->assertSame('private and static and method with 1', Sudo::callMethod(new ClassWithSecrets(), 'privateStaticMethod', 1));
     }
 
+    public function testGetMethodClosure()
+    {
+        $object = new ClassWithSecretiveParent();
+        $closure = Sudo::getMethodClosure($object, 'privateMethod');
+
+        $this->assertSame('private and method with 1', $closure(1));
+        $this->assertSame('extra', (new \ReflectionFunction($closure))->getParameters()[0]->getName());
+    }
+
+    public function testGetStaticMethodClosure()
+    {
+        foreach ([ClassWithSecretiveParent::class, new ClassWithSecretiveParent()] as $class) {
+            $closure = Sudo::getStaticMethodClosure($class, 'privateStaticMethod');
+
+            $this->assertSame('private and static and method with 1', $closure(1));
+            $this->assertSame('extra', (new \ReflectionFunction($closure))->getParameters()[0]->getName());
+        }
+    }
+
+    public function testInternalMethodClosure()
+    {
+        $closure = Sudo::getMethodClosure(new \SplMaxHeap(), 'compare');
+
+        $this->assertSame(1, $closure(2, 1));
+    }
+
+    public function testMethodClosurePreservesReferencesAndSignature()
+    {
+        $object = new class() {
+            private function &increment(int &$value, int $amount = 1): int
+            {
+                $value += $amount;
+
+                return $value;
+            }
+        };
+        $closure = Sudo::getMethodClosure($object, 'increment');
+        $reflection = new \ReflectionFunction($closure);
+
+        $this->assertTrue($reflection->returnsReference());
+        $returnType = $reflection->getReturnType();
+        $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        $this->assertSame('int', $returnType->getName());
+        $this->assertSame('value', $reflection->getParameters()[0]->getName());
+        $this->assertTrue($reflection->getParameters()[0]->isPassedByReference());
+
+        $value = 2;
+        $result = &$closure($value);
+        $this->assertSame(3, $value);
+        $result = 4;
+        $this->assertSame(4, $value);
+    }
+
+    public function testStaticMethodClosurePreservesCalledClass()
+    {
+        $object = new class() extends SudoClosureParent {
+        };
+        $class = \get_class($object);
+
+        foreach (['publicClassName', 'privateClassName'] as $method) {
+            $this->assertSame($class, Sudo::getStaticMethodClosure($class, $method)());
+            $this->assertSame($class, Sudo::getStaticMethodClosure($object, $method)());
+            $this->assertSame($class, Sudo::getMethodClosure($object, $method)());
+        }
+    }
+
+    public function testMagicMethodClosure()
+    {
+        $object = new class() {
+            public function __call($name, $args)
+            {
+                return [$name, $args];
+            }
+
+            public static function __callStatic($name, $args)
+            {
+                return [$name, $args];
+            }
+        };
+
+        $this->assertSame(['missing', [1, 2]], Sudo::getMethodClosure($object, 'missing')(1, 2));
+        $this->assertSame(['missing', [1, 2]], Sudo::getStaticMethodClosure($object, 'missing')(1, 2));
+    }
+
+    public function testStaticClosureRejectsInstanceMethod()
+    {
+        $this->expectException(\TypeError::class);
+
+        Sudo::getStaticMethodClosure(new ClassWithSecrets(), 'privateMethod');
+    }
+
     public function testStaticProperty()
     {
         $obj = new ClassWithSecrets();
@@ -144,5 +235,18 @@ class SudoTest extends TestCase
     {
         $obj = Sudo::newInstance(ClassWithSecretParentConstructor::class, ['foo', 2]);
         $this->assertSame('private prop ["foo",2]', Sudo::fetchProperty($obj, 'privateProp'));
+    }
+}
+
+class SudoClosureParent
+{
+    public static function publicClassName(): string
+    {
+        return static::class;
+    }
+
+    private static function privateClassName(): string
+    {
+        return static::class;
     }
 }

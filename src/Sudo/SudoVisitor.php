@@ -13,8 +13,10 @@ namespace Psy\Sudo;
 
 use PhpParser\Node;
 use PhpParser\Node\Arg;
+use PhpParser\Node\ArgPlaceholder;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -24,6 +26,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\VariadicPlaceholder;
 use PhpParser\NodeVisitorAbstract;
 use Psy\Sudo;
 
@@ -38,9 +41,11 @@ class SudoVisitor extends NodeVisitorAbstract
     const PROPERTY_FETCH = 'fetchProperty';
     const PROPERTY_ASSIGN = 'assignProperty';
     const METHOD_CALL = 'callMethod';
+    const METHOD_CLOSURE = 'getMethodClosure';
     const STATIC_PROPERTY_FETCH = 'fetchStaticProperty';
     const STATIC_PROPERTY_ASSIGN = 'assignStaticProperty';
     const STATIC_CALL = 'callStatic';
+    const STATIC_METHOD_CLOSURE = 'getStaticMethodClosure';
     const CLASS_CONST_FETCH = 'fetchClassConst';
     const NEW_INSTANCE = 'newInstance';
 
@@ -51,6 +56,12 @@ class SudoVisitor extends NodeVisitorAbstract
      */
     public function enterNode(Node $node)
     {
+        if (($node instanceof MethodCall || $node instanceof StaticCall || $node instanceof New_) && $this->hasPlaceholders($node->args)) {
+            // Rewrite callable creation after traversing its operands, so the generated helper
+            // is not itself rewritten. Leave invalid constructor placeholders for PHP to reject.
+            return null;
+        }
+
         if ($node instanceof PropertyFetch) {
             $name = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
             $args = [
@@ -125,6 +136,37 @@ class SudoVisitor extends NodeVisitorAbstract
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function leaveNode(Node $node)
+    {
+        if (($node instanceof MethodCall || $node instanceof StaticCall) && $this->hasPlaceholders($node->args)) {
+            $name = $node->name instanceof Identifier ? new String_($node->name->toString()) : $node->name;
+            if ($node instanceof MethodCall) {
+                $closure = $this->prepareCall(self::METHOD_CLOSURE, [$node->var, $name]);
+            } else {
+                $class = $node->class instanceof Name ? new String_($node->class->toString()) : $node->class;
+                $closure = $this->prepareCall(self::STATIC_METHOD_CLOSURE, [$class, $name]);
+            }
+
+            return new FuncCall($closure, $node->args, $node->getAttributes());
+        }
+
+        return null;
+    }
+
+    private function hasPlaceholders(array $args): bool
+    {
+        foreach ($args as $arg) {
+            if ($arg instanceof ArgPlaceholder || $arg instanceof VariadicPlaceholder) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function prepareCall(string $method, array $args): StaticCall

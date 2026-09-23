@@ -70,6 +70,30 @@ class Sudo
     }
 
     /**
+     * Fetch a method's closure, bypassing visibility restrictions.
+     *
+     * @param object $object
+     * @param string $method method name
+     */
+    public static function getMethodClosure($object, string $method): \Closure
+    {
+        return self::getClosure($object, $method, new \ReflectionObject($object));
+    }
+
+    /**
+     * Fetch a static method's closure, bypassing visibility restrictions.
+     *
+     * @param string|object $class  class name or instance
+     * @param string        $method method name
+     */
+    public static function getStaticMethodClosure($class, string $method): \Closure
+    {
+        $refl = new \ReflectionClass($class);
+
+        return self::getClosure($refl->getName(), $method, $refl);
+    }
+
+    /**
      * Fetch a property of a class, bypassing visibility restrictions.
      *
      * @param string|object $class    class name or instance
@@ -204,5 +228,33 @@ class Sudo
         } while ($refl !== false);
 
         throw $firstException;
+    }
+
+    /**
+     * @param object|class-string $target
+     */
+    private static function getClosure($target, string $method, \ReflectionClass $refl): \Closure
+    {
+        if (!$refl->hasMethod($method) || $refl->getMethod($method)->isPublic()) {
+            return \Closure::fromCallable([$target, $method]);
+        }
+
+        $reflMethod = $refl->getMethod($method);
+        $declaringClass = $reflMethod->getDeclaringClass();
+        if ($declaringClass->isInternal()) {
+            if (\PHP_VERSION_ID < 80100) {
+                $reflMethod->setAccessible(true);
+            }
+
+            // @phan-suppress-next-line PhanTypeMismatchReturnNullable -- The native API only returns null for invalid arguments on older PHP.
+            return $reflMethod->getClosure($reflMethod->isStatic() ? null : $target);
+        }
+
+        // ReflectionMethod::getClosure() loses the called class for inherited static methods.
+        $getClosure = \Closure::bind(static function ($target, string $method): \Closure {
+            return \Closure::fromCallable([$target, $method]);
+        }, null, $declaringClass->getName());
+
+        return $getClosure($target, $method);
     }
 }
