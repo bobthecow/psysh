@@ -128,13 +128,7 @@ class ImplicitUsePass extends CodeCleanerPass
         foreach ($nodes as $node) {
             if ($node instanceof Use_ || $node instanceof GroupUse) {
                 foreach ($node->uses as $useItem) {
-                    $alias = $useItem->getAlias();
-                    if ($alias !== null) {
-                        $aliasStr = $alias instanceof Name ? $alias->toString() : (string) $alias;
-                        $aliases[\strtolower($aliasStr)] = true;
-                    } else {
-                        $aliases[\strtolower($useItem->name->getLast())] = true;
-                    }
+                    $aliases[\strtolower($useItem->getAlias())] = true;
                 }
             }
         }
