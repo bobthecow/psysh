@@ -12,10 +12,10 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\VariadicPlaceholder;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -45,7 +45,7 @@ class CallTimePassByReferencePass extends CodeCleanerPass
         }
 
         foreach ($node->args as $arg) {
-            if ($arg instanceof VariadicPlaceholder) {
+            if (!$arg instanceof Arg) {
                 continue;
             }
 

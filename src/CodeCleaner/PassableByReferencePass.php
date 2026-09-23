@@ -12,6 +12,8 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
+use PhpParser\Node\ArgPlaceholder;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
@@ -62,7 +64,7 @@ class PassableByReferencePass extends CodeCleanerPass
 
             $args = [];
             foreach ($node->args as $position => $arg) {
-                if ($arg instanceof VariadicPlaceholder) {
+                if (!$arg instanceof Arg) {
                     continue;
                 }
 
@@ -123,6 +125,14 @@ class PassableByReferencePass extends CodeCleanerPass
      */
     private function validateArrayMultisort(Node $node)
     {
+        // Partial application captures the arguments before array_multisort validates
+        // their values and references when the resulting closure is invoked.
+        foreach ($node->args as $arg) {
+            if ($arg instanceof ArgPlaceholder || $arg instanceof VariadicPlaceholder) {
+                return null;
+            }
+        }
+
         $nonPassable = 2; // start with 2 because the first one has to be passable by reference
         foreach ($node->args as $arg) {
             if ($this->isPassableByReference($arg)) {

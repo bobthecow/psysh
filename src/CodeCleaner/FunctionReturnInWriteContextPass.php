@@ -12,6 +12,7 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\ArgPlaceholder;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
@@ -48,7 +49,7 @@ class FunctionReturnInWriteContextPass extends CodeCleanerPass
         if ($node instanceof Array_ || $this->isCallNode($node)) {
             $items = $node instanceof Array_ ? $node->items : $node->args;
             foreach ($items as $item) {
-                if ($item instanceof VariadicPlaceholder) {
+                if ($item instanceof VariadicPlaceholder || $item instanceof ArgPlaceholder) {
                     continue;
                 }
 

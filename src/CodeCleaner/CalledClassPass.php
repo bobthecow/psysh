@@ -12,6 +12,7 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\ArgPlaceholder;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
@@ -60,6 +61,13 @@ class CalledClassPass extends CodeCleanerPass
                 return null;
             }
 
+            // Creating a callable does not invoke it, even if an argument is bound to null.
+            foreach ($node->args as $arg) {
+                if ($arg instanceof VariadicPlaceholder || $arg instanceof ArgPlaceholder) {
+                    return null;
+                }
+            }
+
             // We'll ignore name expressions as well (things like `$foo()`)
             if (!($node->name instanceof Name)) {
                 return null;
@@ -91,10 +99,6 @@ class CalledClassPass extends CodeCleanerPass
 
     private function isNull(Node $node): bool
     {
-        if ($node instanceof VariadicPlaceholder) {
-            return false;
-        }
-
         if (!\property_exists($node, 'value')) {
             return false;
         }

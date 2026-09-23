@@ -19,6 +19,7 @@ if (!\function_exists(__NAMESPACE__.'\\parse')) {
 
 namespace Psy\Test;
 
+use PhpParser\Node\Expr\FuncCall;
 use Psy\CodeCleaner;
 
 if (!\function_exists(__NAMESPACE__.'\\parse')) {
@@ -82,6 +83,34 @@ class CodeCleanerResolveFunctionNameTest extends TestCase
         $this->cleaner->setNamespace(['Psy', 'Test']);
 
         $this->assertSame('\\Psy\\Test\\parse', $this->cleaner->getCallableFunctionForInput('parse (true ? 1 : 2)', 'parse'));
+    }
+
+    /**
+     * @dataProvider partialApplicationArity
+     */
+    public function testGetCallableFunctionForPartialApplication(string $input, ?string $expected)
+    {
+        if (!\method_exists(FuncCall::class, 'isPartialFunctionApplication')) {
+            $this->markTestSkipped('Partial application requires PHP-Parser 5.9 or newer.');
+        }
+
+        $this->assertSame($expected, $this->cleaner->getCallableFunctionForInput($input));
+    }
+
+    public function partialApplicationArity(): array
+    {
+        return [
+            ['copy (?, ?)', '\\copy'],
+            ['copy ($from, ?)', '\\copy'],
+            ['copy (to: ?, from: $from)', '\\copy'],
+            ['copy (?)', null],
+            ['copy (context: ?, ...)', '\\copy'],
+            ['copy ($from, ...)', '\\copy'],
+            ['copy (...)', '\\copy'],
+            ['strlen (?, ?, ...)', null],
+            ['strlen (?, ?)', null],
+            ['printf ("%s %s", ?, ?)', '\\printf'],
+        ];
     }
 
     public function testGetCallableFunctionForInputRejectsArityMismatchForNamespacedFunction()

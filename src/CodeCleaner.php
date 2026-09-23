@@ -12,6 +12,7 @@
 namespace Psy;
 
 use PhpParser\Error as PhpParserError;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
@@ -19,6 +20,7 @@ use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
+use PhpParser\Node\VariadicPlaceholder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
@@ -581,18 +583,24 @@ class CodeCleaner
             return false;
         }
 
-        // Unpacked args can satisfy any arity, so only validate fixed arg counts.
+        // Unpacked args can satisfy any arity. Placeholders occupy an argument position,
+        // except for "...", which supplies the remaining parameters.
+        $hasVariadicPlaceholder = false;
+        $argCount = 0;
         foreach ($call->args as $arg) {
-            if ($arg->unpack) {
+            if ($arg instanceof VariadicPlaceholder) {
+                $hasVariadicPlaceholder = true;
+            } elseif ($arg instanceof Arg && $arg->unpack) {
                 return true;
+            } else {
+                $argCount++;
             }
         }
 
-        $argCount = \count($call->args);
         $required = $reflection->getNumberOfRequiredParameters();
         $max = $reflection->isVariadic() ? \PHP_INT_MAX : $reflection->getNumberOfParameters();
 
-        return $argCount >= $required && $argCount <= $max;
+        return ($hasVariadicPlaceholder || $argCount >= $required) && $argCount <= $max;
     }
 
     /**
