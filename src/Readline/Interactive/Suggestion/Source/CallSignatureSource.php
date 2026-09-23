@@ -72,21 +72,17 @@ class CallSignatureSource implements SourceInterface
             return $this->signatureCache[$functionName];
         }
 
-        $signature = null;
+        if (!\function_exists($functionName)) {
+            return null;
+        }
+
         try {
-            if (\function_exists($functionName)) {
-                $reflection = new \ReflectionFunction($functionName);
-                $signature = $this->formatParameters($reflection->getParameters());
-            }
+            $reflection = new \ReflectionFunction($functionName);
+
+            return $this->signatureCache[$functionName] = $this->formatParameters($reflection->getParameters());
         } catch (\ReflectionException $e) {
-            // Leave as null.
+            return null;
         }
-
-        if ($signature !== null) {
-            $this->signatureCache[$functionName] = $signature;
-        }
-
-        return $signature;
     }
 
     /**
