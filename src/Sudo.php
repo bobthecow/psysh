@@ -66,7 +66,7 @@ class Sudo
             $reflMethod->setAccessible(true);
         }
 
-        return $reflMethod->invokeArgs($object, $args);
+        return $reflMethod->invokeArgs($reflMethod->isStatic() ? null : $object, $args);
     }
 
     /**

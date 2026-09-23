@@ -44,6 +44,11 @@ class SudoTest extends TestCase
             ));
     }
 
+    public function testCallStaticMethodThroughObject()
+    {
+        $this->assertSame('private and static and method with 1', Sudo::callMethod(new ClassWithSecrets(), 'privateStaticMethod', 1));
+    }
+
     public function testStaticProperty()
     {
         $obj = new ClassWithSecrets();
