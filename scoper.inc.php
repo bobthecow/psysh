@@ -51,6 +51,8 @@ return [
     ],
 
     'exclude-constants' => [
+        // Tokenizer constants, including PHP-Parser's emulated tokens
+        '/^T_[A-Z_]+$/',
         // Symfony global constants
         '/^SYMFONY\_[\p{L}_]+$/',
     ],
