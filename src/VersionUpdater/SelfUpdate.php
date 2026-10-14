@@ -13,6 +13,7 @@ namespace Psy\VersionUpdater;
 
 use Psy\Exception\ErrorException;
 use Psy\Shell;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -85,8 +86,19 @@ class SelfUpdate
     {
         $currentVersion = Shell::VERSION;
 
+        try {
+            $isLatest = $this->checker->isLatest();
+        } catch (\InvalidArgumentException $e) {
+            $output->writeln('<error>'.OutputFormatter::escape($e->getMessage()).'</error>');
+            if ($e->getPrevious() !== null) {
+                $output->writeln(OutputFormatter::escape($e->getPrevious()->getMessage()), OutputInterface::VERBOSITY_VERBOSE);
+            }
+
+            return self::FAILURE;
+        }
+
         // already have the latest version?
-        if ($this->checker->isLatest()) {
+        if ($isLatest) {
             // current version is latest version...
             $output->writeln('<info>Current version is up-to-date.</info>');
 

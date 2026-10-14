@@ -21,6 +21,7 @@ use Psy\VersionUpdater\SelfUpdate;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateTest extends TestCase
@@ -43,6 +44,42 @@ class SelfUpdateTest extends TestCase
         $returnValue = $selfUpdate->run($this->getInput(), $output);
 
         $this->assertEquals(SelfUpdate::SUCCESS, $returnValue);
+    }
+
+    /**
+     * @dataProvider updateFailureVerbosity
+     */
+    public function testFailWhenUpdateCheckFails(int $verbosity, bool $showDiagnostic)
+    {
+        $message = 'Unable to check for updates. Please try again later.';
+        $diagnostic = 'SSL error: <info>private diagnostic</info>';
+        $checker = $this->createMock(Checker::class);
+        $checker->method('isLatest')->willThrowException(new \InvalidArgumentException($message, 0, new \ErrorException($diagnostic)));
+        $checker->expects($this->never())->method('getLatest');
+
+        $installer = $this->getMockInstaller();
+        $installer->expects($this->never())->method('isInstallLocationWritable');
+        $installer->expects($this->never())->method('install');
+
+        $downloader = $this->getMockDownloader();
+        $downloader->expects($this->never())->method('download');
+
+        $selfUpdate = new SelfUpdate($checker, $installer);
+        $selfUpdate->setDownloader($downloader);
+        $output = new BufferedOutput($verbosity);
+
+        $this->assertSame(SelfUpdate::FAILURE, $selfUpdate->run($this->getInput(), $output));
+        $this->assertSame($message.\PHP_EOL.($showDiagnostic ? $diagnostic.\PHP_EOL : ''), $output->fetch());
+    }
+
+    public function updateFailureVerbosity(): array
+    {
+        return [
+            [OutputInterface::VERBOSITY_NORMAL, false],
+            [OutputInterface::VERBOSITY_VERBOSE, true],
+            [OutputInterface::VERBOSITY_VERY_VERBOSE, true],
+            [OutputInterface::VERBOSITY_DEBUG, true],
+        ];
     }
 
     public function testFailWhenCurrentVersionIsNotWritable()

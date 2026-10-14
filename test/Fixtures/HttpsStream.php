@@ -16,6 +16,9 @@ final class HttpsStream
     /** @var array<string, string> */
     private static array $responses = [];
 
+    /** @var array<string, string> */
+    private static array $errors = [];
+
     /** @var resource|null */
     public $context;
 
@@ -24,23 +27,32 @@ final class HttpsStream
 
     /**
      * @param array<string, string> $responses
+     * @param array<string, string> $errors
      */
-    public static function register(array $responses): void
+    public static function register(array $responses, array $errors = []): void
     {
         \stream_wrapper_unregister('https');
         \stream_wrapper_register('https', self::class);
         self::$responses = $responses;
+        self::$errors = $errors;
     }
 
     public static function restore(): void
     {
         self::$responses = [];
+        self::$errors = [];
         \stream_wrapper_unregister('https');
         \stream_wrapper_restore('https');
     }
 
     public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
     {
+        if (isset(self::$errors[$path])) {
+            \trigger_error(self::$errors[$path], \E_USER_WARNING);
+
+            return false;
+        }
+
         if (!isset(self::$responses[$path])) {
             return false;
         }

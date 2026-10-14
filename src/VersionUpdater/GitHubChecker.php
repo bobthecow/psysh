@@ -46,7 +46,7 @@ class GitHubChecker implements Checker
     {
         $contents = $this->fetchLatestRelease();
         if (!$contents || !isset($contents->tag_name)) {
-            throw new \InvalidArgumentException('Unable to check for updates');
+            throw new \InvalidArgumentException('Unable to check for updates. Please try again later.');
         }
         $this->setLatest($contents->tag_name);
 
@@ -67,14 +67,26 @@ class GitHubChecker implements Checker
             ],
         ]);
 
-        \set_error_handler(function () {
-            // Just ignore all errors with this. The checker will throw an exception
-            // if it doesn't work :)
+        $error = null;
+        \set_error_handler(function ($severity, $message) use (&$error) {
+            // Keep the original warning if the stream also emits a generic failure.
+            $error ??= new \ErrorException(\trim($message), 0, $severity);
         });
 
-        $result = @\file_get_contents(self::URL, false, $context);
+        try {
+            $result = @\file_get_contents(self::URL, false, $context);
+        } finally {
+            \restore_error_handler();
+        }
 
-        \restore_error_handler();
+        if ($result === false) {
+            $message = 'Unable to check for updates. Please try again later.';
+            if ($error !== null && \preg_match('/HTTP\/\S+ (?:403 rate limit exceeded|429\b)/i', $error->getMessage())) {
+                $message = 'Unable to check for updates: GitHub\'s rate limit was exceeded. Please try again later.';
+            }
+
+            throw new \InvalidArgumentException($message, 0, $error);
+        }
 
         return \json_decode($result);
     }

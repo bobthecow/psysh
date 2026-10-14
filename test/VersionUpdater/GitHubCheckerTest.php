@@ -12,11 +12,64 @@
 namespace Psy\Test\VersionUpdater;
 
 use Psy\Shell;
+use Psy\Test\Fixtures\HttpsStream;
 use Psy\Test\TestCase;
 use Psy\VersionUpdater\GitHubChecker;
 
 class GitHubCheckerTest extends TestCase
 {
+    /**
+     * @dataProvider failedRequests
+     *
+     * @runInSeparateProcess
+     *
+     * @preserveGlobalState disabled
+     */
+    public function testFailedRequestPreservesReasonAndRestoresErrorHandler(?string $warning, string $message)
+    {
+        HttpsStream::register([], $warning === null ? [] : [GitHubChecker::URL => $warning]);
+        $handler = function () {
+            $this->fail('Network warnings should not reach the active error handler');
+        };
+        \set_error_handler($handler);
+
+        try {
+            try {
+                (new GitHubChecker())->getLatest();
+                $this->fail('Expected the failed request to throw');
+            } catch (\InvalidArgumentException $e) {
+                $this->assertSame($message, $e->getMessage());
+                $this->assertInstanceOf(\ErrorException::class, $e->getPrevious());
+                if ($warning === null) {
+                    $this->assertStringContainsStringIgnoringCase('Failed to open stream', $e->getPrevious()->getMessage());
+                } else {
+                    $this->assertSame($warning, $e->getPrevious()->getMessage());
+                }
+            }
+
+            $restoredHandler = \set_error_handler($handler);
+            \restore_error_handler();
+            $this->assertSame($handler, $restoredHandler);
+        } finally {
+            \restore_error_handler();
+            HttpsStream::restore();
+        }
+    }
+
+    public function failedRequests(): array
+    {
+        $generic = 'Unable to check for updates. Please try again later.';
+        $rateLimit = 'Unable to check for updates: GitHub\'s rate limit was exceeded. Please try again later.';
+
+        return [
+            'stream failure'    => [null, $generic],
+            'rate limit'        => ['HTTP request failed! HTTP/1.1 403 rate limit exceeded', $rateLimit],
+            'too many requests' => ['HTTP request failed! HTTP/1.1 429 Too Many Requests', $rateLimit],
+            'forbidden'         => ['HTTP request failed! HTTP/1.1 403 Forbidden', $generic],
+            'unknown error'     => ['SSL error: <info>private diagnostic</info>', $generic],
+        ];
+    }
+
     /**
      * @dataProvider malformedResults
      *
@@ -25,7 +78,7 @@ class GitHubCheckerTest extends TestCase
     public function testExceptionInvocation($input)
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unable to check for updates');
+        $this->expectExceptionMessage('Unable to check for updates. Please try again later.');
 
         $checker = $this->getMockBuilder(GitHubChecker::class)
             ->setMethods(['fetchLatestRelease'])
