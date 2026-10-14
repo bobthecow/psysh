@@ -73,6 +73,7 @@ class GitHubChecker implements Checker
             $error ??= new \ErrorException(\trim($message), 0, $severity);
         });
 
+        $result = false;
         try {
             $result = @\file_get_contents(self::URL, false, $context);
         } finally {
