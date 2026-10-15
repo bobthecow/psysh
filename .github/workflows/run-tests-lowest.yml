@@ -2,6 +2,9 @@ name: Run tests (lowest deps)
 
 on:
   workflow_call:
+permissions:
+  contents: read
+
 
 jobs:
   test:

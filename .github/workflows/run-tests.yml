@@ -11,6 +11,9 @@ on:
         type: boolean
         required: false
         default: false
+permissions:
+  contents: read
+
 
 jobs:
   test:
