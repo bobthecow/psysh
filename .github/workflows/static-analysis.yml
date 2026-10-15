@@ -16,21 +16,21 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.37.2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '7.4'
           tools: composer:v2
           coverage: none
 
       - name: Install dependencies
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --no-interaction --no-progress
 
       - name: Install PHPStan
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -50,21 +50,21 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.37.2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '7.4'
           tools: composer:v2
           coverage: none
 
       - name: Install dependencies
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --no-interaction --no-progress
 
       - name: Install Phan
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
