@@ -2,9 +2,9 @@ name: Run tests (32-bit)
 
 on:
   workflow_call:
+
 permissions:
   contents: read
-
 
 jobs:
   test:

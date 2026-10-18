@@ -26,7 +26,6 @@ use Psy\Util\Tty;
  */
 class ProcessForker extends AbstractListener implements ExecutionCleanupListener
 {
-    private int $executionDepth = 0;
     private ?int $savegame = null;
     /** @var resource */
     private $up;
@@ -242,28 +241,27 @@ class ProcessForker extends AbstractListener implements ExecutionCleanupListener
      */
     public function onExecute(Shell $shell, string $code)
     {
-        $this->executionDepth++;
-
-        // Nested executions share the signal state owned by their outer execution.
-        if ($this->executionDepth > 1) {
+        // Only acquire signal state in the child process. Nested executions
+        // share the resource owned by their outer execution.
+        // @phan-suppress-next-line PhanAccessMethodInternal -- Internal to PsySH, including this namespace.
+        if (!isset($this->up) || !$shell->claimExecutionResource($this, function () use ($shell): void {
+            $this->afterExecute($shell);
+        })) {
             return null;
         }
 
-        // Only handle SIGINT in the child process
-        if (isset($this->up)) {
-            // Ensure signal processing is enabled so Ctrl-C can interrupt execution
-            if (Tty::supportsStty()) {
-                @\shell_exec('stty isig 2>/dev/null');
-                $this->restoreStty = true;
-            }
-
-            \pcntl_async_signals(true);
-
-            // Install SIGINT handler that throws exception during execution
-            \pcntl_signal(\SIGINT, function () {
-                throw new InterruptException('Ctrl+C');
-            });
+        // Ensure signal processing is enabled so Ctrl-C can interrupt execution
+        if (Tty::supportsStty()) {
+            @\shell_exec('stty isig 2>/dev/null');
+            $this->restoreStty = true;
         }
+
+        \pcntl_async_signals(true);
+
+        // Install SIGINT handler that throws exception during execution
+        \pcntl_signal(\SIGINT, function () {
+            throw new InterruptException('Ctrl+C');
+        });
 
         return null;
     }
@@ -273,12 +271,6 @@ class ProcessForker extends AbstractListener implements ExecutionCleanupListener
      */
     public function afterExecute(Shell $shell)
     {
-        $this->executionDepth--;
-
-        if ($this->executionDepth > 0) {
-            return;
-        }
-
         // Only handle cleanup in the child process
         if (isset($this->up)) {
             // Restore default SIGINT handler after execution

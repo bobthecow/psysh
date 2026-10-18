@@ -11,8 +11,6 @@
 
 namespace Psy;
 
-use Psy\ExecutionLoop\ExecutionCleanupListener;
-
 /**
  * Owns the output buffers and error handler for one evaluation.
  *
@@ -20,9 +18,6 @@ use Psy\ExecutionLoop\ExecutionCleanupListener;
  */
 class ExecutionCleanupState
 {
-    /** @var ExecutionCleanupListener[] Listeners whose setup completed. */
-    public array $listeners = [];
-
     private int $outputBufferLevel;
     private \Closure $errorHandler;
     /** @var callable|null */

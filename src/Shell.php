@@ -101,8 +101,10 @@ class Shell extends Application
     private bool $nonInteractive = false;
     private int $runDepth = 0;
     private int $executionDepth = 0;
-    /** @var ExecutionCleanupState[] */
-    private array $executionCleanupStack = [];
+    /** @var ExecutionScope[] */
+    private array $executionScopes = [];
+    /** @var array<int, true> Resources claimed by active scopes. */
+    private array $executionResources = [];
     private ?int $errorReporting = null;
     private bool $interactiveSignalCharsEnabled = false;
     private bool $outputWritten = false;
@@ -1014,11 +1016,18 @@ class Shell extends Application
      */
     public function beforeLoop()
     {
+        $scope = $this->pushExecutionScope(ExecutionScope::LOOP);
         $this->outputWritten = false;
         $this->resetShellOutputWritten();
 
-        foreach ($this->loopListeners as $listener) {
-            $listener->beforeLoop($this);
+        try {
+            foreach ($this->loopListeners as $listener) {
+                $listener->beforeLoop($this);
+            }
+        } catch (\Throwable $e) {
+            $this->closeExecutionScope($scope, $e);
+
+            throw $e;
         }
     }
 
@@ -1045,7 +1054,59 @@ class Shell extends Application
      */
     public function beforeExecute(): void
     {
-        $this->executionCleanupStack[] = new ExecutionCleanupState($this);
+        $output = new ExecutionCleanupState($this);
+        $this->pushExecutionScope(ExecutionScope::EVALUATION)->output = $output;
+    }
+
+    /**
+     * Enter a resource boundary without taking over output or error handling.
+     *
+     * @internal
+     */
+    public function beforeExecutionBoundary(): ExecutionScope
+    {
+        return $this->pushExecutionScope(ExecutionScope::BOUNDARY);
+    }
+
+    /**
+     * Release boundary resources, preserving an existing execution exception.
+     *
+     * @internal
+     */
+    public function afterExecutionBoundary(ExecutionScope $scope, ?\Throwable $exception = null): void
+    {
+        $this->closeExecutionScope($scope, $exception);
+    }
+
+    /**
+     * Register a resource's cleanup with its first acquiring scope. Nested
+     * executions share that resource until the owning scope closes.
+     *
+     * Register before acquisition so partial setup can also be unwound.
+     * Returns false when an enclosing execution already owns the resource.
+     *
+     * @internal
+     */
+    public function claimExecutionResource(object $resource, \Closure $cleanup): bool
+    {
+        $id = \spl_object_id($resource);
+        if (isset($this->executionResources[$id])) {
+            return false;
+        }
+
+        $scope = $this->getExecutionResourceScope();
+        $this->executionResources[$id] = true;
+        $scope->cleanups[] = function () use ($resource, $cleanup): void {
+            try {
+                $cleanup();
+            } finally {
+                // Keep the resource alive, and claimed during cleanup, so a
+                // reentrant execution cannot replace it before restoration.
+                unset($this->executionResources[\spl_object_id($resource)]);
+            }
+        };
+
+        return true;
     }
 
     /**
@@ -1055,7 +1116,7 @@ class Shell extends Application
      */
     public function flushExecutionOutput(): void
     {
-        \end($this->executionCleanupStack)->closeOutput(true);
+        $this->findEvaluationScope()->output->closeOutput(true);
     }
 
     /**
@@ -1065,7 +1126,7 @@ class Shell extends Application
      */
     public function onExecute(string $code): string
     {
-        $execution = \end($this->executionCleanupStack);
+        $execution = $this->findEvaluationScope();
 
         $this->errorReporting = \error_reporting();
         $this->enableInteractiveSignalCharsIfNeeded();
@@ -1073,8 +1134,16 @@ class Shell extends Application
         foreach ($this->loopListeners as $listener) {
             $return = $listener->onExecute($this, $code);
 
-            if ($listener instanceof ExecutionCleanupListener) {
-                $execution->listeners[] = $listener;
+            if (
+                $execution !== null
+                && $listener instanceof ExecutionCleanupListener
+                && !isset($this->executionResources[\spl_object_id($listener)])
+            ) {
+                // Resource owners already registered their cleanup. Other
+                // listeners retain one callback per completed onExecute.
+                $execution->cleanups[] = function () use ($listener): void {
+                    $listener->afterExecute($this);
+                };
             }
 
             if ($return !== null) {
@@ -1100,32 +1169,79 @@ class Shell extends Application
      */
     public function afterExecute(?\Throwable $exception = null)
     {
-        $execution = \array_pop($this->executionCleanupStack);
-        if ($execution === null) {
+        foreach (\array_reverse($this->executionScopes) as $scope) {
+            if ($scope->type === ExecutionScope::BOUNDARY) {
+                break;
+            }
+            if ($scope->type === ExecutionScope::EVALUATION) {
+                $this->closeExecutionScope($scope, $exception);
+
+                break;
+            }
+        }
+    }
+
+    private function pushExecutionScope(int $type): ExecutionScope
+    {
+        return $this->executionScopes[] = new ExecutionScope($type);
+    }
+
+    private function findEvaluationScope(): ?ExecutionScope
+    {
+        foreach (\array_reverse($this->executionScopes) as $scope) {
+            if ($scope->type === ExecutionScope::EVALUATION) {
+                return $scope;
+            }
+        }
+
+        return null;
+    }
+
+    private function getExecutionResourceScope(): ExecutionScope
+    {
+        $scope = \end($this->executionScopes);
+        if ($scope === false || $scope->type === ExecutionScope::BOUNDARY) {
+            // Unpaired onExecute calls share a legacy scope until afterLoop
+            // or the enclosing closure returns. They never own output capture.
+            return $this->pushExecutionScope(ExecutionScope::LEGACY);
+        }
+
+        return $scope;
+    }
+
+    private function closeExecutionScope(ExecutionScope $scope, ?\Throwable $exception = null): void
+    {
+        $index = \array_search($scope, $this->executionScopes, true);
+        if ($index === false) {
             return;
         }
 
         $failure = $exception;
-        try {
-            // Successful evaluations already flushed before saving their scope.
-            $execution->closeOutput(false);
-        } catch (\Throwable $e) {
-            $failure ??= $e;
-        }
-
-        try {
-            if ($this->executionCleanupStack === []) {
-                $this->disableInteractiveSignalCharsIfNeeded();
-            }
-        } catch (\Throwable $e) {
-            $failure ??= $e;
-        }
-
-        foreach (\array_reverse($execution->listeners) as $listener) {
+        while (\count($this->executionScopes) > $index) {
+            $current = \array_pop($this->executionScopes);
             try {
-                $listener->afterExecute($this);
+                // Successful evaluations already flushed before saving scope.
+                if ($current->output !== null) {
+                    $current->output->closeOutput(false);
+                }
             } catch (\Throwable $e) {
                 $failure ??= $e;
+            }
+
+            try {
+                if ($current->ownsSignalChars) {
+                    $this->disableInteractiveSignalCharsIfNeeded();
+                }
+            } catch (\Throwable $e) {
+                $failure ??= $e;
+            }
+
+            foreach (\array_reverse($current->cleanups) as $cleanup) {
+                try {
+                    $cleanup();
+                } catch (\Throwable $e) {
+                    $failure ??= $e;
+                }
             }
         }
 
@@ -1139,7 +1255,10 @@ class Shell extends Application
      */
     public function afterLoop()
     {
-        $this->disableInteractiveSignalCharsIfNeeded();
+        $scope = \end($this->executionScopes);
+        if ($scope !== false && ($scope->type === ExecutionScope::LOOP || $scope->type === ExecutionScope::LEGACY)) {
+            $this->closeExecutionScope($scope);
+        }
 
         foreach (\array_reverse($this->loopListeners) as $listener) {
             $listener->afterLoop($this);
@@ -1281,6 +1400,7 @@ class Shell extends Application
 
         @\shell_exec('stty isig 2>/dev/null');
         $this->interactiveSignalCharsEnabled = true;
+        $this->getExecutionResourceScope()->ownsSignalChars = true;
     }
 
     /**

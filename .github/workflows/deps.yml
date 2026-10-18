@@ -4,9 +4,9 @@ on:
   schedule:
     - cron: '1 3 * * *'
   workflow_dispatch:
+
 permissions:
   contents: read
-
 
 jobs:
   stable:
@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
 
       - name: Install PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '7.4'
           tools: composer:v2
@@ -55,7 +55,7 @@ jobs:
         run: make build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: binaries
           path: build/*/psysh

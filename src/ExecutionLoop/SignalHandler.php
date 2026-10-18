@@ -21,7 +21,6 @@ use Psy\Util\Tty;
  */
 class SignalHandler extends AbstractListener implements ExecutionCleanupListener
 {
-    private int $executionDepth = 0;
     private bool $sigintHandlerInstalled = false;
     private bool $restoreStty = false;
     private bool $wasInterrupted = false;
@@ -64,10 +63,11 @@ class SignalHandler extends AbstractListener implements ExecutionCleanupListener
      */
     public function onExecute(Shell $shell, string $code)
     {
-        $this->executionDepth++;
-
         // Nested executions share the signal state owned by their outer execution.
-        if ($this->executionDepth > 1) {
+        // @phan-suppress-next-line PhanAccessMethodInternal -- Internal to PsySH, including this namespace.
+        if (!$shell->claimExecutionResource($this, function () use ($shell): void {
+            $this->afterExecute($shell);
+        })) {
             return null;
         }
 
@@ -100,12 +100,6 @@ class SignalHandler extends AbstractListener implements ExecutionCleanupListener
      */
     public function afterExecute(Shell $shell)
     {
-        $this->executionDepth--;
-
-        if ($this->executionDepth > 0) {
-            return;
-        }
-
         // Restore the SIGINT handler and async mode from before execution
         if ($this->sigintHandlerInstalled) {
             \pcntl_signal(\SIGINT, $this->originalSigintHandler);
