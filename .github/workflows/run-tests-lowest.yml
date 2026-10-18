@@ -3,6 +3,9 @@ name: Run tests (lowest deps)
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: PHP 7.4
@@ -11,9 +14,11 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.40.0
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '7.4'
           tools: composer:v2
@@ -23,14 +28,14 @@ jobs:
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Install dependencies (--prefer-lowest)
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
 
       - name: Install PHPUnit
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5

@@ -8,6 +8,9 @@ on:
         required: false
         default: false
 
+permissions:
+  contents: read
+
 jobs:
   downstream:
     name: ${{ matrix.project }} (PHP ${{ matrix.php }})
@@ -40,9 +43,11 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.40.0
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2

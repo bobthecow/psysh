@@ -3,6 +3,9 @@ name: Run Phar tests
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: PHP ${{ matrix.php }}
@@ -17,6 +20,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v7.0.1
         with:
+          persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             .github
@@ -25,7 +29,7 @@ jobs:
             test
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.40.0
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
@@ -52,7 +56,7 @@ jobs:
           composer --working-dir .phpunit init --no-interaction --name=psy/test
 
       - name: Install PHPUnit
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
