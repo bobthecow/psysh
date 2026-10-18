@@ -13,6 +13,7 @@ namespace Psy\Test;
 
 use Psy\Configuration;
 use Psy\Exception\BreakException;
+use Psy\ExecutionClosure;
 use Psy\ExecutionLoop\AbstractListener;
 use Psy\ExecutionLoop\ExecutionCleanupListener;
 use Psy\ExecutionLoop\Listener;
@@ -87,12 +88,6 @@ class ExecutionClosureTest extends TestCase
         $shell->setScopeVariables(['shell' => $shell]);
         $listener->captureInteractiveSignalChars = true;
 
-        $interactiveSignalCharsEnabled = new \ReflectionProperty(Shell::class, 'interactiveSignalCharsEnabled');
-        if (\PHP_VERSION_ID < 80100) {
-            $interactiveSignalCharsEnabled->setAccessible(true);
-        }
-        $interactiveSignalCharsEnabled->setValue($shell, true);
-
         $this->assertSame([1, 2], $shell->execute('return [1, $shell->execute("return 2;", true)];', true));
         $this->assertSame([true, false], $listener->interactiveSignalCharsStates);
     }
@@ -146,6 +141,133 @@ PHP;
 
         $this->assertSame(42, $shell->execute('21 * 2', true));
         $this->assertSame(1, $listener->onExecuteCalls);
+    }
+
+    public function testLegacyOnExecuteDoesNotRequireAnExecutionFrame()
+    {
+        [$shell, $listener] = $this->getShell();
+
+        $this->assertSame(42, eval($shell->onExecute('return 42;')));
+        $shell->afterLoop();
+        $shell->afterExecute();
+
+        $this->assertSame(1, $listener->onExecuteCalls);
+        $this->assertSame(1, $listener->afterLoopCalls);
+        $this->assertSame(0, $listener->afterExecuteCalls);
+    }
+
+    /**
+     * @dataProvider boundaryFailures
+     */
+    public function testResourceCleanupAttemptsEveryListenerAndPreservesFirstFailure(bool $setupFails, bool $bodyFails)
+    {
+        $completed = new ExecutionResourceTestListener();
+        $first = new ExecutionResourceTestListener();
+        $last = new ExecutionResourceTestListener();
+        $skipped = new ExecutionResourceTestListener();
+        $shell = $this->createShell([$completed, $last, $first, $skipped]);
+        $setupFailure = new \RuntimeException('setup');
+        $bodyFailure = new \RuntimeException('body');
+        $cleanupFailure = new \LogicException('first cleanup');
+        $first->setupFailure = $setupFails ? $setupFailure : null;
+        $first->cleanupFailure = $cleanupFailure;
+        $last->cleanupFailure = new \LogicException('last cleanup');
+        $closure = new class($shell, $bodyFails ? $bodyFailure : null) extends ExecutionClosure {
+            public function __construct(Shell $shell, ?\Throwable $failure)
+            {
+                // Downstream constructors need not call the parent constructor.
+                $this->setClosure($shell, static function () use ($shell, $failure) {
+                    $result = eval($shell->onExecute('return 42;'));
+                    if ($failure !== null) {
+                        throw $failure;
+                    }
+
+                    return $result;
+                });
+            }
+        };
+
+        try {
+            $closure->execute();
+            $this->fail('Expected setup, execution or cleanup failure');
+        } catch (\RuntimeException|\LogicException $e) {
+            $this->assertSame($setupFails ? $setupFailure : ($bodyFails ? $bodyFailure : $cleanupFailure), $e);
+        }
+
+        $this->assertSame(1, $completed->cleanupCalls);
+        $this->assertSame(1, $last->cleanupCalls);
+        $this->assertSame($setupFails ? 0 : 1, $first->cleanupCalls);
+        $this->assertSame($setupFails ? 0 : 1, $skipped->setupCalls);
+        $this->assertSame($setupFails ? 0 : 1, $skipped->cleanupCalls);
+
+        // Cleanup failures must release ownership for the next execution.
+        $first->setupFailure = $first->cleanupFailure = $last->cleanupFailure = null;
+        $this->assertSame(43, $shell->execute('43', true));
+        $this->assertSame(2, $completed->cleanupCalls);
+        $this->assertSame(2, $last->cleanupCalls);
+    }
+
+    public function boundaryFailures(): array
+    {
+        return [[false, false], [false, true], [true, false]];
+    }
+
+    public function testResourceRemainsClaimedDuringReentrantCleanup()
+    {
+        $listener = new ExecutionResourceTestListener();
+        $shell = $this->createShell([$listener]);
+        $listener->onCleanup = function () use ($listener, $shell): void {
+            if ($listener->cleanupCalls === 1) {
+                $this->assertSame(42, $shell->execute('42', true));
+            }
+        };
+
+        $this->assertSame(41, $shell->execute('41', true));
+        $this->assertSame(2, $listener->setupCalls);
+        $this->assertSame(1, $listener->cleanupCalls);
+        $this->assertSame(43, $shell->execute('43', true));
+        $this->assertSame(2, $listener->cleanupCalls);
+    }
+
+    public function testBoundaryUnwindsUnfinishedLoopAndManagedEvaluation()
+    {
+        [$shell, $listener] = $this->getShell();
+        $level = \ob_get_level();
+        $handler = static function (): void {
+        };
+        \set_error_handler($handler);
+        $failure = new \RuntimeException('unfinished evaluation');
+        $closure = new class($shell, $failure) extends ExecutionClosure {
+            public function __construct(Shell $shell, \Throwable $failure)
+            {
+                $this->setClosure($shell, function () use ($shell, $failure): void {
+                    $shell->beforeLoop();
+                    $shell->beforeExecute();
+                    $shell->onExecute('return 42;');
+
+                    throw $failure;
+                });
+            }
+        };
+
+        try {
+            try {
+                $closure->execute();
+                $this->fail('Expected unfinished evaluation failure');
+            } catch (\RuntimeException $e) {
+                $this->assertSame($failure, $e);
+            }
+
+            $this->assertSame($level, \ob_get_level());
+            $currentHandler = \set_error_handler($handler);
+            \restore_error_handler();
+            $this->assertSame($handler, $currentHandler);
+            $this->assertSame(1, $listener->afterExecuteCalls);
+            $this->assertSame(43, $shell->execute('43', true));
+            $this->assertSame(2, $listener->afterExecuteCalls);
+        } finally {
+            \restore_error_handler();
+        }
     }
 
     /**
@@ -391,6 +513,39 @@ PHP;
     }
 }
 
+class ExecutionResourceTestListener extends AbstractListener
+{
+    public ?\Throwable $setupFailure = null;
+    public ?\Throwable $cleanupFailure = null;
+    public int $setupCalls = 0;
+    public int $cleanupCalls = 0;
+    public ?\Closure $onCleanup = null;
+
+    public static function isSupported(): bool
+    {
+        return true;
+    }
+
+    public function onExecute(Shell $shell, string $code)
+    {
+        $this->setupCalls++;
+        if ($this->setupFailure !== null) {
+            throw $this->setupFailure;
+        }
+        $shell->claimExecutionResource($this, function (): void {
+            $this->cleanupCalls++;
+            if ($this->onCleanup !== null) {
+                ($this->onCleanup)();
+            }
+            if ($this->cleanupFailure !== null) {
+                throw $this->cleanupFailure;
+            }
+        });
+
+        return null;
+    }
+}
+
 class ExecutionClosureListener extends AbstractListener implements ExecutionCleanupListener
 {
     public int $afterExecuteCalls = 0;
@@ -432,6 +587,20 @@ class ExecutionClosureListener extends AbstractListener implements ExecutionClea
     {
         $this->onExecuteCalls++;
         $this->runActiveStates[] = $shell->isRunActive();
+
+        if ($this->captureInteractiveSignalChars && $this->onExecuteCalls === 1) {
+            // Simulate terminal setup owned by the outer evaluation, without
+            // changing the test runner's terminal mode.
+            $enabled = new \ReflectionProperty(Shell::class, 'interactiveSignalCharsEnabled');
+            $scopes = new \ReflectionProperty(Shell::class, 'executionScopes');
+            if (\PHP_VERSION_ID < 80100) {
+                $enabled->setAccessible(true);
+                $scopes->setAccessible(true);
+            }
+            $enabled->setValue($shell, true);
+            $stack = $scopes->getValue($shell);
+            \end($stack)->ownsSignalChars = true;
+        }
 
         return null;
     }

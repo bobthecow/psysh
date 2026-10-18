@@ -91,6 +91,40 @@ class ProcessForkerTest extends TestCase
         );
     }
 
+    public function testLegacyLoopRestoresChildSignalHandler()
+    {
+        $result = $this->runShell('legacy-execution');
+
+        $this->assertSame('', $result['stderr']);
+        $this->assertSame(0, $result['exitCode']);
+        $this->assertSame(['status' => 23, 'value' => true], \json_decode($result['stdout'], true));
+    }
+
+    /**
+     * @dataProvider legacyBoundaryModes
+     */
+    public function testLegacyClosureBeforeRunDoesNotSuppressChildSignalHandler(string $mode)
+    {
+        $result = $this->runShell($mode);
+        $state = \json_decode($result['stdout'], true);
+
+        $this->assertSame('', $result['stderr']);
+        $this->assertSame(0, $result['exitCode']);
+        $this->assertSame(0, $state['status']);
+        $this->assertTrue($state['interruptHandled']);
+        $this->assertTrue($state['nestedHandlerActive']);
+        $this->assertTrue($state['handlerRestored']);
+        $this->assertFalse($state['asyncSignals']);
+    }
+
+    public function legacyBoundaryModes(): array
+    {
+        return [
+            ['legacy-before-run'],
+            ['legacy-throw-before-run'],
+        ];
+    }
+
     /**
      * @dataProvider crashSignals
      */
@@ -242,13 +276,21 @@ $config = new Configuration([
 $shell = new Shell($config);
 
 $signalMode = strpos($argv[3], 'signal-') === 0;
-if ($signalMode || in_array($argv[3], ['recover-exit', 'exit-status', 'savegame-clean-exit', 'completed-clean-exit', 'return-state'], true)) {
+if ($signalMode || in_array($argv[3], ['recover-exit', 'exit-status', 'savegame-clean-exit', 'completed-clean-exit', 'return-state', 'legacy-execution'], true)) {
     if ($signalMode && !posix_setrlimit(POSIX_RLIMIT_CORE, 0, 0)) {
         fwrite(STDERR, "Unable to disable core dumps\n");
         exit(1);
     }
 
-    $forker = new ProcessForker();
+    // Use the shell's listener so direct lifecycle calls and nested execute()
+    // participate in the same resource ownership.
+    $listeners = new ReflectionProperty(Shell::class, 'loopListeners');
+    if (PHP_VERSION_ID < 80100) {
+        $listeners->setAccessible(true);
+    }
+    $forker = array_values(array_filter($listeners->getValue($shell), static function ($listener) {
+        return $listener instanceof ProcessForker;
+    }))[0];
     $shell->setScopeVariables(['value' => 'saved']);
 
     try {
@@ -276,6 +318,18 @@ if ($signalMode || in_array($argv[3], ['recover-exit', 'exit-status', 'savegame-
         }
 
         $forker->afterLoop($shell);
+    } elseif ($argv[3] === 'legacy-execution') {
+        $shell->setOutput(new BufferedOutput());
+        $restored = true;
+        for ($i = 0; $i < 3; $i++) {
+            $shell->beforeLoop();
+            $shell->onExecute('return 42;');
+            $shell->onExecute('return 43;');
+            $restored = $restored && is_callable(pcntl_signal_get_handler(SIGINT));
+            $shell->afterLoop();
+            $restored = $restored && pcntl_signal_get_handler(SIGINT) === SIG_DFL;
+        }
+        $shell->setScopeVariables(['value' => $restored]);
     } elseif ($argv[3] === 'exit-status') {
         exit(17);
     } elseif (in_array($argv[3], ['savegame-clean-exit', 'completed-clean-exit'], true)) {
@@ -295,13 +349,36 @@ if ($signalMode || in_array($argv[3], ['recover-exit', 'exit-status', 'savegame-
     }
 
     $forker->afterRun($shell, 23);
-} elseif ($argv[3] === 'state') {
+} elseif (in_array($argv[3], ['state', 'legacy-before-run', 'legacy-throw-before-run'], true)) {
     $output = new BufferedOutput();
     $handler = static function (): void {
     };
     pcntl_signal(SIGINT, $handler);
     pcntl_async_signals($argv[4] === '1');
+
+    if ($argv[3] !== 'state') {
+        $shell->setOutput($output);
+        $legacy = new class($shell, $argv[3] === 'legacy-throw-before-run') extends \Psy\ExecutionClosure {
+            public function __construct(Shell $shell, bool $throws)
+            {
+                $this->setClosure($shell, function () use ($shell, $throws) {
+                    return eval($shell->onExecute($throws ? 'throw new \RuntimeException("legacy");' : 'return 42;'));
+                });
+            }
+        };
+        try {
+            $legacy->execute();
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() !== 'legacy') {
+                throw $e;
+            }
+        }
+    }
+
     $shell->setScopeVariables(['shell' => $shell]);
+    // Invoke the installed callback: an inherited caller handler can also be
+    // callable, but only PsySH's execution handler throws InterruptException.
+    $shell->addInput('$interruptHandled = false; try { (pcntl_signal_get_handler(SIGINT))(); } catch (\Psy\Exception\InterruptException $e) { $interruptHandled = true; }', true);
     $shell->addInput('$shell->execute("return 42;", true); $nestedHandlerActive = is_callable(pcntl_signal_get_handler(SIGINT)); $pid = posix_getpid()', true);
 
     $status = $shell->run(null, $output);
@@ -314,6 +391,7 @@ if ($signalMode || in_array($argv[3], ['recover-exit', 'exit-status', 'savegame-
         'asyncSignals'        => pcntl_async_signals(),
         'exceptionRendered'   => strpos($output->fetch(), 'finished') !== false,
         'nestedHandlerActive' => $shell->getScopeVariable('nestedHandlerActive'),
+        'interruptHandled'    => $shell->getScopeVariable('interruptHandled'),
         'sessionPid'          => $shell->getScopeVariable('pid'),
         'runnerPid'           => posix_getpid(),
     ]);

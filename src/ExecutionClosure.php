@@ -19,6 +19,7 @@ class ExecutionClosure
     const NOOP_INPUT = 'return null;';
 
     private \Closure $closure;
+    private Shell $shell;
 
     /**
      * @param Shell $__psysh__
@@ -61,6 +62,7 @@ class ExecutionClosure
      */
     protected function setClosure(Shell $shell, \Closure $closure)
     {
+        $this->shell = $shell;
         $that = $shell->getBoundObject();
 
         if (\is_object($that)) {
@@ -78,7 +80,17 @@ class ExecutionClosure
     public function execute()
     {
         $closure = $this->closure;
+        $scope = $this->shell->beforeExecutionBoundary();
+        $exception = null;
 
-        return $closure();
+        try {
+            return $closure();
+        } catch (\Throwable $e) {
+            $exception = $e;
+
+            throw $e;
+        } finally {
+            $this->shell->afterExecutionBoundary($scope, $exception);
+        }
     }
 }

@@ -12,6 +12,7 @@
 namespace Psy\Test\ExecutionLoop;
 
 use Psy\Configuration;
+use Psy\ExecutionClosure;
 use Psy\ExecutionLoop\SignalHandler;
 use Psy\Readline\Transient;
 use Psy\Shell;
@@ -124,16 +125,227 @@ class SignalHandlerTest extends TestCase
             $wasInterrupted->setAccessible(true);
         }
 
+        $shell->beforeExecute();
         $handler->onExecute($shell, 'outer');
         $wasInterrupted->setValue($handler, true);
+        $shell->beforeExecute();
         $handler->onExecute($shell, 'inner');
 
         $this->assertTrue($wasInterrupted->getValue($handler));
 
-        $handler->afterExecute($shell);
+        $shell->afterExecute();
         $this->assertTrue($wasInterrupted->getValue($handler));
-        $handler->afterExecute($shell);
+        $shell->afterExecute();
         $this->assertFalse($wasInterrupted->getValue($handler));
+    }
+
+    /**
+     * @dataProvider legacyExecutionModes
+     */
+    public function testLegacyClosureRetainsCallerOwnedOutputAndErrorHandling(bool $throws, bool $asyncSignals, bool $loop, bool $cleanupLoop)
+    {
+        $shell = $this->getShell();
+        $output = new BufferedOutput();
+        $shell->setOutput($output);
+        $signalHandler = static function (): void {
+        };
+        $errorHandler = static function (): void {
+        };
+        \pcntl_signal(\SIGINT, $signalHandler);
+        \pcntl_async_signals($asyncSignals);
+        \set_error_handler($errorHandler);
+        \ob_start();
+        $level = \ob_get_level();
+
+        try {
+            for ($i = 0; $i < 3; $i++) {
+                try {
+                    $result = $this->executeLegacy($shell, 'echo "legacy"; '.($throws ? 'throw new \RuntimeException("failed");' : 'return 42;'), $loop, $cleanupLoop);
+                    $this->assertFalse($throws);
+                    $this->assertSame(42, $result);
+                } catch (\RuntimeException $e) {
+                    $this->assertTrue($throws);
+                    $this->assertSame('failed', $e->getMessage());
+                }
+
+                $this->assertSame($level, \ob_get_level());
+                $this->assertSame($signalHandler, \pcntl_signal_get_handler(\SIGINT));
+                $this->assertSame($asyncSignals, \pcntl_async_signals());
+                $currentErrorHandler = \set_error_handler($errorHandler);
+                \restore_error_handler();
+                $this->assertSame($errorHandler, $currentErrorHandler);
+            }
+
+            $this->assertSame("legacy\nlegacy\nlegacy\n", $output->fetch());
+            echo 'caller';
+            $this->assertSame('caller', \ob_get_contents());
+        } finally {
+            \ob_end_clean();
+            \restore_error_handler();
+        }
+    }
+
+    public function legacyExecutionModes(): array
+    {
+        $modes = [];
+        foreach ([false, true] as $throws) {
+            foreach ([false, true] as $asyncSignals) {
+                foreach ($this->legacyLoopModes() as $name => [$loop, $cleanupLoop]) {
+                    $modes[$name.' / throws '.(int) $throws.' / async '.(int) $asyncSignals] = [$throws, $asyncSignals, $loop, $cleanupLoop];
+                }
+            }
+        }
+
+        return $modes;
+    }
+
+    public function legacyLoopModes(): array
+    {
+        return [
+            'paired'     => [true, true],
+            'unpaired'   => [false, false],
+            'unfinished' => [true, false],
+        ];
+    }
+
+    public function testRepeatedUnpairedLegacyCallsCanBeCleanedUpOnce()
+    {
+        $shell = $this->getShell();
+        $handler = \pcntl_signal_get_handler(\SIGINT);
+        $asyncSignals = \pcntl_async_signals();
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->assertSame(42, eval($shell->onExecute('return 42;')));
+        }
+
+        $this->assertIsCallable(\pcntl_signal_get_handler(\SIGINT));
+        $shell->afterLoop();
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertSame($asyncSignals, \pcntl_async_signals());
+
+        // A redundant legacy cleanup must not unbalance subsequent executions.
+        $shell->afterLoop();
+        $this->assertSame(43, $shell->execute('43', true));
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertSame($asyncSignals, \pcntl_async_signals());
+    }
+
+    /**
+     * @dataProvider nestedLegacyExecutionModes
+     */
+    public function testLegacyOuterExecutionKeepsSignalsAcrossNestedExecution(bool $outerLoop, string $innerCode)
+    {
+        $shell = $this->getShell();
+        $handler = \pcntl_signal_get_handler(\SIGINT);
+        $asyncSignals = \pcntl_async_signals();
+        $shell->setScopeVariables(['legacy' => function (bool $loop, bool $cleanupLoop, bool $throws = false) use ($shell): void {
+            try {
+                $this->executeLegacy($shell, $throws ? 'throw new \RuntimeException();' : 'return 42;', $loop, $cleanupLoop);
+            } catch (\RuntimeException $e) {
+            }
+        }]);
+
+        $result = $this->executeLegacy(
+            $shell,
+            '$installed = pcntl_signal_get_handler(SIGINT);'.$innerCode
+            .'return [$installed === pcntl_signal_get_handler(SIGINT), pcntl_async_signals()];',
+            $outerLoop
+        );
+
+        $this->assertSame([true, true], $result);
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertSame($asyncSignals, \pcntl_async_signals());
+    }
+
+    public function nestedLegacyExecutionModes(): array
+    {
+        $innerExecutions = [
+            'execute' => '$__psysh__->execute("return 42;", true);',
+            'throw'   => <<<'PHP'
+try {
+    $__psysh__->execute('throw new \RuntimeException();', true);
+} catch (\RuntimeException $e) {
+}
+PHP,
+            'loop' => <<<'PHP'
+$__psysh__->addInput('21 * 2', true);
+$__psysh__->addInput('exit', true);
+(new \Psy\ExecutionLoopClosure($__psysh__))->execute();
+PHP,
+            'legacy'            => '$legacy = $__psysh__->getScopeVariable("legacy"); $legacy(true, true);',
+            'legacy-unpaired'   => '$legacy = $__psysh__->getScopeVariable("legacy"); $legacy(false, false);',
+            'legacy-unfinished' => '$legacy = $__psysh__->getScopeVariable("legacy"); $legacy(true, false, true);',
+        ];
+
+        $modes = [];
+        foreach ([false, true] as $outerLoop) {
+            foreach ($innerExecutions as $name => $innerCode) {
+                $modes[($outerLoop ? 'loop' : 'unpaired').' / '.$name] = [$outerLoop, $innerCode];
+            }
+        }
+
+        return $modes;
+    }
+
+    /**
+     * @dataProvider legacyLoopModes
+     */
+    public function testLegacyInnerLoopDoesNotCleanUpManagedOuterExecution(bool $loop, bool $cleanupLoop)
+    {
+        $shell = $this->getShell();
+        $handler = \pcntl_signal_get_handler(\SIGINT);
+        $asyncSignals = \pcntl_async_signals();
+        $shell->setScopeVariables(['legacy' => function () use ($shell, $loop, $cleanupLoop): void {
+            $this->executeLegacy($shell, 'return 42;', $loop, $cleanupLoop);
+        }]);
+
+        $result = $shell->execute(
+            '$installed = pcntl_signal_get_handler(SIGINT); $legacy();'
+            .'return [$installed === pcntl_signal_get_handler(SIGINT), pcntl_async_signals()];',
+            true
+        );
+
+        $this->assertSame([true, true], $result);
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertSame($asyncSignals, \pcntl_async_signals());
+    }
+
+    public function testBoundaryDoesNotReleaseAnUnboundedOuterExecution()
+    {
+        $shell = $this->getShell();
+        $handler = \pcntl_signal_get_handler(\SIGINT);
+        $asyncSignals = \pcntl_async_signals();
+        $shell->onExecute('return 1;');
+        $installed = \pcntl_signal_get_handler(\SIGINT);
+
+        // Even an unmatched afterLoop inside a nested boundary cannot release
+        // the legacy resources acquired outside that boundary.
+        $this->executeLegacy($shell, '$__psysh__->afterLoop(); return 42;', false);
+        $this->assertSame($installed, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertTrue(\pcntl_async_signals());
+
+        $shell->afterLoop();
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertSame($asyncSignals, \pcntl_async_signals());
+    }
+
+    public function testUnfinishedLegacyLoopDoesNotLeaveLoopDepthBehind()
+    {
+        $shell = $this->getShell();
+        $handler = \pcntl_signal_get_handler(\SIGINT);
+        $asyncSignals = \pcntl_async_signals();
+
+        $this->executeLegacy($shell, 'return 42;', true, false);
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+
+        // A later caller with no loop hooks must still be cleaned up at depth 0.
+        $shell->onExecute('return 43;');
+        $shell->afterLoop();
+        $shell->onExecute('return 44;');
+        $this->assertNotSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $shell->afterLoop();
+        $this->assertSame($handler, \pcntl_signal_get_handler(\SIGINT));
+        $this->assertSame($asyncSignals, \pcntl_async_signals());
     }
 
     /**
@@ -217,6 +429,41 @@ PHP;
             [false],
             [true],
         ];
+    }
+
+    /**
+     * Model downstream closures which replace PsySH's execution body entirely.
+     * Laravel Kit calls loop hooks; Web Tinker 1.10.2 calls neither loop hook.
+     *
+     * @return mixed
+     */
+    private function executeLegacy(Shell $shell, string $code, bool $loop = true, bool $cleanupLoop = true)
+    {
+        $closure = new class($shell, $code, $loop, $cleanupLoop) extends ExecutionClosure {
+            public function __construct(Shell $__psysh__, string $code, bool $loop, bool $cleanupLoop)
+            {
+                $this->setClosure($__psysh__, function () use ($__psysh__, $code, $loop, $cleanupLoop) {
+                    if ($loop) {
+                        $__psysh__->beforeLoop();
+                    }
+
+                    \ob_start([$__psysh__, 'writeStdout'], 1);
+                    \set_error_handler([$__psysh__, 'handleError']);
+
+                    try {
+                        return eval($__psysh__->onExecute($code));
+                    } finally {
+                        \restore_error_handler();
+                        \ob_end_flush();
+                        if ($loop && $cleanupLoop) {
+                            $__psysh__->afterLoop();
+                        }
+                    }
+                });
+            }
+        };
+
+        return $closure->execute();
     }
 
     private function getShell(array $options = []): Shell
