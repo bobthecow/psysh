@@ -9,6 +9,7 @@ PsySH is a runtime developer console, interactive debugger and [REPL](https://en
 
 [![Build status](https://img.shields.io/github/actions/workflow/status/bobthecow/psysh/tests.yml?branch=main&style=flat-square)](https://github.com/bobthecow/psysh/actions?query=branch:main)
 [![StyleCI](https://styleci.io/repos/4549925/shield)](https://styleci.io/repos/4549925)
+[![Plumber Score](https://score.getplumber.io/github.com/bobthecow/psysh.svg)](https://score.getplumber.io/github.com/bobthecow/psysh)
 
 
 <a id="downloading-the-manual"></a>
