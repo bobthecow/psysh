@@ -1,0 +1,15 @@
+# Plumber overlay: inherits every control from the CLI's built-in
+# baseline, only the differences for this repository are written here.
+# Run 'plumber config resolve' to see the full effective config.
+extends: plumber:default
+version: '2.0'
+
+github:
+  controls:
+    githubActionMustComeFromAuthorizedSources:
+      # Keep the curated default list and trust the two actions this
+      # repository uses on top of it, both pinned by commit.
+      includePlumberDefaults: true
+      trustedGithubActions:
+        - nick-fields/retry
+        - shivammathur/setup-php
