@@ -222,7 +222,7 @@ class Xcallable
             return
                 $this->_hash =
                     (\is_object($_[0])
-                        ? 'object('.\spl_object_hash($_[0]).')'.
+                        ? 'object('.\spl_object_id($_[0]).')'.
                           '#'.\get_class($_[0])
                         : 'class#'.$_[0]).
                     '::'.
@@ -231,7 +231,7 @@ class Xcallable
                         : '???');
         }
 
-        return $this->_hash = 'closure('.\spl_object_hash($_).')';
+        return $this->_hash = 'closure('.\spl_object_id($_).')';
     }
 
     /**
