@@ -103,7 +103,7 @@ class LegacyReadline implements ShellReadlineInterface
                 return '';
             }
 
-            if ($lines !== [] && $this->isCommand($line) && !$this->inputInOpenStringOrComment($line)) {
+            if ($this->isCommand($line) && !$this->inputInOpenStringOrComment($line)) {
                 return $line;
             }
 
