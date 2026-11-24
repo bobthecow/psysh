@@ -104,6 +104,33 @@ class LegacyReadlineTest extends TestCase
         $this->assertSame(['>>> ', '... ', '... '], $this->stubPrompts($readline));
     }
 
+    /**
+     * @dataProvider incompleteLookingCommandProvider
+     */
+    public function testFirstLineCommandIsReturnedEvenIfItLooksIncomplete(string $command)
+    {
+        $shell = $this->createMock(\Psy\Shell::class);
+        $shell->method('hasCommand')->willReturnCallback(fn (string $input) => \trim($input) === $command);
+
+        $readline = new LegacyReadline($this->newReadlineStub([$command, '1;']));
+        $readline->setShell($shell);
+        $readline->setBufferPrompt('... ');
+
+        $this->assertSame($command, $readline->readline('>>> '));
+        $this->assertSame([], $readline->getBuffer());
+        $this->assertSame(['>>> '], $this->stubPrompts($readline));
+    }
+
+    public function incompleteLookingCommandProvider(): array
+    {
+        return [
+            ['demo:list'],
+            ['demo:if'],
+            ['demo-list'],
+            ['wtf?'],
+        ];
+    }
+
     public function testReadlineReturnsAppendedCompleteStatementWithoutPrompting()
     {
         $readline = new LegacyReadline($this->newReadlineStub([]));
